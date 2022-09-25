@@ -115,8 +115,9 @@ class PolyFunctions
         return nil
     end
 
-    # PolyFunctions::listingPriority(item)
-    def self.listingPriority(item) # Float between 0 and 1
+    # PolyFunctions::listingPriorityOrNull(item)
+    # We return a null value when the item should not be displayed
+    def self.listingPriorityOrNull(item) # Float between 0 and 1
 
         # NxAnniversary                 : 0.95
         # Nx11E hot                     : 0.90
@@ -152,12 +153,12 @@ class PolyFunctions
         end
 
         if item["mikuType"] == "Nx11E" then
-            return Nx11E::priority(item)
+            return Nx11E::priorityOrNull(item)
         end
 
         if item["mikuType"] == "NxTodo" then
             if item["nx11e"] then
-                return PolyFunctions::listingPriority(item["nx11e"])
+                return PolyFunctions::listingPriorityOrNull(item["nx11e"])
             else
                 return 0.4
             end

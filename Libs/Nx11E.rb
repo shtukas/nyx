@@ -39,10 +39,10 @@ class Nx11EListingMonitorUtils
     def self.nx53ToCompletionRatio(nx53)
         #puts "Nx11EListingMonitorUtils::nx53ToCompletionRatio(#{JSON.pretty_generate(nx53)})"
         if nx53["mikuType"] == "Ax39Group" then
-            return Ax39Extensions::completionRatio(nx53["ax39"], nx53["account"])
+            return Ax39::completionRatio(nx53["ax39"], nx53["account"])
         end
         if nx53["mikuType"] == "NxTodo" then
-            return Ax39Extensions::completionRatio(nx53["nx11e"]["ax39"], nx53["nx11e"]["itemuuid"])
+            return Ax39::completionRatio(nx53["nx11e"]["ax39"], nx53["nx11e"]["itemuuid"])
         end
         raise "(error: 80bf4429-79bb-4596-b8ea-beba8249d767)"
     end
@@ -162,8 +162,9 @@ end
 
 class Nx11EPriorityCache
 
-    # Nx11EPriorityCache::priorityCore(item)
-    def self.priorityCore(item)
+    # Nx11EPriorityCache::priorityCoreOrNull(item)
+    # We return a null value when the item should not be displayed
+    def self.priorityCoreOrNull(item)
         shiftForUnixtimeOrdering = lambda {|unixtime|
             Math.atan(Time.new.to_f - unixtime).to_f/100
         }
@@ -193,16 +194,16 @@ class Nx11EPriorityCache
 
             position = item["position"]
 
-            cr = Ax39Extensions::completionRatio(ax39, account)
+            cr = Ax39::completionRatio(ax39, account)
 
-            return -1 if cr > 1
+            return nil if cr >= 1
 
             return 0.60 + (1 - cr).to_f/100 - Math.atan(position).to_f/100
         end
 
         if item["type"] == "Ax39Engine" then
-            cr = Ax39Extensions::completionRatio(item["ax39"], item["itemuuid"])
-            return -1 if cr > 1
+            cr = Ax39::completionRatio(item["ax39"], item["itemuuid"])
+            return nil if cr > 1
             return 0.50 + 0.2*(1-cr)
         end
 
@@ -214,12 +215,12 @@ class Nx11EPriorityCache
         raise "(error: 188c8d4b-1a79-4659-bd93-6d8e3ddfe4d1) item: #{item}"
     end
 
-    # Nx11EPriorityCache::priorityCached(item)
-    def self.priorityCached(item)
+    # Nx11EPriorityCache::priorityCachedOrNull(item)
+    def self.priorityCachedOrNull(item)
         key = "01602c53-1103-4917-84bf-3c85bd178b40:#{item["uuid"]}"
         priority = XCacheValuesWithExpiry::getOrNull(key)
-        return priority if priority
-        priority = Nx11EPriorityCache::priorityCore(item)
+        #return priority if priority
+        priority = Nx11EPriorityCache::priorityCoreOrNull(item)
         XCacheValuesWithExpiry::set(key, priority, 3600) # one hour
         priority
     end
@@ -236,6 +237,17 @@ class Nx11EPriorityCache
             objectuuid = event["objectuuid"]
             Nx11EPriorityCache::priorityDecache(objectuuid)
         end
+    end
+
+    # Nx11EPriorityCache::bankaccountToItems(bankaccount)
+    def self.bankaccountToItems(bankaccount)
+        items = []
+        NxTodos::items().each{|item|
+            next if item["nx11e"]["type"] != "Ax39Group"
+            next if item["nx11e"]["group"]["account"] != bankaccount
+            items << item
+        }
+        items
     end
 end
 
@@ -352,8 +364,9 @@ class Nx11E
         raise "(error: b8adb3e1-eaee-4d06-afb4-bc0f3db0142b) nx11e: #{nx11e}"
     end
 
-    # Nx11E::priority(item)
-    def self.priority(item)
-        Nx11EPriorityCache::priorityCached(item)
+    # Nx11E::priorityOrNull(item)
+    # We return a null value when the item should not be displayed
+    def self.priorityOrNull(item)
+        Nx11EPriorityCache::priorityCachedOrNull(item)
     end
 end

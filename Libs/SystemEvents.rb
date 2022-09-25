@@ -50,18 +50,6 @@ class SystemEvents
 
         # ordering: as they come
 
-        if event["mikuType"] == "(bank account has been updated)" then
-            Ax39Extensions::processEvent(event)
-        end
-
-        if event["mikuType"] == "(element has been done for today)" then
-            Ax39Extensions::processEvent(event)
-        end
-
-        if event["mikuType"] == "(do not show until has been updated)" then
-            Ax39Extensions::processEvent(event)
-        end
-
         if event["mikuType"] == "NxBankEvent" then
             Bank::processEvent(event)
         end
@@ -70,8 +58,8 @@ class SystemEvents
             DoNotShowUntil::processEvent(event)
         end
 
-        if event["mikuType"] == "SetDoneToday" then
-            DoneForToday::processEvent(event)
+        if event["mikuType"] == "bank-account-done-today" then
+            BankAccountDoneForToday::processEvent(event)
         end
 
         if event["mikuType"] == "NxDeleted" then

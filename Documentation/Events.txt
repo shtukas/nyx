@@ -30,9 +30,9 @@ We have two types of events
 }
 
 {
-    "mikuType"   => "SetDoneToday"
-    "targetuuid" => uuid
-    "targetdate" => CommonUtils::today()
+    "mikuType"    => "bank-account-done-today"
+    "bankaccount" => bankaccount
+    "targetdate"  => CommonUtils::today()
 }
 
 {
@@ -47,11 +47,6 @@ We have two types of events
     "sourceuuid" => sourceuuid,
     "operation"  => operation,
     "targetuuid" => targetuuid
-}
-
-{
-    "mikuType"   => "(element has been done for today)",
-    "objectuuid" => objectuuid,
 }
 
 {

@@ -5,7 +5,7 @@ class CatalystListing
     # CatalystListing::listingCommands()
     def self.listingCommands()
         [
-            ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | nx113 (<n>) | engine (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | done for today | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
+            ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | nx113 (<n>) | engine (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | Ax39 done for today | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
             "update start date (<n>)",
             "wave | anniversary | today | ondate | todo | toplevel | inbox | line",
             "anniversaries | ondates | todos | waves | groups",
@@ -62,6 +62,42 @@ class CatalystListing
 
         if Interpreting::match("anniversaries", input) then
             Anniversaries::anniversariesDive()
+            return
+        end
+
+        if input == "Ax39 done for today" then
+            item = store.getDefault()
+            return if item.nil?
+
+            if item["mikuType"] != "NxTodo" then
+                puts "Only a NxTodo can be target for `Ax39 done for today`"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+
+            nx11e = item["nx11e"]
+
+            if nx11e["type"] != "Ax39Group" and nx11e["type"] != "Ax39Engine" then
+                puts "Only NxTodos with Ax39 drivers can be target for `Ax39 done for today`"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+
+            if nx11e["type"] == "Ax39Group" then
+                bankaccount = nx11e["group"]["account"]
+                BankAccountDoneForToday::setDoneToday(bankaccount)
+                Nx11EPriorityCache::bankaccountToItems(bankaccount).each{|item|
+                    Nx11EPriorityCache::priorityDecache(item["uuid"])
+                }
+                return
+            end
+
+            if nx11e["type"] == "Ax39Engine" then
+                BankAccountDoneForToday::setDoneToday(nx11e["itemuuid"])
+                Nx11EPriorityCache::priorityDecache(item["uuid"])
+                return
+            end
+            
             return
         end
 
@@ -125,13 +161,6 @@ class CatalystListing
             return
         end
 
-        if input == "done for today" then
-            item = store.getDefault()
-            return if item.nil?
-            DoneForToday::setDoneToday(item["uuid"])
-            return
-        end
-
         if Interpreting::match("edit", input) then
             item = store.getDefault()
             return if item.nil?
@@ -170,7 +199,7 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             puts JSON.pretty_generate(item)
-            puts "PolyFunctions::listingPriority(item): #{PolyFunctions::listingPriority(item)}"
+            puts "PolyFunctions::listingPriorityOrNull(item): #{PolyFunctions::listingPriorityOrNull(item)}"
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -180,7 +209,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             puts JSON.pretty_generate(item)
-            puts "PolyFunctions::listingPriority(item): #{PolyFunctions::listingPriority(item)}"
+            puts "PolyFunctions::listingPriorityOrNull(item): #{PolyFunctions::listingPriorityOrNull(item)}"
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -502,7 +531,17 @@ class CatalystListing
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
 
         its1, its2 = items.partition{|item| NxBallsService::isPresent(item["uuid"]) }
-        its1 + its2.sort{|i1, i2| PolyFunctions::listingPriority(i1) <=> PolyFunctions::listingPriority(i2) }.reverse
+        its1 + its2
+                .map{|item|
+                    {
+                        "item" => item,
+                        "priority" => PolyFunctions::listingPriorityOrNull(item)
+                    }
+                }
+                .select{|packet| !packet["priority"].nil? }
+                .sort{|p1, p2| p1["priority"] <=> p2["priority"] }
+                .reverse
+                .map{|packet| packet["item"] }
     end
 
     # CatalystListing::mainListing()
