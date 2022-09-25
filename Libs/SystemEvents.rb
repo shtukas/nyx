@@ -1,6 +1,46 @@
 
 # encoding: UTF-8
 
+$BufferTimes = []
+
+class SystemEventsBuffering
+
+    # SystemEventsBuffering::shouldPublishBufferNow()
+    def self.shouldPublishBufferNow()
+        $system_events_out_buffer.synchronize {
+            $BufferTimes = $BufferTimes.select{|time| (Time.new.to_f - time) < 20 }
+        }
+        # We publish if there's been less than 20 hits over the last 20 seconds
+        ($BufferTimes.size < 20)
+    end
+
+    # SystemEventsBuffering::eventToOutBuffer(event)
+    def self.eventToOutBuffer(event)
+        $system_events_out_buffer.synchronize {
+            filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/system-events-out-buffer.jsonlines"
+            File.open(filepath, "a"){|f| f.puts(JSON.generate(event)) }
+            $BufferTimes << Time.new.to_f
+        }
+        if SystemEventsBuffering::shouldPublishBufferNow() then
+            SystemEventsBuffering::outBufferToCommsLine()
+        end
+    end
+
+    # SystemEventsBuffering::outBufferToCommsLine()
+    def self.outBufferToCommsLine()
+        $system_events_out_buffer.synchronize {
+            filepath1 = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/system-events-out-buffer.jsonlines"
+            return if !File.exists?(filepath1)
+            return if IO.read(filepath1).strip.size == 0
+            Machines::theOtherInstanceIds().each{|targetInstanceId|
+                filepath2 = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.system-events.jsonlines"
+                FileUtils.cp(filepath1, filepath2)
+            }
+            File.open(filepath1, "w"){|f| f.puts("") }
+        }
+    end
+end
+
 class SystemEvents
 
     # SystemEvents::process(event)
@@ -99,7 +139,7 @@ class SystemEvents
     # SystemEvents::broadcast(event)
     def self.broadcast(event)
         #puts "SystemEvents::broadcast(#{JSON.pretty_generate(event)})"
-        SystemEvents::writeEventToOutBuffer(event)
+        SystemEventsBuffering::eventToOutBuffer(event)
     end
 
     # SystemEvents::sendTo(event, targetInstanceId)
@@ -237,27 +277,5 @@ class SystemEvents
             }
 
         updatedObjectuuids.each{|objectuuid| Items::updateIndexAtObjectAttempt(objectuuid) }
-    end
-
-    # SystemEvents::writeEventToOutBuffer(event)
-    def self.writeEventToOutBuffer(event)
-        $system_events_out_buffer.synchronize {
-            filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/system-events-out-buffer.jsonlines"
-            File.open(filepath, "a"){|f| f.puts(JSON.generate(event)) }
-        }
-    end
-
-    # SystemEvents::publishSystemEventsOutBuffer()
-    def self.publishSystemEventsOutBuffer()
-        $system_events_out_buffer.synchronize {
-            filepath1 = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/system-events-out-buffer.jsonlines"
-            return if !File.exists?(filepath1)
-            return if IO.read(filepath1).strip.size == 0
-            Machines::theOtherInstanceIds().each{|targetInstanceId|
-                filepath2 = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.system-events.jsonlines"
-                FileUtils.cp(filepath1, filepath2)
-            }
-            File.open(filepath1, "w"){|f| f.puts("") }
-        }
     end
 end
