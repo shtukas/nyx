@@ -212,11 +212,13 @@ class CommonUtils
         Time.at(unixtime).to_s[0, 10]
     end
 
-    # CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode()
-    def self.interactivelySelectDateTimeIso8601OrNullUsingDateCode()
-        unixtime = CommonUtils::interactivelySelectUnixtimeOrNull()
-        return nil if unixtime.nil?
-        Time.at(unixtime).utc.iso8601
+    # CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
+    def self.interactivelySelectDateTimeIso8601UsingDateCode()
+        loop {
+            unixtime = CommonUtils::interactivelySelectUnixtimeOrNull()
+            next if unixtime.nil?
+            return Time.at(unixtime).utc.iso8601
+        }
     end
 
     # CommonUtils::nDaysInTheFuture(n)

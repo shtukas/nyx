@@ -268,8 +268,7 @@ class PolyActions
             LucilleCore::pressEnterToContinue()
             return
         end
-        datetime = CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode()
-        return if datetime.nil?
+        datetime = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
         ItemsEventsLog::setAttribute2(item["uuid"], "nx11e", Nx11E::makeOndate(datetime))
 
         SystemEvents::process({

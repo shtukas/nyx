@@ -90,18 +90,10 @@ class NxTodos
     def self.interactivelyCreateNewOndateOrNull(datetime = nil)
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-
-        if datetime.nil? then
-             datetime = CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode()
-             # TODO: we could also have an interactive builder that always returns a non null value
-             if datetime.nil? then
-                datetime = Time.new.utc.iso8601
-             end
-        end
-
         uuid = SecureRandom.uuid
+        datetime = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
+        nx11e = Nx11E::makeOndate(datetime)
         nx113nhash = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
-        nx11e      = Nx11E::makeOndate(datetime)
         ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)
         ItemsEventsLog::setAttribute2(uuid, "mikuType",    "NxTodo")
         ItemsEventsLog::setAttribute2(uuid, "unixtime",    Time.new.to_i)

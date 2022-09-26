@@ -232,8 +232,7 @@ class Nx11E
             }
         end
         if type == "ondate" then
-            datetime = CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode()
-            return nil if datetime.nil?
+            datetime = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
             return Nx11E::makeOndate(datetime)
         end
         if type == "Ax39Group" then
