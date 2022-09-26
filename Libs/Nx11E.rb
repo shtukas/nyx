@@ -156,7 +156,15 @@ class Nx11EGroupsUtils
         loop {
             group = Nx11EGroupsUtils::interactivelySelectGroupOrNull()
             break if group.nil?
-            Nx11EGroupsUtils::groupDive(group)
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("group", ["dive", "start NxBall"])
+            break if action.nil?
+            if action == "dive" then
+                Nx11EGroupsUtils::groupDive(group)
+            end
+            if action == "start NxBall" then
+                NxBallsService::issue(SecureRandom.uuid, "group: #{group["name"]}", [group["account"]], 3600)
+                break
+            end
         }
     end
 
