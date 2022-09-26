@@ -315,7 +315,7 @@ class Nx11E
         end
 
         if nx11e["type"] == "hot" then
-            unixtime = nx11e["unixtime"] || 0 # TODO: the first one created was missing it
+            unixtime = nx11e["unixtime"]
             return 0.90 + shiftForUnixtimeOrdering.call(unixtime)
         end
 
