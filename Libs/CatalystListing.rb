@@ -75,6 +75,7 @@ class CatalystAlfred
                 lx12
             }
             .sort{|l1, l2| l1["priority"] <=> l2["priority"] }
+            .reverse
             .select{|lx12| 
                 item = lx12["item"]
                 DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"])
