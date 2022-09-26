@@ -552,6 +552,7 @@ class CatalystListing
             $CatalystAlfred1.rebuildLx12sFromStratch()
             t2 = Time.new.to_f
             puts "Completed in #{(t2-t1).round(2)} seconds"
+            LucilleCore::pressEnterToContinue()
             return
         end
 
