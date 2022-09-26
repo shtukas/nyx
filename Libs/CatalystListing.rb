@@ -70,6 +70,14 @@ class CatalystAlfred
                 lx12
             }
             .sort{|l1, l2| l1["priority"] <=> l2["priority"] }
+            .select{|lx12| 
+                item = lx12["item"]
+                DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"])
+            }
+            .select{|lx12| 
+                item = lx12["item"]
+                InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isPresent(item["uuid"])
+            }
     end
 
     def buildLx12sFromStratch() # Array[Lx12]
@@ -263,7 +271,6 @@ class CatalystListing
 
             if nx11e["type"] == "Ax39Engine" then
                 BankAccountDoneForToday::setDoneToday(nx11e["itemuuid"])
-                Nx11EPriorityCache::priorityDecache(item["nx11e"]["uuid"])
                 return
             end
             
