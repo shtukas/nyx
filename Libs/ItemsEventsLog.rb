@@ -43,6 +43,11 @@ class ItemsEventsLog
         })
 
         Items::updateIndexAtObjectAttempt(objectuuid)
+
+        SystemEvents::processAndBroadcast({
+            "mikuType"   => "(object has been touched)",
+            "objectuuid" => objectuuid
+        })
     end
 
     # ItemsEventsLog::setAttribute1(objectuuid, eventuuid, eventTime, attname, attvalue)
