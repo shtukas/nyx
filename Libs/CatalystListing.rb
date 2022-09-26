@@ -57,9 +57,14 @@ class CatalystAlfred
         # let's start by using cached listing for speed
         @lx12s = XCacheValuesWithExpiry::getOrNull("968dceb4-a0a9-4ffa-9b17-9b74a34e6bd9")
         if @lx12s.nil? then
-            @lx12s = buildLx12sFromStratch()
-            XCacheValuesWithExpiry::set("968dceb4-a0a9-4ffa-9b17-9b74a34e6bd9", @lx12s, 86400)
+            rebuildLx12sFromStratch()
         end
+        Thread.new {
+            loop {
+                sleep 600
+                rebuildLx12sFromStratch()
+            }
+        }
     end
 
     def lx12sInOrderForDisplay()
@@ -80,7 +85,7 @@ class CatalystAlfred
             }
     end
 
-    def buildLx12sFromStratch() # Array[Lx12]
+    def rebuildLx12sFromStratch() # Array[Lx12]
         items = [
             JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`),
             Anniversaries::listingItems(),
@@ -92,7 +97,7 @@ class CatalystAlfred
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
 
-        items
+        @lx12s = items
             .map{|item|
                 {
                     "item"     => item,
@@ -100,6 +105,7 @@ class CatalystAlfred
                     "announce" => PolyFunctions::toString(item)
                 }
             }
+        XCacheValuesWithExpiry::set("968dceb4-a0a9-4ffa-9b17-9b74a34e6bd9", @lx12s, 86400)
     end
 
     def mutateLx12sToRemoveItemByUUID(objectuuid)
