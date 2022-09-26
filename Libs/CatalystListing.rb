@@ -113,19 +113,27 @@ class CatalystAlfred
         @lx12s = @lx12s.select{|lx12| lx12["item"]["uuid"] != objectuuid }
     end
 
-    def mutateLx12sToAddItemByUUID(objectuuid)
+    def mutateLx12sToAddItemByUUIDFailSilently(objectuuid)
         item = Items::getItemOrNull(objectuuid)
         return if item.nil?
-        @lx12s << {
-            "item"     => item,
-            "priority" => PolyFunctions::listingPriorityOrNull(item),
-            "announce" => PolyFunctions::toString(item)
-        }
+        begin
+            @lx12s << {
+                "item"     => item,
+                "priority" => PolyFunctions::listingPriorityOrNull(item),
+                "announce" => PolyFunctions::toString(item)
+            }
+        rescue
+            # In the process of building a NxTodo, we are going to run this at every mutation
+            # meaning everytime a new attribute is set.
+            # There will be a time where ItemsEventsLog::getProtoItemOrNull(objectuuid) will return someting
+            # as well as Items::getItemOrNull(objectuuid), but the 
+            # nx11e attribute will not have yet been set, resulting in PolyFunctions::listingPriorityOrNull(item) returning an error
+        end
     end
 
     def mutateLx12sCycleItemByUUID(objectuuid)
         mutateLx12sToRemoveItemByUUID(objectuuid)
-        mutateLx12sToAddItemByUUID(objectuuid)
+        mutateLx12sToAddItemByUUIDFailSilently(objectuuid)
     end
 
     def processEvent(event)
