@@ -123,7 +123,7 @@ class Nx11EGroupsUtils
             .first(20)
             .each{|item| puts "    (#{"%7.3f" % item["nx11e"]["position"]}) #{item["description"]}" }
         position = LucilleCore::askQuestionAnswerAsString("position (empty for next): ")
-        return position.to_f if position
+        return position.to_f if (position != "")
         Nx11EGroupsUtils::groupNextPosition(group)
     end
 
