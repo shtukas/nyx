@@ -124,10 +124,10 @@ class NxTodos
         NxTodos::interactivelyCreateNewOndateOrNull(Time.new.utc.iso8601)
     end
 
-    # NxTodos::interactivelyCreateNewDescriptionOnlyOrNull_v1(description)
-    def self.interactivelyCreateNewDescriptionOnlyOrNull_v1(description)
+    # NxTodos::interactivelyCreateNewHot(description)
+    def self.interactivelyCreateNewHot(description)
         uuid  = SecureRandom.uuid
-        nx11e = Nx11E::interactivelyCreateNewNx11EOrNull(uuid)
+        nx11e = Nx11E::makeHot()
         return if nx11e.nil?
         nx113nhash = nil
         ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)

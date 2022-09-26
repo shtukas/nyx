@@ -196,17 +196,22 @@ class Nx11E
         }
     end
 
+    # Nx11E::makeHot()
+    def self.makeHot()
+        {
+            "uuid"     => SecureRandom.uuid,
+            "mikuType" => "Nx11E",
+            "type"     => "hot",
+            "unixtime" => Time.new.to_f
+        }
+    end
+
     # Nx11E::interactivelyCreateNewNx11EOrNull(itemuuid)
     def self.interactivelyCreateNewNx11EOrNull(itemuuid)
         type = Nx11E::interactivelySelectTypeOrNull()
         return nil if type.nil?
         if type == "hot" then
-            return {
-                "uuid"     => SecureRandom.uuid,
-                "mikuType" => "Nx11E",
-                "type"     => "hot",
-                "unixtime" => Time.new.to_f
-            }
+            return Nx11E::makeHot()
         end
         if type == "ordinal" then
             ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (empty to abort): ")

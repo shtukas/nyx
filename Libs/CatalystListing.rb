@@ -187,7 +187,7 @@ class CatalystListing
         [
             ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | nx113 (<n>) | engine (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | Ax39 done for today | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
             "update start date (<n>)",
-            "wave | anniversary | today | ondate | todo | toplevel | inbox | line",
+            "wave | anniversary | hot | today | ondate | todo",
             "anniversaries | ondates | todos | waves | groups",
             "require internet",
             "search | nyx | speed | nxballs",
@@ -395,6 +395,13 @@ class CatalystListing
             return
         end
 
+        if Interpreting::match("hot", input) then
+            description = LucilleCore::askQuestionAnswerAsString("hot: ")
+            item = NxTodos::interactivelyCreateNewHot(description)
+            puts JSON.pretty_generate(item)
+            return
+        end
+
         if Interpreting::match("internet off", input) then
             InternetStatus::setInternetOff()
             return
@@ -415,13 +422,6 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyPrograms::itemLanding(item)
-            return
-        end
-
-        if input == "line" then
-            line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
-            return if line == ""
-            NxTodos::interactivelyCreateNewDescriptionOnlyOrNull_v1(line)
             return
         end
 
