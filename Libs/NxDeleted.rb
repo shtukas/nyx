@@ -15,5 +15,9 @@ class NxDeleted
             "mikuType"   => "NxDeleted",
             "objectuuid" => objectuuid,
         })
+        SystemEvents::process({
+            "mikuType"   => "(object has been touched)",
+            "objectuuid" => objectuuid
+        })
     end
 end
