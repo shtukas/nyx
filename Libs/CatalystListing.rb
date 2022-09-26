@@ -390,6 +390,10 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             puts JSON.pretty_generate(item)
+            if item["mikuType"] == "NxBall.v2" then
+                LucilleCore::pressEnterToContinue()
+                return
+            end
             puts "PolyFunctions::listingPriorityOrNull(item): #{PolyFunctions::listingPriorityOrNull(item)}"
             LucilleCore::pressEnterToContinue()
             return
@@ -400,6 +404,10 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             puts JSON.pretty_generate(item)
+            if item["mikuType"] == "NxBall.v2" then
+                LucilleCore::pressEnterToContinue()
+                return
+            end
             puts "PolyFunctions::listingPriorityOrNull(item): #{PolyFunctions::listingPriorityOrNull(item)}"
             LucilleCore::pressEnterToContinue()
             return
@@ -504,6 +512,7 @@ class CatalystListing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
+            puts "pursuing: #{JSON.pretty_generate(item)}"
             NxBallsService::pursue(item["uuid"])
             return
         end

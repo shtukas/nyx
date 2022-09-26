@@ -149,9 +149,17 @@ class NxBallsService
     def self.pursue(uuid)
         nxball = NxBallsIO::getItemByIdOrNull(uuid)
         return nil if nxball.nil?
-        return if nxball["status"]["type"] != "paused"
-        nxball["status"] = NxBallsService::makeRunningStatus(nil, nxball["status"]["bankedTimeInSeconds"])
-        NxBallsIO::commitItem(nxball)
+        if nxball["status"]["type"] == "running" then
+            NxBallsService::marginCall(uuid)
+            nxball = NxBallsIO::getItemByIdOrNull(uuid)
+            # If pursue was called while the item was running, it was because of an 1 hour notification which was shown, we need to reset it.
+            nxball["status"]["thisSprintStartUnixtime"] = Time.new.to_f
+            NxBallsIO::commitItem(nxball)
+        end
+        if nxball["status"]["type"] == "paused" then
+            nxball["status"] = NxBallsService::makeRunningStatus(nil, nxball["status"]["bankedTimeInSeconds"])
+            NxBallsIO::commitItem(nxball)
+        end
     end
 
     # NxBallsService::close(uuid, verbose) # timespan in seconds or null
