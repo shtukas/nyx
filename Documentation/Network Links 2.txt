@@ -1,0 +1,17 @@
+
+network-links-v2.sqlite3
+
+```
+create table _links_ (_eventuuid_ text primary key, _eventTime_ float, _sourceuuid_ text, _targetuuid_ text, _type_ text,);
+```
+
+_type_ is either: 
+    - "arrow"
+    - "link"
+    - "none" (for deleted link between the two nodes)
+
+The possible operations are
+    - Retrieving the set of children uuids of self.
+    - Retrieving the set of parents uuids of self.
+    - Retrieving the set if related uuids to self.
+

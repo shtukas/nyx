@@ -67,6 +67,10 @@ class CatalystAlfred
         }
     end
 
+    def cacheTimeInSeconds()
+        3600
+    end
+
     def lx12sInOrderForDisplay()
         @lx12s
             .select{|lx12| !lx12["priority"].nil? }
@@ -106,11 +110,12 @@ class CatalystAlfred
                     "announce" => PolyFunctions::toString(item)
                 }
             }
-        XCacheValuesWithExpiry::set("968dceb4-a0a9-4ffa-9b17-9b74a34e6bd9", @lx12s, 86400)
+        XCacheValuesWithExpiry::set("968dceb4-a0a9-4ffa-9b17-9b74a34e6bd9", @lx12s, cacheTimeInSeconds())
     end
 
     def mutateLx12sToRemoveItemByUUID(objectuuid)
         @lx12s = @lx12s.select{|lx12| lx12["item"]["uuid"] != objectuuid }
+        XCacheValuesWithExpiry::set("968dceb4-a0a9-4ffa-9b17-9b74a34e6bd9", @lx12s, cacheTimeInSeconds())
     end
 
     def mutateLx12sToAddItemByUUIDFailSilently(objectuuid)
@@ -122,6 +127,7 @@ class CatalystAlfred
                 "priority" => PolyFunctions::listingPriorityOrNull(item),
                 "announce" => PolyFunctions::toString(item)
             }
+            XCacheValuesWithExpiry::set("968dceb4-a0a9-4ffa-9b17-9b74a34e6bd9", @lx12s, cacheTimeInSeconds())
         rescue
             # In the process of building a NxTodo, we are going to run this at every mutation
             # meaning everytime a new attribute is set.
@@ -134,6 +140,7 @@ class CatalystAlfred
     def mutateLx12sCycleItemByUUID(objectuuid)
         mutateLx12sToRemoveItemByUUID(objectuuid)
         mutateLx12sToAddItemByUUIDFailSilently(objectuuid)
+        XCacheValuesWithExpiry::set("968dceb4-a0a9-4ffa-9b17-9b74a34e6bd9", @lx12s, cacheTimeInSeconds())
     end
 
     def processEvent(event)
