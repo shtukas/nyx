@@ -264,6 +264,7 @@ $system_events_out_buffer = Mutex.new
 # ------------------------------------------------------------
 
 $CatalystAlfred1 = CatalystAlfred.new()
+$CatalystGroupMonitor1 = CatalystGroupMonitor.new()
 
 # ------------------------------------------------------------
 

@@ -119,9 +119,7 @@ class SystemEvents
             end
         end
 
-        if event["mikuType"] == "(object has been manually touched)" then
-            Nx11EPriorityCache::processEvent(event)
-        end
+        $CatalystAlfred1.processEvent(event)
     end
 
     # SystemEvents::broadcast(event)

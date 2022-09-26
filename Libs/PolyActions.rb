@@ -6,19 +6,22 @@ class PolyActions
     # PolyActions::access(item)
     def self.access(item)
 
-        SystemEvents::process({
-            "mikuType"   => "(object has been manually touched)",
-            "objectuuid" => item["uuid"]
-        })
-
         if item["mikuType"] == "fitness1" then
             puts PolyFunctions::toString(item).green
             system("#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness doing #{item["fitness-domain"]}")
+            SystemEvents::process({
+                "mikuType"   => "(object has been touched)",
+                "objectuuid" => item["uuid"]
+            })
             return
         end
 
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::access(item)
+            SystemEvents::process({
+                "mikuType"   => "(object has been touched)",
+                "objectuuid" => item["uuid"]
+            })
             return
         end
 
@@ -33,17 +36,29 @@ class PolyActions
 
         if item["mikuType"] == "NyxNode" then
             NyxNodes::access(item)
+            SystemEvents::process({
+                "mikuType"   => "(object has been touched)",
+                "objectuuid" => item["uuid"]
+            })
             return
         end
 
         if item["mikuType"] == "NxTodo" then
             NxTodos::access(item)
+            SystemEvents::process({
+                "mikuType"   => "(object has been touched)",
+                "objectuuid" => item["uuid"]
+            })
             return
         end
 
         if item["mikuType"] == "Wave" then
             puts Waves::toString(item).green
             Waves::access(item)
+            SystemEvents::process({
+                "mikuType"   => "(object has been touched)",
+                "objectuuid" => item["uuid"]
+            })
             return
         end
 
@@ -72,13 +87,12 @@ class PolyActions
 
         puts "PolyActions::doubleDot(#{JSON.pretty_generate(item)})"
 
-        SystemEvents::process({
-            "mikuType"   => "(object has been manually touched)",
-            "objectuuid" => item["uuid"]
-        })
-
         if item["mikuType"] == "fitness1" then
             PolyActions::access(item)
+            SystemEvents::process({
+                "mikuType"   => "(object has been touched)",
+                "objectuuid" => item["uuid"]
+            })
             return
         end
 
@@ -90,18 +104,34 @@ class PolyActions
                 action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
                 next if action.nil?
                 if action == "keep running and back to listing" then
+                    SystemEvents::process({
+                        "mikuType"   => "(object has been touched)",
+                        "objectuuid" => item["uuid"]
+                    })
                     return
                 end
                 if action == "stop and back to listing" then
                     PolyActions::stop(item)
+                    SystemEvents::process({
+                        "mikuType"   => "(object has been touched)",
+                        "objectuuid" => item["uuid"]
+                    })
                     return
                 end
                 if action == "stop and destroy" then
                     PolyActions::stop(item)
                     PolyActions::destroyWithPrompt(item)
+                    SystemEvents::process({
+                        "mikuType"   => "(object has been touched)",
+                        "objectuuid" => item["uuid"]
+                    })
                     return
                 end
             }
+            SystemEvents::process({
+                "mikuType"   => "(object has been touched)",
+                "objectuuid" => item["uuid"]
+            })
             return
         end
 
@@ -111,11 +141,19 @@ class PolyActions
             if LucilleCore::askQuestionAnswerAsBoolean("done '#{PolyFunctions::toString(item).green}' ? ") then
                 Waves::performWaveNx46WaveDone(item)
                 PolyActions::stop(item)
+                SystemEvents::process({
+                    "mikuType"   => "(object has been touched)",
+                    "objectuuid" => item["uuid"]
+                })
             else
                 if LucilleCore::askQuestionAnswerAsBoolean("continue ? ") then
                     return
                 else
                     PolyActions::stop(item)
+                    SystemEvents::process({
+                        "mikuType"   => "(object has been touched)",
+                        "objectuuid" => item["uuid"]
+                    })
                 end
             end
             return
@@ -123,21 +161,30 @@ class PolyActions
 
         PolyActions::start(item)
         PolyActions::access(item)
+        SystemEvents::process({
+            "mikuType"   => "(object has been touched)",
+            "objectuuid" => item["uuid"]
+        })
     end
 
     # PolyActions::done(item)
     def self.done(item)
-        SystemEvents::process({
-            "mikuType"   => "(object has been manually touched)",
-            "objectuuid" => item["uuid"]
-        })
 
         PolyActions::stop(item)
+
+        SystemEvents::process({
+            "mikuType"   => "(object has been touched)",
+            "objectuuid" => item["uuid"]
+        })
 
         # order: alphabetical order
 
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::done(item["uuid"])
+            SystemEvents::process({
+                "mikuType"   => "(object has been touched)",
+                "objectuuid" => item["uuid"]
+            })
             return
         end
 
@@ -149,6 +196,10 @@ class PolyActions
             if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
                 NxTodos::destroy(item["uuid"])
             end
+            SystemEvents::process({
+                "mikuType"   => "(object has been touched)",
+                "objectuuid" => item["uuid"]
+            })
             return
         end
 
@@ -156,6 +207,10 @@ class PolyActions
             if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
                 Waves::performWaveNx46WaveDone(item)
             end
+            SystemEvents::process({
+                "mikuType"   => "(object has been touched)",
+                "objectuuid" => item["uuid"]
+            })
             return
         end
 
@@ -168,6 +223,10 @@ class PolyActions
         datetime = CommonUtils::editTextSynchronously(item["datetime"]).strip
         return if !CommonUtils::isDateTime_UTC_ISO8601(datetime)
         ItemsEventsLog::setAttribute2(item["uuid"], "datetime", datetime)
+        SystemEvents::process({
+            "mikuType"   => "(object has been touched)",
+            "objectuuid" => item["uuid"]
+        })
     end
 
     # PolyActions::editDescription(item)
@@ -175,6 +234,10 @@ class PolyActions
         description = CommonUtils::editTextSynchronously(item["description"]).strip
         return if description == ""
         ItemsEventsLog::setAttribute2(item["uuid"], "description", description)
+        SystemEvents::process({
+            "mikuType"   => "(object has been touched)",
+            "objectuuid" => item["uuid"]
+        })
     end
 
     # PolyActions::editStartDate(item)
@@ -188,6 +251,11 @@ class PolyActions
         startdate = CommonUtils::editTextSynchronously(item["startdate"])
         return if startdate == ""
         ItemsEventsLog::setAttribute2(item["uuid"], "startdate",   startdate)
+
+        SystemEvents::process({
+            "mikuType"   => "(object has been touched)",
+            "objectuuid" => item["uuid"]
+        })
     end
 
     # PolyActions::garbageCollectionAsPartOfLaterItemDestruction(item)
@@ -199,12 +267,6 @@ class PolyActions
 
     # PolyActions::redate(item)
     def self.redate(item)
-
-        SystemEvents::process({
-            "mikuType"   => "(object has been manually touched)",
-            "objectuuid" => item["uuid"]
-        })
-
         if item["mikuType"] != "NxTodo" then
             puts "redate only applies to NxTodos (engine: ondate)"
             LucilleCore::pressEnterToContinue()
@@ -218,6 +280,11 @@ class PolyActions
         datetime = CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode()
         return if datetime.nil?
         ItemsEventsLog::setAttribute2(item["uuid"], "nx11e", Nx11E::makeOndate(datetime))
+
+        SystemEvents::process({
+            "mikuType"   => "(object has been touched)",
+            "objectuuid" => item["uuid"]
+        })
     end
 
     # PolyActions::setNx113(item)
@@ -225,15 +292,15 @@ class PolyActions
         nx113nhash = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
         return if nx113nhash.nil?
         ItemsEventsLog::setAttribute2(item["uuid"], "nx113", nx113nhash)
+
+        SystemEvents::process({
+            "mikuType"   => "(object has been touched)",
+            "objectuuid" => item["uuid"]
+        })
     end
 
     # PolyActions::start(item)
     def self.start(item)
-        SystemEvents::process({
-            "mikuType"   => "(object has been manually touched)",
-            "objectuuid" => item["uuid"]
-        })
-
         #puts "PolyActions::start(#{JSON.pretty_generate(item)})"
         return if NxBallsService::isRunning(item["uuid"])
         accounts = []
@@ -248,17 +315,22 @@ class PolyActions
             end
         end
         NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), accounts, PolyFunctions::timeBeforeNotificationsInHours(item)*3600)
+
+        SystemEvents::process({
+            "mikuType"   => "(object has been touched)",
+            "objectuuid" => item["uuid"]
+        })
     end
 
     # PolyActions::stop(item)
     def self.stop(item)
-        SystemEvents::process({
-            "mikuType"   => "(object has been manually touched)",
-            "objectuuid" => item["uuid"]
-        })
-
         #puts "PolyActions::stop(#{JSON.pretty_generate(item)})"
         NxBallsService::close(item["uuid"], true)
+
+        SystemEvents::process({
+            "mikuType"   => "(object has been touched)",
+            "objectuuid" => item["uuid"]
+        })
     end
 
     # PolyActions::transmute(item)
@@ -266,5 +338,10 @@ class PolyActions
         interactivelyChooseMikuTypeOrNull = lambda{|mikuTypes|
             LucilleCore::selectEntityFromListOfEntitiesOrNull("mikuType", mikuTypes)
         }
+
+        SystemEvents::process({
+            "mikuType"   => "(object has been touched)",
+            "objectuuid" => item["uuid"]
+        })
     end
 end

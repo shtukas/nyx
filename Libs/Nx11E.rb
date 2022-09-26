@@ -159,100 +159,8 @@ class Nx11EGroupsUtils
             Nx11EGroupsUtils::groupDive(group)
         }
     end
-end
 
-class Nx11EPriorityCache
-
-    # Nx11EPriorityCache::priorityCoreOrNull(nx11e)
-    # We return a null value when the nx11e should not be displayed
-    def self.priorityCoreOrNull(nx11e)
-        shiftForUnixtimeOrdering = lambda {|unixtime|
-            Math.atan(Time.new.to_f - unixtime).to_f/100
-        }
-
-        if nx11e["mikuType"] != "Nx11E" then
-            raise "(error: a99fb12c-53a6-465a-8b87-14a85c58463b) This function only takes Nx11Es, nx11e: #{nx11e}"
-        end
-
-        if nx11e["type"] == "hot" then
-            unixtime = nx11e["unixtime"] || 0 # TODO: the first one created was missing it
-            return 0.90 + shiftForUnixtimeOrdering.call(unixtime)
-        end
-
-        if nx11e["type"] == "ordinal" then
-            return 0.85 -  Math.atan(nx11e["ordinal"]).to_f/100
-        end
-
-        if nx11e["type"] == "ondate" then
-            return nil if (CommonUtils::today() < nx11e["datetime"][0, 10])
-            return 0.70 + Math.atan(Time.new.to_f - DateTime.parse(nx11e["datetime"]).to_time.to_f).to_f/100
-        end
-
-        if nx11e["type"] == "Ax39Group" then
-
-            group    = nx11e["group"]
-            ax39     = group["ax39"]
-            account  = group["account"]
-
-            position = nx11e["position"]
-
-            cr = Ax39::completionRatio(ax39, account)
-
-            return nil if cr >= 1
-
-            return 0.60 + (1 - cr).to_f/100 - Math.atan(position).to_f/100
-        end
-
-        if nx11e["type"] == "Ax39Engine" then
-            cr = Ax39::completionRatio(nx11e["ax39"], nx11e["itemuuid"])
-            return nil if cr > 1
-            return 0.50 + 0.2*(1-cr)
-        end
-
-        if nx11e["type"] == "standard" then
-            unixtime = nx11e["unixtime"]
-            return 0.40 + shiftForUnixtimeOrdering.call(unixtime)
-        end
-
-        raise "(error: 188c8d4b-1a79-4659-bd93-6d8e3ddfe4d1) nx11e: #{nx11e}"
-    end
-
-    # Nx11EPriorityCache::priorityCachedOrNull(nx11e)
-    def self.priorityCachedOrNull(nx11e)
-        if nx11e["mikuType"] != "Nx11E" then
-            raise "(error: a99fb12c-53a6-465a-8b87-14a85c58463b) This function only takes Nx11Es, nx11e: #{nx11e}"
-        end
-        key = "01602c53-1103-4917-84bf-3c85bd178b41:#{nx11e["uuid"]}"
-        priority = XCacheValuesWithExpiry::getOrNull(key)
-        return priority if priority
-        priority = Nx11EPriorityCache::priorityCoreOrNull(nx11e)
-        XCacheValuesWithExpiry::set(key, priority, 3600) # one hour
-        priority
-    end
-
-    # Nx11EPriorityCache::priorityDecache(nx11euuid)
-    def self.priorityDecache(nx11euuid)
-        key = "01602c53-1103-4917-84bf-3c85bd178b41:#{nx11euuid}"
-        XCacheValuesWithExpiry::decache(key)
-    end
-
-    # Nx11EPriorityCache::processEvent(event)
-    def self.processEvent(event)
-        if event["mikuType"] == "(object has been manually touched)" then
-            objectuuid = event["objectuuid"]
-            item = Items::getItemOrNull(objectuuid)
-            return if item.nil?
-            return if item["mikuType"] != "NxTodo"
-            if item["nx11e"]["type"] == "Ax39Group" then
-                Nx11EPriorityCache::priorityDecache(item["nx11e"]["uuid"])
-            end
-            if item["nx11e"]["type"] == "Ax39Engine" then
-                Nx11EPriorityCache::priorityDecache(item["nx11e"]["uuid"])
-            end
-        end
-    end
-
-    # Nx11EPriorityCache::bankaccountToItems(bankaccount)
+    # Nx11EGroupsUtils::bankaccountToItems(bankaccount)
     def self.bankaccountToItems(bankaccount)
         items = []
         NxTodos::items().each{|item|
@@ -385,6 +293,54 @@ class Nx11E
     # Nx11E::priorityOrNull(nx11e)
     # We return a null value when the nx11e should not be displayed
     def self.priorityOrNull(nx11e)
-        Nx11EPriorityCache::priorityCachedOrNull(nx11e)
+        shiftForUnixtimeOrdering = lambda {|unixtime|
+            Math.atan(Time.new.to_f - unixtime).to_f/100
+        }
+
+        if nx11e["mikuType"] != "Nx11E" then
+            raise "(error: a99fb12c-53a6-465a-8b87-14a85c58463b) This function only takes Nx11Es, nx11e: #{nx11e}"
+        end
+
+        if nx11e["type"] == "hot" then
+            unixtime = nx11e["unixtime"] || 0 # TODO: the first one created was missing it
+            return 0.90 + shiftForUnixtimeOrdering.call(unixtime)
+        end
+
+        if nx11e["type"] == "ordinal" then
+            return 0.85 -  Math.atan(nx11e["ordinal"]).to_f/100
+        end
+
+        if nx11e["type"] == "ondate" then
+            return nil if (CommonUtils::today() < nx11e["datetime"][0, 10])
+            return 0.70 + Math.atan(Time.new.to_f - DateTime.parse(nx11e["datetime"]).to_time.to_f).to_f/100
+        end
+
+        if nx11e["type"] == "Ax39Group" then
+
+            group    = nx11e["group"]
+            ax39     = group["ax39"]
+            account  = group["account"]
+
+            position = nx11e["position"]
+
+            cr = Ax39::completionRatio(ax39, account)
+
+            return nil if cr >= 1
+
+            return 0.60 + (1 - cr).to_f/100 - Math.atan(position).to_f/100
+        end
+
+        if nx11e["type"] == "Ax39Engine" then
+            cr = Ax39::completionRatio(nx11e["ax39"], nx11e["itemuuid"])
+            return nil if cr > 1
+            return 0.50 + 0.2*(1-cr)
+        end
+
+        if nx11e["type"] == "standard" then
+            unixtime = nx11e["unixtime"]
+            return 0.40 + shiftForUnixtimeOrdering.call(unixtime)
+        end
+
+        raise "(error: 188c8d4b-1a79-4659-bd93-6d8e3ddfe4d1) nx11e: #{nx11e}"
     end
 end

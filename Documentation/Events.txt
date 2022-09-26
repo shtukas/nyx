@@ -5,11 +5,6 @@ We have two types of events
 # ordering: as they come
 
 {
-    "mikuType"   => "(object has been updated)",
-    "objectuuid" => objectuuid,
-}
-
-{
     "mikuType"    => "(do not show until has been updated)",
     "targetuuid"  => uuid,
 }
@@ -80,6 +75,6 @@ We have two types of events
 }
 
 {
-    "mikuType"   => "(object has been manually touched)",
+    "mikuType"   => "(object has been touched)",
     "objectuuid" => objectuuid,
 }

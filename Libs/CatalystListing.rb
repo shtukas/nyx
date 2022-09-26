@@ -1,6 +1,48 @@
 # encoding: UTF-8
 
 =begin
+Lx13 = {
+    "name" => Nx53
+    "cr"   => Float
+}
+=end
+
+class CatalystGroupMonitor
+    def initialize()
+        @lx13s = []
+        Thread.new {
+            loop {
+                sleep 300
+                rebuildLx13sFromScratch()
+            }
+        }
+    end
+
+    def getLx13sForDisplay()
+        @lx13s
+            .select{|packet| packet["cr"] < 1 }
+            .sort{|p1, p2| p1["cr"] <=> p2["cr"] }
+    end
+
+    def rebuildLx13sFromScratch()
+        @lx13s = Nx11EListingMonitorUtils::nx53s().map{|nx53|
+            name1 = (lambda{|nx53|
+                if nx53["mikuType"] == "Ax39Group" then
+                    return nx53["name"]
+                end
+                if nx53["mikuType"] == "NxTodo" then
+                    return nx53["description"]
+                end
+            }).call(nx53)
+            {
+                "name" => name1,
+                "cr"   => Nx11EListingMonitorUtils::nx53ToCompletionRatio(nx53)
+            }
+        }
+    end
+end
+
+=begin
 Lx12 = {
     "item"     => Item
     "priority" => Float
@@ -13,21 +55,120 @@ class CatalystAlfred
     def initialize()
         @lx12s = []
         # let's start by using cached listing for speed
-        lx12s = XCache::getOrNull("968dceb4-a0a9-4ffa-9b17-9b74a34e6bd9")
-        if lx12s then
-            @lx12s = JSON.parse(lx12s)
-        else
-            @lx12s = []
+        @lx12s = XCacheValuesWithExpiry::getOrNull("968dceb4-a0a9-4ffa-9b17-9b74a34e6bd9")
+        if @lx12s.nil? then
+            @lx12s = buildLx12sFromStratch()
+            XCacheValuesWithExpiry::set("968dceb4-a0a9-4ffa-9b17-9b74a34e6bd9", @lx12s, 86400)
         end
     end
 
-    def lx12sInOrder()
+    def lx12sInOrderForDisplay()
         @lx12s
+            .select{|lx12| !lx12["priority"].nil? }
             .map{|lx12|
                 lx12["item"] = lx12["item"].clone
                 lx12
             }
             .sort{|l1, l2| l1["priority"] <=> l2["priority"] }
+    end
+
+    def buildLx12sFromStratch() # Array[Lx12]
+        items = [
+            JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`),
+            Anniversaries::listingItems(),
+            Waves::listingItems(true),
+            Waves::listingItems(false),
+            NxTodos::listingItems()
+        ]
+            .flatten
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
+            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
+
+        items
+            .map{|item|
+                {
+                    "item"     => item,
+                    "priority" => PolyFunctions::listingPriorityOrNull(item),
+                    "announce" => PolyFunctions::toString(item)
+                }
+            }
+    end
+
+    def mutateLx12sToRemoveItemByUUID(objectuuid)
+        @lx12s = @lx12s.select{|lx12| lx12["item"]["uuid"] != objectuuid }
+    end
+
+    def mutateLx12sToAddItemByUUID(objectuuid)
+        item = Items::getItemOrNull(objectuuid)
+        return if item.nil?
+        @lx12s << {
+            "item"     => item,
+            "priority" => PolyFunctions::listingPriorityOrNull(item),
+            "announce" => PolyFunctions::toString(item)
+        }
+    end
+
+    def mutateLx12sCycleItemByUUID(objectuuid)
+        mutateLx12sToRemoveItemByUUID(objectuuid)
+        mutateLx12sToAddItemByUUID(objectuuid)
+    end
+
+    def processEvent(event)
+
+        if event["mikuType"] == "(do not show until has been updated)" then
+            #
+        end
+
+        if event["mikuType"] == "NxBankEvent" then
+            bankaccount = event["setuuid"]
+            Nx11EGroupsUtils::bankaccountToItems(bankaccount).each{|item|
+                mutateLx12sCycleItemByUUID(item["uuid"])
+            }
+        end
+
+        if event["mikuType"] == "NxDoNotShowUntil" then
+            # 
+        end
+
+        if event["mikuType"] == "bank-account-done-today" then
+            bankaccount = event["bankaccount"]
+            Nx11EGroupsUtils::bankaccountToItems(bankaccount).each{|item|
+                mutateLx12sCycleItemByUUID(item["uuid"])
+            }
+        end
+
+        if event["mikuType"] == "NxDeleted" then
+            objectuuid = event["objectuuid"]
+            mutateLx12sToRemoveItemByUUID(objectuuid)
+        end
+
+        if event["mikuType"] == "NetworkLinks" then
+            #
+        end
+
+        if event["mikuType"] == "XCacheUpdate" then
+            #
+        end
+
+        if event["mikuType"] == "XCacheFlag" then
+            #
+        end
+
+        if event["mikuType"] == "NetworkArrows" then
+            #
+        end
+
+        if event["mikuType"] == "AttributeUpdate.v2" then
+            # This is particluarly useful to capture newly created high priority objects
+            # (One of the motivation for CatalystAlfred wasn't only to speed things up, but to immedately capture across the commsline a NxTodo hot)
+            objectuuid = event["objectuuid"]
+            mutateLx12sCycleItemByUUID(objectuuid)
+        end
+
+        if event["mikuType"] == "(object has been touched)" then
+            objectuuid = event["objectuuid"]
+            mutateLx12sCycleItemByUUID(objectuuid)
+        end
     end
 end
 
@@ -117,9 +258,6 @@ class CatalystListing
             if nx11e["type"] == "Ax39Group" then
                 bankaccount = nx11e["group"]["account"]
                 BankAccountDoneForToday::setDoneToday(bankaccount)
-                Nx11EPriorityCache::bankaccountToItems(bankaccount).each{|item|
-                    Nx11EPriorityCache::priorityDecache(item["nx11e"]["uuid"])
-                }
                 return
             end
 
@@ -508,10 +646,6 @@ class CatalystListing
                 {
                     "name" => "Waves::listingItems(false)",
                     "lambda" => lambda { Waves::listingItems(false) }
-                },
-                {
-                    "name" => "CatalystListing::listingItems()",
-                    "lambda" => lambda { CatalystListing::listingItems() }
                 }
             ]
 
@@ -548,33 +682,6 @@ class CatalystListing
         end
     end
 
-    # CatalystListing::listingItems()
-    def self.listingItems()
-        items = [
-            JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`),
-            Anniversaries::listingItems(),
-            Waves::listingItems(true),
-            Waves::listingItems(false),
-            NxTodos::listingItems()
-        ]
-            .flatten
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
-            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
-
-        its1, its2 = items.partition{|item| NxBallsService::isPresent(item["uuid"]) }
-        its1 + its2
-                .map{|item|
-                    {
-                        "item" => item,
-                        "priority" => PolyFunctions::listingPriorityOrNull(item)
-                    }
-                }
-                .select{|packet| !packet["priority"].nil? }
-                .sort{|p1, p2| p1["priority"] <=> p2["priority"] }
-                .reverse
-                .map{|packet| packet["item"] }
-    end
-
     # CatalystListing::displayListing()
     def self.displayListing()
 
@@ -605,34 +712,17 @@ class CatalystListing
             vspaceleft = vspaceleft - 2
         end
 
-        nx53s = Nx11EListingMonitorUtils::nx53s()
-        if nx53s.size > 0 then
+        packets = $CatalystGroupMonitor1.getLx13sForDisplay()
+        if packets.size > 0 then
             puts ""
             puts "Nx53 (below completion 1):".yellow
             vspaceleft = vspaceleft - 2
-            nx53s
-                .map{|nx53|
-                    name1 = (lambda{|nx53|
-                        if nx53["mikuType"] == "Ax39Group" then
-                            return nx53["name"]
-                        end
-                        if nx53["mikuType"] == "NxTodo" then
-                            return nx53["description"]
-                        end
-                    }).call(nx53)
-                    {
-                        "name" => name1,
-                        "cr"   => Nx11EListingMonitorUtils::nx53ToCompletionRatio(nx53)
-                    }
-                }
-                .select{|packet| packet["cr"] < 1 }
-                .sort{|p1, p2| p1["cr"] <=> p2["cr"] }
+            packets
                 .each{|packet|
                     puts "    - #{packet["name"]} (#{packet["cr"].round(2)})".yellow
                     vspaceleft = vspaceleft - 1
                 }
         end
-
 
         nxballs = NxBallsIO::nxballs()
         if nxballs.size > 0 then
@@ -651,19 +741,7 @@ class CatalystListing
         puts ""
         vspaceleft = vspaceleft - 1
 
-        #CatalystListing::listingItems()
-        #    .each{|item|
-        #        break if vspaceleft <= 0
-        #        store.register(item, true)
-        #        line = "#{store.prefixString()} #{PolyFunctions::toString(item)}"
-        #        if NxBallsService::isPresent(item["uuid"]) then
-        #            line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
-        #        end
-        #        puts line
-        #        vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-        #    }
-
-        $CatalystAlfred1.lx12sInOrder()
+        $CatalystAlfred1.lx12sInOrderForDisplay()
             .each{|lx12|
                 break if vspaceleft <= 0
                 item = lx12["item"]
