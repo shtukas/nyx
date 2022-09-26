@@ -271,7 +271,6 @@ $CatalystGroupMonitor1 = CatalystGroupMonitor.new()
 if $RunNonEssentialThreads then
     ThreadsX::nxBallsMonitoringAndNotification()
     ThreadsX::outBufferToCommsLine()
-    ThreadsX::refreshTodosActivePool()
     if Config::get("instanceId") == "Lucille20-pascal" then 
         ThreadsX::startViennaImport()
     end

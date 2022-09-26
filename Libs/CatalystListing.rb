@@ -94,9 +94,8 @@ class CatalystAlfred
         items = [
             JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`),
             Anniversaries::listingItems(),
-            Waves::listingItems(true),
-            Waves::listingItems(false),
-            NxTodos::listingItems()
+            Waves::items(),
+            NxTodos::items()
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
@@ -110,6 +109,10 @@ class CatalystAlfred
                     "announce" => PolyFunctions::toString(item)
                 }
             }
+            .select{|packet| !packet["priority"].nil? }
+            .sort{|p1, p2| p1["priority"] <=> p2["priority"] }
+            .reverse
+            .first(100)
         XCacheValuesWithExpiry::set("968dceb4-a0a9-4ffa-9b17-9b74a34e6bd9", @lx12s, cacheTimeInSeconds())
     end
 
@@ -212,7 +215,7 @@ class CatalystListing
             "wave | anniversary | hot | today | ondate | todo",
             "anniversaries | ondates | todos | waves | groups",
             "require internet",
-            "search | nyx | speed | nxballs",
+            "search | nyx | speed | nxballs | rebuild",
         ].join("\n")
     end
 
@@ -544,6 +547,14 @@ class CatalystListing
             return
         end
 
+        if Interpreting::match("rebuild", input) then
+            t1 = Time.new.to_f
+            $CatalystAlfred1.rebuildLx12sFromStratch()
+            t2 = Time.new.to_f
+            puts "Completed in #{(t2-t1).round(2)} seconds"
+            return
+        end
+
         if Interpreting::match("redate", input) then
             item = store.getDefault()
             return if item.nil?
@@ -670,21 +681,9 @@ class CatalystListing
                     "lambda" => lambda { Anniversaries::listingItems() }
                 },
                 {
-                    "name" => "NxTodos::listingItems()",
-                    "lambda" => lambda { NxTodos::listingItems() }
-                },
-                {
                     "name" => "The99Percent::getCurrentCount()",
                     "lambda" => lambda { The99Percent::getCurrentCount() }
                 },
-                {
-                    "name" => "Waves::listingItems(true)",
-                    "lambda" => lambda { Waves::listingItems(true) }
-                },
-                {
-                    "name" => "Waves::listingItems(false)",
-                    "lambda" => lambda { Waves::listingItems(false) }
-                }
             ]
 
             # dry run to initialise things

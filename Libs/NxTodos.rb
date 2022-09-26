@@ -1,52 +1,5 @@
 # encoding: UTF-8
 
-class NxTodosActivePool
-    # This class is an optimization solution
-
-    # NxTodosActivePool::computeActivePool()
-    def self.computeActivePool()
-        items = Items::mikuTypeToItems("NxTodo")
-        items = items
-                    .map{|item|
-                        {
-                            "item"     => item,
-                            "priority" => PolyFunctions::listingPriorityOrNull(item)
-                        }
-                    }
-                    .select{|packet| !packet["priority"].nil? }
-                    .sort{|p1, p2|
-                        p1["priority"] <=> p2["priority"]
-                    }
-                    .reverse
-                    .first(100)
-                    .map{|packet| packet["item"] }
-        items.map{|item| item["uuid"] }
-    end
-
-    # NxTodosActivePool::getActivePool()
-    def self.getActivePool()
-        objectuuids = XCache::getOrNull("64a299f3-0960-4330-8538-394879cc231f")
-        if objectuuids then
-            return JSON.parse(objectuuids)
-        end
-        objectuuids = NxTodosActivePool::computeActivePool()
-        NxTodosActivePool::commitPoolToCache(objectuuids)
-        objectuuids
-    end
-
-    # NxTodosActivePool::commitPoolToCache(objectuuids)
-    def self.commitPoolToCache(objectuuids)
-        XCache::set("64a299f3-0960-4330-8538-394879cc231f", JSON.generate(objectuuids))
-    end
-
-    # NxTodosActivePool::todoObjectHadBeenCreated(item)
-    def self.todoObjectHadBeenCreated(item)
-        return if item["mikuType"] != "NxTodo"
-        objectuuids = NxTodosActivePool::getActivePool() + [item["uuid"]]
-        NxTodosActivePool::commitPoolToCache(objectuuids)
-    end
-end
-
 class NxTodos
 
     # NxTodos::items()
@@ -82,7 +35,6 @@ class NxTodos
         if item.nil? then
             raise "(error: ec1f1b6f-62b4-4426-bfe3-439a51cf76d4) How did that happen ? 🤨"
         end
-        NxTodosActivePool::todoObjectHadBeenCreated(item)
         item
     end
 
@@ -106,8 +58,6 @@ class NxTodos
         if item.nil? then
             raise "(error: 06f11b6f-7d31-411b-b3bf-7b1115a756a9) How did that happen ? 🤨"
         end
-
-        NxTodosActivePool::todoObjectHadBeenCreated(item)
         item
     end
 
@@ -134,7 +84,6 @@ class NxTodos
         if item.nil? then
             raise "(error: ec1f1b6f-62b4-4426-bfe3-439a51cf76d4) How did that happen ? 🤨"
         end
-        NxTodosActivePool::todoObjectHadBeenCreated(item)
         item
     end
 
@@ -160,7 +109,6 @@ class NxTodos
         if item.nil? then
             raise "(error: ec1f1b6f-62b4-4426-bfe3-439a51cf76d4) How did that happen ? 🤨"
         end
-        NxTodosActivePool::todoObjectHadBeenCreated(item)
         item
     end
 
@@ -186,7 +134,6 @@ class NxTodos
         if item.nil? then
             raise "(error: ec1f1b6f-62b4-4426-bfe3-439a51cf76d4) How did that happen ? 🤨"
         end
-        NxTodosActivePool::todoObjectHadBeenCreated(item)
         item
     end
 
@@ -201,13 +148,6 @@ class NxTodos
     # NxTodos::toStringForSearch(item)
     def self.toStringForSearch(item)
         "(todo) #{item["description"]}"
-    end
-
-    # NxTodos::listingItems()
-    def self.listingItems()
-        NxTodosActivePool::getActivePool()
-            .map{|objectuuid| Items::getItemOrNull(objectuuid) }
-            .compact
     end
 
     # NxTodos::itemsOndates()

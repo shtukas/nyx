@@ -168,13 +168,6 @@ class Waves
         false
     end
 
-    # Waves::listingItems(priority)
-    def self.listingItems(priority)
-        Waves::items()
-            .select{|item| priority ? Waves::isPriority(item) : !Waves::isPriority(item) }
-            .sort{|i1, i2| i1["lastDoneDateTime"] <=> i2["lastDoneDateTime"] }
-    end
-
     # -------------------------------------------------------------------------
 
     # Waves::performWaveNx46WaveDone(item)

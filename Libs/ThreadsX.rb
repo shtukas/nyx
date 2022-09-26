@@ -44,14 +44,4 @@ class ThreadsX
             }
         }
     end
-
-    # ThreadsX::refreshTodosActivePool()
-    def self.refreshTodosActivePool()
-        Thread.new {
-            sleep 300
-            if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("ec3f3f57-ff52-412c-9257-351e5345df8e", 86400) then # once every day
-                NxTodosActivePool::commitPoolToCache(NxTodosActivePool::computeActivePool())
-            end
-        }
-    end
 end
