@@ -1,5 +1,36 @@
 # encoding: UTF-8
 
+=begin
+Lx12 = {
+    "item"     => Item
+    "priority" => Float
+    "announce" => string # Should be the toString of the item
+}
+=end
+
+class CatalystAlfred
+
+    def initialize()
+        @lx12s = []
+        # let's start by using cached listing for speed
+        lx12s = XCache::getOrNull("968dceb4-a0a9-4ffa-9b17-9b74a34e6bd9")
+        if lx12s then
+            @lx12s = JSON.parse(lx12s)
+        else
+            @lx12s = []
+        end
+    end
+
+    def lx12sInOrder()
+        @lx12s
+            .map{|lx12|
+                lx12["item"] = lx12["item"].clone
+                lx12
+            }
+            .sort{|l1, l2| l1["priority"] <=> l2["priority"] }
+    end
+end
+
 class CatalystListing
 
     # CatalystListing::listingCommands()
@@ -544,8 +575,8 @@ class CatalystListing
                 .map{|packet| packet["item"] }
     end
 
-    # CatalystListing::mainListing()
-    def self.mainListing()
+    # CatalystListing::displayListing()
+    def self.displayListing()
 
         system("clear")
 
@@ -620,11 +651,24 @@ class CatalystListing
         puts ""
         vspaceleft = vspaceleft - 1
 
-        CatalystListing::listingItems()
-            .each{|item|
+        #CatalystListing::listingItems()
+        #    .each{|item|
+        #        break if vspaceleft <= 0
+        #        store.register(item, true)
+        #        line = "#{store.prefixString()} #{PolyFunctions::toString(item)}"
+        #        if NxBallsService::isPresent(item["uuid"]) then
+        #            line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+        #        end
+        #        puts line
+        #        vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+        #    }
+
+        $CatalystAlfred1.lx12sInOrder()
+            .each{|lx12|
                 break if vspaceleft <= 0
+                item = lx12["item"]
                 store.register(item, true)
-                line = "#{store.prefixString()} #{PolyFunctions::toString(item)}"
+                line = "#{store.prefixString()} #{lx12["announce"]}"
                 if NxBallsService::isPresent(item["uuid"]) then
                     line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                 end
@@ -667,7 +711,7 @@ class CatalystListing
                     LucilleCore::removeFileSystemLocation(location)
                 }
 
-            CatalystListing::mainListing()
+            CatalystListing::displayListing()
         }
     end
 end

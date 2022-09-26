@@ -263,6 +263,10 @@ $system_events_out_buffer = Mutex.new
 
 # ------------------------------------------------------------
 
+$CatalystAlfred1 = CatalystAlfred.new()
+
+# ------------------------------------------------------------
+
 if $RunNonEssentialThreads then
     ThreadsX::nxBallsMonitoringAndNotification()
     ThreadsX::outBufferToCommsLine()
@@ -271,3 +275,5 @@ if $RunNonEssentialThreads then
         ThreadsX::startViennaImport()
     end
 end
+
+# ------------------------------------------------------------
