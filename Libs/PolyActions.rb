@@ -65,15 +65,6 @@ class PolyActions
         raise "(error: abb645e9-2575-458e-b505-f9c029f4ca69) I do not know how to access mikuType: #{item["mikuType"]}"
     end
 
-    # PolyActions::dataPrefetchAttempt(item)
-    def self.dataPrefetchAttempt(item)
-        return if item.nil?
-
-        # order : alphabetical order
-
-        # TODO: 
-    end
-
     # PolyActions::destroyWithPrompt(item)
     def self.destroyWithPrompt(item)
         PolyActions::stop(item)
