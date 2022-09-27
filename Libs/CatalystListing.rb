@@ -61,14 +61,14 @@ class CatalystAlfred
         end
         Thread.new {
             loop {
-                sleep 1200
+                sleep 3600*2
                 rebuildLx12sFromStratch()
             }
         }
     end
 
     def cacheTimeInSeconds()
-        nil # we have a thread, see initialize(), that recomputes the structure every 20 minutes
+        nil # we have a thread, see initialize(), that recomputes the structure every 2 hours
     end
 
     def lx12sInOrderForDisplay()
