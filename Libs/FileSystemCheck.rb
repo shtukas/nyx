@@ -22,7 +22,6 @@ class FileSystemCheck
         }
 
         ensureAttribute.call(nx11e, "uuid")
-
     end
 
     # FileSystemCheck::fsckNx113ErrorAtFirstFailure(nx113)

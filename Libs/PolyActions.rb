@@ -325,13 +325,31 @@ class PolyActions
 
     # PolyActions::transmute(item)
     def self.transmute(item)
+        puts "PolyActions::transmute(#{JSON.pretty_generate(item)})"
         interactivelyChooseMikuTypeOrNull = lambda{|mikuTypes|
             LucilleCore::selectEntityFromListOfEntitiesOrNull("mikuType", mikuTypes)
         }
 
-        SystemEvents::process({
-            "mikuType"   => "(object has been touched)",
-            "objectuuid" => item["uuid"]
-        })
+        if item["mikuType"] == "NxTodo" then
+            targetMikuType = interactivelyChooseMikuTypeOrNull.call(["NyxNode"])
+            return if targetMikuType.nil?
+            if targetMikuType == "NyxNode" then
+                networkType = NyxNodes::interactivelySelectNetworkType()
+                if item["nx113"] and networkType != "PureData" then
+                    puts "You are transmuting from a NxTodo with data, to a non data carrier NyxNode"
+                    puts "You are going to lose the data"
+                    return if !LucilleCore::askQuestionAnswerAsBoolean("confirm operation: ")
+                end
+                ItemsEventsLog::setAttribute2(item["uuid"], "networkType", networkType)
+                ItemsEventsLog::setAttribute2(item["uuid"], "mikuType", "NyxNode")
+                item = Items::getItemOrNull(item["uuid"])
+                FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.uuid)
+                SystemEvents::process({
+                    "mikuType"   => "(object has been touched)",
+                    "objectuuid" => item["uuid"]
+                })
+                NyxNodes::landing(item)
+            end
+        end
     end
 end
