@@ -194,6 +194,16 @@ class Nx11E
         LucilleCore::selectEntityFromListOfEntitiesOrNull("type (none to abort):", Nx11E::types())
     end
 
+    # Nx11E::makeStandard()
+    def self.makeStandard()
+        {
+            "uuid"     => SecureRandom.uuid,
+            "mikuType" => "Nx11E",
+            "type"     => "standard",
+            "unixtime" => Time.new.to_f
+        }
+    end
+
     # Nx11E::makeOndate(datetime)
     def self.makeOndate(datetime)
         {
@@ -250,12 +260,7 @@ class Nx11E
             }
         end
         if type == "standard" then
-            return {
-                "uuid"     => SecureRandom.uuid,
-                "mikuType" => "Nx11E",
-                "type"     => "standard",
-                "unixtime" => Time.new.to_f
-            }
+            return Nx11E::makeStandard()
         end
     end
 

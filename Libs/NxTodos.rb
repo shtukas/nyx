@@ -91,11 +91,7 @@ class NxTodos
     def self.issueUsingLocation(location)
         description = File.basename(location)
         uuid        = SecureRandom.uuid
-        nx11e       = {
-            "mikuType" => "Nx11E",
-            "type"     => "standard",
-            "unixtime" => Time.new.to_f
-        }
+        nx11e       = Nx11E::makeStandard()
         nx113nhash  = Nx113Make::aionpoint(location)
         ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)
         ItemsEventsLog::setAttribute2(uuid, "mikuType",    "NxTodo")
@@ -116,11 +112,7 @@ class NxTodos
     def self.issueUsingUrl(url)
         description = File.basename(location)
         uuid        = SecureRandom.uuid
-        nx11e       = {
-            "mikuType" => "Nx11E",
-            "type"     => "standard",
-            "unixtime" => Time.new.to_f
-        }
+        nx11e       = Nx11E::makeStandard()
         nx113nhash  = Nx113Make::url(url)
         ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)
         ItemsEventsLog::setAttribute2(uuid, "mikuType",    "NxTodo")
