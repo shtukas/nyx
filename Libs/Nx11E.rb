@@ -329,6 +329,12 @@ class Nx11E
 
         if nx11e["type"] == "Ax39Group" then
 
+            thatIncreasingFunction = lambda{|x|
+                # We want something decrasing on R, that goes to zero at -infinity
+                # and is bounded (below) at +infinity
+                (Math.atan(x)+Math::PI/2)/1000
+            }
+
             group    = nx11e["group"]
             ax39     = group["ax39"]
             account  = group["account"]
@@ -339,13 +345,13 @@ class Nx11E
 
             return nil if cr >= 1
 
-            return 0.60 + (1 - cr).to_f/100 - Math.atan(position).to_f/100
+            return 0.60 - (cr.to_f/10) - thatIncreasingFunction.call(position)
         end
 
         if nx11e["type"] == "Ax39Engine" then
             cr = Ax39::completionRatio(nx11e["ax39"], nx11e["itemuuid"])
-            return nil if cr > 1
-            return 0.50 + 0.2*(1-cr)
+            return nil if cr >= 1
+            return 0.60 - cr.to_f/10
         end
 
         if nx11e["type"] == "standard" then

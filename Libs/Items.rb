@@ -154,7 +154,7 @@ class Items
     # Items::syncWithEventLog()
     def self.syncWithEventLog()
         objectuuidsFromTheEventLog = []
-        
+
         items = ItemsEventsLog::allObjectsFromEventLog()
         objectuuidsFromTheEventLog = items.map{|item| item["uuid"] }
 
