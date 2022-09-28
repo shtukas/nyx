@@ -2,14 +2,19 @@
 
 =begin
 Lx13 = {
-    "name" => Nx53
-    "cr"   => Float
+    "name"        => Nx53
+    "cr"          => Float
+    "bankaccount" => String
 }
 =end
 
 class CatalystGroupMonitor
     def initialize()
         @lx13s = []
+        @lx13s = XCacheValuesWithExpiry::getOrNull("abc03773-bdca-4c5d-86e9-92a253f3e239")
+        if @lx13s.nil? then
+            rebuildLx13sFromScratch()
+        end
         Thread.new {
             loop {
                 sleep 300
@@ -22,7 +27,7 @@ class CatalystGroupMonitor
         @lx13s
             .select{|packet| packet["cr"] < 1 }
             .select{|packet| 
-                bankaccount = group["account"]
+                bankaccount = packet["bankaccount"]
                 !BankAccountDoneForToday::isDoneToday(bankaccount) 
             }
             .sort{|p1, p2| p1["cr"] <=> p2["cr"] }
@@ -38,11 +43,21 @@ class CatalystGroupMonitor
                     return nx53["description"]
                 end
             }).call(nx53)
+            bankaccount = (lambda{|nx53|
+                if nx53["mikuType"] == "Ax39Group" then
+                    return nx53["account"]
+                end
+                if nx53["mikuType"] == "NxTodo" then
+                    return nx53["nx11e"]["itemuuid"]
+                end
+            }).call(nx53)
             {
-                "name" => name1,
-                "cr"   => Nx11EListingMonitorUtils::nx53ToCompletionRatio(nx53)
+                "name"        => name1,
+                "cr"          => Nx11EListingMonitorUtils::nx53ToCompletionRatio(nx53),
+                "bankaccount" => bankaccount
             }
         }
+        XCacheValuesWithExpiry::set("abc03773-bdca-4c5d-86e9-92a253f3e239", @lx13s, nil)
     end
 end
 
