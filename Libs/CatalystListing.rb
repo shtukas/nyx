@@ -203,6 +203,12 @@ class CatalystAlfred
             mutateLx12sCycleItemByUUID(objectuuid)
         end
     end
+
+    def mutateAfterBankAccountUpdate(bankaccount)
+        Nx11EGroupsUtils::bankaccountToItems(bankaccount).each{|item|
+            mutateLx12sCycleItemByUUID(item["uuid"])
+        }
+    end
 end
 
 class CatalystListing
@@ -291,11 +297,13 @@ class CatalystListing
             if nx11e["type"] == "Ax39Group" then
                 bankaccount = nx11e["group"]["account"]
                 BankAccountDoneForToday::setDoneToday(bankaccount)
+                $CatalystAlfred1.mutateAfterBankAccountUpdate(bankaccount)
                 return
             end
 
             if nx11e["type"] == "Ax39Engine" then
                 BankAccountDoneForToday::setDoneToday(nx11e["itemuuid"])
+                $CatalystAlfred1.mutateLx12sCycleItemByUUID(item["uuid"])
                 return
             end
             

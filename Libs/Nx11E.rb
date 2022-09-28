@@ -168,6 +168,7 @@ class Nx11EGroupsUtils
             if action == "done for the day" then
                 bankaccount = group["account"]
                 BankAccountDoneForToday::setDoneToday(bankaccount)
+                $CatalystAlfred1.mutateAfterBankAccountUpdate(bankaccount)
                 next
             end
         }
