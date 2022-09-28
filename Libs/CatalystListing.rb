@@ -21,6 +21,10 @@ class CatalystGroupMonitor
     def getLx13sForDisplay()
         @lx13s
             .select{|packet| packet["cr"] < 1 }
+            .select{|packet| 
+                bankaccount = group["account"]
+                !BankAccountDoneForToday::isDoneToday(bankaccount) 
+            }
             .sort{|p1, p2| p1["cr"] <=> p2["cr"] }
     end
 
