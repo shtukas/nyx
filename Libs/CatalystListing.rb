@@ -154,9 +154,12 @@ class CatalystAlfred
 
         if event["mikuType"] == "NxBankEvent" then
             bankaccount = event["setuuid"]
-            Nx11EGroupsUtils::bankaccountToItems(bankaccount).each{|item|
-                mutateLx12sCycleItemByUUID(item["uuid"])
-            }
+            Nx11EGroupsUtils::bankaccountToItems(bankaccount)
+                .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+                .first(10)
+                .each{|item|
+                    mutateLx12sCycleItemByUUID(item["uuid"])
+                }
         end
 
         if event["mikuType"] == "NxDoNotShowUntil" then
@@ -165,9 +168,12 @@ class CatalystAlfred
 
         if event["mikuType"] == "bank-account-done-today" then
             bankaccount = event["bankaccount"]
-            Nx11EGroupsUtils::bankaccountToItems(bankaccount).each{|item|
-                mutateLx12sCycleItemByUUID(item["uuid"])
-            }
+            Nx11EGroupsUtils::bankaccountToItems(bankaccount)
+                .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+                .first(10)
+                .each{|item|
+                    mutateLx12sCycleItemByUUID(item["uuid"])
+                }
         end
 
         if event["mikuType"] == "NxDeleted" then
