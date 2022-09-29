@@ -125,7 +125,6 @@ class PolyFunctions
         # Nx11E ordinal                 : 0.80
         # fitness1                      : 0.75
         # Nx11E ondate                  : 0.70
-        # Nx11E Ax39Group               : 0.60
         # Nx11E Ax39Engine              : 0.50 (or 0.2 if above completion)
         # Wave (low priority)           : 0.40
         # Nx11E standard                : 0.20 

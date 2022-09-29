@@ -1,0 +1,29 @@
+
+Nx11E {
+    "uuid"     => String
+    "mikuType" => "Nx11E"
+    "type"     => "hot"
+    "unixtime" => Float
+}
+
+Nx11E {
+    "uuid"     => String
+    "mikuType" => "Nx11E"
+    "type"     => "ordinal"
+    "ordinal"  => Float
+}
+
+Nx11E {
+    "uuid"     => String
+    "mikuType" => "Nx11E"
+    "type"     => "ondate"
+    "datetime" => DateTime # the date decides the date it shows up. 
+                           # The DateTime is used for ordering, priotorization
+}
+
+Nx11E {
+    "uuid"     => String
+    "mikuType" => "Nx11E"
+    "type"     => "standard"
+    "unixtime" => Float
+}

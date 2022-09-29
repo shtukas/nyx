@@ -1,0 +1,10 @@
+
+Contributions
+
+Cx22 {
+    "mikuType"    : "Cx22"
+    "groupuuid"   : String
+    "groupname"   : String
+    "bankaccount" : String
+    "ax39"        : Ax39
+}

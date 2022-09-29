@@ -1,18 +1,10 @@
 # encoding: UTF-8
 
-=begin
-Lx13 = {
-    "name"        => Nx53
-    "cr"          => Float
-    "bankaccount" => String
-}
-=end
-
 class CatalystGroupMonitor
     def initialize()
-        @lx13s = []
-        @lx13s = XCacheValuesWithExpiry::getOrNull("abc03773-bdca-4c5d-86e9-92a253f3e239")
-        if @lx13s.nil? then
+        @lx13 = []
+        @lx13 = XCacheValuesWithExpiry::getOrNull("abc03773-bdca-4c5d-86e9-92a253f3e23a")
+        if @lx13.nil? then
             rebuildLx13sFromScratch()
         end
         Thread.new {
@@ -24,7 +16,7 @@ class CatalystGroupMonitor
     end
 
     def getLx13sForDisplay()
-        @lx13s
+        @lx13
             .select{|packet| packet["cr"] < 1 }
             .select{|packet| 
                 bankaccount = packet["bankaccount"]
@@ -34,30 +26,12 @@ class CatalystGroupMonitor
     end
 
     def rebuildLx13sFromScratch()
-        @lx13s = Nx11EListingMonitorUtils::nx53s().map{|nx53|
-            name1 = (lambda{|nx53|
-                if nx53["mikuType"] == "Ax39Group" then
-                    return nx53["name"]
-                end
-                if nx53["mikuType"] == "NxTodo" then
-                    return nx53["description"]
-                end
-            }).call(nx53)
-            bankaccount = (lambda{|nx53|
-                if nx53["mikuType"] == "Ax39Group" then
-                    return nx53["account"]
-                end
-                if nx53["mikuType"] == "NxTodo" then
-                    return nx53["nx11e"]["itemuuid"]
-                end
-            }).call(nx53)
-            {
-                "name"        => name1,
-                "cr"          => Nx11EListingMonitorUtils::nx53ToCompletionRatio(nx53),
-                "bankaccount" => bankaccount
+        @lx13 = Cx22::reps()
+            .map{|group|
+                group["cr"] = Ax39::completionRatio(group["ax39"], group["bankaccount"])
+                group
             }
-        }
-        XCacheValuesWithExpiry::set("abc03773-bdca-4c5d-86e9-92a253f3e239", @lx13s, nil)
+        XCacheValuesWithExpiry::set("abc03773-bdca-4c5d-86e9-92a253f3e23a", @lx13, nil)
     end
 end
 
@@ -173,7 +147,7 @@ class CatalystAlfred
 
         if event["mikuType"] == "NxBankEvent" then
             bankaccount = event["setuuid"]
-            Nx11EGroupsUtils::bankaccountToItems(bankaccount)
+            Cx22::bankaccountToItems(bankaccount)
                 .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
                 .first(10)
                 .each{|item|
@@ -187,7 +161,7 @@ class CatalystAlfred
 
         if event["mikuType"] == "bank-account-done-today" then
             bankaccount = event["bankaccount"]
-            Nx11EGroupsUtils::bankaccountToItems(bankaccount)
+            Cx22::bankaccountToItems(bankaccount)
                 .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
                 .first(10)
                 .each{|item|
@@ -230,7 +204,7 @@ class CatalystAlfred
     end
 
     def mutateAfterBankAccountUpdate(bankaccount)
-        Nx11EGroupsUtils::bankaccountToItems(bankaccount).each{|item|
+        Cx22::bankaccountToItems(bankaccount).each{|item|
             mutateLx12sCycleItemByUUID(item["uuid"])
         }
     end
@@ -241,7 +215,7 @@ class CatalystListing
     # CatalystListing::listingCommands()
     def self.listingCommands()
         [
-            ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | nx113 (<n>) | engine (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | Ax39 done for today | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
+            ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | nx113 (<n>) | engine (<n>) | contribution (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | group done for today | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
             "update start date (<n>)",
             "wave | anniversary | hot | today | ondate | todo",
             "anniversaries | ondates | todos | waves | groups",
@@ -301,37 +275,18 @@ class CatalystListing
             return
         end
 
-        if input == "Ax39 done for today" then
+        if Interpreting::match("contribution", input) then
             item = store.getDefault()
             return if item.nil?
+            Cx22::interactivelySetANewContributionForItemOrNothing(item)
+            return
+        end
 
-            if item["mikuType"] != "NxTodo" then
-                puts "Only a NxTodo can be target for `Ax39 done for today`"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-
-            nx11e = item["nx11e"]
-
-            if nx11e["type"] != "Ax39Group" and nx11e["type"] != "Ax39Engine" then
-                puts "Only NxTodos with Ax39 drivers can be target for `Ax39 done for today`"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-
-            if nx11e["type"] == "Ax39Group" then
-                bankaccount = nx11e["group"]["account"]
-                BankAccountDoneForToday::setDoneToday(bankaccount)
-                $CatalystAlfred1.mutateAfterBankAccountUpdate(bankaccount)
-                return
-            end
-
-            if nx11e["type"] == "Ax39Engine" then
-                BankAccountDoneForToday::setDoneToday(nx11e["itemuuid"])
-                $CatalystAlfred1.mutateLx12sCycleItemByUUID(item["uuid"])
-                return
-            end
-            
+        if Interpreting::match("contribution *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            Cx22::interactivelySetANewContributionForItemOrNothing(item)
             return
         end
 
@@ -456,8 +411,27 @@ class CatalystListing
             return
         end
 
+        if input == "group done for today" then
+            item = store.getDefault()
+            return if item.nil?
+
+            if item["mikuType"] != "NxTodo" then
+                puts "Only a NxTodo can be target for `group done for today`"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+
+            return if item["cx22"].nil?
+
+            bankaccount = item["cx22"]["bankaccount"]
+            BankAccountDoneForToday::setDoneToday(bankaccount)
+            $CatalystAlfred1.mutateAfterBankAccountUpdate(bankaccount)
+
+            return
+        end
+
         if Interpreting::match("groups", input) then
-            Nx11EGroupsUtils::groupsDive()
+            Cx22::repsDive()
             return
         end
 
@@ -786,11 +760,11 @@ class CatalystListing
         packets = $CatalystGroupMonitor1.getLx13sForDisplay()
         if packets.size > 0 then
             puts ""
-            puts "Nx53 (below completion 1):".yellow
+            puts "Cx22 (Contribution Groups) below completion 1:".yellow
             vspaceleft = vspaceleft - 2
             packets
                 .each{|packet|
-                    puts "    - #{packet["name"]} (#{packet["cr"].round(2)})".yellow
+                    puts "    - #{packet["groupname"]} (#{packet["cr"].round(2)})".yellow
                     vspaceleft = vspaceleft - 1
                 }
         end

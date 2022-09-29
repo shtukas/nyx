@@ -19,10 +19,11 @@ class NxTodos
     def self.interactivelyCreateNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-        uuid       = SecureRandom.uuid
-        nx11e      = Nx11E::interactivelyCreateNewNx11EOrNull(uuid)
+        uuid        = SecureRandom.uuid
+        nx11e       = Nx11E::interactivelyCreateNewNx11EOrNull()
         return if nx11e.nil?
-        nx113nhash = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
+        nx113nhash  = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
+        cx22        = Cx22::architectOrNull()
         ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)
         ItemsEventsLog::setAttribute2(uuid, "mikuType",    "NxTodo")
         ItemsEventsLog::setAttribute2(uuid, "unixtime",    Time.new.to_i)
@@ -30,6 +31,7 @@ class NxTodos
         ItemsEventsLog::setAttribute2(uuid, "description", description)
         ItemsEventsLog::setAttribute2(uuid, "nx113",       nx113nhash)
         ItemsEventsLog::setAttribute2(uuid, "nx11e",       nx11e)
+        ItemsEventsLog::setAttribute2(uuid, "cx22",        cx22)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
         item = Items::getItemOrNull(uuid)
         if item.nil? then
@@ -46,6 +48,7 @@ class NxTodos
         datetime = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
         nx11e = Nx11E::makeOndate(datetime)
         nx113nhash = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
+        cx22 = Cx22::architectOrNull()
         ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)
         ItemsEventsLog::setAttribute2(uuid, "mikuType",    "NxTodo")
         ItemsEventsLog::setAttribute2(uuid, "unixtime",    Time.new.to_i)
@@ -53,6 +56,7 @@ class NxTodos
         ItemsEventsLog::setAttribute2(uuid, "description", description)
         ItemsEventsLog::setAttribute2(uuid, "nx113",       nx113nhash)
         ItemsEventsLog::setAttribute2(uuid, "nx11e",       nx11e)
+        ItemsEventsLog::setAttribute2(uuid, "cx22",        cx22)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
         item = Items::getItemOrNull(uuid)
         if item.nil? then
@@ -72,6 +76,7 @@ class NxTodos
         nx11e = Nx11E::makeHot()
         return if nx11e.nil?
         nx113nhash = nil
+        cx22 = Cx22::architectOrNull()
         ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)
         ItemsEventsLog::setAttribute2(uuid, "mikuType",    "NxTodo")
         ItemsEventsLog::setAttribute2(uuid, "unixtime",    Time.new.to_i)
@@ -79,6 +84,7 @@ class NxTodos
         ItemsEventsLog::setAttribute2(uuid, "description", description)
         ItemsEventsLog::setAttribute2(uuid, "nx113",       nx113nhash)
         ItemsEventsLog::setAttribute2(uuid, "nx11e",       nx11e)
+        ItemsEventsLog::setAttribute2(uuid, "cx22",        cx22)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
         item = Items::getItemOrNull(uuid)
         if item.nil? then
@@ -134,7 +140,7 @@ class NxTodos
 
     # NxTodos::toString(item)
     def self.toString(item)
-        "(todo) #{Nx11E::toString(item["nx11e"])} #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")}"
+        "(todo) #{Nx11E::toString(item["nx11e"])} #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")}".gsub("(todo) (standard)", "(todo)")
     end
 
     # NxTodos::toStringForSearch(item)
@@ -238,7 +244,7 @@ class NxTodos
             end
 
             if Interpreting::match("engine", input) then
-                engine = Nx11E::interactivelyCreateNewNx11EOrNull(item["uuid"])
+                engine = Nx11E::interactivelyCreateNewNx11EOrNull()
                 next if engine.nil?
                 ItemsEventsLog::setAttribute2(item["uuid"], "nx11e", engine)
                 next

@@ -295,17 +295,10 @@ class PolyActions
         return if NxBallsService::isRunning(item["uuid"])
         accounts = []
         accounts << item["uuid"]
-        if item["mikuType"] == "NxTodo" then
-            nx11e = item["nx11e"]
-            if nx11e["type"] == "Ax39Group" then
-                accounts << nx11e["group"]["account"] # We also register the group account
-            end
-            if nx11e["type"] == "Ax39Engine" then
-                # There is a itemuuid here, but it is the same as the item["uuid"] itself
-            end
+        if item["cx22"] then
+            accounts << item["cx22"]["bankaccount"] # Contribution
         end
         NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), accounts, PolyFunctions::timeBeforeNotificationsInHours(item)*3600)
-
         SystemEvents::process({
             "mikuType"   => "(object has been touched)",
             "objectuuid" => item["uuid"]

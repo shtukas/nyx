@@ -2,7 +2,7 @@
 
 class BankAccountDoneForToday
 
-    # The `thing` that is set `Ax39 done for today` is a bank account
+    # The `thing` that is set `group done for today` is a bank account
     # The drives the Ax39's `should show`
 
     # BankAccountDoneForToday::setDoneToday(bankaccount)
