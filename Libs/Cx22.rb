@@ -92,21 +92,35 @@ class Cx22
     # Cx22::repsDive()
     def self.repsDive()
         loop {
-            group = Cx22::interactivelySelectCx22RepOrNull()
-            break if group.nil?
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("group", ["dive", "start NxBall", "done for the day"])
+            rep = Cx22::interactivelySelectCx22RepOrNull()
+            break if rep.nil?
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("rep", ["dive", "start NxBall", "done for the day", "expose", "completion ratio"])
             break if action.nil?
             if action == "dive" then
-                Cx22::repDive(group)
+                Cx22::repDive(rep)
             end
             if action == "start NxBall" then
-                NxBallsService::issue(SecureRandom.uuid, "group: #{group["groupname"]}", [group["bankaccount"]], 3600)
+                NxBallsService::issue(SecureRandom.uuid, "rep: #{rep["groupname"]}", [rep["bankaccount"]], 3600)
                 next
             end
             if action == "done for the day" then
-                bankaccount = group["bankaccount"]
+                bankaccount = rep["bankaccount"]
                 BankAccountDoneForToday::setDoneToday(bankaccount)
                 $CatalystAlfred1.mutateAfterBankAccountUpdate(bankaccount)
+                next
+            end
+            if action == "expose" then
+                puts JSON.pretty_generate(rep)
+                LucilleCore::pressEnterToContinue()
+                next
+            end
+            if action == "completion ratio" then
+                puts JSON.pretty_generate(rep)
+                ax39     = rep["ax39"]
+                account  = rep["bankaccount"]
+                cr = Ax39::completionRatio(ax39, account)
+                puts "completion ratio: #{cr}"
+                LucilleCore::pressEnterToContinue()
                 next
             end
         }
