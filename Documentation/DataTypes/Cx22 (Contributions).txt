@@ -1,5 +1,5 @@
 
-Contributions
+Cx22, Contribution, optional attribute for NxTodos and Waves
 
 Cx22 {
     "mikuType"    : "Cx22"
