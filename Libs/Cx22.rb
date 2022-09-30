@@ -12,12 +12,6 @@ class Cx22
         }
     end
 
-    # Cx22::interactivelySelectCx22OrNull()
-    def self.interactivelySelectCx22OrNull()
-        groups = Cx22::reps()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("group", groups, lambda{|group| group["name"] })
-    end
-
     # Cx22::makeNewOrNull()
     def self.makeNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty for abort): ")
@@ -29,7 +23,7 @@ class Cx22
     # Cx22::architectOrNull()
     def self.architectOrNull()
         puts "Select a group and if nothing you will get a chance to create a new one"
-        group = Cx22::interactivelySelectCx22OrNull()
+        group = Cx22::interactivelySelectCx22RepOrNull()
         return group if group
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to create a new group ? ", true) then
             return Cx22::makeNewOrNull()
@@ -50,6 +44,17 @@ class Cx22
         ItemsEventsLog::setAttribute2(item["uuid"], "cx22", cx22)
     end
 
+    # Cx22::toString(cx22)
+    def self.toString(cx22)
+        "(#{cx22["groupname"]})"
+    end
+
+    # Cx22::toStringOrNull(cx22)
+    def self.toStringOrNull(cx22)
+        return nil if cx22.nil?
+        "(#{cx22["groupname"]})"
+    end
+
     # --------------------------------------------
     # Reps
 
@@ -68,6 +73,12 @@ class Cx22
             }
     end
 
+    # Cx22::interactivelySelectCx22RepOrNull()
+    def self.interactivelySelectCx22RepOrNull()
+        groups = Cx22::reps()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("group", groups, lambda{|rep| rep["groupname"]})
+    end
+
     # Cx22::repDive(rep)
     def self.repDive(rep)
         loop {
@@ -81,7 +92,7 @@ class Cx22
     # Cx22::repsDive()
     def self.repsDive()
         loop {
-            group = Cx22::interactivelySelectCx22OrNull()
+            group = Cx22::interactivelySelectCx22RepOrNull()
             break if group.nil?
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("group", ["dive", "start NxBall", "done for the day"])
             break if action.nil?
@@ -106,5 +117,4 @@ class Cx22
         NxTodos::items()
             .select{|item| item["cx22"] and item["cx22"]["groupuuid"] == rep["groupuuid"] }
     end
-
 end

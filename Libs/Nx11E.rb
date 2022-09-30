@@ -114,11 +114,15 @@ class Nx11E
         raise "(error: b8adb3e1-eaee-4d06-afb4-bc0f3db0142b) nx11e: #{nx11e}"
     end
 
-    # Nx11E::priorityOrNull(nx11e)
+    # Nx11E::priorityOrNull(nx11e, cx22Opt)
     # We return a null value when the nx11e should not be displayed
-    def self.priorityOrNull(nx11e)
-        shiftForUnixtimeOrdering = lambda {|unixtime|
-            Math.atan(Time.new.to_f - unixtime).to_f/100
+    def self.priorityOrNull(nx11e, cx22Opt)
+        shiftOnDateTime = lambda {|datetime|
+            0.01*(Time.new.to_f - DateTime.parse(datetime).to_time.to_f)/86400
+        }
+
+        shiftOnUnixtime = lambda {|unixtime|
+            0.01*Math.log(Time.new.to_f - unixtime)
         }
 
         if nx11e["mikuType"] != "Nx11E" then
@@ -127,7 +131,7 @@ class Nx11E
 
         if nx11e["type"] == "hot" then
             unixtime = nx11e["unixtime"]
-            return 0.90 + shiftForUnixtimeOrdering.call(unixtime)
+            return 0.90 + shiftOnUnixtime.call(unixtime)
         end
 
         if nx11e["type"] == "ordinal" then
@@ -140,8 +144,19 @@ class Nx11E
         end
 
         if nx11e["type"] == "standard" then
+
             unixtime = nx11e["unixtime"]
-            return 0.40 + shiftForUnixtimeOrdering.call(unixtime)
+
+            if cx22Opt then
+                cx22 = cx22Opt
+                ax39     = cx22["ax39"]
+                account  = cx22["bankaccount"]
+                cr = Ax39::completionRatio(ax39, account)
+                return nil if cr >= 1
+                return 0.50 + (1 - cr).to_f/10 + shiftOnUnixtime.call(unixtime)
+            end
+
+            return 0.40 + shiftOnUnixtime.call(unixtime)
         end
 
         raise "(error: 188c8d4b-1a79-4659-bd93-6d8e3ddfe4d1) nx11e: #{nx11e}"

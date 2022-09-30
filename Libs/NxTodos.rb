@@ -140,7 +140,7 @@ class NxTodos
 
     # NxTodos::toString(item)
     def self.toString(item)
-        "(todo) #{Nx11E::toString(item["nx11e"])} #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")}".gsub("(todo) (standard)", "(todo)")
+        "(todo) #{Nx11E::toString(item["nx11e"])} #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")} #{Cx22::toStringOrNull(item["cx22"])}".strip.gsub("(todo) (standard)", "(todo)")
     end
 
     # NxTodos::toStringForSearch(item)
@@ -152,6 +152,11 @@ class NxTodos
     def self.itemsOndates()
         NxTodos::items()
             .select{|item| item["nx11e"]["type"] == "ondate" }
+    end
+
+    # NxTodos::listingPriorityOrNull(item)
+    def self.listingPriorityOrNull(item) # Float between 0 and 1
+        Nx11E::priorityOrNull(item["nx11e"], item["cx22"])
     end
 
     # --------------------------------------------------

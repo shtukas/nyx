@@ -89,6 +89,8 @@ class CatalystAlfred
             Anniversaries::listingItems(),
             Waves::items(),
             NxTodos::items()
+                .sort{|p1, p2| p1["unixtime"] <=> p2["unixtime"] }
+                .first(100)
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
@@ -204,9 +206,12 @@ class CatalystAlfred
     end
 
     def mutateAfterBankAccountUpdate(bankaccount)
-        Cx22::bankaccountToItems(bankaccount).each{|item|
-            mutateLx12sCycleItemByUUID(item["uuid"])
-        }
+        uuids = @lx12s.map{|ix| ix["item"]["uuid"] }
+        Cx22::bankaccountToItems(bankaccount)
+            .each{|item|
+                next if !uuids.include?(item["uuid"])
+                mutateLx12sCycleItemByUUID(item["uuid"])
+            }
     end
 end
 
@@ -415,12 +420,6 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
 
-            if item["mikuType"] != "NxTodo" then
-                puts "Only a NxTodo can be target for `group done for today`"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-
             return if item["cx22"].nil?
 
             bankaccount = item["cx22"]["bankaccount"]
@@ -557,6 +556,7 @@ class CatalystListing
         if Interpreting::match("rebuild", input) then
             t1 = Time.new.to_f
             $CatalystAlfred1.rebuildLx12sFromStratch()
+            $CatalystGroupMonitor1.rebuildLx13sFromScratch()
             t2 = Time.new.to_f
             puts "Completed in #{(t2-t1).round(2)} seconds"
             LucilleCore::pressEnterToContinue()

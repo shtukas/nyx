@@ -151,12 +151,8 @@ class PolyFunctions
             return 0.95
         end
 
-        if item["mikuType"] == "Nx11E" then
-            return Nx11E::priorityOrNull(item)
-        end
-
         if item["mikuType"] == "NxTodo" then
-            return PolyFunctions::listingPriorityOrNull(item["nx11e"])
+            return NxTodos::listingPriorityOrNull(item)
         end
 
         if item["mikuType"] == "Wave" then
