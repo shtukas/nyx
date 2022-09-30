@@ -20,8 +20,7 @@ class NxTodos
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid        = SecureRandom.uuid
-        nx11e       = Nx11E::interactivelyCreateNewNx11EOrNull()
-        return if nx11e.nil?
+        nx11e       = Nx11E::interactivelyCreateNewNx11E()
         nx113nhash  = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
         cx22        = Cx22::architectOrNull()
         ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)

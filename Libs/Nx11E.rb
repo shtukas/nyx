@@ -80,6 +80,14 @@ class Nx11E
         end
     end
 
+    # Nx11E::interactivelyCreateNewNx11E()
+    def self.interactivelyCreateNewNx11E()
+        loop {
+            nx11e = Nx11E::interactivelyCreateNewNx11EOrNull()
+            return nx11e if nx11e
+        }
+    end
+
     # Nx11E::interactivelySetANewEngineForItemOrNothing(item)
     def self.interactivelySetANewEngineForItemOrNothing(item)
         engine = Nx11E::interactivelyCreateNewNx11EOrNull()

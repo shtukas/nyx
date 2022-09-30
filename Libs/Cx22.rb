@@ -50,24 +50,6 @@ class Cx22
         "(#{cx22["groupname"]})"
     end
 
-    # Cx22::getLx13s()
-    def self.getLx13s()
-        Cx22::reps()
-            .map{|rep|
-                rep["cr"] = Ax39::completionRatio(rep["ax39"], rep["bankaccount"])
-                rep
-            }
-    end
-
-    # Cx22::getNonDoneForTodayRepWithLowersCRBelow1OrNull()
-    def self.getNonDoneForTodayRepWithLowersCRBelow1OrNull()
-        Cx22::getLx13s()
-            .select{|rep| !BankAccountDoneForToday::isDoneToday(rep["bankaccount"])}
-            .select{|rep| rep["cr"] < 1}
-            .sort{|r1, r2| r1["cr"] <=> r2["cr"] }
-            .first
-    end
-
     # --------------------------------------------
     # Reps
 
@@ -149,5 +131,26 @@ class Cx22
     def self.repToNxTodos(rep)
         NxTodos::items()
             .select{|item| item["cx22"] and item["cx22"]["groupuuid"] == rep["groupuuid"] }
+    end
+
+    # --------------------------------------------
+    # Lx13s
+
+    # Cx22::getLx13s()
+    def self.getLx13s()
+        Cx22::reps()
+            .map{|rep|
+                rep["cr"] = Ax39::completionRatio(rep["ax39"], rep["bankaccount"])
+                rep
+            }
+    end
+
+    # Cx22::getNonDoneForTodayRepWithLowersCRBelow1OrNull()
+    def self.getNonDoneForTodayRepWithLowersCRBelow1OrNull()
+        Cx22::getLx13s()
+            .select{|rep| !BankAccountDoneForToday::isDoneToday(rep["bankaccount"])}
+            .select{|rep| rep["cr"] < 1}
+            .sort{|r1, r2| r1["cr"] <=> r2["cr"] }
+            .first
     end
 end
