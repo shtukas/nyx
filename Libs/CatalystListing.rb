@@ -612,6 +612,11 @@ class CatalystListing
             return if item.nil?
             puts "Adding #{timeInHours.to_f} hours to #{PolyFunctions::toString(item).green}"
             Bank::put(item["uuid"], timeInHours.to_f*3600)
+            if item["cx22"] then
+                bankaccount = item["cx22"]["bankaccount"] # Contribution
+                puts "Adding (Cx22, contributions) #{timeInHours.to_f} hours to bank account #{bankaccount}"
+                Bank::put(bankaccount, timeInHours.to_f*3600)
+            end
             return
         end
 
