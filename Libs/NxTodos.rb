@@ -140,7 +140,8 @@ class NxTodos
 
     # NxTodos::toString(item)
     def self.toString(item)
-        "(todo) #{Nx11E::toString(item["nx11e"])} #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")} #{Cx22::toStringOrNull(item["cx22"])}".strip.gsub("(todo) (standard)", "(todo)")
+        cx22str = item["cx22"] ? " #{Cx22::toString(item["cx22"]).green}" : ""
+        "(todo) #{Nx11E::toString(item["nx11e"])} #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")}#{cx22str}".strip.gsub("(todo) (standard)", "(todo)")
     end
 
     # NxTodos::toStringForSearch(item)
@@ -157,6 +158,20 @@ class NxTodos
     # NxTodos::listingPriorityOrNull(item)
     def self.listingPriorityOrNull(item) # Float between 0 and 1
         Nx11E::priorityOrNull(item["nx11e"], item["cx22"])
+    end
+
+    # NxTodos::itemsForCx22RepOrItemsInUnixtimeOrder(cx22Opt)
+    def self.itemsForCx22RepOrItemsInUnixtimeOrder(cx22Opt)
+        if cx22Opt then
+            cx22 = cx22Opt
+            Items::mikuTypeToItems("NxTodo")
+                .select{|item| item["cx22"] and (item["cx22"]["groupuuid"] == cx22["groupuuid"]) }
+                .sort{|p1, p2| p1["unixtime"] <=> p2["unixtime"] }
+        else
+            Items::mikuTypeToItems("NxTodo")
+                .select{|item| item["cx22"].nil? }
+                .sort{|p1, p2| p1["unixtime"] <=> p2["unixtime"] }
+        end
     end
 
     # --------------------------------------------------

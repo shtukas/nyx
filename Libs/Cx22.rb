@@ -31,10 +31,11 @@ class Cx22
         nil
     end
 
-    # Cx22::bankaccountToItems(bankaccount)
-    def self.bankaccountToItems(bankaccount)
+    # Cx22::bankaccountToItemsInUnixtimeOrder(bankaccount)
+    def self.bankaccountToItemsInUnixtimeOrder(bankaccount)
         NxTodos::items()
             .select{|item| item["cx22"] and item["cx22"]["bankaccount"] == bankaccount }
+            .sort{|p1, p2| p1["unixtime"] <=> p2["unixtime"] }
     end
 
     # Cx22::interactivelySetANewContributionForItemOrNothing(item)
@@ -49,10 +50,22 @@ class Cx22
         "(#{cx22["groupname"]})"
     end
 
-    # Cx22::toStringOrNull(cx22)
-    def self.toStringOrNull(cx22)
-        return nil if cx22.nil?
-        "(#{cx22["groupname"]})"
+    # Cx22::getLx13s()
+    def self.getLx13s()
+        Cx22::reps()
+            .map{|rep|
+                rep["cr"] = Ax39::completionRatio(rep["ax39"], rep["bankaccount"])
+                rep
+            }
+    end
+
+    # Cx22::getNonDoneForTodayRepWithLowersCRBelow1OrNull()
+    def self.getNonDoneForTodayRepWithLowersCRBelow1OrNull()
+        Cx22::getLx13s()
+            .select{|rep| !BankAccountDoneForToday::isDoneToday(rep["bankaccount"])}
+            .select{|rep| rep["cr"] < 1}
+            .sort{|r1, r2| r1["cr"] <=> r2["cr"] }
+            .first
     end
 
     # --------------------------------------------
@@ -94,7 +107,7 @@ class Cx22
         loop {
             rep = Cx22::interactivelySelectCx22RepOrNull()
             break if rep.nil?
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("rep", ["dive", "start NxBall", "done for the day", "expose", "completion ratio"])
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("rep", ["dive", "start NxBall", "done for the day", "un-{done for the day}", "expose", "completion ratio"])
             break if action.nil?
             if action == "dive" then
                 Cx22::repDive(rep)
@@ -106,6 +119,12 @@ class Cx22
             if action == "done for the day" then
                 bankaccount = rep["bankaccount"]
                 BankAccountDoneForToday::setDoneToday(bankaccount)
+                $CatalystAlfred1.mutateAfterBankAccountUpdate(bankaccount)
+                next
+            end
+            if action == "un-{done for the day}" then
+                bankaccount = rep["bankaccount"]
+                BankAccountDoneForToday::setUnDoneToday(bankaccount)
                 $CatalystAlfred1.mutateAfterBankAccountUpdate(bankaccount)
                 next
             end

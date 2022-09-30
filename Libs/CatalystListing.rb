@@ -26,11 +26,7 @@ class CatalystGroupMonitor
     end
 
     def rebuildLx13sFromScratch()
-        @lx13 = Cx22::reps()
-            .map{|group|
-                group["cr"] = Ax39::completionRatio(group["ax39"], group["bankaccount"])
-                group
-            }
+        @lx13 = Cx22::getLx13s()
         XCacheValuesWithExpiry::set("abc03773-bdca-4c5d-86e9-92a253f3e23a", @lx13, nil)
     end
 end
@@ -54,7 +50,7 @@ class CatalystAlfred
         end
         Thread.new {
             loop {
-                sleep 3600*2
+                sleep 3600
                 rebuildLx12sFromStratch()
             }
         }
@@ -88,9 +84,7 @@ class CatalystAlfred
             JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`),
             Anniversaries::listingItems(),
             Waves::items(),
-            NxTodos::items()
-                .sort{|p1, p2| p1["unixtime"] <=> p2["unixtime"] }
-                .first(100)
+            NxTodos::itemsForCx22RepOrItemsInUnixtimeOrder(Cx22::getNonDoneForTodayRepWithLowersCRBelow1OrNull()).first(100)
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
@@ -149,7 +143,7 @@ class CatalystAlfred
 
         if event["mikuType"] == "NxBankEvent" then
             bankaccount = event["setuuid"]
-            Cx22::bankaccountToItems(bankaccount)
+            Cx22::bankaccountToItemsInUnixtimeOrder(bankaccount)
                 .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
                 .first(10)
                 .each{|item|
@@ -163,7 +157,7 @@ class CatalystAlfred
 
         if event["mikuType"] == "bank-account-done-today" then
             bankaccount = event["bankaccount"]
-            Cx22::bankaccountToItems(bankaccount)
+            Cx22::bankaccountToItemsInUnixtimeOrder(bankaccount)
                 .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
                 .first(10)
                 .each{|item|
@@ -206,10 +200,9 @@ class CatalystAlfred
     end
 
     def mutateAfterBankAccountUpdate(bankaccount)
-        uuids = @lx12s.map{|ix| ix["item"]["uuid"] }
-        Cx22::bankaccountToItems(bankaccount)
+        Cx22::bankaccountToItemsInUnixtimeOrder(bankaccount)
+            .first(100)
             .each{|item|
-                next if !uuids.include?(item["uuid"])
                 mutateLx12sCycleItemByUUID(item["uuid"])
             }
     end
