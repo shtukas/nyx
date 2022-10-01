@@ -57,16 +57,6 @@ checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/multi-instance-share
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/multi-instance-shared2/shared-config.json")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/DataStore1OutGoingBuffer")
 
-filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/DoNotShowUntil.sqlite3"
-if !File.exists?(filepath) then
-    db = SQLite3::Database.new(filepath)
-    db.busy_timeout = 117
-    db.busy_handler { |count| true }
-    db.results_as_hash = true
-    db.execute("create table _mapping_ (_uuid_ text primary key, _unixtime_ float)", [])
-    db.close
-end
-
 filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/network-links.sqlite3"
 if !File.exists?(filepath) then
     db = SQLite3::Database.new(filepath)
