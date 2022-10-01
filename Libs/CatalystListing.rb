@@ -788,7 +788,13 @@ class CatalystListing
             .each{|lx12|
                 break if vspaceleft <= 0
                 item = lx12["item"]
-                store.register(item, true)
+
+                canBeDefault = lambda{|lx12|
+                    return false if lx12["announce"].include?("(todo) (hot)")
+                    return true
+                }
+
+                store.register(item, canBeDefault.call(lx12))
                 line = "#{store.prefixString()} #{lx12["announce"]}"
                 if NxBallsService::isPresent(item["uuid"]) then
                     line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
