@@ -4,23 +4,6 @@
 
 class Bank
 
-    # Bank::pathToBank()
-    def self.pathToBank()
-        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/bank.sqlite3"
-    end
-
-    # Bank::insertRecord(row)
-    def self.insertRecord(row)
-        $bank_database_semaphore.synchronize {
-            db = SQLite3::Database.new(Bank::pathToBank())
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.execute "delete from _bank_ where _eventuuid_=?", [row["_eventuuid_"]] # (1)
-            db.execute "insert into _bank_ (_eventuuid_, _setuuid_, _unixtime_, _date_, _weight_) values (?, ?, ?, ?, ?)", [row["_eventuuid_"], row["_setuuid_"], row["_unixtime_"], row["_date_"], row["_weight_"]]
-            db.close
-        }
-    end
-
     # Bank::putLibrarianOnly(eventuuid, setuuid, unixtime, date, weight) # Used by regular activity. Emits events for the other computer,
     def self.putLibrarianOnly(eventuuid, setuuid, unixtime, date, weight)
         eventTime = Time.new.to_f
