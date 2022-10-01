@@ -236,11 +236,11 @@ class Waves
             puts "datetime: #{item["datetime"]}".yellow
 
             puts ""
-            puts "description | access | start | stop | edit | done | do not show until | nx113 | expose | destroy | nyx".yellow
+            puts "description | access | start | stop | edit | done | do not show until | nx46 (schedule) | nx113 | expose | destroy | nyx".yellow
             puts ""
 
             input = LucilleCore::askQuestionAnswerAsString("> ")
-            next if input == ""
+            return if input == ""
 
             # ordering: alphabetical
 
@@ -282,6 +282,13 @@ class Waves
             if Interpreting::match("expose", input) then
                 puts JSON.pretty_generate(item)
                 LucilleCore::pressEnterToContinue()
+                next
+            end
+
+            if Interpreting::match("nx46", input) then
+                nx46 = Waves::makeNx46InteractivelyOrNull()
+                next if nx46.nil?
+                ItemsEventsLog::setAttribute2(item["uuid"], "nx46", nx46)
                 next
             end
 
