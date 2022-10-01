@@ -148,7 +148,7 @@ class PolyFunctions
         end
 
         if item["mikuType"] == "NxAnniversary" then
-            return 0.95
+            return Anniversaries::isOpenToAcknowledgement(anniversary) ? 0.95 : -1
         end
 
         if item["mikuType"] == "NxTodo" then

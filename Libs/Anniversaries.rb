@@ -152,10 +152,15 @@ class Anniversaries
         end
     end
 
+    # Anniversaries::isOpenToAcknowledgement(anniversary)
+    def self.isOpenToAcknowledgement(anniversary)
+        Anniversaries::nextDateOrdinal(anniversary)[0] <= CommonUtils::today() 
+    end
+
     # Anniversaries::listingItems()
     def self.listingItems()
         Anniversaries::anniversaries()
-            .select{|anniversary| Anniversaries::nextDateOrdinal(anniversary)[0] <= CommonUtils::today() }
+            .select{|anniversary| Anniversaries::isOpenToAcknowledgement(anniversary) }
     end
 
     # Anniversaries::dailyBriefing()
