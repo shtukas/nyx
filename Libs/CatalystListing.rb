@@ -84,7 +84,7 @@ class CatalystAlfred
             JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`),
             Anniversaries::listingItems(),
             Waves::items(),
-            NxTodos::itemsForCx22RepOrItemsInUnixtimeOrder(Cx22::getNonDoneForTodayRepWithLowersCRBelow1OrNull()).first(100)
+            NxTodos::itemsInDisplayOrder(Cx22::getNonDoneForTodayRepWithLowersCRBelow1OrNull()).first(100)
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
@@ -213,7 +213,7 @@ class CatalystListing
     # CatalystListing::listingCommands()
     def self.listingCommands()
         [
-            ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | nx113 (<n>) | engine (<n>) | contribution (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | group done for today | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
+            ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | nx113 (<n>) | engine (<n>) | contribution (<n>) | cx23 (group position) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | group done for today | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
             "update start date (<n>)",
             "wave | anniversary | hot | today | ondate | todo",
             "anniversaries | ondates | todos | waves | groups",
@@ -285,6 +285,21 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             Cx22::interactivelySetANewContributionForItemOrNothing(item)
+            return
+        end
+
+        if Interpreting::match("cx23", input) then
+            item = store.getDefault()
+            return if item.nil?
+            Cx23::interactivelySetCx23ForItemOrNothing(item)
+            return
+        end
+
+        if Interpreting::match("cx23 *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            Cx23::interactivelySetCx23ForItemOrNothing(item)
             return
         end
 

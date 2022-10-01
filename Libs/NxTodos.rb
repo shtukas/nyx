@@ -23,6 +23,7 @@ class NxTodos
         nx11e       = Nx11E::interactivelyCreateNewNx11E()
         nx113nhash  = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
         cx22        = Cx22::architectOrNull()
+        cx23        = cx22 ? Cx23::makeNewOrNull2(cx22["groupuuid"]) : nil
         ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)
         ItemsEventsLog::setAttribute2(uuid, "mikuType",    "NxTodo")
         ItemsEventsLog::setAttribute2(uuid, "unixtime",    Time.new.to_i)
@@ -31,6 +32,7 @@ class NxTodos
         ItemsEventsLog::setAttribute2(uuid, "nx113",       nx113nhash)
         ItemsEventsLog::setAttribute2(uuid, "nx11e",       nx11e)
         ItemsEventsLog::setAttribute2(uuid, "cx22",        cx22)
+        ItemsEventsLog::setAttribute2(uuid, "cx23",        cx23)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
         item = Items::getItemOrNull(uuid)
         if item.nil? then
@@ -140,7 +142,8 @@ class NxTodos
     # NxTodos::toString(item)
     def self.toString(item)
         cx22str = item["cx22"] ? " #{Cx22::toString(item["cx22"]).green}" : ""
-        "(todo) #{Nx11E::toString(item["nx11e"])} #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")}#{cx22str}".strip.gsub("(todo) (standard)", "(todo)")
+        cx23str = item["cx23"] ? " (pos: #{"%6.2f" % item["cx23"]["position"]})" : ""
+        "(todo)#{cx23str} #{Nx11E::toString(item["nx11e"])} #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")}#{cx22str}".strip.gsub("(todo) (standard)", "(todo)")
     end
 
     # NxTodos::toStringForSearch(item)
@@ -159,13 +162,23 @@ class NxTodos
         Nx11E::priorityOrNull(item["nx11e"], item["cx22"])
     end
 
-    # NxTodos::itemsForCx22RepOrItemsInUnixtimeOrder(cx22Opt)
-    def self.itemsForCx22RepOrItemsInUnixtimeOrder(cx22Opt)
+    # NxTodos::itemsInDisplayOrder(cx22Opt)
+    def self.itemsInDisplayOrder(cx22Opt)
+
+        # If cx22 is set, then we present the items with a cx23 first (in position order), and then
+        # the ones without a cx23 in unixtime order
+
+        # If cx22 is not set, we present items without a cx22 in unixtime order
+
         if cx22Opt then
             cx22 = cx22Opt
-            Items::mikuTypeToItems("NxTodo")
+            items = Items::mikuTypeToItems("NxTodo")
                 .select{|item| item["cx22"] and (item["cx22"]["groupuuid"] == cx22["groupuuid"]) }
-                .sort{|p1, p2| p1["unixtime"] <=> p2["unixtime"] }
+
+            items1, items2 = items.partition{|item| item["cx23"] }
+            items1 = items1.sort{|i1, i2| i1["cx23"]["position"] <=> i2["cx23"]["position"] }
+            items2 = items2.sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+            items1 + items2
         else
             Items::mikuTypeToItems("NxTodo")
                 .select{|item| item["cx22"].nil? }

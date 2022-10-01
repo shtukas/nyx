@@ -50,6 +50,14 @@ class Cx22
         "(#{cx22["groupname"]})"
     end
 
+    # Cx22::groupuuidToItemsWithPositionInPositionOrder(groupuuid) # Array[NxTodo] # with Cx22 and Cx23
+    def self.groupuuidToItemsWithPositionInPositionOrder(groupuuid)
+        NxTodos::items()
+            .select{|item| item["cx22"] and item["cx22"]["groupuuid"] == groupuuid }
+            .select{|item| item["cx23"] }
+            .sort{|i1, i2| i1["cx23"]["position"] <=> i2["cx23"]["position"] }
+    end
+
     # --------------------------------------------
     # Reps
 
@@ -77,7 +85,7 @@ class Cx22
     # Cx22::repDive(rep)
     def self.repDive(rep)
         loop {
-            elements = Cx22::repToNxTodos(rep).first(20)
+            elements = NxTodos::itemsInDisplayOrder(rep).first(20)
             element = LucilleCore::selectEntityFromListOfEntitiesOrNull("element", elements, lambda{|element| PolyFunctions::toString(element) })
             break if element.nil?
             PolyPrograms::itemLanding(element)
@@ -125,12 +133,6 @@ class Cx22
                 next
             end
         }
-    end
-
-    # Cx22::repToNxTodos(rep) # Array[NxTodo]
-    def self.repToNxTodos(rep)
-        NxTodos::items()
-            .select{|item| item["cx22"] and item["cx22"]["groupuuid"] == rep["groupuuid"] }
     end
 
     # --------------------------------------------

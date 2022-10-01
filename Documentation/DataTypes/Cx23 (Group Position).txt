@@ -1,0 +1,5 @@
+
+Cx23 {
+    "groupuuid": String
+    "position" : Float
+}
