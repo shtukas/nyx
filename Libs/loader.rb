@@ -245,6 +245,7 @@ require_relative "SQLiteDataStore2.rb"
 require_relative "The99Percent.rb"
 require_relative "Items.rb"
 require_relative "ThreadsX.rb"
+require_relative "TheLibrarian.rb"
 
 require_relative "UniqueStringsFunctions.rb"
 require_relative "Upload.rb"

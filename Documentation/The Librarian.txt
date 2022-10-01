@@ -1,0 +1,36 @@
+
+### PrimaryStructure.v1
+
+{
+    "mikuType"      : "PrimaryStructure.v1"
+    "banking"       : nhash to a JSON encoded "PrimaryStructure.v1:Banking"
+    "doNotShowUntil": nhash to a JSON encoded "PrimaryStructure.v1:DoNotShowUntil"
+    "items"         : nhash to a JSON encoded "PrimaryStructure.v1:Items"
+    "networkLinks"  : nhash to a JSON encoded "PrimaryStructure.v1:NetworkLinks"
+}
+
+LibrarianPointer {
+    "mikuType" : "LibrarianPointer"
+    "unixtime" : Float
+    "nhash"    : nhash of the JSON encoding of a PrimaryStructure.v1
+}
+
+Given a LibrarianPointer and a PrimaryEvent, we get another LibrarianPointer.
+
+### PrimaryStructure.v1:Banking
+
+{
+    "mikuType" : "PrimaryStructure.v1:Banking"
+    "mapping"  : Map[setuuid, nhash to a JSON encoded Array[TxBankEvent]]
+}
+
+TxBankEvent
+{
+    "mikuType"  => "TxBankEvent",
+    "eventuuid" => eventuuid,
+    "eventTime" => Float,
+    "setuuid"   => setuuid,
+    "unixtime"  => unixtime,
+    "date"      => date,
+    "weight"    => weight
+}

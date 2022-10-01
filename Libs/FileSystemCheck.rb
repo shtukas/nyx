@@ -216,4 +216,14 @@ class FileSystemCheck
         }
         puts "fsck completed successfully".green
     end
+
+    # FileSystemCheck::fsckPrimaryStructure()
+    def self.fsckPrimaryStructure()
+        puts "FileSystemCheck::fsckPrimaryStructure()"
+        primary = TheLibrarian::getPrimaryStructure()
+        if primary["banking"].nil? then
+            raise "could not find attribute 'banking' for primary structure"
+        end
+        puts "fsck completed successfully".green
+    end
 end

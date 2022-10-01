@@ -1,0 +1,11 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "../Libs/loader.rb"
+
+nhash = ARGV[0]
+
+puts IO.read(
+    DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nhash, true)
+)
