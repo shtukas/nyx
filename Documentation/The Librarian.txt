@@ -24,7 +24,7 @@ Given a LibrarianPointer and a PrimaryEvent, we get another LibrarianPointer.
     "mapping"  : Map[setuuid, nhash to a JSON encoded Array[TxBankEvent]]
 }
 
-TxBankEvent
+[Event] TxBankEvent
 {
     "mikuType"  => "TxBankEvent",
     "eventuuid" => eventuuid,
@@ -33,4 +33,18 @@ TxBankEvent
     "unixtime"  => unixtime,
     "date"      => date,
     "weight"    => weight
+}
+
+### PrimaryStructure.v1:DoNotShowUntil
+
+{
+    "mikuType" : "PrimaryStructure.v1:DoNotShowUntil"
+    "mapping"  : Map[targetuuid, targetunixtime]
+}
+
+[Event] NxDoNotShowUntil
+{
+    "mikuType"       => "NxDoNotShowUntil",
+    "targetuuid"     => uuid,
+    "targetunixtime" => unixtime
 }

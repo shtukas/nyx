@@ -11,37 +11,34 @@ class DoNotShowUntil
 
     # DoNotShowUntil::setUnixtimeNoEvents(uuid, unixtime)
     def self.setUnixtimeNoEvents(uuid, unixtime)
-        $dnsu_database_semaphore.synchronize { 
-            db = SQLite3::Database.new(DoNotShowUntil::pathToMapping())
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.execute "delete from _mapping_ where _uuid_=?", [uuid]
-            db.execute "insert into _mapping_ (_uuid_, _unixtime_) values (?, ?)", [uuid, unixtime]
-            db.close
-        }
+        TheLibrarian::processEvent({
+            "mikuType"       => "NxDoNotShowUntil",
+            "targetuuid"     => uuid,
+            "targetunixtime" => unixtime
+        })
     end
 
     # DoNotShowUntil::setUnixtime(uuid, unixtime)
     def self.setUnixtime(uuid, unixtime)
         DoNotShowUntil::setUnixtimeNoEvents(uuid, unixtime)
-        SystemEvents::process({
-          "mikuType"       => "(do not show until has been updated)",
-          "targetuuid"     => uuid,
-        })
         SystemEvents::broadcast({
-          "uuid"           => SecureRandom.uuid,
-          "mikuType"       => "NxDoNotShowUntil",
-          "targetuuid"     => uuid,
-          "targetunixtime" => unixtime
+            "mikuType"       => "NxDoNotShowUntil",
+            "targetuuid"     => uuid,
+            "targetunixtime" => unixtime
+        })
+        SystemEvents::process({
+          "mikuType"   => "(do not show until has been updated)",
+          "targetuuid" => uuid,
         })
     end
 
     # DoNotShowUntil::processEvent(event)
     def self.processEvent(event)
-        return if event["mikuType"] != "NxDoNotShowUntil"
-        uuid     = event["targetuuid"]
-        unixtime = event["targetunixtime"]
-        DoNotShowUntil::setUnixtimeNoEvents(uuid, unixtime)
+        if event["mikuType"] == "NxDoNotShowUntil" then
+            uuid     = event["targetuuid"]
+            unixtime = event["targetunixtime"]
+            DoNotShowUntil::setUnixtimeNoEvents(uuid, unixtime)
+        end
     end
 
     # DoNotShowUntil::getUnixtimeOrNull(uuid)

@@ -58,6 +58,19 @@ class TheLibrarian
         TheLibrarian::getObject(nhash)
     end
 
+    # TheLibrarian::getDoNotShowUntilObject()
+    def self.getDoNotShowUntilObject()
+        primary = TheLibrarian::getPrimaryStructure()
+        if primary["doNotShowUntil"] then
+            TheLibrarian::getObject(primary["doNotShowUntil"])
+        else
+            {
+                "mikuType" => "PrimaryStructure.v1:DoNotShowUntil",
+                "mapping"  => {}
+            }
+        end
+    end
+
     # -----------------------------------------------------------
     # Setters
 
@@ -83,6 +96,14 @@ class TheLibrarian
         TheLibrarian::setBankingObject(banking)
     end
 
+    # TheLibrarian::setDoNotShowUntilObject(object)
+    def self.setDoNotShowUntilObject(object)
+        nhash = TheLibrarian::setObject(object)
+        primary = TheLibrarian::getPrimaryStructure()
+        primary["doNotShowUntil"] = nhash
+        TheLibrarian::setPrimaryStructure(primary)
+    end
+
     # -----------------------------------------------------------
     # Events
 
@@ -90,6 +111,16 @@ class TheLibrarian
     def self.processEvent(event)
 
         if event["mikuType"] == "TxBankEvent" then
+            #[Event] TxBankEvent
+            #{
+            #    "mikuType"  => "TxBankEvent",
+            #    "eventuuid" => eventuuid,
+            #    "eventTime" => Float,
+            #    "setuuid"   => setuuid,
+            #    "unixtime"  => unixtime,
+            #    "date"      => date,
+            #    "weight"    => weight
+            #}
             FileSystemCheck::fsckTxBankEvent(event)
             banking = TheLibrarian::getBankingObject()
             setuuid = event["setuuid"]
@@ -99,6 +130,20 @@ class TheLibrarian
             events << event
             events = events.sort{|e1, e2| e1["eventTime"] <=> e2["eventTime"] }
             TheLibrarian::setBankingEventsArrayAtSet(setuuid, events)
+        end
+
+        if event["mikuType"] == "NxDoNotShowUntil" then
+            #{
+            #    "mikuType"       => "NxDoNotShowUntil",
+            #    "targetuuid"     => uuid,
+            #    "targetunixtime" => unixtime
+            #}
+            FileSystemCheck::fsckNxDoNotShowUntil(event)
+            dnsu = TheLibrarian::getDoNotShowUntilObject()
+            targetuuid = event["targetuuid"]
+            targetunixtime = event["targetunixtime"]
+            dnsu["mapping"][targetuuid] = targetunixtime
+            TheLibrarian::setDoNotShowUntilObject(dnsu)
         end
 
     end

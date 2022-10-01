@@ -246,6 +246,23 @@ class FileSystemCheck
         end
     end
 
+    # FileSystemCheck::fsckNxDoNotShowUntil(event)
+    def self.fsckNxDoNotShowUntil(event)
+        puts "FileSystemCheck::fsckNxDoNotShowUntil(#{JSON.pretty_generate(event)})"
+        if event["mikuType"].nil? then
+            raise "event has no Miku type"
+        end
+        if event["mikuType"] != "NxDoNotShowUntil" then
+            raise "Incorrect Miku type for function"
+        end
+        if event["targetuuid"].nil? then
+            raise "Missing attribute targetuuid"
+        end
+        if event["targetunixtime"].nil? then
+            raise "Missing attribute targetunixtime"
+        end
+    end
+
     # FileSystemCheck::fsckPrimaryStructure()
     def self.fsckPrimaryStructure()
         puts "FileSystemCheck::fsckPrimaryStructure()"
