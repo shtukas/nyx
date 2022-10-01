@@ -141,7 +141,7 @@ class CatalystAlfred
             #
         end
 
-        if event["mikuType"] == "NxBankEvent" then
+        if event["mikuType"] == "TxBankEvent" then
             bankaccount = event["setuuid"]
             Cx22::bankaccountToItemsInUnixtimeOrder(bankaccount)
                 .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }

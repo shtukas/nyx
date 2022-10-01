@@ -1,12 +1,3 @@
 ### Banking
 
-bank.sqlite3
-create table _bank_ (_eventuuid_ text primary key, _setuuid_ text, _unixtime_ float, _date_ text, _weight_ float);
-
-NxBankEvent {
-  "mikuType" : "NxBankEvent"
-  "setuuid"  : String
-  "unixtime" : Float
-  "date"     : Date # YYYY-MM-DD
-  "weight"   : real
-}
+See The Librarian.txt

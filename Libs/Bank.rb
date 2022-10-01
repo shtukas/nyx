@@ -21,16 +21,20 @@ class Bank
         }
     end
 
-    # Bank::putNoEvents(eventuuid, setuuid, unixtime, date, weight) # Used by regular activity. Emits events for the other computer,
-    def self.putNoEvents(eventuuid, setuuid, unixtime, date, weight)
-        $bank_database_semaphore.synchronize {
-            db = SQLite3::Database.new(Bank::pathToBank())
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.execute "delete from _bank_ where _eventuuid_=?", [eventuuid] # (1)
-            db.execute "insert into _bank_ (_eventuuid_, _setuuid_, _unixtime_, _date_, _weight_) values (?, ?, ?, ?, ?)", [eventuuid, setuuid, unixtime, date, weight]
-            db.close
+    # Bank::putLibrarianOnly(eventuuid, setuuid, unixtime, date, weight) # Used by regular activity. Emits events for the other computer,
+    def self.putLibrarianOnly(eventuuid, setuuid, unixtime, date, weight)
+        eventTime = Time.new.to_f
+        event = {
+            "mikuType"  => "TxBankEvent",
+            "eventuuid" => eventuuid,
+            "eventTime" => eventTime,
+            "setuuid"   => setuuid,
+            "unixtime"  => unixtime,
+            "date"      => date,
+            "weight"    => weight,
         }
+        TheLibrarian::processEvent(event)
+        event
     end
 
     # Bank::put(setuuid, weight: Float) # Used by regular activity. Emits events for the other computer,
@@ -38,18 +42,9 @@ class Bank
         eventuuid = SecureRandom.uuid
         unixtime  = Time.new.to_f
         date      = CommonUtils::today()
-        Bank::putNoEvents(eventuuid, setuuid, unixtime, date, weight)
+        event     = Bank::putLibrarianOnly(eventuuid, setuuid, unixtime, date, weight)
         XCache::destroy("256e3994-7469-46a8-abd1-238bb25d5976:#{setuuid}:#{date}") # decaching the value for that date
-
-        SystemEvents::broadcast({
-          "mikuType"  => "NxBankEvent",
-          "eventuuid" => eventuuid,
-          "setuuid"   => setuuid,
-          "unixtime"  => unixtime,
-          "date"      => date,
-          "weight"    => weight
-        })
-
+        SystemEvents::broadcast(event)
         SystemEvents::processAndBroadcast({
             "mikuType" => "(bank account has been updated)",
             "setuuid"  => setuuid,
@@ -58,13 +53,10 @@ class Bank
 
     # Bank::processEvent(event)
     def self.processEvent(event)
-        if event["mikuType"] == "NxBankEvent" then
-            eventuuid = event["eventuuid"]
+        if event["mikuType"] == "TxBankEvent" then
+            TheLibrarian::processEvent(event)
             setuuid   = event["setuuid"]
-            unixtime  = event["unixtime"]
             date      = event["date"]
-            weight    = event["weight"]
-            Bank::putNoEvents(eventuuid, setuuid, unixtime, date, weight)
             XCache::destroy("256e3994-7469-46a8-abd1-238bb25d5976:#{setuuid}:#{date}") # decaching the value for that date
         end
     end
@@ -74,56 +66,29 @@ class Bank
         value = XCache::getOrNull("256e3994-7469-46a8-abd1-238bb25d5976:#{setuuid}:#{date}")
         return value.to_f if value
 
-        value = 0
-        $bank_database_semaphore.synchronize {
-            db = SQLite3::Database.new(Bank::pathToBank())
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute("select * from _bank_ where _setuuid_=? and _date_=?", [setuuid, date]) do |row|
-                value = value + row['_weight_']
-            end
-            db.close
-        }
+        #{
+        #    "mikuType"  => "TxBankEvent",
+        #    "eventuuid" => eventuuid,
+        #    "eventTime" => Float,
+        #    "setuuid"   => setuuid,
+        #    "unixtime"  => unixtime,
+        #    "date"      => date,
+        #    "weight"    => weight
+        #}
+
+        value = TheLibrarian::getBankingObjectArrayEventsForSet(setuuid)
+                    .select{|event| event["date"] == date }
+                    .map{|event| event["weight"] }
+                    .inject(0, :+)
 
         XCache::set("256e3994-7469-46a8-abd1-238bb25d5976:#{setuuid}:#{date}", value)
 
         value
     end
 
-    # Bank::recordOrNull(eventuuid)
-    def self.recordOrNull(eventuuid)
-        answer = nil
-        $bank_database_semaphore.synchronize {
-            db = SQLite3::Database.new(Bank::pathToBank())
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute("select * from _bank_ where _eventuuid_=?", [eventuuid]) do |row|
-                answer = row.clone
-            end
-            db.close
-        }
-        answer
-    end
-
     # Bank::combinedValueOnThoseDays(setuuid, dates)
     def self.combinedValueOnThoseDays(setuuid, dates)
         dates.map{|date| Bank::valueAtDate(setuuid, date) }.inject(0, :+)
-    end
-
-    # Bank::eventuuids()
-    def self.eventuuids()
-        db = SQLite3::Database.new(Bank::pathToBank())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        eventuuids = []
-        db.execute("select * from _bank_", []) do |row|
-            eventuuids << row['_eventuuid_']
-        end
-        db.close
-        eventuuids
     end
 end
 

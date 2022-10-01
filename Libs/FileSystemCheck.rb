@@ -217,6 +217,35 @@ class FileSystemCheck
         puts "fsck completed successfully".green
     end
 
+    # FileSystemCheck::fsckTxBankEvent(event)
+    def self.fsckTxBankEvent(event)
+        puts "FileSystemCheck::fsckTxBankEvent(#{JSON.pretty_generate(event)})"
+        if event["mikuType"].nil? then
+            raise "event has no Miku type"
+        end
+        if event["mikuType"] != "TxBankEvent" then
+            raise "Incorrect Miku type for function"
+        end
+        if event["eventuuid"].nil? then
+            raise "Missing attribute eventuuid"
+        end
+        if event["eventTime"].nil? then
+            raise "Missing attribute eventTime"
+        end
+        if event["setuuid"].nil? then
+            raise "Missing attribute setuuid"
+        end
+        if event["unixtime"].nil? then
+            raise "Missing attribute unixtime"
+        end
+        if event["date"].nil? then
+            raise "Missing attribute date"
+        end
+        if event["weight"].nil? then
+            raise "Missing attribute weight"
+        end
+    end
+
     # FileSystemCheck::fsckPrimaryStructure()
     def self.fsckPrimaryStructure()
         puts "FileSystemCheck::fsckPrimaryStructure()"

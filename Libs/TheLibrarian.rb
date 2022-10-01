@@ -90,9 +90,12 @@ class TheLibrarian
     def self.processEvent(event)
 
         if event["mikuType"] == "TxBankEvent" then
+            FileSystemCheck::fsckTxBankEvent(event)
             banking = TheLibrarian::getBankingObject()
             setuuid = event["setuuid"]
+            eventuuid = event["eventuuid"]
             events = TheLibrarian::getBankingObjectArrayEventsForSet(setuuid)
+            return if events.any?{|e| e["eventuuid"] == eventuuid } # We already have it
             events << event
             events = events.sort{|e1, e2| e1["eventTime"] <=> e2["eventTime"] }
             TheLibrarian::setBankingEventsArrayAtSet(setuuid, events)

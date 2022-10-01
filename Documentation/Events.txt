@@ -10,15 +10,6 @@ We have two types of events
 }
 
 {
-    "mikuType"  => "NxBankEvent"
-    "eventuuid" => String
-    "setuuid"   => setuuid
-    "unixtime"  => unixtime
-    "date"      => date
-    "weight"    => weight
-}
-
-{
     "mikuType"       => "NxDoNotShowUntil",
     "targetuuid"     => uuid,
     "targetunixtime" => unixtime
@@ -77,4 +68,14 @@ We have two types of events
 {
     "mikuType"   => "(object has been touched)",
     "objectuuid" => objectuuid,
+}
+
+{
+    "mikuType"  => "TxBankEvent",
+    "eventuuid" => eventuuid,
+    "eventTime" => Float,
+    "setuuid"   => setuuid,
+    "unixtime"  => unixtime,
+    "date"      => date,
+    "weight"    => weight
 }
