@@ -43,18 +43,8 @@ class DoNotShowUntil
 
     # DoNotShowUntil::getUnixtimeOrNull(uuid)
     def self.getUnixtimeOrNull(uuid)
-        unixtime = nil
-        $dnsu_database_semaphore.synchronize {
-            db = SQLite3::Database.new(DoNotShowUntil::pathToMapping())
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute("select * from _mapping_ where _uuid_=?", [uuid]) do |row|
-                unixtime = row['_unixtime_']
-            end
-            db.close
-        }
-        unixtime
+        dnsu = TheLibrarian::getDoNotShowUntilObject()
+        dnsu["mapping"][uuid]
     end
 
     # DoNotShowUntil::getDateTimeOrNull(uuid)
