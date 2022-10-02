@@ -77,8 +77,14 @@ class TheLibrarian
     # TheLibrarian::setPrimaryStructure(object)
     def self.setPrimaryStructure(object)
         puts "TheLibrarian::setPrimaryStructure(#{JSON.pretty_generate(object)})"
+
         filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/primary-structure.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(object)) }
+        
+        folderpath1 = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/primary-structure"
+        folderpath2 = LucilleCore::indexsubfolderpath(folderpath1, capacity = 100)
+        filepath2 = "#{folderpath2}/#{CommonUtils::timeStringL22()}.json"
+        File.open(filepath2, "w"){|f| f.puts(JSON.pretty_generate(object)) }
     end
 
     # TheLibrarian::setBankingObject(banking)
