@@ -6,7 +6,7 @@
     "banking"       : nhash to a JSON encoded "PrimaryStructure.v1:Banking"
     "doNotShowUntil": nhash to a JSON encoded "PrimaryStructure.v1:DoNotShowUntil"
     "items"         : nhash to a JSON encoded "PrimaryStructure.v1:Items"
-    "networkLinks"  : nhash to a JSON encoded "PrimaryStructure.v1:NetworkLinks"
+    "networkEdges"  : nhash to a JSON encoded "PrimaryStructure.v1:NetworkEdges"
 }
 
 LibrarianPointer {
@@ -48,3 +48,17 @@ Given a LibrarianPointer and a PrimaryEvent, we get another LibrarianPointer.
     "targetuuid"     => uuid,
     "targetunixtime" => unixtime
 }
+
+### PrimaryStructure.v1:NetworkEdges
+
+{
+    "mikuType" : "PrimaryStructure.v1:NetworkEdges"
+    "edges"    : Array[NxGraphEdge1]
+}
+
+NxGraphEdge1 {
+    "uuid1" : String
+    "uuid2" : String
+    "type"  : "bidirectional" | "arrow"
+}
+
