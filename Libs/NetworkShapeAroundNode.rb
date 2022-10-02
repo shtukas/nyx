@@ -5,23 +5,27 @@ class NetworkShapeAroundNode
 
     # NetworkShapeAroundNode::interactivelySelectChildOrNull(uuid)
     def self.interactivelySelectChildOrNull(uuid)
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("child", NetworkArrows::children(uuid), lambda{ |item| PolyFunctions::toString(item) })
+        items = NetworkArrows::children(uuid).sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("child", items, lambda{ |item| PolyFunctions::toString(item) })
     end
 
     # NetworkShapeAroundNode::interactivelySelectParentOrNull(uuid)
     def self.interactivelySelectParentOrNull(uuid)
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", NetworkArrows::parents(uuid), lambda{ |item| PolyFunctions::toString(item) })
+        items = NetworkArrows::parents(uuid).sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", items, lambda{ |item| PolyFunctions::toString(item) })
     end
 
     # NetworkShapeAroundNode::interactivelySelectChildren(uuid)
     def self.interactivelySelectChildren(uuid)
-        selected, unselected = LucilleCore::selectZeroOrMore("chidren", [], NetworkArrows::children(uuid), lambda{ |item| PolyFunctions::toString(item) })
+        items = NetworkArrows::children(uuid).sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
+        selected, unselected = LucilleCore::selectZeroOrMore("chidren", [], items, lambda{ |item| PolyFunctions::toString(item) })
         selected
     end
 
     # NetworkShapeAroundNode::interactivelySelectParents(uuid)
     def self.interactivelySelectParents(uuid)
-        selected, unselected = LucilleCore::selectZeroOrMore("parents", [], NetworkArrows::parents(uuid), lambda{ |item| PolyFunctions::toString(item) })
+        items = NetworkArrows::parents(uuid).sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
+        selected, unselected = LucilleCore::selectZeroOrMore("parents", [], items, lambda{ |item| PolyFunctions::toString(item) })
         selected
     end
 
@@ -72,6 +76,19 @@ class NetworkShapeAroundNode
         }
         entities.each{|parent|
             NetworkLinks::unlink(parent["uuid"], item["uuid"])
+        }
+    end
+
+    # NetworkShapeAroundNode::selectChildrenAndRecastAsRelated(item)
+    def self.selectChildrenAndRecastAsRelated(item)
+        uuid = item["uuid"]
+        entities = NetworkShapeAroundNode::interactivelySelectChildren(uuid)
+        return if entities.empty?
+        entities.each{|child|
+            NetworkLinks::link(item["uuid"], child["uuid"])
+        }
+        entities.each{|child|
+            NetworkArrows::unlink(item["uuid"], child["uuid"])
         }
     end
 

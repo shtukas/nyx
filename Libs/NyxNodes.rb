@@ -230,7 +230,7 @@ class NyxNodes
             puts ""
             puts "<n> | access | description | name | datetime | nx113 | edit | transmute | expose | destroy".yellow
             puts "line | link | child | parent | upload".yellow
-            puts "[link type update] parents>related | parents>children | related>children | related>parents".yellow
+            puts "[link type update] parents>related | parents>children | related>children | related>parents | children>related".yellow
             puts "[network shape] select children; move to selected child".yellow
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
@@ -333,6 +333,11 @@ class NyxNodes
 
             if Interpreting::match("related>children", input) then
                 NetworkShapeAroundNode::selectLinkedsAndRecastAsChildren(item)
+                next
+            end
+
+            if Interpreting::match("children>related", input) then
+                NetworkShapeAroundNode::selectChildrenAndRecastAsRelated(item)
                 next
             end
 
