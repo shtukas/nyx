@@ -57,8 +57,10 @@ Given a LibrarianPointer and a PrimaryEvent, we get another LibrarianPointer.
 }
 
 NxGraphEdge1 {
-    "uuid1" : String
-    "uuid2" : String
-    "type"  : "bidirectional" | "arrow"
+    "mikuType" : "NxGraphEdge1"
+    "unixtime" : Float
+    "uuid1"    : String
+    "uuid2"    : String
+    "type"     : "bidirectional" | "arrow" | "none"
 }
 

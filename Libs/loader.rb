@@ -209,7 +209,7 @@ require_relative "NxTodos.rb"
 require_relative "NetworkShapeAroundNode.rb"
 require_relative "NxDeleted.rb"
 require_relative "NxLines.rb"
-require_relative "NetworkLinks2.rb"
+require_relative "NetworkEdges.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"
