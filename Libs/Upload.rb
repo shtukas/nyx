@@ -19,7 +19,7 @@ class Upload
             if overrideDatetime then
                 ItemsEventsLog::setAttribute2(child["uuid"], "datetime", overrideDatetime)
             end
-            NetworkLinks::link(item["uuid"], child["uuid"])
+            NetworkEdges::relate(item["uuid"], child["uuid"])
         }
     end
 
@@ -42,7 +42,7 @@ class Upload
             if overrideDatetime then
                 ItemsEventsLog::setAttribute2(child["uuid"], "datetime", overrideDatetime)
             end
-            NetworkLinks::link(item["uuid"], child["uuid"])
+            NetworkEdges::relate(item["uuid"], child["uuid"])
         }
     end
 
@@ -63,7 +63,7 @@ class Upload
             if overrideDatetime then
                 ItemsEventsLog::setAttribute2(child["uuid"], "datetime", overrideDatetime)
             end
-            NetworkLinks::link(item["uuid"], child["uuid"])
+            NetworkEdges::relate(item["uuid"], child["uuid"])
         end
         if action == "aion-points" then
             Upload::linkuploadAllLocationsOfAFolderAsLinkedAionPoint(item, overrideDatetime)

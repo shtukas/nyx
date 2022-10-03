@@ -200,8 +200,6 @@ require_relative "Machines.rb"
 
 require_relative "Nyx.rb"
 require_relative "NxBallsService.rb"
-require_relative "NetworkLinks.rb"
-require_relative "NetworkArrows.rb"
 require_relative "Nx113.rb"
 require_relative "NyxNodes.rb"
 require_relative "Nx11E.rb"

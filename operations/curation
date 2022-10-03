@@ -21,7 +21,7 @@ def size(uuid)
         return count.to_i 
     end
     puts "computing: #{uuid}"
-    count = NetworkLinks::linkeduuids(uuid).count
+    count = NetworkEdges::relatedUUIDs(uuid).count
     XCache::set("a99a66c3-3a38-4dbd-a3ae-c1e6ecd516db:#{uuid}", count)
     $cache[uuid] = count
     count
@@ -38,12 +38,12 @@ loop {
                     }
     item = Items::getItemOrNull(objectuuid)
     raise "item is null" if item.nil?
-    count = NetworkLinks::linkedEntities(item["uuid"]).count
+    count = NetworkEdges::relateds(item["uuid"]).count
     XCache::set("a99a66c3-3a38-4dbd-a3ae-c1e6ecd516db:#{item["uuid"]}", count)
     $cache[item["uuid"]] = count
     next if count == 0
     PolyPrograms::itemLanding(item)
-    count = NetworkLinks::linkedEntities(item["uuid"]).count
+    count = NetworkEdges::relateds(item["uuid"]).count
     XCache::set("a99a66c3-3a38-4dbd-a3ae-c1e6ecd516db:#{item["uuid"]}", count)
     $cache[item["uuid"]] = count
 }
@@ -52,20 +52,20 @@ exit
 
 objectuuid = "efb38585-43fb-46dc-bdbb-1065fe30743e"
 item = Items::getItemOrNull(objectuuid)
-relateduuids = NetworkLinks::linkeduuids(objectuuid) - ["d14d5d37-8c49-470b-b927-af7a9fb0a8f2"]
+relateduuids = NetworkEdges::relatedUUIDs(objectuuid) - ["d14d5d37-8c49-470b-b927-af7a9fb0a8f2"]
 relateduuids.each{|uuid|
-    NetworkArrows::link(objectuuid, uuid)
-    NetworkLinks::unlink(objectuuid, uuid)
+    NetworkEdges::arrow(objectuuid, uuid)
+    NetworkEdges::detach(objectuuid, uuid)
 }
 
 exit
 
 objectuuid = "286a64a4-c9d2-49f6-8e7f-7edacea10ec6"
 item = Items::getItemOrNull(objectuuid)
-relateduuids = NetworkLinks::linkeduuids(objectuuid) - []
+relateduuids = NetworkEdges::relatedUUIDs(objectuuid) - []
 relateduuids.each{|uuid|
     puts "recasting: #{uuid}"
-    NetworkArrows::link(objectuuid, uuid)
-    NetworkLinks::unlink(objectuuid, uuid)
+    NetworkEdges::arrow(objectuuid, uuid)
+    NetworkEdges::detach(objectuuid, uuid)
 }
 exit
