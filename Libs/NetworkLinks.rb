@@ -31,6 +31,7 @@ class NetworkLinks
             db = SQLite3::Database.new(NetworkLinks::databaseFile())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
+            db.execute "delete from _links_ where _eventuuid_=?", [eventuuid]
             db.execute "insert into _links_ (_eventuuid_, _eventTime_, _sourceuuid_, _operation_, _targetuuid_) values (?, ?, ?, ?, ?)", [eventuuid, eventTime, sourceuuid, operation, targetuuid]
             db.close
         }

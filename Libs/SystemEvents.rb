@@ -156,10 +156,15 @@ class SystemEvents
         updatedObjectuuids = []
 
         instanceId = Config::get("instanceId")
-        LucilleCore::locationsAtFolder("#{Config::starlightCommsLine()}/#{instanceId}")
+
+        folderpath = "#{Config::starlightCommsLine()}/#{instanceId}"
+
+        LucilleCore::locationsAtFolder(folderpath)
             .each{|filepath1|
+
                 next if !File.exists?(filepath1)
                 next if File.basename(filepath1).start_with?(".")
+                next if File.basename(filepath1).include?("sync-conflict")
 
                 if File.basename(filepath1)[-11, 11] == ".event.json" then
                     e = JSON.parse(IO.read(filepath1))

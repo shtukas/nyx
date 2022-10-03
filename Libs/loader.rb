@@ -54,8 +54,8 @@ checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/config.json")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/items.sqlite3")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/primary-structure")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/multi-instance-shared2")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/multi-instance-shared2/shared-config.json")
+checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/multi-instance-shared3")
+checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/multi-instance-shared3/shared-config.json")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/DataStore1OutGoingBuffer")
 
 filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/network-links.sqlite3"
