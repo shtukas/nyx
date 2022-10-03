@@ -77,8 +77,8 @@ class NetworkEdges
 
     # Changes
 
-    # NetworkEdges::relate(uuid1, uuids2)
-    def self.relate(uuid1, uuids2)
+    # NetworkEdges::relate(uuid1, uuid2)
+    def self.relate(uuid1, uuid2)
         event = {
             "mikuType" => "NxGraphEdge1",
             "unixtime" => Time.new.to_f,
@@ -90,8 +90,8 @@ class NetworkEdges
         SystemEvents::broadcast(event)
     end
 
-    # NetworkEdges::arrow(uuid1, uuids2)
-    def self.arrow(uuid1, uuids2)
+    # NetworkEdges::arrow(uuid1, uuid2)
+    def self.arrow(uuid1, uuid2)
         event = {
             "mikuType" => "NxGraphEdge1",
             "unixtime" => Time.new.to_f,
