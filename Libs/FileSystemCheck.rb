@@ -208,15 +208,6 @@ class FileSystemCheck
         FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
     end
 
-    # FileSystemCheck::fsckAllErrorAtFirstFailure(runhash)
-    def self.fsckAllErrorAtFirstFailure(runhash)
-        ItemsEventsLog::objectuuids().each{|objectuuid|
-            FileSystemCheck::exitIfMissingCanary()
-            FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(objectuuid, runhash)
-        }
-        puts "fsck completed successfully".green
-    end
-
     # FileSystemCheck::fsckTxBankEvent(event)
     def self.fsckTxBankEvent(event)
         puts "FileSystemCheck::fsckTxBankEvent(#{JSON.pretty_generate(event)})"
@@ -270,6 +261,21 @@ class FileSystemCheck
         if primary["banking"].nil? then
             raise "could not find attribute 'banking' for primary structure"
         end
+        if primary["doNotShowUntil"].nil? then
+            raise "could not find attribute 'doNotShowUntil' for primary structure"
+        end
+        if primary["networkEdges"].nil? then
+            raise "could not find attribute 'networkEdges' for primary structure"
+        end
+    end
+
+    # FileSystemCheck::fsckErrorAtFirstFailure(runhash)
+    def self.fsckErrorAtFirstFailure(runhash)
+        FileSystemCheck::fsckPrimaryStructure()
+        ItemsEventsLog::objectuuids().each{|objectuuid|
+            FileSystemCheck::exitIfMissingCanary()
+            FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(objectuuid, runhash)
+        }
         puts "fsck completed successfully".green
     end
 end

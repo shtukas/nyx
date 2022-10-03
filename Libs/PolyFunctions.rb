@@ -163,7 +163,7 @@ class PolyFunctions
         # order: lexicographic
 
         if item["mikuType"] == "EndOfDayChecklist" then
-            return item["line"]
+            return "(end of day, check) #{item["line"]}"
         end
         if item["mikuType"] == "fitness1" then
             return item["announce"]

@@ -13,9 +13,9 @@ class EndOfDayChecklist
         EndOfDayChecklist::lines()
             .map{|line|
                 {
-                    "uuid" => SecureRandom.hex,
+                    "uuid"     => Digest::SHA1.hexdigest("db7b7cf6-122f-4b7e-9e14-25094208497e:#{line}"),
                     "mikuType" => "EndOfDayChecklist",
-                    "line" => line
+                    "line"     => line
                 }
             }
     end
