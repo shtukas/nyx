@@ -831,7 +831,7 @@ class CatalystListing
 
         initialCodeTrace = CommonUtils::generalCodeTrace()
 
-        SystemEvents::internalCommsLine(true)
+        SystemEvents::readAndProcessCommsLine(true)
 
         loop {
 
@@ -841,7 +841,7 @@ class CatalystListing
                 break
             end
 
-            SystemEvents::internalCommsLine(true)
+            SystemEvents::readAndProcessCommsLine(true)
 
             LucilleCore::locationsAtFolder("#{ENV['HOME']}/Desktop/NxTodos")
                 .each{|location|

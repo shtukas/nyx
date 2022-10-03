@@ -4,4 +4,4 @@
 
 require_relative "../Libs/loader.rb"
 
-SystemEvents::internalCommsLine(true)
+SystemEvents::readAndProcessCommsLine(true)

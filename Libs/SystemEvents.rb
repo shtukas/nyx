@@ -87,8 +87,8 @@ class SystemEvents
         SystemEventsBuffering::putToBroadcastOutBuffer(event)
     end
 
-    # SystemEvents::internalCommsLine(verbose)
-    def self.processCommsLine(verbose)
+    # SystemEvents::readAndProcessCommsLine(verbose)
+    def self.readAndProcessCommsLine(verbose)
         # New style. Keep while we process the remaining items
         # We are reading from the instance folder
 
@@ -108,7 +108,7 @@ class SystemEvents
                 if File.basename(filepath1)[-11, 11] == ".event.json" then
                     e = JSON.parse(IO.read(filepath1))
                     if verbose then
-                        puts "SystemEvents::internalCommsLine: event: #{JSON.pretty_generate(e)}"
+                        puts "SystemEvents::readAndProcessCommsLine: event: #{JSON.pretty_generate(e)}"
                     end
                     SystemEvents::internal(e)
                     FileUtils.rm(filepath1)
@@ -117,7 +117,7 @@ class SystemEvents
 
                 if CommonUtils::ends_with?(File.basename(filepath1), "items-events-log.sqlite3") then
                     if verbose then
-                        puts "SystemEvents::internalCommsLine: reading: items-events-log.sqlite3"
+                        puts "SystemEvents::readAndProcessCommsLine: reading: items-events-log.sqlite3"
                     end
                     db1 = SQLite3::Database.new(filepath1)
                     db1.busy_timeout = 117
@@ -142,7 +142,7 @@ class SystemEvents
                 if CommonUtils::ends_with?(filepath1, ".system-events.jsonlines") then
 
                     if verbose then
-                        puts "SystemEvents::internalCommsLine: reading: #{File.basename(filepath1)}"
+                        puts "SystemEvents::readAndProcessCommsLine: reading: #{File.basename(filepath1)}"
                     end
 
                     IO.read(filepath1)
