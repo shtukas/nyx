@@ -32,16 +32,4 @@ class ThreadsX
             }
         }
     end
-
-    # ThreadsX::outBufferToCommsLine()
-    def self.outBufferToCommsLine()
-        Thread.new {
-            loop {
-                sleep 10
-                if SystemEventsBuffering::shouldPublishBufferNow() then
-                    SystemEventsBuffering::outBufferToCommsLine()
-                end
-            }
-        }
-    end
 end

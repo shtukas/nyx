@@ -9,7 +9,7 @@ class PolyActions
         if item["mikuType"] == "fitness1" then
             puts PolyFunctions::toString(item).green
             system("#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness doing #{item["fitness-domain"]}")
-            SystemEvents::process({
+            SystemEvents::internal({
                 "mikuType"   => "(object has been touched)",
                 "objectuuid" => item["uuid"]
             })
@@ -18,7 +18,7 @@ class PolyActions
 
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::access(item)
-            SystemEvents::process({
+            SystemEvents::internal({
                 "mikuType"   => "(object has been touched)",
                 "objectuuid" => item["uuid"]
             })
@@ -36,7 +36,7 @@ class PolyActions
 
         if item["mikuType"] == "NyxNode" then
             NyxNodes::access(item)
-            SystemEvents::process({
+            SystemEvents::internal({
                 "mikuType"   => "(object has been touched)",
                 "objectuuid" => item["uuid"]
             })
@@ -45,7 +45,7 @@ class PolyActions
 
         if item["mikuType"] == "NxTodo" then
             NxTodos::access(item)
-            SystemEvents::process({
+            SystemEvents::internal({
                 "mikuType"   => "(object has been touched)",
                 "objectuuid" => item["uuid"]
             })
@@ -55,7 +55,7 @@ class PolyActions
         if item["mikuType"] == "Wave" then
             puts Waves::toString(item).green
             Waves::access(item)
-            SystemEvents::process({
+            SystemEvents::internal({
                 "mikuType"   => "(object has been touched)",
                 "objectuuid" => item["uuid"]
             })
@@ -80,7 +80,7 @@ class PolyActions
 
         if item["mikuType"] == "fitness1" then
             PolyActions::access(item)
-            SystemEvents::process({
+            SystemEvents::internal({
                 "mikuType"   => "(object has been touched)",
                 "objectuuid" => item["uuid"]
             })
@@ -95,7 +95,7 @@ class PolyActions
                 action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
                 next if action.nil?
                 if action == "keep running and back to listing" then
-                    SystemEvents::process({
+                    SystemEvents::internal({
                         "mikuType"   => "(object has been touched)",
                         "objectuuid" => item["uuid"]
                     })
@@ -103,7 +103,7 @@ class PolyActions
                 end
                 if action == "stop and back to listing" then
                     PolyActions::stop(item)
-                    SystemEvents::process({
+                    SystemEvents::internal({
                         "mikuType"   => "(object has been touched)",
                         "objectuuid" => item["uuid"]
                     })
@@ -112,14 +112,14 @@ class PolyActions
                 if action == "stop and destroy" then
                     PolyActions::stop(item)
                     PolyActions::destroyWithPrompt(item)
-                    SystemEvents::process({
+                    SystemEvents::internal({
                         "mikuType"   => "(object has been touched)",
                         "objectuuid" => item["uuid"]
                     })
                     return
                 end
             }
-            SystemEvents::process({
+            SystemEvents::internal({
                 "mikuType"   => "(object has been touched)",
                 "objectuuid" => item["uuid"]
             })
@@ -132,7 +132,7 @@ class PolyActions
             if LucilleCore::askQuestionAnswerAsBoolean("done '#{PolyFunctions::toString(item).green}' ? ") then
                 Waves::performWaveNx46WaveDone(item)
                 PolyActions::stop(item)
-                SystemEvents::process({
+                SystemEvents::internal({
                     "mikuType"   => "(object has been touched)",
                     "objectuuid" => item["uuid"]
                 })
@@ -141,7 +141,7 @@ class PolyActions
                     return
                 else
                     PolyActions::stop(item)
-                    SystemEvents::process({
+                    SystemEvents::internal({
                         "mikuType"   => "(object has been touched)",
                         "objectuuid" => item["uuid"]
                     })
@@ -152,7 +152,7 @@ class PolyActions
 
         PolyActions::start(item)
         PolyActions::access(item)
-        SystemEvents::process({
+        SystemEvents::internal({
             "mikuType"   => "(object has been touched)",
             "objectuuid" => item["uuid"]
         })
@@ -163,7 +163,7 @@ class PolyActions
 
         PolyActions::stop(item)
 
-        SystemEvents::process({
+        SystemEvents::internal({
             "mikuType"   => "(object has been touched)",
             "objectuuid" => item["uuid"]
         })
@@ -172,7 +172,7 @@ class PolyActions
 
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::done(item["uuid"])
-            SystemEvents::process({
+            SystemEvents::internal({
                 "mikuType"   => "(object has been touched)",
                 "objectuuid" => item["uuid"]
             })
@@ -187,7 +187,7 @@ class PolyActions
             if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
                 NxTodos::destroy(item["uuid"])
             end
-            SystemEvents::process({
+            SystemEvents::internal({
                 "mikuType"   => "(object has been touched)",
                 "objectuuid" => item["uuid"]
             })
@@ -198,7 +198,7 @@ class PolyActions
             if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
                 Waves::performWaveNx46WaveDone(item)
             end
-            SystemEvents::process({
+            SystemEvents::internal({
                 "mikuType"   => "(object has been touched)",
                 "objectuuid" => item["uuid"]
             })
@@ -214,7 +214,7 @@ class PolyActions
         datetime = CommonUtils::editTextSynchronously(item["datetime"]).strip
         return if !CommonUtils::isDateTime_UTC_ISO8601(datetime)
         ItemsEventsLog::setAttribute2(item["uuid"], "datetime", datetime)
-        SystemEvents::process({
+        SystemEvents::internal({
             "mikuType"   => "(object has been touched)",
             "objectuuid" => item["uuid"]
         })
@@ -225,7 +225,7 @@ class PolyActions
         description = CommonUtils::editTextSynchronously(item["description"]).strip
         return if description == ""
         ItemsEventsLog::setAttribute2(item["uuid"], "description", description)
-        SystemEvents::process({
+        SystemEvents::internal({
             "mikuType"   => "(object has been touched)",
             "objectuuid" => item["uuid"]
         })
@@ -243,7 +243,7 @@ class PolyActions
         return if startdate == ""
         ItemsEventsLog::setAttribute2(item["uuid"], "startdate",   startdate)
 
-        SystemEvents::process({
+        SystemEvents::internal({
             "mikuType"   => "(object has been touched)",
             "objectuuid" => item["uuid"]
         })
@@ -271,7 +271,7 @@ class PolyActions
         datetime = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
         ItemsEventsLog::setAttribute2(item["uuid"], "nx11e", Nx11E::makeOndate(datetime))
 
-        SystemEvents::process({
+        SystemEvents::internal({
             "mikuType"   => "(object has been touched)",
             "objectuuid" => item["uuid"]
         })
@@ -283,7 +283,7 @@ class PolyActions
         return if nx113nhash.nil?
         ItemsEventsLog::setAttribute2(item["uuid"], "nx113", nx113nhash)
 
-        SystemEvents::process({
+        SystemEvents::internal({
             "mikuType"   => "(object has been touched)",
             "objectuuid" => item["uuid"]
         })
@@ -299,7 +299,7 @@ class PolyActions
             accounts << item["cx22"]["bankaccount"] # Contribution
         end
         NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), accounts, PolyFunctions::timeBeforeNotificationsInHours(item)*3600)
-        SystemEvents::process({
+        SystemEvents::internal({
             "mikuType"   => "(object has been touched)",
             "objectuuid" => item["uuid"]
         })
@@ -310,7 +310,7 @@ class PolyActions
         #puts "PolyActions::stop(#{JSON.pretty_generate(item)})"
         NxBallsService::close(item["uuid"], true)
 
-        SystemEvents::process({
+        SystemEvents::internal({
             "mikuType"   => "(object has been touched)",
             "objectuuid" => item["uuid"]
         })
@@ -337,7 +337,7 @@ class PolyActions
                 ItemsEventsLog::setAttribute2(item["uuid"], "mikuType", "NyxNode")
                 item = Items::getItemOrNull(item["uuid"])
                 FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.uuid)
-                SystemEvents::process({
+                SystemEvents::internal({
                     "mikuType"   => "(object has been touched)",
                     "objectuuid" => item["uuid"]
                 })

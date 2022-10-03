@@ -1,50 +1,10 @@
 
 # encoding: UTF-8
 
-$BufferTimes = []
-
-class SystemEventsBuffering
-
-    # SystemEventsBuffering::shouldPublishBufferNow()
-    def self.shouldPublishBufferNow()
-        $system_events_out_buffer.synchronize {
-            $BufferTimes = $BufferTimes.select{|time| (Time.new.to_f - time) < 20 }
-        }
-        # We publish if there's been less than 20 hits over the last 20 seconds
-        ($BufferTimes.size < 20)
-    end
-
-    # SystemEventsBuffering::eventToOutBuffer(event)
-    def self.eventToOutBuffer(event)
-        $system_events_out_buffer.synchronize {
-            filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/system-events-out-buffer.jsonlines"
-            File.open(filepath, "a"){|f| f.puts(JSON.generate(event)) }
-            $BufferTimes << Time.new.to_f
-        }
-        if SystemEventsBuffering::shouldPublishBufferNow() then
-            SystemEventsBuffering::outBufferToCommsLine()
-        end
-    end
-
-    # SystemEventsBuffering::outBufferToCommsLine()
-    def self.outBufferToCommsLine()
-        $system_events_out_buffer.synchronize {
-            filepath1 = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/system-events-out-buffer.jsonlines"
-            return if !File.exists?(filepath1)
-            return if IO.read(filepath1).strip.size == 0
-            Machines::theOtherInstanceIds().each{|targetInstanceId|
-                filepath2 = "#{StargateMultiInstanceShared::pathToCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.system-events.jsonlines"
-                FileUtils.cp(filepath1, filepath2)
-            }
-            File.open(filepath1, "w"){|f| f.puts("") }
-        }
-    end
-end
-
 class SystemEvents
 
-    # SystemEvents::process(event)
-    def self.process(event)
+    # SystemEvents::internal(event)
+    def self.internal(event)
 
         #puts "SystemEvent(#{JSON.pretty_generate(event)})"
 
@@ -65,7 +25,7 @@ class SystemEvents
         if event["mikuType"] == "NxDeleted" then
             objectuuid = event["objectuuid"]
             NxDeleted::deleteObjectNoEvents(objectuuid)
-            SystemEvents::process({
+            SystemEvents::internal({
                 "mikuType"   => "(object has been touched)",
                 "objectuuid" => objectuuid
             })
@@ -132,23 +92,10 @@ class SystemEvents
 
     # SystemEvents::broadcast(event)
     def self.broadcast(event)
-        #puts "SystemEvents::broadcast(#{JSON.pretty_generate(event)})"
-        SystemEventsBuffering::eventToOutBuffer(event)
+        SystemEventsBuffering::putToBroadcastOutBuffer(event)
     end
 
-    # SystemEvents::sendTo(event, targetInstanceId)
-    def self.sendTo(event, targetInstanceId)
-        filepath = "#{StargateMultiInstanceShared::pathToCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.event.json"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(event)) }
-    end
-
-    # SystemEvents::processAndBroadcast(event)
-    def self.processAndBroadcast(event)
-        SystemEvents::process(event)
-        SystemEvents::broadcast(event)
-    end
-
-    # SystemEvents::processCommsLine(verbose)
+    # SystemEvents::internalCommsLine(verbose)
     def self.processCommsLine(verbose)
         # New style. Keep while we process the remaining items
         # We are reading from the instance folder
@@ -169,16 +116,16 @@ class SystemEvents
                 if File.basename(filepath1)[-11, 11] == ".event.json" then
                     e = JSON.parse(IO.read(filepath1))
                     if verbose then
-                        puts "SystemEvents::processCommsLine: event: #{JSON.pretty_generate(e)}"
+                        puts "SystemEvents::internalCommsLine: event: #{JSON.pretty_generate(e)}"
                     end
-                    SystemEvents::process(e)
+                    SystemEvents::internal(e)
                     FileUtils.rm(filepath1)
                     next
                 end
 
                 if CommonUtils::ends_with?(File.basename(filepath1), "items-events-log.sqlite3") then
                     if verbose then
-                        puts "SystemEvents::processCommsLine: reading: items-events-log.sqlite3"
+                        puts "SystemEvents::internalCommsLine: reading: items-events-log.sqlite3"
                     end
                     db1 = SQLite3::Database.new(filepath1)
                     db1.busy_timeout = 117
@@ -202,7 +149,7 @@ class SystemEvents
 
                 if File.basename(filepath1)[-22, 22] == ".network-links.sqlite3" then
                     if verbose then
-                        puts "SystemEvents::processCommsLine: reading: #{File.basename(filepath1)}"
+                        puts "SystemEvents::internalCommsLine: reading: #{File.basename(filepath1)}"
                     end
 
                     knowneventuuids = NetworkLinks::eventuuids()
@@ -225,7 +172,7 @@ class SystemEvents
                 if CommonUtils::ends_with?(filepath1, ".system-events.jsonlines") then
 
                     if verbose then
-                        puts "SystemEvents::processCommsLine: reading: #{File.basename(filepath1)}"
+                        puts "SystemEvents::internalCommsLine: reading: #{File.basename(filepath1)}"
                     end
 
                     IO.read(filepath1)
@@ -237,7 +184,7 @@ class SystemEvents
                             if verbose then
                                 puts "event from system events: #{JSON.pretty_generate(event)}"
                             end
-                            SystemEvents::process(event)
+                            SystemEvents::internal(event)
                         }
 
                     FileUtils.rm(filepath1)
@@ -254,5 +201,29 @@ class SystemEvents
             }
 
         updatedObjectuuids.each{|objectuuid| Items::updateIndexAtObjectAttempt(objectuuid) }
+    end
+end
+
+class SystemEventsBuffering
+
+    # SystemEventsBuffering::putToBroadcastOutBuffer(event)
+    def self.putToBroadcastOutBuffer(event)
+        Mercury2::put("a0b54bbe-96f8-4f19-911e-88c3f47eabdd", event)
+    end
+
+    # SystemEventsBuffering::broadcastOutBufferToCommsline()
+    def self.broadcastOutBufferToCommsline()
+        channel = "a0b54bbe-96f8-4f19-911e-88c3f47eabdd"
+        l22 = CommonUtils::timeStringL22()
+        loop {
+            event = Mercury2::readFirstOrNull(channel)
+            break if event.nil?
+            puts "broadcast: #{JSON.pretty_generate(event)}"
+            Machines::theOtherInstanceIds().each{|targetInstanceId|
+                filepath = "#{StargateMultiInstanceShared::pathToCommsLine()}/#{targetInstanceId}/#{l22}.system-events.jsonlines"
+                File.open(filepath, "a"){|f| f.puts(JSON.generate(event)) }
+            }
+            Mercury2::dequeue(channel)
+        }
     end
 end

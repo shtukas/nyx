@@ -831,7 +831,7 @@ class CatalystListing
 
         initialCodeTrace = CommonUtils::generalCodeTrace()
 
-        SystemEvents::processCommsLine(true)
+        SystemEvents::internalCommsLine(true)
 
         loop {
 
@@ -841,9 +841,7 @@ class CatalystListing
                 break
             end
 
-            $commline_semaphore.synchronize {
-                SystemEvents::processCommsLine(true)
-            }
+            SystemEvents::internalCommsLine(true)
 
             LucilleCore::locationsAtFolder("#{ENV['HOME']}/Desktop/NxTodos")
                 .each{|location|
@@ -852,6 +850,8 @@ class CatalystListing
                     puts "Picked up from NxTodos: #{JSON.pretty_generate(item)}"
                     LucilleCore::removeFileSystemLocation(location)
                 }
+
+            SystemEventsBuffering::broadcastOutBufferToCommsline()
 
             CatalystListing::displayListing()
         }

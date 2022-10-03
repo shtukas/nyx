@@ -28,7 +28,11 @@ class Bank
         event     = Bank::putLibrarianOnly(eventuuid, setuuid, unixtime, date, weight)
         XCache::destroy("256e3994-7469-46a8-abd1-238bb25d5976:#{setuuid}:#{date}") # decaching the value for that date
         SystemEvents::broadcast(event)
-        SystemEvents::processAndBroadcast({
+        SystemEvents::internal({
+            "mikuType" => "(bank account has been updated)",
+            "setuuid"  => setuuid,
+        })
+        SystemEvents::broadcast({
             "mikuType" => "(bank account has been updated)",
             "setuuid"  => setuuid,
         })

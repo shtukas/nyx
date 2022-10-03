@@ -1,0 +1,5 @@
+
+{
+    "id"     : "a0b54bbe-96f8-4f19-911e-88c3f47eabdd"
+    "purpose": "system wide event buffer out (before being dump into JSON files)"
+}

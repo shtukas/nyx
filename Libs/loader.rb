@@ -240,11 +240,9 @@ require_relative "XCacheValuesWithExpiry.rb"
 
 $bank_database_semaphore = Mutex.new
 $dnsu_database_semaphore = Mutex.new
-$commline_semaphore = Mutex.new
 $owner_items_mapping_database_semaphore = Mutex.new
 $links_database_semaphore = Mutex.new
 $arrows_database_semaphore = Mutex.new
-$system_events_out_buffer = Mutex.new
 
 # ------------------------------------------------------------
 
@@ -255,7 +253,6 @@ $CatalystAlfred1 = CatalystAlfred.new()
 
 if $RunNonEssentialThreads then
     ThreadsX::nxBallsMonitoringAndNotification()
-    ThreadsX::outBufferToCommsLine()
     if Config::get("instanceId") == "Lucille20-pascal" then 
         ThreadsX::startViennaImport()
     end

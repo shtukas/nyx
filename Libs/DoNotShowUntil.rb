@@ -26,7 +26,7 @@ class DoNotShowUntil
             "targetuuid"     => uuid,
             "targetunixtime" => unixtime
         })
-        SystemEvents::process({
+        SystemEvents::internal({
           "mikuType"   => "(do not show until has been updated)",
           "targetuuid" => uuid,
         })
