@@ -58,7 +58,7 @@ class DataStore1
         ]
         filepaths2 = Machines::theOtherInstanceIds()
                         .map{|targetInstanceId|
-                            "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.file-datastore1"
+                            "#{StargateMultiInstanceShared::pathToCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.file-datastore1"
                         }
 
         filepaths1 + filepaths2

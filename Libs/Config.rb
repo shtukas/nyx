@@ -18,18 +18,17 @@ class Config
     def self.userHomeDirectory()
         ENV['HOME']
     end
-
-    # Config::starlightCommsLine()
-    def self.starlightCommsLine()
-        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/multi-instance-shared3/commsline"
-    end
 end
 
-class SharedConfig
-
-    # SharedConfig::get(key)
-    def self.get(key)
-        config = JSON.parse(IO.read("#{Config::pathToLocalDataBankStargate()}/multi-instance-shared3/shared-config.json"))
+class StargateMultiInstanceShared
+    # StargateMultiInstanceShared::sharedConfigGet(key)
+    def self.sharedConfigGet(key)
+        config = JSON.parse(IO.read("#{Config::userHomeDirectory()}/Galaxy/StargateMultiInstanceShared3/shared-config.json"))
         config[key]
+    end
+
+    # StargateMultiInstanceShared::pathToCommsLine()
+    def self.pathToCommsLine()
+        "#{Config::userHomeDirectory()}/Galaxy/StargateMultiInstanceShared3/commsline"
     end
 end

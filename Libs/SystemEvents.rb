@@ -33,7 +33,7 @@ class SystemEventsBuffering
             return if !File.exists?(filepath1)
             return if IO.read(filepath1).strip.size == 0
             Machines::theOtherInstanceIds().each{|targetInstanceId|
-                filepath2 = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.system-events.jsonlines"
+                filepath2 = "#{StargateMultiInstanceShared::pathToCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.system-events.jsonlines"
                 FileUtils.cp(filepath1, filepath2)
             }
             File.open(filepath1, "w"){|f| f.puts("") }
@@ -138,7 +138,7 @@ class SystemEvents
 
     # SystemEvents::sendTo(event, targetInstanceId)
     def self.sendTo(event, targetInstanceId)
-        filepath = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.event.json"
+        filepath = "#{StargateMultiInstanceShared::pathToCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.event.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(event)) }
     end
 
@@ -157,7 +157,7 @@ class SystemEvents
 
         instanceId = Config::get("instanceId")
 
-        folderpath = "#{Config::starlightCommsLine()}/#{instanceId}"
+        folderpath = "#{StargateMultiInstanceShared::pathToCommsLine()}/#{instanceId}"
 
         LucilleCore::locationsAtFolder(folderpath)
             .each{|filepath1|

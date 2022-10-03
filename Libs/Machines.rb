@@ -10,6 +10,6 @@ class Machines
 
     # Machines::theOtherInstanceIds()
     def self.theOtherInstanceIds()
-        SharedConfig::get("allInstanceIds") - [Config::get("instanceId")]
+        StargateMultiInstanceShared::sharedConfigGet("allInstanceIds") - [Config::get("instanceId")]
     end
 end
