@@ -109,13 +109,11 @@ class Cx22
             if action == "done for the day" then
                 bankaccount = rep["bankaccount"]
                 BankAccountDoneForToday::setDoneToday(bankaccount)
-                $CatalystAlfred1.mutateAfterBankAccountUpdate(bankaccount)
                 next
             end
             if action == "un-{done for the day}" then
                 bankaccount = rep["bankaccount"]
                 BankAccountDoneForToday::setUnDoneToday(bankaccount)
-                $CatalystAlfred1.mutateAfterBankAccountUpdate(bankaccount)
                 next
             end
             if action == "expose" then

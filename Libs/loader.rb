@@ -186,6 +186,7 @@ require_relative "Dx8UnitsUtils.rb"
 require_relative "DataStore1.rb"
 
 require_relative "EnergyGrid.rb"
+require_relative "EndOfDayChecklist.rb"
 
 require_relative "Galaxy.rb"
 
@@ -245,7 +246,6 @@ $arrows_database_semaphore = Mutex.new
 # ------------------------------------------------------------
 
 $CatalystGroupMonitor1 = CatalystGroupMonitor.new()
-$CatalystAlfred1 = CatalystAlfred.new()
 
 # ------------------------------------------------------------
 

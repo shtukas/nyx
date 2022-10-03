@@ -119,20 +119,6 @@ class PolyFunctions
     # We return a null value when the item should not be displayed
     def self.listingPriorityOrNull(item) # Float between 0 and 1
 
-        # NxAnniversary                 : 0.95
-        # Nx11E hot                     : 0.90
-        # Wave (priority)               : 0.90
-        # Nx11E ordinal                 : 0.80
-        # fitness1                      : 0.75
-        # Nx11E ondate                  : 0.70
-        # Nx11E Ax39Engine              : 0.50 (or 0.2 if above completion)
-        # Wave (low priority)           : 0.40
-        # Nx11E standard                : 0.20 
-
-        # NxTodo 0.4 or Nx11E derived value
-
-        # Wave
-
         shiftOnDateTime = lambda {|item, datetime|
             0.01*(Time.new.to_f - DateTime.parse(datetime).to_time.to_f)/86400
         }
@@ -159,6 +145,10 @@ class PolyFunctions
             return (Waves::isPriority(item) ? 0.9 : 0.4) + shiftOnDateTime.call(item, item["lastDoneDateTime"])
         end
 
+        if item["mikuType"] == "EndOfDayChecklist" then
+            return 0.9
+        end
+
         raise "(error: 4302a0f5-91a0-4902-8b91-e409f123d305) no priority defined for item: #{item}"
     end
 
@@ -169,6 +159,12 @@ class PolyFunctions
 
     # PolyFunctions::toString(item)
     def self.toString(item)
+
+        # order: lexicographic
+
+        if item["mikuType"] == "EndOfDayChecklist" then
+            return item["line"]
+        end
         if item["mikuType"] == "fitness1" then
             return item["announce"]
         end
