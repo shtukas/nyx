@@ -45,6 +45,8 @@ class CatalystListing
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
+            .sort{|i1, i2| (PolyFunctions::listingPriorityOrNull(i1) || 0) <=> (PolyFunctions::listingPriorityOrNull(i2) || 0) }
+            .reverse
     end
 
     # CatalystListing::displayListing()

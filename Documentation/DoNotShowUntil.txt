@@ -1,12 +1,3 @@
 ### NxDoNotShowUntil
 
-DoNotShowUntil.sqlite3
-create table _mapping_ (_uuid_ text primary key, _unixtime_ float);
-
-{
-  "uuid"           : String
-  "mikuType"       : "NxDoNotShowUntil"
-  "targetuuid"     : UUID
-  "targetunixtime" : Float
-}
-
+See The Librarian.txt

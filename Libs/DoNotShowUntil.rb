@@ -4,11 +4,6 @@
 
 class DoNotShowUntil
 
-    # DoNotShowUntil::pathToMapping()
-    def self.pathToMapping()
-        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/DoNotShowUntil.sqlite3"
-    end
-
     # DoNotShowUntil::setUnixtimeNoEvents(uuid, unixtime)
     def self.setUnixtimeNoEvents(uuid, unixtime)
         TheLibrarian::processEvent({

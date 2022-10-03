@@ -6,6 +6,10 @@ class PolyActions
     # PolyActions::access(item)
     def self.access(item)
 
+        if item["mikuType"] == "EndOfDayChecklist" then
+            return
+        end
+
         if item["mikuType"] == "fitness1" then
             puts PolyFunctions::toString(item).green
             system("#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness doing #{item["fitness-domain"]}")
@@ -77,6 +81,10 @@ class PolyActions
     def self.doubleDot(item)
 
         puts "PolyActions::doubleDot(#{JSON.pretty_generate(item)})"
+
+        if item["mikuType"] == "EndOfDayChecklist" then
+            return
+        end
 
         if item["mikuType"] == "fitness1" then
             PolyActions::access(item)
@@ -169,6 +177,11 @@ class PolyActions
         })
 
         # order: alphabetical order
+
+        if item["mikuType"] == "EndOfDayChecklist" then
+            EndOfDayChecklist::doneForToday(item)
+            return
+        end
 
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::done(item["uuid"])
