@@ -70,9 +70,6 @@ class DataStore1
             DataStore1::computeOutGoingBufferFilepath(nhash),
             DataStore1::requestLocalCacheFilepath(nhash)
         ]
-        [
-            DataStore1::computeOutGoingBufferFilepath(nhash)
-        ]
     end
 
     # -------------------------------------------------------
