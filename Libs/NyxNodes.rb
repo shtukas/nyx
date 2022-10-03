@@ -191,7 +191,7 @@ class NyxNodes
             # We register the item which is also the default element in the store
             store.register(item, true)
 
-            parents = NetworkArrows::parents(item["uuid"])
+            parents = NetworkEdges::parents(item["uuid"])
             if parents.size > 0 then
                 puts ""
                 puts "parents: "
@@ -203,7 +203,7 @@ class NyxNodes
                     }
             end
 
-            entities = NetworkLinks::linkedEntities(item["uuid"])
+            entities = NetworkEdges::relateds(item["uuid"])
             if entities.size > 0 then
                 puts ""
                 puts "related: "
@@ -215,7 +215,7 @@ class NyxNodes
                     }
             end
 
-            children = NetworkArrows::children(item["uuid"])
+            children = NetworkEdges::children(item["uuid"])
             if children.size > 0 then
                 puts ""
                 puts "children: "
@@ -250,7 +250,7 @@ class NyxNodes
             if input == "line" then
                 line = LucilleCore::askQuestionAnswerAsString("line: ")
                 i2 = NxLines::issueNew(line)
-                NetworkArrows::link(item["uuid"], i2["uuid"])
+                NetworkEdges::arrow(item["uuid"], i2["uuid"])
                 next
             end
 
@@ -292,7 +292,7 @@ class NyxNodes
             end
 
             if input == "link" then
-                NetworkLinks::architectureAndLink(item)
+                NetworkEdgesOps::architectureAndRelate(item)
                 next
             end
 
@@ -312,7 +312,7 @@ class NyxNodes
             end
 
             if input == "unlink" then
-                NetworkLinks::selectOneLinkedAndUnlink(item)
+                NetworkEdgesOps::selectOneRelatedAndDetach(item)
                 next
             end
 

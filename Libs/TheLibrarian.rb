@@ -214,7 +214,6 @@ class TheLibrarian
 
             TheLibrarian::setNetworkEdges(networkEdges)
         end
-
     end
 
 end
