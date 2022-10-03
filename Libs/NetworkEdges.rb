@@ -79,17 +79,41 @@ class NetworkEdges
 
     # NetworkEdges::relate(uuid1, uuids2)
     def self.relate(uuid1, uuids2)
-
+        event = {
+            "mikuType" => "NxGraphEdge1",
+            "unixtime" => Time.new.to_f,
+            "uuid1"    => uuid1,
+            "uuid2"    => uuid2,
+            "type"     => "bidirectional" # "bidirectional" | "arrow" | "none"
+        }
+        TheLibrarian::processEvent(event)
+        SystemEvents::broadcast(event)
     end
 
     # NetworkEdges::arrow(uuid1, uuids2)
     def self.arrow(uuid1, uuids2)
-
+        event = {
+            "mikuType" => "NxGraphEdge1",
+            "unixtime" => Time.new.to_f,
+            "uuid1"    => uuid1,
+            "uuid2"    => uuid2,
+            "type"     => "arrow" # "bidirectional" | "arrow" | "none"
+        }
+        TheLibrarian::processEvent(event)
+        SystemEvents::broadcast(event)
     end
 
     # NetworkEdges::detach(uuid1, uuid2)
     def self.detach(uuid1, uuid2)
-
+        event = {
+            "mikuType" => "NxGraphEdge1",
+            "unixtime" => Time.new.to_f,
+            "uuid1"    => uuid1,
+            "uuid2"    => uuid2,
+            "type"     => "none" # "bidirectional" | "arrow" | "none"
+        }
+        TheLibrarian::processEvent(event)
+        SystemEvents::broadcast(event)
     end
 end
 
