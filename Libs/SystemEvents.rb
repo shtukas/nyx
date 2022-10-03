@@ -78,8 +78,6 @@ class SystemEvents
         if event["mikuType"] == "bank-account-set-un-done-today" then
             BankAccountDoneForToday::processEvent(event)
         end
-
-        $CatalystAlfred1.processEvent(event)
     end
 
     # SystemEvents::broadcast(event)

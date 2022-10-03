@@ -31,184 +31,131 @@ class CatalystGroupMonitor
     end
 end
 
-=begin
-Lx12 = {
-    "item"     => Item
-    "priority" => Float
-    "announce" => string # Should be the toString of the item
-}
-=end
+class CatalystListing
 
-class CatalystAlfred
-
-    def initialize()
-        @lx12s = []
-        # let's start by using cached listing for speed
-        @lx12s = XCacheValuesWithExpiry::getOrNull("968dceb4-a0a9-4ffa-9b17-9b74a34e6bd9")
-        if @lx12s.nil? then
-            rebuildLx12sFromStratch()
-        end
-        Thread.new {
-            loop {
-                sleep 3600
-                rebuildLx12sFromStratch()
-            }
-        }
-    end
-
-    def cacheTimeInSeconds()
-        nil # we have a thread, see initialize(), that recomputes the structure every 2 hours
-    end
-
-    def lx12sInOrderForDisplay()
-        @lx12s
-            .select{|lx12| !lx12["priority"].nil? }
-            .map{|lx12|
-                lx12["item"] = lx12["item"].clone
-                lx12
-            }
-            .sort{|l1, l2| l1["priority"] <=> l2["priority"] }
-            .reverse
-            .select{|lx12| 
-                item = lx12["item"]
-                DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"])
-            }
-            .select{|lx12| 
-                item = lx12["item"]
-                InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isPresent(item["uuid"])
-            }
-    end
-
-    def rebuildLx12sFromStratch() # Array[Lx12]
-        items = [
+    # CatalystListing::listingItems()
+    def self.listingItems()
+        [
             JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`),
             Anniversaries::listingItems(),
             Waves::items(),
+            EndOfDayChecklist::listingItems(),
             NxTodos::itemsInDisplayOrder(Cx22::getNonDoneForTodayRepWithLowersCRBelow1OrNull()).first(100)
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
-
-        @lx12s = items
-            .map{|item|
-                {
-                    "item"     => item,
-                    "priority" => PolyFunctions::listingPriorityOrNull(item),
-                    "announce" => PolyFunctions::toString(item)
-                }
-            }
-            .select{|packet| !packet["priority"].nil? }
-            .sort{|p1, p2| p1["priority"] <=> p2["priority"] }
-            .reverse
-            .first(100)
-        XCacheValuesWithExpiry::set("968dceb4-a0a9-4ffa-9b17-9b74a34e6bd9", @lx12s, cacheTimeInSeconds())
     end
 
-    def mutateLx12sToRemoveItemByUUID(objectuuid)
-        @lx12s = @lx12s.select{|lx12| lx12["item"]["uuid"] != objectuuid }
-        XCacheValuesWithExpiry::set("968dceb4-a0a9-4ffa-9b17-9b74a34e6bd9", @lx12s, cacheTimeInSeconds())
-    end
+    # CatalystListing::displayListing()
+    def self.displayListing()
 
-    def mutateLx12sToAddItemByUUIDFailSilently(objectuuid)
-        item = Items::getItemOrNull(objectuuid)
-        return if item.nil?
-        begin
-            @lx12s << {
-                "item"     => item,
-                "priority" => PolyFunctions::listingPriorityOrNull(item),
-                "announce" => PolyFunctions::toString(item)
-            }
-            XCacheValuesWithExpiry::set("968dceb4-a0a9-4ffa-9b17-9b74a34e6bd9", @lx12s, cacheTimeInSeconds())
-        rescue
-            # In the process of building a NxTodo, we are going to run this at every mutation
-            # meaning everytime a new attribute is set.
-            # There will be a time where ItemsEventsLog::getProtoItemOrNull(objectuuid) will return someting
-            # as well as Items::getItemOrNull(objectuuid), but the 
-            # nx11e attribute will not have yet been set, resulting in PolyFunctions::listingPriorityOrNull(item) returning an error
-        end
-    end
+        system("clear")
 
-    def mutateLx12sCycleItemByUUID(objectuuid)
-        mutateLx12sToRemoveItemByUUID(objectuuid)
-        mutateLx12sToAddItemByUUIDFailSilently(objectuuid)
-        XCacheValuesWithExpiry::set("968dceb4-a0a9-4ffa-9b17-9b74a34e6bd9", @lx12s, cacheTimeInSeconds())
-    end
+        vspaceleft = CommonUtils::screenHeight() - 4
 
-    def processEvent(event)
+        vspaceleft =  vspaceleft - CommonUtils::verticalSize(CatalystListing::listingCommands())
 
-        if event["mikuType"] == "(do not show until has been updated)" then
-            #
+        if Config::get("instanceId") == "Lucille20-pascal" then
+            reference = The99Percent::getReferenceOrNull()
+            current   = The99Percent::getCurrentCount()
+            ratio     = current.to_f/reference["count"]
+            line      = "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
+            puts ""
+            puts line
+            vspaceleft = vspaceleft - 2
+            if ratio < 0.99 then
+                The99Percent::issueNewReferenceOrNull()
+            end
         end
 
-        if event["mikuType"] == "TxBankEvent" then
-            bankaccount = event["setuuid"]
-            Cx22::bankaccountToItemsInUnixtimeOrder(bankaccount)
-                .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-                .first(10)
-                .each{|item|
-                    mutateLx12sCycleItemByUUID(item["uuid"])
+        store = ItemStore.new()
+
+        if !InternetStatus::internetIsActive() then
+            puts ""
+            puts "INTERNET IS OFF".green
+            vspaceleft = vspaceleft - 2
+        end
+
+        packets = $CatalystGroupMonitor1.getLx13sForDisplay()
+        if packets.size > 0 then
+            puts ""
+            puts "Cx22 (Contribution Groups) below completion 1:".yellow
+            vspaceleft = vspaceleft - 2
+            packets
+                .each{|packet|
+                    puts "    - #{packet["groupname"]} (#{packet["cr"].round(2)})".yellow
+                    vspaceleft = vspaceleft - 1
                 }
         end
 
-        if event["mikuType"] == "NxDoNotShowUntil" then
-            # 
-        end
-
-        if event["mikuType"] == "bank-account-done-today" then
-            bankaccount = event["bankaccount"]
-            Cx22::bankaccountToItemsInUnixtimeOrder(bankaccount)
-                .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-                .first(10)
-                .each{|item|
-                    mutateLx12sCycleItemByUUID(item["uuid"])
+        nxballs = NxBallsIO::nxballs()
+        if nxballs.size > 0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+            nxballs
+                .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
+                .each{|nxball|
+                    store.register(nxball, false)
+                    line = "#{store.prefixString()} [NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
+                    puts line.green
+                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
         end
 
-        if event["mikuType"] == "NxDeleted" then
-            objectuuid = event["objectuuid"]
-            mutateLx12sToRemoveItemByUUID(objectuuid)
-        end
+        puts ""
+        vspaceleft = vspaceleft - 1
 
-        if event["mikuType"] == "NetworkLinks" then
-            #
-        end
-
-        if event["mikuType"] == "XCacheUpdate" then
-            #
-        end
-
-        if event["mikuType"] == "XCacheFlag" then
-            #
-        end
-
-        if event["mikuType"] == "NetworkArrows" then
-            #
-        end
-
-        if event["mikuType"] == "AttributeUpdate.v2" then
-            # This is particluarly useful to capture newly created high priority objects
-            # (One of the motivation for CatalystAlfred wasn't only to speed things up, but to immedately capture across the commsline a NxTodo hot)
-            objectuuid = event["objectuuid"]
-            mutateLx12sCycleItemByUUID(objectuuid)
-        end
-
-        if event["mikuType"] == "(object has been touched)" then
-            objectuuid = event["objectuuid"]
-            mutateLx12sCycleItemByUUID(objectuuid)
-        end
-    end
-
-    def mutateAfterBankAccountUpdate(bankaccount)
-        Cx22::bankaccountToItemsInUnixtimeOrder(bankaccount)
-            .first(100)
+        CatalystListing::listingItems()
             .each{|item|
-                mutateLx12sCycleItemByUUID(item["uuid"])
+                break if vspaceleft <= 0
+                store.register(item, true)
+                line = "#{store.prefixString()} #{PolyFunctions::toString(item)}"
+                if NxBallsService::isPresent(item["uuid"]) then
+                    line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                end
+                puts line
+                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }
-    end
-end
 
-class CatalystListing
+        puts ""
+        puts CatalystListing::listingCommands().yellow
+        puts ""
+        input = LucilleCore::askQuestionAnswerAsString("> ")
+        return if input == ""
+        CatalystListing::listingCommandInterpreter(input, store)
+    end
+
+    # CatalystListing::program()
+    def self.program()
+
+        initialCodeTrace = CommonUtils::generalCodeTrace()
+
+        SystemEvents::readAndProcessCommsLine(true)
+
+        loop {
+
+            #puts "(code trace)"
+            if CommonUtils::generalCodeTrace() != initialCodeTrace then
+                puts "Code change detected"
+                break
+            end
+
+            SystemEvents::readAndProcessCommsLine(true)
+
+            LucilleCore::locationsAtFolder("#{ENV['HOME']}/Desktop/NxTodos")
+                .each{|location|
+                    next if File.basename(location).start_with?(".")
+                    item = NxTodos::issueUsingLocation(location)
+                    puts "Picked up from NxTodos: #{JSON.pretty_generate(item)}"
+                    LucilleCore::removeFileSystemLocation(location)
+                }
+
+            SystemEventsBuffering::broadcastOutBufferToCommsline()
+
+            CatalystListing::displayListing()
+        }
+    end
 
     # CatalystListing::listingCommands()
     def self.listingCommands()
@@ -218,7 +165,7 @@ class CatalystListing
             "wave | anniversary | hot | today | ondate | todo",
             "anniversaries | ondates | todos | waves | groups",
             "require internet",
-            "search | nyx | speed | nxballs | rebuild",
+            "search | nyx | speed | nxballs",
         ].join("\n")
     end
 
@@ -432,8 +379,6 @@ class CatalystListing
 
             bankaccount = item["cx22"]["bankaccount"]
             BankAccountDoneForToday::setDoneToday(bankaccount)
-            $CatalystAlfred1.mutateAfterBankAccountUpdate(bankaccount)
-
             return
         end
 
@@ -558,16 +503,6 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             InternetStatus::markIdAsRequiringInternet(item["uuid"])
-            return
-        end
-
-        if Interpreting::match("rebuild", input) then
-            t1 = Time.new.to_f
-            $CatalystAlfred1.rebuildLx12sFromStratch()
-            $CatalystGroupMonitor1.rebuildLx13sFromScratch()
-            t2 = Time.new.to_f
-            puts "Completed in #{(t2-t1).round(2)} seconds"
-            LucilleCore::pressEnterToContinue()
             return
         end
 
@@ -738,122 +673,5 @@ class CatalystListing
             LucilleCore::pressEnterToContinue()
             return
         end
-    end
-
-    # CatalystListing::displayListing()
-    def self.displayListing()
-
-        system("clear")
-
-        vspaceleft = CommonUtils::screenHeight() - 4
-
-        vspaceleft =  vspaceleft - CommonUtils::verticalSize(CatalystListing::listingCommands())
-
-        if Config::get("instanceId") == "Lucille20-pascal" then
-            reference = The99Percent::getReferenceOrNull()
-            current   = The99Percent::getCurrentCount()
-            ratio     = current.to_f/reference["count"]
-            line      = "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
-            puts ""
-            puts line
-            vspaceleft = vspaceleft - 2
-            if ratio < 0.99 then
-                The99Percent::issueNewReferenceOrNull()
-            end
-        end
-
-        store = ItemStore.new()
-
-        if !InternetStatus::internetIsActive() then
-            puts ""
-            puts "INTERNET IS OFF".green
-            vspaceleft = vspaceleft - 2
-        end
-
-        packets = $CatalystGroupMonitor1.getLx13sForDisplay()
-        if packets.size > 0 then
-            puts ""
-            puts "Cx22 (Contribution Groups) below completion 1:".yellow
-            vspaceleft = vspaceleft - 2
-            packets
-                .each{|packet|
-                    puts "    - #{packet["groupname"]} (#{packet["cr"].round(2)})".yellow
-                    vspaceleft = vspaceleft - 1
-                }
-        end
-
-        nxballs = NxBallsIO::nxballs()
-        if nxballs.size > 0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-            nxballs
-                .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
-                .each{|nxball|
-                    store.register(nxball, false)
-                    line = "#{store.prefixString()} [NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
-                    puts line.green
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                }
-        end
-
-        puts ""
-        vspaceleft = vspaceleft - 1
-
-        $CatalystAlfred1.lx12sInOrderForDisplay()
-            .each{|lx12|
-                break if vspaceleft <= 0
-                item = lx12["item"]
-
-                canBeDefault = lambda{|lx12|
-                    return false if lx12["announce"].include?("(todo) (hot)")
-                    return true
-                }
-
-                store.register(item, canBeDefault.call(lx12))
-                line = "#{store.prefixString()} #{lx12["announce"]}"
-                if NxBallsService::isPresent(item["uuid"]) then
-                    line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
-                end
-                puts line
-                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-            }
-
-        puts ""
-        puts CatalystListing::listingCommands().yellow
-        puts ""
-        input = LucilleCore::askQuestionAnswerAsString("> ")
-        return if input == ""
-        CatalystListing::listingCommandInterpreter(input, store)
-    end
-
-    # CatalystListing::program()
-    def self.program()
-
-        initialCodeTrace = CommonUtils::generalCodeTrace()
-
-        SystemEvents::readAndProcessCommsLine(true)
-
-        loop {
-
-            #puts "(code trace)"
-            if CommonUtils::generalCodeTrace() != initialCodeTrace then
-                puts "Code change detected"
-                break
-            end
-
-            SystemEvents::readAndProcessCommsLine(true)
-
-            LucilleCore::locationsAtFolder("#{ENV['HOME']}/Desktop/NxTodos")
-                .each{|location|
-                    next if File.basename(location).start_with?(".")
-                    item = NxTodos::issueUsingLocation(location)
-                    puts "Picked up from NxTodos: #{JSON.pretty_generate(item)}"
-                    LucilleCore::removeFileSystemLocation(location)
-                }
-
-            SystemEventsBuffering::broadcastOutBufferToCommsline()
-
-            CatalystListing::displayListing()
-        }
     end
 end
