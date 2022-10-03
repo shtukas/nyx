@@ -642,6 +642,14 @@ class CatalystListing
                     "name" => "The99Percent::getCurrentCount()",
                     "lambda" => lambda { The99Percent::getCurrentCount() }
                 },
+                {
+                    "name" => "EndOfDayChecklist::listingItems()",
+                    "lambda" => lambda { EndOfDayChecklist::listingItems() }
+                },
+                {
+                    "name" => "NxTodos::itemsInDisplayOrder(Cx22::getNonDoneForTodayRepWithLowersCRBelow1OrNull()).first(100)",
+                    "lambda" => lambda { NxTodos::itemsInDisplayOrder(Cx22::getNonDoneForTodayRepWithLowersCRBelow1OrNull()).first(100) }
+                },
             ]
 
             # dry run to initialise things
