@@ -263,7 +263,7 @@ class FileSystemCheck
             puts JSON.pretty_generate(item)
             puts "Missing attribute: datetime"
             if LucilleCore::askQuestionAnswerAsBoolean("Should I add it now ? ", true) then
-                ItemsEventsLog::setAttribute2(item["uuid"], "datetime", CommonUtils::now_iso8601())
+                ItemsEventsLog::setAttribute2(item["uuid"], "datetime", CommonUtils::nowDatetimeIso8601())
                 return FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(item["uuid"], SecureRandom.hex)
             end
             raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash})"
@@ -292,6 +292,20 @@ class FileSystemCheck
 
         if mikuType == "NxTodo" then
             ensureAttribute.call(item, "description")
+            begin
+                ensureAttribute.call(item, "nx11e")
+            rescue
+                ItemsEventsLog::setAttribute2(item["uuid"], "nx11e", {
+                    "uuid"     => SecureRandom.uuid,
+                    "mikuType" => "Nx11E",
+                    "type"     => "ondate",
+                    "datetime" => CommonUtils::nowDatetimeIso8601()
+                })
+                Items::updateIndexAtObjectAttempt(item["uuid"])
+                item = Items::getItemOrNull(item["uuid"])
+                FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
+                return
+            end
             FileSystemCheck::fsckNx11EErrorAtFirstFailure(item["nx11e"])
             FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"])
             return
@@ -308,6 +322,20 @@ class FileSystemCheck
             ensureAttribute.call(item, "nx46")
             ensureAttribute.call(item, "lastDoneDateTime")
             FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"])
+            return
+        end
+
+        if item["mikuType"] == "NxTask" then
+            ItemsEventsLog::setAttribute2(item["uuid"], "mikuType", "NxTodo")
+            Items::updateIndexAtObjectAttempt(item["uuid"])
+            item = Items::getItemOrNull(item["uuid"])
+            FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
+            return
+        end
+
+
+        if ["CxAionPoint"].include?(item["mikuType"]) then
+            NxDeleted::deleteObject(item["uuid"])
             return
         end
 

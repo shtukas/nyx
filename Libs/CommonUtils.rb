@@ -343,8 +343,8 @@ class CommonUtils
         end
     end
 
-    # CommonUtils::now_iso8601()
-    def self.now_iso8601()
+    # CommonUtils::nowDatetimeIso8601()
+    def self.nowDatetimeIso8601()
         Time.new.utc.iso8601
     end
 
