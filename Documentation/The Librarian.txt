@@ -65,7 +65,7 @@ NxGraphEdge1 {
 
 NxItemSphere1 {
     "mikuType"   : "NxItemSphere1"
-    "item"       : Item
+    "item"       : Item or null
     "events"     : Array[AttributeUpdate.v2]
 }
 

@@ -254,14 +254,38 @@ class TheLibrarian
             #}
             FileSystemCheck::fsckAttributeUpdateV2(event, SecureRandom.hex)
             items = TheLibrarian::getItems()
+
+            eventsToItemOrNull = lambda{|events|
+                item = {}
+                events.each{|event|
+                    item[event["attname"]] = item["attvalue"]
+                }
+                if item["uuid"].nil? or item["mikuType"].nil? then
+                    item = nil
+                end
+                item
+            }
+
             mapping = items["mapping"]
             if mapping[event["objectuuid"]] then
                  # We have a NxItemSphere1
-
+                 nxItemSphere1 = TheLibrarian::getObject(mapping[event["objectuuid"]])
+                 nxItemSphere1["events"] = nxItemSphere1["events"].reject{|e| e["eventuuid"] == event["eventuuid"] }
+                 nxItemSphere1["events"] << event
+                 nxItemSphere1["events"] = nxItemSphere1["events"].sort{|e1, e2| e1["eventTime"] <=> e2["eventTime"] }
+                 nxItemSphere1["item"] = eventsToItemOrNull.call(nxItemSphere1["events"])
             else
                  # We need to create the NxItemSphere1
-
+                 nxItemSphere1 = {
+                    "mikuType" => "NxItemSphere1",
+                    "item"     => nil,
+                    "events"   => [event]
+                 }
             end
+            nhash = TheLibrarian::setObject(nxItemSphere1)
+            mapping[event["objectuuid"]] = nhash
+            items["mapping"] = mapping
+            TheLibrarian::setItems(items)
         end
     end
 
