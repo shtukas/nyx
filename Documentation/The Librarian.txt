@@ -18,13 +18,13 @@
 
 [Event] TxBankEvent
 {
-    "mikuType"  => "TxBankEvent",
-    "eventuuid" => eventuuid,
-    "eventTime" => Float,
-    "setuuid"   => setuuid,
-    "unixtime"  => unixtime,
-    "date"      => date,
-    "weight"    => weight
+    "mikuType"  : "TxBankEvent"
+    "eventuuid" : eventuuid
+    "eventTime" : Float
+    "setuuid"   : setuuid
+    "unixtime"  : unixtime
+    "date"      : date
+    "weight"    : weight
 }
 
 ### PrimaryStructure.v1:DoNotShowUntil
@@ -36,9 +36,9 @@
 
 [Event] NxDoNotShowUntil
 {
-    "mikuType"       => "NxDoNotShowUntil",
-    "targetuuid"     => uuid,
-    "targetunixtime" => unixtime
+    "mikuType"       : "NxDoNotShowUntil"
+    "targetuuid"     : uuid
+    "targetunixtime" : unixtime
 }
 
 ### PrimaryStructure.v1:NetworkEdges
@@ -56,3 +56,24 @@ NxGraphEdge1 {
     "type"     : "bidirectional" | "arrow" | "none"
 }
 
+### PrimaryStructure.v1:Items
+
+{
+    "mikuType" : "PrimaryStructure.v1:Items",
+    "mapping"  : Map[objectuuid, nhash to NxItemSphere1]
+}
+
+NxItemSphere1 {
+    "mikuType"   : "NxItemSphere1"
+    "item"       : Item
+    "events"     : Array[AttributeUpdate.v2]
+}
+
+{
+    "mikuType"   => "AttributeUpdate.v2"
+    "objectuuid" => objectuuid
+    "eventuuid"  => String
+    "eventTime"  => Float
+    "attname"    => string
+    "attvalue"   => value
+}

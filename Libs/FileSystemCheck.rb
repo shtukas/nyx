@@ -234,10 +234,11 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
-    # -----------------------------------------------------
-
     # FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
     def self.fsckItemErrorArFirstFailure(item, runhash)
+
+        repeatKey = "#{runhash}:#{JSON.generate(item)}"
+        return if XCache::getFlag(repeatKey)
 
         puts "FileSystemCheck::fsckItemErrorArFirstFailure(#{JSON.pretty_generate(item)}, #{runhash})"
 
@@ -282,12 +283,12 @@ class FileSystemCheck
             ensureAttribute.call(item, "startdate")
             ensureAttribute.call(item, "repeatType")
             ensureAttribute.call(item, "lastCelebrationDate")
-            return
+            XCache::setFlag(repeatKey, true)
         end
 
         if mikuType == "NxLine" then
             ensureAttribute.call(item, "line")
-            return
+            XCache::setFlag(repeatKey, true)
         end
 
         if mikuType == "NxTodo" then
@@ -308,13 +309,13 @@ class FileSystemCheck
             end
             FileSystemCheck::fsckNx11EErrorAtFirstFailure(item["nx11e"])
             FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"])
-            return
+            XCache::setFlag(repeatKey, true)
         end
 
         if mikuType == "NyxNode" then
             ensureAttribute.call(item, "description")
             FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"]) # nx113 is optional for NyxNodes, the function return if the argument in null
-            return
+            XCache::setFlag(repeatKey, true)
         end
 
         if mikuType == "Wave" then
@@ -322,7 +323,7 @@ class FileSystemCheck
             ensureAttribute.call(item, "nx46")
             ensureAttribute.call(item, "lastDoneDateTime")
             FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"])
-            return
+            XCache::setFlag(repeatKey, true)
         end
 
         if item["mikuType"] == "NxTask" then
@@ -330,12 +331,10 @@ class FileSystemCheck
             Items::updateIndexAtObjectAttempt(item["uuid"])
             item = Items::getItemOrNull(item["uuid"])
             FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
-            return
         end
 
         if ["CxAionPoint", "DxAionPoint"].include?(item["mikuType"]) then
             NxDeleted::deleteObject(item["uuid"])
-            return
         end
 
         raise "Unsupported Miku Type: #{item}"
@@ -434,6 +433,91 @@ class FileSystemCheck
             raise "could not find attribute 'networkEdges' for primary structure"
         end
         FileSystemCheck::fsckPrimaryStructureV1NetworkEdges(TheLibrarian::getObject(primary["networkEdges"]), runhash)
+
+        XCache::setFlag(repeatKey, true)
+    end
+
+    # FileSystemCheck::fsckAttributeUpdateV2(event, runhash)
+    def self.fsckAttributeUpdateV2(event, runhash)
+        repeatKey = "#{runhash}:#{JSON.generate(event)}"
+        return if XCache::getFlag(repeatKey)
+        puts "FileSystemCheck::fsckAttributeUpdateV2(#{JSON.pretty_generate(event)}, #{runhash})"
+        if event["mikuType"].nil? then
+            raise "event has no Miku type"
+        end
+        if event["mikuType"] != "AttributeUpdate.v2" then
+            raise "Incorrect Miku type for function"
+        end
+        if event["objectuuid"].nil? then
+            raise "Missing attribute objectuuid"
+        end
+        if event["eventuuid"].nil? then
+            raise "Missing attribute eventuuid"
+        end
+        if event["eventTime"].nil? then
+            raise "Missing attribute eventTime"
+        end
+        if event["attname"].nil? then
+            raise "Missing attribute attname"
+        end
+        if event["attvalue"].nil? then
+            raise "Missing attribute attvalue"
+        end
+        XCache::setFlag(repeatKey, true)
+    end
+
+    # FileSystemCheck::fsckNxItemSphere1(object, runhash)
+    def self.fsckNxItemSphere1(object, runhash)
+        puts "FileSystemCheck::fsckNxItemSphere1(#{JSON.pretty_generate(object)}, #{runhash})"
+        repeatKey = "#{runhash}:#{JSON.generate(event)}"
+        return if XCache::getFlag(repeatKey)
+
+        if event["mikuType"].nil? then
+            raise "event has no Miku type"
+        end
+        if event["mikuType"] != "NxItemSphere1" then
+            raise "Incorrect Miku type for function"
+        end
+        if event["item"].nil? then
+            raise "Missing attribute item"
+        end
+
+        item = event["item"]
+        FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
+
+        if event["events"].nil? then
+            raise "Missing attribute events"
+        end
+
+        event["events"].each{|event|
+            FileSystemCheck::fsckAttributeUpdateV2(event, runhash)
+        }
+
+        XCache::setFlag(repeatKey, true)
+    end
+
+    # FileSystemCheck::fsckPrimaryStructureV1Items(object, runhash)
+    def self.fsckPrimaryStructureV1Items(object, runhash)
+        puts "FileSystemCheck::fsckPrimaryStructureV1Items(#{JSON.pretty_generate(object)}, #{runhash})"
+        repeatKey = "#{runhash}:#{JSON.generate(event)}"
+        return if XCache::getFlag(repeatKey)
+
+        if event["mikuType"].nil? then
+            raise "event has no Miku type"
+        end
+        if event["mikuType"] != "PrimaryStructure.v1:Items" then
+            raise "Incorrect Miku type for function"
+        end
+
+        if event["mapping"].nil? then
+            raise "Missing attribute mapping"
+        end
+
+        event["mapping"].each{|pair|
+            objectuuid, nhash = pair
+            nxItemSphere1 = TheLibrarian::getObject(nhash)
+            FileSystemCheck::fsckNxItemSphere1(nxItemSphere1, runhash)
+        }
 
         XCache::setFlag(repeatKey, true)
     end
