@@ -91,6 +91,8 @@ class TheLibrarian
     def self.setPrimaryStructure(object)
         puts "TheLibrarian::setPrimaryStructure(#{JSON.pretty_generate(object)})"
 
+        FileSystemCheck::fsckPrimaryStructureV1(object, FileSystemCheck::getExistingRunHash())
+
         filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/primary-structure.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(object)) }
         
@@ -100,9 +102,10 @@ class TheLibrarian
         File.open(filepath2, "w"){|f| f.puts(JSON.pretty_generate(object)) }
     end
 
-    # TheLibrarian::setBankingObject(banking)
-    def self.setBankingObject(banking)
-        nhash = TheLibrarian::setObject(banking)
+    # TheLibrarian::setBankingObject(object)
+    def self.setBankingObject(object)
+        FileSystemCheck::fsckPrimaryStructureV1Banking(object, FileSystemCheck::getExistingRunHash())
+        nhash = TheLibrarian::setObject(object)
         primary = TheLibrarian::getPrimaryStructure()
         primary["banking"] = nhash
         TheLibrarian::setPrimaryStructure(primary)
@@ -117,6 +120,7 @@ class TheLibrarian
 
     # TheLibrarian::setDoNotShowUntilObject(object)
     def self.setDoNotShowUntilObject(object)
+        FileSystemCheck::fsckPrimaryStructureV1DoNotShowUntil(object, FileSystemCheck::getExistingRunHash())
         nhash = TheLibrarian::setObject(object)
         primary = TheLibrarian::getPrimaryStructure()
         primary["doNotShowUntil"] = nhash
@@ -125,6 +129,7 @@ class TheLibrarian
 
     # TheLibrarian::setNetworkEdges(object)
     def self.setNetworkEdges(object)
+        FileSystemCheck::fsckPrimaryStructureV1NetworkEdges(object, FileSystemCheck::getExistingRunHash())
         nhash = TheLibrarian::setObject(object)
         primary = TheLibrarian::getPrimaryStructure()
         primary["networkEdges"] = nhash
@@ -148,7 +153,7 @@ class TheLibrarian
             #    "date"      => date,
             #    "weight"    => weight
             #}
-            FileSystemCheck::fsckTxBankEvent(event)
+            FileSystemCheck::fsckTxBankEvent(event, SecureRandom.hex)
             banking = TheLibrarian::getBankingObject()
             setuuid = event["setuuid"]
             eventuuid = event["eventuuid"]
@@ -165,7 +170,7 @@ class TheLibrarian
             #    "targetuuid"     => uuid,
             #    "targetunixtime" => unixtime
             #}
-            FileSystemCheck::fsckNxDoNotShowUntil(event)
+            FileSystemCheck::fsckNxDoNotShowUntil(event, SecureRandom.hex)
             dnsu = TheLibrarian::getDoNotShowUntilObject()
             targetuuid = event["targetuuid"]
             targetunixtime = event["targetunixtime"]
@@ -181,7 +186,7 @@ class TheLibrarian
             #    "uuid2"    : String
             #    "type"     : "bidirectional" | "arrow" | "none"
             #}
-            FileSystemCheck::fsckNxGraphEdge1(event)
+            FileSystemCheck::fsckNxGraphEdge1(event, SecureRandom.hex)
             networkEdges = TheLibrarian::getNetworkEdges()
             # The operation there is to remove any item that link those two nodes and to add this one
             edges = networkEdges["edges"]

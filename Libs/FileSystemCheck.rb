@@ -120,9 +120,12 @@ class FileSystemCheck
         end
     end
 
-    # FileSystemCheck::fsckTxBankEvent(event)
-    def self.fsckTxBankEvent(event)
-        puts "FileSystemCheck::fsckTxBankEvent(#{JSON.pretty_generate(event)})"
+    # FileSystemCheck::fsckTxBankEvent(event, runhash)
+    def self.fsckTxBankEvent(event, runhash)
+        repeatKey = "#{runhash}:#{JSON.generate(event)}"
+        return if XCache::getFlag(repeatKey)
+
+        puts "FileSystemCheck::fsckTxBankEvent(#{JSON.pretty_generate(event)}, #{runhash})"
         if event["mikuType"].nil? then
             raise "event has no Miku type"
         end
@@ -147,28 +150,43 @@ class FileSystemCheck
         if event["weight"].nil? then
             raise "Missing attribute weight"
         end
+
+        XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsckSetUUIDTxBankEvent(setuuid, event)
-    def self.fsckSetUUIDTxBankEvent(setuuid, event)
-        puts "FileSystemCheck::fsckSetUUIDTxBankEvent(#{setuuid}, #{JSON.pretty_generate(event)})"
-        FileSystemCheck::fsckTxBankEvent(event)
+    # FileSystemCheck::fsckSetUUIDTxBankEvent(setuuid, event, runhash)
+    def self.fsckSetUUIDTxBankEvent(setuuid, event, runhash)
+        repeatKey = "#{runhash}:#{JSON.generate(event)}"
+        return if XCache::getFlag(repeatKey)
+
+        puts "FileSystemCheck::fsckSetUUIDTxBankEvent(#{setuuid}, #{JSON.pretty_generate(event)}, #{runhash})"
+        FileSystemCheck::fsckTxBankEvent(event, runhash)
         if event["setuuid"] != setuuid then
             raise "the event does not carry the setuuid that we expect "
         end
+
+        XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsckSetUUID_ArrayOfTxBankEvents(setuuid, events)
-    def self.fsckSetUUID_ArrayOfTxBankEvents(setuuid, events)
-        puts "FileSystemCheck::fsckSetUUID_ArrayOfTxBankEvents(#{setuuid}, events)"
+    # FileSystemCheck::fsckSetUUID_ArrayOfTxBankEvents(setuuid, events, runhash)
+    def self.fsckSetUUID_ArrayOfTxBankEvents(setuuid, events, runhash)
+        repeatKey = "#{runhash}:#{JSON.generate(events)}"
+        return if XCache::getFlag(repeatKey)
+
+        puts "FileSystemCheck::fsckSetUUID_ArrayOfTxBankEvents(#{setuuid}, events, #{runhash})"
         events.each{|event|
-            FileSystemCheck::fsckSetUUIDTxBankEvent(setuuid, event)
+            FileSystemCheck::fsckSetUUIDTxBankEvent(setuuid, event, runhash)
         }
+
+        XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsckNxDoNotShowUntil(event)
-    def self.fsckNxDoNotShowUntil(event)
-        puts "FileSystemCheck::fsckNxDoNotShowUntil(#{JSON.pretty_generate(event)})"
+    # FileSystemCheck::fsckNxDoNotShowUntil(event, runhash)
+    def self.fsckNxDoNotShowUntil(event, runhash)
+        repeatKey = "#{runhash}:#{JSON.generate(event)}"
+        return if XCache::getFlag(repeatKey)
+
+        puts "FileSystemCheck::fsckNxDoNotShowUntil(#{JSON.pretty_generate(event)}, #{runhash})"
         if event["mikuType"].nil? then
             raise "event has no Miku type"
         end
@@ -181,11 +199,16 @@ class FileSystemCheck
         if event["targetunixtime"].nil? then
             raise "Missing attribute targetunixtime"
         end
+
+        XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsckNxGraphEdge1(event)
-    def self.fsckNxGraphEdge1(event)
-        puts "FileSystemCheck::fsckNxGraphEdge1(#{JSON.pretty_generate(event)})"
+    # FileSystemCheck::fsckNxGraphEdge1(event, runhash)
+    def self.fsckNxGraphEdge1(event, runhash)
+        repeatKey = "#{runhash}:#{JSON.generate(event)}"
+        return if XCache::getFlag(repeatKey)
+
+        puts "FileSystemCheck::fsckNxGraphEdge1(#{JSON.pretty_generate(event)}, #{runhash})"
         if event["mikuType"].nil? then
             raise "event has no Miku type"
         end
@@ -207,6 +230,8 @@ class FileSystemCheck
         if !["bidirectional", "arrow", "none"].include?(event["type"]) then
             raise "incorrect value for type: #{event["type"]}"
         end
+
+        XCache::setFlag(repeatKey, true)
     end
 
     # -----------------------------------------------------
@@ -299,10 +324,13 @@ class FileSystemCheck
         FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
     end
 
-    # FileSystemCheck::fsckPrimaryStructureV1Banking(object)
-    def self.fsckPrimaryStructureV1Banking(object)
+    # FileSystemCheck::fsckPrimaryStructureV1Banking(object, runhash)
+    def self.fsckPrimaryStructureV1Banking(object, runhash)
 
-        puts "FileSystemCheck::fsckPrimaryStructureV1Banking(#{JSON.pretty_generate(object)})"
+        repeatKey = "a6a69ba0-801c-475b-bb5e-62899f7ea5a0:#{runhash}:#{JSON.generate(object)}"
+        return if XCache::getFlag(repeatKey)
+
+        puts "FileSystemCheck::fsckPrimaryStructureV1Banking(#{JSON.pretty_generate(object)}, #{runhash})"
 
         if object["mikuType"] != "PrimaryStructure.v1:Banking" then
             raise "Incorrect Miku type for this function"
@@ -311,42 +339,55 @@ class FileSystemCheck
         object["mapping"].each{|pair|
             setuuid, nhash = pair
             array = TheLibrarian::getObject(nhash)
-            FileSystemCheck::fsckSetUUID_ArrayOfTxBankEvents(setuuid, array)
+            FileSystemCheck::fsckSetUUID_ArrayOfTxBankEvents(setuuid, array, runhash)
         }
+
+        XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsckPrimaryStructureV1DoNotShowUntil(object)
-    def self.fsckPrimaryStructureV1DoNotShowUntil(object)
-        puts "FileSystemCheck::fsckPrimaryStructureV1DoNotShowUntil(#{JSON.pretty_generate(object)})"
+    # FileSystemCheck::fsckPrimaryStructureV1DoNotShowUntil(object, runhash)
+    def self.fsckPrimaryStructureV1DoNotShowUntil(object, runhash)
+        repeatKey = "29cb8512-1d87-40a8-97cc-a1923e6a898b:#{runhash}:#{JSON.generate(object)}"
+        return if XCache::getFlag(repeatKey)
+
+        puts "FileSystemCheck::fsckPrimaryStructureV1DoNotShowUntil(#{JSON.pretty_generate(object)}, #{runhash})"
 
         if object["mikuType"] != "PrimaryStructure.v1:DoNotShowUntil" then
             raise "Incorrect Miku type for this function"
         end
 
-        object["mapping"].each{|item|
-            FileSystemCheck::fsckNxDoNotShowUntil(item)
-        }
+        if object["mapping"].nil? then
+            puts "We are missing attribute mapping"
+        end
+
+        XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsckPrimaryStructureV1NetworkEdges(object)
-    def self.fsckPrimaryStructureV1NetworkEdges(object)
-        puts "FileSystemCheck::fsckPrimaryStructureV1NetworkEdges(#{JSON.pretty_generate(object)})"
+    # FileSystemCheck::fsckPrimaryStructureV1NetworkEdges(object, runhash)
+    def self.fsckPrimaryStructureV1NetworkEdges(object, runhash)
+        repeatKey = "06235b8b-016b-4e1b-a811-0eb5164b025d:#{runhash}:#{JSON.generate(object)}"
+        return if XCache::getFlag(repeatKey)
+
+        puts "FileSystemCheck::fsckPrimaryStructureV1NetworkEdges(#{JSON.pretty_generate(object)}, #{runhash})"
 
         if object["mikuType"] != "PrimaryStructure.v1:NetworkEdges" then
             raise "Incorrect Miku type for this function"
         end
 
         object["edges"].each{|item|
-            FileSystemCheck::fsckNxGraphEdge1(item)
+            FileSystemCheck::fsckNxGraphEdge1(item, runhash)
         }
+
+        XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsckPrimaryStructureV1()
-    def self.fsckPrimaryStructureV1()
-        puts "FileSystemCheck::fsckPrimaryStructureV1()"
-        primary = TheLibrarian::getPrimaryStructure()
+    # FileSystemCheck::fsckPrimaryStructureV1(primary, runhash)
+    def self.fsckPrimaryStructureV1(primary, runhash)
 
-        puts "primary: #{JSON.pretty_generate(primary)}"
+        repeatKey = "06235b8b-016b-4e1b-a811-0eb5164b025d:#{runhash}:#{JSON.generate(primary)}"
+        return if XCache::getFlag(repeatKey)
+
+        puts "FileSystemCheck::fsckPrimaryStructureV1(#{JSON.pretty_generate(primary)}, #{runhash})"
 
         if primary["mikuType"] != "PrimaryStructure.v1" then
             raise "Incorrect Miku type for a primary structure"
@@ -355,24 +396,38 @@ class FileSystemCheck
         if primary["banking"].nil? then
             raise "could not find attribute 'banking' for primary structure"
         end
-        FileSystemCheck::fsckPrimaryStructureV1Banking(TheLibrarian::getObject(primary["banking"]))
+        FileSystemCheck::fsckPrimaryStructureV1Banking(TheLibrarian::getObject(primary["banking"]), runhash)
 
         if primary["doNotShowUntil"].nil? then
             raise "could not find attribute 'doNotShowUntil' for primary structure"
         end
-        FileSystemCheck::fsckPrimaryStructureV1DoNotShowUntil(TheLibrarian::getObject(primary["doNotShowUntil"]))
+        FileSystemCheck::fsckPrimaryStructureV1DoNotShowUntil(TheLibrarian::getObject(primary["doNotShowUntil"]), runhash)
 
         if primary["networkEdges"].nil? then
             raise "could not find attribute 'networkEdges' for primary structure"
         end
-        FileSystemCheck::fsckPrimaryStructureV1NetworkEdges(TheLibrarian::getObject(primary["networkEdges"]))
+        FileSystemCheck::fsckPrimaryStructureV1NetworkEdges(TheLibrarian::getObject(primary["networkEdges"]), runhash)
+
+        XCache::setFlag(repeatKey, true)
     end
 
     # -----------------------------------------------------
 
+    # FileSystemCheck::getExistingRunHash()
+    def self.getExistingRunHash()
+        r = XCache::getOrNull("371dbc1d-8fbc-498b-ac98-d17d978cfdbf")
+        if r.nil? then
+            r = SecureRandom.hex
+            XCache::set("371dbc1d-8fbc-498b-ac98-d17d978cfdbf", r)
+        end
+        r
+    end
+
     # FileSystemCheck::fsckErrorAtFirstFailure(runhash)
     def self.fsckErrorAtFirstFailure(runhash)
-        FileSystemCheck::fsckPrimaryStructureV1()
+        primary = TheLibrarian::getPrimaryStructure()
+        FileSystemCheck::fsckPrimaryStructureV1(primary, runhash)
+
         ItemsEventsLog::objectuuids().each{|objectuuid|
             FileSystemCheck::exitIfMissingCanary()
             FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(objectuuid, runhash)
