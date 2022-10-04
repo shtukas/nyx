@@ -333,7 +333,6 @@ class FileSystemCheck
             return
         end
 
-
         if ["CxAionPoint", "DxAionPoint"].include?(item["mikuType"]) then
             NxDeleted::deleteObject(item["uuid"])
             return
