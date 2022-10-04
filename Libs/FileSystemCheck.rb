@@ -166,6 +166,32 @@ class FileSystemCheck
         end
     end
 
+    # FileSystemCheck::fsckNxGraphEdge1(event)
+    def self.fsckNxGraphEdge1(event)
+        puts "FileSystemCheck::fsckNxGraphEdge1(#{JSON.pretty_generate(event)})"
+        if event["mikuType"].nil? then
+            raise "event has no Miku type"
+        end
+        if event["mikuType"] != "NxGraphEdge1" then
+            raise "Incorrect Miku type for function"
+        end
+        if event["unixtime"].nil? then
+            raise "Missing attribute unixtime"
+        end
+        if event["uuid1"].nil? then
+            raise "Missing attribute uuid1"
+        end
+        if event["uuid2"].nil? then
+            raise "Missing attribute uuid2"
+        end
+        if event["type"].nil? then
+            raise "Missing attribute type"
+        end
+        if !["bidirectional", "arrow", "none"].include?(event["type"]) then
+            raise "incorrect value for type: #{event["type"]}"
+        end
+    end
+
     # -----------------------------------------------------
 
     # FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
@@ -256,6 +282,20 @@ class FileSystemCheck
         FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
     end
 
+    # FileSystemCheck::fsckPrimaryStructureV1Banking(object)
+    def self.fsckPrimaryStructureV1Banking(object)
+
+        puts "FileSystemCheck::fsckPrimaryStructureV1Banking(#{JSON.pretty_generate(object)})"
+
+        if object["mikuType"] != "PrimaryStructure.v1:Banking" then
+            raise "Incorrect Miku type for this function"
+        end
+
+        object["mapping"].each{|item|
+            FileSystemCheck::fsckTxBankEvent(item)
+        }
+    end
+
     # FileSystemCheck::fsckPrimaryStructureV1DoNotShowUntil(object)
     def self.fsckPrimaryStructureV1DoNotShowUntil(object)
         puts "FileSystemCheck::fsckPrimaryStructureV1DoNotShowUntil(#{JSON.pretty_generate(object)})"
@@ -264,17 +304,9 @@ class FileSystemCheck
             raise "Incorrect Miku type for this function"
         end
 
-        #{
-        #    "mikuType" : "PrimaryStructure.v1:DoNotShowUntil"
-        #    "mapping"  : Map[targetuuid, targetunixtime]
-        #}
-
-        #[Event] NxDoNotShowUntil
-        #{
-        #    "mikuType"       => "NxDoNotShowUntil",
-        #    "targetuuid"     => uuid,
-        #    "targetunixtime" => unixtime
-        #}
+        object["mapping"].each{|item|
+            FileSystemCheck::fsckNxDoNotShowUntil(item)
+        }
     end
 
     # FileSystemCheck::fsckPrimaryStructureV1NetworkEdges(object)
@@ -285,44 +317,9 @@ class FileSystemCheck
             raise "Incorrect Miku type for this function"
         end
 
-        #{
-        #    "mikuType" : "PrimaryStructure.v1:NetworkEdges"
-        #    "edges"    : Array[NxGraphEdge1]
-        #}
-
-        #NxGraphEdge1 {
-        #    "mikuType" : "NxGraphEdge1"
-        #    "unixtime" : Float
-        #    "uuid1"    : String
-        #    "uuid2"    : String
-        #    "type"     : "bidirectional" | "arrow" | "none"
-        #}
-    end
-
-    # FileSystemCheck::fsckPrimaryStructureV1Banking(object)
-    def self.fsckPrimaryStructureV1Banking(object)
-
-        puts "FileSystemCheck::fsckPrimaryStructureV1Banking(#{JSON.pretty_generate(object)})"
-
-        if object["mikuType"] != "PrimaryStructure.v1:Banking" then
-            raise "Incorrect Miku type for this function"
-        end
-
-        #{
-        #    "mikuType" : "PrimaryStructure.v1:Banking"
-        #    "mapping"  : Map[setuuid, nhash to a JSON encoded Array[TxBankEvent]]
-        #}
-
-        #[Event] TxBankEvent
-        #{
-        #    "mikuType"  => "TxBankEvent",
-        #    "eventuuid" => eventuuid,
-        #    "eventTime" => Float,
-        #    "setuuid"   => setuuid,
-        #    "unixtime"  => unixtime,
-        #    "date"      => date,
-        #    "weight"    => weight
-        #}
+        object["edges"].each{|item|
+            FileSystemCheck::fsckNxGraphEdge1(item)
+        }
     end
 
     # FileSystemCheck::fsckPrimaryStructureV1()

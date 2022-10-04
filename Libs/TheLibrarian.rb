@@ -181,6 +181,7 @@ class TheLibrarian
             #    "uuid2"    : String
             #    "type"     : "bidirectional" | "arrow" | "none"
             #}
+            FileSystemCheck::fsckNxGraphEdge1(event)
             networkEdges = TheLibrarian::getNetworkEdges()
             # The operation there is to remove any item that link those two nodes and to add this one
             edges = networkEdges["edges"]
