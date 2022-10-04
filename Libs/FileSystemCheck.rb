@@ -284,11 +284,13 @@ class FileSystemCheck
             ensureAttribute.call(item, "repeatType")
             ensureAttribute.call(item, "lastCelebrationDate")
             XCache::setFlag(repeatKey, true)
+            return
         end
 
         if mikuType == "NxLine" then
             ensureAttribute.call(item, "line")
             XCache::setFlag(repeatKey, true)
+            return
         end
 
         if mikuType == "NxTodo" then
@@ -310,12 +312,14 @@ class FileSystemCheck
             FileSystemCheck::fsckNx11EErrorAtFirstFailure(item["nx11e"])
             FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"])
             XCache::setFlag(repeatKey, true)
+            return
         end
 
         if mikuType == "NyxNode" then
             ensureAttribute.call(item, "description")
             FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"]) # nx113 is optional for NyxNodes, the function return if the argument in null
             XCache::setFlag(repeatKey, true)
+            return
         end
 
         if mikuType == "Wave" then
@@ -324,6 +328,7 @@ class FileSystemCheck
             ensureAttribute.call(item, "lastDoneDateTime")
             FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"])
             XCache::setFlag(repeatKey, true)
+            return
         end
 
         if item["mikuType"] == "NxTask" then
@@ -331,10 +336,12 @@ class FileSystemCheck
             Items::updateIndexAtObjectAttempt(item["uuid"])
             item = Items::getItemOrNull(item["uuid"])
             FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
+            return
         end
 
         if ["CxAionPoint", "DxAionPoint"].include?(item["mikuType"]) then
             NxDeleted::deleteObject(item["uuid"])
+            return
         end
 
         raise "Unsupported Miku Type: #{item}"
