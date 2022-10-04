@@ -2,7 +2,7 @@ class EndOfDayChecklist
 
     # EndOfDayChecklist::lines()
     def self.lines()
-        IO.read("#{ENV['HOME']}/Galaxy/DataHub/End-Of-Day-Checklist-[Data].txt")
+        IO.read("#{ENV['HOME']}/Galaxy/DataHub/Catalyst/End-Of-Day-Checklist.txt")
             .lines
             .map{|line| line.strip }
             .select{|line| line.size > 0 } 
