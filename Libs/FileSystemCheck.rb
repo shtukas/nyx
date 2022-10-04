@@ -234,8 +234,6 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
-    # -----------------------------------------------------
-
     # FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
     def self.fsckItemErrorArFirstFailure(item, runhash)
 
@@ -436,6 +434,35 @@ class FileSystemCheck
         end
         FileSystemCheck::fsckPrimaryStructureV1NetworkEdges(TheLibrarian::getObject(primary["networkEdges"]), runhash)
 
+        XCache::setFlag(repeatKey, true)
+    end
+
+    # FileSystemCheck::fsckAttributeUpdateV2(event, runhash)
+    def self.fsckAttributeUpdateV2(event, runhash)
+        repeatKey = "#{runhash}:#{JSON.generate(event)}"
+        return if XCache::getFlag(repeatKey)
+        puts "FileSystemCheck::fsckAttributeUpdateV2(#{JSON.pretty_generate(event)}, #{runhash})"
+        if event["mikuType"].nil? then
+            raise "event has no Miku type"
+        end
+        if event["mikuType"] != "AttributeUpdate.v2" then
+            raise "Incorrect Miku type for function"
+        end
+        if event["objectuuid"].nil? then
+            raise "Missing attribute objectuuid"
+        end
+        if event["eventuuid"].nil? then
+            raise "Missing attribute eventuuid"
+        end
+        if event["eventTime"].nil? then
+            raise "Missing attribute eventTime"
+        end
+        if event["attname"].nil? then
+            raise "Missing attribute attname"
+        end
+        if event["attvalue"].nil? then
+            raise "Missing attribute attvalue"
+        end
         XCache::setFlag(repeatKey, true)
     end
 

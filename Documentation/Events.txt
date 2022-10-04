@@ -57,15 +57,6 @@ We have two types of events
 }
 
 {
-    "mikuType"   => "AttributeUpdate.v2"
-    "objectuuid" => objectuuid
-    "eventuuid"  => String
-    "eventTime"  => Float
-    "attname"    => string
-    "attvalue"   => value
-}
-
-{
     "mikuType"   => "(object has been touched)",
     "objectuuid" => objectuuid,
 }
