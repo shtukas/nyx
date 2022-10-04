@@ -149,6 +149,23 @@ class FileSystemCheck
         end
     end
 
+    # FileSystemCheck::fsckSetUUIDTxBankEvent(setuuid, event)
+    def self.fsckSetUUIDTxBankEvent(setuuid, event)
+        puts "FileSystemCheck::fsckSetUUIDTxBankEvent(#{setuuid}, #{JSON.pretty_generate(event)})"
+        FileSystemCheck::fsckTxBankEvent(event)
+        if event["setuuid"] != setuuid then
+            raise "the event does not carry the setuuid that we expect "
+        end
+    end
+
+    # FileSystemCheck::fsckSetUUID_ArrayOfTxBankEvents(setuuid, events)
+    def self.fsckSetUUID_ArrayOfTxBankEvents(setuuid, events)
+        puts "FileSystemCheck::fsckSetUUID_ArrayOfTxBankEvents(#{setuuid}, events)"
+        events.each{|event|
+            FileSystemCheck::fsckSetUUIDTxBankEvent(setuuid, event)
+        }
+    end
+
     # FileSystemCheck::fsckNxDoNotShowUntil(event)
     def self.fsckNxDoNotShowUntil(event)
         puts "FileSystemCheck::fsckNxDoNotShowUntil(#{JSON.pretty_generate(event)})"
@@ -291,8 +308,10 @@ class FileSystemCheck
             raise "Incorrect Miku type for this function"
         end
 
-        object["mapping"].each{|item|
-            FileSystemCheck::fsckTxBankEvent(item)
+        object["mapping"].each{|pair|
+            setuuid, nhash = pair
+            array = TheLibrarian::getObject(nhash)
+            FileSystemCheck::fsckSetUUID_ArrayOfTxBankEvents(setuuid, array)
         }
     end
 
