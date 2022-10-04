@@ -120,6 +120,54 @@ class FileSystemCheck
         end
     end
 
+    # FileSystemCheck::fsckTxBankEvent(event)
+    def self.fsckTxBankEvent(event)
+        puts "FileSystemCheck::fsckTxBankEvent(#{JSON.pretty_generate(event)})"
+        if event["mikuType"].nil? then
+            raise "event has no Miku type"
+        end
+        if event["mikuType"] != "TxBankEvent" then
+            raise "Incorrect Miku type for function"
+        end
+        if event["eventuuid"].nil? then
+            raise "Missing attribute eventuuid"
+        end
+        if event["eventTime"].nil? then
+            raise "Missing attribute eventTime"
+        end
+        if event["setuuid"].nil? then
+            raise "Missing attribute setuuid"
+        end
+        if event["unixtime"].nil? then
+            raise "Missing attribute unixtime"
+        end
+        if event["date"].nil? then
+            raise "Missing attribute date"
+        end
+        if event["weight"].nil? then
+            raise "Missing attribute weight"
+        end
+    end
+
+    # FileSystemCheck::fsckNxDoNotShowUntil(event)
+    def self.fsckNxDoNotShowUntil(event)
+        puts "FileSystemCheck::fsckNxDoNotShowUntil(#{JSON.pretty_generate(event)})"
+        if event["mikuType"].nil? then
+            raise "event has no Miku type"
+        end
+        if event["mikuType"] != "NxDoNotShowUntil" then
+            raise "Incorrect Miku type for function"
+        end
+        if event["targetuuid"].nil? then
+            raise "Missing attribute targetuuid"
+        end
+        if event["targetunixtime"].nil? then
+            raise "Missing attribute targetunixtime"
+        end
+    end
+
+    # -----------------------------------------------------
+
     # FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
     def self.fsckItemErrorArFirstFailure(item, runhash)
 
@@ -208,70 +256,107 @@ class FileSystemCheck
         FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
     end
 
-    # FileSystemCheck::fsckTxBankEvent(event)
-    def self.fsckTxBankEvent(event)
-        puts "FileSystemCheck::fsckTxBankEvent(#{JSON.pretty_generate(event)})"
-        if event["mikuType"].nil? then
-            raise "event has no Miku type"
+    # FileSystemCheck::fsckPrimaryStructureV1DoNotShowUntil(object)
+    def self.fsckPrimaryStructureV1DoNotShowUntil(object)
+        puts "FileSystemCheck::fsckPrimaryStructureV1DoNotShowUntil(#{JSON.pretty_generate(object)})"
+
+        if object["mikuType"] != "PrimaryStructure.v1:DoNotShowUntil" then
+            raise "Incorrect Miku type for this function"
         end
-        if event["mikuType"] != "TxBankEvent" then
-            raise "Incorrect Miku type for function"
-        end
-        if event["eventuuid"].nil? then
-            raise "Missing attribute eventuuid"
-        end
-        if event["eventTime"].nil? then
-            raise "Missing attribute eventTime"
-        end
-        if event["setuuid"].nil? then
-            raise "Missing attribute setuuid"
-        end
-        if event["unixtime"].nil? then
-            raise "Missing attribute unixtime"
-        end
-        if event["date"].nil? then
-            raise "Missing attribute date"
-        end
-        if event["weight"].nil? then
-            raise "Missing attribute weight"
-        end
+
+        #{
+        #    "mikuType" : "PrimaryStructure.v1:DoNotShowUntil"
+        #    "mapping"  : Map[targetuuid, targetunixtime]
+        #}
+
+        #[Event] NxDoNotShowUntil
+        #{
+        #    "mikuType"       => "NxDoNotShowUntil",
+        #    "targetuuid"     => uuid,
+        #    "targetunixtime" => unixtime
+        #}
     end
 
-    # FileSystemCheck::fsckNxDoNotShowUntil(event)
-    def self.fsckNxDoNotShowUntil(event)
-        puts "FileSystemCheck::fsckNxDoNotShowUntil(#{JSON.pretty_generate(event)})"
-        if event["mikuType"].nil? then
-            raise "event has no Miku type"
+    # FileSystemCheck::fsckPrimaryStructureV1NetworkEdges(object)
+    def self.fsckPrimaryStructureV1NetworkEdges(object)
+        puts "FileSystemCheck::fsckPrimaryStructureV1NetworkEdges(#{JSON.pretty_generate(object)})"
+
+        if object["mikuType"] != "PrimaryStructure.v1:NetworkEdges" then
+            raise "Incorrect Miku type for this function"
         end
-        if event["mikuType"] != "NxDoNotShowUntil" then
-            raise "Incorrect Miku type for function"
-        end
-        if event["targetuuid"].nil? then
-            raise "Missing attribute targetuuid"
-        end
-        if event["targetunixtime"].nil? then
-            raise "Missing attribute targetunixtime"
-        end
+
+        #{
+        #    "mikuType" : "PrimaryStructure.v1:NetworkEdges"
+        #    "edges"    : Array[NxGraphEdge1]
+        #}
+
+        #NxGraphEdge1 {
+        #    "mikuType" : "NxGraphEdge1"
+        #    "unixtime" : Float
+        #    "uuid1"    : String
+        #    "uuid2"    : String
+        #    "type"     : "bidirectional" | "arrow" | "none"
+        #}
     end
 
-    # FileSystemCheck::fsckPrimaryStructure()
-    def self.fsckPrimaryStructure()
-        puts "FileSystemCheck::fsckPrimaryStructure()"
+    # FileSystemCheck::fsckPrimaryStructureV1Banking(object)
+    def self.fsckPrimaryStructureV1Banking(object)
+
+        puts "FileSystemCheck::fsckPrimaryStructureV1Banking(#{JSON.pretty_generate(object)})"
+
+        if object["mikuType"] != "PrimaryStructure.v1:Banking" then
+            raise "Incorrect Miku type for this function"
+        end
+
+        #{
+        #    "mikuType" : "PrimaryStructure.v1:Banking"
+        #    "mapping"  : Map[setuuid, nhash to a JSON encoded Array[TxBankEvent]]
+        #}
+
+        #[Event] TxBankEvent
+        #{
+        #    "mikuType"  => "TxBankEvent",
+        #    "eventuuid" => eventuuid,
+        #    "eventTime" => Float,
+        #    "setuuid"   => setuuid,
+        #    "unixtime"  => unixtime,
+        #    "date"      => date,
+        #    "weight"    => weight
+        #}
+    end
+
+    # FileSystemCheck::fsckPrimaryStructureV1()
+    def self.fsckPrimaryStructureV1()
+        puts "FileSystemCheck::fsckPrimaryStructureV1()"
         primary = TheLibrarian::getPrimaryStructure()
+
+        puts "primary: #{JSON.pretty_generate(primary)}"
+
+        if primary["mikuType"] != "PrimaryStructure.v1" then
+            raise "Incorrect Miku type for a primary structure"
+        end
+
         if primary["banking"].nil? then
             raise "could not find attribute 'banking' for primary structure"
         end
+        FileSystemCheck::fsckPrimaryStructureV1Banking(TheLibrarian::getObject(primary["banking"]))
+
         if primary["doNotShowUntil"].nil? then
             raise "could not find attribute 'doNotShowUntil' for primary structure"
         end
+        FileSystemCheck::fsckPrimaryStructureV1DoNotShowUntil(TheLibrarian::getObject(primary["doNotShowUntil"]))
+
         if primary["networkEdges"].nil? then
             raise "could not find attribute 'networkEdges' for primary structure"
         end
+        FileSystemCheck::fsckPrimaryStructureV1NetworkEdges(TheLibrarian::getObject(primary["networkEdges"]))
     end
+
+    # -----------------------------------------------------
 
     # FileSystemCheck::fsckErrorAtFirstFailure(runhash)
     def self.fsckErrorAtFirstFailure(runhash)
-        FileSystemCheck::fsckPrimaryStructure()
+        FileSystemCheck::fsckPrimaryStructureV1()
         ItemsEventsLog::objectuuids().each{|objectuuid|
             FileSystemCheck::exitIfMissingCanary()
             FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(objectuuid, runhash)

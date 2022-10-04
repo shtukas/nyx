@@ -9,14 +9,6 @@
     "networkEdges"  : nhash to a JSON encoded "PrimaryStructure.v1:NetworkEdges"
 }
 
-LibrarianPointer {
-    "mikuType" : "LibrarianPointer"
-    "unixtime" : Float
-    "nhash"    : nhash of the JSON encoding of a PrimaryStructure.v1
-}
-
-Given a LibrarianPointer and a PrimaryEvent, we get another LibrarianPointer.
-
 ### PrimaryStructure.v1:Banking
 
 {
