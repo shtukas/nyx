@@ -65,7 +65,15 @@ NxGraphEdge1 {
 
 NxItemSphere1 {
     "mikuType"   : "NxItemSphere1"
-    "objectuuid" : String
     "item"       : Item
     "events"     : Array[AttributeUpdate.v2]
+}
+
+{
+    "mikuType"   => "AttributeUpdate.v2"
+    "objectuuid" => objectuuid
+    "eventuuid"  => String
+    "eventTime"  => Float
+    "attname"    => string
+    "attvalue"   => value
 }

@@ -84,6 +84,19 @@ class TheLibrarian
         end
     end
 
+    # TheLibrarian::getItems()
+    def self.getItems()
+        primary = TheLibrarian::getPrimaryStructure()
+        if primary["items"] then
+            TheLibrarian::getObject(primary["items"])
+        else
+            {
+                "mikuType" => "PrimaryStructure.v1:Items",
+                "mapping"  => {}
+            }
+        end
+    end
+
     # -----------------------------------------------------------
     # Setters
 
@@ -133,6 +146,15 @@ class TheLibrarian
         nhash = TheLibrarian::setObject(object)
         primary = TheLibrarian::getPrimaryStructure()
         primary["networkEdges"] = nhash
+        TheLibrarian::setPrimaryStructure(primary)
+    end
+
+    # TheLibrarian::setItems(object)
+    def self.setItems(object)
+        FileSystemCheck::fsckPrimaryStructureV1Items(object, FileSystemCheck::getExistingRunHash())
+        nhash = TheLibrarian::setObject(object)
+        primary = TheLibrarian::getPrimaryStructure()
+        primary["items"] = nhash
         TheLibrarian::setPrimaryStructure(primary)
     end
 
@@ -219,6 +241,27 @@ class TheLibrarian
             networkEdges["edges"] = edges
 
             TheLibrarian::setNetworkEdges(networkEdges)
+        end
+
+        if event["mikuType"] == "AttributeUpdate.v2" then
+            #{
+            #    "mikuType"   => "AttributeUpdate.v2"
+            #    "objectuuid" => objectuuid
+            #    "eventuuid"  => String
+            #    "eventTime"  => Float
+            #    "attname"    => string
+            #    "attvalue"   => value
+            #}
+            FileSystemCheck::fsckAttributeUpdateV2(event, SecureRandom.hex)
+            items = TheLibrarian::getItems()
+            mapping = items["mapping"]
+            if mapping[event["objectuuid"]] then
+                 # We have a NxItemSphere1
+
+            else
+                 # We need to create the NxItemSphere1
+
+            end
         end
     end
 
