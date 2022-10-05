@@ -261,7 +261,6 @@ class FileSystemCheck
 
         ensureAttribute = lambda {|item, attname|
             return if item[attname]
-            puts JSON.pretty_generate(item)
             raise "Missing attribute #{attname} in #{attname}"
         }
 
