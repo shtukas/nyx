@@ -15,7 +15,13 @@ class EndOfDayChecklist
 
     # EndOfDayChecklist::doneForToday(item)
     def self.doneForToday(item)
-        XCache::setFlag("598d3c57-3aca-4f87-a123-8c5a6702c4ee:#{CommonUtils::today()}:#{item["uuid"]}", true)
+        key = "598d3c57-3aca-4f87-a123-8c5a6702c4ee:#{CommonUtils::today()}:#{item["uuid"]}"
+        XCache::setFlag(key, true)
+        SystemEvents::broadcast({
+            "mikuType" => "XCacheFlag",
+            "key"      => key,
+            "flag"     => true
+        })
     end
 
     # EndOfDayChecklist::listingItems()
