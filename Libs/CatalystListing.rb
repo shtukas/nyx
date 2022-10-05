@@ -667,11 +667,7 @@ class CatalystListing
                 break
             end
 
-            CommsLine::processIncoming(true)
-
-            SystemEventsBuffering::broadcastOutBufferToCommsline()
-
-            CommsLine::moveCarefully()
+            SystemEvents::processIncomingEventsFromLine(true)
 
             LucilleCore::locationsAtFolder("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")
                 .each{|location|

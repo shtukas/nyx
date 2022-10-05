@@ -65,30 +65,57 @@ class SystemEvents
 
     # SystemEvents::broadcast(event)
     def self.broadcast(event)
-        SystemEventsBuffering::putToBroadcastOutBuffer(event)
-    end
-end
-
-class SystemEventsBuffering
-
-    # SystemEventsBuffering::putToBroadcastOutBuffer(event)
-    def self.putToBroadcastOutBuffer(event)
-        Mercury2::put("a0b54bbe-96f8-4f19-911e-88c3f47eabdd", event)
-    end
-
-    # SystemEventsBuffering::broadcastOutBufferToCommsline()
-    def self.broadcastOutBufferToCommsline()
-        channel = "a0b54bbe-96f8-4f19-911e-88c3f47eabdd"
-        l22 = CommonUtils::timeStringL22()
-        loop {
-            event = Mercury2::readFirstOrNull(channel)
-            break if event.nil?
-            puts "broadcast: #{JSON.pretty_generate(event)}"
-            Machines::theOtherInstanceIds().each{|targetInstanceId|
-                filepath = "#{CommsLine::pathToStaging()}/#{targetInstanceId}/#{l22}.system-events.jsonlines"
-                File.open(filepath, "a"){|f| f.puts(JSON.generate(event)) }
-            }
-            Mercury2::dequeue(channel)
+        Machines::theOtherInstanceIds().each{|targetInstanceId|
+            filepath = "#{CommsLine::pathToStaging()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.system-event.json"
+            File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(event)) }
         }
+    end
+
+    # SystemEvents::processIncomingEventsFromLine(verbose)
+    def self.processIncomingEventsFromLine(verbose)
+        # New style. Keep while we process the remaining items
+        # We are reading from the instance folder
+
+        instanceId = Config::get("instanceId")
+
+        folderpath = "#{CommsLine::pathToActive()}/#{instanceId}"
+
+        LucilleCore::locationsAtFolder(folderpath)
+            .each{|filepath1|
+
+                next if !File.exists?(filepath1)
+                next if File.basename(filepath1).start_with?(".")
+                next if File.basename(filepath1).include?("sync-conflict")
+
+                if CommonUtils::ends_with?(filepath1, ".system-event.json") then
+
+                    if verbose then
+                        puts "SystemEvents::processIncomingEventsFromLine: reading: #{File.basename(filepath1)}"
+                    end
+
+                    IO.read(filepath1)
+                        .lines
+                        .each{|line|
+                            data = line.strip
+                            next if data == ""
+                            event = JSON.parse(data)
+                            if verbose then
+                                puts "event from system events: #{JSON.pretty_generate(event)}"
+                            end
+                            SystemEvents::internal(event)
+                        }
+
+                    FileUtils.rm(filepath1)
+                    next
+                end
+
+                if CommonUtils::ends_with?(filepath1, ".file-datastore1") then
+                    DataStore1::putDataByFilepathNoCommLine(filepath1)
+                    FileUtils.rm(filepath1)
+                    next
+                end
+
+                raise "(error: 600967d9-e9d4-4612-bf62-f8cc4f616fd1) I do not know how to process file: #{filepath1}"
+            }
     end
 end

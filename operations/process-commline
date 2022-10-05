@@ -4,4 +4,4 @@
 
 require_relative "../Libs/loader.rb"
 
-CommsLine::processIncoming(true)
+SystemEvents::processIncomingEventsFromLine(true)

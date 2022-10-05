@@ -38,7 +38,7 @@ class ThreadsX
         Thread.new {
             loop {
                 sleep 60
-                CommsLine::moveCarefully()
+                CommsLine::moveCarefully(false)
             }
         }
     end
