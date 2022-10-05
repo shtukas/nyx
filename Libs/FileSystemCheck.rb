@@ -195,7 +195,10 @@ class FileSystemCheck
         repeatKey = "#{runhash}:#{JSON.generate(event)}"
         return if XCache::getFlag(repeatKey)
 
-        puts "FileSystemCheck::fsckNxDoNotShowUntil(#{JSON.pretty_generate(event)}, #{runhash}, #{verbose})"
+        if verbose then
+            puts "FileSystemCheck::fsckNxDoNotShowUntil(#{JSON.pretty_generate(event)}, #{runhash}, #{verbose})"
+        end
+
         if event["mikuType"].nil? then
             raise "event has no Miku type"
         end
