@@ -442,7 +442,7 @@ class FileSystemCheck
         if primary["items"].nil? then
             raise "could not find attribute 'items' for primary structure"
         end
-        FileSystemCheck::fsckPrimaryStructureV1ItemsNoDeepItemsIntrospection(TheLibrarian::getObject(primary["items"]), runhash)
+        FileSystemCheck::fsckPrimaryStructureV1Items(TheLibrarian::getObject(primary["items"]), true, runhash)
 
         XCache::setFlag(repeatKey, true)
     end
@@ -509,9 +509,9 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsckPrimaryStructureV1ItemsNoDeepItemsIntrospection(object, runhash)
-    def self.fsckPrimaryStructureV1ItemsNoDeepItemsIntrospection(object, runhash)
-        puts "FileSystemCheck::fsckPrimaryStructureV1ItemsNoDeepItemsIntrospection(#{JSON.pretty_generate(object)}, #{runhash})"
+    # FileSystemCheck::fsckPrimaryStructureV1Items(object, isdeep, runhash)
+    def self.fsckPrimaryStructureV1Items(object, isdeep, runhash)
+        puts "FileSystemCheck::fsckPrimaryStructureV1Items(#{JSON.pretty_generate(object)}, #{isdeep}, #{runhash})"
         repeatKey = "#{runhash}:#{JSON.generate(object)}"
         return if XCache::getFlag(repeatKey)
 
@@ -526,11 +526,13 @@ class FileSystemCheck
             raise "Missing attribute mapping"
         end
 
-        #object["mapping"].each{|pair|
-        #    objectuuid, nhash = pair
-        #    nxItemSphere1 = TheLibrarian::getObject(nhash)
-        #    # (no deep items introspection) FileSystemCheck::fsckNxItemSphere1(nxItemSphere1, runhash)
-        #}
+        if isdeep then
+            object["mapping"].each{|pair|
+                objectuuid, nhash = pair
+                nxItemSphere1 = TheLibrarian::getObject(nhash)
+                FileSystemCheck::fsckNxItemSphere1(nxItemSphere1, runhash)
+            }
+        end
 
         XCache::setFlag(repeatKey, true)
     end
@@ -551,11 +553,6 @@ class FileSystemCheck
     def self.fsckErrorAtFirstFailure(runhash)
         primary = TheLibrarian::getPrimaryStructure()
         FileSystemCheck::fsckPrimaryStructureV1(primary, runhash)
-
-        Items::objectuuids().each{|objectuuid|
-            FileSystemCheck::exitIfMissingCanary()
-            FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(objectuuid, runhash)
-        }
         puts "fsck completed successfully".green
     end
 end
