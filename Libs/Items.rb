@@ -132,7 +132,7 @@ class Items
             "attvalue"   => attvalue
         }
 
-        FileSystemCheck::fsckAttributeUpdateV2(event, SecureRandom.hex)
+        FileSystemCheck::fsckAttributeUpdateV2(event, SecureRandom.hex, false)
 
         SystemEvents::broadcast(event)
     end

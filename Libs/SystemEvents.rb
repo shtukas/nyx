@@ -49,7 +49,7 @@ class SystemEvents
         end
 
         if event["mikuType"] == "AttributeUpdate.v2" then
-            FileSystemCheck::fsckAttributeUpdateV2(event, SecureRandom.hex)
+            FileSystemCheck::fsckAttributeUpdateV2(event, SecureRandom.hex, false)
             objectuuid = event["objectuuid"]
             eventuuid  = event["eventuuid"]
             eventTime  = event["eventTime"]

@@ -260,7 +260,7 @@ class TheLibrarian
             #    "attname"    => string
             #    "attvalue"   => value
             #}
-            FileSystemCheck::fsckAttributeUpdateV2(event, SecureRandom.hex)
+            FileSystemCheck::fsckAttributeUpdateV2(event, SecureRandom.hex, false)
             items = TheLibrarian::getItems()
 
             eventsToItemOrNull = lambda{|events|
