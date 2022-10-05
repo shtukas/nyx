@@ -312,18 +312,6 @@ class FileSystemCheck
         raise "Unsupported Miku Type: #{item}"
     end
 
-    # FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(objectuuid, runhash, verbose)
-    def self.fsckObjectuuidErrorAtFirstFailure(objectuuid, runhash, verbose)
-        if verbose then
-            puts "FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(#{objectuuid}, #{runhash}, #{verbose})"
-        end
-        item = Items::getItemOrNull(objectuuid)
-        if item.nil? then
-            raise "Could not find an item for objectuuid: #{objectuuid}"
-        end
-        FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash, verbose)
-    end
-
     # FileSystemCheck::fsckPrimaryStructureV1Banking(object, runhash, verbose)
     def self.fsckPrimaryStructureV1Banking(object, runhash, verbose)
 

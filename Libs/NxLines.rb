@@ -12,11 +12,11 @@ class NxLines
         Items::setAttribute2(uuid, "unixtime", unixtime)
         Items::setAttribute2(uuid, "datetime", datetime)
         Items::setAttribute2(uuid, "line", line)
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
         item = Items::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 57a5d974-3622-4d90-a68c-e2f3491b59df) How did that happen ? 🤨"
         end
+        FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
         item
     end
 

@@ -120,11 +120,11 @@ class Anniversaries
         Items::setAttribute2(uuid, "startdate",   startdate)
         Items::setAttribute2(uuid, "repeatType",  repeatType)
         Items::setAttribute2(uuid, "lastCelebrationDate", lastCelebrationDate)
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
         item = Items::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: d2fd7192-0ed3-4405-9a7d-8badc5ccc3c6) How did that happen ? 🤨"
         end
+        FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
         item
     end
 
