@@ -37,15 +37,15 @@ class NyxNodes
             nx113nhash = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
         end
 
-        ItemsEventsLog::setAttribute2(uuid, "uuid", uuid)
-        ItemsEventsLog::setAttribute2(uuid, "mikuType", "NyxNode")
-        ItemsEventsLog::setAttribute2(uuid, "networkType", networkType)
-        ItemsEventsLog::setAttribute2(uuid, "unixtime", unixtime)
-        ItemsEventsLog::setAttribute2(uuid, "datetime", datetime)
-        ItemsEventsLog::setAttribute2(uuid, "description", description)
+        Items::setAttribute2(uuid, "uuid", uuid)
+        Items::setAttribute2(uuid, "mikuType", "NyxNode")
+        Items::setAttribute2(uuid, "networkType", networkType)
+        Items::setAttribute2(uuid, "unixtime", unixtime)
+        Items::setAttribute2(uuid, "datetime", datetime)
+        Items::setAttribute2(uuid, "description", description)
 
         if nx113nhash then
-            ItemsEventsLog::setAttribute2(uuid, "nx113", nx113nhash)
+            Items::setAttribute2(uuid, "nx113", nx113nhash)
         end
 
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
@@ -69,14 +69,14 @@ class NyxNodes
 
         nx113nhash = Nx113Make::aionpoint(location)
 
-        ItemsEventsLog::setAttribute2(uuid, "uuid", uuid)
-        ItemsEventsLog::setAttribute2(uuid, "mikuType", "NyxNode")
-        ItemsEventsLog::setAttribute2(uuid, "networkType", networkType)
-        ItemsEventsLog::setAttribute2(uuid, "unixtime", unixtime)
-        ItemsEventsLog::setAttribute2(uuid, "datetime", datetime)
-        ItemsEventsLog::setAttribute2(uuid, "description", description)
+        Items::setAttribute2(uuid, "uuid", uuid)
+        Items::setAttribute2(uuid, "mikuType", "NyxNode")
+        Items::setAttribute2(uuid, "networkType", networkType)
+        Items::setAttribute2(uuid, "unixtime", unixtime)
+        Items::setAttribute2(uuid, "datetime", datetime)
+        Items::setAttribute2(uuid, "description", description)
 
-        ItemsEventsLog::setAttribute2(uuid, "nx113", nx113nhash)
+        Items::setAttribute2(uuid, "nx113", nx113nhash)
 
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
         item = Items::getItemOrNull(uuid)
@@ -99,14 +99,14 @@ class NyxNodes
 
         nx113nhash = Nx113Make::file(filepath)
 
-        ItemsEventsLog::setAttribute2(uuid, "uuid", uuid)
-        ItemsEventsLog::setAttribute2(uuid, "mikuType", "NyxNode")
-        ItemsEventsLog::setAttribute2(uuid, "networkType", networkType)
-        ItemsEventsLog::setAttribute2(uuid, "unixtime", unixtime)
-        ItemsEventsLog::setAttribute2(uuid, "datetime", datetime)
-        ItemsEventsLog::setAttribute2(uuid, "description", description)
+        Items::setAttribute2(uuid, "uuid", uuid)
+        Items::setAttribute2(uuid, "mikuType", "NyxNode")
+        Items::setAttribute2(uuid, "networkType", networkType)
+        Items::setAttribute2(uuid, "unixtime", unixtime)
+        Items::setAttribute2(uuid, "datetime", datetime)
+        Items::setAttribute2(uuid, "description", description)
 
-        ItemsEventsLog::setAttribute2(uuid, "nx113", nx113nhash)
+        Items::setAttribute2(uuid, "nx113", nx113nhash)
 
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
         item = Items::getItemOrNull(uuid)
@@ -131,14 +131,14 @@ class NyxNodes
         text = CommonUtils::editTextSynchronously("")
         nx113nhash = Nx113Make::text(text)
 
-        ItemsEventsLog::setAttribute2(uuid, "uuid", uuid)
-        ItemsEventsLog::setAttribute2(uuid, "mikuType", "NyxNode")
-        ItemsEventsLog::setAttribute2(uuid, "networkType", networkType)
-        ItemsEventsLog::setAttribute2(uuid, "unixtime", unixtime)
-        ItemsEventsLog::setAttribute2(uuid, "datetime", datetime)
-        ItemsEventsLog::setAttribute2(uuid, "description", description)
+        Items::setAttribute2(uuid, "uuid", uuid)
+        Items::setAttribute2(uuid, "mikuType", "NyxNode")
+        Items::setAttribute2(uuid, "networkType", networkType)
+        Items::setAttribute2(uuid, "unixtime", unixtime)
+        Items::setAttribute2(uuid, "datetime", datetime)
+        Items::setAttribute2(uuid, "description", description)
 
-        ItemsEventsLog::setAttribute2(uuid, "nx113", nx113nhash)
+        Items::setAttribute2(uuid, "nx113", nx113nhash)
 
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
         item = Items::getItemOrNull(uuid)
@@ -172,7 +172,7 @@ class NyxNodes
     # NyxNodes::edit(item) # item
     def self.edit(item)
         Nx113Edit::edit(item)
-        ItemsEventsLog::getProtoItemOrNull(item["uuid"])
+        Items::getItemOrNull(item["uuid"])
     end
 
     # NyxNodes::landing(item)
@@ -180,7 +180,7 @@ class NyxNodes
         loop {
             return nil if item.nil?
             uuid = item["uuid"]
-            item = ItemsEventsLog::getProtoItemOrNull(uuid)
+            item = Items::getItemOrNull(uuid)
             return nil if item.nil?
             system("clear")
             puts NyxNodes::toString(item)

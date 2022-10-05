@@ -244,21 +244,21 @@ class Nx113Edit
         if nx113["type"] == "text" then
             newtext = CommonUtils::editTextSynchronously(nx113["text"])
             nx113nhash = Nx113Make::text(newtext)
-            ItemsEventsLog::setAttribute2(item["uuid"], "nx113", nx113nhash)
+            Items::setAttribute2(item["uuid"], "nx113", nx113nhash)
         end
 
         if nx113["type"] == "url" then
             puts "current url: #{nx113["url"]}"
             url2 = LucilleCore::askQuestionAnswerAsString("new url: ")
             nx113nhash = Nx113Make::url(url2)
-            ItemsEventsLog::setAttribute2(item["uuid"], "nx113", nx113nhash)
+            Items::setAttribute2(item["uuid"], "nx113", nx113nhash)
         end
 
         if nx113["type"] == "file" then
             Nx113Access::access(item["nx113"])
             filepath = CommonUtils::interactivelySelectDesktopLocationOrNull()
             nx113nhash = Nx113Make::file(filepath)
-            ItemsEventsLog::setAttribute2(item["uuid"], "nx113", nx113nhash)
+            Items::setAttribute2(item["uuid"], "nx113", nx113nhash)
         end
 
         if nx113["type"] == "aion-point" then
@@ -300,7 +300,7 @@ class Nx113Edit
             }
             nx113nhash = DataStore1::putDataByContent(JSON.generate(nx113))
 
-            ItemsEventsLog::setAttribute2(item["uuid"], "nx113", nx113nhash)
+            Items::setAttribute2(item["uuid"], "nx113", nx113nhash)
         end
 
         if nx113["type"] == "Dx8Unit" then

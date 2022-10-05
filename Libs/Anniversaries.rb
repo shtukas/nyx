@@ -112,14 +112,14 @@ class Anniversaries
         end
 
         uuid = SecureRandom.uuid
-        ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)
-        ItemsEventsLog::setAttribute2(uuid, "mikuType",    "NxAnniversary")
-        ItemsEventsLog::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        ItemsEventsLog::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
-        ItemsEventsLog::setAttribute2(uuid, "description", description)
-        ItemsEventsLog::setAttribute2(uuid, "startdate",   startdate)
-        ItemsEventsLog::setAttribute2(uuid, "repeatType",  repeatType)
-        ItemsEventsLog::setAttribute2(uuid, "lastCelebrationDate", lastCelebrationDate)
+        Items::setAttribute2(uuid, "uuid",        uuid)
+        Items::setAttribute2(uuid, "mikuType",    "NxAnniversary")
+        Items::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        Items::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
+        Items::setAttribute2(uuid, "description", description)
+        Items::setAttribute2(uuid, "startdate",   startdate)
+        Items::setAttribute2(uuid, "repeatType",  repeatType)
+        Items::setAttribute2(uuid, "lastCelebrationDate", lastCelebrationDate)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
         item = Items::getItemOrNull(uuid)
         if item.nil? then
@@ -141,7 +141,7 @@ class Anniversaries
 
     # Anniversaries::done(uuid)
     def self.done(uuid)
-        ItemsEventsLog::setAttribute2(uuid, "lastCelebrationDate", Time.new.to_s[0, 10])
+        Items::setAttribute2(uuid, "lastCelebrationDate", Time.new.to_s[0, 10])
     end
 
     # Anniversaries::access(anniversary)
@@ -193,7 +193,7 @@ class Anniversaries
             return nil if item.nil?
 
             uuid = item["uuid"]
-            item = ItemsEventsLog::getProtoItemOrNull(uuid)
+            item = Items::getItemOrNull(uuid)
             return nil if item.nil?
 
             system("clear")

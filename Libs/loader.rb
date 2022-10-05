@@ -52,7 +52,6 @@ checkLocation.call("#{ENV['HOME']}/Galaxy/LucilleOS/Libraries/Ruby-Libraries")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/config.json")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/items.sqlite3")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/primary-structure")
 checkLocation.call("#{ENV['HOME']}/Galaxy/StargateMultiInstanceShared3")
 checkLocation.call("#{ENV['HOME']}/Galaxy/StargateMultiInstanceShared3/shared-config.json")
@@ -173,7 +172,6 @@ require_relative "Galaxy.rb"
 require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"
 require_relative "InternetStatus.rb"
-require_relative "ItemsEventsLog.rb"
 
 require_relative "FileSystemCheck.rb"
 

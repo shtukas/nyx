@@ -24,15 +24,15 @@ class NxTodos
         nx113nhash  = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
         cx22        = Cx22::architectOrNull()
         cx23        = cx22 ? Cx23::makeNewOrNull2(cx22["groupuuid"]) : nil
-        ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)
-        ItemsEventsLog::setAttribute2(uuid, "mikuType",    "NxTodo")
-        ItemsEventsLog::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        ItemsEventsLog::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
-        ItemsEventsLog::setAttribute2(uuid, "description", description)
-        ItemsEventsLog::setAttribute2(uuid, "nx113",       nx113nhash)
-        ItemsEventsLog::setAttribute2(uuid, "nx11e",       nx11e)
-        ItemsEventsLog::setAttribute2(uuid, "cx22",        cx22)
-        ItemsEventsLog::setAttribute2(uuid, "cx23",        cx23)
+        Items::setAttribute2(uuid, "uuid",        uuid)
+        Items::setAttribute2(uuid, "mikuType",    "NxTodo")
+        Items::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        Items::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
+        Items::setAttribute2(uuid, "description", description)
+        Items::setAttribute2(uuid, "nx113",       nx113nhash)
+        Items::setAttribute2(uuid, "nx11e",       nx11e)
+        Items::setAttribute2(uuid, "cx22",        cx22)
+        Items::setAttribute2(uuid, "cx23",        cx23)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
         item = Items::getItemOrNull(uuid)
         if item.nil? then
@@ -50,14 +50,14 @@ class NxTodos
         nx11e = Nx11E::makeOndate(datetime)
         nx113nhash = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
         cx22 = Cx22::architectOrNull()
-        ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)
-        ItemsEventsLog::setAttribute2(uuid, "mikuType",    "NxTodo")
-        ItemsEventsLog::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        ItemsEventsLog::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601) # This is the object datetime, not the engine datetime (back during the TxDated era they used to be the same)
-        ItemsEventsLog::setAttribute2(uuid, "description", description)
-        ItemsEventsLog::setAttribute2(uuid, "nx113",       nx113nhash)
-        ItemsEventsLog::setAttribute2(uuid, "nx11e",       nx11e)
-        ItemsEventsLog::setAttribute2(uuid, "cx22",        cx22)
+        Items::setAttribute2(uuid, "uuid",        uuid)
+        Items::setAttribute2(uuid, "mikuType",    "NxTodo")
+        Items::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        Items::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601) # This is the object datetime, not the engine datetime (back during the TxDated era they used to be the same)
+        Items::setAttribute2(uuid, "description", description)
+        Items::setAttribute2(uuid, "nx113",       nx113nhash)
+        Items::setAttribute2(uuid, "nx11e",       nx11e)
+        Items::setAttribute2(uuid, "cx22",        cx22)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
         item = Items::getItemOrNull(uuid)
         if item.nil? then
@@ -78,14 +78,14 @@ class NxTodos
         return if nx11e.nil?
         nx113nhash = nil
         cx22 = Cx22::architectOrNull()
-        ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)
-        ItemsEventsLog::setAttribute2(uuid, "mikuType",    "NxTodo")
-        ItemsEventsLog::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        ItemsEventsLog::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
-        ItemsEventsLog::setAttribute2(uuid, "description", description)
-        ItemsEventsLog::setAttribute2(uuid, "nx113",       nx113nhash)
-        ItemsEventsLog::setAttribute2(uuid, "nx11e",       nx11e)
-        ItemsEventsLog::setAttribute2(uuid, "cx22",        cx22)
+        Items::setAttribute2(uuid, "uuid",        uuid)
+        Items::setAttribute2(uuid, "mikuType",    "NxTodo")
+        Items::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        Items::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
+        Items::setAttribute2(uuid, "description", description)
+        Items::setAttribute2(uuid, "nx113",       nx113nhash)
+        Items::setAttribute2(uuid, "nx11e",       nx11e)
+        Items::setAttribute2(uuid, "cx22",        cx22)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
         item = Items::getItemOrNull(uuid)
         if item.nil? then
@@ -100,13 +100,13 @@ class NxTodos
         uuid        = SecureRandom.uuid
         nx11e       = Nx11E::makeStandard()
         nx113nhash  = Nx113Make::aionpoint(location)
-        ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)
-        ItemsEventsLog::setAttribute2(uuid, "mikuType",    "NxTodo")
-        ItemsEventsLog::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        ItemsEventsLog::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
-        ItemsEventsLog::setAttribute2(uuid, "description", description)
-        ItemsEventsLog::setAttribute2(uuid, "nx113",       nx113nhash)
-        ItemsEventsLog::setAttribute2(uuid, "nx11e",       nx11e)
+        Items::setAttribute2(uuid, "uuid",        uuid)
+        Items::setAttribute2(uuid, "mikuType",    "NxTodo")
+        Items::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        Items::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
+        Items::setAttribute2(uuid, "description", description)
+        Items::setAttribute2(uuid, "nx113",       nx113nhash)
+        Items::setAttribute2(uuid, "nx11e",       nx11e)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
         item = Items::getItemOrNull(uuid)
         if item.nil? then
@@ -121,13 +121,13 @@ class NxTodos
         uuid        = SecureRandom.uuid
         nx11e       = Nx11E::makeStandard()
         nx113nhash  = Nx113Make::url(url)
-        ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)
-        ItemsEventsLog::setAttribute2(uuid, "mikuType",    "NxTodo")
-        ItemsEventsLog::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        ItemsEventsLog::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
-        ItemsEventsLog::setAttribute2(uuid, "description", description)
-        ItemsEventsLog::setAttribute2(uuid, "nx113",       nx113nhash)
-        ItemsEventsLog::setAttribute2(uuid, "nx11e",       nx11e)
+        Items::setAttribute2(uuid, "uuid",        uuid)
+        Items::setAttribute2(uuid, "mikuType",    "NxTodo")
+        Items::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        Items::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
+        Items::setAttribute2(uuid, "description", description)
+        Items::setAttribute2(uuid, "nx113",       nx113nhash)
+        Items::setAttribute2(uuid, "nx11e",       nx11e)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
         item = Items::getItemOrNull(uuid)
         if item.nil? then
@@ -210,7 +210,7 @@ class NxTodos
             end
         end
         Nx113Edit::edit(item)
-        ItemsEventsLog::getProtoItemOrNull(item["uuid"])
+        Items::getItemOrNull(item["uuid"])
     end
 
     # NxTodos::landing(item)
@@ -220,7 +220,7 @@ class NxTodos
             return nil if item.nil?
 
             uuid = item["uuid"]
-            item = ItemsEventsLog::getProtoItemOrNull(uuid)
+            item = Items::getItemOrNull(uuid)
             return nil if item.nil?
 
             system("clear")
@@ -278,7 +278,7 @@ class NxTodos
             if Interpreting::match("engine", input) then
                 engine = Nx11E::interactivelyCreateNewNx11EOrNull()
                 next if engine.nil?
-                ItemsEventsLog::setAttribute2(item["uuid"], "nx11e", engine)
+                Items::setAttribute2(item["uuid"], "nx11e", engine)
                 next
             end
 

@@ -92,7 +92,7 @@ class Nx11E
     def self.interactivelySetANewEngineForItemOrNothing(item)
         engine = Nx11E::interactivelyCreateNewNx11EOrNull()
         return if engine.nil?
-        ItemsEventsLog::setAttribute2(item["uuid"], "nx11e", engine)
+        Items::setAttribute2(item["uuid"], "nx11e", engine)
     end
 
     # Functions

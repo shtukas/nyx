@@ -42,7 +42,7 @@ class Cx22
     def self.interactivelySetANewContributionForItemOrNothing(item)
         cx22 = Cx22::architectOrNull()
         return if cx22.nil?
-        ItemsEventsLog::setAttribute2(item["uuid"], "cx22", cx22)
+        Items::setAttribute2(item["uuid"], "cx22", cx22)
     end
 
     # Cx22::toString(cx22)

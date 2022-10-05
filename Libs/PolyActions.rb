@@ -226,7 +226,7 @@ class PolyActions
     def self.editDatetime(item)
         datetime = CommonUtils::editTextSynchronously(item["datetime"]).strip
         return if !CommonUtils::isDateTime_UTC_ISO8601(datetime)
-        ItemsEventsLog::setAttribute2(item["uuid"], "datetime", datetime)
+        Items::setAttribute2(item["uuid"], "datetime", datetime)
         SystemEvents::internal({
             "mikuType"   => "(object has been touched)",
             "objectuuid" => item["uuid"]
@@ -237,7 +237,7 @@ class PolyActions
     def self.editDescription(item)
         description = CommonUtils::editTextSynchronously(item["description"]).strip
         return if description == ""
-        ItemsEventsLog::setAttribute2(item["uuid"], "description", description)
+        Items::setAttribute2(item["uuid"], "description", description)
         SystemEvents::internal({
             "mikuType"   => "(object has been touched)",
             "objectuuid" => item["uuid"]
@@ -254,7 +254,7 @@ class PolyActions
 
         startdate = CommonUtils::editTextSynchronously(item["startdate"])
         return if startdate == ""
-        ItemsEventsLog::setAttribute2(item["uuid"], "startdate",   startdate)
+        Items::setAttribute2(item["uuid"], "startdate",   startdate)
 
         SystemEvents::internal({
             "mikuType"   => "(object has been touched)",
@@ -282,7 +282,7 @@ class PolyActions
             return
         end
         datetime = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
-        ItemsEventsLog::setAttribute2(item["uuid"], "nx11e", Nx11E::makeOndate(datetime))
+        Items::setAttribute2(item["uuid"], "nx11e", Nx11E::makeOndate(datetime))
 
         SystemEvents::internal({
             "mikuType"   => "(object has been touched)",
@@ -294,7 +294,7 @@ class PolyActions
     def self.setNx113(item)
         nx113nhash = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
         return if nx113nhash.nil?
-        ItemsEventsLog::setAttribute2(item["uuid"], "nx113", nx113nhash)
+        Items::setAttribute2(item["uuid"], "nx113", nx113nhash)
 
         SystemEvents::internal({
             "mikuType"   => "(object has been touched)",
@@ -346,8 +346,8 @@ class PolyActions
                     puts "You are going to lose the data"
                     return if !LucilleCore::askQuestionAnswerAsBoolean("confirm operation: ")
                 end
-                ItemsEventsLog::setAttribute2(item["uuid"], "networkType", networkType)
-                ItemsEventsLog::setAttribute2(item["uuid"], "mikuType", "NyxNode")
+                Items::setAttribute2(item["uuid"], "networkType", networkType)
+                Items::setAttribute2(item["uuid"], "mikuType", "NyxNode")
                 item = Items::getItemOrNull(item["uuid"])
                 FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.uuid)
                 SystemEvents::internal({
