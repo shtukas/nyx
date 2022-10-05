@@ -145,7 +145,7 @@ class CatalystListing
 
             SystemEvents::readAndProcessCommsLine(true)
 
-            LucilleCore::locationsAtFolder("#{ENV['HOME']}/Desktop/NxTodos")
+            LucilleCore::locationsAtFolder("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")
                 .each{|location|
                     next if File.basename(location).start_with?(".")
                     item = NxTodos::issueUsingLocation(location)
