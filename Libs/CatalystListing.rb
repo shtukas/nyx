@@ -36,7 +36,7 @@ class CatalystListing
     # CatalystListing::listingItems()
     def self.listingItems()
         [
-            JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`),
+            JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/DataHub/Binaries/fitness ns16s`),
             Anniversaries::listingItems(),
             Waves::items(),
             EndOfDayChecklist::listingItems(),
@@ -632,7 +632,7 @@ class CatalystListing
                 },
                 {
                     "name" => "fitness lookup",
-                    "lambda" => lambda { JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`) }
+                    "lambda" => lambda { JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/DataHub/Binaries/fitness ns16s`) }
                 },
                 {
                     "name" => "Anniversaries::listingItems()",

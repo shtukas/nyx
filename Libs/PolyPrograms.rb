@@ -4,7 +4,7 @@ class PolyPrograms
     # PolyPrograms::itemLanding(item)
     def self.itemLanding(item)
         if item["mikuType"] == "fitness1" then
-            system("#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness doing #{item["fitness-domain"]}")
+            system("#{Config::userHomeDirectory()}/Galaxy/DataHub/Binaries/fitness doing #{item["fitness-domain"]}")
             return
         end
 
