@@ -26,9 +26,4 @@ class StargateMultiInstanceShared
         config = JSON.parse(IO.read("#{Config::userHomeDirectory()}/Galaxy/DataHub/Stargate/shared-config.json"))
         config[key]
     end
-
-    # StargateMultiInstanceShared::pathToCommsLine()
-    def self.pathToCommsLine()
-        "#{Config::userHomeDirectory()}/Galaxy/CommsLine"
-    end
 end

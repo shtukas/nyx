@@ -33,132 +33,6 @@ end
 
 class CatalystListing
 
-    # CatalystListing::listingItems()
-    def self.listingItems()
-        [
-            JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/DataHub/Binaries/fitness ns16s`),
-            Anniversaries::listingItems(),
-            Waves::items(),
-            EndOfDayChecklist::listingItems(),
-            NxTodos::itemsInDisplayOrder(Cx22::getNonDoneForTodayRepWithLowersCRBelow1OrNull()).first(100)
-        ]
-            .flatten
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
-            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
-            .sort{|i1, i2| (PolyFunctions::listingPriorityOrNull(i1) || 0) <=> (PolyFunctions::listingPriorityOrNull(i2) || 0) }
-            .reverse
-    end
-
-    # CatalystListing::displayListing()
-    def self.displayListing()
-
-        system("clear")
-
-        vspaceleft = CommonUtils::screenHeight() - 4
-
-        vspaceleft =  vspaceleft - CommonUtils::verticalSize(CatalystListing::listingCommands())
-
-        if Config::get("instanceId") == "Lucille20-pascal" then
-            reference = The99Percent::getReferenceOrNull()
-            current   = The99Percent::getCurrentCount()
-            ratio     = current.to_f/reference["count"]
-            line      = "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
-            puts ""
-            puts line
-            vspaceleft = vspaceleft - 2
-            if ratio < 0.99 then
-                The99Percent::issueNewReferenceOrNull()
-            end
-        end
-
-        store = ItemStore.new()
-
-        if !InternetStatus::internetIsActive() then
-            puts ""
-            puts "INTERNET IS OFF".green
-            vspaceleft = vspaceleft - 2
-        end
-
-        packets = $CatalystGroupMonitor1.getLx13sForDisplay()
-        if packets.size > 0 then
-            puts ""
-            puts "Cx22 (Contribution Groups) below completion 1:".yellow
-            vspaceleft = vspaceleft - 2
-            packets
-                .each{|packet|
-                    puts "    - #{packet["groupname"]} (#{packet["cr"].round(2)})".yellow
-                    vspaceleft = vspaceleft - 1
-                }
-        end
-
-        nxballs = NxBallsIO::nxballs()
-        if nxballs.size > 0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-            nxballs
-                .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
-                .each{|nxball|
-                    store.register(nxball, false)
-                    line = "#{store.prefixString()} [NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
-                    puts line.green
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                }
-        end
-
-        puts ""
-        vspaceleft = vspaceleft - 1
-
-        CatalystListing::listingItems()
-            .each{|item|
-                break if vspaceleft <= 0
-                store.register(item, true)
-                line = "#{store.prefixString()} #{PolyFunctions::toString(item)}"
-                if NxBallsService::isPresent(item["uuid"]) then
-                    line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
-                end
-                puts line
-                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-            }
-
-        puts ""
-        puts CatalystListing::listingCommands().yellow
-        puts ""
-        input = LucilleCore::askQuestionAnswerAsString("> ")
-        return if input == ""
-        CatalystListing::listingCommandInterpreter(input, store)
-    end
-
-    # CatalystListing::program()
-    def self.program()
-
-        initialCodeTrace = CommonUtils::generalCodeTrace()
-
-        SystemEvents::readAndProcessCommsLine(true)
-
-        loop {
-
-            #puts "(code trace)"
-            if CommonUtils::generalCodeTrace() != initialCodeTrace then
-                puts "Code change detected"
-                break
-            end
-
-            SystemEvents::readAndProcessCommsLine(true)
-
-            LucilleCore::locationsAtFolder("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")
-                .each{|location|
-                    next if File.basename(location).start_with?(".")
-                    item = NxTodos::issueUsingLocation(location)
-                    puts "Picked up from NxTodos: #{JSON.pretty_generate(item)}"
-                    LucilleCore::removeFileSystemLocation(location)
-                }
-
-            SystemEventsBuffering::broadcastOutBufferToCommsline()
-
-            CatalystListing::displayListing()
-        }
-    end
-
     # CatalystListing::listingCommands()
     def self.listingCommands()
         [
@@ -683,5 +557,133 @@ class CatalystListing
             LucilleCore::pressEnterToContinue()
             return
         end
+    end
+
+    # CatalystListing::listingItems()
+    def self.listingItems()
+        [
+            JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/DataHub/Binaries/fitness ns16s`),
+            Anniversaries::listingItems(),
+            Waves::items(),
+            EndOfDayChecklist::listingItems(),
+            NxTodos::itemsInDisplayOrder(Cx22::getNonDoneForTodayRepWithLowersCRBelow1OrNull()).first(100)
+        ]
+            .flatten
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
+            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
+            .sort{|i1, i2| (PolyFunctions::listingPriorityOrNull(i1) || 0) <=> (PolyFunctions::listingPriorityOrNull(i2) || 0) }
+            .reverse
+    end
+
+    # CatalystListing::displayListing()
+    def self.displayListing()
+
+        system("clear")
+
+        vspaceleft = CommonUtils::screenHeight() - 4
+
+        vspaceleft =  vspaceleft - CommonUtils::verticalSize(CatalystListing::listingCommands())
+
+        if Config::get("instanceId") == "Lucille20-pascal" then
+            reference = The99Percent::getReferenceOrNull()
+            current   = The99Percent::getCurrentCount()
+            ratio     = current.to_f/reference["count"]
+            line      = "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
+            puts ""
+            puts line
+            vspaceleft = vspaceleft - 2
+            if ratio < 0.99 then
+                The99Percent::issueNewReferenceOrNull()
+            end
+        end
+
+        store = ItemStore.new()
+
+        if !InternetStatus::internetIsActive() then
+            puts ""
+            puts "INTERNET IS OFF".green
+            vspaceleft = vspaceleft - 2
+        end
+
+        packets = $CatalystGroupMonitor1.getLx13sForDisplay()
+        if packets.size > 0 then
+            puts ""
+            puts "Cx22 (Contribution Groups) below completion 1:".yellow
+            vspaceleft = vspaceleft - 2
+            packets
+                .each{|packet|
+                    puts "    - #{packet["groupname"]} (#{packet["cr"].round(2)})".yellow
+                    vspaceleft = vspaceleft - 1
+                }
+        end
+
+        nxballs = NxBallsIO::nxballs()
+        if nxballs.size > 0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+            nxballs
+                .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
+                .each{|nxball|
+                    store.register(nxball, false)
+                    line = "#{store.prefixString()} [NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
+                    puts line.green
+                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                }
+        end
+
+        puts ""
+        vspaceleft = vspaceleft - 1
+
+        CatalystListing::listingItems()
+            .each{|item|
+                break if vspaceleft <= 0
+                store.register(item, true)
+                line = "#{store.prefixString()} #{PolyFunctions::toString(item)}"
+                if NxBallsService::isPresent(item["uuid"]) then
+                    line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                end
+                puts line
+                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+            }
+
+        puts ""
+        puts CatalystListing::listingCommands().yellow
+        puts ""
+        input = LucilleCore::askQuestionAnswerAsString("> ")
+        return if input == ""
+        CatalystListing::listingCommandInterpreter(input, store)
+    end
+
+    # CatalystListing::program()
+    def self.program()
+
+        initialCodeTrace = CommonUtils::generalCodeTrace()
+
+        CommsLine::processIncoming(true)
+
+        loop {
+
+            #puts "(code trace)"
+            if CommonUtils::generalCodeTrace() != initialCodeTrace then
+                puts "Code change detected"
+                break
+            end
+
+            CommsLine::processIncoming(true)
+
+            SystemEventsBuffering::broadcastOutBufferToCommsline()
+
+            CommsLine::moveCarefully()
+
+            LucilleCore::locationsAtFolder("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")
+                .each{|location|
+                    next if File.basename(location).start_with?(".")
+                    item = NxTodos::issueUsingLocation(location)
+                    puts "Picked up from NxTodos: #{JSON.pretty_generate(item)}"
+                    LucilleCore::removeFileSystemLocation(location)
+                }
+
+            CatalystListing::displayListing()
+        }
     end
 end

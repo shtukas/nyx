@@ -52,6 +52,7 @@ checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub/Stargate/shared-config.json")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate")
+checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/CommsLine-Staging")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/config.json")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/primary-structure")
 checkLocation.call("#{ENV['HOME']}/Galaxy/StargateMultiInstanceShared3")
@@ -157,6 +158,7 @@ require_relative "CommonUtils.rb"
 require_relative "CompositeElizabeth.rb"
 require_relative "Cx22.rb"
 require_relative "Cx23.rb"
+require_relative "CommsLine.rb"
 
 require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)
