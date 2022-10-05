@@ -439,6 +439,11 @@ class FileSystemCheck
         end
         FileSystemCheck::fsckPrimaryStructureV1NetworkEdges(TheLibrarian::getObject(primary["networkEdges"]), runhash)
 
+        if primary["items"].nil? then
+            raise "could not find attribute 'items' for primary structure"
+        end
+        FileSystemCheck::fsckPrimaryStructureV1Items(TheLibrarian::getObject(primary["items"]), runhash)
+
         XCache::setFlag(repeatKey, true)
     end
 
