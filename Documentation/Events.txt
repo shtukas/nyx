@@ -57,11 +57,6 @@ We have two types of events
 }
 
 {
-    "mikuType"   => "(object has been touched)",
-    "objectuuid" => objectuuid,
-}
-
-{
     "mikuType"  => "TxBankEvent",
     "eventuuid" => eventuuid,
     "eventTime" => Float,

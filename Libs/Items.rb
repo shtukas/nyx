@@ -135,15 +135,6 @@ class Items
         FileSystemCheck::fsckAttributeUpdateV2(event, SecureRandom.hex)
 
         SystemEvents::broadcast(event)
-
-        SystemEvents::internal({
-            "mikuType"   => "(object has been touched)",
-            "objectuuid" => objectuuid
-        })
-        SystemEvents::broadcast({
-            "mikuType"   => "(object has been touched)",
-            "objectuuid" => objectuuid
-        })
     end
 
     # Items::setAttribute1(objectuuid, eventuuid, eventTime, attname, attvalue)

@@ -25,10 +25,6 @@ class SystemEvents
         if event["mikuType"] == "NxDeleted" then
             objectuuid = event["objectuuid"]
             NxDeleted::deleteObjectNoEvents(objectuuid)
-            SystemEvents::internal({
-                "mikuType"   => "(object has been touched)",
-                "objectuuid" => objectuuid
-            })
         end
 
         if event["mikuType"] == "AttributeUpdate" then
