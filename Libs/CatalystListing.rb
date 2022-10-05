@@ -659,8 +659,6 @@ class CatalystListing
 
         initialCodeTrace = CommonUtils::generalCodeTrace()
 
-        CommsLine::processIncoming(true)
-
         loop {
 
             #puts "(code trace)"

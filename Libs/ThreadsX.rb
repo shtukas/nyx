@@ -32,4 +32,15 @@ class ThreadsX
             }
         }
     end
+
+    # ThreadsX::moveCarefully()
+    def self.moveCarefully()
+        Thread.new {
+            loop {
+                sleep 60
+                CommsLine::moveCarefully()
+            }
+        }
+    end
+
 end
