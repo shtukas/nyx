@@ -9,7 +9,7 @@ class CommsLine
 
     # CommsLine::pathToActive()
     def self.pathToActive()
-        "#{Config::userHomeDirectory()}/Galaxy/CommsLine"
+        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-ActiveCommsLine"
     end
 
     # CommsLine::processIncoming(verbose)
