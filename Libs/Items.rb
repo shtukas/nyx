@@ -44,7 +44,7 @@ class ItemsInMemoryCache
     def self.incomingItem(item)
         # This function is called after it has got a uuid and a mikuType, but not yet the other attributes
         begin
-             FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex)
+             FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, false)
         rescue
             return
         end

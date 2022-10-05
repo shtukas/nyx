@@ -141,7 +141,7 @@ class Waves
         Items::setAttribute2(uuid, "nx46",        nx46)
         Items::setAttribute2(uuid, "nx113",       nx113nhash)
         Items::setAttribute2(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
         item = Items::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 28781f44-be29-4f67-bc87-4c9d6171ffc9) How did that happen ? 🤨"

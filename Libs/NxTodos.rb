@@ -33,7 +33,7 @@ class NxTodos
         Items::setAttribute2(uuid, "nx11e",       nx11e)
         Items::setAttribute2(uuid, "cx22",        cx22)
         Items::setAttribute2(uuid, "cx23",        cx23)
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
         item = Items::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: ec1f1b6f-62b4-4426-bfe3-439a51cf76d4) How did that happen ? 🤨"
@@ -58,7 +58,7 @@ class NxTodos
         Items::setAttribute2(uuid, "nx113",       nx113nhash)
         Items::setAttribute2(uuid, "nx11e",       nx11e)
         Items::setAttribute2(uuid, "cx22",        cx22)
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
         item = Items::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 06f11b6f-7d31-411b-b3bf-7b1115a756a9) How did that happen ? 🤨"
@@ -86,7 +86,7 @@ class NxTodos
         Items::setAttribute2(uuid, "nx113",       nx113nhash)
         Items::setAttribute2(uuid, "nx11e",       nx11e)
         Items::setAttribute2(uuid, "cx22",        cx22)
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
         item = Items::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: ec1f1b6f-62b4-4426-bfe3-439a51cf76d4) How did that happen ? 🤨"
@@ -107,7 +107,7 @@ class NxTodos
         Items::setAttribute2(uuid, "description", description)
         Items::setAttribute2(uuid, "nx113",       nx113nhash)
         Items::setAttribute2(uuid, "nx11e",       nx11e)
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
         item = Items::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: ec1f1b6f-62b4-4426-bfe3-439a51cf76d4) How did that happen ? 🤨"
@@ -128,7 +128,7 @@ class NxTodos
         Items::setAttribute2(uuid, "description", description)
         Items::setAttribute2(uuid, "nx113",       nx113nhash)
         Items::setAttribute2(uuid, "nx11e",       nx11e)
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
         item = Items::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: ec1f1b6f-62b4-4426-bfe3-439a51cf76d4) How did that happen ? 🤨"

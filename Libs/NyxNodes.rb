@@ -48,7 +48,7 @@ class NyxNodes
             Items::setAttribute2(uuid, "nx113", nx113nhash)
         end
 
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
         item = Items::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 6035de89-5fbc-4882-a6f9-f1f703e8b106) How did that happen ? 🤨"
@@ -78,7 +78,7 @@ class NyxNodes
 
         Items::setAttribute2(uuid, "nx113", nx113nhash)
 
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
         item = Items::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 6035de89-5fbc-4882-a6f9-f1f703e8b106) How did that happen ? 🤨"
@@ -108,7 +108,7 @@ class NyxNodes
 
         Items::setAttribute2(uuid, "nx113", nx113nhash)
 
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
         item = Items::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 6035de89-5fbc-4882-a6f9-f1f703e8b106) How did that happen ? 🤨"
@@ -140,7 +140,7 @@ class NyxNodes
 
         Items::setAttribute2(uuid, "nx113", nx113nhash)
 
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
         item = Items::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 6035de89-5fbc-4882-a6f9-f1f703e8b106) How did that happen ? 🤨"

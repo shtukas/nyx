@@ -248,7 +248,7 @@ class PolyActions
                 Items::setAttribute2(item["uuid"], "networkType", networkType)
                 Items::setAttribute2(item["uuid"], "mikuType", "NyxNode")
                 item = Items::getItemOrNull(item["uuid"])
-                FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.uuid)
+                FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.uuid, true)
                 NyxNodes::landing(item)
             end
         end
