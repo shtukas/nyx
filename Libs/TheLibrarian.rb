@@ -258,7 +258,7 @@ class TheLibrarian
             eventsToItemOrNull = lambda{|events|
                 item = {}
                 events.each{|event|
-                    item[event["attname"]] = item["attvalue"]
+                    item[event["attname"]] = event["attvalue"]
                 }
                 if item["uuid"].nil? or item["mikuType"].nil? then
                     item = nil
