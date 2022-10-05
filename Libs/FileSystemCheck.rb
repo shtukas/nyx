@@ -526,11 +526,11 @@ class FileSystemCheck
             raise "Missing attribute mapping"
         end
 
-        object["mapping"].each{|pair|
-            objectuuid, nhash = pair
-            nxItemSphere1 = TheLibrarian::getObject(nhash)
-            # (no deep items introspection) FileSystemCheck::fsckNxItemSphere1(nxItemSphere1, runhash)
-        }
+        #object["mapping"].each{|pair|
+        #    objectuuid, nhash = pair
+        #    nxItemSphere1 = TheLibrarian::getObject(nhash)
+        #    # (no deep items introspection) FileSystemCheck::fsckNxItemSphere1(nxItemSphere1, runhash)
+        #}
 
         XCache::setFlag(repeatKey, true)
     end
