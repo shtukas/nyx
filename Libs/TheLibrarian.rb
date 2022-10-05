@@ -110,7 +110,7 @@ class TheLibrarian
 
     # TheLibrarian::setPrimaryStructure(object)
     def self.setPrimaryStructure(object)
-        puts "TheLibrarian::setPrimaryStructure(#{JSON.pretty_generate(object)})"
+        #puts "TheLibrarian::setPrimaryStructure(#{JSON.pretty_generate(object)})"
 
         FileSystemCheck::fsckPrimaryStructureV1(object, false, FileSystemCheck::getExistingRunHash(), false)
 
