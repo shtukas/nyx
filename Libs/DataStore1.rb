@@ -10,7 +10,7 @@ class DataStore1
 
     # DataStore1::outGoingBufferFolder()
     def self.outGoingBufferFolder()
-        "#{ENV['HOME']}/Galaxy/DataBank/Stargate/DataStore1OutGoingBuffer"
+        "#{ENV['HOME']}/Galaxy/DataBank/Stargate-DataStaging/DataStore1-EnergyGrid-OutGoingBuffer"
     end
 
     # -------------------------------------------------------

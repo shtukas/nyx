@@ -48,10 +48,10 @@ checkLocation = lambda{|location|
 
 checkLocation.call("#{ENV['HOME']}/Galaxy/CommsLine")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/CommsLine-Staging")
+checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-DataStaging/CommsLine")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/config.json")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/primary-structure")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/DataStore1OutGoingBuffer")
+checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-DataStaging/DataStore1-EnergyGrid-OutGoingBuffer")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub/Stargate/shared-config.json")
