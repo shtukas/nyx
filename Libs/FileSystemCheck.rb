@@ -242,39 +242,16 @@ class FileSystemCheck
 
         puts "FileSystemCheck::fsckItemErrorArFirstFailure(#{JSON.pretty_generate(item)}, #{runhash})"
 
-        if item["uuid"].nil? then
-            puts JSON.pretty_generate(item)
-            puts "Missing attribute: uuid"
-            raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash})"
-        end
-
-        if item["mikuType"].nil? then
-            puts JSON.pretty_generate(item)
-            puts "Missing attribute: mikuType"
-            raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash})"
-        end
-
-        if item["unixtime"].nil? then
-            puts JSON.pretty_generate(item)
-            puts "Missing attribute: unixtime"
-            raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash})"
-        end
-
-        if item["datetime"].nil? then
-            puts JSON.pretty_generate(item)
-            puts "Missing attribute: datetime"
-            if LucilleCore::askQuestionAnswerAsBoolean("Should I add it now ? ", true) then
-                Items::setAttribute2(item["uuid"], "datetime", CommonUtils::nowDatetimeIso8601())
-                return FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(item["uuid"], SecureRandom.hex)
-            end
-            raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash})"
-        end
-
         ensureAttribute = lambda {|item, attname|
             return if item[attname]
             puts JSON.pretty_generate(item)
             raise "Missing attribute #{attname} in #{attname}"
         }
+
+        ensureAttribute.call(item, "uuid")
+        ensureAttribute.call(item, "mikuType")
+        ensureAttribute.call(item, "unixtime")
+        ensureAttribute.call(item, "datetime")
 
         mikuType = item["mikuType"]
 
@@ -295,19 +272,7 @@ class FileSystemCheck
 
         if mikuType == "NxTodo" then
             ensureAttribute.call(item, "description")
-            begin
-                ensureAttribute.call(item, "nx11e")
-            rescue
-                Items::setAttribute2(item["uuid"], "nx11e", {
-                    "uuid"     => SecureRandom.uuid,
-                    "mikuType" => "Nx11E",
-                    "type"     => "ondate",
-                    "datetime" => CommonUtils::nowDatetimeIso8601()
-                })
-                item = Items::getItemOrNull(item["uuid"])
-                FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
-                return
-            end
+            ensureAttribute.call(item, "nx11e")
             FileSystemCheck::fsckNx11EErrorAtFirstFailure(item["nx11e"])
             FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"])
             XCache::setFlag(repeatKey, true)
@@ -327,18 +292,6 @@ class FileSystemCheck
             ensureAttribute.call(item, "lastDoneDateTime")
             FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"])
             XCache::setFlag(repeatKey, true)
-            return
-        end
-
-        if item["mikuType"] == "NxTask" then
-            Items::setAttribute2(item["uuid"], "mikuType", "NxTodo")
-            item = Items::getItemOrNull(item["uuid"])
-            FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
-            return
-        end
-
-        if ["CxAionPoint", "DxAionPoint"].include?(item["mikuType"]) then
-            NxDeleted::deleteObject(item["uuid"])
             return
         end
 
