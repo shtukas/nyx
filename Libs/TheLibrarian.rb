@@ -22,9 +22,11 @@ class TheLibrarian
         return object
     end
 
-    # TheLibrarian::setObject(object) # nhash
-    def self.setObject(object)
-        puts "TheLibrarian::setObject(#{JSON.pretty_generate(object)})"
+    # TheLibrarian::setObject(object, verbose) # nhash
+    def self.setObject(object, verbose)
+        if verbose then
+            puts "TheLibrarian::setObject(#{JSON.pretty_generate(object)}, #{verbose})"
+        end
         DataStore1::putDataByContent(JSON.generate(object))
     end
 
@@ -126,7 +128,7 @@ class TheLibrarian
     # TheLibrarian::setBankingObject(object)
     def self.setBankingObject(object)
         FileSystemCheck::fsckPrimaryStructureV1Banking(object, FileSystemCheck::getExistingRunHash(), false)
-        nhash = TheLibrarian::setObject(object)
+        nhash = TheLibrarian::setObject(object, false)
         primary = TheLibrarian::getPrimaryStructure()
         primary["banking"] = nhash
         TheLibrarian::setPrimaryStructure(primary)
@@ -135,14 +137,14 @@ class TheLibrarian
     # TheLibrarian::setBankingEventsArrayAtSet(setuuid, events)
     def self.setBankingEventsArrayAtSet(setuuid, events)
         banking = TheLibrarian::getBankingObject()
-        banking["mapping"][setuuid] = TheLibrarian::setObject(events)
+        banking["mapping"][setuuid] = TheLibrarian::setObject(events, false)
         TheLibrarian::setBankingObject(banking)
     end
 
     # TheLibrarian::setDoNotShowUntilObject(object)
     def self.setDoNotShowUntilObject(object)
         FileSystemCheck::fsckPrimaryStructureV1DoNotShowUntil(object, FileSystemCheck::getExistingRunHash(), false)
-        nhash = TheLibrarian::setObject(object)
+        nhash = TheLibrarian::setObject(object, false)
         primary = TheLibrarian::getPrimaryStructure()
         primary["doNotShowUntil"] = nhash
         TheLibrarian::setPrimaryStructure(primary)
@@ -151,7 +153,7 @@ class TheLibrarian
     # TheLibrarian::setNetworkEdges(object)
     def self.setNetworkEdges(object)
         FileSystemCheck::fsckPrimaryStructureV1NetworkEdges(object, FileSystemCheck::getExistingRunHash(), false)
-        nhash = TheLibrarian::setObject(object)
+        nhash = TheLibrarian::setObject(object, false)
         primary = TheLibrarian::getPrimaryStructure()
         primary["networkEdges"] = nhash
         TheLibrarian::setPrimaryStructure(primary)
@@ -160,7 +162,7 @@ class TheLibrarian
     # TheLibrarian::setItems(object)
     def self.setItems(object)
         FileSystemCheck::fsckPrimaryStructureV1Items(object, false, FileSystemCheck::getExistingRunHash(), false)
-        nhash = TheLibrarian::setObject(object)
+        nhash = TheLibrarian::setObject(object, false)
         primary = TheLibrarian::getPrimaryStructure()
         primary["items"] = nhash
         TheLibrarian::setPrimaryStructure(primary)
@@ -295,7 +297,7 @@ class TheLibrarian
                     "events"   => [event]
                  }
             end
-            nhash = TheLibrarian::setObject(nxItemSphere1)
+            nhash = TheLibrarian::setObject(nxItemSphere1, false)
             mapping[event["objectuuid"]] = nhash
             items["mapping"] = mapping
             TheLibrarian::setItems(items)
