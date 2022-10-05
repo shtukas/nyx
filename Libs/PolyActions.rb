@@ -12,7 +12,7 @@ class PolyActions
 
         if item["mikuType"] == "fitness1" then
             puts PolyFunctions::toString(item).green
-            system("#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness doing #{item["fitness-domain"]}")
+            system("#{Config::userHomeDirectory()}/Galaxy/DataHub/Binaries/fitness doing #{item["fitness-domain"]}")
             SystemEvents::internal({
                 "mikuType"   => "(object has been touched)",
                 "objectuuid" => item["uuid"]
