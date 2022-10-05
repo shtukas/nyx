@@ -5,7 +5,7 @@ class Dx8UnitsUtils
 
     # Dx8UnitsUtils::repository()
     def self.repository()
-        "/Volumes/EnergyGrid1/Data/Pascal/Galaxy/Stargate/Dx8Units"
+        "/Volumes/EnergyGrid1/Stargate/Dx8Units"
     end
 
     # Dx8UnitsUtils::attemptRepository()
