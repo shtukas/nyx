@@ -1,5 +1,7 @@
 # encoding: UTF-8
 
+$TheLibrarianInMemoryObjectCache = {}
+
 class TheLibrarian
 
     # -----------------------------------------------------------
@@ -7,11 +9,17 @@ class TheLibrarian
 
     # TheLibrarian::getObject(nhash)
     def self.getObject(nhash)
-        JSON.parse(
-            IO.read(
-                DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nhash, true)
+        if $TheLibrarianInMemoryObjectCache[nhash] then
+            return $TheLibrarianInMemoryObjectCache[nhash]
+        end
+        object = 
+            JSON.parse(
+                IO.read(
+                    DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nhash, true)
+                )
             )
-        )
+        $TheLibrarianInMemoryObjectCache[nhash] = object
+        return object
     end
 
     # TheLibrarian::setObject(object) # nhash
