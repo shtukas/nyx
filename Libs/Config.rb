@@ -29,6 +29,6 @@ class StargateMultiInstanceShared
 
     # StargateMultiInstanceShared::pathToCommsLine()
     def self.pathToCommsLine()
-        "#{Config::userHomeDirectory()}/Galaxy/StargateMultiInstanceShared3/commsline"
+        "#{Config::userHomeDirectory()}/Galaxy/CommsLine"
     end
 end
