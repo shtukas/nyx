@@ -87,24 +87,13 @@ class SystemEvents
                 next if File.basename(filepath1).start_with?(".")
                 next if File.basename(filepath1).include?("sync-conflict")
 
+                if verbose then
+                    puts "SystemEvents::processIncomingEventsFromLine: processing: #{File.basename(filepath1)}"
+                end
+
                 if CommonUtils::ends_with?(filepath1, ".system-event.json") then
-
-                    if verbose then
-                        puts "SystemEvents::processIncomingEventsFromLine: reading: #{File.basename(filepath1)}"
-                    end
-
-                    IO.read(filepath1)
-                        .lines
-                        .each{|line|
-                            data = line.strip
-                            next if data == ""
-                            event = JSON.parse(data)
-                            if verbose then
-                                puts "event from system events: #{JSON.pretty_generate(event)}"
-                            end
-                            SystemEvents::internal(event)
-                        }
-
+                    event = JSON.parse(IO.read(filepath1))
+                    SystemEvents::internal(event)
                     FileUtils.rm(filepath1)
                     next
                 end
