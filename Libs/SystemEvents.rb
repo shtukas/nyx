@@ -37,14 +37,7 @@ class SystemEvents
             eventTime  = event["eventTime"]
             attname    = event["attname"]
             attvalue   = event["attvalue"]
-            ItemsEventsLog::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
-            begin
-                # This cane fail when we are using a new program, which doesn't expect old mikuTypes 
-                # (for instance generic-description is failing)
-                # on data that is still old.
-                Items::updateIndexAtObjectAttempt(objectuuid)
-            rescue
-            end
+            Items::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
         end
 
         if event["mikuType"] == "XCacheSet" then
@@ -66,14 +59,7 @@ class SystemEvents
             eventTime  = event["eventTime"]
             attname    = event["attname"]
             attvalue   = event["attvalue"]
-            ItemsEventsLog::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
-            begin
-                # This cane fail when we are using a new program, which doesn't expect old mikuTypes 
-                # (for instance generic-description is failing)
-                # on data that is still old.
-                Items::updateIndexAtObjectAttempt(objectuuid)
-            rescue
-            end
+            Items::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
         end
 
         if event["mikuType"] == "bank-account-set-un-done-today" then
@@ -90,8 +76,6 @@ class SystemEvents
     def self.readAndProcessCommsLine(verbose)
         # New style. Keep while we process the remaining items
         # We are reading from the instance folder
-
-        updatedObjectuuids = []
 
         instanceId = Config::get("instanceId")
 
@@ -111,30 +95,6 @@ class SystemEvents
                     end
                     SystemEvents::internal(e)
                     FileUtils.rm(filepath1)
-                    next
-                end
-
-                if CommonUtils::ends_with?(File.basename(filepath1), "items-events-log.sqlite3") then
-                    if verbose then
-                        puts "SystemEvents::readAndProcessCommsLine: reading: items-events-log.sqlite3"
-                    end
-                    db1 = SQLite3::Database.new(filepath1)
-                    db1.busy_timeout = 117
-                    db1.busy_handler { |count| true }
-                    db1.results_as_hash = true
-                    db1.execute("select * from _events_", []) do |row|
-                        objectuuid = row["_objectuuid_"]
-                        eventuuid  = row["_eventuuid_"]
-                        eventTime  = row["_eventTime_"]
-                        attname    = row["_attname_"]
-                        attvalue   = JSON.parse(row["_attvalue_"])
-                        next if ItemsEventsLog::eventExistsAtItemsEventsLog(eventuuid)
-                        puts "reading from a items-events-log.sqlite3 that came on the commsline: event: #{eventuuid}"
-                        ItemsEventsLog::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
-                    end
-                    db1.close
-                    FileUtils.rm(filepath1)
-                    Items::syncWithEventLog()
                     next
                 end
 
@@ -168,8 +128,6 @@ class SystemEvents
 
                 raise "(error: 600967d9-e9d4-4612-bf62-f8cc4f616fd1) I do not know how to process file: #{filepath1}"
             }
-
-        updatedObjectuuids.each{|objectuuid| Items::updateIndexAtObjectAttempt(objectuuid) }
     end
 end
 

@@ -264,7 +264,7 @@ class FileSystemCheck
             puts JSON.pretty_generate(item)
             puts "Missing attribute: datetime"
             if LucilleCore::askQuestionAnswerAsBoolean("Should I add it now ? ", true) then
-                ItemsEventsLog::setAttribute2(item["uuid"], "datetime", CommonUtils::nowDatetimeIso8601())
+                Items::setAttribute2(item["uuid"], "datetime", CommonUtils::nowDatetimeIso8601())
                 return FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(item["uuid"], SecureRandom.hex)
             end
             raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash})"
@@ -298,13 +298,12 @@ class FileSystemCheck
             begin
                 ensureAttribute.call(item, "nx11e")
             rescue
-                ItemsEventsLog::setAttribute2(item["uuid"], "nx11e", {
+                Items::setAttribute2(item["uuid"], "nx11e", {
                     "uuid"     => SecureRandom.uuid,
                     "mikuType" => "Nx11E",
                     "type"     => "ondate",
                     "datetime" => CommonUtils::nowDatetimeIso8601()
                 })
-                Items::updateIndexAtObjectAttempt(item["uuid"])
                 item = Items::getItemOrNull(item["uuid"])
                 FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
                 return
@@ -332,8 +331,7 @@ class FileSystemCheck
         end
 
         if item["mikuType"] == "NxTask" then
-            ItemsEventsLog::setAttribute2(item["uuid"], "mikuType", "NxTodo")
-            Items::updateIndexAtObjectAttempt(item["uuid"])
+            Items::setAttribute2(item["uuid"], "mikuType", "NxTodo")
             item = Items::getItemOrNull(item["uuid"])
             FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
             return
@@ -350,7 +348,7 @@ class FileSystemCheck
     # FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(objectuuid, runhash)
     def self.fsckObjectuuidErrorAtFirstFailure(objectuuid, runhash)
         puts "FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(#{objectuuid}, #{runhash})"
-        item = ItemsEventsLog::getProtoItemOrNull(objectuuid)
+        item = Items::getItemOrNull(objectuuid)
         if item.nil? then
             raise "Could not find an item for objectuuid: #{objectuuid}"
         end
@@ -549,7 +547,7 @@ class FileSystemCheck
         primary = TheLibrarian::getPrimaryStructure()
         FileSystemCheck::fsckPrimaryStructureV1(primary, runhash)
 
-        ItemsEventsLog::objectuuids().each{|objectuuid|
+        Items::objectuuids().each{|objectuuid|
             FileSystemCheck::exitIfMissingCanary()
             FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(objectuuid, runhash)
         }

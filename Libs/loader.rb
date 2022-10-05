@@ -52,31 +52,10 @@ checkLocation.call("#{ENV['HOME']}/Galaxy/LucilleOS/Libraries/Ruby-Libraries")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/config.json")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/items.sqlite3")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/primary-structure")
 checkLocation.call("#{ENV['HOME']}/Galaxy/StargateMultiInstanceShared3")
 checkLocation.call("#{ENV['HOME']}/Galaxy/StargateMultiInstanceShared3/shared-config.json")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/DataStore1OutGoingBuffer")
-
-filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/network-links.sqlite3"
-if !File.exists?(filepath) then
-    db = SQLite3::Database.new(filepath)
-    db.busy_timeout = 117
-    db.busy_handler { |count| true }
-    db.results_as_hash = true
-    db.execute("create table _links_ (_eventuuid_ text primary key, _eventTime_ float, _sourceuuid_ text, _operation_ text, _targetuuid_ text)", [])
-    db.close
-end
-
-filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/network-arrows.sqlite3"
-if !File.exists?(filepath) then
-    db = SQLite3::Database.new(filepath)
-    db.busy_timeout = 117
-    db.busy_handler { |count| true }
-    db.results_as_hash = true
-    db.execute("create table _arrows_ (_eventuuid_ text primary key, _eventTime_ float, _sourceuuid_ text, _operation_ text, _targetuuid_ text)", [])
-    db.close
-end
 
 # ------------------------------------------------------------
 
@@ -193,7 +172,6 @@ require_relative "Galaxy.rb"
 require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"
 require_relative "InternetStatus.rb"
-require_relative "ItemsEventsLog.rb"
 
 require_relative "FileSystemCheck.rb"
 

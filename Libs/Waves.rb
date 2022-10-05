@@ -133,14 +133,14 @@ class Waves
 
         uuid = SecureRandom.uuid
 
-        ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)
-        ItemsEventsLog::setAttribute2(uuid, "mikuType",    "Wave")
-        ItemsEventsLog::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        ItemsEventsLog::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
-        ItemsEventsLog::setAttribute2(uuid, "description", description)
-        ItemsEventsLog::setAttribute2(uuid, "nx46",        nx46)
-        ItemsEventsLog::setAttribute2(uuid, "nx113",       nx113nhash)
-        ItemsEventsLog::setAttribute2(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
+        Items::setAttribute2(uuid, "uuid",        uuid)
+        Items::setAttribute2(uuid, "mikuType",    "Wave")
+        Items::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        Items::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
+        Items::setAttribute2(uuid, "description", description)
+        Items::setAttribute2(uuid, "nx46",        nx46)
+        Items::setAttribute2(uuid, "nx113",       nx113nhash)
+        Items::setAttribute2(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
         item = Items::getItemOrNull(uuid)
         if item.nil? then
@@ -174,7 +174,7 @@ class Waves
     # Waves::performWaveNx46WaveDone(item)
     def self.performWaveNx46WaveDone(item)
         puts "done-ing: #{Waves::toString(item)}"
-        ItemsEventsLog::setAttribute2(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
+        Items::setAttribute2(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
 
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
         puts "not shown until: #{Time.at(unixtime).to_s}"
@@ -209,13 +209,13 @@ class Waves
             status = LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit the description instead ? ")
             if status then
                 PolyActions::editDescription(item)
-                return ItemsEventsLog::getProtoItemOrNull(item["uuid"])
+                return Items::getItemOrNull(item["uuid"])
             else
                 return item
             end
         end
         Nx113Edit::edit(item)
-        ItemsEventsLog::getProtoItemOrNull(item["uuid"])
+        Items::getItemOrNull(item["uuid"])
     end
 
     # Waves::landing(item)
@@ -225,7 +225,7 @@ class Waves
             return nil if item.nil?
 
             uuid = item["uuid"]
-            item = ItemsEventsLog::getProtoItemOrNull(uuid)
+            item = Items::getItemOrNull(uuid)
             return nil if item.nil?
 
             system("clear")
@@ -288,7 +288,7 @@ class Waves
             if Interpreting::match("nx46", input) then
                 nx46 = Waves::makeNx46InteractivelyOrNull()
                 next if nx46.nil?
-                ItemsEventsLog::setAttribute2(item["uuid"], "nx46", nx46)
+                Items::setAttribute2(item["uuid"], "nx46", nx46)
                 next
             end
 

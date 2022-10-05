@@ -47,6 +47,6 @@ class Cx23
         end
         cx23 = Cx23::makeNewOrNull2(item["cx22"]["groupuuid"])
         return if cx23.nil?
-        ItemsEventsLog::setAttribute2(item["uuid"], "cx23", cx23)
+        Items::setAttribute2(item["uuid"], "cx23", cx23)
     end
 end
