@@ -42,6 +42,12 @@ class ItemsInMemoryCache
 
     # ItemsInMemoryCache::incomingItem(item)
     def self.incomingItem(item)
+        # This function is called after it has got a uuid and a mikuType, but not yet the other attributes
+        begin
+             FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex)
+        rescue
+            return
+        end
         items = ItemsInMemoryCache::items()
         items = items.reject{|i| i["uuid"] == item["uuid"] }
         items << item

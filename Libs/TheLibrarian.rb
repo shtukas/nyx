@@ -281,8 +281,7 @@ class TheLibrarian
                  nxItemSphere1["events"] = nxItemSphere1["events"].reject{|e| e["eventuuid"] == event["eventuuid"] }
                  nxItemSphere1["events"] << event
                  nxItemSphere1["events"] = nxItemSphere1["events"].sort{|e1, e2| e1["eventTime"] <=> e2["eventTime"] }
-                 item = eventsToItemOrNull.call(nxItemSphere1["events"])
-                 nxItemSphere1["item"] = item
+                 nxItemSphere1["item"] = eventsToItemOrNull.call(nxItemSphere1["events"])
                  ItemsInMemoryCache::incomingItem(item)
             else
                  # We need to create the NxItemSphere1
