@@ -159,7 +159,7 @@ class TheLibrarian
 
     # TheLibrarian::setItems(object)
     def self.setItems(object)
-        FileSystemCheck::fsckPrimaryStructureV1Items(object, FileSystemCheck::getExistingRunHash())
+        FileSystemCheck::fsckPrimaryStructureV1ItemsNoDeepItemsIntrospection(object, FileSystemCheck::getExistingRunHash())
         nhash = TheLibrarian::setObject(object)
         primary = TheLibrarian::getPrimaryStructure()
         primary["items"] = nhash

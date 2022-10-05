@@ -442,7 +442,7 @@ class FileSystemCheck
         if primary["items"].nil? then
             raise "could not find attribute 'items' for primary structure"
         end
-        FileSystemCheck::fsckPrimaryStructureV1Items(TheLibrarian::getObject(primary["items"]), runhash)
+        FileSystemCheck::fsckPrimaryStructureV1ItemsNoDeepItemsIntrospection(TheLibrarian::getObject(primary["items"]), runhash)
 
         XCache::setFlag(repeatKey, true)
     end
@@ -509,9 +509,9 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsckPrimaryStructureV1Items(object, runhash)
-    def self.fsckPrimaryStructureV1Items(object, runhash)
-        puts "FileSystemCheck::fsckPrimaryStructureV1Items(#{JSON.pretty_generate(object)}, #{runhash})"
+    # FileSystemCheck::fsckPrimaryStructureV1ItemsNoDeepItemsIntrospection(object, runhash)
+    def self.fsckPrimaryStructureV1ItemsNoDeepItemsIntrospection(object, runhash)
+        puts "FileSystemCheck::fsckPrimaryStructureV1ItemsNoDeepItemsIntrospection(#{JSON.pretty_generate(object)}, #{runhash})"
         repeatKey = "#{runhash}:#{JSON.generate(object)}"
         return if XCache::getFlag(repeatKey)
 
@@ -529,7 +529,7 @@ class FileSystemCheck
         object["mapping"].each{|pair|
             objectuuid, nhash = pair
             nxItemSphere1 = TheLibrarian::getObject(nhash)
-            FileSystemCheck::fsckNxItemSphere1(nxItemSphere1, runhash)
+            # (no deep items introspection) FileSystemCheck::fsckNxItemSphere1(nxItemSphere1, runhash)
         }
 
         XCache::setFlag(repeatKey, true)
