@@ -1,5 +1,56 @@
 # encoding: UTF-8
 
+$ItemsInMemoryCache = nil
+
+class ItemsInMemoryCache
+
+    # ItemsInMemoryCache::itemsFromLibrarianData()
+    def self.itemsFromLibrarianData()
+        object = TheLibrarian::getItems()
+        object["mapping"].values.map{|nhash|
+            sphere = TheLibrarian::getObject(nhash)
+            sphere["item"]
+        }
+        .compact
+    end
+
+    # ItemsInMemoryCache::itemsFromXCacheOrNull()
+    def self.itemsFromXCacheOrNull()
+        items = XCache::getOrNull("384aec10-0d54-4cc2-8246-73dc3b2235ae")
+        return nil if items.nil?
+        JSON.parse(items)
+    end
+
+    # ItemsInMemoryCache::items()
+    def self.items()
+        items = $ItemsInMemoryCache
+        if items then
+            return items
+        end
+
+        items = ItemsInMemoryCache::itemsFromXCacheOrNull()
+        if items then
+            $ItemsInMemoryCache = items
+            return items
+        end
+
+        items = ItemsInMemoryCache::itemsFromLibrarianData()
+        XCache::set("384aec10-0d54-4cc2-8246-73dc3b2235ae", JSON.generate(items))
+        $ItemsInMemoryCache = items
+        items
+    end
+
+    # ItemsInMemoryCache::incomingItem(item)
+    def self.incomingItem(item)
+        items = ItemsInMemoryCache::items()
+        items = items.reject{|i| i["uuid"] == item["uuid"] }
+        items << item
+        XCache::set("384aec10-0d54-4cc2-8246-73dc3b2235ae", JSON.generate(items))
+        $ItemsInMemoryCache = items
+    end
+
+end
+
 class Items
 
     # create table _index_ (_objectuuid_ text primary key, _unixtime_ float, _mikuType_ text, _announce_ text, _item_ text)
@@ -23,12 +74,7 @@ class Items
 
     # Items::items() # Array[Item]
     def self.items()
-        object = TheLibrarian::getItems()
-        object["mapping"].values.map{|nhash|
-            sphere = TheLibrarian::getObject(nhash)
-            sphere["item"]
-        }
-        .compact
+        ItemsInMemoryCache::items()
     end
 
     # Items::mikuTypeToItems(mikuType) # Array[Item]
