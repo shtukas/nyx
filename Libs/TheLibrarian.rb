@@ -112,7 +112,7 @@ class TheLibrarian
     def self.setPrimaryStructure(object)
         puts "TheLibrarian::setPrimaryStructure(#{JSON.pretty_generate(object)})"
 
-        FileSystemCheck::fsckPrimaryStructureV1(object, FileSystemCheck::getExistingRunHash())
+        FileSystemCheck::fsckPrimaryStructureV1(object, false, FileSystemCheck::getExistingRunHash())
 
         filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/primary-structure.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(object)) }

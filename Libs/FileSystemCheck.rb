@@ -412,13 +412,13 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsckPrimaryStructureV1(primary, runhash)
-    def self.fsckPrimaryStructureV1(primary, runhash)
+    # FileSystemCheck::fsckPrimaryStructureV1(primary, isdeep, runhash)
+    def self.fsckPrimaryStructureV1(primary, isdeep, runhash)
 
         repeatKey = "06235b8b-016b-4e1b-a811-0eb5164b025d:#{runhash}:#{JSON.generate(primary)}"
         return if XCache::getFlag(repeatKey)
 
-        puts "FileSystemCheck::fsckPrimaryStructureV1(#{JSON.pretty_generate(primary)}, #{runhash})"
+        puts "FileSystemCheck::fsckPrimaryStructureV1(#{JSON.pretty_generate(primary)}, #{isdeep} #{runhash})"
 
         if primary["mikuType"] != "PrimaryStructure.v1" then
             raise "Incorrect Miku type for a primary structure"
@@ -442,7 +442,7 @@ class FileSystemCheck
         if primary["items"].nil? then
             raise "could not find attribute 'items' for primary structure"
         end
-        FileSystemCheck::fsckPrimaryStructureV1Items(TheLibrarian::getObject(primary["items"]), true, runhash)
+        FileSystemCheck::fsckPrimaryStructureV1Items(TheLibrarian::getObject(primary["items"]), isdeep, runhash)
 
         XCache::setFlag(repeatKey, true)
     end
@@ -552,7 +552,7 @@ class FileSystemCheck
     # FileSystemCheck::fsckErrorAtFirstFailure(runhash)
     def self.fsckErrorAtFirstFailure(runhash)
         primary = TheLibrarian::getPrimaryStructure()
-        FileSystemCheck::fsckPrimaryStructureV1(primary, runhash)
+        FileSystemCheck::fsckPrimaryStructureV1(primary, true, runhash)
         puts "fsck completed successfully".green
     end
 end
