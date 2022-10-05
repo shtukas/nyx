@@ -37,7 +37,7 @@ class ThreadsX
     def self.moveCarefully()
         Thread.new {
             loop {
-                sleep 60
+                sleep 10
                 CommsLine::moveCarefully(false)
             }
         }
