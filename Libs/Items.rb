@@ -1,123 +1,146 @@
 # encoding: UTF-8
 
-$ItemsInMemoryCache = nil
-
-class ItemsInMemoryCache
-
-    # ItemsInMemoryCache::itemsFromLibrarianData()
-    def self.itemsFromLibrarianData()
-        object = TheLibrarian::getItems()
-        object["mapping"].values.map{|nhash|
-            sphere = DataStore3CAObjects::getObject(nhash)
-            sphere["item"]
-        }
-        .compact
-    end
-
-    # ItemsInMemoryCache::itemsFromXCacheOrNull()
-    def self.itemsFromXCacheOrNull()
-        items = XCache::getOrNull("384aec10-0d54-4cc2-8246-73dc3b2235ae")
-        return nil if items.nil?
-        JSON.parse(items)
-    end
-
-    # ItemsInMemoryCache::items()
-    def self.items()
-        items = $ItemsInMemoryCache
-        if items then
-            return items
-        end
-
-        items = ItemsInMemoryCache::itemsFromXCacheOrNull()
-        if items then
-            $ItemsInMemoryCache = items
-            return items
-        end
-
-        items = ItemsInMemoryCache::itemsFromLibrarianData()
-        XCache::set("384aec10-0d54-4cc2-8246-73dc3b2235ae", JSON.generate(items))
-        $ItemsInMemoryCache = items
-        items
-    end
-
-    # ItemsInMemoryCache::incomingItem(item)
-    def self.incomingItem(item)
-        # This function is called after it has got a uuid and a mikuType, but not yet the other attributes
-        begin
-             FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, false)
-        rescue
-            return
-        end
-        items = ItemsInMemoryCache::items()
-        items = items.reject{|i| i["uuid"] == item["uuid"] }
-        items << item
-        XCache::set("384aec10-0d54-4cc2-8246-73dc3b2235ae", JSON.generate(items))
-        $ItemsInMemoryCache = items
-    end
-
-    # ItemsInMemoryCache::destroyed(itemuuid)
-    def self.destroyed(itemuuid)
-        items = ItemsInMemoryCache::items()
-        items = items.reject{|i| i["uuid"] == itemuuid }
-        XCache::set("384aec10-0d54-4cc2-8246-73dc3b2235ae", JSON.generate(items))
-        $ItemsInMemoryCache = items
-    end
-
-end
-
 class Items
 
-    # create table _index_ (_objectuuid_ text primary key, _unixtime_ float, _mikuType_ text, _announce_ text, _item_ text)
+    # create table _items_ (_uuid_ text, _mikuType_ text, _announce_ text, _item_ text)
+
+    # Items::pathToDatabase()
+    def self.pathToDatabase()
+        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/items.sqlite3"
+    end
+
+    # Items::putItem(item)
+    def self.putItem(item)
+        db = SQLite3::Database.new(Items::pathToDatabase())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "delete from _items_ where _uuid_=?", [item["uuid"]]
+        db.execute "insert into _items_ (_uuid_, _mikuType_, _announce_, _item_) values (?, ?, ?, ?)", [item["uuid"], item["mikuType"], PolyFunctions::genericDescriptionOrNull(item), JSON.generate(item)]
+        db.close
+        SystemEvents::broadcast({
+            "mikuType" => "TxEventItem1",
+            "item"     => item
+        })
+    end
 
     # -----------------------------------------------------------------
     # READ
 
     # Items::objectuuids() # Array[objectuuid]
     def self.objectuuids()
-        object = TheLibrarian::getItems()
-        object["mapping"].keys
+        db = SQLite3::Database.new(Items::pathToDatabase())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        objectuuids = []
+        db.execute("select _uuid_ from _items_", []) do |row|
+            objectuuids << row["_uuid_"]
+        end
+        db.close
+        objectuuids
     end
 
     # Items::getItemOrNull(objectuuid)
     def self.getItemOrNull(objectuuid)
-        object = TheLibrarian::getItems() 
-        return nil if object["mapping"][objectuuid].nil?
-        sphere = DataStore3CAObjects::getObject(object["mapping"][objectuuid])
-        sphere["item"]
+        db = SQLite3::Database.new(Items::pathToDatabase())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        item = nil
+        db.execute("select * from _items_ where _uuid_=?", [objectuuid]) do |row|
+            item = JSON.parse(row["_item_"])
+        end
+        db.close
+        item
     end
 
     # Items::items() # Array[Item]
     def self.items()
-        ItemsInMemoryCache::items()
+        db = SQLite3::Database.new(Items::pathToDatabase())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        items = []
+        db.execute("select * from _items_", []) do |row|
+            items << JSON.parse(row["_item_"])
+        end
+        db.close
+        items
     end
 
     # Items::mikuTypeToItems(mikuType) # Array[Item]
     def self.mikuTypeToItems(mikuType)
-        Items::items().select{|item| item["mikuType"] == mikuType }
+        db = SQLite3::Database.new(Items::pathToDatabase())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        items = []
+        db.execute("select * from _items_ where _mikuType_=?", [mikuType]) do |row|
+            items << JSON.parse(row["_item_"])
+        end
+        db.close
+        items
     end
 
     # Items::mikuTypeCount(mikuType) # Integer
     def self.mikuTypeCount(mikuType)
-        Items::mikuTypeToItems(mikuType).count
+        db = SQLite3::Database.new(Items::pathToDatabase())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        count = 0
+        db.execute("select count(*) as _count_ from _items_ where _mikuType_=?", [mikuType]) do |row|
+            count = row["_count_"]
+        end
+        db.close
+        count
     end
 
     # Items::nx20s() # Array[Nx20]
     def self.nx20s()
-        Items::items().map{|item|
-            {
-                "announce" => "(#{item["mikuType"]}) #{PolyFunctions::genericDescriptionOrNull(item)}",
+        db = SQLite3::Database.new(Items::pathToDatabase())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        nx20s = []
+        db.execute("select * from _items_", []) do |row|
+            item = JSON.parse(row["_item_"])
+            nx20s << {
+                "announce" => row["_announce_"],
                 "unixtime" => item["unixtime"],
                 "item"     => item
             }
-        }
+        end
+        db.close
+        nx20s
     end
 
     # -----------------------------------------------------------------
     # ATTRIBUTE UPDATE and DELETE
 
-    # Items::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
-    def self.setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
-        TheLibrarian::processEvent({
+    # Items::setAttributeNoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
+    def self.setAttributeNoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
+        item = Items::getItemOrNull(objectuuid)
+        if item.nil? then
+            raise "(error: b248458d-3306-411c-85ca-6b700d8c3ed5) objectuuid: #{objectuuid}, attname: #{attname}, attvalue: #{attvalue}"
+        end
+        item[attname] = attvalue
+        db = SQLite3::Database.new(Items::pathToDatabase())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "delete from _items_ where _uuid_=?", [item["uuid"]]
+        db.execute "insert into _items_ (_uuid_, _mikuType_, _announce_, _item_) values (?, ?, ?, ?)", [item["uuid"], item["mikuType"], PolyFunctions::genericDescriptionOrNull(item), JSON.generate(item)]
+        db.close
+    end
+
+    # Items::setAttribute2(objectuuid, attname, attvalue)
+    def self.setAttribute2(objectuuid, attname, attvalue)
+        eventuuid = SecureRandom.uuid
+        eventTime = Time.new.to_f
+        Items::setAttributeNoEvents(objectuuid, eventuuid, Time.new.to_f, attname, attvalue)
+        SystemEvents::broadcast({
             "mikuType"   => "AttributeUpdate.v2",
             "objectuuid" => objectuuid,
             "eventuuid"  => eventuuid,
@@ -127,39 +150,54 @@ class Items
         })
     end
 
-    # Items::setAttribute0(objectuuid, eventuuid, eventTime, attname, attvalue)
-    def self.setAttribute0(objectuuid, eventuuid, eventTime, attname, attvalue)
-        Items::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
-
-        event = {
-            "mikuType"   => "AttributeUpdate.v2",
-            "objectuuid" => objectuuid,
-            "eventuuid"  => eventuuid,
-            "eventTime"  => eventTime,
-            "attname"    => attname,
-            "attvalue"   => attvalue
-        }
-
-        FileSystemCheck::fsckAttributeUpdateV2(event, SecureRandom.hex, false)
-
-        SystemEvents::broadcast(event)
+    # Items::deleteNoEvents(objectuuid)
+    def self.deleteNoEvents(objectuuid)
+        db = SQLite3::Database.new(Items::pathToDatabase())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "delete from _items_ where _uuid_=?", [objectuuid]
+        db.close
     end
 
-    # Items::setAttribute1(objectuuid, eventuuid, eventTime, attname, attvalue)
-    def self.setAttribute1(objectuuid, eventuuid, eventTime, attname, attvalue)
-        puts "Items::setAttribute1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{attname}, #{attvalue})"
-        Items::setAttribute0(objectuuid, eventuuid, eventTime, attname, attvalue)
+    # Items::delete(objectuuid)
+    def self.delete(objectuuid)
+        Items::deleteNoEvents(objectuuid)
+        SystemEvents::broadcast({
+            "mikuType"   => "NxDeleted",
+            "objectuuid" => objectuuid
+        })
     end
 
-    # Items::setAttribute2(objectuuid, attname, attvalue)
-    def self.setAttribute2(objectuuid, attname, attvalue)
-        Items::setAttribute1(objectuuid, SecureRandom.uuid, Time.new.to_f, attname, attvalue)
-    end
+    # -----------------------------------------------------------------
+    # EVENTS
 
-    # Items::deleteObjectNoEvents(objectuuid)
-    def self.deleteObjectNoEvents(objectuuid)
-        object = TheLibrarian::getItems() 
-        object["mapping"].delete(objectuuid)
-        TheLibrarian::setItems(object)
+    # Items::processEvent(event)
+    def self.processEvent(event)
+        if event["mikuType"] == "TxEventItem1" then
+            item = event["item"]
+            FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, false)
+            db = SQLite3::Database.new(Items::pathToDatabase())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute "delete from _items_ where _uuid_=?", [item["uuid"]]
+            db.execute "insert into _items_ (_uuid_, _mikuType_, _announce_, _item_) values (?, ?, ?, ?)", [item["uuid"], item["mikuType"], PolyFunctions::genericDescriptionOrNull(item), JSON.generate(item)]
+            db.close
+        end
+
+        if event["mikuType"] == "AttributeUpdate" then
+            objectuuid = event["objectuuid"]
+            eventuuid  = event["eventuuid"]
+            eventTime  = event["eventTime"]
+            attname    = event["attname"]
+            attvalue   = event["attvalue"]
+            Items::setAttributeNoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
+        end
+
+        if event["mikuType"] == "NxDeleted" then
+            objectuuid = event["objectuuid"]
+            Items::deleteNoEvents(objectuuid)
+        end
     end
 end

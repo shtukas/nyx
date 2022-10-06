@@ -72,3 +72,17 @@ We have two types of events
     "setuuid"  => setuuid,
     "itemuuid" => itemuuid,
 }
+
+{
+    "mikuType" => "TxEventItem1"
+    "item"     => item
+}
+
+{
+    "mikuType"   => "AttributeUpdate.v2"
+    "objectuuid" => objectuuid
+    "eventuuid"  => String
+    "eventTime"  => Float
+    "attname"    => string
+    "attvalue"   => value
+}

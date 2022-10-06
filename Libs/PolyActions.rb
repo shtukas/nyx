@@ -55,7 +55,7 @@ class PolyActions
     def self.destroyWithPrompt(item)
         PolyActions::stop(item)
         if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{PolyFunctions::toString(item).green}' ") then
-            NxDeleted::deleteObject(item["uuid"])
+            Items::delete(item["uuid"])
         end
     end
 

@@ -11,7 +11,7 @@ class Waves
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        NxDeleted::deleteObject(uuid)
+        Items::delete(uuid)
     end
 
     # --------------------------------------------------
@@ -122,30 +122,24 @@ class Waves
 
     # Waves::issueNewWaveInteractivelyOrNull()
     def self.issueNewWaveInteractivelyOrNull()
-
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-
         nx46 = Waves::makeNx46InteractivelyOrNull()
         return nil if nx46.nil?
-
         nx113nhash = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
-
         uuid = SecureRandom.uuid
-
-        Items::setAttribute2(uuid, "uuid",        uuid)
-        Items::setAttribute2(uuid, "mikuType",    "Wave")
-        Items::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        Items::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
-        Items::setAttribute2(uuid, "description", description)
-        Items::setAttribute2(uuid, "nx46",        nx46)
-        Items::setAttribute2(uuid, "nx113",       nx113nhash)
-        Items::setAttribute2(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
-        item = Items::getItemOrNull(uuid)
-        if item.nil? then
-            raise "(error: 28781f44-be29-4f67-bc87-4c9d6171ffc9) How did that happen ? 🤨"
-        end
+        item = {
+            "uuid"             => uuid,
+            "mikuType"         => "Wave",
+            "unixtime"         => Time.new.to_i,
+            "datetime"         => Time.new.utc.iso8601,
+            "description"      => description,
+            "nx46"             => nx46,
+            "nx113"            => nx113nhash,
+            "lastDoneDateTime" => "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
+        }
         FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
+        Items::putItem(item)
         item
     end
 

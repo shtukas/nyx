@@ -23,17 +23,11 @@ class SystemEvents
         end
 
         if event["mikuType"] == "NxDeleted" then
-            objectuuid = event["objectuuid"]
-            NxDeleted::deleteObjectNoEvents(objectuuid)
+            Items::processEvent(event)
         end
 
         if event["mikuType"] == "AttributeUpdate" then
-            objectuuid = event["objectuuid"]
-            eventuuid  = event["eventuuid"]
-            eventTime  = event["eventTime"]
-            attname    = event["attname"]
-            attvalue   = event["attvalue"]
-            Items::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
+            Items::processEvent(event)
         end
 
         if event["mikuType"] == "XCacheSet" then
@@ -55,7 +49,7 @@ class SystemEvents
             eventTime  = event["eventTime"]
             attname    = event["attname"]
             attvalue   = event["attvalue"]
-            Items::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
+            Items::setAttributeNoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
         end
 
         if event["mikuType"] == "bank-account-set-un-done-today" then
@@ -86,6 +80,10 @@ class SystemEvents
 
         if event["mikuType"] == "NxGraphEdge1" then
             NetworkEdges::processEvent(event)
+        end
+
+        if event["mikuType"] == "TxEventItem1" then
+            Items::processEvent(event)
         end
     end
 

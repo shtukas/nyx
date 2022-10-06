@@ -562,7 +562,7 @@ class CatalystListing
             TxManualCountDowns::listingItems(),
             Waves::items(),
             EndOfDayChecklist::listingItems(),
-            NxTodos::itemsInDisplayOrder(Cx22::getNonDoneForTodayRepWithLowersCRBelow1OrNull()).first(100)
+            NxTodos::itemsInDisplayOrder(Cx22::getNonDoneForTodayRepWithLowersCRBelow1OrNull())
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }

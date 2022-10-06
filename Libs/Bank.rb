@@ -49,7 +49,7 @@ class Bank
         value = XCache::getOrNull("256e3994-7469-46a8-abd1-238bb25d5976:#{setuuid}:#{date}")
         return value.to_f if value
 
-        db = SQLite3::Database.new(NetworkEdges::pathToDatabase())
+        db = SQLite3::Database.new(Bank::pathToDatabase())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true

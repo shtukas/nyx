@@ -9,7 +9,7 @@ class NxTodos
 
     # NxTodos::destroy(uuid)
     def self.destroy(uuid)
-        NxDeleted::deleteObject(uuid)
+        Items::delete(uuid)
     end
 
     # --------------------------------------------------
@@ -24,20 +24,19 @@ class NxTodos
         nx113nhash  = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
         cx22        = Cx22::architectOrNull()
         cx23        = cx22 ? Cx23::makeNewOrNull2(cx22["groupuuid"]) : nil
-        Items::setAttribute2(uuid, "uuid",        uuid)
-        Items::setAttribute2(uuid, "mikuType",    "NxTodo")
-        Items::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        Items::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
-        Items::setAttribute2(uuid, "description", description)
-        Items::setAttribute2(uuid, "nx113",       nx113nhash)
-        Items::setAttribute2(uuid, "nx11e",       nx11e)
-        Items::setAttribute2(uuid, "cx22",        cx22)
-        Items::setAttribute2(uuid, "cx23",        cx23)
-        item = Items::getItemOrNull(uuid)
-        if item.nil? then
-            raise "(error: ec1f1b6f-62b4-4426-bfe3-439a51cf76d4) How did that happen ? 🤨"
-        end
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NxTodo",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "nx113"       => nx113nhash,
+            "nx11e"       => nx11e,
+            "cx22"        => cx22,
+            "cx23"        => cx23
+        }
         FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
+        Items::putItem(item)
         item
     end
 
@@ -45,24 +44,23 @@ class NxTodos
     def self.interactivelyCreateNewOndateOrNull(datetime = nil)
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-        uuid = SecureRandom.uuid
-        datetime = datetime || CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
-        nx11e = Nx11E::makeOndate(datetime)
+        uuid       = SecureRandom.uuid
+        datetime   = datetime || CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
+        nx11e      = Nx11E::makeOndate(datetime)
         nx113nhash = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
-        cx22 = Cx22::architectOrNull()
-        Items::setAttribute2(uuid, "uuid",        uuid)
-        Items::setAttribute2(uuid, "mikuType",    "NxTodo")
-        Items::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        Items::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601) # This is the object datetime, not the engine datetime (back during the TxDated era they used to be the same)
-        Items::setAttribute2(uuid, "description", description)
-        Items::setAttribute2(uuid, "nx113",       nx113nhash)
-        Items::setAttribute2(uuid, "nx11e",       nx11e)
-        Items::setAttribute2(uuid, "cx22",        cx22)
-        item = Items::getItemOrNull(uuid)
-        if item.nil? then
-            raise "(error: 06f11b6f-7d31-411b-b3bf-7b1115a756a9) How did that happen ? 🤨"
-        end
+        cx22       = Cx22::architectOrNull()
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NxTodo",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "nx113"       => nx113nhash,
+            "nx11e"       => nx11e,
+            "cx22"        => cx22
+        }
         FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
+        Items::putItem(item)
         item
     end
 
@@ -73,24 +71,22 @@ class NxTodos
 
     # NxTodos::interactivelyCreateNewHot(description)
     def self.interactivelyCreateNewHot(description)
-        uuid  = SecureRandom.uuid
-        nx11e = Nx11E::makeHot()
-        return if nx11e.nil?
+        uuid       = SecureRandom.uuid
+        nx11e      = Nx11E::makeHot()
         nx113nhash = nil
-        cx22 = Cx22::architectOrNull()
-        Items::setAttribute2(uuid, "uuid",        uuid)
-        Items::setAttribute2(uuid, "mikuType",    "NxTodo")
-        Items::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        Items::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
-        Items::setAttribute2(uuid, "description", description)
-        Items::setAttribute2(uuid, "nx113",       nx113nhash)
-        Items::setAttribute2(uuid, "nx11e",       nx11e)
-        Items::setAttribute2(uuid, "cx22",        cx22)
-        item = Items::getItemOrNull(uuid)
-        if item.nil? then
-            raise "(error: ec1f1b6f-62b4-4426-bfe3-439a51cf76d4) How did that happen ? 🤨"
-        end
+        cx22       = Cx22::architectOrNull()
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NxTodo",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "nx113"       => nx113nhash,
+            "nx11e"       => nx11e,
+            "cx22"        => cx22
+        }
         FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
+        Items::putItem(item)
         item
     end
 
@@ -98,20 +94,19 @@ class NxTodos
     def self.issueUsingLocation(location)
         description = File.basename(location)
         uuid        = SecureRandom.uuid
-        nx11e       = Nx11E::makeStandard()
         nx113nhash  = Nx113Make::aionpoint(location)
-        Items::setAttribute2(uuid, "uuid",        uuid)
-        Items::setAttribute2(uuid, "mikuType",    "NxTodo")
-        Items::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        Items::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
-        Items::setAttribute2(uuid, "description", description)
-        Items::setAttribute2(uuid, "nx113",       nx113nhash)
-        Items::setAttribute2(uuid, "nx11e",       nx11e)
-        item = Items::getItemOrNull(uuid)
-        if item.nil? then
-            raise "(error: ec1f1b6f-62b4-4426-bfe3-439a51cf76d4) How did that happen ? 🤨"
-        end
+        nx11e       = Nx11E::makeStandard()
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NxTodo",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "nx113"       => nx113nhash,
+            "nx11e"       => nx11e
+        }
         FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
+        Items::putItem(item)
         item
     end
 
@@ -119,20 +114,19 @@ class NxTodos
     def self.issueUsingUrl(url)
         description = File.basename(location)
         uuid        = SecureRandom.uuid
-        nx11e       = Nx11E::makeStandard()
         nx113nhash  = Nx113Make::url(url)
-        Items::setAttribute2(uuid, "uuid",        uuid)
-        Items::setAttribute2(uuid, "mikuType",    "NxTodo")
-        Items::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        Items::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
-        Items::setAttribute2(uuid, "description", description)
-        Items::setAttribute2(uuid, "nx113",       nx113nhash)
-        Items::setAttribute2(uuid, "nx11e",       nx11e)
-        item = Items::getItemOrNull(uuid)
-        if item.nil? then
-            raise "(error: ec1f1b6f-62b4-4426-bfe3-439a51cf76d4) How did that happen ? 🤨"
-        end
+        nx11e       = Nx11E::makeStandard()
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NxTodo",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "nx113"       => nx113nhash,
+            "nx11e"       => nx11e
+        }
         FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
+        Items::putItem(item)
         item
     end
 
@@ -166,26 +160,16 @@ class NxTodos
 
     # NxTodos::itemsInDisplayOrder(cx22Opt)
     def self.itemsInDisplayOrder(cx22Opt)
-
-        # If cx22 is set, then we present the items with a cx23 first (in position order), and then
-        # the ones without a cx23 in unixtime order
-
-        # If cx22 is not set, we present items without a cx22 in unixtime order
-
+        items = []
         if cx22Opt then
             cx22 = cx22Opt
-            items = Items::mikuTypeToItems("NxTodo")
-                .select{|item| item["cx22"] and (item["cx22"]["groupuuid"] == cx22["groupuuid"]) }
-
-            items1, items2 = items.partition{|item| item["cx23"] }
-            items1 = items1.sort{|i1, i2| i1["cx23"]["position"] <=> i2["cx23"]["position"] }
-            items2 = items2.sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            items1 + items2
-        else
-            Items::mikuTypeToItems("NxTodo")
-                .select{|item| item["cx22"].nil? }
-                .sort{|p1, p2| p1["unixtime"] <=> p2["unixtime"] }
+            items = items + Items::mikuTypeToItems("NxTodo")
+                            .select{|item| item["cx22"] }
+                            .select{|item| item["cx22"]["groupuuid"] == cx22["groupuuid"] }
         end
+        items = items + Items::mikuTypeToItems("NxTodo")
+                            .select{|item| item["cx22"].nil? }
+        items
     end
 
     # --------------------------------------------------

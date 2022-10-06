@@ -32,119 +32,94 @@ class NyxNodes
 
         networkType = NyxNodes::interactivelySelectNetworkType()
 
+        nx113nhash = nil
+
         # We have the convention that only PureData NyxNodes carry (points to) a Nx113
         if networkType == "PureData" then
             nx113nhash = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
         end
 
-        Items::setAttribute2(uuid, "uuid", uuid)
-        Items::setAttribute2(uuid, "mikuType", "NyxNode")
-        Items::setAttribute2(uuid, "networkType", networkType)
-        Items::setAttribute2(uuid, "unixtime", unixtime)
-        Items::setAttribute2(uuid, "datetime", datetime)
-        Items::setAttribute2(uuid, "description", description)
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NyxNode",
+            "networkType" => networkType,
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "nx113"       => nx113nhash
+        }
 
-        if nx113nhash then
-            Items::setAttribute2(uuid, "nx113", nx113nhash)
-        end
-
-        item = Items::getItemOrNull(uuid)
-        if item.nil? then
-            raise "(error: 6035de89-5fbc-4882-a6f9-f1f703e8b106) How did that happen ? 🤨"
-        end
         FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
+        Items::putItem(item)
         item
     end
 
     # NyxNodes::issueNewUsingLocation(location)
     def self.issueNewUsingLocation(location)
         uuid = SecureRandom.uuid
-
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
-
         description = File.basename(location)
-
         networkType = "PureData"
-
         nx113nhash = Nx113Make::aionpoint(location)
-
-        Items::setAttribute2(uuid, "uuid", uuid)
-        Items::setAttribute2(uuid, "mikuType", "NyxNode")
-        Items::setAttribute2(uuid, "networkType", networkType)
-        Items::setAttribute2(uuid, "unixtime", unixtime)
-        Items::setAttribute2(uuid, "datetime", datetime)
-        Items::setAttribute2(uuid, "description", description)
-
-        Items::setAttribute2(uuid, "nx113", nx113nhash)
-
-        item = Items::getItemOrNull(uuid)
-        if item.nil? then
-            raise "(error: 6035de89-5fbc-4882-a6f9-f1f703e8b106) How did that happen ? 🤨"
-        end
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NyxNode",
+            "networkType" => networkType,
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "nx113"       => nx113nhash
+        }
         FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
+        Items::putItem(item)
         item
     end
 
     # NyxNodes::issueNewUsingFile(filepath)
     def self.issueNewUsingFile(filepath)
         uuid = SecureRandom.uuid
-
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
-
         description = File.basename(filepath)
-
         networkType = "PureData"
-
         nx113nhash = Nx113Make::file(filepath)
-
-        Items::setAttribute2(uuid, "uuid", uuid)
-        Items::setAttribute2(uuid, "mikuType", "NyxNode")
-        Items::setAttribute2(uuid, "networkType", networkType)
-        Items::setAttribute2(uuid, "unixtime", unixtime)
-        Items::setAttribute2(uuid, "datetime", datetime)
-        Items::setAttribute2(uuid, "description", description)
-
-        Items::setAttribute2(uuid, "nx113", nx113nhash)
-
-        item = Items::getItemOrNull(uuid)
-        if item.nil? then
-            raise "(error: 6035de89-5fbc-4882-a6f9-f1f703e8b106) How did that happen ? 🤨"
-        end
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NyxNode",
+            "networkType" => networkType,
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "nx113"       => nx113nhash
+        }
         FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
+        Items::putItem(item)
         item
     end
 
     # NyxNodes::interactivelyIssueNewPureDataTextOrNull()
     def self.interactivelyIssueNewPureDataTextOrNull()
         uuid = SecureRandom.uuid
-
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
-
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-
         networkType = "PureData"
-
         text = CommonUtils::editTextSynchronously("")
         nx113nhash = Nx113Make::text(text)
 
-        Items::setAttribute2(uuid, "uuid", uuid)
-        Items::setAttribute2(uuid, "mikuType", "NyxNode")
-        Items::setAttribute2(uuid, "networkType", networkType)
-        Items::setAttribute2(uuid, "unixtime", unixtime)
-        Items::setAttribute2(uuid, "datetime", datetime)
-        Items::setAttribute2(uuid, "description", description)
-
-        Items::setAttribute2(uuid, "nx113", nx113nhash)
-
-        item = Items::getItemOrNull(uuid)
-        if item.nil? then
-            raise "(error: 6035de89-5fbc-4882-a6f9-f1f703e8b106) How did that happen ? 🤨"
-        end
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NyxNode",
+            "networkType" => networkType,
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "nx113"       => nx113nhash
+        }
         FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
+        Items::putItem(item)
         item
     end
 

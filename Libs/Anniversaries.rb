@@ -112,19 +112,19 @@ class Anniversaries
         end
 
         uuid = SecureRandom.uuid
-        Items::setAttribute2(uuid, "uuid",        uuid)
-        Items::setAttribute2(uuid, "mikuType",    "NxAnniversary")
-        Items::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        Items::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
-        Items::setAttribute2(uuid, "description", description)
-        Items::setAttribute2(uuid, "startdate",   startdate)
-        Items::setAttribute2(uuid, "repeatType",  repeatType)
-        Items::setAttribute2(uuid, "lastCelebrationDate", lastCelebrationDate)
-        item = Items::getItemOrNull(uuid)
-        if item.nil? then
-            raise "(error: d2fd7192-0ed3-4405-9a7d-8badc5ccc3c6) How did that happen ? 🤨"
-        end
+
+        item = {
+            "uuid"                => uuid,
+            "mikuType"            => "NxAnniversary",
+            "unixtime"            => Time.new.to_i,
+            "datetime"            => Time.new.utc.iso8601,
+            "description"         => description,
+            "startdate"           => startdate,
+            "repeatType"          => repeatType,
+            "lastCelebrationDate" => lastCelebrationDate
+        }
         FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
+        Items::putItem(item)
         item
     end
 

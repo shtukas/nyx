@@ -1,5 +1,0 @@
-
-Items is the database that stands between the DxF1 files and the program.
-
-items.sqlite3
-create table _index_ (_objectuuid_ text primary key, _unixtime_ float, _mikuType_ text, _announce_ text, _item_ text)

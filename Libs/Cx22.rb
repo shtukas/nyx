@@ -120,20 +120,19 @@ class Cx22
                     position = position.to_f
                     cx23 = Cx23::makeCx23(rep["groupuuid"], position)
                 end
-                Items::setAttribute2(uuid, "uuid",        uuid)
-                Items::setAttribute2(uuid, "mikuType",    "NxTodo")
-                Items::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-                Items::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
-                Items::setAttribute2(uuid, "description", description)
-                Items::setAttribute2(uuid, "nx113",       nx113nhash)
-                Items::setAttribute2(uuid, "nx11e",       nx11e)
-                Items::setAttribute2(uuid, "cx22",        cx22)
-                Items::setAttribute2(uuid, "cx23",        cx23)
-                item = Items::getItemOrNull(uuid)
-                if item.nil? then
-                    raise "(error: ec1f1b6f-62b4-4426-bfe3-439a51cf76d4) How did that happen ? 🤨"
-                end
+                item = {
+                    "uuid"        => uuid,
+                    "mikuType"    => "NxTodo",
+                    "unixtime"    => Time.new.to_i,
+                    "datetime"    => Time.new.utc.iso8601,
+                    "description" => description,
+                    "nx113"       => nx113nhash,
+                    "nx11e"       => nx11e,
+                    "cx22"        => cx22,
+                    "cx23"        => cx23
+                }
                 FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
+                Items::putItem(item)
                 next
             end
         }

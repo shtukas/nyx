@@ -1,0 +1,3 @@
+
+items.sqlite3
+create table _items_ (_uuid_ text, _mikuType_ text, _announce_ text, _item_ text)

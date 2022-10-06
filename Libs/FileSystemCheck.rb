@@ -247,17 +247,17 @@ class FileSystemCheck
         # Temporary
 
         if item["uuid"] and item["uuid"].include?("cf7d8093-ea52-417a-b814-71594118d539") then
-            NxDeleted::deleteObject(item["uuid"])
+            Items::delete(item["uuid"])
             return
         end
 
         if item["mikuType"] and item["mikuType"].include?("TxTimeCommitment") then
-            NxDeleted::deleteObject(item["uuid"])
+            Items::delete(item["uuid"])
             return
         end
 
         if item["mikuType"] and item["mikuType"].include?("CxAionPoint") then
-            NxDeleted::deleteObject(item["uuid"])
+            Items::delete(item["uuid"])
             return
         end
 
@@ -333,38 +333,12 @@ class FileSystemCheck
         end
 
         if ["CxAionPoint", "DxAionPoint"].include?(item["mikuType"]) then
-            NxDeleted::deleteObject(item["uuid"])
+            Items::delete(item["uuid"])
             return
         end
         # --------------------------------------
 
         raise "Unsupported Miku Type: #{item}"
-    end
-
-    # FileSystemCheck::fsckPrimaryStructureV1(primary, isdeep, runhash, verbose)
-    def self.fsckPrimaryStructureV1(primary, isdeep, runhash, verbose)
-
-        repeatKey = "06235b8b-016b-4e1b-a811-0eb5164b025d:#{runhash}:#{JSON.generate(primary)}"
-        return if XCache::getFlag(repeatKey)
-
-        if verbose then
-            puts "FileSystemCheck::fsckPrimaryStructureV1(#{JSON.pretty_generate(primary)}, #{isdeep} #{runhash}, #{verbose})"
-        end
-
-        if primary["mikuType"] != "PrimaryStructure.v1" then
-            raise "Incorrect Miku type for a primary structure"
-        end
-
-        if primary["items"].nil? then
-            raise "could not find attribute 'items' for primary structure"
-        end
-        FileSystemCheck::fsckPrimaryStructureV1Items(DataStore3CAObjects::getObject(primary["items"]), isdeep, runhash, verbose)
-
-        if isdeep then
-            # We only consider the structure checked if we did a deep check, otherwise we cache against a 
-            # shallow check, which is incorrect
-            XCache::setFlag(repeatKey, true)
-        end
     end
 
     # FileSystemCheck::fsckAttributeUpdateV2(event, runhash, verbose)
@@ -435,42 +409,6 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsckPrimaryStructureV1Items(object, isdeep, runhash, verbose)
-    def self.fsckPrimaryStructureV1Items(object, isdeep, runhash, verbose)
-
-        if verbose then
-            puts "FileSystemCheck::fsckPrimaryStructureV1Items(#{JSON.pretty_generate(object)}, #{isdeep}, #{runhash}, #{verbose})"
-        end
-
-        repeatKey = "#{runhash}:#{JSON.generate(object)}"
-        return if XCache::getFlag(repeatKey)
-
-        if object["mikuType"].nil? then
-            raise "object has no Miku type"
-        end
-        if object["mikuType"] != "PrimaryStructure.v1:Items" then
-            raise "Incorrect Miku type for function"
-        end
-
-        if object["mapping"].nil? then
-            raise "Missing attribute mapping"
-        end
-
-        if isdeep then
-            object["mapping"].each{|pair|
-                objectuuid, nhash = pair
-                nxItemSphere1 = DataStore3CAObjects::getObject(nhash)
-                FileSystemCheck::fsckNxItemSphere1(nxItemSphere1, runhash, verbose)
-            }
-        end
-
-        if isdeep then
-            # We only consider the structure checked if we did a deep check, otherwise we cache against a 
-            # shallow check, which is incorrect
-            XCache::setFlag(repeatKey, true)
-        end
-    end
-
     # -----------------------------------------------------
 
     # FileSystemCheck::getExistingRunHash()
@@ -485,9 +423,7 @@ class FileSystemCheck
 
     # FileSystemCheck::fsckErrorAtFirstFailure(runhash)
     def self.fsckErrorAtFirstFailure(runhash)
-        primary = TheLibrarian::getPrimaryStructure()
-        puts JSON.pretty_generate(primary)
-        FileSystemCheck::fsckPrimaryStructureV1(primary, true, runhash, true)
+        
         puts "fsck completed successfully".green
     end
 end
