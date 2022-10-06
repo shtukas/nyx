@@ -559,6 +559,7 @@ class CatalystListing
     def self.listingItems()
         [
             Anniversaries::listingItems(),
+            TxManualCountDowns::listingItems(),
             Waves::items(),
             EndOfDayChecklist::listingItems(),
             NxTodos::itemsInDisplayOrder(Cx22::getNonDoneForTodayRepWithLowersCRBelow1OrNull()).first(100)

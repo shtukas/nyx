@@ -65,3 +65,5 @@ We have two types of events
     "date"      => date,
     "weight"    => weight
 }
+
+"TxManualCountDown" => "TxManualCountDown"

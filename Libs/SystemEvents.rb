@@ -61,6 +61,11 @@ class SystemEvents
         if event["mikuType"] == "bank-account-set-un-done-today" then
             BankAccountDoneForToday::processEvent(event)
         end
+
+        if event["mikuType"] == "TxManualCountDown" then
+            TxManualCountDowns::pushItemUpdate(event)
+        end
+
     end
 
     # SystemEvents::broadcast(event)

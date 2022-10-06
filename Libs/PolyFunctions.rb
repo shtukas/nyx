@@ -141,6 +141,10 @@ class PolyFunctions
             return NxTodos::listingPriorityOrNull(item)
         end
 
+        if item["mikuType"] == "TxManualCountDown" then
+            return 0.90
+        end
+
         if item["mikuType"] == "Wave" then
             return (Waves::isPriority(item) ? 0.9 : 0.4) + shiftOnDateTime.call(item, item["lastDoneDateTime"])
         end
@@ -175,6 +179,9 @@ class PolyFunctions
         end
         if item["mikuType"] == "NyxNode" then
             return NyxNodes::toString(item)
+        end
+        if item["mikuType"] == "TxManualCountDown" then
+            return "(countdown) #{item["description"]}: #{item["counter"]}"
         end
         if item["mikuType"] == "Wave" then
             return Waves::toString(item)

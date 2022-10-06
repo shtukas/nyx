@@ -34,6 +34,14 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "TxManualCountDown" then
+            puts item["description"]
+            count = LucilleCore::askQuestionAnswerAsString("done count: ").to_i
+            item["counter"] = item["counter"] - count
+            TxManualCountDowns::pushItemUpdate(item)
+            return
+        end
+
         if item["mikuType"] == "Wave" then
             puts Waves::toString(item).green
             Waves::access(item)
@@ -99,8 +107,12 @@ class PolyActions
             return
         end
 
-        PolyActions::start(item)
-        PolyActions::access(item)
+        if item["mikuType"] == "TxManualCountDown" then
+            PolyActions::access(item)
+            return
+        end
+
+        raise "(error: 2b6aab43-6a93-4c0e-99b0-0cf882e66bde) I do not know how to PolyActions::doubleDot(#{JSON.pretty_generate(item)})"
     end
 
     # PolyActions::done(item)
