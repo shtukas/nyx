@@ -11,4 +11,5 @@ require_relative "Libs/loader.rb"
 loop {
     sleep 10
     SystemEvents::processIncomingEventsFromLine(true)
+    CommsLine::moveCarefully(false)
 }

@@ -664,6 +664,7 @@ class CatalystListing
             end
 
             SystemEvents::processIncomingEventsFromLine(true)
+            CommsLine::moveCarefully(true)
 
             LucilleCore::locationsAtFolder("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")
                 .each{|location|
