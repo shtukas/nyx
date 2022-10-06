@@ -8,3 +8,4 @@ NxTodo:
     "nx11e"       : Nx11E  # The engine
     "nx113"       : String # optional; nhash to the DataStore1 of the Nx113
     "cx22"        : Cx22   # optional; Contribution
+    "cx23"        : Cx23   # optional; Group Position

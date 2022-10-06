@@ -82,25 +82,70 @@ class Cx22
         LucilleCore::selectEntityFromListOfEntitiesOrNull("group", groups, lambda{|rep| rep["groupname"]})
     end
 
-    # Cx22::repDive(rep)
-    def self.repDive(rep)
+    # Cx22::repElementsDive(rep)
+    def self.repElementsDive(rep)
         loop {
+            system("clear")
             elements = NxTodos::itemsInDisplayOrder(rep).first(20)
-            element = LucilleCore::selectEntityFromListOfEntitiesOrNull("element", elements, lambda{|element| PolyFunctions::toString(element) })
-            break if element.nil?
-            PolyPrograms::itemLanding(element)
+            store = ItemStore.new()
+            elements
+                .each{|element|
+                    store.register(element, false)
+                    puts "#{store.prefixString()} #{PolyFunctions::toString(element)}"
+                }
+
+            puts ""
+            puts "<n> | insert".yellow
+            puts ""
+            input = LucilleCore::askQuestionAnswerAsString("> ")
+            return if input == ""
+
+            if (indx = Interpreting::readAsIntegerOrNull(input)) then
+                entity = store.get(indx)
+                next if entity.nil?
+                PolyPrograms::itemLanding(entity)
+                next
+            end
+
+            if Interpreting::match("insert", input) then
+                description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+                next if description == ""
+                uuid        = SecureRandom.uuid
+                nx11e       = Nx11E::makeStandard()
+                nx113nhash  = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
+                cx22        = rep
+                cx23        = nil
+                position = LucilleCore::askQuestionAnswerAsString("position (empty for none): ")
+                if position != "" then
+                    position = position.to_f
+                    cx23 = Cx23::makeCx23(rep["groupuuid"], position)
+                end
+                Items::setAttribute2(uuid, "uuid",        uuid)
+                Items::setAttribute2(uuid, "mikuType",    "NxTodo")
+                Items::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+                Items::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
+                Items::setAttribute2(uuid, "description", description)
+                Items::setAttribute2(uuid, "nx113",       nx113nhash)
+                Items::setAttribute2(uuid, "nx11e",       nx11e)
+                Items::setAttribute2(uuid, "cx22",        cx22)
+                Items::setAttribute2(uuid, "cx23",        cx23)
+                item = Items::getItemOrNull(uuid)
+                if item.nil? then
+                    raise "(error: ec1f1b6f-62b4-4426-bfe3-439a51cf76d4) How did that happen ? 🤨"
+                end
+                FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
+                next
+            end
         }
     end
 
-    # Cx22::repsDive()
-    def self.repsDive()
+    # Cx22::repDive(rep)
+    def self.repDive(rep)
         loop {
-            rep = Cx22::interactivelySelectCx22RepOrNull()
-            break if rep.nil?
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("rep", ["dive", "start NxBall", "done for the day", "un-{done for the day}", "expose", "completion ratio"])
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("rep", ["elements dive", "start NxBall", "done for the day", "un-{done for the day}", "expose", "completion ratio"])
             break if action.nil?
-            if action == "dive" then
-                Cx22::repDive(rep)
+            if action == "elements dive" then
+                Cx22::repElementsDive(rep)
             end
             if action == "start NxBall" then
                 NxBallsService::issue(SecureRandom.uuid, "rep: #{rep["groupname"]}", [rep["bankaccount"]], 3600)
@@ -130,6 +175,15 @@ class Cx22
                 LucilleCore::pressEnterToContinue()
                 next
             end
+        }
+    end
+
+    # Cx22::repsDive()
+    def self.repsDive()
+        loop {
+            rep = Cx22::interactivelySelectCx22RepOrNull()
+            return if rep.nil?
+            Cx22::repDive(rep)
         }
     end
 
