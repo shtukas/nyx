@@ -14,6 +14,6 @@ class NxDeleted
             "mikuType"   => "NxDeleted",
             "objectuuid" => objectuuid,
         })
-        ItemsInMemoryCache::destroyed(itemuuid)
+        ItemsInMemoryCache::destroyed(objectuuid)
     end
 end
