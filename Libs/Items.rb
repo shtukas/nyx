@@ -122,9 +122,7 @@ class Items
     # Items::setAttributeNoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
     def self.setAttributeNoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
         item = Items::getItemOrNull(objectuuid)
-        if item.nil? then
-            raise "(error: b248458d-3306-411c-85ca-6b700d8c3ed5) objectuuid: #{objectuuid}, attname: #{attname}, attvalue: #{attvalue}"
-        end
+        return if item.nil?
         item[attname] = attvalue
         db = SQLite3::Database.new(Items::pathToDatabase())
         db.busy_timeout = 117
