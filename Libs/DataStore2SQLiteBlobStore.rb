@@ -1,7 +1,7 @@
 
-class DataStore2SQLite1
+class DataStore2SQLiteBlobStore
 
-    # DataStore2SQLite1::createDatabase(filepath)
+    # DataStore2SQLiteBlobStore::createDatabase(filepath)
     def self.createDatabase(filepath)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -11,7 +11,7 @@ class DataStore2SQLite1
         db.close
     end
 
-    # DataStore2SQLite1::putBlob(filepath, datablob)
+    # DataStore2SQLiteBlobStore::putBlob(filepath, datablob)
     def self.putBlob(filepath, datablob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(datablob)}"
         db = SQLite3::Database.new(filepath)
@@ -23,7 +23,7 @@ class DataStore2SQLite1
         db.close
     end
 
-    # DataStore2SQLite1::getBlobOrNull(filepath, nhash)
+    # DataStore2SQLiteBlobStore::getBlobOrNull(filepath, nhash)
     def self.getBlobOrNull(filepath, nhash)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -38,16 +38,16 @@ class DataStore2SQLite1
     end
 end
 
-class DataStore2SQLite1ElizabethTheForge
+class DataStore2SQLiteBlobStoreElizabethTheForge
 
     def initialize()
         @filepath = "/tmp/#{SecureRandom.hex}"
-        DataStore2SQLite1::createDatabase(@filepath)
+        DataStore2SQLiteBlobStore::createDatabase(@filepath)
     end
 
     def putBlob(datablob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(datablob)}"
-        DataStore2SQLite1::putBlob(@filepath, datablob)
+        DataStore2SQLiteBlobStore::putBlob(@filepath, datablob)
         nhash
     end
 
@@ -72,7 +72,7 @@ class DataStore2SQLite1ElizabethTheForge
     end
 end
 
-class DataStore2SQLite1ElizabethReadOnly
+class DataStore2SQLiteBlobStoreElizabethReadOnly
 
     def initialize(filepath)
         @filepath = filepath
@@ -87,7 +87,7 @@ class DataStore2SQLite1ElizabethReadOnly
     end
 
     def getBlobOrNull(nhash)
-        DataStore2SQLite1::getBlobOrNull(@filepath, nhash)
+        DataStore2SQLiteBlobStore::getBlobOrNull(@filepath, nhash)
     end
 
     def readBlobErrorIfNotFound(nhash)

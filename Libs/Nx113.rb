@@ -27,7 +27,7 @@ class Nx113Make
     def self.file(filepath)
         raise "(error: d3539fc0-5615-46ff-809b-85ac34850070)" if !File.exists?(filepath)
 
-        operator = DataStore2SQLite1ElizabethTheForge.new()
+        operator = DataStore2SQLiteBlobStoreElizabethTheForge.new()
         dottedExtension, nhash, parts = PrimitiveFiles::commitFileReturnDataElements(filepath, operator) # [dottedExtension, nhash, parts]
 
         item = {
@@ -44,7 +44,7 @@ class Nx113Make
     # Nx113Make::aionpoint(location) # nhash pointer to DataStore1 location of JSON encoded Nx113
     def self.aionpoint(location)
         raise "(error: 93590239-f8e0-4f35-af47-d7f1407e21f2)" if !File.exists?(location)
-        operator = DataStore2SQLite1ElizabethTheForge.new()
+        operator = DataStore2SQLiteBlobStoreElizabethTheForge.new()
         rootnhash = AionCore::commitLocationReturnHash(operator, location)
         item = {
             "mikuType"   => "Nx113",
@@ -163,7 +163,7 @@ class Nx113Access
             nhash            = nx113["nhash"]
             parts            = nx113["parts"]
             databasefilepath = DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nx113["database"], true)
-            operator         = DataStore2SQLite1ElizabethReadOnly.new(databasefilepath)
+            operator         = DataStore2SQLiteBlobStoreElizabethReadOnly.new(databasefilepath)
             filepath         = "#{ENV['HOME']}/Desktop/#{nhash}#{dottedExtension}"
             File.open(filepath, "w"){|f|
                 parts.each{|nhash|
@@ -179,7 +179,7 @@ class Nx113Access
 
         if nx113["type"] == "aion-point" then
             databasefilepath = DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nx113["database"], true)
-            operator         = DataStore2SQLite1ElizabethReadOnly.new(databasefilepath)
+            operator         = DataStore2SQLiteBlobStoreElizabethReadOnly.new(databasefilepath)
             rootnhash        = nx113["rootnhash"]
             parentLocation   = "#{ENV['HOME']}/Desktop/aion-point-#{SecureRandom.hex(4)}"
             FileUtils.mkdir(parentLocation)
@@ -263,7 +263,7 @@ class Nx113Edit
 
         if nx113["type"] == "aion-point" then
             databasefilepath = DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nx113["database"], true)
-            operator         = DataStore2SQLite1ElizabethReadOnly.new(databasefilepath)
+            operator         = DataStore2SQLiteBlobStoreElizabethReadOnly.new(databasefilepath)
             rootnhash        = nx113["rootnhash"]
             exportLocation   = "#{ENV['HOME']}/Desktop/aion-point-#{SecureRandom.hex(4)}"
             FileUtils.mkdir(exportLocation)
@@ -288,7 +288,7 @@ class Nx113Edit
                 end
             }
 
-            operator = DataStore2SQLite1ElizabethTheForge.new()
+            operator = DataStore2SQLiteBlobStoreElizabethTheForge.new()
             location = acquireLocationInsideExportFolder.call(exportLocation)
             puts "reading: #{location}"
             rootnhash = AionCore::commitLocationReturnHash(operator, location)
