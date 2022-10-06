@@ -133,10 +133,6 @@ class PolyFunctions
             return 0.95
         end
 
-        if item["mikuType"] == "fitness1" then
-            return 0.75
-        end
-
         if item["mikuType"] == "NxAnniversary" then
             return Anniversaries::isOpenToAcknowledgement(anniversary) ? 0.95 : -1
         end
@@ -164,9 +160,6 @@ class PolyFunctions
 
         if item["mikuType"] == "EndOfDayChecklist" then
             return "(end of day, check) #{item["line"]}"
-        end
-        if item["mikuType"] == "fitness1" then
-            return item["announce"]
         end
         if item["mikuType"] == "NxAnniversary" then
             return Anniversaries::toString(item)

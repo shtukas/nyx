@@ -1,0 +1,9 @@
+
+{
+    "uuid"        : String
+    "mikuType"    : "TxManualCountDown"
+    "description" : String 
+    "dailyTarget" : Int
+    "date"        : Date
+    "counter"     : Int
+}
