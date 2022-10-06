@@ -265,6 +265,11 @@ class FileSystemCheck
             return
         end
 
+        if item["mikuType"] and item["mikuType"].include?("CxAionPoint") then
+            NxDeleted::deleteObject(item["uuid"])
+            return
+        end
+
         # --------------------------------------
 
         repeatKey = "#{runhash}:#{JSON.generate(item)}"
