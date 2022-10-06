@@ -135,12 +135,6 @@ class FileSystemCheck
         if event["mikuType"] != "TxBankEvent" then
             raise "Incorrect Miku type for function"
         end
-        if event["eventuuid"].nil? then
-            raise "Missing attribute eventuuid"
-        end
-        if event["eventTime"].nil? then
-            raise "Missing attribute eventTime"
-        end
         if event["setuuid"].nil? then
             raise "Missing attribute setuuid"
         end
@@ -347,29 +341,6 @@ class FileSystemCheck
         raise "Unsupported Miku Type: #{item}"
     end
 
-    # FileSystemCheck::fsckPrimaryStructureV1Banking(object, runhash, verbose)
-    def self.fsckPrimaryStructureV1Banking(object, runhash, verbose)
-
-        repeatKey = "a6a69ba0-801c-475b-bb5e-62899f7ea5a0:#{runhash}:#{JSON.generate(object)}"
-        return if XCache::getFlag(repeatKey)
-
-        if verbose then
-            puts "FileSystemCheck::fsckPrimaryStructureV1Banking(#{JSON.pretty_generate(object)}, #{runhash}, #{verbose})"
-        end
-
-        if object["mikuType"] != "PrimaryStructure.v1:Banking" then
-            raise "Incorrect Miku type for this function"
-        end
-
-        object["mapping"].each{|pair|
-            setuuid, nhash = pair
-            array = DataStore3CAObjects::getObject(nhash)
-            FileSystemCheck::fsckSetUUID_ArrayOfTxBankEvents(setuuid, array, runhash, verbose)
-        }
-
-        XCache::setFlag(repeatKey, true)
-    end
-
     # FileSystemCheck::fsckPrimaryStructureV1DoNotShowUntil(object, runhash, verbose)
     def self.fsckPrimaryStructureV1DoNotShowUntil(object, runhash, verbose)
         repeatKey = "29cb8512-1d87-40a8-97cc-a1923e6a898b:#{runhash}:#{JSON.generate(object)}"
@@ -403,11 +374,6 @@ class FileSystemCheck
         if primary["mikuType"] != "PrimaryStructure.v1" then
             raise "Incorrect Miku type for a primary structure"
         end
-
-        if primary["banking"].nil? then
-            raise "could not find attribute 'banking' for primary structure"
-        end
-        FileSystemCheck::fsckPrimaryStructureV1Banking(DataStore3CAObjects::getObject(primary["banking"]), runhash, verbose)
 
         if primary["doNotShowUntil"].nil? then
             raise "could not find attribute 'doNotShowUntil' for primary structure"

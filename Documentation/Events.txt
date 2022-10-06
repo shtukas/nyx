@@ -47,8 +47,6 @@ We have two types of events
 
 {
     "mikuType"  => "TxBankEvent",
-    "eventuuid" => eventuuid,
-    "eventTime" => Float,
     "setuuid"   => setuuid,
     "unixtime"  => unixtime,
     "date"      => date,

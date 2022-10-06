@@ -3,27 +3,8 @@
 
 {
     "mikuType"      : "PrimaryStructure.v1"
-    "banking"       : nhash to a JSON encoded "PrimaryStructure.v1:Banking"
     "doNotShowUntil": nhash to a JSON encoded "PrimaryStructure.v1:DoNotShowUntil"
     "items"         : nhash to a JSON encoded "PrimaryStructure.v1:Items"
-}
-
-### PrimaryStructure.v1:Banking
-
-{
-    "mikuType" : "PrimaryStructure.v1:Banking"
-    "mapping"  : Map[setuuid, nhash to a JSON encoded Array[TxBankEvent]]
-}
-
-[Event] TxBankEvent
-{
-    "mikuType"  : "TxBankEvent"
-    "eventuuid" : eventuuid
-    "eventTime" : Float
-    "setuuid"   : setuuid
-    "unixtime"  : unixtime
-    "date"      : date
-    "weight"    : weight
 }
 
 ### PrimaryStructure.v1:DoNotShowUntil

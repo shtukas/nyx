@@ -19,29 +19,6 @@ class TheLibrarian
         end
     end
 
-    # TheLibrarian::getBankingObject()
-    def self.getBankingObject()
-        primary = TheLibrarian::getPrimaryStructure()
-        if primary["banking"] then
-            DataStore3CAObjects::getObject(primary["banking"])
-        else
-            {
-                "mikuType" => "PrimaryStructure.v1:Banking",
-                "mapping"  => {}
-            }
-        end
-    end
-
-    # TheLibrarian::getBankingObjectArrayEventsForSet(setuuid)
-    def self.getBankingObjectArrayEventsForSet(setuuid)
-        banking = TheLibrarian::getBankingObject()
-        if banking["mapping"][setuuid].nil? then
-            return []
-        end
-        nhash = banking["mapping"][setuuid]
-        DataStore3CAObjects::getObject(nhash)
-    end
-
     # TheLibrarian::getDoNotShowUntilObject()
     def self.getDoNotShowUntilObject()
         primary = TheLibrarian::getPrimaryStructure()
@@ -86,15 +63,6 @@ class TheLibrarian
         File.open(filepath2, "w"){|f| f.puts(JSON.pretty_generate(object)) }
     end
 
-    # TheLibrarian::setBankingObject(object)
-    def self.setBankingObject(object)
-        FileSystemCheck::fsckPrimaryStructureV1Banking(object, FileSystemCheck::getExistingRunHash(), false)
-        nhash = DataStore3CAObjects::setObject(object)
-        primary = TheLibrarian::getPrimaryStructure()
-        primary["banking"] = nhash
-        TheLibrarian::setPrimaryStructure(primary)
-    end
-
     # TheLibrarian::setBankingEventsArrayAtSet(setuuid, events)
     def self.setBankingEventsArrayAtSet(setuuid, events)
         banking = TheLibrarian::getBankingObject()
@@ -125,28 +93,6 @@ class TheLibrarian
 
     # TheLibrarian::processEvent(event)
     def self.processEvent(event)
-
-        if event["mikuType"] == "TxBankEvent" then
-            #[Event] TxBankEvent
-            #{
-            #    "mikuType"  => "TxBankEvent",
-            #    "eventuuid" => eventuuid,
-            #    "eventTime" => Float,
-            #    "setuuid"   => setuuid,
-            #    "unixtime"  => unixtime,
-            #    "date"      => date,
-            #    "weight"    => weight
-            #}
-            FileSystemCheck::fsckTxBankEvent(event, SecureRandom.hex, false)
-            banking = TheLibrarian::getBankingObject()
-            setuuid = event["setuuid"]
-            eventuuid = event["eventuuid"]
-            events = TheLibrarian::getBankingObjectArrayEventsForSet(setuuid)
-            return if events.any?{|e| e["eventuuid"] == eventuuid } # We already have it
-            events << event
-            events = events.sort{|e1, e2| e1["eventTime"] <=> e2["eventTime"] }
-            TheLibrarian::setBankingEventsArrayAtSet(setuuid, events)
-        end
 
         if event["mikuType"] == "NxDoNotShowUntil" then
             #{

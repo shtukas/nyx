@@ -4,46 +4,42 @@
 
 class Bank
 
-    # Bank::putLibrarianOnly(eventuuid, setuuid, unixtime, date, weight) # Used by regular activity. Emits events for the other computer,
-    def self.putLibrarianOnly(eventuuid, setuuid, unixtime, date, weight)
-        eventTime = Time.new.to_f
-        event = {
-            "mikuType"  => "TxBankEvent",
-            "eventuuid" => eventuuid,
-            "eventTime" => eventTime,
-            "setuuid"   => setuuid,
-            "unixtime"  => unixtime,
-            "date"      => date,
-            "weight"    => weight,
-        }
-        TheLibrarian::processEvent(event)
-        event
+    # Bank::pathToDatabase()
+    def self.pathToDatabase()
+        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/bank.sqlite3"
     end
 
     # Bank::put(setuuid, weight: Float) # Used by regular activity. Emits events for the other computer,
     def self.put(setuuid, weight)
-        eventuuid = SecureRandom.uuid
-        unixtime  = Time.new.to_f
-        date      = CommonUtils::today()
-        event     = Bank::putLibrarianOnly(eventuuid, setuuid, unixtime, date, weight)
-        XCache::destroy("256e3994-7469-46a8-abd1-238bb25d5976:#{setuuid}:#{date}") # decaching the value for that date
-        SystemEvents::broadcast(event)
-        SystemEvents::internal({
-            "mikuType" => "(bank account has been updated)",
-            "setuuid"  => setuuid,
-        })
+        db = SQLite3::Database.new(Bank::pathToDatabase())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "insert into _bank_ (_setuuid_, _unixtime_, _date_, _weight_) values (?, ?, ?, ?)", [setuuid, Time.new.to_i, CommonUtils::today(), weight]
+        db.close
         SystemEvents::broadcast({
-            "mikuType" => "(bank account has been updated)",
-            "setuuid"  => setuuid,
+            "mikuType"  => "TxBankEvent",
+            "setuuid"   => setuuid,
+            "unixtime"  => Time.new.to_i,
+            "date"      => CommonUtils::today(),
+            "weight"    => weight
         })
     end
 
     # Bank::processEvent(event)
     def self.processEvent(event)
         if event["mikuType"] == "TxBankEvent" then
-            TheLibrarian::processEvent(event)
-            setuuid   = event["setuuid"]
-            date      = event["date"]
+            FileSystemCheck::fsckTxBankEvent(event, SecureRandom.hex, false)
+            setuuid  = event["event"]
+            unixtime = event["unixtime"]
+            date     = event["date"]
+            weight   = event["weight"]
+            db = SQLite3::Database.new(Bank::pathToDatabase())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute "insert into _bank_ (_setuuid_, _unixtime_, _date_, _weight_) values (?, ?, ?, ?)", [setuuid, unixtime, date, weight]
+            db.close
             XCache::destroy("256e3994-7469-46a8-abd1-238bb25d5976:#{setuuid}:#{date}") # decaching the value for that date
         end
     end
@@ -53,20 +49,16 @@ class Bank
         value = XCache::getOrNull("256e3994-7469-46a8-abd1-238bb25d5976:#{setuuid}:#{date}")
         return value.to_f if value
 
-        #{
-        #    "mikuType"  => "TxBankEvent",
-        #    "eventuuid" => eventuuid,
-        #    "eventTime" => Float,
-        #    "setuuid"   => setuuid,
-        #    "unixtime"  => unixtime,
-        #    "date"      => date,
-        #    "weight"    => weight
-        #}
-
-        value = TheLibrarian::getBankingObjectArrayEventsForSet(setuuid)
-                    .select{|event| event["date"] == date }
-                    .map{|event| event["weight"] }
-                    .inject(0, :+)
+        db = SQLite3::Database.new(NetworkEdges::pathToDatabase())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        value = 0
+        db.execute("select * from _bank_ where _setuuid_=? and _date_=?", [setuuid, date]) do |row|
+            value = value + row["_weight_"]
+        end
+        db.close
+        value
 
         XCache::set("256e3994-7469-46a8-abd1-238bb25d5976:#{setuuid}:#{date}", value)
 
