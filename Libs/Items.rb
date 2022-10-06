@@ -55,6 +55,14 @@ class ItemsInMemoryCache
         $ItemsInMemoryCache = items
     end
 
+    # ItemsInMemoryCache::destroyed(itemuuid)
+    def self.destroyed(itemuuid)
+        items = items.reject{|i| i["uuid"] == itemuuid }
+        items << item
+        XCache::set("384aec10-0d54-4cc2-8246-73dc3b2235ae", JSON.generate(items))
+        $ItemsInMemoryCache = items
+    end
+
 end
 
 class Items

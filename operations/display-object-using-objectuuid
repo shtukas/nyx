@@ -5,5 +5,10 @@
 require_relative "../Libs/loader.rb"
 
 objectuuid = ARGV[0]
-puts JSON.pretty_generate(Items::getItemOrNull(objectuuid))
+item = Items::getItemOrNull(objectuuid)
+if item.nil? then
+    puts "Could not find item for this uuid"
+    exit
+end
+puts JSON.pretty_generate(item)
 
