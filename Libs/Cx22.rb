@@ -142,7 +142,7 @@ class Cx22
     # Cx22::repDive(rep)
     def self.repDive(rep)
         loop {
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("rep", ["elements dive", "start NxBall", "done for the day", "un-{done for the day}", "expose", "completion ratio"])
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("rep", ["elements dive", "start NxBall", "done for the day", "un-{done for the day}", "expose", "completion ratio", "add time"])
             break if action.nil?
             if action == "elements dive" then
                 Cx22::repElementsDive(rep)
@@ -173,6 +173,13 @@ class Cx22
                 cr = Ax39::completionRatio(ax39, account)
                 puts "completion ratio: #{cr}"
                 LucilleCore::pressEnterToContinue()
+                next
+            end
+            if action == "add time" then
+                timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
+                time = timeInHours*3600
+                puts "Adding #{time} seconds to #{rep["bankaccount"]}"
+                Bank::put(rep["bankaccount"], time)
                 next
             end
         }
