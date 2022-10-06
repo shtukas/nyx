@@ -252,6 +252,21 @@ class FileSystemCheck
     # FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash, verbose)
     def self.fsckItemErrorArFirstFailure(item, runhash, verbose)
 
+        # --------------------------------------
+        # Temporary
+
+        if item["uuid"] and item["uuid"].include?("cf7d8093-ea52-417a-b814-71594118d539") then
+            NxDeleted::deleteObject(item["uuid"])
+            return
+        end
+
+        if item["mikuType"] and item["mikuType"].include?("TxTimeCommitment") then
+            NxDeleted::deleteObject(item["uuid"])
+            return
+        end
+
+        # --------------------------------------
+
         repeatKey = "#{runhash}:#{JSON.generate(item)}"
         return if XCache::getFlag(repeatKey)
 
