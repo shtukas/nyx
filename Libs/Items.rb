@@ -8,7 +8,7 @@ class ItemsInMemoryCache
     def self.itemsFromLibrarianData()
         object = TheLibrarian::getItems()
         object["mapping"].values.map{|nhash|
-            sphere = TheLibrarian::getObject(nhash)
+            sphere = DataStore3CAObjects::getObject(nhash)
             sphere["item"]
         }
         .compact
@@ -74,7 +74,7 @@ class Items
     def self.getItemOrNull(objectuuid)
         object = TheLibrarian::getItems() 
         return nil if object["mapping"][objectuuid].nil?
-        sphere = TheLibrarian::getObject(object["mapping"][objectuuid])
+        sphere = DataStore3CAObjects::getObject(object["mapping"][objectuuid])
         sphere["item"]
     end
 

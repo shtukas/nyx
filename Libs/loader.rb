@@ -165,6 +165,8 @@ require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::isVisible(uid)
 require_relative "Dx8UnitsUtils.rb"
 require_relative "DataStore1.rb"
+require_relative "DataStore2SQLiteBlobStore.rb"
+require_relative "DataStore3CAObjects.rb"
 
 require_relative "EnergyGrid.rb"
 require_relative "EndOfDayChecklist.rb"
@@ -200,7 +202,6 @@ require_relative "SectionsType0141.rb"
 require_relative "Search.rb"
 require_relative "SystemEvents.rb"
 require_relative "Stargate.rb"
-require_relative "DataStore2SQLiteBlobStore.rb"
 
 require_relative "The99Percent.rb"
 require_relative "Items.rb"

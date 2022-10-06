@@ -5,32 +5,6 @@ $TheLibrarianInMemoryObjectCache = {}
 class TheLibrarian
 
     # -----------------------------------------------------------
-    # Utils
-
-    # TheLibrarian::getObject(nhash)
-    def self.getObject(nhash)
-        if $TheLibrarianInMemoryObjectCache[nhash] then
-            return $TheLibrarianInMemoryObjectCache[nhash]
-        end
-        object = 
-            JSON.parse(
-                IO.read(
-                    DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nhash, true)
-                )
-            )
-        $TheLibrarianInMemoryObjectCache[nhash] = object
-        return object
-    end
-
-    # TheLibrarian::setObject(object, verbose) # nhash
-    def self.setObject(object, verbose)
-        if verbose then
-            puts "TheLibrarian::setObject(#{JSON.pretty_generate(object)}, #{verbose})"
-        end
-        DataStore1::putDataByContent(JSON.generate(object))
-    end
-
-    # -----------------------------------------------------------
     # Getters
 
     # TheLibrarian::getPrimaryStructure()
@@ -49,7 +23,7 @@ class TheLibrarian
     def self.getBankingObject()
         primary = TheLibrarian::getPrimaryStructure()
         if primary["banking"] then
-            TheLibrarian::getObject(primary["banking"])
+            DataStore3CAObjects::getObject(primary["banking"])
         else
             {
                 "mikuType" => "PrimaryStructure.v1:Banking",
@@ -65,14 +39,14 @@ class TheLibrarian
             return []
         end
         nhash = banking["mapping"][setuuid]
-        TheLibrarian::getObject(nhash)
+        DataStore3CAObjects::getObject(nhash)
     end
 
     # TheLibrarian::getDoNotShowUntilObject()
     def self.getDoNotShowUntilObject()
         primary = TheLibrarian::getPrimaryStructure()
         if primary["doNotShowUntil"] then
-            TheLibrarian::getObject(primary["doNotShowUntil"])
+            DataStore3CAObjects::getObject(primary["doNotShowUntil"])
         else
             {
                 "mikuType" => "PrimaryStructure.v1:DoNotShowUntil",
@@ -85,7 +59,7 @@ class TheLibrarian
     def self.getNetworkEdges()
         primary = TheLibrarian::getPrimaryStructure()
         if primary["networkEdges"] then
-            TheLibrarian::getObject(primary["networkEdges"])
+            DataStore3CAObjects::getObject(primary["networkEdges"])
         else
             {
                 "mikuType" => "PrimaryStructure.v1:NetworkEdges",
@@ -98,7 +72,7 @@ class TheLibrarian
     def self.getItems()
         primary = TheLibrarian::getPrimaryStructure()
         if primary["items"] then
-            TheLibrarian::getObject(primary["items"])
+            DataStore3CAObjects::getObject(primary["items"])
         else
             {
                 "mikuType" => "PrimaryStructure.v1:Items",
@@ -128,7 +102,7 @@ class TheLibrarian
     # TheLibrarian::setBankingObject(object)
     def self.setBankingObject(object)
         FileSystemCheck::fsckPrimaryStructureV1Banking(object, FileSystemCheck::getExistingRunHash(), false)
-        nhash = TheLibrarian::setObject(object, false)
+        nhash = DataStore3CAObjects::setObject(object)
         primary = TheLibrarian::getPrimaryStructure()
         primary["banking"] = nhash
         TheLibrarian::setPrimaryStructure(primary)
@@ -137,14 +111,14 @@ class TheLibrarian
     # TheLibrarian::setBankingEventsArrayAtSet(setuuid, events)
     def self.setBankingEventsArrayAtSet(setuuid, events)
         banking = TheLibrarian::getBankingObject()
-        banking["mapping"][setuuid] = TheLibrarian::setObject(events, false)
+        banking["mapping"][setuuid] = DataStore3CAObjects::setObject(events)
         TheLibrarian::setBankingObject(banking)
     end
 
     # TheLibrarian::setDoNotShowUntilObject(object)
     def self.setDoNotShowUntilObject(object)
         FileSystemCheck::fsckPrimaryStructureV1DoNotShowUntil(object, FileSystemCheck::getExistingRunHash(), false)
-        nhash = TheLibrarian::setObject(object, false)
+        nhash = DataStore3CAObjects::setObject(object)
         primary = TheLibrarian::getPrimaryStructure()
         primary["doNotShowUntil"] = nhash
         TheLibrarian::setPrimaryStructure(primary)
@@ -153,7 +127,7 @@ class TheLibrarian
     # TheLibrarian::setNetworkEdges(object)
     def self.setNetworkEdges(object)
         FileSystemCheck::fsckPrimaryStructureV1NetworkEdges(object, FileSystemCheck::getExistingRunHash(), false)
-        nhash = TheLibrarian::setObject(object, false)
+        nhash = DataStore3CAObjects::setObject(object)
         primary = TheLibrarian::getPrimaryStructure()
         primary["networkEdges"] = nhash
         TheLibrarian::setPrimaryStructure(primary)
@@ -162,7 +136,7 @@ class TheLibrarian
     # TheLibrarian::setItems(object)
     def self.setItems(object)
         FileSystemCheck::fsckPrimaryStructureV1Items(object, false, FileSystemCheck::getExistingRunHash(), false)
-        nhash = TheLibrarian::setObject(object, false)
+        nhash = DataStore3CAObjects::setObject(object)
         primary = TheLibrarian::getPrimaryStructure()
         primary["items"] = nhash
         TheLibrarian::setPrimaryStructure(primary)
@@ -279,7 +253,7 @@ class TheLibrarian
             mapping = items["mapping"]
             if mapping[event["objectuuid"]] then
                  # We have a NxItemSphere1
-                 nxItemSphere1 = TheLibrarian::getObject(mapping[event["objectuuid"]])
+                 nxItemSphere1 = DataStore3CAObjects::getObject(mapping[event["objectuuid"]])
                  nxItemSphere1["events"] = nxItemSphere1["events"].reject{|e| e["eventuuid"] == event["eventuuid"] }
                  nxItemSphere1["events"] << event
                  nxItemSphere1["events"] = nxItemSphere1["events"].sort{|e1, e2| e1["eventTime"] <=> e2["eventTime"] }
@@ -297,7 +271,7 @@ class TheLibrarian
                     "events"   => [event]
                  }
             end
-            nhash = TheLibrarian::setObject(nxItemSphere1, false)
+            nhash = DataStore3CAObjects::setObject(nxItemSphere1)
             mapping[event["objectuuid"]] = nhash
             items["mapping"] = mapping
             TheLibrarian::setItems(items)

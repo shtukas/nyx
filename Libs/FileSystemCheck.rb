@@ -330,7 +330,7 @@ class FileSystemCheck
 
         object["mapping"].each{|pair|
             setuuid, nhash = pair
-            array = TheLibrarian::getObject(nhash)
+            array = DataStore3CAObjects::getObject(nhash)
             FileSystemCheck::fsckSetUUID_ArrayOfTxBankEvents(setuuid, array, runhash, verbose)
         }
 
@@ -394,22 +394,22 @@ class FileSystemCheck
         if primary["banking"].nil? then
             raise "could not find attribute 'banking' for primary structure"
         end
-        FileSystemCheck::fsckPrimaryStructureV1Banking(TheLibrarian::getObject(primary["banking"]), runhash, verbose)
+        FileSystemCheck::fsckPrimaryStructureV1Banking(DataStore3CAObjects::getObject(primary["banking"]), runhash, verbose)
 
         if primary["doNotShowUntil"].nil? then
             raise "could not find attribute 'doNotShowUntil' for primary structure"
         end
-        FileSystemCheck::fsckPrimaryStructureV1DoNotShowUntil(TheLibrarian::getObject(primary["doNotShowUntil"]), runhash, verbose)
+        FileSystemCheck::fsckPrimaryStructureV1DoNotShowUntil(DataStore3CAObjects::getObject(primary["doNotShowUntil"]), runhash, verbose)
 
         if primary["networkEdges"].nil? then
             raise "could not find attribute 'networkEdges' for primary structure"
         end
-        FileSystemCheck::fsckPrimaryStructureV1NetworkEdges(TheLibrarian::getObject(primary["networkEdges"]), runhash, verbose)
+        FileSystemCheck::fsckPrimaryStructureV1NetworkEdges(DataStore3CAObjects::getObject(primary["networkEdges"]), runhash, verbose)
 
         if primary["items"].nil? then
             raise "could not find attribute 'items' for primary structure"
         end
-        FileSystemCheck::fsckPrimaryStructureV1Items(TheLibrarian::getObject(primary["items"]), isdeep, runhash, verbose)
+        FileSystemCheck::fsckPrimaryStructureV1Items(DataStore3CAObjects::getObject(primary["items"]), isdeep, runhash, verbose)
 
         XCache::setFlag(repeatKey, true)
     end
@@ -506,7 +506,7 @@ class FileSystemCheck
         if isdeep then
             object["mapping"].each{|pair|
                 objectuuid, nhash = pair
-                nxItemSphere1 = TheLibrarian::getObject(nhash)
+                nxItemSphere1 = DataStore3CAObjects::getObject(nhash)
                 FileSystemCheck::fsckNxItemSphere1(nxItemSphere1, runhash, verbose)
             }
         end
