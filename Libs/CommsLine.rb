@@ -23,9 +23,7 @@ class CommsLine
                     .each{|filepath1|
                         filepath2 = "#{activefolder}/#{File.basename(filepath1)}"
                         if verbose then
-                            puts "Moving:"
-                            puts "    - #{filepath1}"
-                            puts "    - #{filepath2}"
+                            puts "Moving #{File.basename(filepath1)} to #{instanceId}"
                         end
                         FileUtils.mv(filepath1, filepath2)
                     }
