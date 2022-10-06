@@ -19,19 +19,6 @@ class TheLibrarian
         end
     end
 
-    # TheLibrarian::getDoNotShowUntilObject()
-    def self.getDoNotShowUntilObject()
-        primary = TheLibrarian::getPrimaryStructure()
-        if primary["doNotShowUntil"] then
-            DataStore3CAObjects::getObject(primary["doNotShowUntil"])
-        else
-            {
-                "mikuType" => "PrimaryStructure.v1:DoNotShowUntil",
-                "mapping"  => {}
-            }
-        end
-    end
-
     # TheLibrarian::getItems()
     def self.getItems()
         primary = TheLibrarian::getPrimaryStructure()
@@ -70,15 +57,6 @@ class TheLibrarian
         TheLibrarian::setBankingObject(banking)
     end
 
-    # TheLibrarian::setDoNotShowUntilObject(object)
-    def self.setDoNotShowUntilObject(object)
-        FileSystemCheck::fsckPrimaryStructureV1DoNotShowUntil(object, FileSystemCheck::getExistingRunHash(), false)
-        nhash = DataStore3CAObjects::setObject(object)
-        primary = TheLibrarian::getPrimaryStructure()
-        primary["doNotShowUntil"] = nhash
-        TheLibrarian::setPrimaryStructure(primary)
-    end
-
     # TheLibrarian::setItems(object)
     def self.setItems(object)
         FileSystemCheck::fsckPrimaryStructureV1Items(object, false, FileSystemCheck::getExistingRunHash(), false)
@@ -93,20 +71,6 @@ class TheLibrarian
 
     # TheLibrarian::processEvent(event)
     def self.processEvent(event)
-
-        if event["mikuType"] == "NxDoNotShowUntil" then
-            #{
-            #    "mikuType"       => "NxDoNotShowUntil",
-            #    "targetuuid"     => uuid,
-            #    "targetunixtime" => unixtime
-            #}
-            FileSystemCheck::fsckNxDoNotShowUntil(event, SecureRandom.hex, false)
-            dnsu = TheLibrarian::getDoNotShowUntilObject()
-            targetuuid = event["targetuuid"]
-            targetunixtime = event["targetunixtime"]
-            dnsu["mapping"][targetuuid] = targetunixtime
-            TheLibrarian::setDoNotShowUntilObject(dnsu)
-        end
 
         if event["mikuType"] == "AttributeUpdate.v2" then
             #{

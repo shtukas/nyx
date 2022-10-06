@@ -3,22 +3,7 @@
 
 {
     "mikuType"      : "PrimaryStructure.v1"
-    "doNotShowUntil": nhash to a JSON encoded "PrimaryStructure.v1:DoNotShowUntil"
     "items"         : nhash to a JSON encoded "PrimaryStructure.v1:Items"
-}
-
-### PrimaryStructure.v1:DoNotShowUntil
-
-{
-    "mikuType" : "PrimaryStructure.v1:DoNotShowUntil"
-    "mapping"  : Map[targetuuid, targetunixtime]
-}
-
-[Event] NxDoNotShowUntil
-{
-    "mikuType"       : "NxDoNotShowUntil"
-    "targetuuid"     : uuid
-    "targetunixtime" : unixtime
 }
 
 ### PrimaryStructure.v1:NetworkEdges

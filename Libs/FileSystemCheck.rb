@@ -341,26 +341,6 @@ class FileSystemCheck
         raise "Unsupported Miku Type: #{item}"
     end
 
-    # FileSystemCheck::fsckPrimaryStructureV1DoNotShowUntil(object, runhash, verbose)
-    def self.fsckPrimaryStructureV1DoNotShowUntil(object, runhash, verbose)
-        repeatKey = "29cb8512-1d87-40a8-97cc-a1923e6a898b:#{runhash}:#{JSON.generate(object)}"
-        return if XCache::getFlag(repeatKey)
-
-        if verbose then
-            puts "FileSystemCheck::fsckPrimaryStructureV1DoNotShowUntil(#{JSON.pretty_generate(object)}, #{runhash}, #{verbose})"
-        end
-
-        if object["mikuType"] != "PrimaryStructure.v1:DoNotShowUntil" then
-            raise "Incorrect Miku type for this function"
-        end
-
-        if object["mapping"].nil? then
-            puts "We are missing attribute mapping"
-        end
-
-        XCache::setFlag(repeatKey, true)
-    end
-
     # FileSystemCheck::fsckPrimaryStructureV1(primary, isdeep, runhash, verbose)
     def self.fsckPrimaryStructureV1(primary, isdeep, runhash, verbose)
 
@@ -374,11 +354,6 @@ class FileSystemCheck
         if primary["mikuType"] != "PrimaryStructure.v1" then
             raise "Incorrect Miku type for a primary structure"
         end
-
-        if primary["doNotShowUntil"].nil? then
-            raise "could not find attribute 'doNotShowUntil' for primary structure"
-        end
-        FileSystemCheck::fsckPrimaryStructureV1DoNotShowUntil(DataStore3CAObjects::getObject(primary["doNotShowUntil"]), runhash, verbose)
 
         if primary["items"].nil? then
             raise "could not find attribute 'items' for primary structure"
