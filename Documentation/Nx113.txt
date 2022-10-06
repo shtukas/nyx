@@ -1,7 +1,7 @@
 
-Nx113 was defined to capitalise on the introduction of DataStore1 (a content addressed blob datastore) and SQLiteDataStore2 (using a SQLite file for datablob storage). 
+Nx113 was defined to capitalise on the introduction of DataStore1 (a content addressed blob datastore) and DataStore2SQLite1 (using a SQLite file for datablob storage). 
 
-Note that the reason for using SQLiteDataStore2 and not just using DataStore1, is that we want to ultimately limit the number of files generated (to facilitate backups and CommsLine propagation).
+Note that the reason for using DataStore2SQLite1 and not just using DataStore1, is that we want to ultimately limit the number of files generated (to facilitate backups and CommsLine propagation).
 
 Nx113 are immutable, and sent JSON-encoded to DataStore1, and a reference to them stored into the primary Catalyst or Nyx object.
 

@@ -1,7 +1,7 @@
 
-class SQLiteDataStore2
+class DataStore2SQLite1
 
-    # SQLiteDataStore2::createDatabase(filepath)
+    # DataStore2SQLite1::createDatabase(filepath)
     def self.createDatabase(filepath)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -11,7 +11,7 @@ class SQLiteDataStore2
         db.close
     end
 
-    # SQLiteDataStore2::putBlob(filepath, datablob)
+    # DataStore2SQLite1::putBlob(filepath, datablob)
     def self.putBlob(filepath, datablob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(datablob)}"
         db = SQLite3::Database.new(filepath)
@@ -23,7 +23,7 @@ class SQLiteDataStore2
         db.close
     end
 
-    # SQLiteDataStore2::getBlobOrNull(filepath, nhash)
+    # DataStore2SQLite1::getBlobOrNull(filepath, nhash)
     def self.getBlobOrNull(filepath, nhash)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -38,16 +38,16 @@ class SQLiteDataStore2
     end
 end
 
-class SQLiteDataStore2ElizabethTheForge
+class DataStore2SQLite1ElizabethTheForge
 
     def initialize()
         @filepath = "/tmp/#{SecureRandom.hex}"
-        SQLiteDataStore2::createDatabase(@filepath)
+        DataStore2SQLite1::createDatabase(@filepath)
     end
 
     def putBlob(datablob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(datablob)}"
-        SQLiteDataStore2::putBlob(@filepath, datablob)
+        DataStore2SQLite1::putBlob(@filepath, datablob)
         nhash
     end
 
@@ -72,7 +72,7 @@ class SQLiteDataStore2ElizabethTheForge
     end
 end
 
-class SQLiteDataStore2ElizabethReadOnly
+class DataStore2SQLite1ElizabethReadOnly
 
     def initialize(filepath)
         @filepath = filepath
@@ -87,7 +87,7 @@ class SQLiteDataStore2ElizabethReadOnly
     end
 
     def getBlobOrNull(nhash)
-        SQLiteDataStore2::getBlobOrNull(@filepath, nhash)
+        DataStore2SQLite1::getBlobOrNull(@filepath, nhash)
     end
 
     def readBlobErrorIfNotFound(nhash)
