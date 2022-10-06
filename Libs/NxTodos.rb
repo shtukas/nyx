@@ -159,7 +159,9 @@ class NxTodos
 
     # NxTodos::listingPriorityOrNull(item)
     def self.listingPriorityOrNull(item) # Float between 0 and 1
-        Nx11E::priorityOrNull(item["nx11e"], item["cx22"])
+        # We are only taking account of the position within a group and not the group itself
+        # because we are displaying only one group at a time.
+        Nx11E::priorityOrNull(item["nx11e"], item["cx23"])
     end
 
     # NxTodos::itemsInDisplayOrder(cx22Opt)
