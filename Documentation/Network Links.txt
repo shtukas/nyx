@@ -1,9 +1,0 @@
-
-network-links.sqlite3
-
-```
-create table _links_ (_eventuuid_ text primary key, _eventTime_ float, _sourceuuid_ text, _operation_ text, _targetuuid_ text);
-```
-
-_operation_ is either "link" or "unlink"
-

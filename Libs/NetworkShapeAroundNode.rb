@@ -56,7 +56,7 @@ class NetworkShapeAroundNode
     # NetworkShapeAroundNode::selectLinkedsAndRecastAsChildren(item)
     def self.selectLinkedsAndRecastAsChildren(item)
         uuid = item["uuid"]
-        entities = NetworkEdgesOps::interactivelySelectRelatedEntities(uuid)
+        entities = NetworkShapeAroundNode::interactivelySelectRelatedEntities(uuid)
         return if entities.empty?
         entities.each{|child|
             NetworkEdges::arrow(item["uuid"], child["uuid"])
@@ -69,7 +69,7 @@ class NetworkShapeAroundNode
     # NetworkShapeAroundNode::selectLinkedAndRecastAsParents(item)
     def self.selectLinkedAndRecastAsParents(item)
         uuid = item["uuid"]
-        entities = NetworkEdgesOps::interactivelySelectRelatedEntities(uuid)
+        entities = NetworkShapeAroundNode::interactivelySelectRelatedEntities(uuid)
         return if entities.empty?
         entities.each{|parent|
             NetworkEdges::arrow(parent["uuid"], item["uuid"])
@@ -118,5 +118,43 @@ class NetworkShapeAroundNode
             NetworkEdges::arrow(theChild["uuid"], childX["uuid"])
             NetworkEdges::detach(item["uuid"], childX["uuid"])
         }
+    end
+
+
+    # NetworkShapeAroundNode::selectOneRelatedAndDetach(item)
+    def self.selectOneRelatedAndDetach(item)
+        store = ItemStore.new()
+
+        NetworkEdges::relatedUUIDs(item["uuid"]) # .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+            .each{|entityuuid|
+                entity = Items::getItemOrNull(entityuuid)
+                next if entity.nil?
+                indx = store.register(entity, false)
+                puts "[#{indx.to_s.ljust(3)}] #{PolyFunctions::toString(entity)}"
+            }
+
+        i = LucilleCore::askQuestionAnswerAsString("> remove index (empty to exit): ")
+
+        return if i == ""
+
+        if (indx = Interpreting::readAsIntegerOrNull(i)) then
+            entity = store.get(indx)
+            return if entity.nil?
+            NetworkEdges::detach(item["uuid"], entity["uuid"])
+        end
+    end
+
+    # NetworkShapeAroundNode::architectureAndRelate(item)
+    def self.architectureAndRelate(item)
+        item2 = Nyx::architectOneOrNull()
+        return if item2.nil?
+        NetworkEdges::relate(item["uuid"], item2["uuid"])
+    end
+
+    # NetworkShapeAroundNode::interactivelySelectRelatedEntities(uuid)
+    def self.interactivelySelectRelatedEntities(uuid)
+        entities = NetworkEdges::relateds(uuid).sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+        selected, unselected = LucilleCore::selectZeroOrMore("entity", [], entities, lambda{ |item| PolyFunctions::toString(item) })
+        selected
     end
 end

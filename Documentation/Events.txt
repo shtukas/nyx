@@ -27,15 +27,6 @@ We have two types of events
 }
 
 {
-    "mikuType"   => "NetworkLinks",
-    "eventuuid"  => String
-    "eventTime"  => Float
-    "sourceuuid" => sourceuuid,
-    "operation"  => operation,
-    "targetuuid" => targetuuid
-}
-
-{
     "mikuType" : "XCacheUpdate"
     "key"      : String
     "value"    : String
@@ -48,12 +39,10 @@ We have two types of events
 }
 
 {
-    "mikuType"   => "NetworkArrows",
-    "eventuuid"  => eventuuid,
-    "eventTime"  => eventTime,
-    "sourceuuid" => sourceuuid,
-    "operation"  => operation,
-    "targetuuid" => targetuuid
+    "mikuType" => "NxGraphEdge1",
+    "uuid1"    => uuid1,
+    "uuid2"    => uuid2,
+    "type"     => "arrow" # "bidirectional" | "arrow" | "none"
 }
 
 {

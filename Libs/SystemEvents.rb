@@ -84,6 +84,9 @@ class SystemEvents
             DataStore5Sets::remove(setuuid, itemuuid)
         end
 
+        if event["mikuType"] == "NxGraphEdge1" then
+            NetworkEdges::processEvent(event)
+        end
     end
 
     # SystemEvents::broadcast(event)

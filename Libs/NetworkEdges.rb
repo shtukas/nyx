@@ -1,57 +1,58 @@
 
 # encoding: UTF-8
 
-=begin
-
-{
-    "mikuType" : "PrimaryStructure.v1:NetworkEdges"
-    "edges"    : Array[NxGraphEdge1]
-}
-
-NxGraphEdge1 {
-    "mikuType" : "NxGraphEdge1"
-    "unixtime" : Float
-    "uuid1"    : String
-    "uuid2"    : String
-    "type"     : "bidirectional" | "arrow" | "none"
-}
-
-=end
-
 class NetworkEdges
+
+    # NetworkEdges::pathToDatabase()
+    def self.pathToDatabase()
+        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/network-edges.sqlite3"
+    end
 
     # Getters
 
     # NetworkEdges::parentUUIDs(uuid)
     def self.parentUUIDs(uuid)
-        networkEdges = TheLibrarian::getNetworkEdges()
-        networkEdges["edges"]
-            .select{|item| item["type"] == "arrow" }
-            .select{|item| item["uuid2"] == uuid }
-            .map{|item| item["uuid1"] }
+        db = SQLite3::Database.new(NetworkEdges::pathToDatabase())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        uuids = []
+        db.execute("select * from _edges_ where _uuid2_=? and _type_=?", [uuid, "arrow"]) do |row|
+            uuids << row["_uuid1_"]
+        end
+        db.close
+        uuids
     end
 
     # NetworkEdges::relatedUUIDs(uuid)
     def self.relatedUUIDs(uuid)
-        networkEdges = TheLibrarian::getNetworkEdges()
-        uuids1 = networkEdges["edges"]
-            .select{|item| item["type"] == "bidirectional" }
-            .select{|item| item["uuid1"] == uuid }
-            .map{|item| item["uuid2"] }
-        uuids2 = networkEdges["edges"]
-            .select{|item| item["type"] == "bidirectional" }
-            .select{|item| item["uuid2"] == uuid }
-            .map{|item| item["uuid1"] }
-        (uuids1 + uuids2).uniq
+        db = SQLite3::Database.new(NetworkEdges::pathToDatabase())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        uuids = []
+        db.execute("select * from _edges_ where _uuid2_=? and _type_=?", [uuid, "bidirectional"]) do |row|
+            uuids << row["_uuid1_"]
+        end
+        db.execute("select * from _edges_ where _uuid1_=? and _type_=?", [uuid, "bidirectional"]) do |row|
+            uuids << row["_uuid2_"]
+        end
+        db.close
+        uuids
     end
 
     # NetworkEdges::childrenUUIDs(uuid)
     def self.childrenUUIDs(uuid)
-        networkEdges = TheLibrarian::getNetworkEdges()
-        networkEdges["edges"]
-            .select{|item| item["type"] == "arrow" }
-            .select{|item| item["uuid1"] == uuid }
-            .map{|item| item["uuid2"] }
+        db = SQLite3::Database.new(NetworkEdges::pathToDatabase())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        uuids = []
+        db.execute("select * from _edges_ where _uuid1_=? and _type_=?", [uuid, "arrow"]) do |row|
+            uuids << row["_uuid2_"]
+        end
+        db.close
+        uuids
     end
 
     # NetworkEdges::parents(uuid)
@@ -79,80 +80,99 @@ class NetworkEdges
 
     # NetworkEdges::relate(uuid1, uuid2)
     def self.relate(uuid1, uuid2)
-        event = {
+        db = SQLite3::Database.new(NetworkEdges::pathToDatabase())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "delete from _edges_ where _uuid1_=? and _uuid2_=?", [uuid1, uuid2]
+        db.execute "delete from _edges_ where _uuid1_=? and _uuid2_=?", [uuid2, uuid1]
+        db.execute "insert into _edges_ (_uuid1_, _uuid2_, _type_) values (?, ?, ?)", [uuid1, uuid2, "bidirectional"]
+        db.close
+        SystemEvents::broadcast({
             "mikuType" => "NxGraphEdge1",
-            "unixtime" => Time.new.to_f,
             "uuid1"    => uuid1,
             "uuid2"    => uuid2,
             "type"     => "bidirectional" # "bidirectional" | "arrow" | "none"
-        }
-        TheLibrarian::processEvent(event)
-        SystemEvents::broadcast(event)
+        })
     end
 
     # NetworkEdges::arrow(uuid1, uuid2)
     def self.arrow(uuid1, uuid2)
-        event = {
+        db = SQLite3::Database.new(NetworkEdges::pathToDatabase())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "delete from _edges_ where _uuid1_=? and _uuid2_=?", [uuid1, uuid2]
+        db.execute "delete from _edges_ where _uuid1_=? and _uuid2_=?", [uuid2, uuid1]
+        db.execute "insert into _edges_ (_uuid1_, _uuid2_, _type_) values (?, ?, ?)", [uuid1, uuid2, "arrow"]
+        db.close
+        SystemEvents::broadcast({
             "mikuType" => "NxGraphEdge1",
-            "unixtime" => Time.new.to_f,
             "uuid1"    => uuid1,
             "uuid2"    => uuid2,
             "type"     => "arrow" # "bidirectional" | "arrow" | "none"
-        }
-        TheLibrarian::processEvent(event)
-        SystemEvents::broadcast(event)
+        })
     end
 
     # NetworkEdges::detach(uuid1, uuid2)
     def self.detach(uuid1, uuid2)
-        event = {
+        db = SQLite3::Database.new(NetworkEdges::pathToDatabase())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "delete from _edges_ where _uuid1_=? and _uuid2_=?", [uuid1, uuid2]
+        db.execute "delete from _edges_ where _uuid1_=? and _uuid2_=?", [uuid2, uuid1]
+        db.close
+        SystemEvents::broadcast({
             "mikuType" => "NxGraphEdge1",
-            "unixtime" => Time.new.to_f,
             "uuid1"    => uuid1,
             "uuid2"    => uuid2,
             "type"     => "none" # "bidirectional" | "arrow" | "none"
-        }
-        TheLibrarian::processEvent(event)
-        SystemEvents::broadcast(event)
+        })
     end
-end
 
-class NetworkEdgesOps
+    # NetworkEdges::processEvent(event)
+    def self.processEvent(event)
+        if event["mikuType"] == "NxGraphEdge1" then
 
-    # NetworkEdgesOps::selectOneRelatedAndDetach(item)
-    def self.selectOneRelatedAndDetach(item)
-        store = ItemStore.new()
+            FileSystemCheck::fsckNxGraphEdge1(event, SecureRandom.hex, false)
 
-        NetworkEdges::relatedUUIDs(item["uuid"]) # .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-            .each{|entityuuid|
-                entity = Items::getItemOrNull(entityuuid)
-                next if entity.nil?
-                indx = store.register(entity, false)
-                puts "[#{indx.to_s.ljust(3)}] #{PolyFunctions::toString(entity)}"
-            }
+            uuid1 = event["uuid1"]
+            uuid2 = event["uuid2"]
+            type  = event["type"]
 
-        i = LucilleCore::askQuestionAnswerAsString("> remove index (empty to exit): ")
+            if type == "arrow" then
+                db = SQLite3::Database.new(NetworkEdges::pathToDatabase())
+                db.busy_timeout = 117
+                db.busy_handler { |count| true }
+                db.results_as_hash = true
+                db.execute "delete from _edges_ where _uuid1_=? and _uuid2_=?", [uuid1, uuid2]
+                db.execute "delete from _edges_ where _uuid1_=? and _uuid2_=?", [uuid2, uuid1]
+                db.execute "insert into _edges_ (_uuid1_, _uuid2_, _type_) values (?, ?, ?)", [uuid1, uuid2, "arrow"]
+                db.close
+            end
 
-        return if i == ""
+            if type == "bidirectional" then
+                db = SQLite3::Database.new(NetworkEdges::pathToDatabase())
+                db.busy_timeout = 117
+                db.busy_handler { |count| true }
+                db.results_as_hash = true
+                db.execute "delete from _edges_ where _uuid1_=? and _uuid2_=?", [uuid1, uuid2]
+                db.execute "delete from _edges_ where _uuid1_=? and _uuid2_=?", [uuid2, uuid1]
+                db.execute "insert into _edges_ (_uuid1_, _uuid2_, _type_) values (?, ?, ?)", [uuid1, uuid2, "bidirectional"]
+                db.close
+            end
 
-        if (indx = Interpreting::readAsIntegerOrNull(i)) then
-            entity = store.get(indx)
-            return if entity.nil?
-            NetworkEdges::detach(item["uuid"], entity["uuid"])
+            if type == "none" then
+                db = SQLite3::Database.new(NetworkEdges::pathToDatabase())
+                db.busy_timeout = 117
+                db.busy_handler { |count| true }
+                db.results_as_hash = true
+                db.execute "delete from _edges_ where _uuid1_=? and _uuid2_=?", [uuid1, uuid2]
+                db.execute "delete from _edges_ where _uuid1_=? and _uuid2_=?", [uuid2, uuid1]
+                db.close
+            end
+
         end
-    end
-
-    # NetworkEdgesOps::architectureAndRelate(item)
-    def self.architectureAndRelate(item)
-        item2 = Nyx::architectOneOrNull()
-        return if item2.nil?
-        NetworkEdges::relate(item["uuid"], item2["uuid"])
-    end
-
-    # NetworkEdgesOps::interactivelySelectRelatedEntities(uuid)
-    def self.interactivelySelectRelatedEntities(uuid)
-        entities = NetworkEdges::relateds(uuid).sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-        selected, unselected = LucilleCore::selectZeroOrMore("entity", [], entities, lambda{ |item| PolyFunctions::toString(item) })
-        selected
     end
 end

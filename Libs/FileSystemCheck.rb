@@ -230,9 +230,6 @@ class FileSystemCheck
         if event["mikuType"] != "NxGraphEdge1" then
             raise "Incorrect Miku type for function"
         end
-        if event["unixtime"].nil? then
-            raise "Missing attribute unixtime"
-        end
         if event["uuid1"].nil? then
             raise "Missing attribute uuid1"
         end
@@ -393,26 +390,6 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsckPrimaryStructureV1NetworkEdges(object, runhash, verbose)
-    def self.fsckPrimaryStructureV1NetworkEdges(object, runhash, verbose)
-        repeatKey = "06235b8b-016b-4e1b-a811-0eb5164b025d:#{runhash}:#{JSON.generate(object)}"
-        return if XCache::getFlag(repeatKey)
-
-        if verbose then
-            puts "FileSystemCheck::fsckPrimaryStructureV1NetworkEdges(#{JSON.pretty_generate(object)}, #{runhash}, #{verbose})"
-        end
-
-        if object["mikuType"] != "PrimaryStructure.v1:NetworkEdges" then
-            raise "Incorrect Miku type for this function"
-        end
-
-        object["edges"].each{|item|
-            FileSystemCheck::fsckNxGraphEdge1(item, runhash, verbose)
-        }
-
-        XCache::setFlag(repeatKey, true)
-    end
-
     # FileSystemCheck::fsckPrimaryStructureV1(primary, isdeep, runhash, verbose)
     def self.fsckPrimaryStructureV1(primary, isdeep, runhash, verbose)
 
@@ -436,11 +413,6 @@ class FileSystemCheck
             raise "could not find attribute 'doNotShowUntil' for primary structure"
         end
         FileSystemCheck::fsckPrimaryStructureV1DoNotShowUntil(DataStore3CAObjects::getObject(primary["doNotShowUntil"]), runhash, verbose)
-
-        if primary["networkEdges"].nil? then
-            raise "could not find attribute 'networkEdges' for primary structure"
-        end
-        FileSystemCheck::fsckPrimaryStructureV1NetworkEdges(DataStore3CAObjects::getObject(primary["networkEdges"]), runhash, verbose)
 
         if primary["items"].nil? then
             raise "could not find attribute 'items' for primary structure"

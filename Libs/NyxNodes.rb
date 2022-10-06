@@ -292,7 +292,7 @@ class NyxNodes
             end
 
             if input == "link" then
-                NetworkEdgesOps::architectureAndRelate(item)
+                NetworkShapeAroundNode::architectureAndRelate(item)
                 next
             end
 
@@ -312,7 +312,7 @@ class NyxNodes
             end
 
             if input == "unlink" then
-                NetworkEdgesOps::selectOneRelatedAndDetach(item)
+                NetworkShapeAroundNode::selectOneRelatedAndDetach(item)
                 next
             end
 

@@ -55,19 +55,6 @@ class TheLibrarian
         end
     end
 
-    # TheLibrarian::getNetworkEdges()
-    def self.getNetworkEdges()
-        primary = TheLibrarian::getPrimaryStructure()
-        if primary["networkEdges"] then
-            DataStore3CAObjects::getObject(primary["networkEdges"])
-        else
-            {
-                "mikuType" => "PrimaryStructure.v1:NetworkEdges",
-                "edges"    => []
-            }
-        end
-    end
-
     # TheLibrarian::getItems()
     def self.getItems()
         primary = TheLibrarian::getPrimaryStructure()
@@ -124,15 +111,6 @@ class TheLibrarian
         TheLibrarian::setPrimaryStructure(primary)
     end
 
-    # TheLibrarian::setNetworkEdges(object)
-    def self.setNetworkEdges(object)
-        FileSystemCheck::fsckPrimaryStructureV1NetworkEdges(object, FileSystemCheck::getExistingRunHash(), false)
-        nhash = DataStore3CAObjects::setObject(object)
-        primary = TheLibrarian::getPrimaryStructure()
-        primary["networkEdges"] = nhash
-        TheLibrarian::setPrimaryStructure(primary)
-    end
-
     # TheLibrarian::setItems(object)
     def self.setItems(object)
         FileSystemCheck::fsckPrimaryStructureV1Items(object, false, FileSystemCheck::getExistingRunHash(), false)
@@ -182,49 +160,6 @@ class TheLibrarian
             targetunixtime = event["targetunixtime"]
             dnsu["mapping"][targetuuid] = targetunixtime
             TheLibrarian::setDoNotShowUntilObject(dnsu)
-        end
-
-        if event["mikuType"] == "NxGraphEdge1" then
-            #NxGraphEdge1 {
-            #    "mikuType" : "NxGraphEdge1"
-            #    "unixtime" : Float
-            #    "uuid1"    : String
-            #    "uuid2"    : String
-            #    "type"     : "bidirectional" | "arrow" | "none"
-            #}
-            FileSystemCheck::fsckNxGraphEdge1(event, SecureRandom.hex, false)
-            networkEdges = TheLibrarian::getNetworkEdges()
-            # The operation there is to remove any item that link those two nodes and to add this one
-            edges = networkEdges["edges"]
-
-            areEquivalents = lambda {|itemA, itemB|
-                return true if (itemA["uuid1"] == itemB["uuid1"] and itemA["uuid2"] == itemB["uuid2"])
-                return true if (itemA["uuid1"] == itemB["uuid2"] and itemA["uuid2"] == itemB["uuid1"])
-                false
-            }
-
-            itemIsOlderThanEvent = lambda {|item, event|
-                # meaning that the item unixtime is lower than the event unixtime
-                item["unixtime"] < event["unixtime"]
-            }
-
-            itemIsNewerThanEvent = lambda {|item, event|
-                # meaning that the item unixtime is greater or equal than the event unixtime
-                item["unixtime"] >= event["unixtime"]
-            }
-
-            # We stop processing the event if there is an equivalent item that is newer than the event
-            return if edges.any?{|item| areEquivalents.call(item, event) and itemIsNewerThanEvent.call(item, event) }
-
-            # Starting by dropping items equivalent to the event
-            edges = edges.reject{|item| areEquivalents.call(item, event) }
-
-            # And now we add the event to the list
-            edges << event
-
-            networkEdges["edges"] = edges
-
-            TheLibrarian::setNetworkEdges(networkEdges)
         end
 
         if event["mikuType"] == "AttributeUpdate.v2" then
