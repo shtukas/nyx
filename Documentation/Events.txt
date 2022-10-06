@@ -67,3 +67,9 @@ We have two types of events
 }
 
 "TxManualCountDown" => "TxManualCountDown"
+
+{
+    "mikuType"  => "datastore4-kv-object-set",
+    "key"       => String,
+    "object"    => Object,
+}

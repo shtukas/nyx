@@ -66,6 +66,11 @@ class SystemEvents
             TxManualCountDowns::pushItemUpdate(event)
         end
 
+        if event["mikuType"] == "datastore4-kv-object-set" then
+            key    = event["key"]
+            object = event["object"]
+            DataStore4KVObjects::setObject(key, object)
+        end
     end
 
     # SystemEvents::broadcast(event)

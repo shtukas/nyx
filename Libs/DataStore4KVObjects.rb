@@ -31,6 +31,11 @@ class DataStore4KVObjects
         db.execute "delete from _objects_ where _key_=?", [key]
         db.execute "insert into _objects_ (_key_, _object_, _unixtime_) values (?, ?, ?)", [key, JSON.generate(object), Time.new.to_f]
         db.close
+        SystemEvents::broadcast({
+            "mikuType"  => "datastore4-kv-object-set",
+            "key"       => key,
+            "object"    => object,
+        })
         nil
     end
 end
