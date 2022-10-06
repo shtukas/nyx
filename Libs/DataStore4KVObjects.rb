@@ -1,7 +1,7 @@
 class DataStore4KVObjects
 
     # datastore4-kv-objects.sqlite3
-    # create table _objects_ (_key_ text, _object_ text, _unixtime_ float)
+    # create table _objects_ (_key_ text, _object_ text)
 
     # DataStore4KVObjects::pathToDatabase()
     def self.pathToDatabase()
@@ -29,7 +29,7 @@ class DataStore4KVObjects
         db.busy_handler { |count| true }
         db.results_as_hash = true
         db.execute "delete from _objects_ where _key_=?", [key]
-        db.execute "insert into _objects_ (_key_, _object_, _unixtime_) values (?, ?, ?)", [key, JSON.generate(object), Time.new.to_f]
+        db.execute "insert into _objects_ (_key_, _object_) values (?, ?)", [key, JSON.generate(object)]
         db.close
         SystemEvents::broadcast({
             "mikuType"  => "datastore4-kv-object-set",

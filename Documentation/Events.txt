@@ -73,3 +73,15 @@ We have two types of events
     "key"       => String,
     "object"    => Object,
 }
+
+{
+    "mikuType" => "datastore5-add",
+    "setuuid"  => setuuid,
+    "itemuuid" => itemuuid,
+}
+
+{
+    "mikuType" => "datastore5-remove",
+    "setuuid"  => setuuid,
+    "itemuuid" => itemuuid,
+}

@@ -52,6 +52,7 @@ checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-DataStaging/CommsLin
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/config.json")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/primary-structure")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/datastore4-kv-objects.sqlite3")
+checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/datastore5-sets.sqlite3")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-DataStaging/DataStore1-EnergyGrid-OutGoingBuffer")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")
@@ -169,6 +170,7 @@ require_relative "DataStore1.rb"
 require_relative "DataStore2SQLiteBlobStore.rb"
 require_relative "DataStore3CAObjects.rb"
 require_relative "DataStore4KVObjects.rb"
+require_relative "DataStore5Sets.rb"
 
 require_relative "EnergyGrid.rb"
 require_relative "EndOfDayChecklist.rb"

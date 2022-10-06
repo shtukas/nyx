@@ -71,6 +71,19 @@ class SystemEvents
             object = event["object"]
             DataStore4KVObjects::setObject(key, object)
         end
+
+        if event["mikuType"] == "datastore5-add" then
+            setuuid  = event["setuuid"]
+            itemuuid = event["itemuuid"]
+            DataStore5Sets::add(setuuid, itemuuid)
+        end
+
+        if event["mikuType"] == "datastore5-remove" then
+            setuuid  = event["setuuid"]
+            itemuuid = event["itemuuid"]
+            DataStore5Sets::remove(setuuid, itemuuid)
+        end
+
     end
 
     # SystemEvents::broadcast(event)
