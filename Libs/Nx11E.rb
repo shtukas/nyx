@@ -122,15 +122,19 @@ class Nx11E
         raise "(error: b8adb3e1-eaee-4d06-afb4-bc0f3db0142b) nx11e: #{nx11e}"
     end
 
-    # Nx11E::priorityOrNull(nx11e, cx22Opt)
+    # Nx11E::priorityOrNull(nx11e, cx23Opt)
     # We return a null value when the nx11e should not be displayed
-    def self.priorityOrNull(nx11e, cx22Opt)
+    def self.priorityOrNull(nx11e, cx23Opt)
         shiftOnDateTime = lambda {|datetime|
             0.01*(Time.new.to_f - DateTime.parse(datetime).to_time.to_f)/86400
         }
 
         shiftOnUnixtime = lambda {|unixtime|
             0.01*Math.log(Time.new.to_f - unixtime)
+        }
+
+        shiftOnPosition = lambda {|position|
+            0.01*Math.atan(-position)
         }
 
         if nx11e["mikuType"] != "Nx11E" then
@@ -155,13 +159,10 @@ class Nx11E
 
             unixtime = nx11e["unixtime"]
 
-            if cx22Opt then
-                cx22 = cx22Opt
-                ax39     = cx22["ax39"]
-                account  = cx22["bankaccount"]
-                cr = Ax39::completionRatio(ax39, account)
-                return nil if cr >= 1
-                return 0.50 + (1 - cr).to_f/10 + shiftOnUnixtime.call(unixtime)
+            if cx23Opt then
+                cx23 = cx23Opt
+                position = cx23["position"]
+                return 0.60 + shiftOnPosition.call(position)
             end
 
             return 0.40 + shiftOnUnixtime.call(unixtime)

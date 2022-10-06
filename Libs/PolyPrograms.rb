@@ -3,11 +3,6 @@ class PolyPrograms
 
     # PolyPrograms::itemLanding(item)
     def self.itemLanding(item)
-        if item["mikuType"] == "fitness1" then
-            system("#{Config::userHomeDirectory()}/Galaxy/DataHub/Binaries/fitness doing #{item["fitness-domain"]}")
-            return
-        end
-
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::landing(item)
             return

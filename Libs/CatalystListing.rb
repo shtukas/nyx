@@ -505,10 +505,6 @@ class CatalystListing
                     "lambda" => lambda { CommonUtils::generalCodeTrace() }
                 },
                 {
-                    "name" => "fitness lookup",
-                    "lambda" => lambda { JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/DataHub/Binaries/fitness ns16s`) }
-                },
-                {
                     "name" => "Anniversaries::listingItems()",
                     "lambda" => lambda { Anniversaries::listingItems() }
                 },
@@ -562,7 +558,6 @@ class CatalystListing
     # CatalystListing::listingItems()
     def self.listingItems()
         [
-            JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/DataHub/Binaries/fitness ns16s`),
             Anniversaries::listingItems(),
             Waves::items(),
             EndOfDayChecklist::listingItems(),

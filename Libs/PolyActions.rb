@@ -10,12 +10,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "fitness1" then
-            puts PolyFunctions::toString(item).green
-            system("#{Config::userHomeDirectory()}/Galaxy/DataHub/Binaries/fitness doing #{item["fitness-domain"]}")
-            return
-        end
-
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::access(item)
             return
@@ -63,11 +57,6 @@ class PolyActions
         puts "PolyActions::doubleDot(#{JSON.pretty_generate(item)})"
 
         if item["mikuType"] == "EndOfDayChecklist" then
-            return
-        end
-
-        if item["mikuType"] == "fitness1" then
-            PolyActions::access(item)
             return
         end
 
