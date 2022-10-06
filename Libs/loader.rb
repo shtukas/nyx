@@ -167,6 +167,7 @@ require_relative "Dx8UnitsUtils.rb"
 require_relative "DataStore1.rb"
 require_relative "DataStore2SQLiteBlobStore.rb"
 require_relative "DataStore3CAObjects.rb"
+require_relative "DataStore4KVObjects.rb"
 
 require_relative "EnergyGrid.rb"
 require_relative "EndOfDayChecklist.rb"
