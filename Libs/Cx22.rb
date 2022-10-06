@@ -180,6 +180,7 @@ class Cx22
                 time = timeInHours*3600
                 puts "Adding #{time} seconds to #{rep["bankaccount"]}"
                 Bank::put(rep["bankaccount"], time)
+                $CatalystGroupMonitor1.rebuildLx13sFromScratch()
                 next
             end
         }
