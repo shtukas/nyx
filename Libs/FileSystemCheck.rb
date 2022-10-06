@@ -311,6 +311,22 @@ class FileSystemCheck
             return
         end
 
+        # --------------------------------------
+        # Temporary
+
+        if item["mikuType"] == "NxTask" then
+            Items::setAttribute2(item["uuid"], "mikuType", "NxTodo")
+            item = Items::getItemOrNull(item["uuid"])
+            FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
+            return
+        end
+
+        if ["CxAionPoint", "DxAionPoint"].include?(item["mikuType"]) then
+            NxDeleted::deleteObject(item["uuid"])
+            return
+        end
+        # --------------------------------------
+
         raise "Unsupported Miku Type: #{item}"
     end
 
