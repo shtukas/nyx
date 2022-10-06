@@ -411,7 +411,11 @@ class FileSystemCheck
         end
         FileSystemCheck::fsckPrimaryStructureV1Items(DataStore3CAObjects::getObject(primary["items"]), isdeep, runhash, verbose)
 
-        XCache::setFlag(repeatKey, true)
+        if isdeep then
+            # We only consider the structure checked if we did a deep check, otherwise we cache against a 
+            # shallow check, which is incorrect
+            XCache::setFlag(repeatKey, true)
+        end
     end
 
     # FileSystemCheck::fsckAttributeUpdateV2(event, runhash, verbose)
@@ -511,7 +515,11 @@ class FileSystemCheck
             }
         end
 
-        XCache::setFlag(repeatKey, true)
+        if isdeep then
+            # We only consider the structure checked if we did a deep check, otherwise we cache against a 
+            # shallow check, which is incorrect
+            XCache::setFlag(repeatKey, true)
+        end
     end
 
     # -----------------------------------------------------
@@ -529,6 +537,7 @@ class FileSystemCheck
     # FileSystemCheck::fsckErrorAtFirstFailure(runhash)
     def self.fsckErrorAtFirstFailure(runhash)
         primary = TheLibrarian::getPrimaryStructure()
+        puts JSON.pretty_generate(primary)
         FileSystemCheck::fsckPrimaryStructureV1(primary, true, runhash, true)
         puts "fsck completed successfully".green
     end
