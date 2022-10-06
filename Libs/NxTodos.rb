@@ -46,7 +46,7 @@ class NxTodos
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid
-        datetime = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
+        datetime = datetime || CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
         nx11e = Nx11E::makeOndate(datetime)
         nx113nhash = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
         cx22 = Cx22::architectOrNull()
