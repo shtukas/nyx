@@ -13,11 +13,6 @@ class DataStore1
         "/Volumes/EnergyGrid1/Stargate/DataStore1"
     end
 
-    # DataStore1::outGoingBufferFolder()
-    def self.outGoingBufferFolder()
-        "#{ENV['HOME']}/Galaxy/DataBank/Stargate-DataStaging/DataStore1-EnergyGrid-OutGoingBuffer"
-    end
-
     # -------------------------------------------------------
     # Filepaths
 
@@ -25,12 +20,6 @@ class DataStore1
     # DataStore1::getXCacheFilepath(nhash)
     def self.getXCacheFilepath(nhash)
         XCache::filepath(nhash)
-    end
-
-    # @deprecated
-    # DataStore1::getOutGoingBufferFilepath(nhash)
-    def self.getOutGoingBufferFilepath(nhash)
-        "#{DataStore1::outGoingBufferFolder()}/#{nhash}"
     end
 
     # DataStore1::getEnergyGridFilepathForFilename(nhash)
@@ -98,13 +87,6 @@ class DataStore1
             return filepath
         end
 
-        # We are moving away from the OutGoingBuffer, but we still have data there
-        filepath = DataStore1::getOutGoingBufferFilepath(nhash)
-        if File.exists?(filepath) then
-            FileUtils.cp(filepath, DataStore1::getLocalRepositoryFilepath(nhash))
-            return filepath
-        end
-
         EnergyGrid::acquireEnergyGridOrExit()
 
         filepath = DataStore1::getEnergyGridFilepathErrorIfNotAcquisable(nhash)
@@ -156,18 +138,6 @@ class DataStore1
 
     # DataStore1::localDataToEnergyGrid()
     def self.localDataToEnergyGrid()
-        LucilleCore::locationsAtFolder(DataStore1::outGoingBufferFolder()).each{|filepath1|
-            next if !File.basename(filepath1).start_with?("SHA256-")
-            nhash = File.basename(filepath1)
-            filepath2 = DataStore1::getEnergyGridFilepathErrorIfNotAcquisable(nhash)
-            if File.exists?(filepath2) then
-                FileUtils.rm(filepath1)
-                next
-            end
-            FileUtils.cp(filepath1, filepath2)
-            FileUtils.rm(filepath1)
-        }
-
         Find.find(DataStore1::localRepository()) do |path|
             next if !File.basename(path).start_with?("SHA256-")
             filepath1 = path
