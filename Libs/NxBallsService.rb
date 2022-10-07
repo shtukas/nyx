@@ -31,7 +31,7 @@ NxBall {
         item = MikuTypedObjects::getObjectOrNull(uuid)
         return item if (item and item["mikuType"] == "NxBall.v2")
         NxBallsIO::nxballs()
-            .select{|item| item["owneruuid"] == owneruuid }
+            .select{|item| item["owneruuid"] == uuid }
             .first
     end
 
