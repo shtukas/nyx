@@ -23,7 +23,7 @@ end
 class StargateMultiInstanceShared
     # StargateMultiInstanceShared::sharedConfigGet(key)
     def self.sharedConfigGet(key)
-        config = JSON.parse(IO.read("#{Config::userHomeDirectory()}/Galaxy/DataHub/Stargate/shared-config.json"))
+        config = JSON.parse(IO.read("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-ActiveCommsLine/shared-config.json"))
         config[key]
     end
 end

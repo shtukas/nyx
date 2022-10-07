@@ -52,11 +52,12 @@ checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/datastore1")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/mikutyped-objects.sqlite3")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/network-edges.sqlite3")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-ActiveCommsLine")
+checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-ActiveCommsLine/shared-config.json")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-DataStaging/CommsLine")
+
 
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub/Stargate/shared-config.json")
 
 checkLocation.call("#{ENV['HOME']}/Galaxy/LucilleOS/Libraries/Ruby-Libraries")
 
