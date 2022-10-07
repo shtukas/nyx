@@ -60,22 +60,25 @@ class SystemEvents
             TxManualCountDowns::itemUpdateNoEvent(event)
         end
 
-        if event["mikuType"] == "datastore4-kv-object-set" then
-            key    = event["key"]
-            object = event["object"]
-            DataStore4KVObjects::setObject(key, object)
+        if event["mikuType"] == "mikutyped-objects-set" then
+            object  = event["object"]
+            db = SQLite3::Database.new(MikuTypedObjects::pathToDatabase())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute "delete from _objects_ where _uuid_=?", [object["uuid"]]
+            db.execute "insert into _objects_ (_uuid_, _mikuType_, _object_) values (?, ?, ?)", [object["uuid"], object["mikuType"], JSON.generate(object)]
+            db.close
         end
 
-        if event["mikuType"] == "datastore5-add" then
-            setuuid  = event["setuuid"]
-            itemuuid = event["itemuuid"]
-            DataStore5Sets::add(setuuid, itemuuid)
-        end
-
-        if event["mikuType"] == "datastore5-remove" then
-            setuuid  = event["setuuid"]
-            itemuuid = event["itemuuid"]
-            DataStore5Sets::remove(setuuid, itemuuid)
+        if event["mikuType"] == "mikutyped-objects-destroy" then
+            uuid  = event["uuid"]
+            db = SQLite3::Database.new(MikuTypedObjects::pathToDatabase())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute "delete from _objects_ where _uuid_=?", [uuid]
+            db.close
         end
 
         if event["mikuType"] == "NxGraphEdge1" then
