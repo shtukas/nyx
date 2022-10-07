@@ -86,7 +86,7 @@ class Cx22
     def self.repElementsDive(rep)
         loop {
             system("clear")
-            elements = NxTodos::itemsInPositionOrder().first(20)
+            elements = NxTodos::itemsInPositionOrderForGroup(rep).first(20)
             store = ItemStore.new()
             elements
                 .each{|element|

@@ -172,12 +172,14 @@ class NxTodos
         items
     end
 
-    # NxTodos::itemsInPositionOrder()
-    def self.itemsInPositionOrder()
+    # NxTodos::itemsInPositionOrderForGroup(cx22)
+    def self.itemsInPositionOrderForGroup(cx22)
         items1 = NxTodos::items()
+                    .select{|item| item["cx22"] and item["cx22"]["groupuuid"] == cx22["groupuuid"] }
                     .select{|item| item["cx23"] }
                     .sort{|i1, i2| i1["cx23"]["position"] <=> i2["cx23"]["position"] }
         items2 = NxTodos::items()
+                    .select{|item| item["cx22"] and item["cx22"]["groupuuid"] == cx22["groupuuid"] }
                     .select{|item| item["cx23"].nil? }
                     .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
         items1 + items2
