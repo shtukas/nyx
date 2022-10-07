@@ -107,7 +107,7 @@ class Items
         db.execute("select * from _items_", []) do |row|
             item = JSON.parse(row["_item_"])
             nx20s << {
-                "announce" => row["_announce_"],
+                "announce" => "(#{row["_mikuType_"]}) #{row["_announce_"]}",
                 "unixtime" => item["unixtime"],
                 "item"     => item
             }

@@ -53,14 +53,6 @@ We have two types of events
     "weight"    => weight
 }
 
-"TxManualCountDown" => "TxManualCountDown"
-
-{
-    "mikuType"  => "datastore4-kv-object-set",
-    "key"       => String,
-    "object"    => Object,
-}
-
 {
     "mikuType" => "mikutyped-objects-set",
     "object"   => object

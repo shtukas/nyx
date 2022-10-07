@@ -517,8 +517,8 @@ class CatalystListing
                     "lambda" => lambda { EndOfDayChecklist::listingItems() }
                 },
                 {
-                    "name" => "NxTodos::itemsInDisplayOrder(Cx22::getNonDoneForTodayRepWithLowersCRBelow1OrNull()).first(100)",
-                    "lambda" => lambda { NxTodos::itemsInDisplayOrder(Cx22::getNonDoneForTodayRepWithLowersCRBelow1OrNull()).first(100) }
+                    "name" => "NxTodos::itemsInDisplayOrder(Cx22::getNonDoneForTodayRepWithLowersCRBelow1OrNull())",
+                    "lambda" => lambda { NxTodos::itemsInDisplayOrder(Cx22::getNonDoneForTodayRepWithLowersCRBelow1OrNull()) }
                 },
             ]
 

@@ -2,6 +2,17 @@ NxBall
 
 The name comes from jungling balls :)
 
+NxBall {
+    "uuid"                        : String
+    "mikuType"                    : "NxBall.v2"
+    "unixtime"                    : Float
+    "description"                 : description,
+    "desiredBankedTimeInSeconds " : null or Float # Indicate how long
+                                                  # we should ideally run, for the notification.
+    "status"                      : NxBallStatus
+    "accounts"                    : accounts
+}
+
 NxBallStatus
     {
         "type"                    : "running"
@@ -13,14 +24,3 @@ NxBallStatus
         "type"                    : "paused"
         "bankedTimeInSeconds"     : Float
     }
-
-NxBall {
-    "uuid"                        : String
-    "mikuType"                    : "NxBall.v2"
-    "unixtime"                    : Float
-    "description"                 : description,
-    "desiredBankedTimeInSeconds " : null or Float # Indicate how long
-                                                  # we should ideally run, for the notification.
-    "status"                      : NxBallStatus
-    "accounts"                    : accounts
-}

@@ -56,10 +56,6 @@ class SystemEvents
             BankAccountDoneForToday::processEvent(event)
         end
 
-        if event["mikuType"] == "TxManualCountDown" then
-            TxManualCountDowns::itemUpdateNoEvent(event)
-        end
-
         if event["mikuType"] == "mikutyped-objects-set" then
             object  = event["object"]
             db = SQLite3::Database.new(MikuTypedObjects::pathToDatabase())

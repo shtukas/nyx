@@ -7,30 +7,44 @@ class NxBallsIO
     # IO
 
 =begin
-    XCacheSets::values(setuuid: String): Array[Value]
-    XCacheSets::set(setuuid: String, valueuuid: String, value)
-    XCacheSets::getOrNull(setuuid: String, valueuuid: String): nil | Value
-    XCacheSets::destroy(setuuid: String, valueuuid: String)
+NxBall {
+    "uuid"                        : String
+    "mikuType"                    : "NxBall.v2"
+    "unixtime"                    : Float
+    "description"                 : description,
+    "desiredBankedTimeInSeconds " : null or Float # Indicate how long
+                                                  # we should ideally run, for the notification.
+    "status"                      : NxBallStatus
+    "accounts"                    : accounts
+}
 =end
 
     # NxBallsIO::nxballs()
     def self.nxballs()
-        XCacheSets::values("38288c92-0dfa-4e85-83cc-1a2cc2300d47")
+        MikuTypedObjects::objects("NxBall.v2")
     end
 
-    # NxBallsIO::getItemByIdOrNull(uuid)
-    def self.getItemByIdOrNull(uuid)
-        XCacheSets::getOrNull("38288c92-0dfa-4e85-83cc-1a2cc2300d47", uuid)
+    # NxBallsIO::getItem(uuid)
+    def self.getItem(uuid)
+        # This uuid is sometimes the uuid of the NxBall, but sometimes the uuid of an unuspecting item (the owner). 
+        # This is because when we want to get the NxBall, we sometimes submit the uuid of the item itself.
+        item = MikuTypedObjects::getObjectOrNull(uuid)
+        return item if (item and item["mikuType"] == "NxBall.v2")
+        NxBallsIO::nxballs()
+            .select{|item| item["owneruuid"] == owneruuid }
+            .first
     end
 
     # NxBallsIO::commitItem(item)
     def self.commitItem(item)
-        XCacheSets::set("38288c92-0dfa-4e85-83cc-1a2cc2300d47", item["uuid"], item)
+        MikuTypedObjects::set(item)
     end
 
     # NxBallsIO::destroyItem(uuid)
     def self.destroyItem(uuid)
-        XCacheSets::destroy("38288c92-0dfa-4e85-83cc-1a2cc2300d47", uuid)
+        item = NxBallsIO::getItem(uuid)
+        return if item.nil?
+        MikuTypedObjects::destroy(item["uuid"])
     end
 
 end
@@ -74,11 +88,12 @@ class NxBallsService
     # --------------------------------------------------------------------
     # Operations
 
-    # NxBallsService::issue(uuid, description, accounts, desiredBankedTimeInSeconds)
-    def self.issue(uuid, description, accounts, desiredBankedTimeInSeconds)
-        return if NxBallsIO::getItemByIdOrNull(uuid)
+    # NxBallsService::issue(owneruuid, description, accounts, desiredBankedTimeInSeconds)
+    def self.issue(owneruuid, description, accounts, desiredBankedTimeInSeconds)
+        return if NxBallsIO::getItem(owneruuid)
         nxball = {
-            "uuid"        => uuid,
+            "uuid"        => SecureRandom.uuid,
+            "owneruuid"   => owneruuid,
             "mikuType"    => "NxBall.v2",
             "unixtime"    => Time.new.to_f,
             "description" => description,
@@ -91,14 +106,14 @@ class NxBallsService
 
     # NxBallsService::isRunning(uuid)
     def self.isRunning(uuid)
-        nxball = NxBallsIO::getItemByIdOrNull(uuid)
+        nxball = NxBallsIO::getItem(uuid)
         return false if nxball.nil?
         nxball["status"]["type"] == "running"
     end
 
     # NxBallsService::isPaused(uuid)
     def self.isPaused(uuid)
-        nxball = NxBallsIO::getItemByIdOrNull(uuid)
+        nxball = NxBallsIO::getItem(uuid)
         return false if nxball.nil?
         nxball["status"]["type"] == "paused"
     end
@@ -110,7 +125,7 @@ class NxBallsService
 
     # NxBallsService::marginCall(uuid)
     def self.marginCall(uuid)
-        nxball = NxBallsIO::getItemByIdOrNull(uuid)
+        nxball = NxBallsIO::getItem(uuid)
         return if nxball.nil?
         return if nxball["status"]["type"] != "running"
         referenceTimeForUnrealisedAccounting = nxball["status"]["lastMarginCallUnixtime"] ? nxball["status"]["lastMarginCallUnixtime"] : nxball["status"]["thisSprintStartUnixtime"]
@@ -126,7 +141,7 @@ class NxBallsService
 
     # NxBallsService::marginCallIfIsTime(uuid)
     def self.marginCallIfIsTime(uuid)
-        nxball = NxBallsIO::getItemByIdOrNull(uuid)
+        nxball = NxBallsIO::getItem(uuid)
         return if nxball.nil?
         return if nxball["status"]["type"] != "running"
         referenceTimeForUnrealisedAccounting = nxball["status"]["lastMarginCallUnixtime"] ? nxball["status"]["lastMarginCallUnixtime"] : nxball["status"]["thisSprintStartUnixtime"]
@@ -136,22 +151,22 @@ class NxBallsService
 
     # NxBallsService::pause(uuid) # timespan in seconds or null
     def self.pause(uuid)
-        nxball = NxBallsIO::getItemByIdOrNull(uuid)
+        nxball = NxBallsIO::getItem(uuid)
         return if nxball.nil?
         return if nxball["status"]["type"] != "running"
         NxBallsService::marginCall(uuid)
-        nxball = NxBallsIO::getItemByIdOrNull(uuid)
+        nxball = NxBallsIO::getItem(uuid)
         nxball["status"] = NxBallsService::makePausedStatus(nxball["status"]["bankedTimeInSeconds"])
         NxBallsIO::commitItem(nxball)
     end
 
     # NxBallsService::pursue(uuid)
     def self.pursue(uuid)
-        nxball = NxBallsIO::getItemByIdOrNull(uuid)
+        nxball = NxBallsIO::getItem(uuid)
         return nil if nxball.nil?
         if nxball["status"]["type"] == "running" then
             NxBallsService::marginCall(uuid)
-            nxball = NxBallsIO::getItemByIdOrNull(uuid)
+            nxball = NxBallsIO::getItem(uuid)
             # If pursue was called while the item was running, it was because of an 1 hour notification which was shown, we need to reset it.
             nxball["status"]["thisSprintStartUnixtime"] = Time.new.to_f
             NxBallsIO::commitItem(nxball)
@@ -164,7 +179,7 @@ class NxBallsService
 
     # NxBallsService::close(uuid, verbose) # timespan in seconds or null
     def self.close(uuid, verbose)
-        nxball = NxBallsIO::getItemByIdOrNull(uuid)
+        nxball = NxBallsIO::getItem(uuid)
         return nil if nxball.nil?
         timespan = nil
         if nxball["status"]["type"] == "running" then
@@ -193,7 +208,7 @@ class NxBallsService
 
     # NxBallsService::thisSprintStartUnixtimeOrNull(uuid)
     def self.thisSprintStartUnixtimeOrNull(uuid)
-        nxball = NxBallsIO::getItemByIdOrNull(uuid)
+        nxball = NxBallsIO::getItem(uuid)
         if nxball.nil? then
             return nil
         end
@@ -205,7 +220,7 @@ class NxBallsService
 
     # NxBallsService::activityStringOrEmptyString(leftSide, uuid, rightSide)
     def self.activityStringOrEmptyString(leftSide, uuid, rightSide)
-        nxball = NxBallsIO::getItemByIdOrNull(uuid)
+        nxball = NxBallsIO::getItem(uuid)
         if nxball.nil? then
             return ""
         end
