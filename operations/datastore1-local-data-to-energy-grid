@@ -4,4 +4,4 @@
 
 require_relative "../Libs/loader.rb"
 
-DataStore1::outBufferToEnergyGrid()
+DataStore1::localDataToEnergyGrid()

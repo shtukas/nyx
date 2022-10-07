@@ -63,7 +63,7 @@ class FileSystemCheck
             nhash            = nx113["nhash"]
             parts            = nx113["parts"]
             database         = nx113["database"]
-            databasefilepath = DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(database, false)
+            databasefilepath = DataStore1::getNearestFilepathForReadingErrorIfNotAcquisable(database, false)
             operator         = DataStore2SQLiteBlobStoreElizabethReadOnly.new(databasefilepath)
             status = PrimitiveFiles::fsckPrimitiveFileDataRaiseAtFirstError(operator, dottedExtension, nhash, parts)
             if !status then
@@ -82,7 +82,7 @@ class FileSystemCheck
             end
             rootnhash        = nx113["rootnhash"]
             database         = nx113["database"]
-            databasefilepath = DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(database, false)
+            databasefilepath = DataStore1::getNearestFilepathForReadingErrorIfNotAcquisable(database, false)
             operator         = DataStore2SQLiteBlobStoreElizabethReadOnly.new(databasefilepath)
             status = AionFsck::structureCheckAionHash(operator, rootnhash)
             if !status then

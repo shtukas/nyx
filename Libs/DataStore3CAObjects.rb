@@ -5,7 +5,7 @@ class DataStore3CAObjects
         object = 
             JSON.parse(
                 IO.read(
-                    DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nhash, true)
+                    DataStore1::getNearestFilepathForReadingErrorIfNotAcquisable(nhash, true)
                 )
             )
     end
