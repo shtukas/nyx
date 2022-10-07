@@ -14,11 +14,15 @@ class CommsLine
 
     # CommsLine::moveCarefully(verbose)
     def self.moveCarefully(verbose)
+        locationsAtFolder = lambda {|folder|
+            LucilleCore::locationsAtFolder(folder)
+                .select{|location| !File.basename(location).start_with?(".") }
+        }
         Machines::theOtherInstanceIds().each{|instanceId|
             stagingfolder = "#{CommsLine::pathToStaging()}/#{instanceId}"
             activefolder = "#{CommsLine::pathToActive()}/#{instanceId}"
-            if LucilleCore::locationsAtFolder(activefolder).size < 500 then
-                LucilleCore::locationsAtFolder(stagingfolder)
+            if locationsAtFolder.call(activefolder).size < 500 then
+                locationsAtFolder.call(stagingfolder)
                     .first(1000)
                     .each{|filepath1|
                         filepath2 = "#{activefolder}/#{File.basename(filepath1)}"
