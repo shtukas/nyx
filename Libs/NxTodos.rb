@@ -1,5 +1,55 @@
 # encoding: UTF-8
 
+$ListingManager = nil
+
+class ListingManager
+
+    def initialize()
+        data = XCache::getOrNull("de9710ba-6ece-4cff-8176-41e8894b4fde")
+        if data then
+            @data = JSON.parse(data)
+        else
+            rebuildInstance()
+        end
+    end
+
+    def listingItemsInstance()
+        @data.first(20)
+            .map{|packet| packet["item"] }
+            .map{|item| item.clone }
+    end
+
+    def rebuildInstance()
+        items = NxTodos::items()
+        @data = items
+                    .map{|item|
+                        {
+                            "mikuType" => "NxTodoWithListingPriority",
+                            "item"     => item,
+                            "priority" => NxTodos::listingPriorityOrNull(item)
+                        }
+                    }
+                    .sort{|p1, p2| (p1["priority"] || -1) <=> (p2["priority"] || -1) }
+                    .reverse
+        XCache::set("de9710ba-6ece-4cff-8176-41e8894b4fde", JSON.generate(@data))
+    end
+
+    def self.listingItems()
+        if $ListingManager.nil? then
+            $ListingManager = ListingManager.new()
+        end
+        $ListingManager.listingItemsInstance()
+    end
+
+    def self.rebuild()
+        if $ListingManager.nil? then
+            $ListingManager = ListingManager.new()
+        end
+        $ListingManager.rebuildInstance()
+    end
+
+end
+
 class NxTodos
 
     # NxTodos::items()
@@ -192,7 +242,7 @@ class NxTodos
         if item["nx11e"]["type"] == "standard" and item["cx22"] and item["cx23"] then
             completionRatio = Ax39::completionRatioCached(item["cx22"]["ax39"], item["cx22"]["bankaccount"])
             return nil if completionRatio >= 1
-            return 0.60 + shiftOnCompletionRatio.call(completionRatio) + shiftOnPosition.call(item["cx23"]["position"])
+            return 0.60 + shiftOnCompletionRatio.call(completionRatio) + shiftOnPosition.call(item["cx23"]["position"]).to_f/100
         end
 
         if item["nx11e"]["type"] == "standard" and item["cx22"] then
@@ -210,37 +260,7 @@ class NxTodos
 
     # NxTodos::listingItems()
     def self.listingItems()
-        threashold = 10
-
-        items = NxTodos::items()
-        listing = []
-
-        listing = listing + items.select{|item| item["nx11e"]["type"] == "hot" }
-        return listing if listing.size >= threashold
-
-        listing = listing + items.select{|item| item["nx11e"]["type"] == "ordinal" }
-        return listing if listing.size >= threashold
-
-        listing = listing + items.select{|item| item["nx11e"]["type"] == "ondate" and !NxTodos::listingPriorityOrNull(item).nil? }
-        return listing if listing.size >= threashold
-
-        listing = listing + items
-                                .select{|item| item["nx11e"]["type"] == "standard" and item["cx22"] and item["cx23"] and !NxTodos::listingPriorityOrNull(item).nil? }
-                                .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-                                .first(threashold)
-        return listing if listing.size >= threashold
-
-        listing = listing + items
-                                .select{|item| item["nx11e"]["type"] == "standard" and item["cx22"] and item["cx23"].nil? and !NxTodos::listingPriorityOrNull(item).nil? }
-                                .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-                                .first(threashold)
-        return listing if listing.size >= threashold
-
-        listing = listing + items
-                                .select{|item| item["nx11e"]["type"] == "standard" and item["cx22"].nil? and item["cx23"].nil? and !NxTodos::listingPriorityOrNull(item).nil? }
-                                .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-                                .first(threashold)
-        listing
+        ListingManager::listingItems()
     end
 
     # NxTodos::itemsInPositionOrderForGroup(cx22)
