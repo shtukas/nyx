@@ -56,6 +56,14 @@ class ListingManager
         XCache::set("de9710ba-6ece-4cff-8176-41e8894b4fde", JSON.generate(@data))
     end
 
+    def destroyItemInstance(itemuuid)
+        @data = @data.reject{|packet| packet["item"]["uuid"] == itemuuid }
+        @data = @data
+                    .sort{|p1, p2| (p1["priority"] || -1) <=> (p2["priority"] || -1) }
+                    .reverse
+        XCache::set("de9710ba-6ece-4cff-8176-41e8894b4fde", JSON.generate(@data))
+    end
+
     def self.listingItems()
         if $ListingManager.nil? then
             $ListingManager = ListingManager.new()
@@ -75,6 +83,13 @@ class ListingManager
             $ListingManager = ListingManager.new()
         end
         $ListingManager.incomingItemInstance(item)
+    end
+
+    def self.destroyItem(itemuuid)
+        if $ListingManager.nil? then
+            $ListingManager = ListingManager.new()
+        end
+        $ListingManager.destroyItemInstance(itemuuid)
     end
 end
 

@@ -166,6 +166,7 @@ class Items
             "mikuType"   => "NxDeleted",
             "objectuuid" => objectuuid
         })
+        ListingManager::destroyItem(objectuuid)
     end
 
     # -----------------------------------------------------------------
