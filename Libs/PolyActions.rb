@@ -38,7 +38,7 @@ class PolyActions
             puts item["description"]
             count = LucilleCore::askQuestionAnswerAsString("done count: ").to_i
             item["counter"] = item["counter"] - count
-            TxManualCountDowns::pushItemUpdate(item)
+            TxManualCountDowns::itemUpdate(item)
             return
         end
 

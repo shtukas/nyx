@@ -57,7 +57,7 @@ class SystemEvents
         end
 
         if event["mikuType"] == "TxManualCountDown" then
-            TxManualCountDowns::pushItemUpdate(event)
+            TxManualCountDowns::itemUpdateNoEvent(event)
         end
 
         if event["mikuType"] == "datastore4-kv-object-set" then

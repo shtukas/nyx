@@ -30,7 +30,7 @@ class TxManualCountDowns
             "date"        => CommonUtils::today(),
             "counter"     => dailyTarget
         }
-        TxManualCountDowns::pushItemUpdate(item)
+        TxManualCountDowns::itemUpdate(item)
         item
     end
 
@@ -62,12 +62,17 @@ class TxManualCountDowns
             .select{|item| item["counter"] > 0 }
     end
 
-    # TxManualCountDowns::pushItemUpdate(item)
-    def self.pushItemUpdate(item)
+    # TxManualCountDowns::itemUpdateNoEvent(item)
+    def self.itemUpdateNoEvent(item)
         XCache::set(item["uuid"], JSON.generate(item))
         uuids = TxManualCountDowns::uuids()
         uuids = (uuids + [item["uuid"]]).uniq
         TxManualCountDowns::setuuids(uuids)
+    end
+
+    # TxManualCountDowns::itemUpdate(item)
+    def self.itemUpdate(item)
+        TxManualCountDowns::itemUpdateNoEvent(item)
         SystemEvents::broadcast(item)
     end
 
