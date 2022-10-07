@@ -22,6 +22,7 @@ class Items
             "mikuType" => "TxEventItem1",
             "item"     => item
         })
+        ListingManager::incomingItem(item)
     end
 
     # -----------------------------------------------------------------

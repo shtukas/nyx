@@ -11,6 +11,14 @@ class ListingManager
         else
             rebuildInstance()
         end
+
+        Thread.new {
+            loop {
+                sleep 60
+                rebuildInstance()
+                sleep 3600
+            }
+        }
     end
 
     def listingItemsInstance()
@@ -34,6 +42,20 @@ class ListingManager
         XCache::set("de9710ba-6ece-4cff-8176-41e8894b4fde", JSON.generate(@data))
     end
 
+    def incomingItemInstance(item)
+        return if item["mikuType"] != "NxTodo"
+        @data = @data.reject{|packet| packet["item"]["uuid"] == item["uuid"] }
+        @data << {
+            "mikuType" => "NxTodoWithListingPriority",
+            "item"     => item,
+            "priority" => NxTodos::listingPriorityOrNull(item)
+        }
+        @data = @data
+                    .sort{|p1, p2| (p1["priority"] || -1) <=> (p2["priority"] || -1) }
+                    .reverse
+        XCache::set("de9710ba-6ece-4cff-8176-41e8894b4fde", JSON.generate(@data))
+    end
+
     def self.listingItems()
         if $ListingManager.nil? then
             $ListingManager = ListingManager.new()
@@ -48,6 +70,12 @@ class ListingManager
         $ListingManager.rebuildInstance()
     end
 
+    def self.incomingItem(item)
+        if $ListingManager.nil? then
+            $ListingManager = ListingManager.new()
+        end
+        $ListingManager.incomingItemInstance(item)
+    end
 end
 
 class NxTodos
