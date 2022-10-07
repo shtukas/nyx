@@ -153,23 +153,94 @@ class NxTodos
 
     # NxTodos::listingPriorityOrNull(item)
     def self.listingPriorityOrNull(item) # Float between 0 and 1
-        # We are only taking account of the position within a group and not the group itself
-        # because we are displaying only one group at a time.
-        Nx11E::priorityOrNull(item["nx11e"], item["cx23"])
+
+        shiftOnDateTime = lambda {|datetime|
+            0.01*(Time.new.to_f - DateTime.parse(datetime).to_time.to_f)/86400
+        }
+
+        shiftOnUnixtime = lambda {|unixtime|
+            0.01*Math.log(Time.new.to_f - unixtime)
+        }
+
+        shiftOnPosition = lambda {|position|
+            0.01*Math.atan(-position)
+        }
+
+        shiftOnOrdinal = lambda {|ordinal|
+            0.01*Math.atan(-ordinal)
+        }
+
+        shiftOnCompletionRatio = lambda {|ratio|
+            0.01*Math.atan(-ratio)
+        }
+
+        # First we take account of the engine
+
+        if item["nx11e"]["type"] == "hot" then
+            return 0.90 + shiftOnUnixtime.call(item["nx11e"]["unixtime"])
+        end
+
+        if item["nx11e"]["type"] == "ordinal" then
+            return 0.85 + shiftOnOrdinal.call(item["nx11e"]["ordinal"])
+        end
+
+        if item["nx11e"]["type"] == "ondate" then
+            return nil if (CommonUtils::today() < item["nx11e"]["datetime"][0, 10])
+            return 0.70 + shiftOnDateTime.call(item["nx11e"]["datetime"])
+        end
+
+        if item["nx11e"]["type"] == "standard" and item["cx22"] and item["cx23"] then
+            completionRatio = Ax39::completionRatioCached(item["cx22"]["ax39"], item["cx22"]["bankaccount"])
+            return nil if completionRatio >= 1
+            return 0.60 + shiftOnCompletionRatio.call(completionRatio) + shiftOnPosition.call(item["cx23"]["position"])
+        end
+
+        if item["nx11e"]["type"] == "standard" and item["cx22"] then
+            completionRatio = Ax39::completionRatioCached(item["cx22"]["ax39"], item["cx22"]["bankaccount"])
+            return nil if completionRatio >= 1
+            return 0.50 + shiftOnCompletionRatio.call(completionRatio)
+        end
+
+        if item["nx11e"]["type"] == "standard" then
+            return 0.40 + shiftOnUnixtime.call(item["unixtime"])
+        end
+
+        raise "(error: a3c6797b-e063-44ca-8dab-4c5540688776) I do not know how to prioritise item: #{item}"
     end
 
-    # NxTodos::listingItems(cx22Opt)
-    def self.listingItems(cx22Opt)
-        items = []
-        if cx22Opt then
-            cx22 = cx22Opt
-            items = items + NxTodos::items()
-                            .select{|item| item["cx22"] }
-                            .select{|item| item["cx22"]["groupuuid"] == cx22["groupuuid"] }
-        end
-        items = items + NxTodos::items()
-                            .select{|item| item["cx22"].nil? }
-        items
+    # NxTodos::listingItems()
+    def self.listingItems()
+        threashold = 10
+
+        items = NxTodos::items()
+        listing = []
+
+        listing = listing + items.select{|item| item["nx11e"]["type"] == "hot" }
+        return listing if listing.size >= threashold
+
+        listing = listing + items.select{|item| item["nx11e"]["type"] == "ordinal" }
+        return listing if listing.size >= threashold
+
+        listing = listing + items.select{|item| item["nx11e"]["type"] == "ondate" and !NxTodos::listingPriorityOrNull(item).nil? }
+        return listing if listing.size >= threashold
+
+        listing = listing + items
+                                .select{|item| item["nx11e"]["type"] == "standard" and item["cx22"] and item["cx23"] and !NxTodos::listingPriorityOrNull(item).nil? }
+                                .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+                                .first(threashold)
+        return listing if listing.size >= threashold
+
+        listing = listing + items
+                                .select{|item| item["nx11e"]["type"] == "standard" and item["cx22"] and item["cx23"].nil? and !NxTodos::listingPriorityOrNull(item).nil? }
+                                .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+                                .first(threashold)
+        return listing if listing.size >= threashold
+
+        listing = listing + items
+                                .select{|item| item["nx11e"]["type"] == "standard" and item["cx22"].nil? and item["cx23"].nil? and !NxTodos::listingPriorityOrNull(item).nil? }
+                                .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+                                .first(threashold)
+        listing
     end
 
     # NxTodos::itemsInPositionOrderForGroup(cx22)
