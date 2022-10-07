@@ -520,6 +520,14 @@ class CatalystListing
                     "name" => "NxTodos::listingItems()",
                     "lambda" => lambda { NxTodos::listingItems() }
                 },
+                {
+                    "name" => "TxManualCountDowns::listingItems()",
+                    "lambda" => lambda { TxManualCountDowns::listingItems() }
+                },
+                {
+                    "name" => "Waves::items()",
+                    "lambda" => lambda { Waves::items() }
+                }
             ]
 
             # dry run to initialise things
