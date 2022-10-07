@@ -1,3 +1,6 @@
+
+# encoding: UTF-8
+
 class MikuTypedObjects
 
     # mikutyped-objects.sqlite3 

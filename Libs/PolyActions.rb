@@ -1,4 +1,6 @@
 
+# encoding: UTF-8
+
 class PolyActions
 
     # function name alphabetical order

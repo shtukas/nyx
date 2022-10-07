@@ -7,30 +7,36 @@ class NxBallsIO
     # IO
 
 =begin
-    XCacheSets::values(setuuid: String): Array[Value]
-    XCacheSets::set(setuuid: String, valueuuid: String, value)
-    XCacheSets::getOrNull(setuuid: String, valueuuid: String): nil | Value
-    XCacheSets::destroy(setuuid: String, valueuuid: String)
+NxBall {
+    "uuid"                        : String
+    "mikuType"                    : "NxBall.v2"
+    "unixtime"                    : Float
+    "description"                 : description,
+    "desiredBankedTimeInSeconds " : null or Float # Indicate how long
+                                                  # we should ideally run, for the notification.
+    "status"                      : NxBallStatus
+    "accounts"                    : accounts
+}
 =end
 
     # NxBallsIO::nxballs()
     def self.nxballs()
-        XCacheSets::values("38288c92-0dfa-4e85-83cc-1a2cc2300d47")
+        MikuTypedObjects::objects("NxBall.v2")
     end
 
     # NxBallsIO::getItemByIdOrNull(uuid)
     def self.getItemByIdOrNull(uuid)
-        XCacheSets::getOrNull("38288c92-0dfa-4e85-83cc-1a2cc2300d47", uuid)
+        MikuTypedObjects::getObjectOrNull(uuid)
     end
 
     # NxBallsIO::commitItem(item)
     def self.commitItem(item)
-        XCacheSets::set("38288c92-0dfa-4e85-83cc-1a2cc2300d47", item["uuid"], item)
+        MikuTypedObjects::set(item)
     end
 
     # NxBallsIO::destroyItem(uuid)
     def self.destroyItem(uuid)
-        XCacheSets::destroy("38288c92-0dfa-4e85-83cc-1a2cc2300d47", uuid)
+        MikuTypedObjects::destroy(uuid)
     end
 
 end
