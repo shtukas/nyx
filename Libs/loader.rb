@@ -51,7 +51,6 @@ checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/config.json")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/datastore1")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/mikutyped-objects.sqlite3")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/network-edges.sqlite3")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-DataStaging/DataStore1-EnergyGrid-OutGoingBuffer")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-ActiveCommsLine")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-DataStaging/CommsLine")
 
