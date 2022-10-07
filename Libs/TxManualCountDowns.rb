@@ -3,17 +3,24 @@
 
 class TxManualCountDowns
 
-    # TxManualCountDowns::uuids()
-    def self.uuids()
-        uuids = XCache::getOrNull("3b38d7db-2057-43b0-b1a8-59017d581e98")
-        return [] if uuids.nil?
-        JSON.parse(uuids)
+    # Basic IO
+
+    # TxManualCountDowns::items()
+    def self.items()
+        MikuTypedObjects::objects("TxManualCountDown")
     end
 
-    # TxManualCountDowns::setuuids(uuids)
-    def self.setuuids(uuids)
-        XCache::set("3b38d7db-2057-43b0-b1a8-59017d581e98", JSON.generate(uuids))
+    # TxManualCountDowns::commit(item)
+    def self.commit(item)
+        MikuTypedObjects::set(item)
     end
+
+    # TxManualCountDowns::destroy(uuid)
+    def self.destroy(uuid)
+        MikuTypedObjects::destroy(uuid)
+    end
+
+    # Makers
 
     # TxManualCountDowns::issueNewOrNull()
     def self.issueNewOrNull()
@@ -30,23 +37,11 @@ class TxManualCountDowns
             "date"        => CommonUtils::today(),
             "counter"     => dailyTarget
         }
-        TxManualCountDowns::itemUpdate(item)
+        TxManualCountDowns::commit(item)
         item
     end
 
-    # TxManualCountDowns::destroy(itemuuid)
-    def self.destroy(itemuuid)
-        uuids = TxManualCountDowns::uuids()
-        TxManualCountDowns::setuuids(uuids - [itemuuid])
-    end
-
-    # TxManualCountDowns::items()
-    def self.items()
-        TxManualCountDowns::uuids()
-            .map{|itemuuid| XCache::getOrNull(itemuuid) }
-            .compact
-            .map{|item| JSON.parse(item) }
-    end
+    # Data
 
     # TxManualCountDowns::listingItems()
     def self.listingItems()
@@ -54,26 +49,11 @@ class TxManualCountDowns
             if item["date"] != CommonUtils::today() then
                 item["date"] = CommonUtils::today()
                 item["counter"] = item["dailyTarget"]
-                XCache::set(item["uuid"], JSON.generate(item))
-                SystemEvents::broadcast(item)
+                TxManualCountDowns::commit(item)
             end
         }
         TxManualCountDowns::items()
             .select{|item| item["counter"] > 0 }
-    end
-
-    # TxManualCountDowns::itemUpdateNoEvent(item)
-    def self.itemUpdateNoEvent(item)
-        XCache::set(item["uuid"], JSON.generate(item))
-        uuids = TxManualCountDowns::uuids()
-        uuids = (uuids + [item["uuid"]]).uniq
-        TxManualCountDowns::setuuids(uuids)
-    end
-
-    # TxManualCountDowns::itemUpdate(item)
-    def self.itemUpdate(item)
-        TxManualCountDowns::itemUpdateNoEvent(item)
-        SystemEvents::broadcast(item)
     end
 
 end
