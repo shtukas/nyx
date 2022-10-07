@@ -158,18 +158,29 @@ class NxTodos
         Nx11E::priorityOrNull(item["nx11e"], item["cx23"])
     end
 
-    # NxTodos::itemsInDisplayOrder(cx22Opt)
-    def self.itemsInDisplayOrder(cx22Opt)
+    # NxTodos::listingItems(cx22Opt)
+    def self.listingItems(cx22Opt)
         items = []
         if cx22Opt then
             cx22 = cx22Opt
-            items = items + Items::mikuTypeToItems("NxTodo")
+            items = items + NxTodos::items()
                             .select{|item| item["cx22"] }
                             .select{|item| item["cx22"]["groupuuid"] == cx22["groupuuid"] }
         end
-        items = items + Items::mikuTypeToItems("NxTodo")
+        items = items + NxTodos::items()
                             .select{|item| item["cx22"].nil? }
         items
+    end
+
+    # NxTodos::itemsInPositionOrder()
+    def self.itemsInPositionOrder()
+        items1 = NxTodos::items()
+                    .select{|item| item["cx23"] }
+                    .sort{|i1, i2| i1["cx23"]["position"] <=> i2["cx23"]["position"] }
+        items2 = NxTodos::items()
+                    .select{|item| item["cx23"].nil? }
+                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+        items1 + items2
     end
 
     # --------------------------------------------------

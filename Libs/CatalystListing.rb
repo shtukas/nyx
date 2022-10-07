@@ -517,8 +517,8 @@ class CatalystListing
                     "lambda" => lambda { EndOfDayChecklist::listingItems() }
                 },
                 {
-                    "name" => "NxTodos::itemsInDisplayOrder(Cx22::getNonDoneForTodayRepWithLowersCRBelow1OrNull())",
-                    "lambda" => lambda { NxTodos::itemsInDisplayOrder(Cx22::getNonDoneForTodayRepWithLowersCRBelow1OrNull()) }
+                    "name" => "NxTodos::listingItems(Cx22::getNonDoneForTodayRepWithLowersCRBelow1OrNull())",
+                    "lambda" => lambda { NxTodos::listingItems(Cx22::getNonDoneForTodayRepWithLowersCRBelow1OrNull()) }
                 },
             ]
 
@@ -562,7 +562,7 @@ class CatalystListing
             TxManualCountDowns::listingItems(),
             Waves::items(),
             EndOfDayChecklist::listingItems(),
-            NxTodos::itemsInDisplayOrder(Cx22::getNonDoneForTodayRepWithLowersCRBelow1OrNull())
+            NxTodos::listingItems(Cx22::getNonDoneForTodayRepWithLowersCRBelow1OrNull())
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
