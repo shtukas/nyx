@@ -49,9 +49,7 @@ checkLocation = lambda{|location|
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/config.json")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/datastore1")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/mikutyped-objects.sqlite3 ")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/datastore4-kv-objects.sqlite3")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/datastore5-sets.sqlite3")
+checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/mikutyped-objects.sqlite3")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/network-edges.sqlite3")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-DataStaging/DataStore1-EnergyGrid-OutGoingBuffer")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-ActiveCommsLine")
@@ -174,7 +172,6 @@ require_relative "Dx8UnitsUtils.rb"
 require_relative "DataStore1.rb"
 require_relative "DataStore2SQLiteBlobStore.rb"
 require_relative "DataStore3CAObjects.rb"
-require_relative "DataStore6SetsOfObjects.rb"
 
 require_relative "EnergyGrid.rb"
 require_relative "EndOfDayChecklist.rb"
