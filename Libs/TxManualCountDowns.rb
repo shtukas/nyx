@@ -40,8 +40,8 @@ class TxManualCountDowns
         TxManualCountDowns::setuuids(uuids - [itemuuid])
     end
 
-    # TxManualCountDowns::items
-    def self.items
+    # TxManualCountDowns::items()
+    def self.items()
         TxManualCountDowns::uuids()
             .map{|itemuuid| XCache::getOrNull(itemuuid) }
             .compact
@@ -50,7 +50,7 @@ class TxManualCountDowns
 
     # TxManualCountDowns::listingItems()
     def self.listingItems()
-        TxManualCountDowns::items.each{|item|
+        TxManualCountDowns::items().each{|item|
             if item["date"] != CommonUtils::today() then
                 item["date"] = CommonUtils::today()
                 item["counter"] = item["dailyTarget"]
@@ -58,7 +58,7 @@ class TxManualCountDowns
                 SystemEvents::broadcast(item)
             end
         }
-        TxManualCountDowns::items
+        TxManualCountDowns::items()
             .select{|item| item["counter"] > 0 }
     end
 
