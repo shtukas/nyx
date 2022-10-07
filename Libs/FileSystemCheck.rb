@@ -151,39 +151,6 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsckSetUUIDTxBankEvent(setuuid, event, runhash, verbose)
-    def self.fsckSetUUIDTxBankEvent(setuuid, event, runhash, verbose)
-        repeatKey = "#{runhash}:#{JSON.generate(event)}"
-        return if XCache::getFlag(repeatKey)
-
-        if verbose then
-            puts "FileSystemCheck::fsckSetUUIDTxBankEvent(#{setuuid}, #{JSON.pretty_generate(event)}, #{runhash}, #{verbose})"
-        end
-
-        FileSystemCheck::fsckTxBankEvent(event, runhash, verbose)
-        if event["setuuid"] != setuuid then
-            raise "the event does not carry the setuuid that we expect "
-        end
-
-        XCache::setFlag(repeatKey, true)
-    end
-
-    # FileSystemCheck::fsckSetUUID_ArrayOfTxBankEvents(setuuid, events, runhash, verbose)
-    def self.fsckSetUUID_ArrayOfTxBankEvents(setuuid, events, runhash, verbose)
-        repeatKey = "#{runhash}:#{JSON.generate(events)}"
-        return if XCache::getFlag(repeatKey)
-
-        if verbose then
-            puts "FileSystemCheck::fsckSetUUID_ArrayOfTxBankEvents(#{setuuid}, events, #{runhash}, #{verbose})"
-        end
-
-        events.each{|event|
-            FileSystemCheck::fsckSetUUIDTxBankEvent(setuuid, event, runhash, verbose)
-        }
-
-        XCache::setFlag(repeatKey, true)
-    end
-
     # FileSystemCheck::fsckNxDoNotShowUntil(event, runhash, verbose)
     def self.fsckNxDoNotShowUntil(event, runhash, verbose)
         repeatKey = "#{runhash}:#{JSON.generate(event)}"
@@ -374,41 +341,6 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsckNxItemSphere1(object, runhash, verbose)
-    def self.fsckNxItemSphere1(object, runhash, verbose)
-        if verbose then
-            puts "FileSystemCheck::fsckNxItemSphere1(#{JSON.pretty_generate(object)}, #{runhash}, #{verbose})"
-        end
-        repeatKey = "#{runhash}:#{JSON.generate(object)}"
-        return if XCache::getFlag(repeatKey)
-
-        if object["mikuType"].nil? then
-            raise "object has no Miku type"
-        end
-        if object["mikuType"] != "NxItemSphere1" then
-            raise "Incorrect Miku type for function"
-        end
-        if object["item"].nil? then
-            # item attribute can be null
-        end
-
-        # item attribute can be null
-        if object["item"] then
-            item = object["item"]
-            FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash, verbose)
-        end
-
-        if object["events"].nil? then
-            raise "Missing attribute events"
-        end
-
-        object["events"].each{|event|
-            FileSystemCheck::fsckAttributeUpdateV2(event, runhash, verbose)
-        }
-
-        XCache::setFlag(repeatKey, true)
-    end
-
     # -----------------------------------------------------
 
     # FileSystemCheck::getExistingRunHash()
@@ -423,7 +355,9 @@ class FileSystemCheck
 
     # FileSystemCheck::fsckErrorAtFirstFailure(runhash)
     def self.fsckErrorAtFirstFailure(runhash)
-        
+        Items::items().each{|item|
+            FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash, true)
+        }
         puts "fsck completed successfully".green
     end
 end
