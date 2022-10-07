@@ -7,5 +7,5 @@ require_relative "../Libs/loader.rb"
 nhash = ARGV[0]
 
 puts IO.read(
-    DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nhash, true)
+    DataStore1::getNearestFilepathForReadingErrorIfNotAcquisable(nhash, true)
 )
