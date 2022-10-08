@@ -167,6 +167,8 @@ class Waves
 
     # Waves::performWaveNx46WaveDone(item)
     def self.performWaveNx46WaveDone(item)
+        NxBallsService::close(item["uuid"], true)
+
         puts "done-ing: #{Waves::toString(item)}"
         Items::setAttribute2(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
 
@@ -181,9 +183,17 @@ class Waves
             waves = Waves::items()
             wave = LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", waves, lambda{|item| Waves::toString(item) })
             break if wave.nil?
-            if LucilleCore::askQuestionAnswerAsBoolean("'#{wave["description"].green}' done ? ", true) then
+            puts Waves::toString(wave)
+            options = ["done", "landing"]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+            next if option.nil?
+            if option == "done" then
                 Waves::performWaveNx46WaveDone(wave)
-                NxBallsService::close(wave["uuid"], true)
+                next
+            end
+            if option == "landing" then
+                Waves::landing(wave)
+                next
             end
         }
     end
