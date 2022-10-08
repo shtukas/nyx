@@ -362,7 +362,10 @@ class NxTodos
             puts "uuid: #{item["uuid"]}".yellow
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
-            puts "Nx11E: #{JSON.pretty_generate(item["nx11e"])}".yellow
+            puts "Nx11E (engine): #{JSON.generate(item["nx11e"])}".yellow
+            puts "Nx113 (payload): #{Nx113Access::toStringOrNull("", item["nx113"], "")}".yellow
+            puts "Cx22 (Contribution Group): #{JSON.generate(item["cx22"])}".yellow
+            puts "Cx23 (Group position): #{JSON.generate(item["cx23"])}".yellow
 
             puts ""
             puts "description | access | start | stop | engine | edit | nx113 | done | do not show until | expose | destroy | nyx".yellow
