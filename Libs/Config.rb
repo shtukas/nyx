@@ -10,7 +10,7 @@ class Config
 
     # Config::get(key)
     def self.get(key)
-        config = JSON.parse(IO.read("#{Config::pathToLocalDataBankStargate()}/config.json"))
+        config = JSON.parse(IO.read("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-Config.json"))
         config[key]
     end
 

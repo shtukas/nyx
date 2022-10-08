@@ -5,7 +5,7 @@ class NetworkEdges
 
     # NetworkEdges::pathToDatabase()
     def self.pathToDatabase()
-        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/network-edges.sqlite3"
+        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-Databases/network-edges.sqlite3"
     end
 
     # Getters

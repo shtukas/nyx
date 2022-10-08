@@ -123,7 +123,7 @@ class SystemEvents
                 end
 
                 if CommonUtils::ends_with?(filepath1, ".file-datastore1") then
-                    DataStore1::putDataByFilepathNoCommLine(filepath1)
+                    DataStore1::putDataByFilepath(filepath1)
                     FileUtils.rm(filepath1)
                     next
                 end

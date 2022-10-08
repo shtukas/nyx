@@ -1,11 +1,11 @@
 class DataStore1
 
     # -------------------------------------------------------
-    # Locations
+    # Repositories
 
     # DataStore1::localRepository()
     def self.localRepository()
-        "#{ENV['HOME']}/Galaxy/DataBank/Stargate/datastore1"
+        "#{ENV['HOME']}/Galaxy/DataBank/Stargate-DataStore1"
     end
 
     # DataStore1::energyGridRepository()
@@ -20,6 +20,16 @@ class DataStore1
     # DataStore1::getXCacheFilepath(nhash)
     def self.getXCacheFilepath(nhash)
         XCache::filepath(nhash)
+    end
+
+    # DataStore1::getLocalFilepath(nhash)
+    def self.getLocalFilepath(nhash)
+        month = "2022-09"
+        folderpath = "#{DataStore1::localRepository()}/#{month}/#{nhash[7, 2]}"
+        if !File.exists?(folderpath) then
+            FileUtils.mkpath(folderpath)
+        end
+        filepath = "#{folderpath}/#{nhash}"
     end
 
     # DataStore1::getEnergyGridFilepathForFilename(nhash)
@@ -43,39 +53,9 @@ class DataStore1
         filepath
     end
 
-    # DataStore1::getLocalRepositoryFilepath(nhash)
-    def self.getLocalRepositoryFilepath(nhash)
-        month = "2022-09"
-        folderpath = "#{DataStore1::localRepository()}/#{month}/#{nhash[7, 2]}"
-        if !File.exists?(folderpath) then
-            FileUtils.mkpath(folderpath)
-        end
-        filepath = "#{folderpath}/#{nhash}"
-    end
-
-    # DataStore1::getFilepathsForWritingNoCommLine(nhash) # Array[filepath]
-    def self.getFilepathsForWritingNoCommLine(nhash)
-        [
-            DataStore1::getLocalRepositoryFilepath(nhash)
-        ]
-    end
-
-    # DataStore1::getFilepathsForWriting(nhash) # Array[filepath]
-    def self.getFilepathsForWriting(nhash)
-        filepaths1 = [
-            DataStore1::getLocalRepositoryFilepath(nhash)
-        ]
-        filepaths2 = Machines::theOtherInstanceIds()
-                        .map{|targetInstanceId|
-                            "#{CommsLine::pathToStaging()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.file-datastore1"
-                        }
-
-        filepaths1 + filepaths2
-    end
-
     # DataStore1::getNearestFilepathForReadingErrorIfNotAcquisable(nhash, optimiseUsingCacheWrites) # filepath
     def self.getNearestFilepathForReadingErrorIfNotAcquisable(nhash, optimiseUsingCacheWrites)
-        filepath = DataStore1::getLocalRepositoryFilepath(nhash)
+        filepath = DataStore1::getLocalFilepath(nhash)
         if File.exists?(filepath) then
             return filepath
         end
@@ -83,7 +63,7 @@ class DataStore1
         # We are moving away from XCache, but we still have data there
         filepath = DataStore1::getXCacheFilepath(nhash)
         if File.exists?(filepath) then
-            FileUtils.cp(filepath, DataStore1::getLocalRepositoryFilepath(nhash))
+            FileUtils.cp(filepath, DataStore1::getLocalFilepath(nhash))
             return filepath
         end
 
@@ -92,7 +72,7 @@ class DataStore1
         filepath = DataStore1::getEnergyGridFilepathErrorIfNotAcquisable(nhash)
         if File.exists?(filepath) then
             if optimiseUsingCacheWrites then
-                FileUtils.cp(filepath, DataStore1::getLocalRepositoryFilepath(nhash))
+                FileUtils.cp(filepath, DataStore1::getLocalFilepath(nhash))
             end
             return filepath
         end
@@ -106,30 +86,20 @@ class DataStore1
     # DataStore1::putDataByContent(content) # nhash
     def self.putDataByContent(content)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(content)}"
-        DataStore1::getFilepathsForWriting(nhash).each{|filepath|
-            next if File.exists?(filepath)
+        filepath = DataStore1::getLocalFilepath(nhash)
+        if !File.exists?(filepath) then
             File.open(filepath, "w"){|f| f.write(content) }
-        }
-        nhash
-    end
-
-    # DataStore1::putDataByFilepathNoCommLine(sourcefilepath) # nhash
-    def self.putDataByFilepathNoCommLine(sourcefilepath)
-        nhash = "SHA256-#{Digest::SHA256.file(sourcefilepath).hexdigest}"
-        DataStore1::getFilepathsForWritingNoCommLine(nhash).each{|filepath|
-            next if File.exists?(filepath)
-            FileUtils.cp(sourcefilepath, filepath)
-        }
+        end
         nhash
     end
 
     # DataStore1::putDataByFilepath(sourcefilepath) # nhash
     def self.putDataByFilepath(sourcefilepath)
         nhash = "SHA256-#{Digest::SHA256.file(sourcefilepath).hexdigest}"
-        DataStore1::getFilepathsForWriting(nhash).each{|filepath|
-            next if File.exists?(filepath)
+        filepath = DataStore1::getLocalFilepath(nhash)
+        if !File.exists?(filepath) then
             FileUtils.cp(sourcefilepath, filepath)
-        }
+        end
         nhash
     end
 
