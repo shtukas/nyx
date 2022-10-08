@@ -86,19 +86,25 @@ class Cx22
     def self.repElementsDive(rep)
         loop {
             system("clear")
-            elements = NxTodos::itemsInPositionOrderForGroup(rep).first(20)
+            puts ""
+            puts rep["groupname"]
+            puts ""
+            elements = NxTodos::itemsInPositionOrderForGroup(rep).first(CommonUtils::screenHeight() - 8)
             store = ItemStore.new()
             elements
                 .each{|element|
                     store.register(element, false)
-                    puts "#{store.prefixString()} #{PolyFunctions::toString(element)}"
+                    if NxBallsService::isPresent(element["uuid"]) then
+                        puts "#{store.prefixString()} #{PolyFunctions::toString(element)}#{NxBallsService::activityStringOrEmptyString(" (", element["uuid"], ")")}".green
+                    else
+                        puts "#{store.prefixString()} #{PolyFunctions::toString(element)}"
+                    end
                 }
-
             puts ""
-            puts "<n> | insert".yellow
+            puts "<n> | insert | position <n> <position> | start <n> | done <n> | exit".yellow
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
-            return if input == ""
+            return if input == "exit"
 
             if (indx = Interpreting::readAsIntegerOrNull(input)) then
                 entity = store.get(indx)
@@ -135,15 +141,45 @@ class Cx22
                 Items::putItem(item)
                 next
             end
+
+            if input.start_with?("start") then
+                indx = input[5, 99].strip.to_i
+                entity = store.get(indx)
+                next if entity.nil?
+                PolyActions::start(entity)
+                next
+            end
+
+            if input.start_with?("done") then
+                indx = input[4, 99].strip.to_i
+                entity = store.get(indx)
+                next if entity.nil?
+                PolyActions::done(entity)
+                next
+            end
+
+            if input.start_with?("position") then
+                input = input[8, 99].strip
+                es = input.split(" ").map{|token| token.strip }
+                return if es.size != 2
+                indx, position = es
+                indx = indx.to_i
+                position = position.to_f
+                entity = store.get(indx)
+                next if entity.nil?
+                cx23 = Cx23::makeCx23(rep["groupuuid"], position)
+                Items::setAttribute2(entity["uuid"], "cx23", cx23)
+                next
+            end
         }
     end
 
     # Cx22::repDive(rep)
     def self.repDive(rep)
         loop {
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("rep", ["elements dive", "start NxBall", "done for the day", "un-{done for the day}", "expose", "completion ratio", "add time"])
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("rep", ["elements (program)", "start NxBall", "done for the day", "un-{done for the day}", "expose", "completion ratio", "add time"])
             break if action.nil?
-            if action == "elements dive" then
+            if action == "elements (program)" then
                 Cx22::repElementsDive(rep)
             end
             if action == "start NxBall" then
