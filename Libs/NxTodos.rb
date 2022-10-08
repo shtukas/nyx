@@ -228,9 +228,11 @@ class NxTodos
 
     # NxTodos::toString(item)
     def self.toString(item)
-        cx22str = item["cx22"] ? " #{Cx22::toString(item["cx22"]).green}" : ""
-        cx23str = item["cx23"] ? " (pos: #{"%6.2f" % item["cx23"]["position"]})" : ""
-        "(todo)#{cx23str} #{Nx11E::toString(item["nx11e"])} #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")}#{cx22str}".strip.gsub("(todo) (standard)", "(todo)")
+        nx11estr = Nx11E::toString(item["nx11e"])
+        nx113str = Nx113Access::toStringOrNull(" ", item["nx113"], "")
+        cx22str  = item["cx22"] ? " #{Cx22::toString(item["cx22"]).green}" : ""
+        cx23str  = item["cx23"] ? " (pos: #{"%6.2f" % item["cx23"]["position"]})" : ""
+        "(todo)#{cx23str} #{nx11estr} #{item["description"]}#{nx113str}#{cx22str}".strip.gsub("(todo) (standard)", "(todo)")
     end
 
     # NxTodos::toStringForSearch(item)
