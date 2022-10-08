@@ -39,7 +39,7 @@ class CatalystListing
             ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | nx113 (<n>) | engine (<n>) | contribution (<n>) | cx23 (group position) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | group done for today | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
             "update start date (<n>)",
             "wave | anniversary | hot | today | ondate | todo",
-            "anniversaries | ondates | todos | waves | groups",
+            "anniversaries | ondates | waves | groups | todos | todos-latest-first",
             "require internet",
             "search | nyx | speed | nxballs",
         ].join("\n")
@@ -457,6 +457,12 @@ class CatalystListing
             puts JSON.pretty_generate(item)
             return
         end
+
+        if Interpreting::match("todos-latest-first", input) then
+            NxTodos::todosLatestFirst()
+            return
+        end
+
 
         if input == "transmute" then
             item = store.getDefault()

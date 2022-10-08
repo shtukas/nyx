@@ -453,4 +453,39 @@ class NxTodos
             PolyPrograms::itemLanding(item)
         }
     end
+
+    # NxTodos::elementsDive(elements)
+    def self.elementsDive(elements)
+        loop {
+            system("clear")
+            store = ItemStore.new()
+            elements
+                .each{|element|
+                    store.register(element, false)
+                    puts "#{store.prefixString()} #{PolyFunctions::toString(element)}"
+                }
+
+            puts ""
+            puts "<n>".yellow
+            puts ""
+            input = LucilleCore::askQuestionAnswerAsString("> ")
+            return if input == ""
+
+            if (indx = Interpreting::readAsIntegerOrNull(input)) then
+                entity = store.get(indx)
+                next if entity.nil?
+                PolyPrograms::itemLanding(entity)
+                next
+            end
+        }
+    end
+
+    # NxTodos::todosLatestFirst()
+    def self.todosLatestFirst()
+        items = NxTodos::items()
+                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+                    .reverse
+                    .first(50)
+        NxTodos::elementsDive(items)
+    end
 end
