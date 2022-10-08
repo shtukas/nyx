@@ -42,7 +42,7 @@ loop {
     XCache::set("a99a66c3-3a38-4dbd-a3ae-c1e6ecd516db:#{item["uuid"]}", count)
     $cache[item["uuid"]] = count
     next if count == 0
-    PolyPrograms::itemLanding(item)
+    PolyActions::landing(item)
     count = NetworkEdges::relateds(item["uuid"]).count
     XCache::set("a99a66c3-3a38-4dbd-a3ae-c1e6ecd516db:#{item["uuid"]}", count)
     $cache[item["uuid"]] = count

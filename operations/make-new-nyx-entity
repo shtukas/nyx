@@ -6,4 +6,4 @@ require_relative "../Libs/loader.rb"
 
 item = NyxNodes::interactivelyIssueNewOrNull()
 exit if item.nil?
-PolyPrograms::itemLanding(item)
+PolyActions::landing(item)

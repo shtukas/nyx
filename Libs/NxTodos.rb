@@ -453,7 +453,7 @@ class NxTodos
             items = NxTodos::itemsOndates().sort{|i1, i2| i1["nx11e"]["datetime"] <=> i2["nx11e"]["datetime"] }
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("dated", items, lambda{|item| NxTodos::toString(item) })
             break if item.nil?
-            PolyPrograms::itemLanding(item)
+            PolyActions::landing(item)
         }
     end
 
@@ -477,7 +477,7 @@ class NxTodos
             if (indx = Interpreting::readAsIntegerOrNull(input)) then
                 entity = store.get(indx)
                 next if entity.nil?
-                PolyPrograms::itemLanding(entity)
+                PolyActions::landing(entity)
                 next
             end
         }

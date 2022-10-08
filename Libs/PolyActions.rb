@@ -139,6 +139,13 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxTodo" then
+            if item["nx113"] then
+                puts "You cannot done a todo with some contents (Nx113), you need to land on it and destroy it"
+                if LucilleCore::askQuestionAnswerAsBoolean("landing ? ") then
+                    PolyActions::landing(item)
+                end
+                return
+            end
             if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
                 NxTodos::destroy(item["uuid"])
             end
@@ -188,6 +195,31 @@ class PolyActions
         return if item.nil?
 
         # order : alphabetical order
+    end
+
+    # PolyActions::landing(item)
+    def self.landing(item)
+        if item["mikuType"] == "NxAnniversary" then
+            Anniversaries::landing(item)
+            return
+        end
+
+        if item["mikuType"] == "Wave" then
+            Waves::landing(item)
+            return
+        end
+
+        if item["mikuType"] == "NxTodo" then
+            NxTodos::landing(item)
+            return
+        end
+
+        if item["mikuType"] == "NyxNode" then
+            NyxNodes::landing(item)
+            return
+        end
+
+        raise "(error: D9DD0C7C-ECC4-46D0-A1ED-CD73591CC87B): item: #{item}"
     end
 
     # PolyActions::redate(item)

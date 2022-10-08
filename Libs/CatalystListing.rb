@@ -281,7 +281,7 @@ class CatalystListing
         end
 
         if Interpreting::match("landing", input) then
-            PolyPrograms::itemLanding(store.getDefault())
+            PolyActions::landing(store.getDefault())
             return
         end
 
@@ -289,7 +289,7 @@ class CatalystListing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyPrograms::itemLanding(item)
+            PolyActions::landing(item)
             return
         end
 

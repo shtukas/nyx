@@ -214,7 +214,7 @@ class NyxNodes
             if (indx = Interpreting::readAsIntegerOrNull(input)) then
                 entity = store.get(indx)
                 next if entity.nil?
-                PolyPrograms::itemLanding(entity)
+                PolyActions::landing(entity)
                 next
             end
 
