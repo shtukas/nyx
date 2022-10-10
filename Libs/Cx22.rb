@@ -101,7 +101,7 @@ class Cx22
                     end
                 }
             puts ""
-            puts "<n> | insert | position <n> <position> | start <n> | stop <n> | pursue <n> | done <n> | exit".yellow
+            puts "<n> | insert | position <n> <position> | start <n> | stop <n> | pause <n> | pursue <n> | done <n> | exit".yellow
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
             return if input == "exit"
@@ -155,6 +155,14 @@ class Cx22
                 entity = store.get(indx)
                 next if entity.nil?
                 PolyActions::stop(entity)
+                next
+            end
+
+            if input.start_with?("pause") then
+                indx = input[5, 99].strip.to_i
+                entity = store.get(indx)
+                next if entity.nil?
+                NxBallsService::pause(entity["uuid"])
                 next
             end
 
