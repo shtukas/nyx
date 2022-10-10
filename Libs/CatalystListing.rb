@@ -41,7 +41,7 @@ class CatalystListing
             "wave | anniversary | hot | today | ondate | todo",
             "anniversaries | ondates | waves | groups | todos | todos-latest-first",
             "require internet",
-            "search | nyx | speed | nxballs",
+            "search | nyx | speed | nxballs | rebuild",
         ].join("\n")
     end
 
@@ -191,6 +191,19 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::done(item)
+            return
+        end
+
+        if Interpreting::match("do not show until *", input) then
+            _, _, _, _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            datecode = LucilleCore::askQuestionAnswerAsString("datecode: ")
+            return if datecode == ""
+            unixtime = CommonUtils::codeToUnixtimeOrNull(datecode.gsub(" ", ""))
+            return if unixtime.nil?
+            PolyActions::stop(item)
+            DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
             return
         end
 
@@ -384,16 +397,9 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("do not show until *", input) then
-            _, _, _, _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            datecode = LucilleCore::askQuestionAnswerAsString("datecode: ")
-            return if datecode == ""
-            unixtime = CommonUtils::codeToUnixtimeOrNull(datecode.gsub(" ", ""))
-            return if unixtime.nil?
-            PolyActions::stop(item)
-            DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+        if Interpreting::match("rebuild", input) then
+            $CatalystGroupMonitor1.rebuildLx13sFromScratch()
+            ListingManager::rebuild()
             return
         end
 

@@ -38,11 +38,12 @@ class Cx22
             .sort{|p1, p2| p1["unixtime"] <=> p2["unixtime"] }
     end
 
-    # Cx22::interactivelySetANewContributionForItemOrNothing(item)
+    # Cx22::interactivelySetANewContributionForItemOrNothing(item) # item
     def self.interactivelySetANewContributionForItemOrNothing(item)
         cx22 = Cx22::architectOrNull()
         return if cx22.nil?
         Items::setAttribute2(item["uuid"], "cx22", cx22)
+        Items::getItemOrNull(item["uuid"])
     end
 
     # Cx22::toString(cx22)

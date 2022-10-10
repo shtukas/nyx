@@ -70,7 +70,44 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "TxDated" then
+        if item["mikuType"] == "NxTodo" then
+
+            # We havea a special processing of triage items
+            if item["nx11e"]["type"] == "triage" then
+                PolyActions::access(item)
+                loop {
+                    actions = ["description", "start and al.", "destroy"]
+                    action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
+                    next if action.nil?
+                    if action == "description" then
+                        next
+                    end
+                    if action == "start and al." then
+                        PolyActions::start(item)
+                        LucilleCore::pressEnterToContinue("Press enter to move to stop and al.")
+                        item = Cx22::interactivelySetANewContributionForItemOrNothing(item)
+                        PolyActions::stop(item)
+                        actions = ["destroy", "keep and return to listing"]
+                        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
+                        return if action.nil?
+                        if action == "destroy" then
+                            if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
+                                NxTodos::destroy(item["uuid"])
+                            end
+                            return
+                        end
+                        if action == "keep and return to listing" then
+                            return
+                        end
+                    end
+                    if action == "destroy" then
+                        PolyActions::done(item)
+                        return
+                    end
+                }
+                return
+            end
+
             PolyActions::start(item)
             PolyActions::access(item)
             loop {
