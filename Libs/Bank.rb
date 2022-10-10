@@ -24,6 +24,7 @@ class Bank
             "date"      => CommonUtils::today(),
             "weight"    => weight
         })
+        XCache::destroy("256e3994-7469-46a8-abd2-238bb25d5976:#{setuuid}:#{CommonUtils::today()}")
     end
 
     # Bank::processEvent(event)
@@ -40,13 +41,13 @@ class Bank
             db.results_as_hash = true
             db.execute "insert into _bank_ (_setuuid_, _unixtime_, _date_, _weight_) values (?, ?, ?, ?)", [setuuid, unixtime, date, weight]
             db.close
-            XCache::destroy("256e3994-7469-46a8-abd1-238bb25d5976:#{setuuid}:#{date}") # decaching the value for that date
+            XCache::destroy("256e3994-7469-46a8-abd2-238bb25d5976:#{setuuid}:#{date}") # decaching the value for that date
         end
     end
 
     # Bank::valueAtDate(setuuid, date)
     def self.valueAtDate(setuuid, date)
-        value = XCache::getOrNull("256e3994-7469-46a8-abd1-238bb25d5976:#{setuuid}:#{date}")
+        value = XCache::getOrNull("256e3994-7469-46a8-abd2-238bb25d5976:#{setuuid}:#{date}")
         return value.to_f if value
 
         db = SQLite3::Database.new(Bank::pathToDatabase())
@@ -60,7 +61,7 @@ class Bank
         db.close
         value
 
-        XCache::set("256e3994-7469-46a8-abd1-238bb25d5976:#{setuuid}:#{date}", value)
+        XCache::set("256e3994-7469-46a8-abd2-238bb25d5976:#{setuuid}:#{date}", value)
 
         value
     end

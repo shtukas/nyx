@@ -37,7 +37,7 @@ NxBall {
 
     # NxBallsIO::commitItem(item)
     def self.commitItem(item)
-        MikuTypedObjects::set(item)
+        MikuTypedObjects::commit(item)
     end
 
     # NxBallsIO::destroyItem(uuid)

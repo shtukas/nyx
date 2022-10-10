@@ -85,7 +85,7 @@ class PolyActions
                     if action == "access >> description >> ♻️" then
                         PolyActions::access(item)
                         PolyActions::editDescription(item)
-                        NxTodoListingManager::incomingItemuuid(item["uuid"])
+                        NxTodosInMemory::incomingItemuuid(item["uuid"])
                         next
                     end
                     if action == "start >> access >> al." then
@@ -105,7 +105,7 @@ class PolyActions
                         end
                         if action == "keep as standard and return to listing" then
                             Items::setAttribute2(item["uuid"], "nx11e", Nx11E::makeStandard())
-                            NxTodoListingManager::incomingItemuuid(item["uuid"])
+                            NxTodosInMemory::incomingItemuuid(item["uuid"])
                             return
                         end
                     end
@@ -113,7 +113,7 @@ class PolyActions
                         Items::setAttribute2(item["uuid"], "nx11e", Nx11E::makeStandard())
                         item = Items::getItemOrNull(item["uuid"])
                         Cx22::interactivelySetANewContributionForItemOrNothing(item)
-                        NxTodoListingManager::incomingItemuuid(item["uuid"])
+                        NxTodosInMemory::incomingItemuuid(item["uuid"])
                         return
                     end
                     if action == "destroy" then
@@ -307,7 +307,10 @@ class PolyActions
         accounts = []
         accounts << item["uuid"]
         if item["cx22"] then
-            accounts << item["cx22"]["bankaccount"] # Contribution
+            cx22 = Cx22::getOrNull(item["cx22"])
+            if cx22 then
+                accounts << cx22["bankaccount"]
+            end
         end
         NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), accounts, PolyFunctions::timeBeforeNotificationsInHours(item)*3600)
     end

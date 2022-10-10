@@ -1,108 +1,86 @@
 # encoding: UTF-8
 
-$NxTodoListingManager = nil
+$NxTodosInMemory = nil
 
-class NxTodoListingManager
+class NxTodosInMemory
 
     def initialize()
-        data = XCache::getOrNull("de9710ba-6ece-4cff-8176-41e8894b4fde")
+        data = XCache::getOrNull("de9710ba-6ece-4cff-8176-41e8894b4fdf")
         if data then
             @data = JSON.parse(data)
         else
-            rebuildInstance()
+            reloadItemsFromDisk()
         end
 
         Thread.new {
             loop {
                 sleep 60
-                rebuildInstance()
+                reloadItemsFromDisk()
                 sleep 3600
             }
         }
     end
 
-    def listingItemsInstance()
-        @data.first(20)
-            .map{|packet| packet["item"] }
-            .map{|item| item.clone }
+    def itemsInstance()
+        @data
     end
 
-    def rebuildInstance()
-        items = NxTodos::items()
-        @data = items
-                    .map{|item|
-                        {
-                            "mikuType" => "NxTodoWithListingPriority",
-                            "item"     => item,
-                            "priority" => NxTodos::listingPriorityOrNull(item)
-                        }
-                    }
-                    .sort{|p1, p2| (p1["priority"] || -1) <=> (p2["priority"] || -1) }
-                    .reverse
-        XCache::set("de9710ba-6ece-4cff-8176-41e8894b4fde", JSON.generate(@data))
+    def reloadItemsFromDisk()
+        @data = NxTodos::items()
+        XCache::set("de9710ba-6ece-4cff-8176-41e8894b4fdf", JSON.generate(@data))
     end
 
     def incomingItemInstance(item)
         return if item["mikuType"] != "NxTodo"
-        @data = @data.reject{|packet| packet["item"]["uuid"] == item["uuid"] }
-        @data << {
-            "mikuType" => "NxTodoWithListingPriority",
-            "item"     => item,
-            "priority" => NxTodos::listingPriorityOrNull(item)
-        }
-        @data = @data
-                    .sort{|p1, p2| (p1["priority"] || -1) <=> (p2["priority"] || -1) }
-                    .reverse
-        XCache::set("de9710ba-6ece-4cff-8176-41e8894b4fde", JSON.generate(@data))
+        @data = @data.reject{|i| i["uuid"] == item["uuid"] }
+        @data << item
+        XCache::set("de9710ba-6ece-4cff-8176-41e8894b4fdf", JSON.generate(@data))
     end
 
     def destroyItemInstance(itemuuid)
-        @data = @data.reject{|packet| packet["item"]["uuid"] == itemuuid }
-        @data = @data
-                    .sort{|p1, p2| (p1["priority"] || -1) <=> (p2["priority"] || -1) }
-                    .reverse
-        XCache::set("de9710ba-6ece-4cff-8176-41e8894b4fde", JSON.generate(@data))
+        @data = @data.reject{|i| i["uuid"] == itemuuid }
+        XCache::set("de9710ba-6ece-4cff-8176-41e8894b4fdf", JSON.generate(@data))
     end
 
-    # NxTodoListingManager::listingItems()
-    def self.listingItems()
-        if $NxTodoListingManager.nil? then
-            $NxTodoListingManager = NxTodoListingManager.new()
+    # NxTodosInMemory::items()
+    def self.items()
+        if $NxTodosInMemory.nil? then
+            $NxTodosInMemory = NxTodosInMemory.new()
         end
-        $NxTodoListingManager.listingItemsInstance()
+        $NxTodosInMemory.itemsInstance()
     end
 
-    # NxTodoListingManager::rebuild()
+    # NxTodosInMemory::rebuild()
     def self.rebuild()
-        if $NxTodoListingManager.nil? then
-            $NxTodoListingManager = NxTodoListingManager.new()
+        if $NxTodosInMemory.nil? then
+            $NxTodosInMemory = NxTodosInMemory.new()
         end
-        $NxTodoListingManager.rebuildInstance()
+        $NxTodosInMemory.reloadItemsFromDisk()
     end
 
-    # NxTodoListingManager::incomingItem(item)
+    # NxTodosInMemory::incomingItem(item)
     def self.incomingItem(item)
-        if $NxTodoListingManager.nil? then
-            $NxTodoListingManager = NxTodoListingManager.new()
+        if $NxTodosInMemory.nil? then
+            $NxTodosInMemory = NxTodosInMemory.new()
         end
-        $NxTodoListingManager.incomingItemInstance(item)
+        $NxTodosInMemory.incomingItemInstance(item)
     end
 
-    # NxTodoListingManager::incomingItemuuid(itemuuid)
+    # NxTodosInMemory::incomingItemuuid(itemuuid)
     def self.incomingItemuuid(itemuuid)
-        if $NxTodoListingManager.nil? then
-            $NxTodoListingManager = NxTodoListingManager.new()
+        if $NxTodosInMemory.nil? then
+            $NxTodosInMemory = NxTodosInMemory.new()
         end
         item = Items::getItemOrNull(itemuuid)
-        $NxTodoListingManager.incomingItemInstance(item)
+        $NxTodosInMemory.incomingItemInstance(item)
     end
 
-    # NxTodoListingManager::destroyItem(itemuuid)
+    # NxTodosInMemory::destroyItem(itemuuid)
     def self.destroyItem(itemuuid)
-        if $NxTodoListingManager.nil? then
-            $NxTodoListingManager = NxTodoListingManager.new()
+        if $NxTodosInMemory.nil? then
+            $NxTodosInMemory = NxTodosInMemory.new()
         end
-        $NxTodoListingManager.destroyItemInstance(itemuuid)
+        $NxTodosInMemory.destroyItemInstance(itemuuid)
     end
 end
 
@@ -129,7 +107,7 @@ class NxTodos
         nx11e       = Nx11E::interactivelyCreateNewNx11E()
         nx113nhash  = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
         cx22        = Cx22::architectOrNull()
-        cx23        = cx22 ? Cx23::makeNewOrNull2(cx22["groupuuid"]) : nil
+        cx23        = cx22 ? Cx23::makeNewOrNull(cx22) : nil
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
@@ -263,7 +241,7 @@ class NxTodos
     def self.toString(item)
         nx11estr = Nx11E::toString(item["nx11e"])
         nx113str = Nx113Access::toStringOrNull(" ", item["nx113"], "")
-        cx22str  = item["cx22"] ? " #{Cx22::toString(item["cx22"]).green}" : ""
+        cx22str  = item["cx22"] ? " #{Cx22::toString2(item["cx22"]).green}" : ""
         cx23str  = item["cx23"] ? " (pos: #{"%6.2f" % item["cx23"]["position"]})" : ""
         "(todo)#{cx23str} #{nx11estr} #{item["description"]}#{nx113str}#{cx22str}".strip.gsub("(todo) (standard)", "(todo)")
     end
@@ -322,13 +300,29 @@ class NxTodos
         end
 
         if item["nx11e"]["type"] == "standard" and item["cx22"] and item["cx23"] then
-            completionRatio = Ax39::completionRatioCached(item["cx22"]["ax39"], item["cx22"]["bankaccount"])
+            cx22 = Cx22::getOrNull(item["cx22"])
+            if cx22.nil? then
+                puts "I could not find a Cx22 for uuid: #{item["cx22"]} inside #{item}"
+                puts "I am going to nullify the attribute"
+                LucilleCore::pressEnterToContinue()
+                Items::setAttribute2(item["uuid"], "cx22", nil)
+                return nil
+            end
+            completionRatio = Ax39::completionRatioCached(cx22["ax39"], cx22["bankaccount"])
             return nil if completionRatio >= 1
             return 0.60 + shiftOnCompletionRatio.call(completionRatio) + shiftOnPosition.call(item["cx23"]["position"]).to_f/100
         end
 
         if item["nx11e"]["type"] == "standard" and item["cx22"] then
-            completionRatio = Ax39::completionRatioCached(item["cx22"]["ax39"], item["cx22"]["bankaccount"])
+            cx22 = Cx22::getOrNull(item["cx22"])
+            if cx22.nil? then
+                puts "I could not find a Cx22 for uuid: #{item["cx22"]} inside #{item}"
+                puts "I am going to nullify the attribute"
+                LucilleCore::pressEnterToContinue()
+                Items::setAttribute2(item["uuid"], "cx22", nil)
+                return nil
+            end
+            completionRatio = Ax39::completionRatioCached(cx22["ax39"], cx22["bankaccount"])
             return nil if completionRatio >= 1
             return 0.50 + shiftOnCompletionRatio.call(completionRatio)
         end
@@ -342,17 +336,33 @@ class NxTodos
 
     # NxTodos::listingItems()
     def self.listingItems()
-        NxTodoListingManager::listingItems()
+        cx22 = Cx22::cx22WithCompletionRatiosOrdered()
+                .select{|packet| packet["completionratio"] < 1 }
+                .map{|packet| packet["cx22"] }
+                .first
+        if cx22 then
+            NxTodosInMemory::items()
+                .select{|item| item["cx22"] == cx22["uuid"] }
+                .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+                .first(100)
+        else
+            NxTodosInMemory::items()
+                .select{|item| item["cx22"].nil? }
+                .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+                .first(100)
+        end
     end
 
     # NxTodos::itemsInPositionOrderForGroup(cx22)
     def self.itemsInPositionOrderForGroup(cx22)
-        items1 = NxTodos::items()
-                    .select{|item| item["cx22"] and item["cx22"]["groupuuid"] == cx22["groupuuid"] }
+        items = NxTodos::items()
+                    .select{|item| item["cx22"] }
+                    .select{|item| item["cx22"] == cx22["uuid"] }
+        items1 = items
                     .select{|item| item["cx23"] }
                     .sort{|i1, i2| i1["cx23"]["position"] <=> i2["cx23"]["position"] }
-        items2 = NxTodos::items()
-                    .select{|item| item["cx22"] and item["cx22"]["groupuuid"] == cx22["groupuuid"] }
+
+        items2 = items
                     .select{|item| item["cx23"].nil? }
                     .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
         items1 + items2

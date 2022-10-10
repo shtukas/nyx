@@ -39,8 +39,8 @@ class MikuTypedObjects
         object
     end
 
-    # MikuTypedObjects::set(object)
-    def self.set(object)
+    # MikuTypedObjects::commit(object)
+    def self.commit(object)
         if object["uuid"].nil? then
             raise "(error: e8997aeb-c3d8-4241-95d5-303fa99de878) missing attribute uuid, object: #{object}"
         end

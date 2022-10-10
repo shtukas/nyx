@@ -1,36 +1,5 @@
 # encoding: UTF-8
 
-class CatalystGroupMonitor
-    def initialize()
-        @lx13 = []
-        @lx13 = XCacheValuesWithExpiry::getOrNull("abc03773-bdca-4c5d-86e9-92a253f3e23a")
-        if @lx13.nil? then
-            rebuildLx13sFromScratch()
-        end
-        Thread.new {
-            loop {
-                sleep 300
-                rebuildLx13sFromScratch()
-            }
-        }
-    end
-
-    def getLx13sForDisplay()
-        @lx13
-            .select{|packet| packet["cr"] < 1 }
-            .select{|packet| 
-                bankaccount = packet["bankaccount"]
-                !BankAccountDoneForToday::isDoneToday(bankaccount) 
-            }
-            .sort{|p1, p2| p1["cr"] <=> p2["cr"] }
-    end
-
-    def rebuildLx13sFromScratch()
-        @lx13 = Cx22::getLx13s()
-        XCacheValuesWithExpiry::set("abc03773-bdca-4c5d-86e9-92a253f3e23a", @lx13, nil)
-    end
-end
-
 class CatalystListing
 
     # CatalystListing::listingCommands()
@@ -86,7 +55,7 @@ class CatalystListing
             end
             Cx22::interactivelySetANewContributionForItemOrNothing(item)
             Items::setAttribute2(item["uuid"], "nx11e", Nx11E::makeStandard())
-            NxTodoListingManager::incomingItemuuid(item["uuid"])
+            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -119,7 +88,7 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             Cx22::interactivelySetANewContributionForItemOrNothing(item)
-            NxTodoListingManager::incomingItemuuid(item["uuid"])
+            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -128,7 +97,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             Cx22::interactivelySetANewContributionForItemOrNothing(item)
-            NxTodoListingManager::incomingItemuuid(item["uuid"])
+            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -136,7 +105,7 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             Cx23::interactivelySetCx23ForItemOrNothing(item)
-            NxTodoListingManager::incomingItemuuid(item["uuid"])
+            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -145,7 +114,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             Cx23::interactivelySetCx23ForItemOrNothing(item)
-            NxTodoListingManager::incomingItemuuid(item["uuid"])
+            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -168,7 +137,7 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             PolyActions::editDatetime(item)
-            NxTodoListingManager::incomingItemuuid(item["uuid"])
+            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -177,7 +146,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::editDatetime(item)
-            NxTodoListingManager::incomingItemuuid(item["uuid"])
+            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -185,7 +154,7 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             PolyActions::editDescription(item)
-            NxTodoListingManager::incomingItemuuid(item["uuid"])
+            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -194,7 +163,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::editDescription(item)
-            NxTodoListingManager::incomingItemuuid(item["uuid"])
+            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -230,7 +199,7 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             PolyFunctions::edit(item)
-            NxTodoListingManager::incomingItemuuid(item["uuid"])
+            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -239,7 +208,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyFunctions::edit(item)
-            NxTodoListingManager::incomingItemuuid(item["uuid"])
+            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -250,7 +219,7 @@ class CatalystListing
             if item["cx22"].nil? then
                 Cx22::interactivelySetANewContributionForItemOrNothing(item)
             end
-            NxTodoListingManager::incomingItemuuid(item["uuid"])
+            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -262,7 +231,7 @@ class CatalystListing
             if item["cx22"].nil? then
                 Cx22::interactivelySetANewContributionForItemOrNothing(item)
             end
-            NxTodoListingManager::incomingItemuuid(item["uuid"])
+            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -300,16 +269,15 @@ class CatalystListing
         if input == "group done for today" then
             item = store.getDefault()
             return if item.nil?
-
             return if item["cx22"].nil?
-
-            bankaccount = item["cx22"]["bankaccount"]
-            BankAccountDoneForToday::setDoneToday(bankaccount)
+            cx22 = Cx22::getOrNull(item["cx22"])
+            return if cx22.nil?
+            BankAccountDoneForToday::setDoneToday(cx22["bankaccount"])
             return
         end
 
         if Interpreting::match("groups", input) then
-            Cx22::repsDive()
+            Cx22::maindive()
             return
         end
 
@@ -332,7 +300,7 @@ class CatalystListing
 
         if Interpreting::match("landing", input) then
             PolyActions::landing(store.getDefault())
-            NxTodoListingManager::incomingItemuuid(item["uuid"])
+            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -341,7 +309,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::landing(item)
-            NxTodoListingManager::incomingItemuuid(item["uuid"])
+            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -349,7 +317,7 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             PolyActions::setNx113(item)
-            NxTodoListingManager::incomingItemuuid(item["uuid"])
+            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -358,7 +326,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::setNx113(item)
-            NxTodoListingManager::incomingItemuuid(item["uuid"])
+            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -417,8 +385,7 @@ class CatalystListing
         end
 
         if Interpreting::match("rebuild", input) then
-            $CatalystGroupMonitor1.rebuildLx13sFromScratch()
-            NxTodoListingManager::rebuild()
+            NxTodosInMemory::rebuild()
             return
         end
 
@@ -433,7 +400,7 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             PolyActions::redate(item)
-            NxTodoListingManager::incomingItemuuid(item["uuid"])
+            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -442,7 +409,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::redate(item)
-            NxTodoListingManager::incomingItemuuid(item["uuid"])
+            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -488,11 +455,13 @@ class CatalystListing
             puts "Adding #{timeInHours.to_f} hours to #{PolyFunctions::toString(item).green}"
             Bank::put(item["uuid"], timeInHours.to_f*3600)
             if item["cx22"] then
-                bankaccount = item["cx22"]["bankaccount"] # Contribution
-                puts "Adding (Cx22, contributions) #{timeInHours.to_f} hours to bank account #{bankaccount}"
-                Bank::put(bankaccount, timeInHours.to_f*3600)
+                cx22 = Cx22::getOrNull(item["cx22"])
+                if cx22 then
+                    puts "Adding #{timeInHours.to_f} hours to #{Cx22::toString(cx22)}"
+                    Bank::put(cx22["bankaccount"], timeInHours.to_f*3600)
+                end
             end
-            NxTodoListingManager::incomingItemuuid(item["uuid"])
+            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -513,12 +482,11 @@ class CatalystListing
             return
         end
 
-
         if input == "transmute" then
             item = store.getDefault()
             return if item.nil?
             PolyActions::transmute(item)
-            NxTodoListingManager::incomingItemuuid(item["uuid"])
+            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -527,7 +495,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::transmute(item)
-            NxTodoListingManager::incomingItemuuid(item["uuid"])
+            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -667,17 +635,23 @@ class CatalystListing
             vspaceleft = vspaceleft - 2
         end
 
-        packets = $CatalystGroupMonitor1.getLx13sForDisplay()
+        packets = Cx22::cx22WithCompletionRatiosOrdered()
+                    .select{|packet| packet["completionratio"] < 1 }
+
         if packets.size > 0 then
+            padding = packets.map{|packet| packet["cx22"]["description"].size }.max
             puts ""
-            puts "Cx22 (Contribution Groups) below completion 1:".yellow
+            puts "Cx22s below completion 1:".yellow
             vspaceleft = vspaceleft - 2
             packets
                 .each{|packet|
-                    puts "    - #{packet["groupname"]} (#{packet["cr"].round(2)})".yellow
+                    cx22 = packet["cx22"]
+                    cr = packet["completionratio"]
+                    puts "    - #{cx22["description"].ljust(padding)} : #{(100*cr).to_i.to_s.rjust(2)} %".yellow
                     vspaceleft = vspaceleft - 1
                 }
         end
+
 
         nxballs = NxBallsIO::nxballs()
         if nxballs.size > 0 then

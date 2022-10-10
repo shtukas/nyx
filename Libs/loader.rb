@@ -231,10 +231,6 @@ $arrows_database_semaphore = Mutex.new
 
 # ------------------------------------------------------------
 
-$CatalystGroupMonitor1 = CatalystGroupMonitor.new()
-
-# ------------------------------------------------------------
-
 if $RunNonEssentialThreads then
     ThreadsX::nxBallsMonitoringAndNotification()
     if Config::get("instanceId") == "Lucille20-pascal" then 

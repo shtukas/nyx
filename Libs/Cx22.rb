@@ -1,96 +1,100 @@
 
 class Cx22
 
-    # Cx22::makeCx22(groupuuid, description, bankaccount, ax39)
-    def self.makeCx22(groupuuid, description, bankaccount, ax39)
-        {
-            "mikuType"    => "Cx22",
-            "groupuuid"   => groupuuid,
-            "groupname"   => description,
-            "bankaccount" => bankaccount,
-            "ax39"        => ax39
-        }
+    # Cx22::items()
+    def self.items()
+        MikuTypedObjects::objects("Cx22")
     end
 
-    # Cx22::makeNewOrNull()
-    def self.makeNewOrNull()
-        description = LucilleCore::askQuestionAnswerAsString("description (empty for abort): ")
+    # Cx22::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        MikuTypedObjects::getObjectOrNull(uuid)
+    end
+
+    # --------------------------------------------
+    # Makers
+
+    # Cx22::interactivelyIssueNewOrNull()
+    def self.interactivelyIssueNewOrNull()
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         ax39 = Ax39::interactivelyCreateNewAx()
-        Cx22::makeCx22(SecureRandom.uuid, description, SecureRandom.hex, ax39)
+        item = {
+            "uuid"        => SecureRandom.uuid,
+            "mikuType"    => "Cx22",
+            "description" => description,
+            "bankaccount" => SecureRandom.uuid,
+            "ax39"        => ax39
+        }
+        MikuTypedObjects::commit(item)
+        item
+    end
+
+    # Cx22::interactivelySelectCx22OrNull()
+    def self.interactivelySelectCx22OrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("cx22", Cx22::items(), lambda{|cx22| cx22["description"]})
     end
 
     # Cx22::architectOrNull()
     def self.architectOrNull()
-        puts "Select a group and if nothing you will get a chance to create a new one"
-        group = Cx22::interactivelySelectCx22RepOrNull()
-        return group if group
-        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to create a new group ? ", true) then
-            return Cx22::makeNewOrNull()
+        cx22 = Cx22::interactivelySelectCx22OrNull()
+        return cx22 if cx22
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to create a new Cx22 ? ", true) then
+            return Cx22::interactivelyIssueNewOrNull()
         end
         nil
     end
 
-    # Cx22::bankaccountToItemsInUnixtimeOrder(bankaccount)
-    def self.bankaccountToItemsInUnixtimeOrder(bankaccount)
-        NxTodos::items()
-            .select{|item| item["cx22"] and item["cx22"]["bankaccount"] == bankaccount }
-            .sort{|p1, p2| p1["unixtime"] <=> p2["unixtime"] }
+    # ----------------------------------------------------------------
+
+    # Cx22::toString(cx22)
+    def self.toString(cx22)
+        "(group: #{cx22["description"]})"
     end
+
+    # Cx22::toString2(uuid)
+    def self.toString2(uuid)
+        cx22 = Cx22::getOrNull(uuid)
+        if cx22.nil? then
+            return "(no cx22 found for uuid: #{uuid})"
+        end
+        Cx22::toString(cx22)
+    end
+
+    # Cx22::cx22WithCompletionRatiosOrdered()
+    def self.cx22WithCompletionRatiosOrdered()
+        cx22s = Cx22::items()
+        packets = cx22s
+                    .map{|cx22|
+                        {
+                            "mikuType"        => "Cx22WithCompletionRatio",
+                            "cx22"            => cx22,
+                            "completionratio" => Ax39::completionRatio(cx22["ax39"], cx22["bankaccount"])
+                        }
+                    }
+                    .sort{|p1, p2| p1["completionratio"] <=> p2["completionratio"] }
+        packets
+    end
+
+    # --------------------------------------------
+    # Ops
 
     # Cx22::interactivelySetANewContributionForItemOrNothing(item) # item
     def self.interactivelySetANewContributionForItemOrNothing(item)
         cx22 = Cx22::architectOrNull()
         return if cx22.nil?
-        Items::setAttribute2(item["uuid"], "cx22", cx22)
+        Items::setAttribute2(item["uuid"], "cx22", cx22["uuid"])
         Items::getItemOrNull(item["uuid"])
     end
 
-    # Cx22::toString(cx22)
-    def self.toString(cx22)
-        "(#{cx22["groupname"]})"
-    end
-
-    # Cx22::groupuuidToItemsWithPositionInPositionOrder(groupuuid) # Array[NxTodo] # with Cx22 and Cx23
-    def self.groupuuidToItemsWithPositionInPositionOrder(groupuuid)
-        NxTodos::items()
-            .select{|item| item["cx22"] and item["cx22"]["groupuuid"] == groupuuid }
-            .select{|item| item["cx23"] }
-            .sort{|i1, i2| i1["cx23"]["position"] <=> i2["cx23"]["position"] }
-    end
-
-    # --------------------------------------------
-    # Reps
-
-    # Cx22::reps() # Array[Cx22]
-    def self.reps()
-        NxTodos::items()
-            .map{|item| item["cx22"] }
-            .compact
-            .reduce([]){|groups, group|
-                groupuuids = groups.map{|group| group["groupuuid"] }
-                if groupuuids.include?(group["groupuuid"]) then
-                    groups
-                else
-                    groups + [group]
-                end
-            }
-    end
-
-    # Cx22::interactivelySelectCx22RepOrNull()
-    def self.interactivelySelectCx22RepOrNull()
-        groups = Cx22::reps()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("group", groups, lambda{|rep| rep["groupname"]})
-    end
-
-    # Cx22::repElementsDive(rep)
-    def self.repElementsDive(rep)
+    # Cx22::elementsDive(cx22)
+    def self.elementsDive(cx22)
         loop {
             system("clear")
             puts ""
-            puts rep["groupname"]
+            puts Cx22::toString(cx22)
             puts ""
-            elements = NxTodos::itemsInPositionOrderForGroup(rep).first(CommonUtils::screenHeight() - 8)
+            elements = NxTodos::itemsInPositionOrderForGroup(cx22).first(CommonUtils::screenHeight() - 8)
             store = ItemStore.new()
             elements
                 .each{|element|
@@ -120,12 +124,11 @@ class Cx22
                 uuid        = SecureRandom.uuid
                 nx11e       = Nx11E::makeStandard()
                 nx113nhash  = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
-                cx22        = rep
                 cx23        = nil
                 position = LucilleCore::askQuestionAnswerAsString("position (empty for none): ")
                 if position != "" then
                     position = position.to_f
-                    cx23 = Cx23::makeCx23(rep["groupuuid"], position)
+                    cx23 = Cx23::makeCx23(cx22, position)
                 end
                 item = {
                     "uuid"        => uuid,
@@ -192,44 +195,44 @@ class Cx22
                 position = position.to_f
                 entity = store.get(indx)
                 next if entity.nil?
-                cx23 = Cx23::makeCx23(rep["groupuuid"], position)
+                cx23 = Cx23::makeCx23(cx22, position)
                 Items::setAttribute2(entity["uuid"], "cx23", cx23)
                 next
             end
         }
     end
 
-    # Cx22::repDive(rep)
-    def self.repDive(rep)
+    # Cx22::dive(cx22)
+    def self.dive(cx22)
         loop {
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("rep", ["elements (program)", "start NxBall", "done for the day", "un-{done for the day}", "expose", "completion ratio", "add time"])
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["elements (program)", "start NxBall", "done for the day", "un-{done for the day}", "expose", "completion ratio", "add time"])
             break if action.nil?
             if action == "elements (program)" then
-                Cx22::repElementsDive(rep)
+                Cx22::elementsDive(cx22)
             end
             if action == "start NxBall" then
-                NxBallsService::issue(SecureRandom.uuid, "rep: #{rep["groupname"]}", [rep["bankaccount"]], 3600)
+                NxBallsService::issue(SecureRandom.uuid, "cx22: #{cx22["description"]}", [cx22["bankaccount"]], 3600)
                 next
             end
             if action == "done for the day" then
-                bankaccount = rep["bankaccount"]
+                bankaccount = cx22["bankaccount"]
                 BankAccountDoneForToday::setDoneToday(bankaccount)
                 next
             end
             if action == "un-{done for the day}" then
-                bankaccount = rep["bankaccount"]
+                bankaccount = cx22["bankaccount"]
                 BankAccountDoneForToday::setUnDoneToday(bankaccount)
                 next
             end
             if action == "expose" then
-                puts JSON.pretty_generate(rep)
+                puts JSON.pretty_generate(cx22)
                 LucilleCore::pressEnterToContinue()
                 next
             end
             if action == "completion ratio" then
-                puts JSON.pretty_generate(rep)
-                ax39     = rep["ax39"]
-                account  = rep["bankaccount"]
+                puts JSON.pretty_generate(cx22)
+                ax39     = cx22["ax39"]
+                account  = cx22["bankaccount"]
                 cr = Ax39::completionRatio(ax39, account)
                 puts "completion ratio: #{cr}"
                 LucilleCore::pressEnterToContinue()
@@ -238,41 +241,19 @@ class Cx22
             if action == "add time" then
                 timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
                 time = timeInHours*3600
-                puts "Adding #{time} seconds to #{rep["bankaccount"]}"
-                Bank::put(rep["bankaccount"], time)
-                $CatalystGroupMonitor1.rebuildLx13sFromScratch()
+                puts "Adding #{time} seconds to #{cx22["bankaccount"]}"
+                Bank::put(cx22["bankaccount"], time)
                 next
             end
         }
     end
 
-    # Cx22::repsDive()
-    def self.repsDive()
+    # Cx22::maindive()
+    def self.maindive()
         loop {
-            rep = Cx22::interactivelySelectCx22RepOrNull()
-            return if rep.nil?
-            Cx22::repDive(rep)
+            cx22 = Cx22::interactivelySelectCx22OrNull()
+            return if cx22.nil?
+            Cx22::dive(cx22)
         }
-    end
-
-    # --------------------------------------------
-    # Lx13s
-
-    # Cx22::getLx13s()
-    def self.getLx13s()
-        Cx22::reps()
-            .map{|rep|
-                rep["cr"] = Ax39::completionRatio(rep["ax39"], rep["bankaccount"])
-                rep
-            }
-    end
-
-    # Cx22::getNonDoneForTodayRepWithLowersCRBelow1OrNull()
-    def self.getNonDoneForTodayRepWithLowersCRBelow1OrNull()
-        Cx22::getLx13s()
-            .select{|rep| !BankAccountDoneForToday::isDoneToday(rep["bankaccount"])}
-            .select{|rep| rep["cr"] < 1}
-            .sort{|r1, r2| r1["cr"] <=> r2["cr"] }
-            .first
     end
 end

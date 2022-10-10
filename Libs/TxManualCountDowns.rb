@@ -12,7 +12,7 @@ class TxManualCountDowns
 
     # TxManualCountDowns::commit(item)
     def self.commit(item)
-        MikuTypedObjects::set(item)
+        MikuTypedObjects::commit(item)
     end
 
     # TxManualCountDowns::destroy(uuid)

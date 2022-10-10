@@ -1,36 +1,30 @@
 
 class Cx23
 
-    # Cx23::makeCx23(groupuuid, position)
-    def self.makeCx23(groupuuid, position)
+    # Cx23::makeCx23(cx22, position)
+    def self.makeCx23(cx2, position)
         {
-            "mikuType"  => "Cx22",
-            "groupuuid" => groupuuid,
+            "groupuuid" => cx22["uuid"],
             "position"  => position
         }
     end
 
-    # Cx23::makeNewOrNull1(groupuuid, positionsAndDescriptions)
-    def self.makeNewOrNull1(groupuuid, positionsAndDescriptions)
-        positionsAndDescriptions.each{|i|
-            puts "#{i["position"]} : #{i["description"]}"
-        }
-        position = LucilleCore::askQuestionAnswerAsString("position (empty for abort): ")
-        return nil if position == ""
-        position = position.to_f
-        Cx23::makeCx23(groupuuid, position)
-    end
-
-    # Cx23::makeNewOrNull2(groupuuid)
-    def self.makeNewOrNull2(groupuuid)
-        positionsAndDescriptions = Cx22::groupuuidToItemsWithPositionInPositionOrder(groupuuid)
+    # Cx23::makeNewOrNull(cx22)
+    def self.makeNewOrNull(cx22)
+        data = NxTodos::itemsInPositionOrderForGroup(cx22)
             .map{|item|
                 {
                     "position"    => item["cx23"]["position"],
                     "description" => item["description"]
                 }
             }
-        Cx23::makeNewOrNull1(groupuuid, positionsAndDescriptions)
+        data.each{|i|
+            puts "#{i["position"]} : #{i["description"]}"
+        }
+        position = LucilleCore::askQuestionAnswerAsString("position (empty for abort): ")
+        return nil if position == ""
+        position = position.to_f
+        Cx23::makeCx23(cx22, position)
     end
 
     # Cx23::interactivelySetCx23ForItemOrNothing(item)
@@ -45,7 +39,9 @@ class Cx23
             LucilleCore::pressEnterToContinue()
             return
         end
-        cx23 = Cx23::makeNewOrNull2(item["cx22"]["groupuuid"])
+        cx22 = Cx22::getOrNull(item["cx22"])
+        return if cx22.nil?
+        cx23 = Cx23::makeNewOrNull(cx22)
         return if cx23.nil?
         Items::setAttribute2(item["uuid"], "cx23", cx23)
     end
