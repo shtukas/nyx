@@ -64,6 +64,7 @@ class ListingManager
         XCache::set("de9710ba-6ece-4cff-8176-41e8894b4fde", JSON.generate(@data))
     end
 
+    # ListingManager::listingItems()
     def self.listingItems()
         if $ListingManager.nil? then
             $ListingManager = ListingManager.new()
@@ -71,6 +72,7 @@ class ListingManager
         $ListingManager.listingItemsInstance()
     end
 
+    # ListingManager::rebuild()
     def self.rebuild()
         if $ListingManager.nil? then
             $ListingManager = ListingManager.new()
@@ -78,6 +80,7 @@ class ListingManager
         $ListingManager.rebuildInstance()
     end
 
+    # ListingManager::incomingItem(item)
     def self.incomingItem(item)
         if $ListingManager.nil? then
             $ListingManager = ListingManager.new()
@@ -85,6 +88,16 @@ class ListingManager
         $ListingManager.incomingItemInstance(item)
     end
 
+    # ListingManager::incomingItemuuid(itemuuid)
+    def self.incomingItemuuid(itemuuid)
+        if $ListingManager.nil? then
+            $ListingManager = ListingManager.new()
+        end
+        item = Items::getItemOrNull(itemuuid)
+        $ListingManager.incomingItemInstance(item)
+    end
+
+    # ListingManager::destroyItem(itemuuid)
     def self.destroyItem(itemuuid)
         if $ListingManager.nil? then
             $ListingManager = ListingManager.new()
