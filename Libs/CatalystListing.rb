@@ -215,7 +215,9 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             item = Nx11E::interactivelySetANewEngineForItemOrNothing(item)
-            Cx22::interactivelySetANewContributionForItemOrNothing(item)
+            if item["cx22"].nil? then
+                Cx22::interactivelySetANewContributionForItemOrNothing(item)
+            end
             ListingManager::incomingItemuuid(item["uuid"])
             return
         end
@@ -225,7 +227,9 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             item = Nx11E::interactivelySetANewEngineForItemOrNothing(item)
-            Cx22::interactivelySetANewContributionForItemOrNothing(item)
+            if item["cx22"].nil? then
+                Cx22::interactivelySetANewContributionForItemOrNothing(item)
+            end
             ListingManager::incomingItemuuid(item["uuid"])
             return
         end
