@@ -272,6 +272,10 @@ class NxTodos
         # First we take account of the engine
 
         if item["nx11e"]["type"] == "hot" then
+            return 0.95 + shiftOnUnixtime.call(item["nx11e"]["unixtime"])
+        end
+
+        if item["nx11e"]["type"] == "triage" then
             return 0.90 + shiftOnUnixtime.call(item["nx11e"]["unixtime"])
         end
 

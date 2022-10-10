@@ -24,6 +24,34 @@ class FileSystemCheck
         }
 
         ensureAttribute.call(nx11e, "uuid")
+
+        if nx11e["type"] == "hot" then
+            ensureAttribute.call(nx11e, "unixtime")
+            return
+        end
+
+        if nx11e["type"] == "triage" then
+            ensureAttribute.call(nx11e, "unixtime")
+            return
+        end
+
+        if nx11e["type"] == "ordinal" then
+            ensureAttribute.call(nx11e, "ordinal")
+            return
+        end
+
+        if nx11e["type"] == "ondate" then
+            ensureAttribute.call(nx11e, "datetime")
+            return
+        end
+
+        if nx11e["type"] == "standard" then
+            ensureAttribute.call(nx11e, "unixtime")
+            return
+        end
+
+        raise "(error: 2a5f46bd-c5db-48e7-a20f-4dd079868948)"
+
     end
 
     # FileSystemCheck::fsckNx113ErrorAtFirstFailure(nx113, verbose)

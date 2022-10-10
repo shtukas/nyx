@@ -4,7 +4,7 @@ class Nx11E
 
     # Nx11E::types()
     def self.types()
-        ["hot", "ordinal", "ondate", "standard"]
+        ["hot", "triage", "ordinal", "ondate", "standard"]
     end
 
     # Makers
@@ -14,6 +14,16 @@ class Nx11E
         LucilleCore::selectEntityFromListOfEntitiesOrNull("type (none to abort):", Nx11E::types())
     end
 
+    # Nx11E::makeTriage()
+    def self.makeTriage()
+        {
+            "uuid"     => SecureRandom.uuid,
+            "mikuType" => "Nx11E",
+            "type"     => "triage",
+            "unixtime" => Time.new.to_f
+        }
+    end
+
     # Nx11E::makeStandard()
     def self.makeStandard()
         {
@@ -21,16 +31,6 @@ class Nx11E
             "mikuType" => "Nx11E",
             "type"     => "standard",
             "unixtime" => Time.new.to_f
-        }
-    end
-
-    # Nx11E::makeStandard2(unixtime)
-    def self.makeStandard2(unixtime)
-        {
-            "uuid"     => SecureRandom.uuid,
-            "mikuType" => "Nx11E",
-            "type"     => "standard",
-            "unixtime" => unixtime
         }
     end
 
@@ -60,6 +60,9 @@ class Nx11E
         return nil if type.nil?
         if type == "hot" then
             return Nx11E::makeHot()
+        end
+        if type == "triage" then
+            return Nx11E::makeTriage()
         end
         if type == "ordinal" then
             ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (empty to abort): ")
@@ -106,6 +109,10 @@ class Nx11E
 
         if nx11e["type"] == "hot" then
             return "(hot)"
+        end
+
+        if nx11e["type"] == "triage" then
+            return "(triage)"
         end
 
         if nx11e["type"] == "ordinal" then

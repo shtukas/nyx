@@ -9,6 +9,13 @@ Nx11E {
 Nx11E {
     "uuid"     => String
     "mikuType" => "Nx11E"
+    "type"     => "triage"
+    "unixtime" => Float
+}
+
+Nx11E {
+    "uuid"     => String
+    "mikuType" => "Nx11E"
     "type"     => "ordinal"
     "ordinal"  => Float
 }
