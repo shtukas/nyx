@@ -120,6 +120,18 @@ class NetworkShapeAroundNode
         }
     end
 
+    # NetworkShapeAroundNode::selectChildrenAndMoveToUUID(item)
+    def self.selectChildrenAndMoveToUUID(item)
+        children = NetworkShapeAroundNode::interactivelySelectChildren(item["uuid"])
+        targetuuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+        return if targetuuid == item["uuid"]
+        targetitem = Items::getItemOrNull(targetuuid)
+        return if targetitem.nil?
+        children.each{|childX|
+            NetworkEdges::arrow(targetitem["uuid"], childX["uuid"])
+            NetworkEdges::detach(item["uuid"], childX["uuid"])
+        }
+    end
 
     # NetworkShapeAroundNode::selectOneRelatedAndDetach(item)
     def self.selectOneRelatedAndDetach(item)

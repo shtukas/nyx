@@ -1,7 +1,7 @@
 class Upload
 
-    # Upload::linkuploadAllLocationsOfAFolderAsLinkedAionPoint(item, overrideDatetime)
-    def self.linkuploadAllLocationsOfAFolderAsLinkedAionPoint(item, overrideDatetime)
+    # Upload::uploadAllLocationsOfAFolderAsChildrenAionPoints(item, overrideDatetime)
+    def self.uploadAllLocationsOfAFolderAsChildrenAionPoints(item, overrideDatetime)
         folder = LucilleCore::askQuestionAnswerAsString("folder: ")
         if !File.exists?(folder) then
             puts "The given location doesn't exist (#{folder})"
@@ -19,12 +19,12 @@ class Upload
             if overrideDatetime then
                 Items::setAttribute2(child["uuid"], "datetime", overrideDatetime)
             end
-            NetworkEdges::relate(item["uuid"], child["uuid"])
+            NetworkEdges::arrow(item["uuid"], child["uuid"])
         }
     end
 
-    # Upload::uploadAllLocationsOfAFolderAsLinkedPrimitiveFiles(item, overrideDatetime)
-    def self.uploadAllLocationsOfAFolderAsLinkedPrimitiveFiles(item, overrideDatetime)
+    # Upload::uploadAllLocationsOfAFolderAsChildrenPrimitiveFiles(item, overrideDatetime)
+    def self.uploadAllLocationsOfAFolderAsChildrenPrimitiveFiles(item, overrideDatetime)
         folder = LucilleCore::askQuestionAnswerAsString("folder: ")
         if !File.exists?(folder) then
             puts "The given location doesn't exist (#{folder})"
@@ -42,7 +42,7 @@ class Upload
             if overrideDatetime then
                 Items::setAttribute2(child["uuid"], "datetime", overrideDatetime)
             end
-            NetworkEdges::relate(item["uuid"], child["uuid"])
+            NetworkEdges::arrow(item["uuid"], child["uuid"])
         }
     end
 
@@ -63,13 +63,13 @@ class Upload
             if overrideDatetime then
                 Items::setAttribute2(child["uuid"], "datetime", overrideDatetime)
             end
-            NetworkEdges::relate(item["uuid"], child["uuid"])
+            NetworkEdges::arrow(item["uuid"], child["uuid"])
         end
         if action == "aion-points" then
-            Upload::linkuploadAllLocationsOfAFolderAsLinkedAionPoint(item, overrideDatetime)
+            Upload::uploadAllLocationsOfAFolderAsChildrenAionPoints(item, overrideDatetime)
         end
         if action == "primitive files" then
-            Upload::uploadAllLocationsOfAFolderAsLinkedPrimitiveFiles(item, overrideDatetime)
+            Upload::uploadAllLocationsOfAFolderAsChildrenPrimitiveFiles(item, overrideDatetime)
         end
     end
 end

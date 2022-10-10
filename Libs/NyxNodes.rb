@@ -206,7 +206,7 @@ class NyxNodes
             puts "<n> | access | description | name | datetime | nx113 | edit | transmute | expose | destroy".yellow
             puts "line | link | child | parent | upload".yellow
             puts "[link type update] parents>related | parents>children | related>children | related>parents | children>related".yellow
-            puts "[network shape] select children; move to selected child".yellow
+            puts "[network shape] select children; move to selected child | select children; move to uuid | acquire child by uuid".yellow
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
             return if input == ""
@@ -325,6 +325,19 @@ class NyxNodes
                 NetworkShapeAroundNode::selectChildrenAndSelectTargetChildAndMove(item)
                 next
             end
+
+            if Interpreting::match("select children; move to uuid", input) then
+                NetworkShapeAroundNode::selectChildrenAndMoveToUUID(item)
+                next
+            end
+
+            if input == "acquire child by uuid" then
+                targetuuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+                targetitem = Items::getItemOrNull(targetuuid)
+                next if targetitem.nil?
+                NetworkEdges::arrow(item["uuid"], targetuuid)
+            end
+
         }
     end
 end
