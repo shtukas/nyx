@@ -204,7 +204,8 @@ class CatalystListing
         if Interpreting::match("engine", input) then
             item = store.getDefault()
             return if item.nil?
-            Nx11E::interactivelySetANewEngineForItemOrNothing(item)
+            item = Nx11E::interactivelySetANewEngineForItemOrNothing(item)
+            Cx22::interactivelySetANewContributionForItemOrNothing(item)
             return
         end
 
@@ -212,7 +213,8 @@ class CatalystListing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            Nx11E::interactivelySetANewEngineForItemOrNothing(item)
+            item = Nx11E::interactivelySetANewEngineForItemOrNothing(item)
+            Cx22::interactivelySetANewContributionForItemOrNothing(item)
             return
         end
 
