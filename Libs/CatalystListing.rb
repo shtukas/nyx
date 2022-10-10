@@ -71,6 +71,25 @@ class CatalystListing
             return
         end
 
+        if Interpreting::match(">>", input) then
+            item = store.getDefault()
+            return if item.nil?
+            if item["mikuType"] != "NxTodo" then
+                puts "command >> is only availaible for NxTodos (in triage)"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            if item["nx11e"]["type"] != "triage" then
+                puts "command >> is only availaible for NxTodos in triage"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            Cx22::interactivelySetANewContributionForItemOrNothing(item)
+            Items::setAttribute2(item["uuid"], "nx11e", Nx11E::makeStandard())
+            NxTodoListingManager::incomingItemuuid(item["uuid"])
+            return
+        end
+
         if Interpreting::match("access", input) then
             item = store.getDefault()
             return if item.nil?
@@ -100,7 +119,7 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             Cx22::interactivelySetANewContributionForItemOrNothing(item)
-            ListingManager::incomingItemuuid(item["uuid"])
+            NxTodoListingManager::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -109,7 +128,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             Cx22::interactivelySetANewContributionForItemOrNothing(item)
-            ListingManager::incomingItemuuid(item["uuid"])
+            NxTodoListingManager::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -117,7 +136,7 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             Cx23::interactivelySetCx23ForItemOrNothing(item)
-            ListingManager::incomingItemuuid(item["uuid"])
+            NxTodoListingManager::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -126,7 +145,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             Cx23::interactivelySetCx23ForItemOrNothing(item)
-            ListingManager::incomingItemuuid(item["uuid"])
+            NxTodoListingManager::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -149,7 +168,7 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             PolyActions::editDatetime(item)
-            ListingManager::incomingItemuuid(item["uuid"])
+            NxTodoListingManager::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -158,7 +177,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::editDatetime(item)
-            ListingManager::incomingItemuuid(item["uuid"])
+            NxTodoListingManager::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -166,7 +185,7 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             PolyActions::editDescription(item)
-            ListingManager::incomingItemuuid(item["uuid"])
+            NxTodoListingManager::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -175,7 +194,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::editDescription(item)
-            ListingManager::incomingItemuuid(item["uuid"])
+            NxTodoListingManager::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -211,7 +230,7 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             PolyFunctions::edit(item)
-            ListingManager::incomingItemuuid(item["uuid"])
+            NxTodoListingManager::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -220,7 +239,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyFunctions::edit(item)
-            ListingManager::incomingItemuuid(item["uuid"])
+            NxTodoListingManager::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -231,7 +250,7 @@ class CatalystListing
             if item["cx22"].nil? then
                 Cx22::interactivelySetANewContributionForItemOrNothing(item)
             end
-            ListingManager::incomingItemuuid(item["uuid"])
+            NxTodoListingManager::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -243,7 +262,7 @@ class CatalystListing
             if item["cx22"].nil? then
                 Cx22::interactivelySetANewContributionForItemOrNothing(item)
             end
-            ListingManager::incomingItemuuid(item["uuid"])
+            NxTodoListingManager::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -313,7 +332,7 @@ class CatalystListing
 
         if Interpreting::match("landing", input) then
             PolyActions::landing(store.getDefault())
-            ListingManager::incomingItemuuid(item["uuid"])
+            NxTodoListingManager::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -322,7 +341,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::landing(item)
-            ListingManager::incomingItemuuid(item["uuid"])
+            NxTodoListingManager::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -330,7 +349,7 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             PolyActions::setNx113(item)
-            ListingManager::incomingItemuuid(item["uuid"])
+            NxTodoListingManager::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -339,7 +358,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::setNx113(item)
-            ListingManager::incomingItemuuid(item["uuid"])
+            NxTodoListingManager::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -399,7 +418,7 @@ class CatalystListing
 
         if Interpreting::match("rebuild", input) then
             $CatalystGroupMonitor1.rebuildLx13sFromScratch()
-            ListingManager::rebuild()
+            NxTodoListingManager::rebuild()
             return
         end
 
@@ -414,7 +433,7 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             PolyActions::redate(item)
-            ListingManager::incomingItemuuid(item["uuid"])
+            NxTodoListingManager::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -423,7 +442,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::redate(item)
-            ListingManager::incomingItemuuid(item["uuid"])
+            NxTodoListingManager::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -473,7 +492,7 @@ class CatalystListing
                 puts "Adding (Cx22, contributions) #{timeInHours.to_f} hours to bank account #{bankaccount}"
                 Bank::put(bankaccount, timeInHours.to_f*3600)
             end
-            ListingManager::incomingItemuuid(item["uuid"])
+            NxTodoListingManager::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -499,7 +518,7 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             PolyActions::transmute(item)
-            ListingManager::incomingItemuuid(item["uuid"])
+            NxTodoListingManager::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -508,7 +527,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::transmute(item)
-            ListingManager::incomingItemuuid(item["uuid"])
+            NxTodoListingManager::incomingItemuuid(item["uuid"])
             return
         end
 

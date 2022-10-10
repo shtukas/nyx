@@ -64,7 +64,7 @@ class PolyActions
     # PolyActions::doubleDot(item)
     def self.doubleDot(item)
 
-        puts "PolyActions::doubleDot(#{JSON.pretty_generate(item)})"
+        #puts "PolyActions::doubleDot(#{JSON.pretty_generate(item)})"
 
         if item["mikuType"] == "EndOfDayChecklist" then
             return
@@ -74,20 +74,27 @@ class PolyActions
 
             # We havea a special processing of triage items
             if item["nx11e"]["type"] == "triage" then
-                PolyActions::access(item)
                 loop {
-                    actions = ["description", "start and al.", "destroy"]
+                    actions = ["access >> ♻️", "access >> description >> ♻️", "standard >> contribution", "start >> access >> al.", "destroy"]
                     action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
                     next if action.nil?
-                    if action == "description" then
+                    if action == "access >> ♻️" then
+                        PolyActions::access(item)
                         next
                     end
-                    if action == "start and al." then
+                    if action == "access >> description >> ♻️" then
+                        PolyActions::access(item)
+                        PolyActions::editDescription(item)
+                        NxTodoListingManager::incomingItemuuid(item["uuid"])
+                        next
+                    end
+                    if action == "start >> access >> al." then
                         PolyActions::start(item)
+                        PolyActions::access(item)
                         LucilleCore::pressEnterToContinue("Press enter to move to stop and al.")
                         item = Cx22::interactivelySetANewContributionForItemOrNothing(item)
                         PolyActions::stop(item)
-                        actions = ["destroy", "keep and return to listing"]
+                        actions = ["destroy", "keep as standard and return to listing"]
                         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
                         return if action.nil?
                         if action == "destroy" then
@@ -96,12 +103,23 @@ class PolyActions
                             end
                             return
                         end
-                        if action == "keep and return to listing" then
+                        if action == "keep as standard and return to listing" then
+                            Items::setAttribute2(item["uuid"], "nx11e", Nx11E::makeStandard())
+                            NxTodoListingManager::incomingItemuuid(item["uuid"])
                             return
                         end
                     end
+                    if action == "standard >> contribution" then
+                        Items::setAttribute2(item["uuid"], "nx11e", Nx11E::makeStandard())
+                        item = Items::getItemOrNull(item["uuid"])
+                        Cx22::interactivelySetANewContributionForItemOrNothing(item)
+                        NxTodoListingManager::incomingItemuuid(item["uuid"])
+                        return
+                    end
                     if action == "destroy" then
-                        PolyActions::done(item)
+                        if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
+                            NxTodos::destroy(item["uuid"])
+                        end
                         return
                     end
                 }

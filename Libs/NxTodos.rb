@@ -1,8 +1,8 @@
 # encoding: UTF-8
 
-$ListingManager = nil
+$NxTodoListingManager = nil
 
-class ListingManager
+class NxTodoListingManager
 
     def initialize()
         data = XCache::getOrNull("de9710ba-6ece-4cff-8176-41e8894b4fde")
@@ -64,45 +64,45 @@ class ListingManager
         XCache::set("de9710ba-6ece-4cff-8176-41e8894b4fde", JSON.generate(@data))
     end
 
-    # ListingManager::listingItems()
+    # NxTodoListingManager::listingItems()
     def self.listingItems()
-        if $ListingManager.nil? then
-            $ListingManager = ListingManager.new()
+        if $NxTodoListingManager.nil? then
+            $NxTodoListingManager = NxTodoListingManager.new()
         end
-        $ListingManager.listingItemsInstance()
+        $NxTodoListingManager.listingItemsInstance()
     end
 
-    # ListingManager::rebuild()
+    # NxTodoListingManager::rebuild()
     def self.rebuild()
-        if $ListingManager.nil? then
-            $ListingManager = ListingManager.new()
+        if $NxTodoListingManager.nil? then
+            $NxTodoListingManager = NxTodoListingManager.new()
         end
-        $ListingManager.rebuildInstance()
+        $NxTodoListingManager.rebuildInstance()
     end
 
-    # ListingManager::incomingItem(item)
+    # NxTodoListingManager::incomingItem(item)
     def self.incomingItem(item)
-        if $ListingManager.nil? then
-            $ListingManager = ListingManager.new()
+        if $NxTodoListingManager.nil? then
+            $NxTodoListingManager = NxTodoListingManager.new()
         end
-        $ListingManager.incomingItemInstance(item)
+        $NxTodoListingManager.incomingItemInstance(item)
     end
 
-    # ListingManager::incomingItemuuid(itemuuid)
+    # NxTodoListingManager::incomingItemuuid(itemuuid)
     def self.incomingItemuuid(itemuuid)
-        if $ListingManager.nil? then
-            $ListingManager = ListingManager.new()
+        if $NxTodoListingManager.nil? then
+            $NxTodoListingManager = NxTodoListingManager.new()
         end
         item = Items::getItemOrNull(itemuuid)
-        $ListingManager.incomingItemInstance(item)
+        $NxTodoListingManager.incomingItemInstance(item)
     end
 
-    # ListingManager::destroyItem(itemuuid)
+    # NxTodoListingManager::destroyItem(itemuuid)
     def self.destroyItem(itemuuid)
-        if $ListingManager.nil? then
-            $ListingManager = ListingManager.new()
+        if $NxTodoListingManager.nil? then
+            $NxTodoListingManager = NxTodoListingManager.new()
         end
-        $ListingManager.destroyItemInstance(itemuuid)
+        $NxTodoListingManager.destroyItemInstance(itemuuid)
     end
 end
 
@@ -342,7 +342,7 @@ class NxTodos
 
     # NxTodos::listingItems()
     def self.listingItems()
-        ListingManager::listingItems()
+        NxTodoListingManager::listingItems()
     end
 
     # NxTodos::itemsInPositionOrderForGroup(cx22)
