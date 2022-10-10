@@ -216,6 +216,26 @@ class NxTodos
         item
     end
 
+    # NxTodos::bufferInImport(location)
+    def self.bufferInImport(location)
+        description = File.basename(location)
+        uuid        = SecureRandom.uuid
+        nx113nhash  = Nx113Make::aionpoint(location)
+        nx11e       = Nx11E::makeTriage()
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NxTodo",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "nx113"       => nx113nhash,
+            "nx11e"       => nx11e
+        }
+        FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
+        Items::putItem(item)
+        item
+    end
+
     # NxTodos::issueUsingUrl(url)
     def self.issueUsingUrl(url)
         description = File.basename(location)

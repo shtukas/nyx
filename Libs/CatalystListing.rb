@@ -710,8 +710,8 @@ class CatalystListing
             LucilleCore::locationsAtFolder("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")
                 .each{|location|
                     next if File.basename(location).start_with?(".")
-                    item = NxTodos::issueUsingLocation(location)
-                    puts "Picked up from NxTodos: #{JSON.pretty_generate(item)}"
+                    item = NxTodos::bufferInImport(location)
+                    puts "Picked up from NxTodos-BufferIn: #{JSON.pretty_generate(item)}"
                     LucilleCore::removeFileSystemLocation(location)
                 }
 
