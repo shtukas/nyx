@@ -35,6 +35,11 @@ class Cx22
         LucilleCore::selectEntityFromListOfEntitiesOrNull("cx22", Cx22::items(), lambda{|cx22| cx22["description"]})
     end
 
+    # Cx22::interactivelySelectCx22OrNullDiveStyle()
+    def self.interactivelySelectCx22OrNullDiveStyle()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("cx22", Cx22::items(), lambda{|cx22| Cx22::toStringDiveStyle(cx22)})
+    end
+
     # Cx22::architectOrNull()
     def self.architectOrNull()
         cx22 = Cx22::interactivelySelectCx22OrNull()
@@ -52,13 +57,22 @@ class Cx22
         "(group: #{cx22["description"]})"
     end
 
-    # Cx22::toString2(uuid)
-    def self.toString2(uuid)
+    # Cx22::toStringFromUUID(uuid)
+    def self.toStringFromUUID(uuid)
         cx22 = Cx22::getOrNull(uuid)
         if cx22.nil? then
             return "(no cx22 found for uuid: #{uuid})"
         end
         Cx22::toString(cx22)
+    end
+
+    # Cx22::toStringDiveStyle(cx22)
+    def self.toStringDiveStyle(cx22)
+        percentage = 100 * Ax39::completionRatio(cx22["ax39"], cx22["bankaccount"])
+        percentageStr = "#{percentage.to_i.to_s.rjust(3)} %"
+        isDoneToday = BankAccountDoneForToday::isDoneToday(cx22["bankaccount"])
+        isDoneTodayStr = isDoneToday ? "(is done today)" : "               "
+        "#{cx22["description"].ljust(28)} , #{Ax39::toString(cx22["ax39"]).ljust(18)}, #{percentageStr} , #{isDoneTodayStr}"
     end
 
     # Cx22::cx22WithCompletionRatiosOrdered()
@@ -251,7 +265,7 @@ class Cx22
     # Cx22::maindive()
     def self.maindive()
         loop {
-            cx22 = Cx22::interactivelySelectCx22OrNull()
+            cx22 = Cx22::interactivelySelectCx22OrNullDiveStyle()
             return if cx22.nil?
             Cx22::dive(cx22)
         }

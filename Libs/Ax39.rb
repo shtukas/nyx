@@ -49,6 +49,19 @@ class Ax39
         }
     end
 
+    # Ax39::toString(ax39)
+    def self.toString(ax39)
+        if ax39["type"] == "daily-singleton-run" then
+            return "daily once"
+        end
+        if ax39["type"] == "daily-time-commitment" then
+            return "daily #{"%4.2f" % ax39["hours"]} hours"
+        end
+        if ax39["type"] == "weekly-time-commitment" then
+            return "weekly #{"%4.2f" % ax39["hours"]} hours"
+        end
+    end
+
     # Ax39::completionRatio(ax39, bankaccount)
     def self.completionRatio(ax39, bankaccount)
         raise "(error: 92e23de4-61eb-4a07-a128-526e4be0e72a)" if ax39.nil?
