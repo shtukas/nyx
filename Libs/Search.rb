@@ -3,14 +3,15 @@
 
 class Search
 
-    # Search::navigation()
-    def self.navigation()
+    # Search::catalyst()
+    def self.catalyst()
+        mikuTypes = ["NxTodo"]
         loop {
             system('clear')
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort) : ")
             break if fragment == ""
             selected = Items::nx20s()
-                            .select{|nx20| !nx20["announce"].nil? }
+                            .select{|nx20| mikuTypes.include?(nx20["item"]["mikuType"]) }
                             .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
             if selected.empty? then
                 puts "Could not find a matching element for '#{fragment}'"
@@ -20,10 +21,39 @@ class Search
             loop {
                 system('clear')
                 selected = Items::nx20s()
-                                .select{|nx20| !nx20["announce"].nil? }
+                                .select{|nx20| mikuTypes.include?(nx20["item"]["mikuType"]) }
                                 .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
                                 .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
                 nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", selected, lambda{|i| i["announce"] })
+                break if nx20.nil?
+                PolyActions::landing(nx20["item"])
+            }
+        }
+        nil
+    end
+
+    # Search::nyx()
+    def self.nyx()
+        mikuTypes = ["NyxNode"]
+        loop {
+            system('clear')
+            fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort) : ")
+            break if fragment == ""
+            selected = Items::nx20s()
+                            .select{|nx20| mikuTypes.include?(nx20["item"]["mikuType"]) }
+                            .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
+            if selected.empty? then
+                puts "Could not find a matching element for '#{fragment}'"
+                LucilleCore::pressEnterToContinue()
+                next
+            end
+            loop {
+                system('clear')
+                selected = Items::nx20s()
+                                .select{|nx20| mikuTypes.include?(nx20["item"]["mikuType"]) }
+                                .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
+                                .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+                nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", selected, lambda{|i| NyxNodes::toStringForSearchResult(i["item"]) })
                 break if nx20.nil?
                 PolyActions::landing(nx20["item"])
             }

@@ -414,7 +414,7 @@ class CatalystListing
         end
 
         if Interpreting::match("search", input) then
-            Search::navigation()
+            Search::catalyst()
             return
         end
 

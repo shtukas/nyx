@@ -41,7 +41,7 @@ class Nyx
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
             if operation == "search" then
-                Search::navigation()
+                Search::nyx()
             end
             if operation == "last [n] nodes dive" then
                 cardinal = LucilleCore::askQuestionAnswerAsString("cardinal : ").to_i

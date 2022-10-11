@@ -128,7 +128,21 @@ class NyxNodes
 
     # NyxNodes::toString(item)
     def self.toString(item)
-        "(NyxNode: #{item["networkType"]})#{Nx113Access::toStringOrNullShort(" ", item["nx113"], "")} #{item["description"]}"
+        nwt = item["networkType"] ? ": #{item["networkType"]}" : ""
+        "(NyxNode#{nwt})#{Nx113Access::toStringOrNullShort(" ", item["nx113"], "")} #{item["description"]}"
+    end
+
+    # NyxNodes::toStringForSearchResult(item)
+    def self.toStringForSearchResult(item)
+        nwt = item["networkType"] ? ": #{item["networkType"]}" : ""
+        parents = NetworkEdges::parents(item["uuid"])
+        parentsstr = 
+            if parents.size > 0 then
+                " #{parents.map{|i| "(#{i["description"]})".green }.join(" ")}"
+            else
+                ""
+            end
+        "(NyxNode#{nwt})#{Nx113Access::toStringOrNullShort(" ", item["nx113"], "")} #{item["description"]}#{parentsstr}"
     end
 
     # ----------------------------------------------------------------------
@@ -206,7 +220,7 @@ class NyxNodes
             puts "<n> | access | description | name | datetime | nx113 | edit | transmute | expose | destroy".yellow
             puts "line | link | child | parent | upload".yellow
             puts "[link type update] parents>related | parents>children | related>children | related>parents | children>related".yellow
-            puts "[network shape] select children; move to selected child | select children; move to uuid | acquire child by uuid".yellow
+            puts "[network shape] select children; move to selected child | select children; move to uuid | acquire children by uuid".yellow
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
             return if input == ""
@@ -331,11 +345,16 @@ class NyxNodes
                 next
             end
 
-            if input == "acquire child by uuid" then
-                targetuuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                targetitem = Items::getItemOrNull(targetuuid)
-                next if targetitem.nil?
-                NetworkEdges::arrow(item["uuid"], targetuuid)
+            if input == "acquire children by uuid" then
+                targetuuids = []
+                loop {
+                    targetuuid = LucilleCore::askQuestionAnswerAsString("uuid (empty to stop): ")
+                    break if targetuuid == ""
+                    targetuuids << targetuuid
+                }
+                targetuuids.each{|targetuuid|
+                    NetworkEdges::arrow(item["uuid"], targetuuid)
+                }
             end
 
         }
