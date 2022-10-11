@@ -31,6 +31,7 @@ class NxTodosInMemory
     end
 
     def incomingItemInstance(item)
+        return if item.nil? # this happens after we delete an object, nil is being sent here instead of the object, after item = Items::getItemOrNull(itemuuid)
         return if item["mikuType"] != "NxTodo"
         @data = @data.reject{|i| i["uuid"] == item["uuid"] }
         @data << item

@@ -5,7 +5,7 @@ class Search
 
     # Search::catalyst()
     def self.catalyst()
-        mikuTypes = ["NxTodo"]
+        mikuTypes = ["NxTodo", "Wave"]
         loop {
             system('clear')
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort) : ")

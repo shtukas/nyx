@@ -12,6 +12,7 @@ class Cx23
     # Cx23::makeNewOrNull(cx22)
     def self.makeNewOrNull(cx22)
         data = NxTodos::itemsInPositionOrderForGroup(cx22)
+            .select{|item| item["cx23"] }
             .map{|item|
                 {
                     "position"    => item["cx23"]["position"],

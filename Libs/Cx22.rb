@@ -219,7 +219,7 @@ class Cx22
     # Cx22::dive(cx22)
     def self.dive(cx22)
         loop {
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["elements (program)", "start NxBall", "done for the day", "un-{done for the day}", "expose", "completion ratio", "add time"])
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["elements (program)", "start NxBall", "update description", "set: done for the day", "unset: done for the day", "expose", "completion ratio", "add time"])
             break if action.nil?
             if action == "elements (program)" then
                 Cx22::elementsDive(cx22)
@@ -228,12 +228,19 @@ class Cx22
                 NxBallsService::issue(SecureRandom.uuid, "cx22: #{cx22["description"]}", [cx22["bankaccount"]], 3600)
                 next
             end
-            if action == "done for the day" then
+            if action == "update description" then
+                description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+                next if description == ""
+                cx22["description"] = description
+                MikuTypedObjects::commit(cx22)
+                next
+            end
+            if action == "set: done for the day" then
                 bankaccount = cx22["bankaccount"]
                 BankAccountDoneForToday::setDoneToday(bankaccount)
                 next
             end
-            if action == "un-{done for the day}" then
+            if action == "unset: done for the day" then
                 bankaccount = cx22["bankaccount"]
                 BankAccountDoneForToday::setUnDoneToday(bankaccount)
                 next
