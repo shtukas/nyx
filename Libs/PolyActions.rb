@@ -85,7 +85,6 @@ class PolyActions
                     if action == "access >> description >> ♻️" then
                         PolyActions::access(item)
                         PolyActions::editDescription(item)
-                        NxTodosInMemory::incomingItemuuid(item["uuid"])
                         next
                     end
                     if action == "start >> access >> al." then
@@ -105,7 +104,6 @@ class PolyActions
                         end
                         if action == "keep as standard and return to listing" then
                             Items::setAttribute2(item["uuid"], "nx11e", Nx11E::makeStandard())
-                            NxTodosInMemory::incomingItemuuid(item["uuid"])
                             return
                         end
                     end
@@ -113,7 +111,6 @@ class PolyActions
                         Items::setAttribute2(item["uuid"], "nx11e", Nx11E::makeStandard())
                         item = Items::getItemOrNull(item["uuid"])
                         Cx22::interactivelySetANewContributionForItemOrNothing(item)
-                        NxTodosInMemory::incomingItemuuid(item["uuid"])
                         return
                     end
                     if action == "destroy" then

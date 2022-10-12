@@ -52,8 +52,8 @@ class Search
                 selected = Items::nx20s()
                                 .select{|nx20| mikuTypes.include?(nx20["item"]["mikuType"]) }
                                 .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
-                                .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-                nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", selected, lambda{|i| NyxNodes::toStringForSearchResult(i["item"]) })
+                                .sort{|p1, p2| p1["unixtime"] <=> p2["unixtime"] }
+                nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", selected, lambda{|packet| NyxNodes::toStringForSearchResult(packet["item"]) })
                 break if nx20.nil?
                 PolyActions::landing(nx20["item"])
             }
@@ -63,12 +63,13 @@ class Search
 
     # Search::foxTerrier() # nil or Item
     def self.foxTerrier()
+        mikuTypes = ["NyxNode"]
         loop {
             system('clear')
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort) : ")
             return nil if fragment == ""
             nx20 = Items::nx20s()
-                        .select{|nx20| !nx20["announce"].nil? }
+                        .select{|nx20| mikuTypes.include?(nx20["item"]["mikuType"]) }
                         .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
             if nx20.empty? then
                 puts "Could not find a matching element for '#{fragment}'"
@@ -78,10 +79,10 @@ class Search
             loop {
                 system('clear')
                 nx20 = Items::nx20s()
-                            .select{|nx20| !nx20["announce"].nil? }
+                            .select{|nx20| mikuTypes.include?(nx20["item"]["mikuType"]) }
                             .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
-                            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-                nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", nx20, lambda{|item| NyxNodes::toStringForSearchResult(item) })
+                            .sort{|p1, p2| p1["unixtime"] <=> p2["unixtime"] }
+                nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", nx20, lambda{|packet| NyxNodes::toStringForSearchResult(packet["item"]) })
                 break if nx20.nil?
                 system('clear')
                 itemOpt = PolyFunctions::foxTerrierAtItem(nx20["item"])

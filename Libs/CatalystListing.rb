@@ -10,7 +10,7 @@ class CatalystListing
             "wave | anniversary | hot | today | ondate | todo",
             "anniversaries | ondates | waves | groups | todos | todos-latest-first",
             "require internet",
-            "search | nyx | speed | nxballs | rebuild",
+            "search | nyx | speed | nxballs",
         ].join("\n")
     end
 
@@ -55,7 +55,6 @@ class CatalystListing
             end
             Cx22::interactivelySetANewContributionForItemOrNothing(item)
             Items::setAttribute2(item["uuid"], "nx11e", Nx11E::makeStandard())
-            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -88,7 +87,6 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             Cx22::interactivelySetANewContributionForItemOrNothing(item)
-            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -97,7 +95,6 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             Cx22::interactivelySetANewContributionForItemOrNothing(item)
-            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -105,7 +102,6 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             Cx23::interactivelySetCx23ForItemOrNothing(item)
-            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -114,7 +110,6 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             Cx23::interactivelySetCx23ForItemOrNothing(item)
-            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -137,7 +132,6 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             PolyActions::editDatetime(item)
-            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -146,7 +140,6 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::editDatetime(item)
-            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -154,7 +147,6 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             PolyActions::editDescription(item)
-            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -163,7 +155,6 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::editDescription(item)
-            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -199,7 +190,6 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             PolyFunctions::edit(item)
-            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -208,7 +198,6 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyFunctions::edit(item)
-            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -219,7 +208,6 @@ class CatalystListing
             if item["cx22"].nil? then
                 Cx22::interactivelySetANewContributionForItemOrNothing(item)
             end
-            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -231,7 +219,6 @@ class CatalystListing
             if item["cx22"].nil? then
                 Cx22::interactivelySetANewContributionForItemOrNothing(item)
             end
-            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -300,7 +287,6 @@ class CatalystListing
 
         if Interpreting::match("landing", input) then
             PolyActions::landing(store.getDefault())
-            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -309,7 +295,6 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::landing(item)
-            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -317,7 +302,6 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             PolyActions::setNx113(item)
-            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -326,7 +310,6 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::setNx113(item)
-            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -384,11 +367,6 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("rebuild", input) then
-            NxTodosInMemory::rebuild()
-            return
-        end
-
         if Interpreting::match("require internet", input) then
             item = store.getDefault()
             return if item.nil?
@@ -400,7 +378,6 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             PolyActions::redate(item)
-            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -409,7 +386,6 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::redate(item)
-            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -461,7 +437,6 @@ class CatalystListing
                     Bank::put(cx22["bankaccount"], timeInHours.to_f*3600)
                 end
             end
-            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -486,7 +461,6 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             PolyActions::transmute(item)
-            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -495,7 +469,6 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::transmute(item)
-            NxTodosInMemory::incomingItemuuid(item["uuid"])
             return
         end
 
@@ -544,7 +517,12 @@ class CatalystListing
                 },
                 {
                     "name" => "NxTodos::listingItems()",
-                    "lambda" => lambda { NxTodos::listingItems() }
+                    "lambda" => lambda { 
+                        NxTodos::listingItems() 
+                            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
+                            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
+                            .sort{|i1, i2| (PolyFunctions::listingPriorityOrNull(i1) || 0) <=> (PolyFunctions::listingPriorityOrNull(i2) || 0) }
+                    }
                 },
                 {
                     "name" => "TxManualCountDowns::listingItems()",

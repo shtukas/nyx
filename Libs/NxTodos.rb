@@ -1,93 +1,8 @@
 # encoding: UTF-8
 
-$NxTodosInMemory = nil
-
-class NxTodosInMemory
-
-    def initialize()
-        data = XCache::getOrNull("de9710ba-6ece-4cff-8176-41e8894b4fdf")
-        if data then
-            @data = JSON.parse(data)
-        else
-            reloadItemsFromDisk()
-        end
-
-        Thread.new {
-            loop {
-                sleep 60
-                reloadItemsFromDisk()
-                sleep 3600
-            }
-        }
-    end
-
-    def itemsInstance()
-        @data
-    end
-
-    def reloadItemsFromDisk()
-        @data = NxTodos::items()
-        XCache::set("de9710ba-6ece-4cff-8176-41e8894b4fdf", JSON.generate(@data))
-    end
-
-    def incomingItemInstance(item)
-        return if item.nil? # this happens after we delete an object, nil is being sent here instead of the object, after item = Items::getItemOrNull(itemuuid)
-        return if item["mikuType"] != "NxTodo"
-        @data = @data.reject{|i| i["uuid"] == item["uuid"] }
-        @data << item
-        XCache::set("de9710ba-6ece-4cff-8176-41e8894b4fdf", JSON.generate(@data))
-    end
-
-    def destroyItemInstance(itemuuid)
-        @data = @data.reject{|i| i["uuid"] == itemuuid }
-        XCache::set("de9710ba-6ece-4cff-8176-41e8894b4fdf", JSON.generate(@data))
-    end
-
-    # NxTodosInMemory::items()
-    def self.items()
-        if $NxTodosInMemory.nil? then
-            $NxTodosInMemory = NxTodosInMemory.new()
-        end
-        $NxTodosInMemory.itemsInstance()
-    end
-
-    # NxTodosInMemory::rebuild()
-    def self.rebuild()
-        if $NxTodosInMemory.nil? then
-            $NxTodosInMemory = NxTodosInMemory.new()
-        end
-        $NxTodosInMemory.reloadItemsFromDisk()
-    end
-
-    # NxTodosInMemory::incomingItem(item)
-    def self.incomingItem(item)
-        if $NxTodosInMemory.nil? then
-            $NxTodosInMemory = NxTodosInMemory.new()
-        end
-        $NxTodosInMemory.incomingItemInstance(item)
-    end
-
-    # NxTodosInMemory::incomingItemuuid(itemuuid)
-    def self.incomingItemuuid(itemuuid)
-        if $NxTodosInMemory.nil? then
-            $NxTodosInMemory = NxTodosInMemory.new()
-        end
-        item = Items::getItemOrNull(itemuuid)
-        $NxTodosInMemory.incomingItemInstance(item)
-    end
-
-    # NxTodosInMemory::destroyItem(itemuuid)
-    def self.destroyItem(itemuuid)
-        if $NxTodosInMemory.nil? then
-            $NxTodosInMemory = NxTodosInMemory.new()
-        end
-        $NxTodosInMemory.destroyItemInstance(itemuuid)
-    end
-end
-
 class NxTodos
 
-    # NxTodos::items()
+    #  d
     def self.items()
         Items::mikuTypeToItems("NxTodo")
     end
@@ -337,21 +252,7 @@ class NxTodos
 
     # NxTodos::listingItems()
     def self.listingItems()
-        cx22 = Cx22::cx22WithCompletionRatiosOrdered()
-                .select{|packet| packet["completionratio"] < 1 }
-                .map{|packet| packet["cx22"] }
-                .first
-        if cx22 then
-            NxTodosInMemory::items()
-                .select{|item| item["cx22"] == cx22["uuid"] }
-                .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-                .first(100)
-        else
-            NxTodosInMemory::items()
-                .select{|item| item["cx22"].nil? }
-                .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-                .first(100)
-        end
+        NxTodos::items()
     end
 
     # NxTodos::itemsInPositionOrderForGroup(cx22)

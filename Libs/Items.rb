@@ -22,7 +22,6 @@ class Items
             "mikuType" => "TxEventItem1",
             "item"     => item
         })
-        NxTodosInMemory::incomingItem(item)
     end
 
     # -----------------------------------------------------------------
@@ -166,7 +165,6 @@ class Items
             "mikuType"   => "NxDeleted",
             "objectuuid" => objectuuid
         })
-        NxTodosInMemory::destroyItem(objectuuid)
     end
 
     # -----------------------------------------------------------------
