@@ -695,6 +695,14 @@ class CatalystListing
 
         initialCodeTrace = CommonUtils::generalCodeTrace()
 
+        Thread.new {
+            loop {
+                sleep 10
+                SystemEvents::processIncomingEventsFromLine(false)
+                CommsLine::moveCarefully(false)
+            }
+        }
+
         loop {
 
             #puts "(code trace)"
@@ -702,9 +710,6 @@ class CatalystListing
                 puts "Code change detected"
                 break
             end
-
-            SystemEvents::processIncomingEventsFromLine(true)
-            CommsLine::moveCarefully(true)
 
             LucilleCore::locationsAtFolder("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")
                 .each{|location|
