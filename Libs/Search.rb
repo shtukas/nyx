@@ -81,7 +81,7 @@ class Search
                             .select{|nx20| !nx20["announce"].nil? }
                             .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
                             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-                nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", nx20, lambda{|item| item["announce"] })
+                nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", nx20, lambda{|item| NyxNodes::toStringForSearchResult(item) })
                 break if nx20.nil?
                 system('clear')
                 itemOpt = PolyFunctions::foxTerrierAtItem(nx20["item"])

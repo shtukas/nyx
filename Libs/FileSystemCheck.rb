@@ -323,7 +323,7 @@ class FileSystemCheck
         if item["mikuType"] == "NxTask" then
             Items::setAttribute2(item["uuid"], "mikuType", "NxTodo")
             item = Items::getItemOrNull(item["uuid"])
-            FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
+            FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash, verbose)
             return
         end
 
