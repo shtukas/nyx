@@ -116,7 +116,9 @@ class SystemEvents
 
                 if CommonUtils::ends_with?(filepath1, ".system-event.json") then
                     event = JSON.parse(IO.read(filepath1))
-                    puts "system event from commsline: #{JSON.pretty_generate(event)}"
+                    if verbose then
+                       puts "system event from commsline: #{JSON.pretty_generate(event)}"
+                    end
                     SystemEvents::internal(event)
                     FileUtils.rm(filepath1)
                     next
