@@ -138,12 +138,20 @@ class Cx22
                 uuid        = SecureRandom.uuid
                 nx11e       = Nx11E::makeStandard()
                 nx113nhash  = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
-                cx23        = nil
-                position = LucilleCore::askQuestionAnswerAsString("position (empty for none): ")
-                if position != "" then
-                    position = position.to_f
-                    cx23 = Cx23::makeCx23(cx22, position)
-                end
+                cx23        = 
+                    (lambda {
+                        loop {
+                            position = LucilleCore::askQuestionAnswerAsString("position (or `next`): ")
+                            if position == "" then
+                                next
+                            end
+                            if position == "next" then
+                                return Cx23::makeCx23(cx22, Time.new.to_f)
+                            end
+                            return Cx23::makeCx23(cx22, position.to_f)
+                        }
+                    }).call()
+
                 item = {
                     "uuid"        => uuid,
                     "mikuType"    => "NxTodo",
