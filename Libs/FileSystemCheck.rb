@@ -93,7 +93,7 @@ class FileSystemCheck
             database         = nx113["database"]
             databasefilepath = DataStore1::getNearestFilepathForReadingErrorIfNotAcquisable(database, false)
             operator         = DataStore2SQLiteBlobStoreElizabethReadOnly.new(databasefilepath)
-            status = PrimitiveFiles::fsckPrimitiveFileDataRaiseAtFirstError(operator, dottedExtension, nhash, parts)
+            status = PrimitiveFiles::fsckPrimitiveFileDataRaiseAtFirstError(operator, dottedExtension, nhash, parts, verbose)
             if !status then
                 puts JSON.pretty_generate(item)
                 raise "(error: 3e428541-805b-455e-b6a2-c400a6519aef) primitive file fsck failed"

@@ -22,9 +22,11 @@ class PrimitiveFiles
         [dottedExtension, nhash, parts]
     end
 
-    # PrimitiveFiles::fsckPrimitiveFileDataRaiseAtFirstError(operator, dottedExtension, nhash, parts)
-    def self.fsckPrimitiveFileDataRaiseAtFirstError(operator, dottedExtension, nhash, parts)
-        puts "PrimitiveFiles::fsckPrimitiveFileDataRaiseAtFirstError(operator, #{dottedExtension}, #{nhash}, #{parts})"
+    # PrimitiveFiles::fsckPrimitiveFileDataRaiseAtFirstError(operator, dottedExtension, nhash, parts, verbose)
+    def self.fsckPrimitiveFileDataRaiseAtFirstError(operator, dottedExtension, nhash, parts, verbose)
+        if verbose then
+            puts "PrimitiveFiles::fsckPrimitiveFileDataRaiseAtFirstError(operator, #{dottedExtension}, #{nhash}, #{parts}, #{verbose})"
+        end
         if dottedExtension[0, 1] != "." then
             puts "dottedExtension: #{dottedExtension}".red
             puts "primitive parts, dotted extension is malformed".red
