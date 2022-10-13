@@ -120,7 +120,7 @@ class Cx22
                     end
                 }
             puts ""
-            puts "<n> | insert | position <n> <position> | start <n> | stop <n> | pause <n> | pursue <n> | done <n> | exit".yellow
+            puts "<n> | insert | position <n> <position> | start <n> | stop <n> | pause <n> | pursue <n> | done <n> | reissue positions sequence | exit".yellow
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
             return if input == "exit"
@@ -220,6 +220,14 @@ class Cx22
                 cx23 = Cx23::makeCx23(cx22, position)
                 Items::setAttribute2(entity["uuid"], "cx23", cx23)
                 next
+            end
+
+            if input == "reissue positions sequence" then
+                NxTodos::itemsInPositionOrderForGroup(cx22).each_with_index{|element, indx|
+                    next if element["cx23"].nil?
+                    element["cx23"]["position"] = indx
+                    Items::putItem(element)
+                }
             end
         }
     end

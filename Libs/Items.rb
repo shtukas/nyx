@@ -9,8 +9,8 @@ class Items
         "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-Databases/items.sqlite3"
     end
 
-    # Items::putItemNoBroadcast(item, fsckVerbose)
-    def self.putItemNoBroadcast(item, fsckVerbose)
+    # Items::putItemNoEvent(item, fsckVerbose)
+    def self.putItemNoEvent(item, fsckVerbose)
         FileSystemCheck::fsckItemErrorArFirstFailure(item, FileSystemCheck::getExistingRunHash(), fsckVerbose)
         db = SQLite3::Database.new(Items::pathToDatabase())
         db.busy_timeout = 117
@@ -24,7 +24,7 @@ class Items
     # Items::putItem(item)
     def self.putItem(item)
         FileSystemCheck::fsckItemErrorArFirstFailure(item, FileSystemCheck::getExistingRunHash(), true)
-        Items::putItemNoBroadcast(item, true)
+        Items::putItemNoEvent(item, true)
         SystemEvents::broadcast({
             "mikuType" => "TxEventItem1",
             "item"     => item
@@ -179,17 +179,10 @@ class Items
 
     # Items::processEvent(event)
     def self.processEvent(event)
+
         if event["mikuType"] == "TxEventItem1" then
             item = event["item"]
-
-            # ----------------------------------------------
-            # Temporary
-            if item["mikuType"] == "NxTodo" and item["nx11e"].nil? then
-                item["nx11e"] = Nx11E::makeTriage()
-            end
-            # ----------------------------------------------
-
-            Items::putItemNoBroadcast(item, false)
+            Items::putItemNoEvent(item, false)
         end
 
         if event["mikuType"] == "AttributeUpdate" then

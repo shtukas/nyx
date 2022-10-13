@@ -517,12 +517,7 @@ class CatalystListing
                 },
                 {
                     "name" => "NxTodos::listingItems()",
-                    "lambda" => lambda { 
-                        NxTodos::listingItems() 
-                            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
-                            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
-                            .sort{|i1, i2| (PolyFunctions::listingPriorityOrNull(i1) || 0) <=> (PolyFunctions::listingPriorityOrNull(i2) || 0) }
-                    }
+                    "lambda" => lambda { NxTodos::listingItems() }
                 },
                 {
                     "name" => "TxManualCountDowns::listingItems()",
@@ -579,7 +574,14 @@ class CatalystListing
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
-            .sort{|i1, i2| (PolyFunctions::listingPriorityOrNull(i1) || 0) <=> (PolyFunctions::listingPriorityOrNull(i2) || 0) }
+            .map{|item|
+                {
+                    "item"     => item,
+                    "priority" => PolyFunctions::listingPriorityOrNull(item) || -1,
+                }
+            }
+            .sort{|p1, p2| p1["priority"] <=> p2["priority"] }
+            .map{|packet| packet["item"] }
             .reverse
     end
 
