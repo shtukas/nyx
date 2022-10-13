@@ -160,7 +160,7 @@ class Cx22
                     "description" => description,
                     "nx113"       => nx113nhash,
                     "nx11e"       => nx11e,
-                    "cx22"        => cx22,
+                    "cx22"        => cx22["uuid"],
                     "cx23"        => cx23
                 }
 

@@ -156,7 +156,7 @@ class FileSystemCheck
         end
 
         if cx22str.class.to_s != "String" then
-            puts "Cx22 (string) fails to be a string"
+            raise "Cx22 (string) fails to be a string"
         end
     end
 

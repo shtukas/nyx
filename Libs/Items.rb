@@ -23,6 +23,7 @@ class Items
 
     # Items::putItem(item)
     def self.putItem(item)
+        FileSystemCheck::fsckItemErrorArFirstFailure(item, FileSystemCheck::getExistingRunHash(), true)
         Items::putItemNoBroadcast(item, true)
         SystemEvents::broadcast({
             "mikuType" => "TxEventItem1",
