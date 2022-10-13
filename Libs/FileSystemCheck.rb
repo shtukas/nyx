@@ -131,15 +131,15 @@ class FileSystemCheck
         raise "Unsupported Nx113 type: #{type}"
     end
 
-    # FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(nhash, verbose) # We allow for null nhash
-    def self.fsckNx113NhashIfNotNullErrorAtFirstFailure(nhash, verbose)
+    # FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(nhash, runhash, verbose) # We allow for null nhash
+    def self.fsckNx113NhashIfNotNullErrorAtFirstFailure(nhash, runhash, verbose)
         return if nhash.nil?
 
         if verbose then
-            puts "FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(#{JSON.pretty_generate(nhash)}, #{verbose})"
+            puts "FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(#{JSON.pretty_generate(nhash)}, #{runhash}, #{verbose})"
         end
 
-        repeatKey = "daf95139-61ea-4872-b298-0d703825ec37:#{nhash}" # We can cache against the nhash without using a runhash, because of immutability
+        repeatKey = "daf95139-61ea-4872-b298-0d703825ec37:#{runhash}:#{nhash}"
         return if XCache::getFlag(repeatKey)
 
         nx113 = Nx113Access::getNx113(nhash)
@@ -268,26 +268,6 @@ class FileSystemCheck
     # FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash, verbose)
     def self.fsckItemErrorArFirstFailure(item, runhash, verbose)
 
-        # --------------------------------------
-        # Temporary
-
-        if item["uuid"] and item["uuid"].include?("cf7d8093-ea52-417a-b814-71594118d539") then
-            Items::delete(item["uuid"])
-            return
-        end
-
-        if item["mikuType"] and item["mikuType"].include?("TxTimeCommitment") then
-            Items::delete(item["uuid"])
-            return
-        end
-
-        if item["mikuType"] and item["mikuType"].include?("CxAionPoint") then
-            Items::delete(item["uuid"])
-            return
-        end
-
-        # --------------------------------------
-
         repeatKey = "#{runhash}:#{JSON.generate(item)}"
         return if XCache::getFlag(repeatKey)
 
@@ -326,7 +306,7 @@ class FileSystemCheck
             ensureAttribute.call(item, "description")
             ensureAttribute.call(item, "nx11e")
             FileSystemCheck::fsckNx11EErrorAtFirstFailure(item["nx11e"], verbose)
-            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"], verbose)
+            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"], runhash, verbose)
             FileSystemCheck::fsckCx22StringIfNotNullErrorAtFirstFailure(item["cx22"], verbose)
             FileSystemCheck::fsckCx23IfNotNullErrorAtFirstFailure(item["cx23"], verbose)
             XCache::setFlag(repeatKey, true)
@@ -335,7 +315,7 @@ class FileSystemCheck
 
         if mikuType == "NyxNode" then
             ensureAttribute.call(item, "description")
-            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"], verbose) # nx113 is optional for NyxNodes, the function return if the argument in null
+            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"], runhash, verbose) # nx113 is optional for NyxNodes, the function return if the argument in null
             XCache::setFlag(repeatKey, true)
             return
         end
@@ -344,27 +324,11 @@ class FileSystemCheck
             ensureAttribute.call(item, "description")
             ensureAttribute.call(item, "nx46")
             ensureAttribute.call(item, "lastDoneDateTime")
-            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"], verbose)
+            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"], runhash, verbose)
             FileSystemCheck::fsckCx22StringIfNotNullErrorAtFirstFailure(item["cx22"], verbose)
             XCache::setFlag(repeatKey, true)
             return
         end
-
-        # --------------------------------------
-        # Temporary
-
-        if item["mikuType"] == "NxTask" then
-            Items::setAttribute2(item["uuid"], "mikuType", "NxTodo")
-            item = Items::getItemOrNull(item["uuid"])
-            FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash, verbose)
-            return
-        end
-
-        if ["CxAionPoint", "DxAionPoint"].include?(item["mikuType"]) then
-            Items::delete(item["uuid"])
-            return
-        end
-        # --------------------------------------
 
         raise "Unsupported Miku Type: #{item}"
     end
