@@ -266,7 +266,7 @@ class FileSystemCheck
 
         ensureAttribute = lambda {|item, attname|
             return if item[attname]
-            raise "Missing attribute #{attname} in #{attname}"
+            raise "Missing attribute #{attname} in #{item}"
         }
 
         ensureAttribute.call(item, "uuid")
