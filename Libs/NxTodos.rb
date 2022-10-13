@@ -252,7 +252,38 @@ class NxTodos
 
     # NxTodos::listingItems()
     def self.listingItems()
+        if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("e38d89ee-0e4e-4b71-adcd-bfdcb7891e72", 86400) then
+            Cx22::items().each{|cx22|
+                NxTodos::items()
+                    .select{|item| item["cx22"] and item["cx22"] == cx22["uuid"] }
+                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+                    .reduce([]){|selected, item|
+                        (lambda {
+                            if item["nx11e"]["type"] != "standard" then
+                                return selected + [item]
+                            end
+                            if item["nx11e"]["type"] == "standard" then
+                                count = selected.select{|i| i["nx11e"]["type"] == "standard" }.count
+                                if count < 50 then
+                                    return selected + [item]
+                                else
+                                    selected
+                                end
+                            end
+                        }).call()
+                    }
+                    .each{|item|
+                        next if item["listeable"]
+                        puts "set to listeable: #{NxTodos::toString(item)}"
+                        Items::setAttribute2(item["uuid"], "listeable", true)
+                    }
+            }
+
+
+        end
+
         NxTodos::items()
+            .select{|item| item["listeable"] }
     end
 
     # NxTodos::itemsInPositionOrderForGroup(cx22)
