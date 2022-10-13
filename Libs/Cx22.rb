@@ -101,6 +101,15 @@ class Cx22
         Items::getItemOrNull(item["uuid"])
     end
 
+    # Cx22::interactivelySetANewContributionForItemWithPositionOrNothing(item) # item
+    def self.interactivelySetANewContributionForItemWithPositionOrNothing(item)
+        cx22 = Cx22::architectOrNull()
+        return if cx22.nil?
+        Items::setAttribute2(item["uuid"], "cx22", cx22["uuid"])
+        item = Items::getItemOrNull(item["uuid"])
+        Cx23::interactivelySetCx23ForItemOrNothing(item)
+    end
+
     # Cx22::elementsDive(cx22)
     def self.elementsDive(cx22)
         loop {

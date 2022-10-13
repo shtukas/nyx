@@ -205,9 +205,7 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             item = Nx11E::interactivelySetANewEngineForItemOrNothing(item)
-            if item["cx22"].nil? then
-                Cx22::interactivelySetANewContributionForItemOrNothing(item)
-            end
+            Cx22::interactivelySetANewContributionForItemWithPositionOrNothing(item)
             return
         end
 
@@ -216,9 +214,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             item = Nx11E::interactivelySetANewEngineForItemOrNothing(item)
-            if item["cx22"].nil? then
-                Cx22::interactivelySetANewContributionForItemOrNothing(item)
-            end
+            Cx22::interactivelySetANewContributionForItemWithPositionOrNothing(item)
             return
         end
 
