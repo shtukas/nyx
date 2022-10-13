@@ -110,9 +110,7 @@ class Anniversaries
         if lastCelebrationDate == "" then
             lastCelebrationDate = CommonUtils::today()
         end
-
         uuid = SecureRandom.uuid
-
         item = {
             "uuid"                => uuid,
             "mikuType"            => "NxAnniversary",
@@ -123,7 +121,6 @@ class Anniversaries
             "repeatType"          => repeatType,
             "lastCelebrationDate" => lastCelebrationDate
         }
-        FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
         Items::putItem(item)
         item
     end

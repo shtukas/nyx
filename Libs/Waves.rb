@@ -138,7 +138,6 @@ class Waves
             "nx113"            => nx113nhash,
             "lastDoneDateTime" => "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         }
-        FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
         Items::putItem(item)
         item
     end

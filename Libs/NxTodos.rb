@@ -36,7 +36,6 @@ class NxTodos
             "cx23"        => cx23,
             "listeable"   => true
         }
-        FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
         Items::putItem(item)
         item
     end
@@ -61,7 +60,6 @@ class NxTodos
             "cx22"        => cx22,
             "listeable"   => true
         }
-        FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
         Items::putItem(item)
         item
     end
@@ -88,7 +86,6 @@ class NxTodos
             "cx22"        => cx22,
             "listeable"   => true
         }
-        FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
         Items::putItem(item)
         item
     end
@@ -109,7 +106,6 @@ class NxTodos
             "nx11e"       => nx11e,
             "listeable"   => true
         }
-        FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
         Items::putItem(item)
         item
     end
@@ -130,7 +126,6 @@ class NxTodos
             "nx11e"       => nx11e,
             "listeable"   => true
         }
-        FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
         Items::putItem(item)
         item
     end
@@ -151,7 +146,6 @@ class NxTodos
             "nx11e"       => nx11e,
             "listeable"   => true
         }
-        FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
         Items::putItem(item)
         item
     end
