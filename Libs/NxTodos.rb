@@ -33,7 +33,8 @@ class NxTodos
             "nx113"       => nx113nhash,
             "nx11e"       => nx11e,
             "cx22"        => cx22,
-            "cx23"        => cx23
+            "cx23"        => cx23,
+            "listeable"   => true
         }
         FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
         Items::putItem(item)
@@ -57,7 +58,8 @@ class NxTodos
             "description" => description,
             "nx113"       => nx113nhash,
             "nx11e"       => nx11e,
-            "cx22"        => cx22
+            "cx22"        => cx22,
+            "listeable"   => true
         }
         FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
         Items::putItem(item)
@@ -83,7 +85,8 @@ class NxTodos
             "description" => description,
             "nx113"       => nx113nhash,
             "nx11e"       => nx11e,
-            "cx22"        => cx22
+            "cx22"        => cx22,
+            "listeable"   => true
         }
         FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
         Items::putItem(item)
@@ -103,7 +106,8 @@ class NxTodos
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
             "nx113"       => nx113nhash,
-            "nx11e"       => nx11e
+            "nx11e"       => nx11e,
+            "listeable"   => true
         }
         FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
         Items::putItem(item)
@@ -123,7 +127,8 @@ class NxTodos
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
             "nx113"       => nx113nhash,
-            "nx11e"       => nx11e
+            "nx11e"       => nx11e,
+            "listeable"   => true
         }
         FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
         Items::putItem(item)
@@ -143,7 +148,8 @@ class NxTodos
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
             "nx113"       => nx113nhash,
-            "nx11e"       => nx11e
+            "nx11e"       => nx11e,
+            "listeable"   => true
         }
         FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
         Items::putItem(item)
