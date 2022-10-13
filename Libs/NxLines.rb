@@ -2,7 +2,7 @@
 
 class NxLines
 
-    # NyxNodes::issueNew(line)
+    # NxLines::issueNew(line)
     def self.issueNew(line)
         uuid = SecureRandom.uuid
         unixtime = Time.new.to_i
@@ -14,7 +14,6 @@ class NxLines
             "datetime" => datetime,
             "line"     => line
         }
-        FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
         Items::putItem(item)
         item
     end

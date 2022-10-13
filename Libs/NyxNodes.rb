@@ -49,7 +49,6 @@ class NyxNodes
             "nx113"       => nx113nhash
         }
 
-        FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
         Items::putItem(item)
         item
     end
@@ -71,7 +70,6 @@ class NyxNodes
             "description" => description,
             "nx113"       => nx113nhash
         }
-        FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
         Items::putItem(item)
         item
     end
@@ -93,7 +91,6 @@ class NyxNodes
             "description" => description,
             "nx113"       => nx113nhash
         }
-        FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
         Items::putItem(item)
         item
     end
@@ -118,7 +115,7 @@ class NyxNodes
             "description" => description,
             "nx113"       => nx113nhash
         }
-        FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
+
         Items::putItem(item)
         item
     end

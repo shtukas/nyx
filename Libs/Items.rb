@@ -9,8 +9,9 @@ class Items
         "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-Databases/items.sqlite3"
     end
 
-    # Items::putItem(item)
-    def self.putItem(item)
+    # Items::putItemNoBroadcast(item)
+    def self.putItemNoBroadcast(item)
+        FileSystemCheck::fsckItemErrorArFirstFailure(item, FileSystemCheck::getExistingRunHash(), true)
         db = SQLite3::Database.new(Items::pathToDatabase())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -18,6 +19,11 @@ class Items
         db.execute "delete from _items_ where _uuid_=?", [item["uuid"]]
         db.execute "insert into _items_ (_uuid_, _mikuType_, _announce_, _item_) values (?, ?, ?, ?)", [item["uuid"], item["mikuType"], PolyFunctions::genericDescriptionOrNull(item), JSON.generate(item)]
         db.close
+    end
+
+    # Items::putItem(item)
+    def self.putItem(item)
+        Items::putItemNoBroadcast(item)
         SystemEvents::broadcast({
             "mikuType" => "TxEventItem1",
             "item"     => item
@@ -174,14 +180,7 @@ class Items
     def self.processEvent(event)
         if event["mikuType"] == "TxEventItem1" then
             item = event["item"]
-            FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, false)
-            db = SQLite3::Database.new(Items::pathToDatabase())
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute "delete from _items_ where _uuid_=?", [item["uuid"]]
-            db.execute "insert into _items_ (_uuid_, _mikuType_, _announce_, _item_) values (?, ?, ?, ?)", [item["uuid"], item["mikuType"], PolyFunctions::genericDescriptionOrNull(item), JSON.generate(item)]
-            db.close
+            Items::putItemNoBroadcast(item)
         end
 
         if event["mikuType"] == "AttributeUpdate" then

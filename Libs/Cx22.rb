@@ -163,7 +163,7 @@ class Cx22
                     "cx22"        => cx22,
                     "cx23"        => cx23
                 }
-                FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
+
                 Items::putItem(item)
                 next
             end

@@ -51,7 +51,6 @@ class FileSystemCheck
         end
 
         raise "(error: 2a5f46bd-c5db-48e7-a20f-4dd079868948)"
-
     end
 
     # FileSystemCheck::fsckNx113ErrorAtFirstFailure(nx113, verbose)

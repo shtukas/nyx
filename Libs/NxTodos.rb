@@ -35,7 +35,6 @@ class NxTodos
             "cx22"        => cx22,
             "cx23"        => cx23
         }
-        FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
         Items::putItem(item)
         item
     end
@@ -59,7 +58,6 @@ class NxTodos
             "nx11e"       => nx11e,
             "cx22"        => cx22
         }
-        FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
         Items::putItem(item)
         item
     end
@@ -85,7 +83,6 @@ class NxTodos
             "nx11e"       => nx11e,
             "cx22"        => cx22
         }
-        FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
         Items::putItem(item)
         item
     end
@@ -105,7 +102,6 @@ class NxTodos
             "nx113"       => nx113nhash,
             "nx11e"       => nx11e
         }
-        FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
         Items::putItem(item)
         item
     end
@@ -125,7 +121,6 @@ class NxTodos
             "nx113"       => nx113nhash,
             "nx11e"       => nx11e
         }
-        FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
         Items::putItem(item)
         item
     end
@@ -145,7 +140,6 @@ class NxTodos
             "nx113"       => nx113nhash,
             "nx11e"       => nx11e
         }
-        FileSystemCheck::fsckItemErrorArFirstFailure(item, SecureRandom.hex, true)
         Items::putItem(item)
         item
     end
