@@ -17,10 +17,10 @@ class FileSystemCheck
             puts "FileSystemCheck::fsckNx11EErrorAtFirstFailure(#{JSON.pretty_generate(nx11e)}, #{verbose})"
         end
 
-        ensureAttribute = lambda {|nx11e, attname|
-            return if nx11e[attname]
-            puts JSON.pretty_generate(nx11e)
-            raise "Missing attribute: #{attname} in #{nx11e}"
+        ensureAttribute = lambda {|object, attname|
+            return if object[attname]
+            puts JSON.pretty_generate(object)
+            raise "Missing attribute: #{attname} in #{object}"
         }
 
         ensureAttribute.call(nx11e, "uuid")
@@ -145,6 +145,37 @@ class FileSystemCheck
         nx113 = Nx113Access::getNx113(nhash)
         FileSystemCheck::fsckNx113ErrorAtFirstFailure(nx113, verbose)
         XCache::setFlag(repeatKey, true)
+    end
+
+    # FileSystemCheck::fsckCx22StringIfNotNullErrorAtFirstFailure(cx22str, verbose)
+    def self.fsckCx22StringIfNotNullErrorAtFirstFailure(cx22str, verbose)
+        return if cx22str.nil?
+
+        if verbose then
+            puts "FileSystemCheck::fsckCx22StringIfNotNullErrorAtFirstFailure(#{cx22str}, #{verbose})"
+        end
+
+        if cx22str.class.to_s != "String" then
+            puts "Cx22 (string) fails to be a string"
+        end
+    end
+
+    # FileSystemCheck::fsckCx23IfNotNullErrorAtFirstFailure(cx23, verbose)
+    def self.fsckCx23IfNotNullErrorAtFirstFailure(cx23, verbose)
+        return if cx23.nil?
+
+        ensureAttribute = lambda {|object, attname|
+            return if object[attname]
+            puts JSON.pretty_generate(object)
+            raise "Missing attribute: #{attname} in #{object}"
+        }
+
+        if verbose then
+            "FileSystemCheck::fsckCx23IfNotNullErrorAtFirstFailure(#{cx23}, #{verbose})"
+        end
+
+        ensureAttribute.call(cx23, "groupuuid")
+        ensureAttribute.call(cx23, "position")
     end
 
     # FileSystemCheck::fsckTxBankEvent(event, runhash, verbose)
@@ -296,6 +327,8 @@ class FileSystemCheck
             ensureAttribute.call(item, "nx11e")
             FileSystemCheck::fsckNx11EErrorAtFirstFailure(item["nx11e"], verbose)
             FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"], verbose)
+            FileSystemCheck::fsckCx22StringIfNotNullErrorAtFirstFailure(item["cx22"], verbose)
+            FileSystemCheck::fsckCx23IfNotNullErrorAtFirstFailure(item["cx23"], verbose)
             XCache::setFlag(repeatKey, true)
             return
         end
@@ -312,6 +345,7 @@ class FileSystemCheck
             ensureAttribute.call(item, "nx46")
             ensureAttribute.call(item, "lastDoneDateTime")
             FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"], verbose)
+            FileSystemCheck::fsckCx22StringIfNotNullErrorAtFirstFailure(item["cx22"], verbose)
             XCache::setFlag(repeatKey, true)
             return
         end
