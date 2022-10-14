@@ -4,12 +4,12 @@ class CommsLine
 
     # CommsLine::pathToStaging()
     def self.pathToStaging()
-        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataStaging/CommsLine"
+        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/StagingCommsLine"
     end
 
     # CommsLine::pathToActive()
     def self.pathToActive()
-        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-ActiveCommsLine"
+        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/ActiveCommsLine"
     end
 
     # CommsLine::moveCarefully(verbose)
