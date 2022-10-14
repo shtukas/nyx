@@ -112,8 +112,7 @@ class Nx113Make
             return nx113nhash
         end
         if type == "aion-point" then
-            location = CommonUtils::interactivelySelectDesktopLocationOrNull()
-            return nil if location.nil?
+            location = CommonUtils::interactivelySelectDesktopLocation()
             nx113nhash = Nx113Make::aionpoint(location)
             FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(nx113hhash, SecureRandom.hex, true)
             return nx113nhash

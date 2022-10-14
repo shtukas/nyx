@@ -493,6 +493,13 @@ class CommonUtils
         "#{Config::userHomeDirectory()}/Desktop/#{locationNameOnDesktop}"
     end
 
+    # CommonUtils::interactivelySelectDesktopLocation()
+    def self.interactivelySelectDesktopLocation()
+        location = CommonUtils::interactivelySelectDesktopLocationOrNull()
+        return location if location
+        CommonUtils::interactivelySelectDesktopLocation()
+    end
+
     # CommonUtils::moveFileToBinTimeline(location)
     def self.moveFileToBinTimeline(location)
         return if !File.exists?(location)
