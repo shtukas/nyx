@@ -32,7 +32,7 @@ class NxTodos
             "description" => description,
             "nx113"       => nx113nhash,
             "nx11e"       => nx11e,
-            "cx22"        => cx22["uuid"],
+            "cx22"        => cx22 ? cx22["uuid"] : nil,
             "cx23"        => cx23,
             "listeable"   => true
         }
@@ -57,7 +57,7 @@ class NxTodos
             "description" => description,
             "nx113"       => nx113nhash,
             "nx11e"       => nx11e,
-            "cx22"        => cx22["uuid"],
+            "cx22"        => cx22 ? cx22["uuid"] : nil,
             "listeable"   => true
         }
         Items::putItem(item)
@@ -83,7 +83,7 @@ class NxTodos
             "description" => description,
             "nx113"       => nx113nhash,
             "nx11e"       => nx11e,
-            "cx22"        => cx22["uuid"],
+            "cx22"        => cx22 ? cx22["uuid"] : nil,
             "listeable"   => true
         }
         Items::putItem(item)
