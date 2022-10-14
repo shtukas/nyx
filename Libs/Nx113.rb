@@ -92,14 +92,14 @@ class Nx113Make
         if type == "text" then
             text = CommonUtils::editTextSynchronously("")
             nx113hhash = Nx113Make::text(text)
-            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(nx113hhash, true)
+            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(nx113hhash, SecureRandom.hex, true)
             return nx113hhash
         end
         if type == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
             return nil if url == ""
             nx113nhash = Nx113Make::url(url)
-            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(nx113nhash, true)
+            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(nx113hhash, SecureRandom.hex, true)
             return nx113nhash
         end
         if type == "file" then
@@ -108,28 +108,28 @@ class Nx113Make
             return nil if !File.file?(location)
             filepath = location
             nx113nhash = Nx113Make::file(filepath)
-            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(nx113nhash, true)
+            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(nx113hhash, SecureRandom.hex, true)
             return nx113nhash
         end
         if type == "aion-point" then
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
             nx113nhash = Nx113Make::aionpoint(location)
-            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(nx113nhash, true)
+            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(nx113hhash, SecureRandom.hex, true)
             return nx113nhash
         end
         if type == "Dx8Unit" then
             unitId = LucilleCore::askQuestionAnswerAsString("unitId (empty to abort): ")
             return nil if  unitId == ""
             nx113nhash = Nx113Make::dx8Unit(unitId)
-            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(nx113nhash, true)
+            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(nx113hhash, SecureRandom.hex, true)
             return nx113nhash
         end
         if type == "unique-string" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
             return nil if uniquestring.nil?
             nx113nhash = Nx113Make::uniqueString(uniquestring)
-            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(nx113nhash, true)
+            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(nx113hhash, SecureRandom.hex, true)
             return nx113nhash
         end
         raise "(error: 0d26fe42-8669-4f33-9a09-aeecbd52c77c)"

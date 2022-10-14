@@ -252,6 +252,8 @@ class NxTodos
 
     # NxTodos::listingItems()
     def self.listingItems()
+
+        # We update the list of listable every day
         if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("e38d89ee-0e4e-4b71-adcd-bfdcb7891e72", 86400) then
             Cx22::items().each{|cx22|
                 NxTodos::items()
@@ -282,8 +284,7 @@ class NxTodos
 
         end
 
-        NxTodos::items()
-            .select{|item| item["listeable"] }
+        NxTodos::items().select{|item| item["listeable"] }
     end
 
     # NxTodos::itemsInPositionOrderForGroup(cx22)
