@@ -381,6 +381,7 @@ class FileSystemCheck
     # FileSystemCheck::fsckErrorAtFirstFailure(runhash)
     def self.fsckErrorAtFirstFailure(runhash)
         Items::items().each{|item|
+            FileSystemCheck::exitIfMissingCanary()
             FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash, true)
         }
         puts "fsck completed successfully".green
