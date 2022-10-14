@@ -45,10 +45,15 @@ class FileSystemCheck
         raise "(error: 2a5f46bd-c5db-48e7-a20f-4dd079868948)"
     end
 
-    # FileSystemCheck::fsck_Nx113(nx113, verbose)
-    def self.fsck_Nx113(nx113, verbose)
+    # FileSystemCheck::fsck_Nx113(nx113, runhash, verbose)
+    def self.fsck_Nx113(nx113, runhash, verbose)
+        return nx113.nil?
+
+        repeatKey = "#{runhash}:#{nx113}"
+        return if XCache::getFlag(repeatKey)
+
         if verbose then
-            puts "FileSystemCheck::fsck_Nx113(#{JSON.pretty_generate(nx113)}, #{verbose})"
+            puts "FileSystemCheck::fsck_Nx113(#{JSON.pretty_generate(nx113)}, #{runhash}, #{verbose})"
         end
 
         if nx113["type"].nil? then
@@ -58,10 +63,12 @@ class FileSystemCheck
         type = nx113["type"]
 
         if type == "text" then
+            XCache::setFlag(repeatKey, true)
             return
         end
 
         if type == "url" then
+            XCache::setFlag(repeatKey, true)
             return
         end
 
@@ -89,6 +96,7 @@ class FileSystemCheck
                 puts JSON.pretty_generate(item)
                 raise "(error: 3e428541-805b-455e-b6a2-c400a6519aef) primitive file fsck failed"
             end
+            XCache::setFlag(repeatKey, true)
             return
         end
 
@@ -108,35 +116,22 @@ class FileSystemCheck
                 puts JSON.pretty_generate(item)
                 raise "(error: 50daf867-0dab-47d9-ae79-d8e431650eab) aion structure fsck failed "
             end
+            XCache::setFlag(repeatKey, true)
             return
         end
 
         if type == "Dx8Unit" then
+            XCache::setFlag(repeatKey, true)
             return
         end
 
         if type == "unique-string" then
+            XCache::setFlag(repeatKey, true)
             return
         end
 
         puts "FileSystemCheck::fsckNx113(#{JSON.pretty_generate(nx113)}, #{verbose})"
         raise "Unsupported Nx113 type: #{type}"
-    end
-
-    # FileSystemCheck::fsck_Nx113Nhash(nhash, runhash, verbose) # We allow for null nhash
-    def self.fsck_Nx113Nhash(nhash, runhash, verbose)
-        return if nhash.nil?
-
-        if verbose then
-            puts "FileSystemCheck::fsck_Nx113Nhash(#{JSON.pretty_generate(nhash)}, #{runhash}, #{verbose})"
-        end
-
-        repeatKey = "daf95139-61ea-4872-b298-0d703825ec37:#{runhash}:#{nhash}"
-        return if XCache::getFlag(repeatKey)
-
-        nx113 = Nx113Access::getNx113(nhash)
-        FileSystemCheck::fsck_Nx113(nx113, verbose)
-        XCache::setFlag(repeatKey, true)
     end
 
     # FileSystemCheck::fsck_Cx22(cx22, verbose)
@@ -338,7 +333,7 @@ class FileSystemCheck
             ensureAttribute.call(item, "description")
             ensureAttribute.call(item, "nx11e")
             FileSystemCheck::fsck_Nx11E(item["nx11e"], verbose)
-            FileSystemCheck::fsck_Nx113Nhash(item["nx113"], runhash, verbose)
+            FileSystemCheck::fsck_Nx113(item["nx113"], runhash, verbose)
             FileSystemCheck::fsck_Cx23(item["cx23"], verbose)
             XCache::setFlag(repeatKey, true)
             return
@@ -346,7 +341,7 @@ class FileSystemCheck
 
         if mikuType == "NyxNode" then
             ensureAttribute.call(item, "description")
-            FileSystemCheck::fsck_Nx113Nhash(item["nx113"], runhash, verbose) # nx113 is optional for NyxNodes, the function return if the argument in null
+            FileSystemCheck::fsck_Nx113(item["nx113"], runhash, verbose)
             XCache::setFlag(repeatKey, true)
             return
         end
@@ -355,7 +350,7 @@ class FileSystemCheck
             ensureAttribute.call(item, "description")
             ensureAttribute.call(item, "nx46")
             ensureAttribute.call(item, "lastDoneDateTime")
-            FileSystemCheck::fsck_Nx113Nhash(item["nx113"], runhash, verbose)
+            FileSystemCheck::fsck_Nx113(item["nx113"], runhash, verbose)
             XCache::setFlag(repeatKey, true)
             return
         end

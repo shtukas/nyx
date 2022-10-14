@@ -32,11 +32,11 @@ class NyxNodes
 
         networkType = NyxNodes::interactivelySelectNetworkType()
 
-        nx113nhash = nil
+        nx113 = nil
 
         # We have the convention that only PureData NyxNodes carry (points to) a Nx113
         if networkType == "PureData" then
-            nx113nhash = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
+            nx113 = Nx113Make::interactivelyMakeNx113OrNull()
         end
 
         item = {
@@ -46,7 +46,7 @@ class NyxNodes
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "nx113"       => nx113nhash
+            "nx113"       => nx113
         }
 
         Items::putItem(item)
@@ -60,7 +60,7 @@ class NyxNodes
         datetime = Time.new.utc.iso8601
         description = File.basename(location)
         networkType = "PureData"
-        nx113nhash = Nx113Make::aionpoint(location)
+        nx113 = Nx113Make::aionpoint(location)
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NyxNode",
@@ -68,7 +68,7 @@ class NyxNodes
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "nx113"       => nx113nhash
+            "nx113"       => nx113
         }
         Items::putItem(item)
         item
@@ -81,7 +81,7 @@ class NyxNodes
         datetime = Time.new.utc.iso8601
         description = File.basename(filepath)
         networkType = "PureData"
-        nx113nhash = Nx113Make::file(filepath)
+        nx113 = Nx113Make::file(filepath)
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NyxNode",
@@ -89,7 +89,7 @@ class NyxNodes
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "nx113"       => nx113nhash
+            "nx113"       => nx113
         }
         Items::putItem(item)
         item
@@ -104,7 +104,7 @@ class NyxNodes
         return nil if description == ""
         networkType = "PureData"
         text = CommonUtils::editTextSynchronously("")
-        nx113nhash = Nx113Make::text(text)
+        nx113 = Nx113Make::text(text)
 
         item = {
             "uuid"        => uuid,
@@ -113,7 +113,7 @@ class NyxNodes
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "nx113"       => nx113nhash
+            "nx113"       => nx113
         }
 
         Items::putItem(item)

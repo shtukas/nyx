@@ -289,9 +289,9 @@ class PolyActions
 
     # PolyActions::setNx113(item)
     def self.setNx113(item)
-        nx113nhash = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
-        return if nx113nhash.nil?
-        Items::setAttribute2(item["uuid"], "nx113", nx113nhash)
+        nx113 = Nx113Make::interactivelyMakeNx113OrNull()
+        return if nx113.nil?
+        Items::setAttribute2(item["uuid"], "nx113", nx113)
     end
 
     # PolyActions::start(item)

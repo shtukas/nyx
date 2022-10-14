@@ -19,11 +19,11 @@ class NxTodos
     def self.interactivelyIssueNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-        uuid        = SecureRandom.uuid
-        nx11e       = Nx11E::interactivelyCreateNewNx11E()
-        nx113nhash  = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
-        cx22        = Cx22::architectOrNull()
-        cx23        = cx22 ? Cx23::makeNewOrNull(cx22) : nil
+        uuid  = SecureRandom.uuid
+        nx11e = Nx11E::interactivelyCreateNewNx11E()
+        nx113 = Nx113Make::interactivelyMakeNx113OrNull()
+        cx22  = Cx22::architectOrNull()
+        cx23  = cx22 ? Cx23::makeNewOrNull(cx22) : nil
         item = {
             "uuid"         => uuid,
             "uuid_variant" => SecureRandom.uuid,
@@ -31,7 +31,7 @@ class NxTodos
             "unixtime"     => Time.new.to_i,
             "datetime"     => Time.new.utc.iso8601,
             "description"  => description,
-            "nx113"        => nx113nhash,
+            "nx113"        => nx113,
             "nx11e"        => nx11e,
             "cx22"         => cx22 ? cx22["uuid"] : nil,
             "cx23"         => cx23,
@@ -45,11 +45,11 @@ class NxTodos
     def self.interactivelyIssueNewOndateOrNull(datetime = nil)
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-        uuid       = SecureRandom.uuid
-        datetime   = datetime || CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
-        nx11e      = Nx11E::makeOndate(datetime)
-        nx113nhash = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
-        cx22       = Cx22::architectOrNull()
+        uuid     = SecureRandom.uuid
+        datetime = datetime || CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
+        nx11e    = Nx11E::makeOndate(datetime)
+        nx113    = Nx113Make::interactivelyMakeNx113OrNull()
+        cx22     = Cx22::architectOrNull()
         item = {
             "uuid"         => uuid,
             "uuid_variant" => SecureRandom.uuid,
@@ -57,7 +57,7 @@ class NxTodos
             "unixtime"     => Time.new.to_i,
             "datetime"     => Time.new.utc.iso8601,
             "description"  => description,
-            "nx113"        => nx113nhash,
+            "nx113"        => nx113,
             "nx11e"        => nx11e,
             "cx22"         => cx22 ? cx22["uuid"] : nil,
             "listeable"    => true
@@ -73,10 +73,10 @@ class NxTodos
 
     # NxTodos::interactivelyIssueNewHot(description)
     def self.interactivelyIssueNewHot(description)
-        uuid       = SecureRandom.uuid
-        nx11e      = Nx11E::makeHot()
-        nx113nhash = nil
-        cx22       = Cx22::architectOrNull()
+        uuid  = SecureRandom.uuid
+        nx11e = Nx11E::makeHot()
+        nx113 = nil
+        cx22  = Cx22::architectOrNull()
         item = {
             "uuid"         => uuid,
             "uuid_variant" => SecureRandom.uuid,
@@ -84,7 +84,7 @@ class NxTodos
             "unixtime"     => Time.new.to_i,
             "datetime"     => Time.new.utc.iso8601,
             "description"  => description,
-            "nx113"        => nx113nhash,
+            "nx113"        => nx113,
             "nx11e"        => nx11e,
             "cx22"         => cx22 ? cx22["uuid"] : nil,
             "listeable"    => true
@@ -96,9 +96,9 @@ class NxTodos
     # NxTodos::issueUsingLocation(location)
     def self.issueUsingLocation(location)
         description = File.basename(location)
-        uuid        = SecureRandom.uuid
-        nx113nhash  = Nx113Make::aionpoint(location)
-        nx11e       = Nx11E::makeStandard()
+        uuid  = SecureRandom.uuid
+        nx113 = Nx113Make::aionpoint(location)
+        nx11e = Nx11E::makeStandard()
         item = {
             "uuid"         => uuid,
             "uuid_variant" => SecureRandom.uuid,
@@ -106,7 +106,7 @@ class NxTodos
             "unixtime"     => Time.new.to_i,
             "datetime"     => Time.new.utc.iso8601,
             "description"  => description,
-            "nx113"        => nx113nhash,
+            "nx113"        => nx113,
             "nx11e"        => nx11e,
             "listeable"    => true
         }
@@ -117,9 +117,9 @@ class NxTodos
     # NxTodos::bufferInImport(location)
     def self.bufferInImport(location)
         description = File.basename(location)
-        uuid        = SecureRandom.uuid
-        nx113nhash  = Nx113Make::aionpoint(location)
-        nx11e       = Nx11E::makeTriage()
+        uuid  = SecureRandom.uuid
+        nx113 = Nx113Make::aionpoint(location)
+        nx11e = Nx11E::makeTriage()
         item = {
             "uuid"         => uuid,
             "uuid_variant" => SecureRandom.uuid,
@@ -127,7 +127,7 @@ class NxTodos
             "unixtime"     => Time.new.to_i,
             "datetime"     => Time.new.utc.iso8601,
             "description"  => description,
-            "nx113"        => nx113nhash,
+            "nx113"        => nx113,
             "nx11e"        => nx11e,
             "listeable"    => true
         }
@@ -138,9 +138,9 @@ class NxTodos
     # NxTodos::issueUsingUrl(url)
     def self.issueUsingUrl(url)
         description = File.basename(location)
-        uuid        = SecureRandom.uuid
-        nx113nhash  = Nx113Make::url(url)
-        nx11e       = Nx11E::makeStandard()
+        uuid  = SecureRandom.uuid
+        nx113 = Nx113Make::url(url)
+        nx11e = Nx11E::makeStandard()
         item = {
             "uuid"         => uuid,
             "uuid_variant" => SecureRandom.uuid,
@@ -148,7 +148,7 @@ class NxTodos
             "unixtime"     => Time.new.to_i,
             "datetime"     => Time.new.utc.iso8601,
             "description"  => description,
-            "nx113"        => nx113nhash,
+            "nx113"        => nx113,
             "nx11e"        => nx11e,
             "listeable"    => true
         }
@@ -156,8 +156,8 @@ class NxTodos
         item
     end
 
-    # NxTodos::issueFromElements(description, nx113nhash, nx11e, cx22, cx23)
-    def self.issueFromElements(description, nx113nhash, nx11e, cx22, cx23)
+    # NxTodos::issueFromElements(description, nx113, nx11e, cx22, cx23)
+    def self.issueFromElements(description, nx113, nx11e, cx22, cx23)
         item = {
             "uuid"         => SecureRandom.uuid,
             "uuid_variant" => SecureRandom.uuid,
@@ -165,7 +165,7 @@ class NxTodos
             "unixtime"     => Time.new.to_i,
             "datetime"     => Time.new.utc.iso8601,
             "description"  => description,
-            "nx113"        => nx113nhash,
+            "nx113"        => nx113,
             "nx11e"        => nx11e,
             "cx22"         => cx22["uuid"],
             "cx23"         => cx23

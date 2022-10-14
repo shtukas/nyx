@@ -5,22 +5,20 @@ class Nx113Make
 
     # Nx113Make::text(text) # nhash pointer to DataStore1 location of JSON encoded Nx113
     def self.text(text)
-        item = {
+        {
             "mikuType" => "Nx113",
             "type"     => "text",
             "text"     => text
         }
-        DataStore1::putDataByContent(JSON.generate(item))
     end
 
     # Nx113Make::url(url) # nhash pointer to DataStore1 location of JSON encoded Nx113
     def self.url(url)
-        item = {
+        {
             "mikuType" => "Nx113",
             "type"     => "url",
             "url"      => url
         }
-        DataStore1::putDataByContent(JSON.generate(item))
     end
 
     # Nx113Make::file(filepath) # nhash pointer to DataStore1 location of JSON encoded Nx113
@@ -30,7 +28,7 @@ class Nx113Make
         operator = DataStore2SQLiteBlobStoreElizabethTheForge.new()
         dottedExtension, nhash, parts = PrimitiveFiles::commitFileReturnDataElements(filepath, operator) # [dottedExtension, nhash, parts]
 
-        item = {
+        {
             "mikuType"        => "Nx113",
             "type"            => "file",
             "dottedExtension" => dottedExtension,
@@ -38,7 +36,6 @@ class Nx113Make
             "parts"           => parts,
             "database"        => operator.publish()
         }
-        DataStore1::putDataByContent(JSON.generate(item))
     end
 
     # Nx113Make::aionpoint(location) # nhash pointer to DataStore1 location of JSON encoded Nx113
@@ -46,33 +43,30 @@ class Nx113Make
         raise "(error: 93590239-f8e0-4f35-af47-d7f1407e21f2)" if !File.exists?(location)
         operator = DataStore2SQLiteBlobStoreElizabethTheForge.new()
         rootnhash = AionCore::commitLocationReturnHash(operator, location)
-        item = {
+        {
             "mikuType"   => "Nx113",
             "type"       => "aion-point",
             "rootnhash"  => rootnhash,
             "database"   => operator.publish()
         }
-        DataStore1::putDataByContent(JSON.generate(item))
     end
 
     # Nx113Make::dx8Unit(unitId) # nhash pointer to DataStore1 location of JSON encoded Nx113
     def self.dx8Unit(unitId)
-        item = {
+        {
             "mikuType" => "Nx113",
             "type"     => "Dx8Unit",
             "unitId"   => unitId,
         }
-        DataStore1::putDataByContent(JSON.generate(item))
     end
 
     # Nx113Make::uniqueString(uniquestring) # nhash pointer to DataStore1 location of JSON encoded Nx113
     def self.uniqueString(uniquestring)
-        item = {
+        {
             "mikuType"     => "Nx113",
             "type"         => "unique-string",
             "uniquestring" => uniquestring,
         }
-        DataStore1::putDataByContent(JSON.generate(item))
     end
 
     # Nx113Make::types()
@@ -85,51 +79,51 @@ class Nx113Make
         LucilleCore::selectEntityFromListOfEntitiesOrNull("type", Nx113Make::types())
     end
 
-    # Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash() # nhash pointer to DataStore1 location of JSON encoded Nx113
-    def self.interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
+    # Nx113Make::interactivelyMakeNx113OrNull() # nhash pointer to DataStore1 location of JSON encoded Nx113
+    def self.interactivelyMakeNx113OrNull()
         type = Nx113Make::interactivelySelectOneNx113TypeOrNull()
         return nil if type.nil?
         if type == "text" then
             text = CommonUtils::editTextSynchronously("")
-            nx113hhash = Nx113Make::text(text)
-            FileSystemCheck::fsck_Nx113Nhash(nx113hhash, SecureRandom.hex, true)
-            return nx113hhash
+            nx113 = Nx113Make::text(text)
+            FileSystemCheck::fsck_Nx113(nx113, SecureRandom.hex, true)
+            return nx113
         end
         if type == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
             return nil if url == ""
-            nx113nhash = Nx113Make::url(url)
-            FileSystemCheck::fsck_Nx113Nhash(nx113hhash, SecureRandom.hex, true)
-            return nx113nhash
+            nx113 = Nx113Make::url(url)
+            FileSystemCheck::fsck_Nx113(nx113, SecureRandom.hex, true)
+            return nx113
         end
         if type == "file" then
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
             return nil if !File.file?(location)
             filepath = location
-            nx113nhash = Nx113Make::file(filepath)
-            FileSystemCheck::fsck_Nx113Nhash(nx113hhash, SecureRandom.hex, true)
-            return nx113nhash
+            nx113 = Nx113Make::file(filepath)
+            FileSystemCheck::fsck_Nx113(nx113, SecureRandom.hex, true)
+            return nx113
         end
         if type == "aion-point" then
             location = CommonUtils::interactivelySelectDesktopLocation()
-            nx113nhash = Nx113Make::aionpoint(location)
-            FileSystemCheck::fsck_Nx113Nhash(nx113hhash, SecureRandom.hex, true)
-            return nx113nhash
+            nx113 = Nx113Make::aionpoint(location)
+            FileSystemCheck::fsck_Nx113(nx113, SecureRandom.hex, true)
+            return nx113
         end
         if type == "Dx8Unit" then
             unitId = LucilleCore::askQuestionAnswerAsString("unitId (empty to abort): ")
             return nil if  unitId == ""
-            nx113nhash = Nx113Make::dx8Unit(unitId)
-            FileSystemCheck::fsck_Nx113Nhash(nx113hhash, SecureRandom.hex, true)
-            return nx113nhash
+            nx113 = Nx113Make::dx8Unit(unitId)
+            FileSystemCheck::fsck_Nx113(nx113, SecureRandom.hex, true)
+            return nx113
         end
         if type == "unique-string" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
             return nil if uniquestring.nil?
-            nx113nhash = Nx113Make::uniqueString(uniquestring)
-            FileSystemCheck::fsck_Nx113Nhash(nx113hhash, SecureRandom.hex, true)
-            return nx113nhash
+            nx113 = Nx113Make::uniqueString(uniquestring)
+            FileSystemCheck::fsck_Nx113(nx113, SecureRandom.hex, true)
+            return nx113
         end
         raise "(error: 0d26fe42-8669-4f33-9a09-aeecbd52c77c)"
     end
@@ -137,15 +131,8 @@ end
 
 class Nx113Access
 
-    # Nx113Access::getNx113(nhash) Nx113 or Error
-    def self.getNx113(nhash)
-        filepath = DataStore1::getNearestFilepathForReadingErrorIfNotAcquisable(nhash, true)
-        JSON.parse(IO.read(filepath))
-    end
-
-    # Nx113Access::access(nhash)
-    def self.access(nhash)
-        nx113 = Nx113Access::getNx113(nhash)
+    # Nx113Access::access(nx113)
+    def self.access(nx113)
 
         if nx113["type"] == "text" then
             CommonUtils::accessText(nx113["text"])
@@ -236,28 +223,26 @@ class Nx113Edit
     def self.edit(item)
         return if item["nx113"].nil?
 
-        nx113nhash = item["nx113"]
-
-        nx113 = Nx113Access::getNx113(nx113nhash)
+        nx113 = item["nx113"]
 
         if nx113["type"] == "text" then
             newtext = CommonUtils::editTextSynchronously(nx113["text"])
-            nx113nhash = Nx113Make::text(newtext)
-            Items::setAttribute2(item["uuid"], "nx113", nx113nhash)
+            nx113 = Nx113Make::text(newtext)
+            Items::setAttribute2(item["uuid"], "nx113", nx113)
         end
 
         if nx113["type"] == "url" then
             puts "current url: #{nx113["url"]}"
             url2 = LucilleCore::askQuestionAnswerAsString("new url: ")
-            nx113nhash = Nx113Make::url(url2)
-            Items::setAttribute2(item["uuid"], "nx113", nx113nhash)
+            nx113 = Nx113Make::url(url2)
+            Items::setAttribute2(item["uuid"], "nx113", nx113)
         end
 
         if nx113["type"] == "file" then
             Nx113Access::access(item["nx113"])
             filepath = CommonUtils::interactivelySelectDesktopLocationOrNull()
-            nx113nhash = Nx113Make::file(filepath)
-            Items::setAttribute2(item["uuid"], "nx113", nx113nhash)
+            nx113 = Nx113Make::file(filepath)
+            Items::setAttribute2(item["uuid"], "nx113", nx113)
         end
 
         if nx113["type"] == "aion-point" then
@@ -297,9 +282,7 @@ class Nx113Edit
                 "rootnhash"  => rootnhash,
                 "database"   => operator.publish()
             }
-            nx113nhash = DataStore1::putDataByContent(JSON.generate(nx113))
-
-            Items::setAttribute2(item["uuid"], "nx113", nx113nhash)
+            Items::setAttribute2(item["uuid"], "nx113", nx113)
         end
 
         if nx113["type"] == "Dx8Unit" then

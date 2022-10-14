@@ -126,7 +126,7 @@ class Waves
         return nil if description == ""
         nx46 = Waves::makeNx46InteractivelyOrNull()
         return nil if nx46.nil?
-        nx113nhash = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
+        nx113 = Nx113Make::interactivelyMakeNx113OrNull()
         uuid = SecureRandom.uuid
         item = {
             "uuid"             => uuid,
@@ -135,7 +135,7 @@ class Waves
             "datetime"         => Time.new.utc.iso8601,
             "description"      => description,
             "nx46"             => nx46,
-            "nx113"            => nx113nhash,
+            "nx113"            => nx113,
             "lastDoneDateTime" => "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         }
         Items::putItem(item)

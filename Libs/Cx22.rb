@@ -146,10 +146,10 @@ class Cx22
             if Interpreting::match("insert", input) then
                 description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
                 next if description == ""
-                uuid        = SecureRandom.uuid
-                nx11e       = Nx11E::makeStandard()
-                nx113nhash  = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
-                cx23        = 
+                uuid   = SecureRandom.uuid
+                nx11e  = Nx11E::makeStandard()
+                nx113  = Nx113Make::interactivelyMakeNx113OrNull()
+                cx23   =
                     (lambda {
                         loop {
                             position = LucilleCore::askQuestionAnswerAsString("position (or `next`): ")
@@ -163,7 +163,7 @@ class Cx22
                         }
                     }).call()
 
-                NxTodos::issueFromElements(description, nx113nhash, nx11e, cx22, cx23)
+                NxTodos::issueFromElements(description, nx113, nx11e, cx22, cx23)
 
                 Items::putItem(item)
                 next
