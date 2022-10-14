@@ -244,6 +244,7 @@ class Cx22
     # Cx22::dive(cx22)
     def self.dive(cx22)
         loop {
+            puts Cx22::toString(cx22).green
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["elements (program)", "start NxBall", "update description", "set: done for the day", "unset: done for the day", "expose", "completion ratio", "add time"])
             break if action.nil?
             if action == "elements (program)" then
