@@ -5,7 +5,7 @@ class DataStore1
 
     # DataStore1::localRepository()
     def self.localRepository()
-        "#{ENV['HOME']}/Galaxy/DataBank/Stargate-DataStore1"
+        "#{ENV['HOME']}/Galaxy/DataBank/Stargate-DataCenter/DataStore1"
     end
 
     # DataStore1::energyGridRepository()
