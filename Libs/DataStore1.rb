@@ -116,6 +116,7 @@ class DataStore1
             if File.exists?(filepath2) then
                 next
             end
+            puts "DataStore1::localDataToEnergyGrid(): #{File.basename(filepath1)}"
             FileUtils.cp(filepath1, filepath2)
         end
     end
