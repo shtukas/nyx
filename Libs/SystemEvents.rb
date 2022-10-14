@@ -3,6 +3,11 @@
 
 class SystemEvents
 
+    # SystemEvents::pathToCommsline()
+    def self.pathToCommsline()
+        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Commsline"
+    end
+
     # SystemEvents::internal(event)
     def self.internal(event)
 
@@ -90,7 +95,7 @@ class SystemEvents
     # SystemEvents::broadcast(event)
     def self.broadcast(event)
         Machines::theOtherInstanceIds().each{|targetInstanceId|
-            filepath = "#{CommsLine::pathToStaging()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.system-event.json"
+            filepath = "#{SystemEvents::pathToCommsline()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.system-event.json"
             File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(event)) }
         }
     end
@@ -102,7 +107,7 @@ class SystemEvents
 
         instanceId = Config::get("instanceId")
 
-        folderpath = "#{CommsLine::pathToActive()}/#{instanceId}"
+        folderpath = "#{SystemEvents::pathToCommsline()}/#{instanceId}"
 
         LucilleCore::locationsAtFolder(folderpath)
             .each{|filepath1|

@@ -671,13 +671,7 @@ class CatalystListing
 
         initialCodeTrace = CommonUtils::generalCodeTrace()
 
-        Thread.new {
-            loop {
-                sleep 10
-                SystemEvents::processIncomingEventsFromLine(false)
-                CommsLine::moveCarefully(false)
-            }
-        }
+        SystemEvents::processIncomingEventsFromLine(true)
 
         loop {
 

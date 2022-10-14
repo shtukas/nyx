@@ -10,7 +10,7 @@ class DataStore1
 
     # DataStore1::energyGridRepository()
     def self.energyGridRepository()
-        "/Volumes/EnergyGrid1/Stargate/DataStore1"
+        "/Volumes/EnergyGrid1/Stargate-EnergyGrid/DataStore1"
     end
 
     # -------------------------------------------------------
@@ -116,6 +116,7 @@ class DataStore1
             if File.exists?(filepath2) then
                 next
             end
+            puts "DataStore1::localDataToEnergyGrid(): #{File.basename(filepath1)}"
             FileUtils.cp(filepath1, filepath2)
         end
     end
