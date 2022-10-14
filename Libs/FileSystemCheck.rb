@@ -330,6 +330,7 @@ class FileSystemCheck
         end
 
         if mikuType == "NxTodo" then
+            ensureAttribute.call(item, "uuid_variant")
             ensureAttribute.call(item, "description")
             ensureAttribute.call(item, "nx11e")
             FileSystemCheck::fsck_Nx11E(item["nx11e"], verbose)

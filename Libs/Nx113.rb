@@ -202,17 +202,15 @@ class Nx113Access
         end
     end
 
-    # Nx113Access::toStringOrNull(prefix, nhash, postfix)
-    def self.toStringOrNull(prefix, nhash, postfix)
-        return nil if nhash.nil?
-        nx113 = Nx113Access::getNx113(nhash)
+    # Nx113Access::toStringOrNull(prefix, nx113, postfix)
+    def self.toStringOrNull(prefix, nx113, postfix)
+        return nil if nx113.nil?
         "#{prefix}(Nx113: #{nx113["type"]})#{postfix}"
     end
 
-    # Nx113Access::toStringOrNullShort(prefix, nhash, postfix)
-    def self.toStringOrNullShort(prefix, nhash, postfix)
-        return nil if nhash.nil?
-        nx113 = Nx113Access::getNx113(nhash)
+    # Nx113Access::toStringOrNullShort(prefix, nx113, postfix)
+    def self.toStringOrNullShort(prefix, nx113, postfix)
+        return nil if nx113.nil?
         "#{prefix}(#{nx113["type"]})#{postfix}"
     end
 end
