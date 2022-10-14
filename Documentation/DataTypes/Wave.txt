@@ -11,11 +11,11 @@ Wave:
     "cx22"        : UUID of Cx22 # optional
 
 Nx46 {
-    "type"  :
-    "value" :
+    "type"  : Nx46Type
+    "value" : Nx46Value
 }
 
-type                            value
+Nx46Type                        Nx46Value
 
 "sticky"                      : Integer
 "every-n-hours"               : Float

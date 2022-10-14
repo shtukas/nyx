@@ -78,6 +78,7 @@ class SystemEvents
         end
 
         if event["mikuType"] == "NxGraphEdge1" then
+            FileSystemCheck::fsckNxGraphEdge1(event, SecureRandom.hex, false)
             NetworkEdges::processEvent(event)
         end
 

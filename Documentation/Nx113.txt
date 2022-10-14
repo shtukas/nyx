@@ -5,7 +5,7 @@ Note that the reason for using DataStore2SQLiteBlobStore and not just using Data
 
 Nx113 are immutable, and sent JSON-encoded to DataStore1, and a reference to them stored into the primary Catalyst or Nyx object.
 
-Typically we have [Primary Object; DxF1 file] -> (optional) Nx113 -> (optional) data files, possibly SQLite files.
+Typically we have [Primary Object; file] -> (optional) Nx113 -> (optional) data files, possibly SQLite files.
 
 {
     "mikuType" => "Nx113"

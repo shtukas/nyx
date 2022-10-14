@@ -351,7 +351,7 @@ class NxTodos
             puts "Cx23 (Group position): #{JSON.generate(item["cx23"])}".yellow
 
             puts ""
-            puts "description | access | start | stop | engine | edit | nx113 | done | do not show until | expose | destroy | nyx".yellow
+            puts "description | access | start | stop | engine | edit | nx113 | cx22 | done | do not show until | expose | destroy | nyx".yellow
             puts ""
 
             input = LucilleCore::askQuestionAnswerAsString("> ")
@@ -410,6 +410,11 @@ class NxTodos
             if Interpreting::match("nx113", input) then
                 PolyActions::setNx113(item)
                 next
+            end
+
+            if Interpreting::match("cx22", input) then
+                Cx22::interactivelySetANewContributionForItemWithPositionOrNothing(item)
+                break
             end
 
             if Interpreting::match("nyx", input) then
