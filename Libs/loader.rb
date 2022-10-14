@@ -169,7 +169,6 @@ require_relative "DataStore2SQLiteBlobStore.rb"
 require_relative "DataStore3CAObjects.rb"
 
 require_relative "EnergyGrid.rb"
-require_relative "EndOfDayChecklist.rb"
 
 require_relative "Galaxy.rb"
 

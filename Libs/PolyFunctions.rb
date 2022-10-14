@@ -129,10 +129,6 @@ class PolyFunctions
 
         # ordering: alphabetical order
 
-        if item["mikuType"] == "EndOfDayChecklist" then
-            return 0.95
-        end
-
         if item["mikuType"] == "NxAnniversary" then
             return Anniversaries::isOpenToAcknowledgement(item) ? 0.95 : -1
         end
@@ -162,9 +158,6 @@ class PolyFunctions
 
         # order: lexicographic
 
-        if item["mikuType"] == "EndOfDayChecklist" then
-            return "(end of day, check) #{item["line"]}"
-        end
         if item["mikuType"] == "NxAnniversary" then
             return Anniversaries::toString(item)
         end

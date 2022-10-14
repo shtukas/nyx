@@ -508,10 +508,6 @@ class CatalystListing
                     "lambda" => lambda { The99Percent::getCurrentCount() }
                 },
                 {
-                    "name" => "EndOfDayChecklist::listingItems()",
-                    "lambda" => lambda { EndOfDayChecklist::listingItems() }
-                },
-                {
                     "name" => "NxTodos::listingItems()",
                     "lambda" => lambda { NxTodos::listingItems() }
                 },
@@ -564,7 +560,6 @@ class CatalystListing
             Anniversaries::listingItems(),
             TxManualCountDowns::listingItems(),
             Waves::items(),
-            EndOfDayChecklist::listingItems(),
             NxTodos::listingItems()
         ]
             .flatten

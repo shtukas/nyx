@@ -8,10 +8,6 @@ class PolyActions
     # PolyActions::access(item)
     def self.access(item)
 
-        if item["mikuType"] == "EndOfDayChecklist" then
-            return
-        end
-
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::access(item)
             return
@@ -65,10 +61,6 @@ class PolyActions
     def self.doubleDot(item)
 
         #puts "PolyActions::doubleDot(#{JSON.pretty_generate(item)})"
-
-        if item["mikuType"] == "EndOfDayChecklist" then
-            return
-        end
 
         if item["mikuType"] == "NxTodo" then
 
@@ -175,11 +167,6 @@ class PolyActions
         PolyActions::stop(item)
 
         # order: alphabetical order
-
-        if item["mikuType"] == "EndOfDayChecklist" then
-            EndOfDayChecklist::doneForToday(item)
-            return
-        end
 
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::done(item["uuid"])
