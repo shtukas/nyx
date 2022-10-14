@@ -49,11 +49,7 @@ checkLocation = lambda{|location|
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-ActiveCommsLine")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-ActiveCommsLine/shared-config.json")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-Config.json")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-Databases/bank.sqlite3")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-Databases/do-not-show-until.sqlite3")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-Databases/items.sqlite3")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-Databases/mikutyped-objects.sqlite3")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-Databases/network-edges.sqlite3")
+checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-DataCenter/Instance-Databases")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-DataStaging/CommsLine")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-DataStore1")
 

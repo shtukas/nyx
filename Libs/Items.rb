@@ -6,7 +6,7 @@ class Items
 
     # Items::pathToDatabase()
     def self.pathToDatabase()
-        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-Databases/items.sqlite3"
+        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Instance-Databases/#{Config::get("instanceId")}/items.sqlite3"
     end
 
     # Items::putItemNoEvent(item, fsckVerbose)

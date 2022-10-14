@@ -8,7 +8,7 @@ class MikuTypedObjects
 
     # MikuTypedObjects::pathToDatabase()
     def self.pathToDatabase()
-        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-Databases/mikutyped-objects.sqlite3"
+        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Instance-Databases/#{Config::get("instanceId")}/mikutyped-objects.sqlite3"
     end
 
     # MikuTypedObjects::objects(mikuType)

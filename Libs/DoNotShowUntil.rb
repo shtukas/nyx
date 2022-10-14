@@ -6,7 +6,7 @@ class DoNotShowUntil
 
     # DoNotShowUntil::pathToDatabase()
     def self.pathToDatabase()
-        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-Databases/do-not-show-until.sqlite3"
+        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Instance-Databases/#{Config::get("instanceId")}/do-not-show-until.sqlite3"
     end
 
     # DoNotShowUntil::setUnixtime(uuid, unixtime)

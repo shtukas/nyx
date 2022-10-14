@@ -6,7 +6,7 @@ class Bank
 
     # Bank::pathToDatabase()
     def self.pathToDatabase()
-        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-Databases/bank.sqlite3"
+        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Instance-Databases/#{Config::get("instanceId")}/bank.sqlite3"
     end
 
     # Bank::put(setuuid, weight: Float) # Used by regular activity. Emits events for the other computer,
