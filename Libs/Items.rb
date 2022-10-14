@@ -167,11 +167,15 @@ class Items
 
     # Items::delete(objectuuid)
     def self.delete(objectuuid)
+        itemx = Items::getItemOrNull(objectuuid)
         Items::deleteNoEvents(objectuuid)
         SystemEvents::broadcast({
             "mikuType"   => "NxDeleted",
             "objectuuid" => objectuuid
         })
+        if itemx then
+            PolyActions::garbageCollectionAfterItemDeletion(itemx)
+        end
     end
 
     # -----------------------------------------------------------------

@@ -229,11 +229,21 @@ class PolyActions
         Items::setAttribute2(item["uuid"], "startdate",   startdate)
     end
 
-    # PolyActions::garbageCollectionAsPartOfLaterItemDestruction(item)
-    def self.garbageCollectionAsPartOfLaterItemDestruction(item)
+    # PolyActions::garbageCollectionAfterItemDeletion(item)
+    def self.garbageCollectionAfterItemDeletion(item)
         return if item.nil?
-
-        # order : alphabetical order
+        if item["nx113"] then
+            nx113 = Nx113Access::getNx113(item["nx113"])
+            if nx113["type"] == "Dx8Unit" then
+                MikuTypedObjects::commit({
+                    "uuid"     => SecureRandom.uuid,
+                    "mikuType" => "Dx33",
+                    "unixtime" => Time.new.to_f,
+                    "datetime" => Time.new.utc.iso8601,
+                    "unitId"   => nx113["unitId"]
+                })
+            end
+        end
     end
 
     # PolyActions::landing(item)

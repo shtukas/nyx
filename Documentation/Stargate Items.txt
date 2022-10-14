@@ -1,0 +1,9 @@
+
+Any stargate item, should at least have the following attributes
+
+"uuid"        : String
+"mikuType"    : "NxTodo"
+"unixtime"    : Float
+"datetime"    : DateTime Iso 8601 UTC Zulu
+
+This is what the file system check expects.
