@@ -135,7 +135,7 @@ class NetworkEdges
     def self.processEvent(event)
         if event["mikuType"] == "NxGraphEdge1" then
 
-            FileSystemCheck::fsckNxGraphEdge1(event, SecureRandom.hex, false)
+            FileSystemCheck::fsck_NxGraphEdge1(event, SecureRandom.hex, false)
 
             uuid1 = event["uuid1"]
             uuid2 = event["uuid2"]

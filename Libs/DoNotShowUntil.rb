@@ -28,7 +28,7 @@ class DoNotShowUntil
     # DoNotShowUntil::processEvent(event)
     def self.processEvent(event)
         if event["mikuType"] == "NxDoNotShowUntil" then
-            FileSystemCheck::fsckNxDoNotShowUntil(event, SecureRandom.hex, false)
+            FileSystemCheck::fsck_NxDoNotShowUntil(event, SecureRandom.hex, false)
             uuid     = event["targetuuid"]
             unixtime = event["targetunixtime"]
             db = SQLite3::Database.new(DoNotShowUntil::pathToDatabase())

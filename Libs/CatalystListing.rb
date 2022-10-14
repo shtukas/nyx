@@ -266,7 +266,7 @@ class CatalystListing
 
         if Interpreting::match("hot", input) then
             description = LucilleCore::askQuestionAnswerAsString("hot: ")
-            item = NxTodos::interactivelyCreateNewHot(description)
+            item = NxTodos::interactivelyIssueNewHot(description)
             puts JSON.pretty_generate(item)
             return
         end
@@ -321,7 +321,7 @@ class CatalystListing
         end
 
         if Interpreting::match("ondate", input) then
-            item = NxTodos::interactivelyCreateNewOndateOrNull()
+            item = NxTodos::interactivelyIssueNewOndateOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
             return
@@ -437,12 +437,12 @@ class CatalystListing
         end
 
         if Interpreting::match("today", input) then
-            NxTodos::interactivelyCreateNewTodayOrNull()
+            NxTodos::interactivelyIssueNewTodayOrNull()
             return
         end
 
         if Interpreting::match("todo", input) then
-            item = NxTodos::interactivelyCreateNewOrNull()
+            item = NxTodos::interactivelyIssueNewOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
             return

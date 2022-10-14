@@ -2,7 +2,7 @@
 
 class NxTodos
 
-    #  d
+    # NxTodos::items()
     def self.items()
         Items::mikuTypeToItems("NxTodo")
     end
@@ -15,8 +15,8 @@ class NxTodos
     # --------------------------------------------------
     # Makers
 
-    # NxTodos::interactivelyCreateNewOrNull()
-    def self.interactivelyCreateNewOrNull()
+    # NxTodos::interactivelyIssueNewOrNull()
+    def self.interactivelyIssueNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid        = SecureRandom.uuid
@@ -25,23 +25,24 @@ class NxTodos
         cx22        = Cx22::architectOrNull()
         cx23        = cx22 ? Cx23::makeNewOrNull(cx22) : nil
         item = {
-            "uuid"        => uuid,
-            "mikuType"    => "NxTodo",
-            "unixtime"    => Time.new.to_i,
-            "datetime"    => Time.new.utc.iso8601,
-            "description" => description,
-            "nx113"       => nx113nhash,
-            "nx11e"       => nx11e,
-            "cx22"        => cx22 ? cx22["uuid"] : nil,
-            "cx23"        => cx23,
-            "listeable"   => true
+            "uuid"         => uuid,
+            "uuid_variant" => SecureRandom.uuid,
+            "mikuType"     => "NxTodo",
+            "unixtime"     => Time.new.to_i,
+            "datetime"     => Time.new.utc.iso8601,
+            "description"  => description,
+            "nx113"        => nx113nhash,
+            "nx11e"        => nx11e,
+            "cx22"         => cx22 ? cx22["uuid"] : nil,
+            "cx23"         => cx23,
+            "listeable"    => true
         }
         Items::putItem(item)
         item
     end
 
-    # NxTodos::interactivelyCreateNewOndateOrNull(datetime = nil)
-    def self.interactivelyCreateNewOndateOrNull(datetime = nil)
+    # NxTodos::interactivelyIssueNewOndateOrNull(datetime = nil)
+    def self.interactivelyIssueNewOndateOrNull(datetime = nil)
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid       = SecureRandom.uuid
@@ -50,41 +51,43 @@ class NxTodos
         nx113nhash = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
         cx22       = Cx22::architectOrNull()
         item = {
-            "uuid"        => uuid,
-            "mikuType"    => "NxTodo",
-            "unixtime"    => Time.new.to_i,
-            "datetime"    => Time.new.utc.iso8601,
-            "description" => description,
-            "nx113"       => nx113nhash,
-            "nx11e"       => nx11e,
-            "cx22"        => cx22 ? cx22["uuid"] : nil,
-            "listeable"   => true
+            "uuid"         => uuid,
+            "uuid_variant" => SecureRandom.uuid,
+            "mikuType"     => "NxTodo",
+            "unixtime"     => Time.new.to_i,
+            "datetime"     => Time.new.utc.iso8601,
+            "description"  => description,
+            "nx113"        => nx113nhash,
+            "nx11e"        => nx11e,
+            "cx22"         => cx22 ? cx22["uuid"] : nil,
+            "listeable"    => true
         }
         Items::putItem(item)
         item
     end
 
-    # NxTodos::interactivelyCreateNewTodayOrNull()
-    def self.interactivelyCreateNewTodayOrNull()
-        NxTodos::interactivelyCreateNewOndateOrNull(Time.new.utc.iso8601)
+    # NxTodos::interactivelyIssueNewTodayOrNull()
+    def self.interactivelyIssueNewTodayOrNull()
+        NxTodos::interactivelyIssueNewOndateOrNull(Time.new.utc.iso8601)
     end
 
-    # NxTodos::interactivelyCreateNewHot(description)
-    def self.interactivelyCreateNewHot(description)
+    # NxTodos::interactivelyIssueNewHot(description)
+    def self.interactivelyIssueNewHot(description)
         uuid       = SecureRandom.uuid
         nx11e      = Nx11E::makeHot()
         nx113nhash = nil
         cx22       = Cx22::architectOrNull()
         item = {
-            "uuid"        => uuid,
-            "mikuType"    => "NxTodo",
-            "unixtime"    => Time.new.to_i,
-            "datetime"    => Time.new.utc.iso8601,
-            "description" => description,
-            "nx113"       => nx113nhash,
-            "nx11e"       => nx11e,
-            "cx22"        => cx22 ? cx22["uuid"] : nil,
-            "listeable"   => true
+            "uuid"         => uuid,
+            "uuid_variant" => SecureRandom.uuid,
+            "mikuType"     => "NxTodo",
+            "unixtime"     => Time.new.to_i,
+            "datetime"     => Time.new.utc.iso8601,
+            "description"  => description,
+            "nx113"        => nx113nhash,
+            "nx11e"        => nx11e,
+            "cx22"         => cx22 ? cx22["uuid"] : nil,
+            "listeable"    => true
         }
         Items::putItem(item)
         item
@@ -97,14 +100,15 @@ class NxTodos
         nx113nhash  = Nx113Make::aionpoint(location)
         nx11e       = Nx11E::makeStandard()
         item = {
-            "uuid"        => uuid,
-            "mikuType"    => "NxTodo",
-            "unixtime"    => Time.new.to_i,
-            "datetime"    => Time.new.utc.iso8601,
-            "description" => description,
-            "nx113"       => nx113nhash,
-            "nx11e"       => nx11e,
-            "listeable"   => true
+            "uuid"         => uuid,
+            "uuid_variant" => SecureRandom.uuid,
+            "mikuType"     => "NxTodo",
+            "unixtime"     => Time.new.to_i,
+            "datetime"     => Time.new.utc.iso8601,
+            "description"  => description,
+            "nx113"        => nx113nhash,
+            "nx11e"        => nx11e,
+            "listeable"    => true
         }
         Items::putItem(item)
         item
@@ -117,14 +121,15 @@ class NxTodos
         nx113nhash  = Nx113Make::aionpoint(location)
         nx11e       = Nx11E::makeTriage()
         item = {
-            "uuid"        => uuid,
-            "mikuType"    => "NxTodo",
-            "unixtime"    => Time.new.to_i,
-            "datetime"    => Time.new.utc.iso8601,
-            "description" => description,
-            "nx113"       => nx113nhash,
-            "nx11e"       => nx11e,
-            "listeable"   => true
+            "uuid"         => uuid,
+            "uuid_variant" => SecureRandom.uuid,
+            "mikuType"     => "NxTodo",
+            "unixtime"     => Time.new.to_i,
+            "datetime"     => Time.new.utc.iso8601,
+            "description"  => description,
+            "nx113"        => nx113nhash,
+            "nx11e"        => nx11e,
+            "listeable"    => true
         }
         Items::putItem(item)
         item
@@ -137,17 +142,35 @@ class NxTodos
         nx113nhash  = Nx113Make::url(url)
         nx11e       = Nx11E::makeStandard()
         item = {
-            "uuid"        => uuid,
-            "mikuType"    => "NxTodo",
-            "unixtime"    => Time.new.to_i,
-            "datetime"    => Time.new.utc.iso8601,
-            "description" => description,
-            "nx113"       => nx113nhash,
-            "nx11e"       => nx11e,
-            "listeable"   => true
+            "uuid"         => uuid,
+            "uuid_variant" => SecureRandom.uuid,
+            "mikuType"     => "NxTodo",
+            "unixtime"     => Time.new.to_i,
+            "datetime"     => Time.new.utc.iso8601,
+            "description"  => description,
+            "nx113"        => nx113nhash,
+            "nx11e"        => nx11e,
+            "listeable"    => true
         }
         Items::putItem(item)
         item
+    end
+
+    # NxTodos::issueFromElements(description, nx113nhash, nx11e, cx22, cx23)
+    def self.issueFromElements(description, nx113nhash, nx11e, cx22, cx23)
+        item = {
+            "uuid"         => SecureRandom.uuid,
+            "uuid_variant" => SecureRandom.uuid,
+            "mikuType"     => "NxTodo",
+            "unixtime"     => Time.new.to_i,
+            "datetime"     => Time.new.utc.iso8601,
+            "description"  => description,
+            "nx113"        => nx113nhash,
+            "nx11e"        => nx11e,
+            "cx22"         => cx22["uuid"],
+            "cx23"         => cx23
+        }
+        Items::putItem(item)
     end
 
     # --------------------------------------------------

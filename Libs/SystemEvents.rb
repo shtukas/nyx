@@ -48,7 +48,7 @@ class SystemEvents
         end
 
         if event["mikuType"] == "AttributeUpdate.v2" then
-            FileSystemCheck::fsckAttributeUpdateV2(event, SecureRandom.hex, false)
+            FileSystemCheck::fsck_AttributeUpdateV2(event, SecureRandom.hex, false)
             objectuuid = event["objectuuid"]
             eventuuid  = event["eventuuid"]
             eventTime  = event["eventTime"]
@@ -83,7 +83,7 @@ class SystemEvents
         end
 
         if event["mikuType"] == "NxGraphEdge1" then
-            FileSystemCheck::fsckNxGraphEdge1(event, SecureRandom.hex, false)
+            FileSystemCheck::fsck_NxGraphEdge1(event, SecureRandom.hex, false)
             NetworkEdges::processEvent(event)
         end
 

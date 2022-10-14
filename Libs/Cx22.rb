@@ -20,12 +20,14 @@ class Cx22
         return nil if description == ""
         ax39 = Ax39::interactivelyCreateNewAx()
         item = {
-            "uuid"        => SecureRandom.uuid,
-            "mikuType"    => "Cx22",
-            "description" => description,
-            "bankaccount" => SecureRandom.uuid,
-            "ax39"        => ax39
+            "uuid"         => SecureRandom.uuid,
+            "uuid_variant" => SecureRandom.uuid,
+            "mikuType"     => "Cx22",
+            "description"  => description,
+            "bankaccount"  => SecureRandom.uuid,
+            "ax39"         => ax39
         }
+        FileSystemCheck::fsck_Cx22(item, true)
         MikuTypedObjects::commit(item)
         item
     end
@@ -161,17 +163,7 @@ class Cx22
                         }
                     }).call()
 
-                item = {
-                    "uuid"        => uuid,
-                    "mikuType"    => "NxTodo",
-                    "unixtime"    => Time.new.to_i,
-                    "datetime"    => Time.new.utc.iso8601,
-                    "description" => description,
-                    "nx113"       => nx113nhash,
-                    "nx11e"       => nx11e,
-                    "cx22"        => cx22["uuid"],
-                    "cx23"        => cx23
-                }
+                NxTodos::issueFromElements(description, nx113nhash, nx11e, cx22, cx23)
 
                 Items::putItem(item)
                 next

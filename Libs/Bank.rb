@@ -30,7 +30,7 @@ class Bank
     # Bank::processEvent(event)
     def self.processEvent(event)
         if event["mikuType"] == "TxBankEvent" then
-            FileSystemCheck::fsckTxBankEvent(event, SecureRandom.hex, false)
+            FileSystemCheck::fsck_TxBankEvent(event, SecureRandom.hex, false)
             setuuid  = event["event"]
             unixtime = event["unixtime"]
             date     = event["date"]

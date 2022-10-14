@@ -3,18 +3,10 @@
 
 class FileSystemCheck
 
-    # FileSystemCheck::exitIfMissingCanary()
-    def self.exitIfMissingCanary()
-        if !File.exists?("#{Config::userHomeDirectory()}/Desktop/Pascal.png") then # We use this file to interrupt long runs at a place where it would not corrupt any file system.
-            puts "Interrupted after missing canary file.".green
-            exit
-        end
-    end
-
-    # FileSystemCheck::fsckNx11EErrorAtFirstFailure(nx11e, verbose)
-    def self.fsckNx11EErrorAtFirstFailure(nx11e, verbose)
+    # FileSystemCheck::fsck_Nx11E(nx11e, verbose)
+    def self.fsck_Nx11E(nx11e, verbose)
         if verbose then
-            puts "FileSystemCheck::fsckNx11EErrorAtFirstFailure(#{JSON.pretty_generate(nx11e)}, #{verbose})"
+            puts "FileSystemCheck::fsck_Nx11E(#{JSON.pretty_generate(nx11e)}, #{verbose})"
         end
 
         ensureAttribute = lambda {|object, attname|
@@ -53,10 +45,10 @@ class FileSystemCheck
         raise "(error: 2a5f46bd-c5db-48e7-a20f-4dd079868948)"
     end
 
-    # FileSystemCheck::fsckNx113ErrorAtFirstFailure(nx113, verbose)
-    def self.fsckNx113ErrorAtFirstFailure(nx113, verbose)
+    # FileSystemCheck::fsck_Nx113(nx113, verbose)
+    def self.fsck_Nx113(nx113, verbose)
         if verbose then
-            puts "FileSystemCheck::fsckNx113ErrorAtFirstFailure(#{JSON.pretty_generate(nx113)}, #{verbose})"
+            puts "FileSystemCheck::fsck_Nx113(#{JSON.pretty_generate(nx113)}, #{verbose})"
         end
 
         if nx113["type"].nil? then
@@ -131,38 +123,29 @@ class FileSystemCheck
         raise "Unsupported Nx113 type: #{type}"
     end
 
-    # FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(nhash, runhash, verbose) # We allow for null nhash
-    def self.fsckNx113NhashIfNotNullErrorAtFirstFailure(nhash, runhash, verbose)
+    # FileSystemCheck::fsck_Nx113Nhash(nhash, runhash, verbose) # We allow for null nhash
+    def self.fsck_Nx113Nhash(nhash, runhash, verbose)
         return if nhash.nil?
 
         if verbose then
-            puts "FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(#{JSON.pretty_generate(nhash)}, #{runhash}, #{verbose})"
+            puts "FileSystemCheck::fsck_Nx113Nhash(#{JSON.pretty_generate(nhash)}, #{runhash}, #{verbose})"
         end
 
         repeatKey = "daf95139-61ea-4872-b298-0d703825ec37:#{runhash}:#{nhash}"
         return if XCache::getFlag(repeatKey)
 
         nx113 = Nx113Access::getNx113(nhash)
-        FileSystemCheck::fsckNx113ErrorAtFirstFailure(nx113, verbose)
+        FileSystemCheck::fsck_Nx113(nx113, verbose)
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsckCx22StringIfNotNullErrorAtFirstFailure(cx22str, verbose)
-    def self.fsckCx22StringIfNotNullErrorAtFirstFailure(cx22str, verbose)
-        return if cx22str.nil?
+    # FileSystemCheck::fsck_Cx22(cx22, verbose)
+    def self.fsck_Cx22(cx22, verbose)
+        return if cx22.nil?
 
         if verbose then
-            puts "FileSystemCheck::fsckCx22StringIfNotNullErrorAtFirstFailure(#{cx22str}, #{verbose})"
+            "FileSystemCheck::fsck_Cx22(#{cx22}, #{verbose})"
         end
-
-        if cx22str.class.to_s != "String" then
-            raise "Cx22 (string) fails to be a string"
-        end
-    end
-
-    # FileSystemCheck::fsckCx23IfNotNullErrorAtFirstFailure(cx23, verbose)
-    def self.fsckCx23IfNotNullErrorAtFirstFailure(cx23, verbose)
-        return if cx23.nil?
 
         ensureAttribute = lambda {|object, attname|
             return if object[attname]
@@ -170,21 +153,39 @@ class FileSystemCheck
             raise "Missing attribute: #{attname} in #{object}"
         }
 
+        ensureAttribute.call(cx22, "uuid")
+        ensureAttribute.call(cx22, "uuid_variant")
+        ensureAttribute.call(cx22, "mikuType")
+        ensureAttribute.call(cx22, "description")
+        ensureAttribute.call(cx22, "bankaccount")
+        ensureAttribute.call(cx22, "ax39")
+    end
+
+    # FileSystemCheck::fsck_Cx23(cx23, verbose)
+    def self.fsck_Cx23(cx23, verbose)
+        return if cx23.nil?
+
         if verbose then
-            "FileSystemCheck::fsckCx23IfNotNullErrorAtFirstFailure(#{cx23}, #{verbose})"
+            "FileSystemCheck::fsck_Cx23(#{cx23}, #{verbose})"
         end
+
+        ensureAttribute = lambda {|object, attname|
+            return if object[attname]
+            puts JSON.pretty_generate(object)
+            raise "Missing attribute: #{attname} in #{object}"
+        }
 
         ensureAttribute.call(cx23, "groupuuid")
         ensureAttribute.call(cx23, "position")
     end
 
-    # FileSystemCheck::fsckTxBankEvent(event, runhash, verbose)
-    def self.fsckTxBankEvent(event, runhash, verbose)
+    # FileSystemCheck::fsck_TxBankEvent(event, runhash, verbose)
+    def self.fsck_TxBankEvent(event, runhash, verbose)
         repeatKey = "#{runhash}:#{JSON.generate(event)}"
         return if XCache::getFlag(repeatKey)
 
         if verbose then
-            puts "FileSystemCheck::fsckTxBankEvent(#{JSON.pretty_generate(event)}, #{runhash}, #{verbose})"
+            puts "FileSystemCheck::fsck_TxBankEvent(#{JSON.pretty_generate(event)}, #{runhash}, #{verbose})"
         end
 
         if event["mikuType"].nil? then
@@ -209,13 +210,13 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsckNxDoNotShowUntil(event, runhash, verbose)
-    def self.fsckNxDoNotShowUntil(event, runhash, verbose)
+    # FileSystemCheck::fsck_NxDoNotShowUntil(event, runhash, verbose)
+    def self.fsck_NxDoNotShowUntil(event, runhash, verbose)
         repeatKey = "#{runhash}:#{JSON.generate(event)}"
         return if XCache::getFlag(repeatKey)
 
         if verbose then
-            puts "FileSystemCheck::fsckNxDoNotShowUntil(#{JSON.pretty_generate(event)}, #{runhash}, #{verbose})"
+            puts "FileSystemCheck::fsck_NxDoNotShowUntil(#{JSON.pretty_generate(event)}, #{runhash}, #{verbose})"
         end
 
         if event["mikuType"].nil? then
@@ -234,13 +235,13 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsckNxGraphEdge1(event, runhash, verbose)
-    def self.fsckNxGraphEdge1(event, runhash, verbose)
+    # FileSystemCheck::fsck_NxGraphEdge1(event, runhash, verbose)
+    def self.fsck_NxGraphEdge1(event, runhash, verbose)
         repeatKey = "#{runhash}:#{JSON.generate(event)}"
         return if XCache::getFlag(repeatKey)
 
         if verbose then
-            puts "FileSystemCheck::fsckNxGraphEdge1(#{JSON.pretty_generate(event)}, #{runhash}, #{verbose})"
+            puts "FileSystemCheck::fsck_NxGraphEdge1(#{JSON.pretty_generate(event)}, #{runhash}, #{verbose})"
         end
 
         if event["mikuType"].nil? then
@@ -265,14 +266,45 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash, verbose)
-    def self.fsckItemErrorArFirstFailure(item, runhash, verbose)
+    # FileSystemCheck::fsck_Cx22(object, runhash, verbose)
+    def self.fsck_Cx22(object, runhash, verbose)
+        repeatKey = "#{runhash}:#{JSON.generate(object)}"
+        return if XCache::getFlag(repeatKey)
+
+        if verbose then
+            puts "FileSystemCheck::fsck_Cx22(#{JSON.pretty_generate(object)}, #{runhash}, #{verbose})"
+        end
+
+        if object["uuid"].nil? then
+            raise "object has no Miku type"
+        end
+        if object["mikuType"].nil? then
+            raise "object has no Miku type"
+        end
+        if object["mikuType"] != "Cx22" then
+            raise "Incorrect Miku type for function"
+        end
+        if object["description"].nil? then
+            raise "Missing attribute description"
+        end
+        if object["bankaccount"].nil? then
+            raise "Missing attribute bankaccount"
+        end
+        if object["ax39"].nil? then
+            raise "Missing attribute ax39"
+        end
+
+        XCache::setFlag(repeatKey, true)
+    end
+
+    # FileSystemCheck::fsck_Item(item, runhash, verbose)
+    def self.fsck_Item(item, runhash, verbose)
 
         repeatKey = "#{runhash}:#{JSON.generate(item)}"
         return if XCache::getFlag(repeatKey)
 
         if verbose then
-            puts "FileSystemCheck::fsckItemErrorArFirstFailure(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
+            puts "FileSystemCheck::fsck_Item(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
         end
 
         ensureAttribute = lambda {|item, attname|
@@ -305,17 +337,16 @@ class FileSystemCheck
         if mikuType == "NxTodo" then
             ensureAttribute.call(item, "description")
             ensureAttribute.call(item, "nx11e")
-            FileSystemCheck::fsckNx11EErrorAtFirstFailure(item["nx11e"], verbose)
-            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"], runhash, verbose)
-            FileSystemCheck::fsckCx22StringIfNotNullErrorAtFirstFailure(item["cx22"], verbose)
-            FileSystemCheck::fsckCx23IfNotNullErrorAtFirstFailure(item["cx23"], verbose)
+            FileSystemCheck::fsck_Nx11E(item["nx11e"], verbose)
+            FileSystemCheck::fsck_Nx113Nhash(item["nx113"], runhash, verbose)
+            FileSystemCheck::fsck_Cx23(item["cx23"], verbose)
             XCache::setFlag(repeatKey, true)
             return
         end
 
         if mikuType == "NyxNode" then
             ensureAttribute.call(item, "description")
-            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"], runhash, verbose) # nx113 is optional for NyxNodes, the function return if the argument in null
+            FileSystemCheck::fsck_Nx113Nhash(item["nx113"], runhash, verbose) # nx113 is optional for NyxNodes, the function return if the argument in null
             XCache::setFlag(repeatKey, true)
             return
         end
@@ -324,8 +355,7 @@ class FileSystemCheck
             ensureAttribute.call(item, "description")
             ensureAttribute.call(item, "nx46")
             ensureAttribute.call(item, "lastDoneDateTime")
-            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"], runhash, verbose)
-            FileSystemCheck::fsckCx22StringIfNotNullErrorAtFirstFailure(item["cx22"], verbose)
+            FileSystemCheck::fsck_Nx113Nhash(item["nx113"], runhash, verbose)
             XCache::setFlag(repeatKey, true)
             return
         end
@@ -333,13 +363,13 @@ class FileSystemCheck
         raise "Unsupported Miku Type: #{item}"
     end
 
-    # FileSystemCheck::fsckAttributeUpdateV2(event, runhash, verbose)
-    def self.fsckAttributeUpdateV2(event, runhash, verbose)
+    # FileSystemCheck::fsck_AttributeUpdateV2(event, runhash, verbose)
+    def self.fsck_AttributeUpdateV2(event, runhash, verbose)
         repeatKey = "#{runhash}:#{JSON.generate(event)}"
         return if XCache::getFlag(repeatKey)
 
         if verbose then
-            puts "FileSystemCheck::fsckAttributeUpdateV2(#{JSON.pretty_generate(event)}, #{runhash}, #{verbose})"
+            puts "FileSystemCheck::fsck_AttributeUpdateV2(#{JSON.pretty_generate(event)}, #{runhash}, #{verbose})"
         end
 
         if event["mikuType"].nil? then
@@ -368,6 +398,14 @@ class FileSystemCheck
 
     # -----------------------------------------------------
 
+    # FileSystemCheck::exitIfMissingCanary()
+    def self.exitIfMissingCanary()
+        if !File.exists?("#{Config::userHomeDirectory()}/Desktop/Pascal.png") then # We use this file to interrupt long runs at a place where it would not corrupt any file system.
+            puts "Interrupted after missing canary file.".green
+            exit
+        end
+    end
+
     # FileSystemCheck::getExistingRunHash()
     def self.getExistingRunHash()
         r = XCache::getOrNull("371dbc1d-8fbc-498b-ac98-d17d978cfdbf")
@@ -382,7 +420,7 @@ class FileSystemCheck
     def self.fsckErrorAtFirstFailure(runhash)
         Items::items().each{|item|
             FileSystemCheck::exitIfMissingCanary()
-            FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash, true)
+            FileSystemCheck::fsck_Item(item, runhash, true)
         }
         puts "fsck completed successfully".green
     end
