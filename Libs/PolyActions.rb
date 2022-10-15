@@ -200,7 +200,7 @@ class PolyActions
                 return
             end
             if useConfirmationIfRelevant then
-                LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
                     NxTodos::destroy(item["uuid"])
                 end
             else
