@@ -41,7 +41,7 @@ class MikuTypedObjects
 
     # MikuTypedObjects::commit(object)
     def self.commit(object)
-        FileSystemCheck::fsck_MikuTypedItem(object, SecureRandom.hex, true)
+        FileSystemCheck::fsck_MikuTypedItem(object, SecureRandom.hex, false)
         db = SQLite3::Database.new(MikuTypedObjects::pathToDatabase())
         db.busy_timeout = 117
         db.busy_handler { |count| true }

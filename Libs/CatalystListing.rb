@@ -10,7 +10,7 @@ class CatalystListing
             "wave | anniversary | hot | today | ondate | todo",
             "anniversaries | ondates | waves | groups | todos | todos-latest-first",
             "require internet",
-            "search | nyx | speed | nxballs | streaming",
+            "search | nyx | speed | nxballs",
         ].join("\n")
     end
 
@@ -405,11 +405,6 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("streaming", input) then
-            CatalystListing::streaming()
-            return
-        end
-
         if Interpreting::match("stop", input) then
             item = store.getDefault()
             return if item.nil?
@@ -689,66 +684,6 @@ class CatalystListing
                 }
 
             CatalystListing::displayListing()
-        }
-    end
-
-    # CatalystListing::runItem(item, state)
-    def self.runItem(item, state)
-
-        # state: ["awaiting start"]
-
-        if state[0] == "awaiting start" then
-            puts PolyFunctions::toString(item).green
-            input = LucilleCore::askQuestionAnswerAsString("#{">".green} .. | skip | landing : ")
-            if input == ".." then
-                CatalystListing::runItem(item, ["do .."])
-            end
-            if input == "skip" then
-                DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_f + 3600*2)
-            end
-           if input == "landing" then
-                PolyActions::landing(item)
-                if Items::getItemOrNull(item["uuid"])
-                    CatalystListing::runItem(item, ["awaiting start"])
-                end
-            end
-        end
-
-        if state[0] == "do .." then
-            PolyActions::doubleDot(item)
-        end
-    end
-
-    # CatalystListing::streaming()
-    def self.streaming()
-
-        initialCodeTrace = CommonUtils::generalCodeTrace()
-
-        loop {
-
-            if CommonUtils::generalCodeTrace() != initialCodeTrace then
-                puts "Code change detected"
-                break
-            end
-
-            SystemEvents::processIncomingEventsFromLine(true)
-
-            LucilleCore::locationsAtFolder("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")
-                .each{|location|
-                    next if File.basename(location).start_with?(".")
-                    item = NxTodos::bufferInImport(location)
-                    puts "Picked up from NxTodos-BufferIn: #{JSON.pretty_generate(item)}"
-                    LucilleCore::removeFileSystemLocation(location)
-                }
-
-            if NxBallsIO::nxballs().size > 0 then
-                CatalystListing::displayListing()
-                next
-            end
-
-            system("clear")
-            item = CatalystListing::listingItems().first
-            CatalystListing::runItem(item, ["awaiting start"])
         }
     end
 end
