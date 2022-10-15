@@ -8,11 +8,13 @@ class NxLines
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
         item = {
-            "uuid"     => uuid,
-            "mikuType" => "NxLine",
-            "unixtime" => unixtime,
-            "datetime" => datetime,
-            "line"     => line
+            "uuid"         => uuid,
+            "uuid_variant" => SecureRandom.uuid,
+            "variant_time" => Time.new.to_f,
+            "mikuType"     => "NxLine",
+            "unixtime"     => unixtime,
+            "datetime"     => datetime,
+            "line"         => line
         }
         Items::putItem(item)
         item

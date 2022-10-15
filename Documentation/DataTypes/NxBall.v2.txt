@@ -3,9 +3,7 @@ NxBall
 The name comes from jungling balls :)
 
 NxBall {
-    "uuid"                        : String
-    "mikuType"                    : "NxBall.v2"
-    "unixtime"                    : Float
+    ... Stargate Item ("NxBall.v2")
     "description"                 : description,
     "desiredBankedTimeInSeconds " : null or Float # Indicate how long
                                                   # we should ideally run, for the notification.

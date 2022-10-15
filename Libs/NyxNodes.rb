@@ -40,13 +40,15 @@ class NyxNodes
         end
 
         item = {
-            "uuid"        => uuid,
-            "mikuType"    => "NyxNode",
-            "networkType" => networkType,
-            "unixtime"    => Time.new.to_i,
-            "datetime"    => Time.new.utc.iso8601,
-            "description" => description,
-            "nx113"       => nx113
+            "uuid"         => uuid,
+            "uuid_variant" => SecureRandom.uuid,
+            "variant_time" => Time.new.to_f,
+            "mikuType"     => "NyxNode",
+            "networkType"  => networkType,
+            "unixtime"     => Time.new.to_i,
+            "datetime"     => Time.new.utc.iso8601,
+            "description"  => description,
+            "nx113"        => nx113
         }
 
         Items::putItem(item)
@@ -63,6 +65,8 @@ class NyxNodes
         nx113 = Nx113Make::aionpoint(location)
         item = {
             "uuid"        => uuid,
+            "uuid_variant" => SecureRandom.uuid,
+            "variant_time" => Time.new.to_f,
             "mikuType"    => "NyxNode",
             "networkType" => networkType,
             "unixtime"    => Time.new.to_i,
@@ -84,6 +88,8 @@ class NyxNodes
         nx113 = Nx113Make::file(filepath)
         item = {
             "uuid"        => uuid,
+            "uuid_variant" => SecureRandom.uuid,
+            "variant_time" => Time.new.to_f,
             "mikuType"    => "NyxNode",
             "networkType" => networkType,
             "unixtime"    => Time.new.to_i,
@@ -108,6 +114,8 @@ class NyxNodes
 
         item = {
             "uuid"        => uuid,
+            "uuid_variant" => SecureRandom.uuid,
+            "variant_time" => Time.new.to_f,
             "mikuType"    => "NyxNode",
             "networkType" => networkType,
             "unixtime"    => Time.new.to_i,

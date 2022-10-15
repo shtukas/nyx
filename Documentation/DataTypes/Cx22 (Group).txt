@@ -2,9 +2,7 @@
 Cx22, Contribution, optional attribute for NxTodos and Waves (NxTodos and Waves carry the Cx22's uuid)
 
 Cx22 {
-    "uuid"         : String
-    "uuid_variant" : String
-    "mikuType"     : "Cx22"
+    ... Stargate Item ("Cx22")
     "description"  : String
     "bankaccount"  : String
     "ax39"         : Ax39

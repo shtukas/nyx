@@ -1,9 +1,11 @@
 
-Any stargate item, should at least have the following attributes
+Any stargate item, also known as Miku typed item, should at least have the following attributes:
 
-"uuid"        : String
-"mikuType"    : "NxTodo"
-"unixtime"    : Float
-"datetime"    : DateTime Iso 8601 UTC Zulu
+"uuid"         : String
+"uuid_variant" : String # Primary Key
+"variant_time" : Float
+"mikuType"     : String
+"unixtime"     : Float
+"datetime"     : DateTime Iso 8601 UTC Zulu
 
 This is what the file system check expects.

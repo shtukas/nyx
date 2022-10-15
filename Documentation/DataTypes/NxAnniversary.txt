@@ -1,9 +1,6 @@
 
 NxAnniversary
-    "uuid"        : String
-    "mikuType"    : "NxAnniversary"
-    "unixtime"    : Float
-    "datetime"    : DateTime Iso 8601 UTC Zulu
+    ... Stargate Item ("NxAnniversary")
     "description" : String
     "startdate"   : Date # YYYY-MM-DD
     "repeatType"          : "weekly" | "monthly" | "yearly"

@@ -6,19 +6,6 @@ class NxBallsIO
     # --------------------------------------------------------------------
     # IO
 
-=begin
-NxBall {
-    "uuid"                        : String
-    "mikuType"                    : "NxBall.v2"
-    "unixtime"                    : Float
-    "description"                 : description,
-    "desiredBankedTimeInSeconds " : null or Float # Indicate how long
-                                                  # we should ideally run, for the notification.
-    "status"                      : NxBallStatus
-    "accounts"                    : accounts
-}
-=end
-
     # NxBallsIO::nxballs()
     def self.nxballs()
         MikuTypedObjects::objects("NxBall.v2")
@@ -92,14 +79,16 @@ class NxBallsService
     def self.issue(owneruuid, description, accounts, desiredBankedTimeInSeconds)
         return if NxBallsIO::getItem(owneruuid)
         nxball = {
-            "uuid"        => SecureRandom.uuid,
-            "owneruuid"   => owneruuid,
-            "mikuType"    => "NxBall.v2",
-            "unixtime"    => Time.new.to_f,
-            "description" => description,
+            "uuid"         => SecureRandom.uuid,
+            "uuid_variant" => SecureRandom.uuid,
+            "variant_time" => Time.new.to_f,
+            "owneruuid"    => owneruuid,
+            "mikuType"     => "NxBall.v2",
+            "unixtime"     => Time.new.to_f,
+            "description"  => description,
             "desiredBankedTimeInSeconds" => desiredBankedTimeInSeconds,
-            "status"      => NxBallsService::makeRunningStatus(nil, 0),
-            "accounts"    => accounts
+            "status"       => NxBallsService::makeRunningStatus(nil, 0),
+            "accounts"     => accounts
         }
         NxBallsIO::commitItem(nxball)
     end

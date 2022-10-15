@@ -3,42 +3,61 @@
 
 class FileSystemCheck
 
+    # FileSystemCheck::ensureAttribute(item, attname, types)
+    def self.ensureAttribute(item, attname, types)
+        if item[attname].nil? then
+            raise "Missing attribute #{attname} in #{JSON.pretty_generate(item)}"
+        end
+        if !types.include?(item[attname].class.to_s) then
+            raise "Incorrect attribute type for #{attname} in #{JSON.pretty_generate(item)}, expected: #{types}, found: #{item[attname].class.to_s}"
+        end
+    end
+
+    # FileSystemCheck::checkIsStargateItemBasic(item, verbose)
+    def self.checkIsStargateItemBasic(item, verbose)
+
+        if verbose then
+            "FileSystemCheck::checkIsStargateItemBasic(#{JSON.pretty_generate(item)}, #{verbose})"
+        end
+
+        FileSystemCheck::ensureAttribute(item, "uuid", ["String"])
+        FileSystemCheck::ensureAttribute(item, "uuid_variant", ["String"])
+        FileSystemCheck::ensureAttribute(item, "variant_time", ["Float"])
+        FileSystemCheck::ensureAttribute(item, "mikuType", ["String"])
+        FileSystemCheck::ensureAttribute(item, "unixtime", ["Integer", "Float"])
+        FileSystemCheck::ensureAttribute(item, "datetime", ["String"])
+    end
+
     # FileSystemCheck::fsck_Nx11E(nx11e, verbose)
     def self.fsck_Nx11E(nx11e, verbose)
         if verbose then
             puts "FileSystemCheck::fsck_Nx11E(#{JSON.pretty_generate(nx11e)}, #{verbose})"
         end
 
-        ensureAttribute = lambda {|object, attname|
-            return if object[attname]
-            puts JSON.pretty_generate(object)
-            raise "Missing attribute: #{attname} in #{object}"
-        }
-
-        ensureAttribute.call(nx11e, "uuid")
+        FileSystemCheck::ensureAttribute(nx11e, "uuid", ["String"])
 
         if nx11e["type"] == "hot" then
-            ensureAttribute.call(nx11e, "unixtime")
+            FileSystemCheck::ensureAttribute(nx11e, "unixtime", ["Integer", "Float"])
             return
         end
 
         if nx11e["type"] == "triage" then
-            ensureAttribute.call(nx11e, "unixtime")
+            FileSystemCheck::ensureAttribute(nx11e, "unixtime", ["Integer", "Float"])
             return
         end
 
         if nx11e["type"] == "ordinal" then
-            ensureAttribute.call(nx11e, "ordinal")
+            FileSystemCheck::ensureAttribute(nx11e, "ordinal", ["Integer", "Float"])
             return
         end
 
         if nx11e["type"] == "ondate" then
-            ensureAttribute.call(nx11e, "datetime")
+            FileSystemCheck::ensureAttribute(nx11e, "datetime", ["String"])
             return
         end
 
         if nx11e["type"] == "standard" then
-            ensureAttribute.call(nx11e, "unixtime")
+            FileSystemCheck::ensureAttribute(nx11e, "unixtime", ["Integer", "Float"])
             return
         end
 
@@ -142,18 +161,11 @@ class FileSystemCheck
             "FileSystemCheck::fsck_Cx22(#{cx22}, #{verbose})"
         end
 
-        ensureAttribute = lambda {|object, attname|
-            return if object[attname]
-            puts JSON.pretty_generate(object)
-            raise "Missing attribute: #{attname} in #{object}"
-        }
+        FileSystemCheck::checkIsStargateItemBasic(cx22, verbose)
 
-        ensureAttribute.call(cx22, "uuid")
-        ensureAttribute.call(cx22, "uuid_variant")
-        ensureAttribute.call(cx22, "mikuType")
-        ensureAttribute.call(cx22, "description")
-        ensureAttribute.call(cx22, "bankaccount")
-        ensureAttribute.call(cx22, "ax39")
+        FileSystemCheck::ensureAttribute(cx22, "description", ["String"])
+        FileSystemCheck::ensureAttribute(cx22, "bankaccount", ["String"])
+        FileSystemCheck::ensureAttribute(cx22, "ax39", ["Hash"])
     end
 
     # FileSystemCheck::fsck_Cx23(cx23, verbose)
@@ -164,14 +176,8 @@ class FileSystemCheck
             "FileSystemCheck::fsck_Cx23(#{cx23}, #{verbose})"
         end
 
-        ensureAttribute = lambda {|object, attname|
-            return if object[attname]
-            puts JSON.pretty_generate(object)
-            raise "Missing attribute: #{attname} in #{object}"
-        }
-
-        ensureAttribute.call(cx23, "groupuuid")
-        ensureAttribute.call(cx23, "position")
+        FileSystemCheck::ensureAttribute(cx23, "groupuuid", ["String"])
+        FileSystemCheck::ensureAttribute(cx23, "position", ["Integer", "Float"])
     end
 
     # FileSystemCheck::fsck_TxBankEvent(event, runhash, verbose)
@@ -292,47 +298,38 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsck_Item(item, runhash, verbose)
-    def self.fsck_Item(item, runhash, verbose)
+    # FileSystemCheck::fsck_StargateItem(item, runhash, verbose)
+    def self.fsck_StargateItem(item, runhash, verbose)
 
         repeatKey = "#{runhash}:#{JSON.generate(item)}"
         return if XCache::getFlag(repeatKey)
 
         if verbose then
-            puts "FileSystemCheck::fsck_Item(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
+            puts "FileSystemCheck::fsck_StargateItem(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
         end
 
-        ensureAttribute = lambda {|item, attname|
-            return if item[attname]
-            raise "Missing attribute #{attname} in #{item}"
-        }
-
-        ensureAttribute.call(item, "uuid")
-        ensureAttribute.call(item, "mikuType")
-        ensureAttribute.call(item, "unixtime")
-        ensureAttribute.call(item, "datetime")
+        FileSystemCheck::checkIsStargateItemBasic(cx22, verbose)
 
         mikuType = item["mikuType"]
 
         if mikuType == "NxAnniversary" then
-            ensureAttribute.call(item, "description")
-            ensureAttribute.call(item, "startdate")
-            ensureAttribute.call(item, "repeatType")
-            ensureAttribute.call(item, "lastCelebrationDate")
+            FileSystemCheck::ensureAttribute(item, "description", ["String"])
+            FileSystemCheck::ensureAttribute(item, "startdate", ["String"])
+            FileSystemCheck::ensureAttribute(item, "repeatType", ["String"])
+            FileSystemCheck::ensureAttribute(item, "lastCelebrationDate", ["String"])
             XCache::setFlag(repeatKey, true)
             return
         end
 
         if mikuType == "NxLine" then
-            ensureAttribute.call(item, "line")
+            FileSystemCheck::ensureAttribute(item, "line", ["String"])
             XCache::setFlag(repeatKey, true)
             return
         end
 
         if mikuType == "NxTodo" then
-            ensureAttribute.call(item, "uuid_variant")
-            ensureAttribute.call(item, "description")
-            ensureAttribute.call(item, "nx11e")
+            FileSystemCheck::ensureAttribute(item, "description", ["String"])
+            FileSystemCheck::ensureAttribute(item, "nx11e", ["Hash"])
             FileSystemCheck::fsck_Nx11E(item["nx11e"], verbose)
             FileSystemCheck::fsck_Nx113(item["nx113"], runhash, verbose)
             FileSystemCheck::fsck_Cx23(item["cx23"], verbose)
@@ -341,16 +338,16 @@ class FileSystemCheck
         end
 
         if mikuType == "NyxNode" then
-            ensureAttribute.call(item, "description")
+            FileSystemCheck::ensureAttribute(item, "description", ["String"])
             FileSystemCheck::fsck_Nx113(item["nx113"], runhash, verbose)
             XCache::setFlag(repeatKey, true)
             return
         end
 
         if mikuType == "Wave" then
-            ensureAttribute.call(item, "description")
-            ensureAttribute.call(item, "nx46")
-            ensureAttribute.call(item, "lastDoneDateTime")
+            FileSystemCheck::ensureAttribute(item, "description", ["String"])
+            FileSystemCheck::ensureAttribute(item, "nx46", ["Hash"])
+            FileSystemCheck::ensureAttribute(item, "lastDoneDateTime", ["String"])
             FileSystemCheck::fsck_Nx113(item["nx113"], runhash, verbose)
             XCache::setFlag(repeatKey, true)
             return
@@ -416,7 +413,7 @@ class FileSystemCheck
     def self.fsckErrorAtFirstFailure(runhash)
         Items::items().each{|item|
             FileSystemCheck::exitIfMissingCanary()
-            FileSystemCheck::fsck_Item(item, runhash, true)
+            FileSystemCheck::fsck_StargateItem(item, runhash, true)
         }
         puts "fsck completed successfully".green
     end

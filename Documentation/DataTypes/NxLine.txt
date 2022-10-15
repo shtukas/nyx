@@ -1,9 +1,6 @@
 
 NxLine:
-    "uuid"     : String
-    "mikuType" : "NxLine"
-    "unixtime" : Float
-    "datetime" : DateTime Iso 8601 UTC Zulu
+    ... Stargate Item ("NxLine")
     "line"     : String
 
 NxLines as immutable and very lightweight. Used to add information to Nyx network nodes

@@ -11,7 +11,7 @@ class Items
 
     # Items::putItemNoEvent(item, fsckVerbose)
     def self.putItemNoEvent(item, fsckVerbose)
-        FileSystemCheck::fsck_Item(item, FileSystemCheck::getExistingRunHash(), fsckVerbose)
+        FileSystemCheck::fsck_StargateItem(item, FileSystemCheck::getExistingRunHash(), fsckVerbose)
         db = SQLite3::Database.new(Items::pathToDatabase())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -23,7 +23,7 @@ class Items
 
     # Items::putItem(item)
     def self.putItem(item)
-        FileSystemCheck::fsck_Item(item, FileSystemCheck::getExistingRunHash(), true)
+        FileSystemCheck::fsck_StargateItem(item, FileSystemCheck::getExistingRunHash(), true)
         Items::putItemNoEvent(item, true)
         SystemEvents::broadcast({
             "mikuType" => "TxEventItem1",

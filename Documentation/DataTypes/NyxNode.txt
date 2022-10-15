@@ -1,10 +1,7 @@
 
 NyxNode:
-    "uuid"        : uuid
-    "mikuType"    : "NyxNode"
+    ... Stargate Item ("NyxNode")
     "networkType" : NetworkType
-    "unixtime"    : unixtime
-    "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : description
     "nx113"       : String # nhash to the DataStore1 of the Nx113
 
