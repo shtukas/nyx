@@ -5,30 +5,99 @@ class Streaming
     # Streaming::runItem(item, state)
     def self.runItem(item, state)
 
+        return if Items::getItemOrNull(item["uuid"]).nil?
+
         if state == "awaiting start" then
-            input = LucilleCore::askQuestionAnswerAsString("#{PolyFunctions::toString(item).green} (.. | skip | landing | commands) : ")
+            input = LucilleCore::askQuestionAnswerAsString("[#{state}] #{PolyFunctions::toString(item).green} (.. | done | time | skip | landing | commands) : ")
+            if input == "" then
+                Streaming::runItem(item, state)
+            end
             if input == ".." then
-                Streaming::runItem(item, "do ..")
+                PolyActions::doubleDot(item)
+            end
+            if input == "done" then
+                PolyActions::done(item)
+            end
+            if input == "time" then
+                timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
+                PolyActions::giveTime(item, timeInHours*3600)
+                Streaming::runItem(item, "awaiting start")
             end
             if input == "skip" then
                 DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_f + 3600*2)
             end
-           if input == "landing" then
+            if input == "landing" then
                 PolyActions::landing(item)
-                if Items::getItemOrNull(item["uuid"])
-                    Streaming::runItem(item, "awaiting start")
-                end
+                Streaming::runItem(item, "awaiting start")
             end
             if input == "commands" then
                 puts CatalystListing::listingCommands().yellow
                 input = LucilleCore::askQuestionAnswerAsString("> ")
                 return if input == ""
                 CatalystListing::listingCommandInterpreter(input, ItemStore.new())
+                Streaming::runItem(item, "awaiting start")
             end
         end
 
-        if state == "do .." then
-            PolyActions::doubleDot(item)
+        if state == "running" then
+            input = LucilleCore::askQuestionAnswerAsString("[#{state}] #{PolyFunctions::toString(item).green} (access | done | stop | (stop+) skip | landing | commands) : ")
+            if input == "" then
+                Streaming::runItem(item, state)
+            end
+            if input == "access" then
+                PolyActions::access(item)
+                Streaming::runItem(item, "running")
+            end
+            if input == "done" then
+                PolyActions::done(item)
+            end
+            if input == "stop" then
+                PolyActions::stop(item)
+                Streaming::runItem(item, "stopped")
+            end
+            if input == "skip" then
+                PolyActions::stop(item)
+                DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_f + 3600*2)
+            end
+           if input == "landing" then
+                PolyActions::landing(item)
+                Streaming::runItem(item, "running")
+            end
+            if input == "commands" then
+                puts CatalystListing::listingCommands().yellow
+                input = LucilleCore::askQuestionAnswerAsString("> ")
+                return if input == ""
+                CatalystListing::listingCommandInterpreter(input, ItemStore.new())
+                Streaming::runItem(item, "running")
+            end
+        end
+
+        if state == "stopped" then
+            input = LucilleCore::askQuestionAnswerAsString("[#{state}] #{PolyFunctions::toString(item).green} (restart | done | skip | landing | commands) : ")
+            if input == "" then
+                Streaming::runItem(item, state)
+            end
+            if input == "restart" then
+                PolyActions::start(item)
+                Streaming::runItem(item, "running")
+            end
+            if input == "done" then
+                PolyActions::done(item)
+            end
+            if input == "skip" then
+                DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_f + 3600*2)
+            end
+           if input == "landing" then
+                PolyActions::landing(item)
+                Streaming::runItem(item, "stopped")
+            end
+            if input == "commands" then
+                puts CatalystListing::listingCommands().yellow
+                input = LucilleCore::askQuestionAnswerAsString("> ")
+                return if input == ""
+                CatalystListing::listingCommandInterpreter(input, ItemStore.new())
+                Streaming::runItem(item, "stopped")
+            end
         end
     end
 
@@ -60,8 +129,9 @@ class Streaming
             end
 
             system("clear")
-            item = CatalystListing::listingItems().first
-            Streaming::runItem(item, "awaiting start")
+            CatalystListing::listingItems().each{|item|
+                Streaming::runItem(item, "awaiting start")
+            }
         }
     end
 end

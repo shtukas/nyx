@@ -222,7 +222,7 @@ class NyxNodes
             end
 
             puts ""
-            puts "<n> | access | description | name | datetime | nx113 | edit | transmute | expose | destroy".yellow
+            puts "<n> | access | description | name | datetime | nx113 | edit | network type | expose | destroy".yellow
             puts "line | link | child | parent | upload".yellow
             puts "[link type update] parents>related | parents>children | related>children | related>parents | children>related".yellow
             puts "[network shape] select children; move to selected child | select children; move to uuid | acquire children by uuid".yellow
@@ -300,8 +300,10 @@ class NyxNodes
                 next
             end
 
-            if input == "transmute" then
-                PolyActions::transmute(item)
+            if input == "network type" then
+                networkType = NyxNodes::interactivelySelectNetworkType()
+                item["networkType"] = networkType
+                Items::putItem(item)
                 next
             end
 

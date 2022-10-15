@@ -11,6 +11,11 @@ class Items
 
     # Items::putItemNoEvent(item, fsckVerbose)
     def self.putItemNoEvent(item, fsckVerbose)
+        # TODO: this is temporary the time to migrate all objects
+        if item["uuid_variant"].nil? then
+            item["uuid_variant"] = SecureRandom.uuid
+        end
+        item["variant_time"] = Time.new.to_f
         FileSystemCheck::fsck_MikuTypedItem(item, FileSystemCheck::getExistingRunHash(), fsckVerbose)
         db = SQLite3::Database.new(Items::pathToDatabase())
         db.busy_timeout = 117
@@ -23,6 +28,11 @@ class Items
 
     # Items::putItem(item)
     def self.putItem(item)
+        # TODO: this is temporary the time to migrate all objects
+        if item["uuid_variant"].nil? then
+            item["uuid_variant"] = SecureRandom.uuid
+        end
+        item["variant_time"] = Time.new.to_f
         FileSystemCheck::fsck_MikuTypedItem(item, FileSystemCheck::getExistingRunHash(), true)
         Items::putItemNoEvent(item, true)
         SystemEvents::broadcast({

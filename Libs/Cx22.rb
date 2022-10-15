@@ -167,8 +167,6 @@ class Cx22
                     }).call()
 
                 NxTodos::issueFromElements(description, nx113, nx11e, cx22, cx23)
-
-                Items::putItem(item)
                 next
             end
 

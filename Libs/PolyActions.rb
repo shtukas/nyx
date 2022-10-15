@@ -49,6 +49,19 @@ class PolyActions
         raise "(error: abb645e9-2575-458e-b505-f9c029f4ca69) I do not know how to access mikuType: #{item["mikuType"]}"
     end
 
+    # PolyActions::bankAccountsForItem(item)
+    def self.bankAccountsForItem(item)
+        accounts = []
+        accounts << item["uuid"]
+        if item["cx22"] then
+            cx22 = Cx22::getOrNull(item["cx22"])
+            if cx22 then
+                accounts << cx22["bankaccount"]
+            end
+        end
+        accounts
+    end
+
     # PolyActions::destroyWithPrompt(item)
     def self.destroyWithPrompt(item)
         PolyActions::stop(item)
@@ -117,6 +130,7 @@ class PolyActions
 
             PolyActions::start(item)
             PolyActions::access(item)
+
             loop {
                 actions = ["keep running and back to listing", "stop and back to listing", "stop and destroy"]
                 action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
@@ -246,6 +260,14 @@ class PolyActions
         end
     end
 
+    # PolyActions::giveTime(item, timeInSeconds)
+    def self.giveTime(item, timeInSeconds)
+        PolyActions::bankAccountsForItem(item).each{|account|
+            puts "(#{Time.new.to_s}) putting #{timeInSeconds} seconds into account: #{account}"
+            Bank::put(account, timeInSeconds)
+        }
+    end
+
     # PolyActions::landing(item)
     def self.landing(item)
         if item["mikuType"] == "NxAnniversary" then
@@ -298,14 +320,7 @@ class PolyActions
     def self.start(item)
         #puts "PolyActions::start(#{JSON.pretty_generate(item)})"
         return if NxBallsService::isRunning(item["uuid"])
-        accounts = []
-        accounts << item["uuid"]
-        if item["cx22"] then
-            cx22 = Cx22::getOrNull(item["cx22"])
-            if cx22 then
-                accounts << cx22["bankaccount"]
-            end
-        end
+        accounts = PolyActions::bankAccountsForItem(item)
         NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), accounts, PolyFunctions::timeBeforeNotificationsInHours(item)*3600)
     end
 

@@ -41,6 +41,11 @@ class MikuTypedObjects
 
     # MikuTypedObjects::commit(object)
     def self.commit(object)
+        # TODO: this is temporary the time to migrate all objects
+        if object["uuid_variant"].nil? then
+            object["uuid_variant"] = SecureRandom.uuid
+        end
+        object["variant_time"] = Time.new.to_f
         FileSystemCheck::fsck_MikuTypedItem(object, SecureRandom.hex, false)
         db = SQLite3::Database.new(MikuTypedObjects::pathToDatabase())
         db.busy_timeout = 117
