@@ -5,15 +5,23 @@ class Streaming
     # Streaming::runItem(item, state)
     def self.runItem(item, state)
 
+        if CommonUtils::generalCodeTrace() != initialCodeTrace then
+            puts "Code change detected"
+            break
+        end
+
         return if Items::getItemOrNull(item["uuid"]).nil?
 
         if state == "awaiting start" then
-            input = LucilleCore::askQuestionAnswerAsString("[#{state}] #{PolyFunctions::toString(item).green} (.. | done | time | skip | landing | commands) : ")
+            input = LucilleCore::askQuestionAnswerAsString("[#{state}] #{PolyFunctions::toString(item).green} (.. | start | done | time | skip | landing | commands) : ")
             if input == "" then
                 Streaming::runItem(item, state)
             end
             if input == ".." then
                 PolyActions::doubleDot(item)
+            end
+            if input == "start" then
+                PolyActions::start(item)
             end
             if input == "done" then
                 PolyActions::done(item, false)
@@ -73,12 +81,16 @@ class Streaming
         end
 
         if state == "stopped" then
-            input = LucilleCore::askQuestionAnswerAsString("[#{state}] #{PolyFunctions::toString(item).green} (restart | done | skip | landing | commands) : ")
+            input = LucilleCore::askQuestionAnswerAsString("[#{state}] #{PolyFunctions::toString(item).green} (.. | start | done | skip | landing | commands) : ")
             if input == "" then
                 Streaming::runItem(item, state)
             end
-            if input == "restart" then
-                PolyActions::start(item)
+            if input == ".." then
+                PolyActions::doubleDot(item)
+                Streaming::runItem(item, "running")
+            end
+            if input == "start" then
+                PolyActions::start(item, false)
                 Streaming::runItem(item, "running")
             end
             if input == "done" then
