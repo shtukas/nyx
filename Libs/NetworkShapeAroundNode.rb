@@ -125,7 +125,7 @@ class NetworkShapeAroundNode
         children = NetworkShapeAroundNode::interactivelySelectChildren(item["uuid"])
         targetuuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
         return if targetuuid == item["uuid"]
-        targetitem = Items::getItemOrNull(targetuuid)
+        targetitem = Phage::getObjectOrNull(targetuuid)
         return if targetitem.nil?
         children.each{|childX|
             NetworkEdges::arrow(targetitem["uuid"], childX["uuid"])
@@ -139,7 +139,7 @@ class NetworkShapeAroundNode
 
         NetworkEdges::relatedUUIDs(item["uuid"]) # .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
             .each{|entityuuid|
-                entity = Items::getItemOrNull(entityuuid)
+                entity = Phage::getObjectOrNull(entityuuid)
                 next if entity.nil?
                 indx = store.register(entity, false)
                 puts "[#{indx.to_s.ljust(3)}] #{PolyFunctions::toString(entity)}"

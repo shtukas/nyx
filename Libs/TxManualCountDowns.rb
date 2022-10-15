@@ -7,7 +7,7 @@ class TxManualCountDowns
 
     # TxManualCountDowns::items()
     def self.items()
-        Phage::objects("TxManualCountDown")
+        Phage::objectsForMikuType("TxManualCountDown")
     end
 
     # TxManualCountDowns::commit(item)

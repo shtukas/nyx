@@ -1,0 +1,10 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "../Libs/loader.rb"
+
+uuid = ARGV[0]
+items = Phage::getVariantsForUUID(uuid)
+puts JSON.pretty_generate(items)
+

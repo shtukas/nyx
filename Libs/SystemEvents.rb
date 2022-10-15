@@ -27,10 +27,6 @@ class SystemEvents
             BankAccountDoneForToday::processEvent(event)
         end
 
-        if event["mikuType"] == "NxDeleted" then
-            Items::processEvent(event)
-        end
-
         if event["mikuType"] == "XCacheSet" then
             key = event["key"]
             value = event["value"]

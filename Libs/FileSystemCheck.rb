@@ -398,7 +398,7 @@ class FileSystemCheck
 
     # FileSystemCheck::fsckErrorAtFirstFailure(runhash)
     def self.fsckErrorAtFirstFailure(runhash)
-        Items::items().each{|item|
+        Phage::variants().each{|item|
             FileSystemCheck::exitIfMissingCanary()
             FileSystemCheck::fsck_PhageItem(item, runhash, true)
         }

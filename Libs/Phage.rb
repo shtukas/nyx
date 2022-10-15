@@ -11,7 +11,7 @@ class Phage
         "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Instance-Databases/#{Config::get("instanceId")}/phage.sqlite3"
     end
 
-    # GETTERS
+    # GETTERS (variants)
 
     # Phage::variantsProjection(objects)
     def self.variantsProjection(objects)
@@ -31,6 +31,20 @@ class Phage
             projection[object["uuid"]] = higestOfTwo.call(projection[object["uuid"]], object)
         }
         projection.values.select{|object| object["phage_alive"] }
+    end
+
+    # Phage::variants()
+    def self.variants()
+        db = SQLite3::Database.new(Phage::pathToDatabase())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        objects = []
+        db.execute("select * from _objects_", []) do |row|
+            objects << JSON.parse(row["_object_"])
+        end
+        db.close
+        objects
     end
 
     # Phage::variantsForMikuType(mikuType)
@@ -53,7 +67,7 @@ class Phage
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        objects = nil
+        objects = []
         db.execute("select * from _objects_ where _uuid_=?", [uuid]) do |row|
             objects << JSON.parse(row["_object_"])
         end
@@ -61,8 +75,15 @@ class Phage
         objects
     end
 
-    # Phage::objects(mikuType)
-    def self.objects(mikuType)
+    # GETTERS (objects)
+
+    # Phage::objects()
+    def self.objects()
+        Phage::variantsProjection(Phage::variants())
+    end
+
+    # Phage::objectsForMikuType(mikuType)
+    def self.objectsForMikuType(mikuType)
         Phage::variantsProjection(Phage::variantsForMikuType(mikuType))
     end
 
@@ -74,6 +95,31 @@ class Phage
             raise "(error: 1de85ac2-1788-448c-929f-e9d8e4d913df) unusual number of objects found for uuid: #{uuid}, found #{objects.size}"
         end
         objects.first
+    end
+
+    # GETTERS (misc)
+
+    # Phage::nx20sTypes()
+    def self.nx20sTypes()
+        ["NxTodo", "Wave", "NyxNode"]
+    end
+
+    # Phage::nx20s() # Array[Nx20]
+    def self.nx20s()
+        phageObjects = Phage::objects().select{|object| Phage::nx20sTypes().include?(object["mikuType"]) }
+        phageObjects
+            .map{|object|
+                {
+                    "announce" => "(#{object["mikuType"]}) #{PolyFunctions::genericDescriptionOrNull(object)}",
+                    "unixtime" => object["unixtime"],
+                    "item"     => object
+                }
+            }
+    end
+
+    # Phage::mikuTypeCount(mikuType) # Integer
+    def self.mikuTypeCount(mikuType)
+        Phage::objectsForMikuType(mikuType).size
     end
 
     # SETTERS
@@ -91,6 +137,14 @@ class Phage
         db.execute "insert into _objects_ (_phage_uuid_, _uuid_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["phage_uuid"], object["uuid"], object["mikuType"], JSON.generate(object)]
         db.close
         nil
+    end
+
+    # Phage::setAttribute2(objectuuid, attname, attvalue)
+    def self.setAttribute2(objectuuid, attname, attvalue)
+        item = Phage::getObjectOrNull(objectuuid)
+        return if item.nil?
+        item[attname] = attvalue
+        Phage::commit(item)
     end
 
     # DESTROY

@@ -10,7 +10,7 @@ class Streaming
             return
         end
 
-        return if Items::getItemOrNull(item["uuid"]).nil?
+        return if Phage::getObjectOrNull(item["uuid"]).nil?
 
         if state == "awaiting start" then
             input = LucilleCore::askQuestionAnswerAsString("[#{state}] #{PolyFunctions::toString(item).green} (.. | start | done | time | skip | landing | commands) : ")

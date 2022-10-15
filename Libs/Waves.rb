@@ -6,12 +6,12 @@ class Waves
 
     # Waves::items()
     def self.items()
-        Items::mikuTypeToItems("Wave")
+        Phage::objectsForMikuType("Wave")
     end
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        Items::delete(uuid)
+        Phage::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -141,7 +141,7 @@ class Waves
             "nx113"            => nx113,
             "lastDoneDateTime" => "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         }
-        Items::putItem(item)
+        Phage::commit(item)
         item
     end
 
@@ -172,7 +172,7 @@ class Waves
         NxBallsService::close(item["uuid"], true)
 
         puts "done-ing: #{Waves::toString(item)}"
-        Items::setAttribute2(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
+        Phage::setAttribute2(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
 
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
         puts "not shown until: #{Time.at(unixtime).to_s}"
@@ -215,13 +215,13 @@ class Waves
             status = LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit the description instead ? ")
             if status then
                 PolyActions::editDescription(item)
-                return Items::getItemOrNull(item["uuid"])
+                return Phage::getObjectOrNull(item["uuid"])
             else
                 return item
             end
         end
         Nx113Edit::edit(item)
-        Items::getItemOrNull(item["uuid"])
+        Phage::getObjectOrNull(item["uuid"])
     end
 
     # Waves::landing(item)
@@ -231,7 +231,7 @@ class Waves
             return nil if item.nil?
 
             uuid = item["uuid"]
-            item = Items::getItemOrNull(uuid)
+            item = Phage::getObjectOrNull(uuid)
             return nil if item.nil?
 
             system("clear")
@@ -294,7 +294,7 @@ class Waves
             if Interpreting::match("nx46", input) then
                 nx46 = Waves::makeNx46InteractivelyOrNull()
                 next if nx46.nil?
-                Items::setAttribute2(item["uuid"], "nx46", nx46)
+                Phage::setAttribute2(item["uuid"], "nx46", nx46)
                 next
             end
 

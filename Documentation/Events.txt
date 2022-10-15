@@ -22,11 +22,6 @@ We have two types of events
 }
 
 {
-    "mikuType"   => "NxDeleted"
-    "objectuuid" => objectuuid
-}
-
-{
     "mikuType" : "XCacheUpdate"
     "key"      : String
     "value"    : String
