@@ -7,17 +7,17 @@ class TxManualCountDowns
 
     # TxManualCountDowns::items()
     def self.items()
-        MikuTypedObjects::objects("TxManualCountDown")
+        Phage::objects("TxManualCountDown")
     end
 
     # TxManualCountDowns::commit(item)
     def self.commit(item)
-        MikuTypedObjects::commit(item)
+        Phage::commit(item)
     end
 
     # TxManualCountDowns::destroy(uuid)
     def self.destroy(uuid)
-        MikuTypedObjects::destroy(uuid)
+        Phage::destroy(uuid)
     end
 
     # Makers

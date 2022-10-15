@@ -8,14 +8,14 @@ class NxBallsIO
 
     # NxBallsIO::nxballs()
     def self.nxballs()
-        MikuTypedObjects::objects("NxBall.v2")
+        Phage::objects("NxBall.v2")
     end
 
     # NxBallsIO::getItem(uuid)
     def self.getItem(uuid)
         # This uuid is sometimes the uuid of the NxBall, but sometimes the uuid of an unuspecting item (the owner). 
         # This is because when we want to get the NxBall, we sometimes submit the uuid of the item itself.
-        item = MikuTypedObjects::getObjectOrNull(uuid)
+        item = Phage::getObjectOrNull(uuid)
         return item if (item and item["mikuType"] == "NxBall.v2")
         NxBallsIO::nxballs()
             .select{|item| item["owneruuid"] == uuid }
@@ -24,14 +24,14 @@ class NxBallsIO
 
     # NxBallsIO::commitItem(item)
     def self.commitItem(item)
-        MikuTypedObjects::commit(item)
+        Phage::commit(item)
     end
 
     # NxBallsIO::destroyItem(uuid)
     def self.destroyItem(uuid)
         item = NxBallsIO::getItem(uuid)
         return if item.nil?
-        MikuTypedObjects::destroy(item["uuid"])
+        Phage::destroy(item["uuid"])
     end
 
 end

@@ -179,7 +179,6 @@ require_relative "InternetStatus.rb"
 require_relative "FileSystemCheck.rb"
 
 require_relative "Machines.rb"
-require_relative "MikuTypedObjects.rb"
 
 require_relative "Nyx.rb"
 require_relative "NxBallsService.rb"

@@ -3,12 +3,12 @@ class Cx22
 
     # Cx22::items()
     def self.items()
-        MikuTypedObjects::objects("Cx22")
+        Phage::objects("Cx22")
     end
 
     # Cx22::getOrNull(uuid)
     def self.getOrNull(uuid)
-        MikuTypedObjects::getObjectOrNull(uuid)
+        Phage::getObjectOrNull(uuid)
     end
 
     # --------------------------------------------
@@ -32,7 +32,7 @@ class Cx22
             "ax39"        => ax39
         }
         FileSystemCheck::fsck_Cx22(item, true)
-        MikuTypedObjects::commit(item)
+        Phage::commit(item)
         item
     end
 
@@ -252,7 +252,7 @@ class Cx22
                 description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
                 next if description == ""
                 cx22["description"] = description
-                MikuTypedObjects::commit(cx22)
+                Phage::commit(cx22)
                 next
             end
             if action == "set: done for the day" then
