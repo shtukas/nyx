@@ -20,15 +20,16 @@ class Cx22
         return nil if description == ""
         ax39 = Ax39::interactivelyCreateNewAx()
         item = {
-            "uuid"         => SecureRandom.uuid,
-            "uuid_variant" => SecureRandom.uuid,
-            "variant_time" => Time.new.to_f,
-            "mikuType"     => "Cx22",
-            "unixtime"     => Time.new.to_i,
-            "datetime"     => Time.new.utc.iso8601,
-            "description"  => description,
-            "bankaccount"  => SecureRandom.uuid,
-            "ax39"         => ax39
+            "uuid"        => SecureRandom.uuid,
+            "phage_uuid"  => SecureRandom.uuid,
+            "phage_time"  => Time.new.to_f,
+            "phage_alive" => true,
+            "mikuType"    => "Cx22",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "bankaccount" => SecureRandom.uuid,
+            "ax39"        => ax39
         }
         FileSystemCheck::fsck_Cx22(item, true)
         MikuTypedObjects::commit(item)

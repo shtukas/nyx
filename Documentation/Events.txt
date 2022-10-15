@@ -52,27 +52,3 @@ We have two types of events
     "date"      => date,
     "weight"    => weight
 }
-
-{
-    "mikuType" => "mikutyped-objects-set",
-    "object"   => object
-}
-
-{
-    "mikuType" => "mikutyped-objects-destroy",
-    "uuid"     => uuid
-}
-
-{
-    "mikuType" => "TxEventItem1"
-    "item"     => item
-}
-
-{
-    "mikuType"   => "AttributeUpdate.v2"
-    "objectuuid" => objectuuid
-    "eventuuid"  => String
-    "eventTime"  => Float
-    "attname"    => string
-    "attvalue"   => value
-}

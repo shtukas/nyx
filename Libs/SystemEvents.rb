@@ -31,10 +31,6 @@ class SystemEvents
             Items::processEvent(event)
         end
 
-        if event["mikuType"] == "AttributeUpdate" then
-            Items::processEvent(event)
-        end
-
         if event["mikuType"] == "XCacheSet" then
             key = event["key"]
             value = event["value"]
@@ -47,48 +43,13 @@ class SystemEvents
             XCache::setFlag(key, flag)
         end
 
-        if event["mikuType"] == "AttributeUpdate.v2" then
-            FileSystemCheck::fsck_AttributeUpdateV2(event, SecureRandom.hex, false)
-            objectuuid = event["objectuuid"]
-            eventuuid  = event["eventuuid"]
-            eventTime  = event["eventTime"]
-            attname    = event["attname"]
-            attvalue   = event["attvalue"]
-            Items::setAttributeNoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
-        end
-
         if event["mikuType"] == "bank-account-set-un-done-today" then
             BankAccountDoneForToday::processEvent(event)
-        end
-
-        if event["mikuType"] == "mikutyped-objects-set" then
-            object  = event["object"]
-            db = SQLite3::Database.new(MikuTypedObjects::pathToDatabase())
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute "delete from _objects_ where _uuid_=?", [object["uuid"]]
-            db.execute "insert into _objects_ (_uuid_, _mikuType_, _object_) values (?, ?, ?)", [object["uuid"], object["mikuType"], JSON.generate(object)]
-            db.close
-        end
-
-        if event["mikuType"] == "mikutyped-objects-destroy" then
-            uuid  = event["uuid"]
-            db = SQLite3::Database.new(MikuTypedObjects::pathToDatabase())
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute "delete from _objects_ where _uuid_=?", [uuid]
-            db.close
         end
 
         if event["mikuType"] == "NxGraphEdge1" then
             FileSystemCheck::fsck_NxGraphEdge1(event, SecureRandom.hex, false)
             NetworkEdges::processEvent(event)
-        end
-
-        if event["mikuType"] == "TxEventItem1" then
-            Items::processEvent(event)
         end
     end
 

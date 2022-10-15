@@ -8,6 +8,9 @@ class FileSystemCheck
         if item[attname].nil? then
             raise "Missing attribute #{attname} in #{JSON.pretty_generate(item)}"
         end
+        if type.nil? then
+            return
+        end
         if type == "Number" then
             types = ["Integer", "Float"]
         else
@@ -18,16 +21,17 @@ class FileSystemCheck
         end
     end
 
-    # FileSystemCheck::isMikuTypedItem(item, verbose)
-    def self.isMikuTypedItem(item, verbose)
+    # FileSystemCheck::phageCore(item, verbose)
+    def self.phageCore(item, verbose)
 
         if verbose then
-            "FileSystemCheck::isMikuTypedItem(#{JSON.pretty_generate(item)}, #{verbose})"
+            "FileSystemCheck::phageCore(#{JSON.pretty_generate(item)}, #{verbose})"
         end
 
         FileSystemCheck::ensureAttribute(item, "uuid", "String")
-        FileSystemCheck::ensureAttribute(item, "uuid_variant", "String")
-        FileSystemCheck::ensureAttribute(item, "variant_time", "Number")
+        FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
+        FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
+        FileSystemCheck::ensureAttribute(item, "phage_alive", nil)
         FileSystemCheck::ensureAttribute(item, "mikuType", "String")
         FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
         FileSystemCheck::ensureAttribute(item, "datetime", "String")
@@ -166,7 +170,7 @@ class FileSystemCheck
             "FileSystemCheck::fsck_Cx22(#{cx22}, #{verbose})"
         end
 
-        FileSystemCheck::isMikuTypedItem(cx22, verbose)
+        FileSystemCheck::phageCore(cx22, verbose)
 
         FileSystemCheck::ensureAttribute(cx22, "description", "String")
         FileSystemCheck::ensureAttribute(cx22, "bankaccount", "String")
@@ -283,17 +287,17 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsck_MikuTypedItem(item, runhash, verbose)
-    def self.fsck_MikuTypedItem(item, runhash, verbose)
+    # FileSystemCheck::fsck_PhageItem(item, runhash, verbose)
+    def self.fsck_PhageItem(item, runhash, verbose)
 
         repeatKey = "#{runhash}:#{JSON.generate(item)}"
         return if XCache::getFlag(repeatKey)
 
         if verbose then
-            puts "FileSystemCheck::fsck_MikuTypedItem(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
+            puts "FileSystemCheck::fsck_PhageItem(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
         end
 
-        FileSystemCheck::isMikuTypedItem(item, verbose)
+        FileSystemCheck::phageCore(item, verbose)
 
         mikuType = item["mikuType"]
 
@@ -356,39 +360,6 @@ class FileSystemCheck
         raise "Unsupported Miku Type: #{JSON.pretty_generate(item)}"
     end
 
-    # FileSystemCheck::fsck_AttributeUpdateV2(event, runhash, verbose)
-    def self.fsck_AttributeUpdateV2(event, runhash, verbose)
-        repeatKey = "#{runhash}:#{JSON.generate(event)}"
-        return if XCache::getFlag(repeatKey)
-
-        if verbose then
-            puts "FileSystemCheck::fsck_AttributeUpdateV2(#{JSON.pretty_generate(event)}, #{runhash}, #{verbose})"
-        end
-
-        if event["mikuType"].nil? then
-            raise "event has no Miku type"
-        end
-        if event["mikuType"] != "AttributeUpdate.v2" then
-            raise "Incorrect Miku type for function"
-        end
-        if event["objectuuid"].nil? then
-            raise "Missing attribute objectuuid"
-        end
-        if event["eventuuid"].nil? then
-            raise "Missing attribute eventuuid"
-        end
-        if event["eventTime"].nil? then
-            raise "Missing attribute eventTime"
-        end
-        if event["attname"].nil? then
-            raise "Missing attribute attname"
-        end
-        if event["attvalue"].nil? then
-            # attvalue can be null
-        end
-        XCache::setFlag(repeatKey, true)
-    end
-
     # -----------------------------------------------------
 
     # FileSystemCheck::exitIfMissingCanary()
@@ -413,7 +384,7 @@ class FileSystemCheck
     def self.fsckErrorAtFirstFailure(runhash)
         Items::items().each{|item|
             FileSystemCheck::exitIfMissingCanary()
-            FileSystemCheck::fsck_MikuTypedItem(item, runhash, true)
+            FileSystemCheck::fsck_PhageItem(item, runhash, true)
         }
         puts "fsck completed successfully".green
     end

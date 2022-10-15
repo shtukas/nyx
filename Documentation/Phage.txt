@@ -1,0 +1,13 @@
+
+phage.sqlite3 (General Object Store)
+create table _objects_ (_phage_uuid_ text primary key, _uuid_ text, _mikuType_ text, _object_ text);
+
+A Phage item should at least have the following attributes:
+
+"phage_uuid"  : String # Primary Key
+"phage_time"  : Float
+"phage_alive" : Boolean
+"uuid"        : String
+"mikuType"    : String
+"unixtime"    : Float
+"datetime"    : DateTime Iso 8601 UTC Zulu

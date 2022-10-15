@@ -11,12 +11,9 @@ class Items
 
     # Items::putItemNoEvent(item, fsckVerbose)
     def self.putItemNoEvent(item, fsckVerbose)
-        # TODO: this is temporary the time to migrate all objects
-        if item["uuid_variant"].nil? then
-            item["uuid_variant"] = SecureRandom.uuid
-        end
-        item["variant_time"] = Time.new.to_f
-        FileSystemCheck::fsck_MikuTypedItem(item, FileSystemCheck::getExistingRunHash(), fsckVerbose)
+        item["phage_uuid"] = SecureRandom.uuid
+        item["phage_time"] = Time.new.to_f
+        FileSystemCheck::fsck_PhageItem(item, FileSystemCheck::getExistingRunHash(), fsckVerbose)
         db = SQLite3::Database.new(Items::pathToDatabase())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -28,17 +25,10 @@ class Items
 
     # Items::putItem(item)
     def self.putItem(item)
-        # TODO: this is temporary the time to migrate all objects
-        if item["uuid_variant"].nil? then
-            item["uuid_variant"] = SecureRandom.uuid
-        end
-        item["variant_time"] = Time.new.to_f
-        FileSystemCheck::fsck_MikuTypedItem(item, FileSystemCheck::getExistingRunHash(), true)
+        item["phage_uuid"] = SecureRandom.uuid
+        item["phage_time"] = Time.new.to_f
+        FileSystemCheck::fsck_PhageItem(item, FileSystemCheck::getExistingRunHash(), true)
         Items::putItemNoEvent(item, true)
-        SystemEvents::broadcast({
-            "mikuType" => "TxEventItem1",
-            "item"     => item
-        })
     end
 
     # -----------------------------------------------------------------
@@ -155,14 +145,6 @@ class Items
         eventuuid = SecureRandom.uuid
         eventTime = Time.new.to_f
         Items::setAttributeNoEvents(objectuuid, eventuuid, Time.new.to_f, attname, attvalue)
-        SystemEvents::broadcast({
-            "mikuType"   => "AttributeUpdate.v2",
-            "objectuuid" => objectuuid,
-            "eventuuid"  => eventuuid,
-            "eventTime"  => eventTime,
-            "attname"    => attname,
-            "attvalue"   => attvalue
-        })
     end
 
     # Items::deleteNoEvents(objectuuid)
@@ -193,21 +175,6 @@ class Items
 
     # Items::processEvent(event)
     def self.processEvent(event)
-
-        if event["mikuType"] == "TxEventItem1" then
-            item = event["item"]
-            Items::putItemNoEvent(item, false)
-        end
-
-        if event["mikuType"] == "AttributeUpdate" then
-            objectuuid = event["objectuuid"]
-            eventuuid  = event["eventuuid"]
-            eventTime  = event["eventTime"]
-            attname    = event["attname"]
-            attvalue   = event["attvalue"]
-            Items::setAttributeNoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
-        end
-
         if event["mikuType"] == "NxDeleted" then
             objectuuid = event["objectuuid"]
             Items::deleteNoEvents(objectuuid)

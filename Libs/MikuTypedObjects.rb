@@ -41,12 +41,9 @@ class MikuTypedObjects
 
     # MikuTypedObjects::commit(object)
     def self.commit(object)
-        # TODO: this is temporary the time to migrate all objects
-        if object["uuid_variant"].nil? then
-            object["uuid_variant"] = SecureRandom.uuid
-        end
-        object["variant_time"] = Time.new.to_f
-        FileSystemCheck::fsck_MikuTypedItem(object, SecureRandom.hex, false)
+        object["phage_uuid"] = SecureRandom.uuid
+        object["phage_time"] = Time.new.to_f
+        FileSystemCheck::fsck_PhageItem(object, SecureRandom.hex, false)
         db = SQLite3::Database.new(MikuTypedObjects::pathToDatabase())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -54,10 +51,6 @@ class MikuTypedObjects
         db.execute "delete from _objects_ where _uuid_=?", [object["uuid"]]
         db.execute "insert into _objects_ (_uuid_, _mikuType_, _object_) values (?, ?, ?)", [object["uuid"], object["mikuType"], JSON.generate(object)]
         db.close
-        SystemEvents::broadcast({
-            "mikuType" => "mikutyped-objects-set",
-            "object"   => object,
-        })
         nil
     end
 
@@ -69,10 +62,6 @@ class MikuTypedObjects
         db.results_as_hash = true
         db.execute "delete from _objects_ where _uuid_=?", [uuid]
         db.close
-        SystemEvents::broadcast({
-            "mikuType" => "mikutyped-objects-destroy",
-            "uuid"     => uuid,
-        })
         nil
     end
 end

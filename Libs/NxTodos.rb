@@ -25,18 +25,19 @@ class NxTodos
         cx22  = Cx22::architectOrNull()
         cx23  = cx22 ? Cx23::makeNewOrNull(cx22) : nil
         item = {
-            "uuid"         => uuid,
-            "uuid_variant" => SecureRandom.uuid,
-            "variant_time" => Time.new.to_f,
-            "mikuType"     => "NxTodo",
-            "unixtime"     => Time.new.to_i,
-            "datetime"     => Time.new.utc.iso8601,
-            "description"  => description,
-            "nx113"        => nx113,
-            "nx11e"        => nx11e,
-            "cx22"         => cx22 ? cx22["uuid"] : nil,
-            "cx23"         => cx23,
-            "listeable"    => true
+            "uuid"        => uuid,
+            "phage_uuid"  => SecureRandom.uuid,
+            "phage_time"  => Time.new.to_f,
+            "phage_alive" => true,
+            "mikuType"    => "NxTodo",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "nx113"       => nx113,
+            "nx11e"       => nx11e,
+            "cx22"        => cx22 ? cx22["uuid"] : nil,
+            "cx23"        => cx23,
+            "listeable"   => true
         }
         Items::putItem(item)
         item
@@ -52,17 +53,18 @@ class NxTodos
         nx113    = Nx113Make::interactivelyMakeNx113OrNull()
         cx22     = Cx22::architectOrNull()
         item = {
-            "uuid"         => uuid,
-            "uuid_variant" => SecureRandom.uuid,
-            "variant_time" => Time.new.to_f,
-            "mikuType"     => "NxTodo",
-            "unixtime"     => Time.new.to_i,
-            "datetime"     => Time.new.utc.iso8601,
-            "description"  => description,
-            "nx113"        => nx113,
-            "nx11e"        => nx11e,
-            "cx22"         => cx22 ? cx22["uuid"] : nil,
-            "listeable"    => true
+            "uuid"        => uuid,
+            "phage_uuid"  => SecureRandom.uuid,
+            "phage_time"  => Time.new.to_f,
+            "phage_alive" => true,
+            "mikuType"    => "NxTodo",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "nx113"       => nx113,
+            "nx11e"       => nx11e,
+            "cx22"        => cx22 ? cx22["uuid"] : nil,
+            "listeable"   => true
         }
         Items::putItem(item)
         item
@@ -80,17 +82,18 @@ class NxTodos
         nx113 = nil
         cx22  = Cx22::architectOrNull()
         item = {
-            "uuid"         => uuid,
-            "uuid_variant" => SecureRandom.uuid,
-            "variant_time" => Time.new.to_f,
-            "mikuType"     => "NxTodo",
-            "unixtime"     => Time.new.to_i,
-            "datetime"     => Time.new.utc.iso8601,
-            "description"  => description,
-            "nx113"        => nx113,
-            "nx11e"        => nx11e,
-            "cx22"         => cx22 ? cx22["uuid"] : nil,
-            "listeable"    => true
+            "uuid"        => uuid,
+            "phage_uuid"  => SecureRandom.uuid,
+            "phage_time"  => Time.new.to_f,
+            "phage_alive" => true,
+            "mikuType"    => "NxTodo",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "nx113"       => nx113,
+            "nx11e"       => nx11e,
+            "cx22"        => cx22 ? cx22["uuid"] : nil,
+            "listeable"   => true
         }
         Items::putItem(item)
         item
@@ -103,16 +106,17 @@ class NxTodos
         nx113 = Nx113Make::aionpoint(location)
         nx11e = Nx11E::makeStandard()
         item = {
-            "uuid"         => uuid,
-            "uuid_variant" => SecureRandom.uuid,
-            "variant_time" => Time.new.to_f,
-            "mikuType"     => "NxTodo",
-            "unixtime"     => Time.new.to_i,
-            "datetime"     => Time.new.utc.iso8601,
-            "description"  => description,
-            "nx113"        => nx113,
-            "nx11e"        => nx11e,
-            "listeable"    => true
+            "uuid"        => uuid,
+            "phage_uuid"  => SecureRandom.uuid,
+            "phage_time"  => Time.new.to_f,
+            "phage_alive" => true,
+            "mikuType"    => "NxTodo",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "nx113"       => nx113,
+            "nx11e"       => nx11e,
+            "listeable"   => true
         }
         Items::putItem(item)
         item
@@ -125,16 +129,17 @@ class NxTodos
         nx113 = Nx113Make::aionpoint(location)
         nx11e = Nx11E::makeTriage()
         item = {
-            "uuid"         => uuid,
-            "uuid_variant" => SecureRandom.uuid,
-            "variant_time" => Time.new.to_f,
-            "mikuType"     => "NxTodo",
-            "unixtime"     => Time.new.to_i,
-            "datetime"     => Time.new.utc.iso8601,
-            "description"  => description,
-            "nx113"        => nx113,
-            "nx11e"        => nx11e,
-            "listeable"    => true
+            "uuid"        => uuid,
+            "phage_uuid"  => SecureRandom.uuid,
+            "phage_time"  => Time.new.to_f,
+            "phage_alive" => true,
+            "mikuType"    => "NxTodo",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "nx113"       => nx113,
+            "nx11e"       => nx11e,
+            "listeable"   => true
         }
         Items::putItem(item)
         item
@@ -147,16 +152,17 @@ class NxTodos
         nx113 = Nx113Make::url(url)
         nx11e = Nx11E::makeStandard()
         item = {
-            "uuid"         => uuid,
-            "uuid_variant" => SecureRandom.uuid,
-            "variant_time" => Time.new.to_f,
-            "mikuType"     => "NxTodo",
-            "unixtime"     => Time.new.to_i,
-            "datetime"     => Time.new.utc.iso8601,
-            "description"  => description,
-            "nx113"        => nx113,
-            "nx11e"        => nx11e,
-            "listeable"    => true
+            "uuid"        => uuid,
+            "phage_uuid"  => SecureRandom.uuid,
+            "phage_time"  => Time.new.to_f,
+            "phage_alive" => true,
+            "mikuType"    => "NxTodo",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "nx113"       => nx113,
+            "nx11e"       => nx11e,
+            "listeable"   => true
         }
         Items::putItem(item)
         item
@@ -165,17 +171,18 @@ class NxTodos
     # NxTodos::issueFromElements(description, nx113, nx11e, cx22, cx23)
     def self.issueFromElements(description, nx113, nx11e, cx22, cx23)
         item = {
-            "uuid"         => SecureRandom.uuid,
-            "uuid_variant" => SecureRandom.uuid,
-            "variant_time" => Time.new.to_f,
-            "mikuType"     => "NxTodo",
-            "unixtime"     => Time.new.to_i,
-            "datetime"     => Time.new.utc.iso8601,
-            "description"  => description,
-            "nx113"        => nx113,
-            "nx11e"        => nx11e,
-            "cx22"         => cx22["uuid"],
-            "cx23"         => cx23
+            "uuid"        => SecureRandom.uuid,
+            "phage_uuid"  => SecureRandom.uuid,
+            "phage_time"  => Time.new.to_f,
+            "phage_alive" => true,
+            "mikuType"    => "NxTodo",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "nx113"       => nx113,
+            "nx11e"       => nx11e,
+            "cx22"        => cx22["uuid"],
+            "cx23"        => cx23
         }
         Items::putItem(item)
     end
