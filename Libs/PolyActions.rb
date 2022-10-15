@@ -175,8 +175,8 @@ class PolyActions
         raise "(error: 2b6aab43-6a93-4c0e-99b0-0cf882e66bde) I do not know how to PolyActions::doubleDot(#{JSON.pretty_generate(item)})"
     end
 
-    # PolyActions::done(item)
-    def self.done(item)
+    # PolyActions::done(item, useConfirmationIfRelevant = true)
+    def self.done(item, useConfirmationIfRelevant = true)
 
         PolyActions::stop(item)
 
@@ -199,14 +199,22 @@ class PolyActions
                 end
                 return
             end
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
+            if useConfirmationIfRelevant then
+                LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
+                    NxTodos::destroy(item["uuid"])
+                end
+            else
                 NxTodos::destroy(item["uuid"])
             end
             return
         end
 
         if item["mikuType"] == "Wave" then
-            if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
+            if useConfirmationIfRelevant then
+                if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
+                    Waves::performWaveNx46WaveDone(item)
+                end
+            else
                 Waves::performWaveNx46WaveDone(item)
             end
             return

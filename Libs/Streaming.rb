@@ -16,7 +16,7 @@ class Streaming
                 PolyActions::doubleDot(item)
             end
             if input == "done" then
-                PolyActions::done(item)
+                PolyActions::done(item, false)
             end
             if input == "time" then
                 timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
@@ -49,7 +49,7 @@ class Streaming
                 Streaming::runItem(item, "running")
             end
             if input == "done" then
-                PolyActions::done(item)
+                PolyActions::done(item, false)
             end
             if input == "stop" then
                 PolyActions::stop(item)
@@ -82,7 +82,7 @@ class Streaming
                 Streaming::runItem(item, "running")
             end
             if input == "done" then
-                PolyActions::done(item)
+                PolyActions::done(item, false)
             end
             if input == "skip" then
                 DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_f + 3600*2)
