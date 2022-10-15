@@ -85,6 +85,7 @@ class NxBallsService
             "owneruuid"    => owneruuid,
             "mikuType"     => "NxBall.v2",
             "unixtime"     => Time.new.to_f,
+            "datetime"     => Time.new.utc.iso8601,
             "description"  => description,
             "desiredBankedTimeInSeconds" => desiredBankedTimeInSeconds,
             "status"       => NxBallsService::makeRunningStatus(nil, 0),

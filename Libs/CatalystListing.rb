@@ -666,8 +666,8 @@ class CatalystListing
         CatalystListing::listingCommandInterpreter(input, store)
     end
 
-    # CatalystListing::program()
-    def self.program()
+    # CatalystListing::mainListingProgram()
+    def self.mainListingProgram()
 
         initialCodeTrace = CommonUtils::generalCodeTrace()
 
@@ -692,6 +692,33 @@ class CatalystListing
         }
     end
 
+    # CatalystListing::runItem(item, state)
+    def self.runItem(item, state)
+
+        # state: ["awaiting start"]
+
+        if state[0] == "awaiting start" then
+            puts PolyFunctions::toString(item).green
+            input = LucilleCore::askQuestionAnswerAsString("#{">".green} .. | skip | landing : ")
+            if input == ".." then
+                CatalystListing::runItem(item, ["do .."])
+            end
+            if input == "skip" then
+                DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_f + 3600*2)
+            end
+           if input == "landing" then
+                PolyActions::landing(item)
+                if Items::getItemOrNull(item["uuid"])
+                    CatalystListing::runItem(item, ["awaiting start"])
+                end
+            end
+        end
+
+        if state[0] == "do .." then
+            PolyActions::doubleDot(item)
+        end
+    end
+
     # CatalystListing::streaming()
     def self.streaming()
 
@@ -714,27 +741,14 @@ class CatalystListing
                     LucilleCore::removeFileSystemLocation(location)
                 }
 
-            item = CatalystListing::listingItems().first
-            puts PolyFunctions::toString(item)
-            input = LucilleCore::askQuestionAnswerAsString("#{">".green} .. | skip : ")
-            if input == ".." then
-                PolyActions::doubleDot(item)
-                input2 = LucilleCore::askQuestionAnswerAsString("#{">".green} stop | done | landing")
-                if input2 == "stop" then
-                    PolyActions::stop(item)
-                    DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_f + 3600*2)
-                end
-                if input2 == "done" then
-                    PolyActions::done(item)
-                end
-                if input2 == "landing" then
-                    PolyActions::landing(item)
-                end
-            end
-            if input == "skip" then
-                DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_f + 3600*2)
+            if NxBallsIO::nxballs().size > 0 then
+                CatalystListing::displayListing()
+                next
             end
 
+            system("clear")
+            item = CatalystListing::listingItems().first
+            CatalystListing::runItem(item, ["awaiting start"])
         }
     end
 end
