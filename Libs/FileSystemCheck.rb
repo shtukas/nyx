@@ -13,11 +13,11 @@ class FileSystemCheck
         end
     end
 
-    # FileSystemCheck::checkIsStargateItemBasic(item, verbose)
-    def self.checkIsStargateItemBasic(item, verbose)
+    # FileSystemCheck::isMikuTypedItem(item, verbose)
+    def self.isMikuTypedItem(item, verbose)
 
         if verbose then
-            "FileSystemCheck::checkIsStargateItemBasic(#{JSON.pretty_generate(item)}, #{verbose})"
+            "FileSystemCheck::isMikuTypedItem(#{JSON.pretty_generate(item)}, #{verbose})"
         end
 
         FileSystemCheck::ensureAttribute(item, "uuid", ["String"])
@@ -161,7 +161,7 @@ class FileSystemCheck
             "FileSystemCheck::fsck_Cx22(#{cx22}, #{verbose})"
         end
 
-        FileSystemCheck::checkIsStargateItemBasic(cx22, verbose)
+        FileSystemCheck::isMikuTypedItem(cx22, verbose)
 
         FileSystemCheck::ensureAttribute(cx22, "description", ["String"])
         FileSystemCheck::ensureAttribute(cx22, "bankaccount", ["String"])
@@ -178,6 +178,17 @@ class FileSystemCheck
 
         FileSystemCheck::ensureAttribute(cx23, "groupuuid", ["String"])
         FileSystemCheck::ensureAttribute(cx23, "position", ["Integer", "Float"])
+    end
+
+    # FileSystemCheck::fsck_Dx33(item, verbose)
+    def self.fsck_Dx33(item, verbose)
+        return if item.nil?
+
+        if verbose then
+            "FileSystemCheck::fsck_Dx33(#{item}, #{verbose})"
+        end
+
+        FileSystemCheck::ensureAttribute(item, "unitId", ["String"])
     end
 
     # FileSystemCheck::fsck_TxBankEvent(event, runhash, verbose)
@@ -267,50 +278,25 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsck_Cx22(object, runhash, verbose)
-    def self.fsck_Cx22(object, runhash, verbose)
-        repeatKey = "#{runhash}:#{JSON.generate(object)}"
-        return if XCache::getFlag(repeatKey)
-
-        if verbose then
-            puts "FileSystemCheck::fsck_Cx22(#{JSON.pretty_generate(object)}, #{runhash}, #{verbose})"
-        end
-
-        if object["uuid"].nil? then
-            raise "object has no Miku type"
-        end
-        if object["mikuType"].nil? then
-            raise "object has no Miku type"
-        end
-        if object["mikuType"] != "Cx22" then
-            raise "Incorrect Miku type for function"
-        end
-        if object["description"].nil? then
-            raise "Missing attribute description"
-        end
-        if object["bankaccount"].nil? then
-            raise "Missing attribute bankaccount"
-        end
-        if object["ax39"].nil? then
-            raise "Missing attribute ax39"
-        end
-
-        XCache::setFlag(repeatKey, true)
-    end
-
-    # FileSystemCheck::fsck_StargateItem(item, runhash, verbose)
-    def self.fsck_StargateItem(item, runhash, verbose)
+    # FileSystemCheck::fsck_MikuTypedItem(item, runhash, verbose)
+    def self.fsck_MikuTypedItem(item, runhash, verbose)
 
         repeatKey = "#{runhash}:#{JSON.generate(item)}"
         return if XCache::getFlag(repeatKey)
 
         if verbose then
-            puts "FileSystemCheck::fsck_StargateItem(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
+            puts "FileSystemCheck::fsck_MikuTypedItem(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
         end
 
-        FileSystemCheck::checkIsStargateItemBasic(cx22, verbose)
+        FileSystemCheck::isMikuTypedItem(item, verbose)
 
         mikuType = item["mikuType"]
+
+        if mikuType == "Dx33" then
+            FileSystemCheck::fsck_Dx33(item, verbose)
+            XCache::setFlag(repeatKey, true)
+            return
+        end
 
         if mikuType == "NxAnniversary" then
             FileSystemCheck::ensureAttribute(item, "description", ["String"])
@@ -413,7 +399,7 @@ class FileSystemCheck
     def self.fsckErrorAtFirstFailure(runhash)
         Items::items().each{|item|
             FileSystemCheck::exitIfMissingCanary()
-            FileSystemCheck::fsck_StargateItem(item, runhash, true)
+            FileSystemCheck::fsck_MikuTypedItem(item, runhash, true)
         }
         puts "fsck completed successfully".green
     end

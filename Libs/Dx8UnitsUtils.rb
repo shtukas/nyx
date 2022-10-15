@@ -27,10 +27,10 @@ class Dx8UnitsUtils
         end
 
         location = "#{Dx8UnitsUtils::repository()}/#{dx8UnitId}"
-        return location if File.exists?(location)
+        if File.exists?(location) then
+            return location
+        end
 
-        puts "Dx8Unit is not currently (neither on local nor EnergyGrid)"
-        LucilleCore::pressEnterToContinue()
         return nil
     end
 end

@@ -41,12 +41,7 @@ class MikuTypedObjects
 
     # MikuTypedObjects::commit(object)
     def self.commit(object)
-        if object["uuid"].nil? then
-            raise "(error: e8997aeb-c3d8-4241-95d5-303fa99de878) missing attribute uuid, object: #{object}"
-        end
-        if object["mikuType"].nil? then
-            raise "(error: daffb609-c40f-475b-a9d2-9bfea1743ad7) missing attribute mikuType, object: #{object}"
-        end
+        FileSystemCheck::fsck_MikuTypedItem(item, SecureRandom.hex, true)
         db = SQLite3::Database.new(MikuTypedObjects::pathToDatabase())
         db.busy_timeout = 117
         db.busy_handler { |count| true }

@@ -2,9 +2,6 @@
 We do not have a shared mercury channel, so we use those specific objects to record and signify that a Dx8Unit needs to be garbage collected.
 
 {
-    "uuid"     => String
-    "mikuType" => "Dx33"
-    "unixtime" => Float
-    "datetime" => DateTime Iso 8601 UTC Zulu
+    ... Stargate Item ("Dx33")
     "unitId"   => String # Unit Id of the Dx8 to be garbage collected
 }
