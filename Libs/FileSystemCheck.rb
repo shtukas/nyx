@@ -75,7 +75,7 @@ class FileSystemCheck
 
     # FileSystemCheck::fsck_Nx113(nx113, runhash, verbose)
     def self.fsck_Nx113(nx113, runhash, verbose)
-        return nx113.nil?
+        return if nx113.nil?
 
         repeatKey = "#{runhash}:#{nx113}"
         return if XCache::getFlag(repeatKey)
