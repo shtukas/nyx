@@ -28,10 +28,9 @@ class Phage
         }
         projection = {}
         objects.each{|object|
-            next if !object["phage_alive"]
             projection[object["uuid"]] = higestOfTwo.call(projection[object["uuid"]], object)
         }
-        projection.values
+        projection.values.select{|object| object["phage_alive"] }
     end
 
     # Phage::variantsForMikuType(mikuType)
