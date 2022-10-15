@@ -10,7 +10,7 @@ class CatalystListing
             "wave | anniversary | hot | today | ondate | todo",
             "anniversaries | ondates | waves | groups | todos | todos-latest-first",
             "require internet",
-            "search | nyx | speed | nxballs",
+            "search | nyx | speed | nxballs | streaming",
         ].join("\n")
     end
 
@@ -405,6 +405,11 @@ class CatalystListing
             return
         end
 
+        if Interpreting::match("streaming", input) then
+            CatalystListing::streaming()
+            return
+        end
+
         if Interpreting::match("stop", input) then
             item = store.getDefault()
             return if item.nil?
@@ -666,15 +671,14 @@ class CatalystListing
 
         initialCodeTrace = CommonUtils::generalCodeTrace()
 
-        SystemEvents::processIncomingEventsFromLine(true)
-
         loop {
 
-            #puts "(code trace)"
             if CommonUtils::generalCodeTrace() != initialCodeTrace then
                 puts "Code change detected"
                 break
             end
+
+            SystemEvents::processIncomingEventsFromLine(true)
 
             LucilleCore::locationsAtFolder("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")
                 .each{|location|
@@ -685,6 +689,52 @@ class CatalystListing
                 }
 
             CatalystListing::displayListing()
+        }
+    end
+
+    # CatalystListing::streaming()
+    def self.streaming()
+
+        initialCodeTrace = CommonUtils::generalCodeTrace()
+
+        loop {
+
+            if CommonUtils::generalCodeTrace() != initialCodeTrace then
+                puts "Code change detected"
+                break
+            end
+
+            SystemEvents::processIncomingEventsFromLine(true)
+
+            LucilleCore::locationsAtFolder("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")
+                .each{|location|
+                    next if File.basename(location).start_with?(".")
+                    item = NxTodos::bufferInImport(location)
+                    puts "Picked up from NxTodos-BufferIn: #{JSON.pretty_generate(item)}"
+                    LucilleCore::removeFileSystemLocation(location)
+                }
+
+            item = CatalystListing::listingItems().first
+            puts PolyFunctions::toString(item)
+            input = LucilleCore::askQuestionAnswerAsString("#{">".green} .. | skip : ")
+            if input == ".." then
+                PolyActions::doubleDot(item)
+                input2 = LucilleCore::askQuestionAnswerAsString("#{">".green} stop | done | landing")
+                if input2 == "stop" then
+                    PolyActions::stop(item)
+                    DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_f + 3600*2)
+                end
+                if input2 == "done" then
+                    PolyActions::done(item)
+                end
+                if input2 == "landing" then
+                    PolyActions::landing(item)
+                end
+            end
+            if input == "skip" then
+                DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_f + 3600*2)
+            end
+
         }
     end
 end
