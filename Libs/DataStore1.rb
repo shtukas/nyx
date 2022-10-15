@@ -10,7 +10,7 @@ class DataStore1
 
     # DataStore1::energyGridRepository()
     def self.energyGridRepository()
-        "/Volumes/EnergyGrid1/Stargate-EnergyGrid/DataStore1"
+        "/Volumes/EnergyGrid1/Stargate/Data/DataStore1"
     end
 
     # -------------------------------------------------------
