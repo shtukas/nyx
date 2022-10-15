@@ -301,6 +301,12 @@ class FileSystemCheck
 
         mikuType = item["mikuType"]
 
+        if mikuType == "Cx22" then
+            FileSystemCheck::fsck_Cx22(item, verbose)
+            XCache::setFlag(repeatKey, true)
+            return
+        end
+
         if mikuType == "Dx33" then
             FileSystemCheck::fsck_Dx33(item, verbose)
             XCache::setFlag(repeatKey, true)
@@ -343,6 +349,16 @@ class FileSystemCheck
 
         if mikuType == "NyxNode" then
             FileSystemCheck::ensureAttribute(item, "description", "String")
+            FileSystemCheck::fsck_Nx113(item["nx113"], runhash, verbose)
+            XCache::setFlag(repeatKey, true)
+            return
+        end
+
+        if mikuType == "TxManualCountDown" then
+            FileSystemCheck::ensureAttribute(item, "description", "String")
+            FileSystemCheck::ensureAttribute(item, "dailyTarget", "Number")
+            FileSystemCheck::ensureAttribute(item, "date", "String")
+            FileSystemCheck::ensureAttribute(item, "counter", "Number")
             FileSystemCheck::fsck_Nx113(item["nx113"], runhash, verbose)
             XCache::setFlag(repeatKey, true)
             return
