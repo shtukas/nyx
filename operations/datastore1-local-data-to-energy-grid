@@ -1,8 +1,0 @@
-#!/usr/bin/ruby
-
-# encoding: UTF-8
-
-require_relative "../Libs/loader.rb"
-
-puts "DataStore1::localDataToEnergyGrid()"
-DataStore1::localDataToEnergyGrid()

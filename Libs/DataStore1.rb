@@ -106,8 +106,8 @@ class DataStore1
     # -------------------------------------------------------
     # Operations
 
-    # DataStore1::localDataToEnergyGrid()
-    def self.localDataToEnergyGrid()
+    # DataStore1::propagationLocalDataStore1ToEnergyGridDataStore1()
+    def self.propagationLocalDataStore1ToEnergyGridDataStore1()
         Find.find(DataStore1::localRepository()) do |path|
             next if !File.basename(path).start_with?("SHA256-")
             filepath1 = path
@@ -116,7 +116,7 @@ class DataStore1
             if File.exists?(filepath2) then
                 next
             end
-            puts "DataStore1::localDataToEnergyGrid(): #{File.basename(filepath1)}"
+            puts "DataStore1::propagationLocalDataStore1ToEnergyGridDataStore1(): #{File.basename(filepath1)}"
             FileUtils.cp(filepath1, filepath2)
         end
     end
