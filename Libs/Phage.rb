@@ -47,7 +47,17 @@ class Phage
 
     # Phage::databasesTrace()
     def self.databasesTrace()
-        Digest::SHA1.hexdigest(Phage::databasesPathsForReading().join(":"))
+        Phage::databasesPathsForReading()
+            .sort
+            .map{|filepath|
+                {
+                    "filepath" => filepath,
+                    "filetime" => File.mtime(filepath).to_s
+                }
+            }
+            .reduce(""){|trace, packet|
+                Digest::SHA1.hexdigest("#{trace}:#{packet}")
+            }
     end
 
     # GETTERS (variants, cached on database traces)
