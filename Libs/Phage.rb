@@ -14,12 +14,14 @@ class Phage
     # Phage::databasesPathsForReading()
     def self.databasesPathsForReading()
         LucilleCore::locationsAtFolder("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Phage")
+            .select{|filepath| !File.basename(filepath).start_with?(".") }
     end
 
     # Phage::databasePathForWriting()
     def self.databasePathForWriting()
         instanceId = Config::get("instanceId")
         LucilleCore::locationsAtFolder("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Phage")
+            .select{|filepath| !File.basename(filepath).start_with?(".") }
             .sort
             .select{|filepath| File.basename(filepath).include?(instanceId) }
             .reverse
