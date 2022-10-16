@@ -5,11 +5,6 @@ class Streaming
     # Streaming::runItem(item, state)
     def self.runItem(item, state)
 
-        if CommonUtils::generalCodeTrace() != initialCodeTrace then
-            puts "Code change detected"
-            return
-        end
-
         return if Phage::getObjectOrNull(item["uuid"]).nil?
 
         if state == "awaiting start" then

@@ -72,8 +72,8 @@ class Phage
 
         objects = []
         Phage::databasesPathsForReading()
-            .each{|database_filepath|
-                db = SQLite3::Database.new(database_filepath)
+            .each{|filepath|
+                db = SQLite3::Database.new(filepath)
                 db.busy_timeout = 117
                 db.busy_handler { |count| true }
                 db.results_as_hash = true
@@ -98,8 +98,8 @@ class Phage
 
         objects = []
         Phage::databasesPathsForReading()
-            .each{|database_filepath|
-                db = SQLite3::Database.new(database_filepath)
+            .each{|filepath|
+                db = SQLite3::Database.new(filepath)
                 db.busy_timeout = 117
                 db.busy_handler { |count| true }
                 db.results_as_hash = true
@@ -124,8 +124,8 @@ class Phage
 
         objects = []
         Phage::databasesPathsForReading()
-            .each{|database_filepath|
-                db = SQLite3::Database.new(database_filepath)
+            .each{|filepath|
+                db = SQLite3::Database.new(filepath)
                 db.busy_timeout = 117
                 db.busy_handler { |count| true }
                 db.results_as_hash = true

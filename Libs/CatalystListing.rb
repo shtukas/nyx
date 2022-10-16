@@ -10,7 +10,7 @@ class CatalystListing
             "wave | anniversary | hot | today | ondate | todo",
             "anniversaries | ondates | waves | groups | todos | todos-latest-first",
             "require internet",
-            "search | nyx | speed | nxballs",
+            "search | nyx | speed | nxballs | streaming",
         ].join("\n")
     end
 
@@ -417,6 +417,11 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::stop(item)
+            return
+        end
+
+        if input == "streaming" then
+            Streaming::streaming()
             return
         end
 
