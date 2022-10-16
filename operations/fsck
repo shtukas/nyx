@@ -9,8 +9,10 @@ runhash =
         FileSystemCheck::getExistingRunHash()
     else
         r = SecureRandom.hex
-        XCache::set("371dbc1d-8fbc-498b-ac98-d17d978cfdbf", r)
-        r
+        puts "Issuing new fsck runhash: #{r}".green
+        sleep 1
+        FileSystemCheck::setRunHash(r)
+        FileSystemCheck::getExistingRunHash()
     end
 
 FileSystemCheck::fsckErrorAtFirstFailure(runhash)

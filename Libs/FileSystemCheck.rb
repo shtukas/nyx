@@ -388,12 +388,17 @@ class FileSystemCheck
 
     # FileSystemCheck::getExistingRunHash()
     def self.getExistingRunHash()
-        r = XCache::getOrNull("371dbc1d-8fbc-498b-ac98-d17d978cfdbf")
-        if r.nil? then
-            r = SecureRandom.hex
-            XCache::set("371dbc1d-8fbc-498b-ac98-d17d978cfdbf", r)
+        runhash = XCache::getOrNull("371dbc1d-8fbc-498b-ac98-d17d978cfdbf")
+        if runhash.nil? then
+            runhash = SecureRandom.hex
+            XCache::set("371dbc1d-8fbc-498b-ac98-d17d978cfdbf", runhash)
         end
-        r
+        runhash
+    end
+
+    # FileSystemCheck::setRunHash(runhash)
+    def self.setRunHash(runhash)
+        XCache::set("371dbc1d-8fbc-498b-ac98-d17d978cfdbf", runhash)
     end
 
     # FileSystemCheck::fsckErrorAtFirstFailure(runhash)
