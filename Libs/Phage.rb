@@ -20,12 +20,29 @@ class Phage
     # Phage::databasePathForWriting()
     def self.databasePathForWriting()
         instanceId = Config::get("instanceId")
-        LucilleCore::locationsAtFolder("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Phage")
+
+        # We either return the last file or we make a new one
+
+        filepath = LucilleCore::locationsAtFolder("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Phage")
             .select{|filepath| !File.basename(filepath).start_with?(".") }
             .sort
-            .select{|filepath| File.basename(filepath).include?(instanceId) }
             .reverse
             .first
+
+        if File.basename(filepath).include?(instanceId) then
+            return filepath
+        end
+
+        instant = (Time.new.to_f * 1000).to_i
+
+        filepath = "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Phage/phage-#{instant}-#{instanceId}.sqlite3"
+
+        db = SQLite3::Database.new(filepath)
+        db.execute("create table _objects_ (_phage_uuid_ text primary key, _uuid_ text, _mikuType_ text, _object_ text);")
+        db.close
+
+        filepath
+
     end
 
     # Phage::databasesTrace()
@@ -33,27 +50,7 @@ class Phage
         Digest::SHA1.hexdigest(Phage::databasesPathsForReading().join(":"))
     end
 
-    # GETTERS (variants)
-
-    # Phage::variantsProjection(objects)
-    def self.variantsProjection(objects)
-        higestOfTwo = lambda {|o1Opt, o2|
-            if o1Opt.nil? then
-                return o2
-            end
-            o1 = o1Opt
-            if o1["phage_time"] < o2["phage_time"] then
-                o2
-            else
-                o1
-            end
-        }
-        projection = {}
-        objects.each{|object|
-            projection[object["uuid"]] = higestOfTwo.call(projection[object["uuid"]], object)
-        }
-        projection.values.select{|object| object["phage_alive"] }
-    end
+    # GETTERS (variants, cached on database traces)
 
     # Phage::variants()
     def self.variants()
@@ -136,6 +133,26 @@ class Phage
 
     # GETTERS (objects)
 
+    # Phage::variantsProjection(objects)
+    def self.variantsProjection(objects)
+        higestOfTwo = lambda {|o1Opt, o2|
+            if o1Opt.nil? then
+                return o2
+            end
+            o1 = o1Opt
+            if o1["phage_time"] < o2["phage_time"] then
+                o2
+            else
+                o1
+            end
+        }
+        projection = {}
+        objects.each{|object|
+            projection[object["uuid"]] = higestOfTwo.call(projection[object["uuid"]], object)
+        }
+        projection.values.select{|object| object["phage_alive"] }
+    end
+
     # Phage::objects()
     def self.objects()
         Phage::variantsProjection(Phage::variants())
@@ -215,5 +232,71 @@ class Phage
         return if object.nil?
         object["phage_alive"] = false
         Phage::commit(object)
+    end
+end
+
+class PhageMaintenance
+
+    # PhageMaintenance::reduceInventory1(filepath1, filepath2)
+    def self.reduceInventory1(filepath1, filepath2)
+
+        getPhageUUIDsAtDatabase = lambda {|filepath|
+            phageuuids = []
+            db = SQLite3::Database.new(filepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("select _phage_uuid_ from _objects_", []) do |row|
+                phageuuids << row["_phage_uuid_"]
+            end
+            db.close
+            phageuuids
+        }
+
+        phageuuids2 = getPhageUUIDsAtDatabase.call(filepath2)
+
+        db1 = SQLite3::Database.new(filepath1)
+        db1.busy_timeout = 117
+        db1.busy_handler { |count| true }
+        db1.results_as_hash = true
+
+        db2 = SQLite3::Database.new(filepath2)
+        db2.busy_timeout = 117
+        db2.busy_handler { |count| true }
+        db2.results_as_hash = true
+
+        db1.execute("select * from _objects_", []) do |row|
+            object = JSON.parse(row["_object_"])
+            next if phageuuids2.include?(object["phage_uuid"])
+            puts "writing: phageuuid: #{object["phage_uuid"]}"
+            db2.execute "insert into _objects_ (_phage_uuid_, _uuid_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["phage_uuid"], object["uuid"], object["mikuType"], JSON.generate(object)]
+        end
+
+        db2.close
+        db1.close
+
+        puts "removing file: #{filepath1}"
+        LucilleCore::removeFileSystemLocation(filepath1)
+
+    end
+
+    # PhageMaintenance::inventory()
+    def self.inventory()
+        LucilleCore::locationsAtFolder("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Phage")
+            .select{|filepath| !File.basename(filepath).start_with?(".") }
+    end
+
+    # PhageMaintenance::shouldReduceInventory()
+    def self.shouldReduceInventory()
+        PhageMaintenance::inventory().size > 10
+    end
+
+    # PhageMaintenance::reduceInventory2()
+    def self.reduceInventory2()
+        return if !PhageMaintenance::shouldReduceInventory()
+        filepaths = PhageMaintenance::inventory().sort
+        filepath1 = filepaths[0]
+        filepath2 = filepaths[1]
+        PhageMaintenance::reduceInventory1(filepath1, filepath2)
     end
 end
