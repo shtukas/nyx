@@ -48,7 +48,7 @@ class The99Percent
         current   = The99Percent::getCurrentCount()
         ratio     = current.to_f/reference["count"]
         line      = "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
-        if ratio < 0.99 then
+        if ratio < 0.99 and (Config::get("instanceId") == "Lucille20-pascal") then
             The99Percent::issueNewReferenceOrNull()
             return "Just issued a new reference"
         end
