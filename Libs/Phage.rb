@@ -11,6 +11,21 @@ class Phage
         "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Instance-Databases/#{Config::get("instanceId")}/phage.sqlite3"
     end
 
+    # Phage::databasesPathsForReading()
+    def self.databasesPathsForReading()
+        LucilleCore::locationsAtFolder("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Phage")
+    end
+
+    # Phage::databasePathForWriting()
+    def self.databasePathForWriting()
+        instanceId = Config::get("instanceId")
+        LucilleCore::locationsAtFolder("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Phage")
+            .sort
+            .select{|filepath| File.basename(filepath).include?(instanceId) }
+            .reverse
+            .first
+    end
+
     # GETTERS (variants)
 
     # Phage::variantsProjection(objects)
@@ -35,43 +50,52 @@ class Phage
 
     # Phage::variants()
     def self.variants()
-        db = SQLite3::Database.new(Phage::pathToDatabase())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
         objects = []
-        db.execute("select * from _objects_", []) do |row|
-            objects << JSON.parse(row["_object_"])
-        end
-        db.close
+        Phage::databasesPathsForReading()
+            .each{|database_filepath|
+                db = SQLite3::Database.new(database_filepath)
+                db.busy_timeout = 117
+                db.busy_handler { |count| true }
+                db.results_as_hash = true
+                db.execute("select * from _objects_", []) do |row|
+                    objects << JSON.parse(row["_object_"])
+                end
+                db.close
+            }
         objects
     end
 
     # Phage::variantsForMikuType(mikuType)
     def self.variantsForMikuType(mikuType)
-        db = SQLite3::Database.new(Phage::pathToDatabase())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
         objects = []
-        db.execute("select * from _objects_ where _mikuType_=?", [mikuType]) do |row|
-            objects << JSON.parse(row["_object_"])
-        end
-        db.close
+        Phage::databasesPathsForReading()
+            .each{|database_filepath|
+                db = SQLite3::Database.new(database_filepath)
+                db.busy_timeout = 117
+                db.busy_handler { |count| true }
+                db.results_as_hash = true
+                db.execute("select * from _objects_ where _mikuType_=?", [mikuType]) do |row|
+                    objects << JSON.parse(row["_object_"])
+                end
+                db.close
+            }
         objects
     end
 
     # Phage::getVariantsForUUID(uuid)
     def self.getVariantsForUUID(uuid)
-        db = SQLite3::Database.new(Phage::pathToDatabase())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
         objects = []
-        db.execute("select * from _objects_ where _uuid_=?", [uuid]) do |row|
-            objects << JSON.parse(row["_object_"])
-        end
-        db.close
+        Phage::databasesPathsForReading()
+            .each{|database_filepath|
+                db = SQLite3::Database.new(database_filepath)
+                db.busy_timeout = 117
+                db.busy_handler { |count| true }
+                db.results_as_hash = true
+                db.execute("select * from _objects_ where _uuid_=?", [uuid]) do |row|
+                    objects << JSON.parse(row["_object_"])
+                end
+                db.close
+            }
         objects
     end
 
@@ -130,7 +154,7 @@ class Phage
         object["phage_uuid"] = SecureRandom.uuid
         object["phage_time"] = Time.new.to_f
         FileSystemCheck::fsck_PhageItem(object, SecureRandom.hex, false)
-        db = SQLite3::Database.new(Phage::pathToDatabase())
+        db = SQLite3::Database.new(Phage::databasePathForWriting())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
