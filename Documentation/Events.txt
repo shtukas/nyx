@@ -32,10 +32,3 @@ We have two types of events
     "key"      : String
     "flag"     : Boolean
 }
-
-{
-    "mikuType" => "NxGraphEdge1",
-    "uuid1"    => uuid1,
-    "uuid2"    => uuid2,
-    "type"     => "arrow" # "bidirectional" | "arrow" | "none"
-}

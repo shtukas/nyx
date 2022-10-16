@@ -247,32 +247,28 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsck_NxGraphEdge1(event, runhash, verbose)
-    def self.fsck_NxGraphEdge1(event, runhash, verbose)
-        repeatKey = "#{runhash}:#{JSON.generate(event)}"
+    # FileSystemCheck::fsck_NxGraphEdge1(item, runhash, verbose)
+    def self.fsck_NxGraphEdge1(item, runhash, verbose)
+        repeatKey = "#{runhash}:#{JSON.generate(item)}"
         return if XCache::getFlag(repeatKey)
 
         if verbose then
-            puts "FileSystemCheck::fsck_NxGraphEdge1(#{JSON.pretty_generate(event)}, #{runhash}, #{verbose})"
+            puts "FileSystemCheck::fsck_NxGraphEdge1(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
         end
 
-        if event["mikuType"].nil? then
-            raise "event has no Miku type"
+        FileSystemCheck::phageCore(item, verbose)
+
+        if item["mikuType"].nil? then
+            raise "item has no Miku type"
         end
-        if event["mikuType"] != "NxGraphEdge1" then
+        if item["mikuType"] != "NxGraphEdge1" then
             raise "Incorrect Miku type for function"
         end
-        if event["uuid1"].nil? then
-            raise "Missing attribute uuid1"
-        end
-        if event["uuid2"].nil? then
-            raise "Missing attribute uuid2"
-        end
-        if event["type"].nil? then
-            raise "Missing attribute type"
-        end
-        if !["bidirectional", "arrow", "none"].include?(event["type"]) then
-            raise "incorrect value for type: #{event["type"]}"
+        FileSystemCheck::ensureAttribute(item, "uuid1", "String")
+        FileSystemCheck::ensureAttribute(item, "uuid2", "String")
+        FileSystemCheck::ensureAttribute(item, "type", "String")
+        if !["bidirectional", "arrow", "none"].include?(item["type"]) then
+            raise "incorrect value for type: #{item["type"]}"
         end
 
         XCache::setFlag(repeatKey, true)
@@ -334,6 +330,13 @@ class FileSystemCheck
             FileSystemCheck::fsck_Nx11E(item["nx11e"], verbose)
             FileSystemCheck::fsck_Nx113(item["nx113"], runhash, verbose)
             FileSystemCheck::fsck_Cx23(item["cx23"], verbose)
+            XCache::setFlag(repeatKey, true)
+            return
+        end
+
+
+        if mikuType == "NxGraphEdge1" then
+            FileSystemCheck::fsck_NxGraphEdge1(item, runhash, verbose)
             XCache::setFlag(repeatKey, true)
             return
         end

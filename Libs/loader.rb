@@ -50,7 +50,6 @@ checkLocation = lambda{|location|
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-Config.json")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-DataCenter/CommsLine")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-DataCenter/DataStore1")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-DataCenter/Instance-Databases")
 
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")

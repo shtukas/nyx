@@ -38,11 +38,6 @@ class SystemEvents
         if event["mikuType"] == "bank-account-set-un-done-today" then
             BankAccountDoneForToday::processEvent(event)
         end
-
-        if event["mikuType"] == "NxGraphEdge1" then
-            FileSystemCheck::fsck_NxGraphEdge1(event, SecureRandom.hex, false)
-            NetworkEdges::processEvent(event)
-        end
     end
 
     # SystemEvents::broadcast(event)

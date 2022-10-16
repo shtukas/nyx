@@ -6,11 +6,6 @@ class Phage
     # phage.sqlite3
     # create table _objects_ (_phage_uuid_ text primary key, _uuid_ text, _mikuType_ text, _object_ text);
 
-    # Phage::pathToDatabase()
-    def self.pathToDatabase()
-        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Instance-Databases/#{Config::get("instanceId")}/phage.sqlite3"
-    end
-
     # Phage::databasesPathsForReading()
     def self.databasesPathsForReading()
         LucilleCore::locationsAtFolder("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Phage")

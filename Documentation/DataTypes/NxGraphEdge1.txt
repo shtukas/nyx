@@ -1,0 +1,6 @@
+NxGraphEdge1 {
+    ... Stargate Item ("NxGraphEdge1")
+    "uuid1"    => uuid1,
+    "uuid2"    => uuid2,
+    "type"     => "arrow" # "bidirectional" | "arrow" | "none"
+}

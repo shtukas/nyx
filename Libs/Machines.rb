@@ -10,8 +10,7 @@ class Machines
 
     # Machines::theOtherInstanceIds()
     def self.theOtherInstanceIds()
-        instanceIds = Dir.entries("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Instance-Databases")
-                        .select{|filename| filename[0, 1] != "." }
+        instanceIds = ["Lucille18-pascal", "Lucille20-pascal", "Lucille20-guardian"]
         instanceIds - [Config::get("instanceId")]
     end
 end
