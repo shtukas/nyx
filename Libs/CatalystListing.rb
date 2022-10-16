@@ -688,7 +688,7 @@ class CatalystListing
                     LucilleCore::removeFileSystemLocation(location)
                 }
 
-            if PhageMaintenance::shouldReduceInventory() and instanceId == "Lucille20-pascal" then
+            if PhageMaintenance::shouldReduceInventory() and Config::get("instanceId") == "Lucille20-pascal" then
                 if LucilleCore::askQuestionAnswerAsBoolean("Reduce inventory now ? ") then
                     PhageMaintenance::reduceInventory2()
                 end

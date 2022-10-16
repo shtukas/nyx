@@ -304,9 +304,11 @@ class PhageMaintenance
     # PhageMaintenance::reduceInventory2()
     def self.reduceInventory2()
         return if !PhageMaintenance::shouldReduceInventory()
-        filepaths = PhageMaintenance::inventory().sort
-        filepath1 = filepaths[0]
-        filepath2 = filepaths[1]
-        PhageMaintenance::reduceInventory1(filepath1, filepath2)
+        while PhageMaintenance::shouldReduceInventory() do
+            filepaths = PhageMaintenance::inventory().sort
+            filepath1 = filepaths[0]
+            filepath2 = filepaths[1]
+            PhageMaintenance::reduceInventory1(filepath1, filepath2)
+        end
     end
 end
