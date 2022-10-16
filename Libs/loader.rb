@@ -229,6 +229,14 @@ if $RunNonEssentialThreads then
     if Config::get("instanceId") == "Lucille20-pascal" then 
         ThreadsX::startViennaImport()
     end
+
+    Thread.new {
+        loop {
+            sleep 12
+            The99Percent::displayLineFromScratchWithCacheUpdate()
+            sleep 600
+        }
+    }
 end
 
 # ------------------------------------------------------------

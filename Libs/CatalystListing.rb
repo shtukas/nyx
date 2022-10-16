@@ -591,16 +591,10 @@ class CatalystListing
         vspaceleft =  vspaceleft - CommonUtils::verticalSize(CatalystListing::listingCommands())
 
         if Config::get("instanceId") == "Lucille20-pascal" then
-            reference = The99Percent::getReferenceOrNull()
-            current   = The99Percent::getCurrentCount()
-            ratio     = current.to_f/reference["count"]
-            line      = "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
+            line = The99Percent::displayLineFromCache()
             puts ""
             puts line
             vspaceleft = vspaceleft - 2
-            if ratio < 0.99 then
-                The99Percent::issueNewReferenceOrNull()
-            end
         end
 
         store = ItemStore.new()

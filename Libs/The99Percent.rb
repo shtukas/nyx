@@ -41,4 +41,23 @@ class The99Percent
         current   = The99Percent::getCurrentCount()
         current.to_f/reference["count"]
     end
+
+    # The99Percent::displayLineFromScratchWithCacheUpdate()
+    def self.displayLineFromScratchWithCacheUpdate()
+        reference = The99Percent::getReferenceOrNull()
+        current   = The99Percent::getCurrentCount()
+        ratio     = current.to_f/reference["count"]
+        line      = "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
+        if ratio < 0.99 then
+            The99Percent::issueNewReferenceOrNull()
+            return "Just issued a new reference"
+        end
+        XCache::set("8c07eb2c-d7d0-489a-a6d1-7e66ecac5a69", line)
+        line
+    end
+
+    # The99Percent::displayLineFromCache()
+    def self.displayLineFromCache()
+        XCache::getOrNull("8c07eb2c-d7d0-489a-a6d1-7e66ecac5a69")
+    end
 end

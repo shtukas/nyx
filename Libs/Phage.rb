@@ -247,8 +247,8 @@ end
 
 class PhageMaintenance
 
-    # PhageMaintenance::reduceInventory1(filepath1, filepath2)
-    def self.reduceInventory1(filepath1, filepath2)
+    # PhageMaintenance::reduceInventory1(sourcefilepath, targetfilepath)
+    def self.reduceInventory1(sourcefilepath, targetfilepath)
 
         getPhageUUIDsAtDatabase = lambda {|filepath|
             phageuuids = []
@@ -263,30 +263,30 @@ class PhageMaintenance
             phageuuids
         }
 
-        phageuuids2 = getPhageUUIDsAtDatabase.call(filepath2)
+        targetphageuuids = getPhageUUIDsAtDatabase.call(targetfilepath)
 
-        db1 = SQLite3::Database.new(filepath1)
-        db1.busy_timeout = 117
-        db1.busy_handler { |count| true }
-        db1.results_as_hash = true
+        sourcedb = SQLite3::Database.new(sourcefilepath)
+        sourcedb.busy_timeout = 117
+        sourcedb.busy_handler { |count| true }
+        sourcedb.results_as_hash = true
 
-        db2 = SQLite3::Database.new(filepath2)
-        db2.busy_timeout = 117
-        db2.busy_handler { |count| true }
-        db2.results_as_hash = true
+        targetdb = SQLite3::Database.new(targetfilepath)
+        targetdb.busy_timeout = 117
+        targetdb.busy_handler { |count| true }
+        targetdb.results_as_hash = true
 
-        db1.execute("select * from _objects_", []) do |row|
+        sourcedb.execute("select * from _objects_", []) do |row|
             object = JSON.parse(row["_object_"])
-            next if phageuuids2.include?(object["phage_uuid"])
+            next if targetphageuuids.include?(object["phage_uuid"])
             puts "writing: phageuuid: #{object["phage_uuid"]}"
-            db2.execute "insert into _objects_ (_phage_uuid_, _uuid_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["phage_uuid"], object["uuid"], object["mikuType"], JSON.generate(object)]
+            targetdb.execute "insert into _objects_ (_phage_uuid_, _uuid_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["phage_uuid"], object["uuid"], object["mikuType"], JSON.generate(object)]
         end
 
-        db2.close
-        db1.close
+        targetdb.close
+        sourcedb.close
 
-        puts "removing file: #{filepath1}"
-        LucilleCore::removeFileSystemLocation(filepath1)
+        puts "removing file: #{sourcefilepath}"
+        LucilleCore::removeFileSystemLocation(sourcefilepath)
 
     end
 
@@ -308,7 +308,8 @@ class PhageMaintenance
             filepaths = PhageMaintenance::inventory().sort
             filepath1 = filepaths[0]
             filepath2 = filepaths[1]
-            PhageMaintenance::reduceInventory1(filepath1, filepath2)
+            # We reverse the files to put the smaller one into the bigger one
+            PhageMaintenance::reduceInventory1(filepath2, filepath1)
         end
     end
 end
