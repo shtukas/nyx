@@ -28,6 +28,11 @@ class Phage
             .first
     end
 
+    # Phage::databasesTrace()
+    def self.databasesTrace()
+        Digest::SHA1.hexdigest(Phage::databasesPathsForReading().join(":"))
+    end
+
     # GETTERS (variants)
 
     # Phage::variantsProjection(objects)
@@ -52,6 +57,12 @@ class Phage
 
     # Phage::variants()
     def self.variants()
+        trace = Phage::databasesTrace()
+        objects = XCache::getOrNull("#{trace}:157e9b6c-1a53-409e-8650-d415650e3cec")
+        if objects then
+            return JSON.parse(objects)
+        end
+
         objects = []
         Phage::databasesPathsForReading()
             .each{|database_filepath|
@@ -64,11 +75,20 @@ class Phage
                 end
                 db.close
             }
+
+        XCache::set("#{trace}:157e9b6c-1a53-409e-8650-d415650e3cec", JSON.generate(objects))
+
         objects
     end
 
     # Phage::variantsForMikuType(mikuType)
     def self.variantsForMikuType(mikuType)
+        trace = Phage::databasesTrace()
+        objects = XCache::getOrNull("#{trace}:01819d3a-54cd-4c71-8ad3-a7083815d3d4:#{mikuType}")
+        if objects then
+            return JSON.parse(objects)
+        end
+
         objects = []
         Phage::databasesPathsForReading()
             .each{|database_filepath|
@@ -81,11 +101,20 @@ class Phage
                 end
                 db.close
             }
+
+        XCache::set("#{trace}:01819d3a-54cd-4c71-8ad3-a7083815d3d4:#{mikuType}", JSON.generate(objects))
+
         objects
     end
 
     # Phage::getVariantsForUUID(uuid)
     def self.getVariantsForUUID(uuid)
+        trace = Phage::databasesTrace()
+        objects = XCache::getOrNull("#{trace}:d7889683-a09e-40e1-ba6d-42584d374dd3:#{uuid}")
+        if objects then
+            return JSON.parse(objects)
+        end
+
         objects = []
         Phage::databasesPathsForReading()
             .each{|database_filepath|
@@ -98,6 +127,10 @@ class Phage
                 end
                 db.close
             }
+        objects
+
+        XCache::set("#{trace}:d7889683-a09e-40e1-ba6d-42584d374dd3:#{uuid}", JSON.generate(objects))
+
         objects
     end
 
