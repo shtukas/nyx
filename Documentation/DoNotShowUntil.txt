@@ -1,4 +1,0 @@
-### NxDoNotShowUntil
-
-do-not-show-until.sqlite3
-create table _dnsu_ (_uuid_ text, _unixtime_ float);

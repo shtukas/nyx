@@ -1,0 +1,8 @@
+
+TxBankEvent {
+    ... Stargate Item ("TxBankEvent")
+    "setuuid"   => setuuid,
+    "unixtime"  => unixtime,
+    "date"      => date,
+    "weight"    => weight
+}

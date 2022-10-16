@@ -39,11 +39,3 @@ We have two types of events
     "uuid2"    => uuid2,
     "type"     => "arrow" # "bidirectional" | "arrow" | "none"
 }
-
-{
-    "mikuType"  => "TxBankEvent",
-    "setuuid"   => setuuid,
-    "unixtime"  => unixtime,
-    "date"      => date,
-    "weight"    => weight
-}

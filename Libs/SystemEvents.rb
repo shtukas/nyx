@@ -15,10 +15,6 @@ class SystemEvents
 
         # ordering: as they come
 
-        if event["mikuType"] == "TxBankEvent" then
-            Bank::processEvent(event)
-        end
-
         if event["mikuType"] == "NxDoNotShowUntil" then
             DoNotShowUntil::processEvent(event)
         end

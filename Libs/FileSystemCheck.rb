@@ -200,33 +200,24 @@ class FileSystemCheck
         FileSystemCheck::ensureAttribute(item, "unitId", "String")
     end
 
-    # FileSystemCheck::fsck_TxBankEvent(event, runhash, verbose)
-    def self.fsck_TxBankEvent(event, runhash, verbose)
-        repeatKey = "#{runhash}:#{JSON.generate(event)}"
+    # FileSystemCheck::fsck_TxBankEvent(item, runhash, verbose)
+    def self.fsck_TxBankEvent(item, runhash, verbose)
+        repeatKey = "#{runhash}:#{JSON.generate(item)}"
         return if XCache::getFlag(repeatKey)
 
         if verbose then
-            puts "FileSystemCheck::fsck_TxBankEvent(#{JSON.pretty_generate(event)}, #{runhash}, #{verbose})"
+            puts "FileSystemCheck::fsck_TxBankEvent(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
         end
 
-        if event["mikuType"].nil? then
-            raise "event has no Miku type"
-        end
-        if event["mikuType"] != "TxBankEvent" then
+        FileSystemCheck::phageCore(item, verbose)
+
+        if item["mikuType"] != "TxBankEvent" then
             raise "Incorrect Miku type for function"
         end
-        if event["setuuid"].nil? then
-            raise "Missing attribute setuuid"
-        end
-        if event["unixtime"].nil? then
-            raise "Missing attribute unixtime"
-        end
-        if event["date"].nil? then
-            raise "Missing attribute date"
-        end
-        if event["weight"].nil? then
-            raise "Missing attribute weight"
-        end
+        FileSystemCheck::ensureAttribute(item, "setuuid", "String")
+        FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+        FileSystemCheck::ensureAttribute(item, "date", "String")
+        FileSystemCheck::ensureAttribute(item, "weight", "Number")
 
         XCache::setFlag(repeatKey, true)
     end
@@ -350,6 +341,14 @@ class FileSystemCheck
         if mikuType == "NyxNode" then
             FileSystemCheck::ensureAttribute(item, "description", "String")
             FileSystemCheck::fsck_Nx113(item["nx113"], runhash, verbose)
+            XCache::setFlag(repeatKey, true)
+            return
+        end
+
+        if mikuType == "TxBankEvent" then
+            FileSystemCheck::ensureAttribute(item, "setuuid", "String")
+            FileSystemCheck::ensureAttribute(item, "date", "String")
+            FileSystemCheck::ensureAttribute(item, "weight", "Number")
             XCache::setFlag(repeatKey, true)
             return
         end

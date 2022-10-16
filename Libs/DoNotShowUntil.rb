@@ -4,20 +4,9 @@
 
 class DoNotShowUntil
 
-    # DoNotShowUntil::pathToDatabase()
-    def self.pathToDatabase()
-        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Instance-Databases/#{Config::get("instanceId")}/do-not-show-until.sqlite3"
-    end
-
     # DoNotShowUntil::setUnixtime(uuid, unixtime)
     def self.setUnixtime(uuid, unixtime)
-        db = SQLite3::Database.new(DoNotShowUntil::pathToDatabase())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute "delete from _dnsu_ where _uuid_=?", [uuid]
-        db.execute "insert into _dnsu_ (_uuid_, _unixtime_) values (?, ?)", [uuid, unixtime]
-        db.close
+        XCache::set("acc88746-0f3b-45ec-83b4-b511cc1563a4:#{uuid}", unixtime)
         SystemEvents::broadcast({
             "mikuType"       => "NxDoNotShowUntil",
             "targetuuid"     => uuid,
@@ -31,28 +20,14 @@ class DoNotShowUntil
             FileSystemCheck::fsck_NxDoNotShowUntil(event, SecureRandom.hex, false)
             uuid     = event["targetuuid"]
             unixtime = event["targetunixtime"]
-            db = SQLite3::Database.new(DoNotShowUntil::pathToDatabase())
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute "delete from _dnsu_ where _uuid_=?", [uuid]
-            db.execute "insert into _dnsu_ (_uuid_, _unixtime_) values (?, ?)", [uuid, unixtime]
-            db.close
+            XCache::set("acc88746-0f3b-45ec-83b4-b511cc1563a4:#{uuid}", unixtime)
         end
     end
 
     # DoNotShowUntil::getUnixtimeOrNull(uuid)
     def self.getUnixtimeOrNull(uuid)
-        db = SQLite3::Database.new(DoNotShowUntil::pathToDatabase())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        unixtime = nil
-        db.execute("select * from _dnsu_ where _uuid_=?", [uuid]) do |row|
-            unixtime = row["_unixtime_"]
-        end
-        db.close
-        unixtime
+        unixtime = XCache::getOrNull("acc88746-0f3b-45ec-83b4-b511cc1563a4:#{uuid}")
+        unixtime ? unixtime.to_f : nil
     end
 
     # DoNotShowUntil::getDateTimeOrNull(uuid)

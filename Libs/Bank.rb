@@ -1,48 +1,22 @@
 # encoding: UTF-8
 
-# create table _bank_ (_eventuuid_ text primary key, _setuuid_ text, _unixtime_ float, _date_ text, _weight_ float);
-
 class Bank
-
-    # Bank::pathToDatabase()
-    def self.pathToDatabase()
-        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Instance-Databases/#{Config::get("instanceId")}/bank.sqlite3"
-    end
 
     # Bank::put(setuuid, weight: Float) # Used by regular activity. Emits events for the other computer,
     def self.put(setuuid, weight)
-        db = SQLite3::Database.new(Bank::pathToDatabase())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute "insert into _bank_ (_setuuid_, _unixtime_, _date_, _weight_) values (?, ?, ?, ?)", [setuuid, Time.new.to_i, CommonUtils::today(), weight]
-        db.close
-        SystemEvents::broadcast({
-            "mikuType"  => "TxBankEvent",
-            "setuuid"   => setuuid,
-            "unixtime"  => Time.new.to_i,
-            "date"      => CommonUtils::today(),
-            "weight"    => weight
+        Phage::commit({
+            "phage_uuid"  => SecureRandom.uuid,
+            "phage_time"  => Time.new.to_f,
+            "phage_alive" => Time.new.to_f,
+            "uuid"        => SecureRandom.uuid,
+            "mikuType"    => "TxBankEvent",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "setuuid"     => setuuid,
+            "date"        => CommonUtils::today(),
+            "weight"      => weight
         })
         XCache::destroy("256e3994-7469-46a8-abd2-238bb25d5976:#{setuuid}:#{CommonUtils::today()}")
-    end
-
-    # Bank::processEvent(event)
-    def self.processEvent(event)
-        if event["mikuType"] == "TxBankEvent" then
-            FileSystemCheck::fsck_TxBankEvent(event, SecureRandom.hex, false)
-            setuuid  = event["event"]
-            unixtime = event["unixtime"]
-            date     = event["date"]
-            weight   = event["weight"]
-            db = SQLite3::Database.new(Bank::pathToDatabase())
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute "insert into _bank_ (_setuuid_, _unixtime_, _date_, _weight_) values (?, ?, ?, ?)", [setuuid, unixtime, date, weight]
-            db.close
-            XCache::destroy("256e3994-7469-46a8-abd2-238bb25d5976:#{setuuid}:#{date}") # decaching the value for that date
-        end
     end
 
     # Bank::valueAtDate(setuuid, date)
@@ -50,16 +24,10 @@ class Bank
         value = XCache::getOrNull("256e3994-7469-46a8-abd2-238bb25d5976:#{setuuid}:#{date}")
         return value.to_f if value
 
-        db = SQLite3::Database.new(Bank::pathToDatabase())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        value = 0
-        db.execute("select * from _bank_ where _setuuid_=? and _date_=?", [setuuid, date]) do |row|
-            value = value + row["_weight_"]
-        end
-        db.close
-        value
+        Phage::objectsForMikuType("TxBankEvent")
+            .select{|item| item["setuuid"] == setuuid }
+            .select{|item| item["date"] == date }
+            .inject(0, :+)
 
         XCache::set("256e3994-7469-46a8-abd2-238bb25d5976:#{setuuid}:#{date}", value)
 
