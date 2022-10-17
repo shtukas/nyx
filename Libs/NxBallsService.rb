@@ -110,7 +110,7 @@ class NxBallsService
         return if nxball["status"]["type"] != "running"
         referenceTimeForUnrealisedAccounting = nxball["status"]["lastMarginCallUnixtime"] ? nxball["status"]["lastMarginCallUnixtime"] : nxball["status"]["thisSprintStartUnixtime"]
         return if (Time.new.to_f - referenceTimeForUnrealisedAccounting) < 600
-        NxBallsService::marginCall(uuid)
+        NxBallsService::marginCall(nxball["uuid"])
     end
 
     # NxBallsService::pause(nxBallOpt)
