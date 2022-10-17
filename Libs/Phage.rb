@@ -8,6 +8,18 @@ class Phage
 
     # UTILS
 
+    # Phage::variantsToUniqueVariants(variants)
+    def self.variantsToUniqueVariants(variants)
+        answer = []
+        phage_uuids_recorded = {}
+        variants.each{|variant|
+            next if phage_uuids_recorded[variant["phage_uuid"]]
+            answer << variant
+            phage_uuids_recorded[variant["phage_uuid"]] = true
+        }
+        answer
+    end
+
     # Phage::variantsToObjectsUUIDed(objects)
     def self.variantsToObjectsUUIDed(objects)
         higestOfTwo = lambda {|o1Opt, o2|
@@ -140,11 +152,6 @@ class PhageRefactoring
         PhageRefactoring::objectsForMikuType(mikuType).size
     end
 
-    # PhageRefactoring::variantsForMikuType(mikuType)
-    def self.variantsForMikuType(mikuType)
-        Phage::variantsEnumerator().select{|item| item["mikuType"] == mikuType }
-    end
-
     # PhageRefactoring::getVariantsForUUID(uuid)
     def self.getVariantsForUUID(uuid)
         Phage::variantsEnumerator().select{|item| item["uuid"] == uuid }
@@ -157,7 +164,7 @@ class PhageRefactoring
 
     # PhageRefactoring::objectsForMikuType(mikuType)
     def self.objectsForMikuType(mikuType)
-        Phage::variantsToObjectsUUIDed(PhageRefactoring::variantsForMikuType(mikuType))
+        Phage::variantsToObjectsUUIDed(PhageAgentMikutypes::mikuTypeToVariants(mikuType))
     end
 
     # PhageRefactoring::getObjectOrNull(uuid)
@@ -185,5 +192,34 @@ class PhageRefactoring
         return if object.nil?
         object["phage_alive"] = false
         Phage::commit(object)
+    end
+end
+
+class PhageAgentMikutypes
+
+    # PhageAgentMikutypes::mikuTypeToVariants(mikuType)
+    def self.mikuTypeToVariants(mikuType)
+
+        variants = []
+
+        v1s = XCache::getOrNull("19ad36f6-24fb-4ab9-b4bc-1f3aa58cf1d6:#{mikuType}")
+        if v1s then
+            JSON.parse(v1s).each{|variant|
+                variants << variant
+            }
+        end
+
+        Phage::newIshVariantsOnChannelEnumerator("f7f5e1bb-8154-4f14-a2c4-bb591095c5d1:#{mikuType}")
+            .each{|variant|
+                next if variant["mikuType"] != mikuType
+                variants << variant
+            }
+
+        variants = Phage::variantsToUniqueVariants(variants)
+
+        XCache::set("19ad36f6-24fb-4ab9-b4bc-1f3aa58cf1d6:#{mikuType}", JSON.generate(variants))
+
+        variants
+
     end
 end
