@@ -189,10 +189,13 @@ class PhageAgentObjects
 
     # PhageAgentObjects::getObjectVariants(uuid)
     def self.getObjectVariants(uuid)
+
+        variants = []
+
         phagedatatrace = Phage::datatrace()
-        variants = XCache::getOrNull("e5798be0-6986-4aff-8d43-da87641c443d:#{phagedatatrace}:#{uuid}")
-        if variants then
-            return JSON.parse(variants)
+        data = XCache::getOrNull("e5798be0-6986-4aff-8d43-da87641c443d:#{phagedatatrace}:#{uuid}")
+        if data then
+            return JSON.parse(data)
         end
 
         v1s = XCache::getOrNull("2fdd2ad1-930c-429b-b74e-560baf6d3d67:#{uuid}")
