@@ -152,10 +152,7 @@ class Streaming
                 next
             end
 
-            CatalystListing::listingItems().each{|item|
-                system("clear")
-                Streaming::runItem(item, "awaiting start")
-            }
+            Streaming::runItem(CatalystListing::listingItemsInPriorityOrderDesc().first, "awaiting start")
         }
     end
 end
