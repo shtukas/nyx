@@ -8,10 +8,17 @@ class Streaming
         return if PhagePublic::getObjectOrNull(item["uuid"]).nil?
 
         if state == "awaiting start" then
-            input = LucilleCore::askQuestionAnswerAsString("[#{state}] #{PolyFunctions::toString(item).green} (.. | start | done | time | skip | landing | exit |commands) : ")
+            input = LucilleCore::askQuestionAnswerAsString("[#{state}] #{PolyFunctions::toString(item).green} (.. | start | done | time | skip | +(datecode) | landing | exit | commands) : ")
             if input == "" then
                 Streaming::runItem(item, state)
             end
+
+            if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
+                PolyActions::stop(item)
+                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+                return
+            end
+
             if input == ".." then
                 PolyActions::doubleDot(item)
             end
@@ -51,6 +58,7 @@ class Streaming
             if input == "" then
                 Streaming::runItem(item, state)
             end
+
             if input == "access" then
                 PolyActions::access(item)
                 Streaming::runItem(item, "running")
@@ -80,10 +88,17 @@ class Streaming
         end
 
         if state == "stopped" then
-            input = LucilleCore::askQuestionAnswerAsString("[#{state}] #{PolyFunctions::toString(item).green} (.. | start | done | skip | landing | commands) : ")
+            input = LucilleCore::askQuestionAnswerAsString("[#{state}] #{PolyFunctions::toString(item).green} (.. | start | done | skip | +(datecode) | landing | commands) : ")
             if input == "" then
                 Streaming::runItem(item, state)
             end
+
+            if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
+                PolyActions::stop(item)
+                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+                return
+            end
+
             if input == ".." then
                 PolyActions::doubleDot(item)
                 Streaming::runItem(item, "running")
