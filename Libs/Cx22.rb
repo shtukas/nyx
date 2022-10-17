@@ -116,6 +116,15 @@ class Cx22
         Cx23::interactivelySetCx23ForItemOrNothing(item)
     end
 
+    # Cx22::nextPositionForCx22(cx22)
+    def self.nextPositionForCx22(cx22)
+        (NxTodos::items()
+            .select{|item| item["cx22"] }
+            .select{|item| item["cx22"] == cx22["uuid"] }
+            .select{|item| item["cx23"] }
+            .map{|item| item["cx23"]["position"] } + [0]).max
+    end
+
     # Cx22::elementsDive(cx22)
     def self.elementsDive(cx22)
         loop {
@@ -135,7 +144,7 @@ class Cx22
                     end
                 }
             puts ""
-            puts "<n> | insert | position <n> <position> | start <n> | stop <n> | pause <n> | pursue <n> | done <n> | reissue positions sequence | exit".yellow
+            puts "<n> | insert | position <n> <position> | start <n> | access <n> | stop <n> | pause <n> | pursue <n> | done <n> | reissue positions sequence | exit".yellow
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
             return if input == "exit"
@@ -161,7 +170,8 @@ class Cx22
                                 next
                             end
                             if position == "next" then
-                                return Cx23::makeCx23(cx22, Time.new.to_f)
+                                position = Cx22::nextPositionForCx22(cx22) + 1
+                                return Cx23::makeCx23(cx22, position)
                             end
                             return Cx23::makeCx23(cx22, position.to_f)
                         }
@@ -176,6 +186,14 @@ class Cx22
                 entity = store.get(indx)
                 next if entity.nil?
                 PolyActions::start(entity)
+                next
+            end
+
+            if input.start_with?("access") then
+                indx = input[6, 99].strip.to_i
+                entity = store.get(indx)
+                next if entity.nil?
+                PolyActions::access(entity)
                 next
             end
 
