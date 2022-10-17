@@ -265,13 +265,15 @@ class PolyActions
         if item["nx113"] then
             nx113 = Nx113Access::getNx113(item["nx113"])
             if nx113["type"] == "Dx8Unit" then
-                PhagePublic::commit({
+                dx33 = {
                     "uuid"     => SecureRandom.uuid,
                     "mikuType" => "Dx33",
                     "unixtime" => Time.new.to_f,
                     "datetime" => Time.new.utc.iso8601,
                     "unitId"   => nx113["unitId"]
-                })
+                }
+                puts JSON.pretty_generate(dx33)
+                PhagePublic::commit(dx33)
             end
         end
     end
