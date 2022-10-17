@@ -8,14 +8,14 @@ class NxBallsIO
 
     # NxBallsIO::nxballs()
     def self.nxballs()
-        PhageAgentMikutypes::mikuTypeToObjects("NxBall.v2")
+        PhageAgentObjects::mikuTypeToObjects("NxBall.v2")
     end
 
     # NxBallsIO::getItem(uuid)
     def self.getItem(uuid)
         # This uuid is sometimes the uuid of the NxBall, but sometimes the uuid of an unuspecting item (the owner). 
         # This is because when we want to get the NxBall, we sometimes submit the uuid of the item itself.
-        item = PhageRefactoring::getObjectOrNull(uuid)
+        item = PhageExtension::getObjectOrNull(uuid)
         return item if (item and item["mikuType"] == "NxBall.v2")
         NxBallsIO::nxballs()
             .select{|item| item["owneruuid"] == uuid }
@@ -31,7 +31,7 @@ class NxBallsIO
     def self.destroyItem(uuid)
         item = NxBallsIO::getItem(uuid)
         return if item.nil?
-        PhageRefactoring::destroy(item["uuid"])
+        PhageExtension::destroy(item["uuid"])
     end
 
 end

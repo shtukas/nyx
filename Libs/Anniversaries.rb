@@ -83,7 +83,7 @@ class Anniversaries
 
     # Anniversaries::anniversaries()
     def self.anniversaries()
-        PhageAgentMikutypes::mikuTypeToObjects("NxAnniversary")
+        PhageAgentObjects::mikuTypeToObjects("NxAnniversary")
     end
 
     # Anniversaries::issueNewAnniversaryOrNullInteractively()
@@ -141,7 +141,7 @@ class Anniversaries
 
     # Anniversaries::done(uuid)
     def self.done(uuid)
-        PhageRefactoring::setAttribute2(uuid, "lastCelebrationDate", Time.new.to_s[0, 10])
+        PhageExtension::setAttribute2(uuid, "lastCelebrationDate", Time.new.to_s[0, 10])
     end
 
     # Anniversaries::access(anniversary)
@@ -193,7 +193,7 @@ class Anniversaries
             return nil if item.nil?
 
             uuid = item["uuid"]
-            item = PhageRefactoring::getObjectOrNull(uuid)
+            item = PhageExtension::getObjectOrNull(uuid)
             return nil if item.nil?
 
             system("clear")

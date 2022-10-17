@@ -60,6 +60,21 @@ class Phage
         filepath
     end
 
+    # Phage::datatrace()
+    def self.datatrace()
+        Phage::databasesPathsForReading()
+            .sort
+            .map{|filepath|
+                {
+                    "filepath" => filepath,
+                    "filetime" => File.mtime(filepath).to_s
+                }
+            }
+            .reduce(""){|trace, packet|
+                Digest::SHA1.hexdigest("#{trace}:#{packet}")
+            }
+    end
+
     # SETTERS (1)
 
     # Phage::commit(object)
@@ -127,44 +142,16 @@ class Phage
 
 end
 
-class PhageRefactoring
+class PhageExtension
 
-    # PhageRefactoring::nx20sTypes()
-    def self.nx20sTypes()
-        ["NxTodo", "Wave", "NyxNode"]
-    end
-
-    # PhageRefactoring::nx20s() # Array[Nx20]
-    def self.nx20s()
-        phageObjects = PhageRefactoring::objects().select{|object| PhageRefactoring::nx20sTypes().include?(object["mikuType"]) }
-        phageObjects
-            .map{|object|
-                {
-                    "announce" => "(#{object["mikuType"]}) #{PolyFunctions::genericDescriptionOrNull(object)}",
-                    "unixtime" => object["unixtime"],
-                    "item"     => object
-                }
-            }
-    end
-
-    # PhageRefactoring::mikuTypeCount(mikuType) # Integer
-    def self.mikuTypeCount(mikuType)
-        PhageAgentMikutypes::mikuTypeToObjects(mikuType).size
-    end
-
-    # PhageRefactoring::getVariantsForUUID(uuid)
+    # PhageExtension::getVariantsForUUID(uuid)
     def self.getVariantsForUUID(uuid)
         Phage::variantsEnumerator().select{|item| item["uuid"] == uuid }
     end
 
-    # PhageRefactoring::objects()
-    def self.objects()
-        Phage::variantsToObjects(Phage::variantsEnumerator().to_a)
-    end
-
-    # PhageRefactoring::getObjectOrNull(uuid)
+    # PhageExtension::getObjectOrNull(uuid)
     def self.getObjectOrNull(uuid)
-        objects = Phage::variantsToObjects(PhageRefactoring::getVariantsForUUID(uuid))
+        objects = Phage::variantsToObjects(PhageExtension::getVariantsForUUID(uuid))
         # The number of objects should be zero or one
         if objects.size > 1 then
             raise "(error: 1de85ac2-1788-448c-929f-e9d8e4d913df) unusual number of objects found for uuid: #{uuid}, found #{objects.size}"
@@ -172,18 +159,18 @@ class PhageRefactoring
         objects.first
     end
 
-    # PhageRefactoring::setAttribute2(objectuuid, attname, attvalue)
+    # PhageExtension::setAttribute2(objectuuid, attname, attvalue)
     def self.setAttribute2(objectuuid, attname, attvalue)
-        item = PhageRefactoring::getObjectOrNull(objectuuid)
+        item = PhageExtension::getObjectOrNull(objectuuid)
         return if item.nil?
         item[attname] = attvalue
         Phage::commit(item)
     end
 
-    # PhageRefactoring::destroy(uuid)
+    # PhageExtension::destroy(uuid)
     def self.destroy(uuid)
         # We extract the latest variant, if there is any, and flip it
-        object = PhageRefactoring::getObjectOrNull(uuid)
+        object = PhageExtension::getObjectOrNull(uuid)
         return if object.nil?
         object["phage_alive"] = false
         Phage::commit(object)
@@ -194,7 +181,16 @@ class PhageAgentMikutypes
 
     # PhageAgentMikutypes::mikuTypeToVariants(mikuType)
     def self.mikuTypeToVariants(mikuType)
+
         variants = []
+
+        phagedatatrace = Phage::datatrace()
+
+        data = XCache::getOrNull("2114d32b-c865-4aea-a419-ef43378b9af3:#{phagedatatrace}:#{mikuType}")
+        if data then
+            return JSON.parse(data)
+        end
+
         v1s = XCache::getOrNull("19ad36f6-24fb-4ab9-b4bc-1f3aa58cf1d6:#{mikuType}")
         if v1s then
             JSON.parse(v1s).each{|variant|
@@ -208,11 +204,41 @@ class PhageAgentMikutypes
             }
         variants = Phage::variantsToUniqueVariants(variants)
         XCache::set("19ad36f6-24fb-4ab9-b4bc-1f3aa58cf1d6:#{mikuType}", JSON.generate(variants))
+
+        XCache::set("2114d32b-c865-4aea-a419-ef43378b9af3:#{phagedatatrace}:#{mikuType}", JSON.generate(variants))
+
         variants
     end
+end
 
-    # PhageAgentMikutypes::mikuTypeToObjects(mikuType)
+class PhageAgentObjects
+
+    # PhageAgentObjects::objects()
+    def self.objects()
+        Phage::variantsToObjects(Phage::variantsEnumerator().to_a)
+    end
+
+    # PhageAgentObjects::mikuTypeToObjects(mikuType)
     def self.mikuTypeToObjects(mikuType)
-        Phage::variantsToObjects(PhageAgentMikutypes::mikuTypeToVariants(mikuType))
+        phagedatatrace = Phage::datatrace()
+        objects = XCache::getOrNull("62c5c064-d8b8-4cf4-8d9e-f7f1826fe529:#{phagedatatrace}:#{mikuType}")
+        if objects then
+            return JSON.parse(objects)
+        end
+        objects = Phage::variantsToObjects(PhageAgentMikutypes::mikuTypeToVariants(mikuType))
+        XCache::set("62c5c064-d8b8-4cf4-8d9e-f7f1826fe529:#{phagedatatrace}:#{mikuType}", JSON.generate(objects))
+        objects
+    end
+
+    # PhageAgentObjects::mikuTypeObjectCount(mikuType) # Integer
+    def self.mikuTypeObjectCount(mikuType)
+        phagedatatrace = Phage::datatrace()
+        count = XCache::getOrNull("50800c36-e636-4867-beeb-9aab5dac0fa8:#{phagedatatrace}:#{mikuType}")
+        if count then
+            return count.to_i
+        end
+        count = PhageAgentObjects::mikuTypeToObjects(mikuType).size
+        XCache::set("50800c36-e636-4867-beeb-9aab5dac0fa8:#{phagedatatrace}:#{mikuType}", count)
+        count
     end
 end

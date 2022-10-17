@@ -3,12 +3,12 @@ class Cx22
 
     # Cx22::items()
     def self.items()
-        PhageAgentMikutypes::mikuTypeToObjects("Cx22")
+        PhageAgentObjects::mikuTypeToObjects("Cx22")
     end
 
     # Cx22::getOrNull(uuid)
     def self.getOrNull(uuid)
-        PhageRefactoring::getObjectOrNull(uuid)
+        PhageExtension::getObjectOrNull(uuid)
     end
 
     # --------------------------------------------
@@ -103,16 +103,16 @@ class Cx22
     def self.interactivelySetANewContributionForItemOrNothing(item)
         cx22 = Cx22::architectOrNull()
         return if cx22.nil?
-        PhageRefactoring::setAttribute2(item["uuid"], "cx22", cx22["uuid"])
-        PhageRefactoring::getObjectOrNull(item["uuid"])
+        PhageExtension::setAttribute2(item["uuid"], "cx22", cx22["uuid"])
+        PhageExtension::getObjectOrNull(item["uuid"])
     end
 
     # Cx22::interactivelySetANewContributionForItemWithPositionOrNothing(item) # item
     def self.interactivelySetANewContributionForItemWithPositionOrNothing(item)
         cx22 = Cx22::architectOrNull()
         return if cx22.nil?
-        PhageRefactoring::setAttribute2(item["uuid"], "cx22", cx22["uuid"])
-        item = PhageRefactoring::getObjectOrNull(item["uuid"])
+        PhageExtension::setAttribute2(item["uuid"], "cx22", cx22["uuid"])
+        item = PhageExtension::getObjectOrNull(item["uuid"])
         Cx23::interactivelySetCx23ForItemOrNothing(item)
     end
 
@@ -221,7 +221,7 @@ class Cx22
                 entity = store.get(indx)
                 next if entity.nil?
                 cx23 = Cx23::makeCx23(cx22, position)
-                PhageRefactoring::setAttribute2(entity["uuid"], "cx23", cx23)
+                PhageExtension::setAttribute2(entity["uuid"], "cx23", cx23)
                 next
             end
 

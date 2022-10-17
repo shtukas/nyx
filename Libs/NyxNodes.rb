@@ -5,7 +5,7 @@ class NyxNodes
 
     # NyxNodes::items()
     def self.items()
-        PhageAgentMikutypes::mikuTypeToObjects("NyxNode")
+        PhageAgentObjects::mikuTypeToObjects("NyxNode")
     end
 
     # NyxNodes::networkType()
@@ -170,7 +170,7 @@ class NyxNodes
     # NyxNodes::edit(item) # item
     def self.edit(item)
         Nx113Edit::edit(item)
-        PhageRefactoring::getObjectOrNull(item["uuid"])
+        PhageExtension::getObjectOrNull(item["uuid"])
     end
 
     # NyxNodes::landing(item)
@@ -178,7 +178,7 @@ class NyxNodes
         loop {
             return nil if item.nil?
             uuid = item["uuid"]
-            item = PhageRefactoring::getObjectOrNull(uuid)
+            item = PhageExtension::getObjectOrNull(uuid)
             return nil if item.nil?
             system("clear")
             puts NyxNodes::toString(item)
