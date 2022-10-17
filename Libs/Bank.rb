@@ -21,18 +21,11 @@ class Bank
 
     # Bank::valueAtDate(setuuid, date)
     def self.valueAtDate(setuuid, date)
-        value = XCache::getOrNull("256e3994-7469-46a8-abd2-238bb25d5976:#{setuuid}:#{date}")
-        return value.to_f if value
-
         PhagePublic::mikuTypeToObjects("TxBankEvent")
             .select{|item| item["setuuid"] == setuuid }
             .select{|item| item["date"] == date }
             .map{|item| item["weight"] }
             .inject(0, :+)
-
-        XCache::set("256e3994-7469-46a8-abd2-238bb25d5976:#{setuuid}:#{date}", value)
-
-        value
     end
 
     # Bank::combinedValueOnThoseDays(setuuid, dates)
