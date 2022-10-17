@@ -17,7 +17,7 @@ class TxManualCountDowns
 
     # TxManualCountDowns::destroy(uuid)
     def self.destroy(uuid)
-        PhageExtension::destroy(uuid)
+        PhageAgentObjects::destroy(uuid)
     end
 
     # Makers

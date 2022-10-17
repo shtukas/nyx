@@ -66,7 +66,7 @@ class PolyActions
     def self.destroyWithPrompt(item)
         PolyActions::stop(item)
         if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{PolyFunctions::toString(item).green}' ") then
-            PhageExtension::destroy(item["uuid"])
+            PhageAgentObjects::destroy(item["uuid"])
         end
     end
 
@@ -108,13 +108,13 @@ class PolyActions
                             return
                         end
                         if action == "keep as standard and return to listing" then
-                            PhageExtension::setAttribute2(item["uuid"], "nx11e", Nx11E::makeStandard())
+                            PhageAgentObjects::setAttribute2(item["uuid"], "nx11e", Nx11E::makeStandard())
                             return
                         end
                     end
                     if action == "standard >> contribution" then
-                        PhageExtension::setAttribute2(item["uuid"], "nx11e", Nx11E::makeStandard())
-                        item = PhageExtension::getObjectOrNull(item["uuid"])
+                        PhageAgentObjects::setAttribute2(item["uuid"], "nx11e", Nx11E::makeStandard())
+                        item = PhageAgentObjects::getObjectOrNull(item["uuid"])
                         Cx22::interactivelySetANewContributionForItemOrNothing(item)
                         return
                     end
@@ -228,14 +228,14 @@ class PolyActions
     def self.editDatetime(item)
         datetime = CommonUtils::editTextSynchronously(item["datetime"]).strip
         return if !CommonUtils::isDateTime_UTC_ISO8601(datetime)
-        PhageExtension::setAttribute2(item["uuid"], "datetime", datetime)
+        PhageAgentObjects::setAttribute2(item["uuid"], "datetime", datetime)
     end
 
     # PolyActions::editDescription(item)
     def self.editDescription(item)
         description = CommonUtils::editTextSynchronously(item["description"]).strip
         return if description == ""
-        PhageExtension::setAttribute2(item["uuid"], "description", description)
+        PhageAgentObjects::setAttribute2(item["uuid"], "description", description)
     end
 
     # PolyActions::editStartDate(item)
@@ -248,7 +248,7 @@ class PolyActions
 
         startdate = CommonUtils::editTextSynchronously(item["startdate"])
         return if startdate == ""
-        PhageExtension::setAttribute2(item["uuid"], "startdate",   startdate)
+        PhageAgentObjects::setAttribute2(item["uuid"], "startdate",   startdate)
     end
 
     # PolyActions::garbageCollectionAfterItemDeletion(item)
@@ -314,14 +314,14 @@ class PolyActions
             return
         end
         datetime = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
-        PhageExtension::setAttribute2(item["uuid"], "nx11e", Nx11E::makeOndate(datetime))
+        PhageAgentObjects::setAttribute2(item["uuid"], "nx11e", Nx11E::makeOndate(datetime))
     end
 
     # PolyActions::setNx113(item)
     def self.setNx113(item)
         nx113 = Nx113Make::interactivelyMakeNx113OrNull()
         return if nx113.nil?
-        PhageExtension::setAttribute2(item["uuid"], "nx113", nx113)
+        PhageAgentObjects::setAttribute2(item["uuid"], "nx113", nx113)
     end
 
     # PolyActions::start(item)
@@ -355,9 +355,9 @@ class PolyActions
                     puts "You are going to lose the data"
                     return if !LucilleCore::askQuestionAnswerAsBoolean("confirm operation: ")
                 end
-                PhageExtension::setAttribute2(item["uuid"], "networkType", networkType)
-                PhageExtension::setAttribute2(item["uuid"], "mikuType", "NyxNode")
-                item = PhageExtension::getObjectOrNull(item["uuid"])
+                PhageAgentObjects::setAttribute2(item["uuid"], "networkType", networkType)
+                PhageAgentObjects::setAttribute2(item["uuid"], "mikuType", "NyxNode")
+                item = PhageAgentObjects::getObjectOrNull(item["uuid"])
                 NyxNodes::landing(item)
             end
         end

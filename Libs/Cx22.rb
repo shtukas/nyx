@@ -8,7 +8,7 @@ class Cx22
 
     # Cx22::getOrNull(uuid)
     def self.getOrNull(uuid)
-        PhageExtension::getObjectOrNull(uuid)
+        PhageAgentObjects::getObjectOrNull(uuid)
     end
 
     # --------------------------------------------
@@ -103,16 +103,16 @@ class Cx22
     def self.interactivelySetANewContributionForItemOrNothing(item)
         cx22 = Cx22::architectOrNull()
         return if cx22.nil?
-        PhageExtension::setAttribute2(item["uuid"], "cx22", cx22["uuid"])
-        PhageExtension::getObjectOrNull(item["uuid"])
+        PhageAgentObjects::setAttribute2(item["uuid"], "cx22", cx22["uuid"])
+        PhageAgentObjects::getObjectOrNull(item["uuid"])
     end
 
     # Cx22::interactivelySetANewContributionForItemWithPositionOrNothing(item) # item
     def self.interactivelySetANewContributionForItemWithPositionOrNothing(item)
         cx22 = Cx22::architectOrNull()
         return if cx22.nil?
-        PhageExtension::setAttribute2(item["uuid"], "cx22", cx22["uuid"])
-        item = PhageExtension::getObjectOrNull(item["uuid"])
+        PhageAgentObjects::setAttribute2(item["uuid"], "cx22", cx22["uuid"])
+        item = PhageAgentObjects::getObjectOrNull(item["uuid"])
         Cx23::interactivelySetCx23ForItemOrNothing(item)
     end
 
@@ -221,7 +221,7 @@ class Cx22
                 entity = store.get(indx)
                 next if entity.nil?
                 cx23 = Cx23::makeCx23(cx22, position)
-                PhageExtension::setAttribute2(entity["uuid"], "cx23", cx23)
+                PhageAgentObjects::setAttribute2(entity["uuid"], "cx23", cx23)
                 next
             end
 

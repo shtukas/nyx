@@ -9,7 +9,7 @@ class NxTodos
 
     # NxTodos::destroy(uuid)
     def self.destroy(uuid)
-        PhageExtension::destroy(uuid)
+        PhageAgentObjects::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -258,7 +258,7 @@ class NxTodos
                 puts "I could not find a Cx22 for uuid: #{item["cx22"]} inside #{item}"
                 puts "I am going to nullify the attribute"
                 LucilleCore::pressEnterToContinue()
-                PhageExtension::setAttribute2(item["uuid"], "cx22", nil)
+                PhageAgentObjects::setAttribute2(item["uuid"], "cx22", nil)
                 return nil
             end
             completionRatio = Ax39::completionRatioCached(cx22["ax39"], cx22["bankaccount"])
@@ -272,7 +272,7 @@ class NxTodos
                 puts "I could not find a Cx22 for uuid: #{item["cx22"]} inside #{item}"
                 puts "I am going to nullify the attribute"
                 LucilleCore::pressEnterToContinue()
-                PhageExtension::setAttribute2(item["uuid"], "cx22", nil)
+                PhageAgentObjects::setAttribute2(item["uuid"], "cx22", nil)
                 return nil
             end
             completionRatio = Ax39::completionRatioCached(cx22["ax39"], cx22["bankaccount"])
@@ -314,7 +314,7 @@ class NxTodos
                     .each{|item|
                         next if item["listeable"]
                         puts "set to listeable: #{NxTodos::toString(item)}"
-                        PhageExtension::setAttribute2(item["uuid"], "listeable", true)
+                        PhageAgentObjects::setAttribute2(item["uuid"], "listeable", true)
                     }
             }
 
@@ -357,13 +357,13 @@ class NxTodos
             status = LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit the description instead ? ")
             if status then
                 PolyActions::editDescription(item)
-                return PhageExtension::getObjectOrNull(item["uuid"])
+                return PhageAgentObjects::getObjectOrNull(item["uuid"])
             else
                 return item
             end
         end
         Nx113Edit::edit(item)
-        PhageExtension::getObjectOrNull(item["uuid"])
+        PhageAgentObjects::getObjectOrNull(item["uuid"])
     end
 
     # NxTodos::landing(item)
@@ -373,7 +373,7 @@ class NxTodos
             return nil if item.nil?
 
             uuid = item["uuid"]
-            item = PhageExtension::getObjectOrNull(uuid)
+            item = PhageAgentObjects::getObjectOrNull(uuid)
             return nil if item.nil?
 
             system("clear")
@@ -434,7 +434,7 @@ class NxTodos
             if Interpreting::match("engine", input) then
                 engine = Nx11E::interactivelyCreateNewNx11EOrNull()
                 next if engine.nil?
-                PhageExtension::setAttribute2(item["uuid"], "nx11e", engine)
+                PhageAgentObjects::setAttribute2(item["uuid"], "nx11e", engine)
                 next
             end
 

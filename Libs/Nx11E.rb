@@ -95,8 +95,8 @@ class Nx11E
     def self.interactivelySetANewEngineForItemOrNothing(item)
         engine = Nx11E::interactivelyCreateNewNx11EOrNull()
         return item if engine.nil?
-        PhageExtension::setAttribute2(item["uuid"], "nx11e", engine)
-        PhageExtension::getObjectOrNull(item["uuid"])
+        PhageAgentObjects::setAttribute2(item["uuid"], "nx11e", engine)
+        PhageAgentObjects::getObjectOrNull(item["uuid"])
     end
 
     # Functions

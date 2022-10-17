@@ -226,21 +226,21 @@ class Nx113Edit
         if nx113["type"] == "text" then
             newtext = CommonUtils::editTextSynchronously(nx113["text"])
             nx113 = Nx113Make::text(newtext)
-            PhageExtension::setAttribute2(item["uuid"], "nx113", nx113)
+            PhageAgentObjects::setAttribute2(item["uuid"], "nx113", nx113)
         end
 
         if nx113["type"] == "url" then
             puts "current url: #{nx113["url"]}"
             url2 = LucilleCore::askQuestionAnswerAsString("new url: ")
             nx113 = Nx113Make::url(url2)
-            PhageExtension::setAttribute2(item["uuid"], "nx113", nx113)
+            PhageAgentObjects::setAttribute2(item["uuid"], "nx113", nx113)
         end
 
         if nx113["type"] == "file" then
             Nx113Access::access(item["nx113"])
             filepath = CommonUtils::interactivelySelectDesktopLocationOrNull()
             nx113 = Nx113Make::file(filepath)
-            PhageExtension::setAttribute2(item["uuid"], "nx113", nx113)
+            PhageAgentObjects::setAttribute2(item["uuid"], "nx113", nx113)
         end
 
         if nx113["type"] == "aion-point" then
@@ -280,7 +280,7 @@ class Nx113Edit
                 "rootnhash"  => rootnhash,
                 "database"   => operator.publish()
             }
-            PhageExtension::setAttribute2(item["uuid"], "nx113", nx113)
+            PhageAgentObjects::setAttribute2(item["uuid"], "nx113", nx113)
         end
 
         if nx113["type"] == "Dx8Unit" then

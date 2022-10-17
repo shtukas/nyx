@@ -112,21 +112,21 @@ class NetworkEdges
     # NetworkEdges::parents(uuid)
     def self.parents(uuid)
         NetworkEdges::parentUUIDs(uuid)
-            .map{|objectuuid| PhageExtension::getObjectOrNull(objectuuid) }
+            .map{|objectuuid| PhageAgentObjects::getObjectOrNull(objectuuid) }
             .compact
     end
 
     # NetworkEdges::relateds(uuid)
     def self.relateds(uuid)
         NetworkEdges::relatedUUIDs(uuid)
-            .map{|objectuuid| PhageExtension::getObjectOrNull(objectuuid) }
+            .map{|objectuuid| PhageAgentObjects::getObjectOrNull(objectuuid) }
             .compact
     end
 
     # NetworkEdges::children(uuid)
     def self.children(uuid)
         NetworkEdges::childrenUUIDs(uuid)
-            .map{|objectuuid| PhageExtension::getObjectOrNull(objectuuid) }
+            .map{|objectuuid| PhageAgentObjects::getObjectOrNull(objectuuid) }
             .compact
     end
 

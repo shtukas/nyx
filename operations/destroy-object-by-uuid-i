@@ -5,4 +5,4 @@
 require_relative "../Libs/loader.rb"
 
 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-PhageExtension::destroy(uuid)
+PhageAgentObjects::destroy(uuid)

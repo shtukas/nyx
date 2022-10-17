@@ -75,7 +75,7 @@ class Phage
             }
     end
 
-    # SETTERS (1)
+    # SETTERS
 
     # Phage::commit(object)
     def self.commit(object)
@@ -142,41 +142,6 @@ class Phage
 
 end
 
-class PhageExtension
-
-    # PhageExtension::getVariantsForUUID(uuid)
-    def self.getVariantsForUUID(uuid)
-        Phage::variantsEnumerator().select{|item| item["uuid"] == uuid }
-    end
-
-    # PhageExtension::getObjectOrNull(uuid)
-    def self.getObjectOrNull(uuid)
-        objects = Phage::variantsToObjects(PhageExtension::getVariantsForUUID(uuid))
-        # The number of objects should be zero or one
-        if objects.size > 1 then
-            raise "(error: 1de85ac2-1788-448c-929f-e9d8e4d913df) unusual number of objects found for uuid: #{uuid}, found #{objects.size}"
-        end
-        objects.first
-    end
-
-    # PhageExtension::setAttribute2(objectuuid, attname, attvalue)
-    def self.setAttribute2(objectuuid, attname, attvalue)
-        item = PhageExtension::getObjectOrNull(objectuuid)
-        return if item.nil?
-        item[attname] = attvalue
-        Phage::commit(item)
-    end
-
-    # PhageExtension::destroy(uuid)
-    def self.destroy(uuid)
-        # We extract the latest variant, if there is any, and flip it
-        object = PhageExtension::getObjectOrNull(uuid)
-        return if object.nil?
-        object["phage_alive"] = false
-        Phage::commit(object)
-    end
-end
-
 class PhageAgentMikutypes
 
     # PhageAgentMikutypes::mikuTypeToVariants(mikuType)
@@ -213,10 +178,69 @@ end
 
 class PhageAgentObjects
 
+    # ALL OBJECTS
+
     # PhageAgentObjects::objects()
     def self.objects()
         Phage::variantsToObjects(Phage::variantsEnumerator().to_a)
     end
+
+    # SINGLE OBJECTS
+
+    # PhageAgentObjects::getObjectVariants(uuid)
+    def self.getObjectVariants(uuid)
+        phagedatatrace = Phage::datatrace()
+        variants = XCache::getOrNull("e5798be0-6986-4aff-8d43-da87641c443d:#{phagedatatrace}:#{uuid}")
+        if variants then
+            return JSON.parse(variants)
+        end
+
+        v1s = XCache::getOrNull("2fdd2ad1-930c-429b-b74e-560baf6d3d67:#{uuid}")
+        if v1s then
+            JSON.parse(v1s).each{|variant|
+                variants << variant
+            }
+        end
+        Phage::newIshVariantsOnChannelEnumerator("d927148d-44d1-4d9a-a573-af5bd68d56a9:#{uuid}")
+            .each{|variant|
+                next if variant["uuid"] != uuid
+                variants << variant
+            }
+        variants = Phage::variantsToUniqueVariants(variants)
+        XCache::set("2fdd2ad1-930c-429b-b74e-560baf6d3d67:#{uuid}", JSON.generate(variants))
+
+        XCache::set("e5798be0-6986-4aff-8d43-da87641c443d:#{phagedatatrace}:#{uuid}", JSON.generate(variants))
+        variants
+    end
+
+    # PhageAgentObjects::getObjectOrNull(uuid)
+    def self.getObjectOrNull(uuid)
+        objects = Phage::variantsToObjects(PhageAgentObjects::getObjectVariants(uuid))
+        # The number of objects should be zero or one
+        if objects.size > 1 then
+            raise "(error: 1de85ac2-1788-448c-929f-e9d8e4d913df) unusual number of objects found for uuid: #{uuid}, found #{objects.size}"
+        end
+        objects.first
+    end
+
+    # PhageAgentObjects::setAttribute2(objectuuid, attname, attvalue)
+    def self.setAttribute2(objectuuid, attname, attvalue)
+        item = PhageAgentObjects::getObjectOrNull(objectuuid)
+        return if item.nil?
+        item[attname] = attvalue
+        Phage::commit(item)
+    end
+
+    # PhageAgentObjects::destroy(uuid)
+    def self.destroy(uuid)
+        # We extract the latest variant, if there is any, and flip it
+        object = PhageAgentObjects::getObjectOrNull(uuid)
+        return if object.nil?
+        object["phage_alive"] = false
+        Phage::commit(object)
+    end
+
+    # MIKUTYPES
 
     # PhageAgentObjects::mikuTypeToObjects(mikuType)
     def self.mikuTypeToObjects(mikuType)

@@ -54,7 +54,7 @@ class CatalystListing
                 return
             end
             Cx22::interactivelySetANewContributionForItemOrNothing(item)
-            PhageExtension::setAttribute2(item["uuid"], "nx11e", Nx11E::makeStandard())
+            PhageAgentObjects::setAttribute2(item["uuid"], "nx11e", Nx11E::makeStandard())
             return
         end
 

@@ -141,7 +141,7 @@ class Anniversaries
 
     # Anniversaries::done(uuid)
     def self.done(uuid)
-        PhageExtension::setAttribute2(uuid, "lastCelebrationDate", Time.new.to_s[0, 10])
+        PhageAgentObjects::setAttribute2(uuid, "lastCelebrationDate", Time.new.to_s[0, 10])
     end
 
     # Anniversaries::access(anniversary)
@@ -193,7 +193,7 @@ class Anniversaries
             return nil if item.nil?
 
             uuid = item["uuid"]
-            item = PhageExtension::getObjectOrNull(uuid)
+            item = PhageAgentObjects::getObjectOrNull(uuid)
             return nil if item.nil?
 
             system("clear")

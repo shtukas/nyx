@@ -170,7 +170,7 @@ class NyxNodes
     # NyxNodes::edit(item) # item
     def self.edit(item)
         Nx113Edit::edit(item)
-        PhageExtension::getObjectOrNull(item["uuid"])
+        PhageAgentObjects::getObjectOrNull(item["uuid"])
     end
 
     # NyxNodes::landing(item)
@@ -178,7 +178,7 @@ class NyxNodes
         loop {
             return nil if item.nil?
             uuid = item["uuid"]
-            item = PhageExtension::getObjectOrNull(uuid)
+            item = PhageAgentObjects::getObjectOrNull(uuid)
             return nil if item.nil?
             system("clear")
             puts NyxNodes::toString(item)
