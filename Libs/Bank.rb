@@ -8,7 +8,7 @@ class Bank
             "uuid"        => SecureRandom.uuid,
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
-            "phage_alive" => Time.new.to_f,
+            "phage_alive" => true,
             "mikuType"    => "TxBankEvent",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
