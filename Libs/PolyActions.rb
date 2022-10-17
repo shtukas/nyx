@@ -193,7 +193,7 @@ class PolyActions
 
         if item["mikuType"] == "NxTodo" then
             if item["nx113"] then
-                puts "You are attemption to done a NxTodo which carries some contents (Nx113)"
+                puts "You are attempting to done a NxTodo which carries some contents (Nx113)"
                 option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["landing", "Luke, use the Force (destroy)", "exit"])
                 return if option == ""
                 if option == "landing" then
