@@ -134,8 +134,8 @@ class Streaming
                 next
             end
 
-            system("clear")
             CatalystListing::listingItems().each{|item|
+                system("clear")
                 Streaming::runItem(item, "awaiting start")
             }
         }
