@@ -257,6 +257,7 @@ class Cx22
     def self.dive(cx22)
         loop {
             puts Cx22::toString(cx22).green
+            puts "completion ratio: #{Ax39::completionRatio(cx22["ax39"], cx22["bankaccount"])}"
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["elements (program)", "start NxBall", "update description", "set: done for the day", "unset: done for the day", "expose", "completion ratio", "add time"])
             break if action.nil?
             if action == "elements (program)" then

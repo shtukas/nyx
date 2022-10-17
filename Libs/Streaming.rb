@@ -57,7 +57,7 @@ class Streaming
                 Streaming::runItem(item, "awaiting start")
             end
             if input == "exit" then
-                return
+                return "exit"
             end
             if input == "commands" then
                 puts CatalystListing::listingCommands().yellow
@@ -169,7 +169,10 @@ class Streaming
 
             system("clear")
 
-            Streaming::runItem(CatalystListing::listingItemsInPriorityOrderDesc().first, "awaiting start")
+            status = Streaming::runItem(CatalystListing::listingItemsInPriorityOrderDesc().first, "awaiting start")
+            if status == "exit" then
+                return
+            end
         }
     end
 end
