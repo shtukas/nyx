@@ -4,7 +4,7 @@ class NxTodos
 
     # NxTodos::items()
     def self.items()
-        PhageRefactoring::objectsForMikuType("NxTodo")
+        PhageAgentMikutypes::mikuTypeToObjects("NxTodo")
     end
 
     # NxTodos::destroy(uuid)

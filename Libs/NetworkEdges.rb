@@ -58,7 +58,7 @@ class NetworkEdges
     # NetworkEdges::parentUUIDs(uuid)
     def self.parentUUIDs(uuid)
         parents = []
-        PhageRefactoring::objectsForMikuType("NxGraphEdge1")
+        PhageAgentMikutypes::mikuTypeToObjects("NxGraphEdge1")
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .each{|item|
                 if item["uuid2"] == uuid and item["type"] == "arrow" then
@@ -74,7 +74,7 @@ class NetworkEdges
     # NetworkEdges::relatedUUIDs(uuid)
     def self.relatedUUIDs(uuid)
         related = []
-        PhageRefactoring::objectsForMikuType("NxGraphEdge1")
+        PhageAgentMikutypes::mikuTypeToObjects("NxGraphEdge1")
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .each{|item|
                 if item["uuid1"] == uuid and item["type"] == "bidirectional" then
@@ -96,7 +96,7 @@ class NetworkEdges
     # NetworkEdges::childrenUUIDs(uuid)
     def self.childrenUUIDs(uuid)
         children = []
-        PhageRefactoring::objectsForMikuType("NxGraphEdge1")
+        PhageAgentMikutypes::mikuTypeToObjects("NxGraphEdge1")
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .each{|item|
                 if item["uuid1"] == uuid and item["type"] == "arrow" then

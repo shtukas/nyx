@@ -83,7 +83,7 @@ class Anniversaries
 
     # Anniversaries::anniversaries()
     def self.anniversaries()
-        PhageRefactoring::objectsForMikuType("NxAnniversary")
+        PhageAgentMikutypes::mikuTypeToObjects("NxAnniversary")
     end
 
     # Anniversaries::issueNewAnniversaryOrNullInteractively()

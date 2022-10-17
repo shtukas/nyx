@@ -20,8 +20,8 @@ class Phage
         answer
     end
 
-    # Phage::variantsToObjectsUUIDed(objects)
-    def self.variantsToObjectsUUIDed(objects)
+    # Phage::variantsToObjects(objects)
+    def self.variantsToObjects(objects)
         higestOfTwo = lambda {|o1Opt, o2|
             if o1Opt.nil? then
                 return o2
@@ -149,7 +149,7 @@ class PhageRefactoring
 
     # PhageRefactoring::mikuTypeCount(mikuType) # Integer
     def self.mikuTypeCount(mikuType)
-        PhageRefactoring::objectsForMikuType(mikuType).size
+        PhageAgentMikutypes::mikuTypeToObjects(mikuType).size
     end
 
     # PhageRefactoring::getVariantsForUUID(uuid)
@@ -159,17 +159,12 @@ class PhageRefactoring
 
     # PhageRefactoring::objects()
     def self.objects()
-        Phage::variantsToObjectsUUIDed(Phage::variantsEnumerator().to_a)
-    end
-
-    # PhageRefactoring::objectsForMikuType(mikuType)
-    def self.objectsForMikuType(mikuType)
-        Phage::variantsToObjectsUUIDed(PhageAgentMikutypes::mikuTypeToVariants(mikuType))
+        Phage::variantsToObjects(Phage::variantsEnumerator().to_a)
     end
 
     # PhageRefactoring::getObjectOrNull(uuid)
     def self.getObjectOrNull(uuid)
-        objects = Phage::variantsToObjectsUUIDed(PhageRefactoring::getVariantsForUUID(uuid))
+        objects = Phage::variantsToObjects(PhageRefactoring::getVariantsForUUID(uuid))
         # The number of objects should be zero or one
         if objects.size > 1 then
             raise "(error: 1de85ac2-1788-448c-929f-e9d8e4d913df) unusual number of objects found for uuid: #{uuid}, found #{objects.size}"
@@ -199,27 +194,25 @@ class PhageAgentMikutypes
 
     # PhageAgentMikutypes::mikuTypeToVariants(mikuType)
     def self.mikuTypeToVariants(mikuType)
-
         variants = []
-
         v1s = XCache::getOrNull("19ad36f6-24fb-4ab9-b4bc-1f3aa58cf1d6:#{mikuType}")
         if v1s then
             JSON.parse(v1s).each{|variant|
                 variants << variant
             }
         end
-
         Phage::newIshVariantsOnChannelEnumerator("f7f5e1bb-8154-4f14-a2c4-bb591095c5d1:#{mikuType}")
             .each{|variant|
                 next if variant["mikuType"] != mikuType
                 variants << variant
             }
-
         variants = Phage::variantsToUniqueVariants(variants)
-
         XCache::set("19ad36f6-24fb-4ab9-b4bc-1f3aa58cf1d6:#{mikuType}", JSON.generate(variants))
-
         variants
+    end
 
+    # PhageAgentMikutypes::mikuTypeToObjects(mikuType)
+    def self.mikuTypeToObjects(mikuType)
+        Phage::variantsToObjects(PhageAgentMikutypes::mikuTypeToVariants(mikuType))
     end
 end

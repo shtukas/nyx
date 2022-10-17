@@ -8,7 +8,7 @@ class NxBallsIO
 
     # NxBallsIO::nxballs()
     def self.nxballs()
-        PhageRefactoring::objectsForMikuType("NxBall.v2")
+        PhageAgentMikutypes::mikuTypeToObjects("NxBall.v2")
     end
 
     # NxBallsIO::getItem(uuid)

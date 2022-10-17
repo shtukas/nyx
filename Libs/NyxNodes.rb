@@ -5,7 +5,7 @@ class NyxNodes
 
     # NyxNodes::items()
     def self.items()
-        PhageRefactoring::objectsForMikuType("NyxNode")
+        PhageAgentMikutypes::mikuTypeToObjects("NyxNode")
     end
 
     # NyxNodes::networkType()

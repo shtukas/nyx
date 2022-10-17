@@ -3,7 +3,7 @@ class Cx22
 
     # Cx22::items()
     def self.items()
-        PhageRefactoring::objectsForMikuType("Cx22")
+        PhageAgentMikutypes::mikuTypeToObjects("Cx22")
     end
 
     # Cx22::getOrNull(uuid)

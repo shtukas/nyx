@@ -6,7 +6,7 @@ class Waves
 
     # Waves::items()
     def self.items()
-        PhageRefactoring::objectsForMikuType("Wave")
+        PhageAgentMikutypes::mikuTypeToObjects("Wave")
     end
 
     # Waves::destroy(uuid)
