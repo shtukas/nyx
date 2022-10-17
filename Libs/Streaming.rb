@@ -119,7 +119,7 @@ class Streaming
                 Streaming::runItem(item, "running")
             end
             if input == "start" then
-                PolyActions::start(item, false)
+                PolyActions::start(item)
                 Streaming::runItem(item, "running")
             end
             if input == "done" then
