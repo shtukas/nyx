@@ -8,7 +8,7 @@ class Streaming
         return if PhagePublic::getObjectOrNull(item["uuid"]).nil?
 
         if state == "awaiting start" then
-            input = LucilleCore::askQuestionAnswerAsString("[#{state}] #{PolyFunctions::toString(item).green} (.. | start | done | time | skip | landing | commands) : ")
+            input = LucilleCore::askQuestionAnswerAsString("[#{state}] #{PolyFunctions::toString(item).green} (.. | start | done | time | skip | landing | exit |commands) : ")
             if input == "" then
                 Streaming::runItem(item, state)
             end
@@ -33,6 +33,9 @@ class Streaming
             if input == "landing" then
                 PolyActions::landing(item)
                 Streaming::runItem(item, "awaiting start")
+            end
+            if input == "exit" then
+                return
             end
             if input == "commands" then
                 puts CatalystListing::listingCommands().yellow
