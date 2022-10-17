@@ -193,9 +193,17 @@ class PolyActions
 
         if item["mikuType"] == "NxTodo" then
             if item["nx113"] then
-                puts "You cannot done a todo with some contents (Nx113), you need to land on it and destroy it"
-                if LucilleCore::askQuestionAnswerAsBoolean("landing ? ") then
+                puts "You are attemption to done a NxTodo which carries some contents (Nx113)"
+                option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["landing", "Luke, use the Force (destroy)", "exit"])
+                return if option == ""
+                if option == "landing" then
                     PolyActions::landing(item)
+                end
+                if option == "Luke, use the Force (destroy)" then
+                    NxTodos::destroy(item["uuid"])
+                end
+                if option == "exit" then
+                    return
                 end
                 return
             end
