@@ -54,7 +54,7 @@ class CatalystListing
                 return
             end
             Cx22::interactivelySetANewContributionForItemOrNothing(item)
-            Phage::setAttribute2(item["uuid"], "nx11e", Nx11E::makeStandard())
+            PhageRefactoring::setAttribute2(item["uuid"], "nx11e", Nx11E::makeStandard())
             return
         end
 
@@ -681,12 +681,6 @@ class CatalystListing
                     puts "Picked up from NxTodos-BufferIn: #{JSON.pretty_generate(item)}"
                     LucilleCore::removeFileSystemLocation(location)
                 }
-
-            if PhageMaintenance::shouldReduceInventory() and Config::get("instanceId") == "Lucille20-pascal" then
-                if LucilleCore::askQuestionAnswerAsBoolean("Reduce inventory now ? ") then
-                    PhageMaintenance::reduceInventory2()
-                end
-            end
 
             CatalystListing::displayListing()
         }

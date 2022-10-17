@@ -58,7 +58,7 @@ class NetworkEdges
     # NetworkEdges::parentUUIDs(uuid)
     def self.parentUUIDs(uuid)
         parents = []
-        Phage::objectsForMikuType("NxGraphEdge1")
+        PhageRefactoring::objectsForMikuType("NxGraphEdge1")
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .each{|item|
                 if item["uuid2"] == uuid and item["type"] == "arrow" then
@@ -74,7 +74,7 @@ class NetworkEdges
     # NetworkEdges::relatedUUIDs(uuid)
     def self.relatedUUIDs(uuid)
         related = []
-        Phage::objectsForMikuType("NxGraphEdge1")
+        PhageRefactoring::objectsForMikuType("NxGraphEdge1")
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .each{|item|
                 if item["uuid1"] == uuid and item["type"] == "bidirectional" then
@@ -96,7 +96,7 @@ class NetworkEdges
     # NetworkEdges::childrenUUIDs(uuid)
     def self.childrenUUIDs(uuid)
         children = []
-        Phage::objectsForMikuType("NxGraphEdge1")
+        PhageRefactoring::objectsForMikuType("NxGraphEdge1")
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .each{|item|
                 if item["uuid1"] == uuid and item["type"] == "arrow" then
@@ -112,21 +112,21 @@ class NetworkEdges
     # NetworkEdges::parents(uuid)
     def self.parents(uuid)
         NetworkEdges::parentUUIDs(uuid)
-            .map{|objectuuid| Phage::getObjectOrNull(objectuuid) }
+            .map{|objectuuid| PhageRefactoring::getObjectOrNull(objectuuid) }
             .compact
     end
 
     # NetworkEdges::relateds(uuid)
     def self.relateds(uuid)
         NetworkEdges::relatedUUIDs(uuid)
-            .map{|objectuuid| Phage::getObjectOrNull(objectuuid) }
+            .map{|objectuuid| PhageRefactoring::getObjectOrNull(objectuuid) }
             .compact
     end
 
     # NetworkEdges::children(uuid)
     def self.children(uuid)
         NetworkEdges::childrenUUIDs(uuid)
-            .map{|objectuuid| Phage::getObjectOrNull(objectuuid) }
+            .map{|objectuuid| PhageRefactoring::getObjectOrNull(objectuuid) }
             .compact
     end
 

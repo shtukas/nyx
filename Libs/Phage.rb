@@ -6,140 +6,10 @@ class Phage
     # phage.sqlite3
     # create table _objects_ (_phage_uuid_ text primary key, _uuid_ text, _mikuType_ text, _object_ text);
 
-    # Phage::databasesPathsForReading()
-    def self.databasesPathsForReading()
-        LucilleCore::locationsAtFolder("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Phage")
-            .select{|filepath| !File.basename(filepath).start_with?(".") }
-    end
+    # UTILS
 
-    # Phage::databasePathForWriting()
-    def self.databasePathForWriting()
-        instanceId = Config::get("instanceId")
-
-        # We either return the last file or we make a new one
-
-        filepath = LucilleCore::locationsAtFolder("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Phage")
-            .select{|filepath| !File.basename(filepath).start_with?(".") }
-            .sort
-            .reverse
-            .first
-
-        if File.basename(filepath).include?(instanceId) then
-            return filepath
-        end
-
-        instant = (Time.new.to_f * 1000).to_i
-
-        filepath = "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Phage/phage-#{instant}-#{instanceId}.sqlite3"
-
-        db = SQLite3::Database.new(filepath)
-        db.execute("create table _objects_ (_phage_uuid_ text primary key, _uuid_ text, _mikuType_ text, _object_ text);")
-        db.close
-
-        filepath
-
-    end
-
-    # Phage::databasesTrace()
-    def self.databasesTrace()
-        Phage::databasesPathsForReading()
-            .sort
-            .map{|filepath|
-                {
-                    "filepath" => filepath,
-                    "filetime" => File.mtime(filepath).to_s
-                }
-            }
-            .reduce(""){|trace, packet|
-                Digest::SHA1.hexdigest("#{trace}:#{packet}")
-            }
-    end
-
-    # GETTERS (variants, cached on database traces)
-
-    # Phage::variants()
-    def self.variants()
-        trace = Phage::databasesTrace()
-        objects = XCache::getOrNull("#{trace}:157e9b6c-1a53-409e-8650-d415650e3cec")
-        if objects then
-            return JSON.parse(objects)
-        end
-
-        objects = []
-        Phage::databasesPathsForReading()
-            .each{|filepath|
-                db = SQLite3::Database.new(filepath)
-                db.busy_timeout = 117
-                db.busy_handler { |count| true }
-                db.results_as_hash = true
-                db.execute("select * from _objects_", []) do |row|
-                    objects << JSON.parse(row["_object_"])
-                end
-                db.close
-            }
-
-        XCache::set("#{trace}:157e9b6c-1a53-409e-8650-d415650e3cec", JSON.generate(objects))
-
-        objects
-    end
-
-    # Phage::variantsForMikuType(mikuType)
-    def self.variantsForMikuType(mikuType)
-        trace = Phage::databasesTrace()
-        objects = XCache::getOrNull("#{trace}:01819d3a-54cd-4c71-8ad3-a7083815d3d4:#{mikuType}")
-        if objects then
-            return JSON.parse(objects)
-        end
-
-        objects = []
-        Phage::databasesPathsForReading()
-            .each{|filepath|
-                db = SQLite3::Database.new(filepath)
-                db.busy_timeout = 117
-                db.busy_handler { |count| true }
-                db.results_as_hash = true
-                db.execute("select * from _objects_ where _mikuType_=?", [mikuType]) do |row|
-                    objects << JSON.parse(row["_object_"])
-                end
-                db.close
-            }
-
-        XCache::set("#{trace}:01819d3a-54cd-4c71-8ad3-a7083815d3d4:#{mikuType}", JSON.generate(objects))
-
-        objects
-    end
-
-    # Phage::getVariantsForUUID(uuid)
-    def self.getVariantsForUUID(uuid)
-        trace = Phage::databasesTrace()
-        objects = XCache::getOrNull("#{trace}:d7889683-a09e-40e1-ba6d-42584d374dd3:#{uuid}")
-        if objects then
-            return JSON.parse(objects)
-        end
-
-        objects = []
-        Phage::databasesPathsForReading()
-            .each{|filepath|
-                db = SQLite3::Database.new(filepath)
-                db.busy_timeout = 117
-                db.busy_handler { |count| true }
-                db.results_as_hash = true
-                db.execute("select * from _objects_ where _uuid_=?", [uuid]) do |row|
-                    objects << JSON.parse(row["_object_"])
-                end
-                db.close
-            }
-        objects
-
-        XCache::set("#{trace}:d7889683-a09e-40e1-ba6d-42584d374dd3:#{uuid}", JSON.generate(objects))
-
-        objects
-    end
-
-    # GETTERS (objects)
-
-    # Phage::variantsProjection(objects)
-    def self.variantsProjection(objects)
+    # Phage::variantsToObjectsUUIDed(objects)
+    def self.variantsToObjectsUUIDed(objects)
         higestOfTwo = lambda {|o1Opt, o2|
             if o1Opt.nil? then
                 return o2
@@ -158,52 +28,27 @@ class Phage
         projection.values.select{|object| object["phage_alive"] }
     end
 
-    # Phage::objects()
-    def self.objects()
-        Phage::variantsProjection(Phage::variants())
+    # DATABASES
+
+    # Phage::databasesPathsForReading()
+    def self.databasesPathsForReading()
+        LucilleCore::locationsAtFolder("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Phage")
+            .select{|filepath| filepath[-8, 8] == ".sqlite3" }
     end
 
-    # Phage::objectsForMikuType(mikuType)
-    def self.objectsForMikuType(mikuType)
-        Phage::variantsProjection(Phage::variantsForMikuType(mikuType))
-    end
-
-    # Phage::getObjectOrNull(uuid)
-    def self.getObjectOrNull(uuid)
-        objects = Phage::variantsProjection(Phage::getVariantsForUUID(uuid))
-        # The number of objects should be zero or one
-        if objects.size > 1 then
-            raise "(error: 1de85ac2-1788-448c-929f-e9d8e4d913df) unusual number of objects found for uuid: #{uuid}, found #{objects.size}"
+    # Phage::databasePathForWriting()
+    def self.databasePathForWriting()
+        instanceId = Config::get("instanceId")
+        filepath = "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Phage/phage-#{CommonUtils::today()}-#{instanceId}.sqlite3"
+        if !File.exists?(filepath) then
+            db = SQLite3::Database.new(filepath)
+            db.execute("create table _objects_ (_phage_uuid_ text primary key, _uuid_ text, _mikuType_ text, _object_ text);")
+            db.close
         end
-        objects.first
+        filepath
     end
 
-    # GETTERS (misc)
-
-    # Phage::nx20sTypes()
-    def self.nx20sTypes()
-        ["NxTodo", "Wave", "NyxNode"]
-    end
-
-    # Phage::nx20s() # Array[Nx20]
-    def self.nx20s()
-        phageObjects = Phage::objects().select{|object| Phage::nx20sTypes().include?(object["mikuType"]) }
-        phageObjects
-            .map{|object|
-                {
-                    "announce" => "(#{object["mikuType"]}) #{PolyFunctions::genericDescriptionOrNull(object)}",
-                    "unixtime" => object["unixtime"],
-                    "item"     => object
-                }
-            }
-    end
-
-    # Phage::mikuTypeCount(mikuType) # Integer
-    def self.mikuTypeCount(mikuType)
-        Phage::objectsForMikuType(mikuType).size
-    end
-
-    # SETTERS
+    # SETTERS (1)
 
     # Phage::commit(object)
     def self.commit(object)
@@ -220,91 +65,125 @@ class Phage
         nil
     end
 
-    # Phage::setAttribute2(objectuuid, attname, attvalue)
+    # VARIANTS
+
+    # Phage::variantsEnumerator()
+    def self.variantsEnumerator()
+        Enumerator.new do |variants|
+            Phage::databasesPathsForReading().each{|filepath|
+                db = SQLite3::Database.new(filepath)
+                db.busy_timeout = 117
+                db.busy_handler { |count| true }
+                db.results_as_hash = true
+                db.execute("select * from _objects_", []) do |row|
+                    variants << JSON.parse(row["_object_"])
+                end
+                db.close
+            }
+        end
+    end
+
+    # Phage::newIshVariantsOnChannelEnumerator(channelId)
+    def self.newIshVariantsOnChannelEnumerator(channelId)
+
+        getFileIsDoneForChannel = lambda {|channelId, filepath, mtime|
+            XCache::getFlag("6624f97b-6e92-4094-b2e7-3ba66f886edb:#{channelId}:#{filepath}:#{mtime.to_s}")
+        }
+
+        setFileIsDoneForChannel = lambda {|channelId, filepath, mtime|
+            XCache::setFlag("6624f97b-6e92-4094-b2e7-3ba66f886edb:#{channelId}:#{filepath}:#{mtime.to_s}", true)
+        }
+
+        Enumerator.new do |variants|
+            Phage::databasesPathsForReading().each{|filepath|
+                mtime = File.mtime(filepath)
+                next if getFileIsDoneForChannel.call(channelId, filepath, mtime)
+
+                db = SQLite3::Database.new(filepath)
+                db.busy_timeout = 117
+                db.busy_handler { |count| true }
+                db.results_as_hash = true
+                db.execute("select * from _objects_", []) do |row|
+                    variants << JSON.parse(row["_object_"])
+                end
+                db.close
+
+                setFileIsDoneForChannel.call(channelId, filepath, mtime)
+            }
+        end
+    end
+
+end
+
+class PhageRefactoring
+
+    # PhageRefactoring::nx20sTypes()
+    def self.nx20sTypes()
+        ["NxTodo", "Wave", "NyxNode"]
+    end
+
+    # PhageRefactoring::nx20s() # Array[Nx20]
+    def self.nx20s()
+        phageObjects = PhageRefactoring::objects().select{|object| PhageRefactoring::nx20sTypes().include?(object["mikuType"]) }
+        phageObjects
+            .map{|object|
+                {
+                    "announce" => "(#{object["mikuType"]}) #{PolyFunctions::genericDescriptionOrNull(object)}",
+                    "unixtime" => object["unixtime"],
+                    "item"     => object
+                }
+            }
+    end
+
+    # PhageRefactoring::mikuTypeCount(mikuType) # Integer
+    def self.mikuTypeCount(mikuType)
+        PhageRefactoring::objectsForMikuType(mikuType).size
+    end
+
+    # PhageRefactoring::variantsForMikuType(mikuType)
+    def self.variantsForMikuType(mikuType)
+        Phage::variantsEnumerator().select{|item| item["mikuType"] == mikuType }
+    end
+
+    # PhageRefactoring::getVariantsForUUID(uuid)
+    def self.getVariantsForUUID(uuid)
+        Phage::variantsEnumerator().select{|item| item["uuid"] == uuid }
+    end
+
+    # PhageRefactoring::objects()
+    def self.objects()
+        Phage::variantsToObjectsUUIDed(Phage::variantsEnumerator().to_a)
+    end
+
+    # PhageRefactoring::objectsForMikuType(mikuType)
+    def self.objectsForMikuType(mikuType)
+        Phage::variantsToObjectsUUIDed(PhageRefactoring::variantsForMikuType(mikuType))
+    end
+
+    # PhageRefactoring::getObjectOrNull(uuid)
+    def self.getObjectOrNull(uuid)
+        objects = Phage::variantsToObjectsUUIDed(PhageRefactoring::getVariantsForUUID(uuid))
+        # The number of objects should be zero or one
+        if objects.size > 1 then
+            raise "(error: 1de85ac2-1788-448c-929f-e9d8e4d913df) unusual number of objects found for uuid: #{uuid}, found #{objects.size}"
+        end
+        objects.first
+    end
+
+    # PhageRefactoring::setAttribute2(objectuuid, attname, attvalue)
     def self.setAttribute2(objectuuid, attname, attvalue)
-        item = Phage::getObjectOrNull(objectuuid)
+        item = PhageRefactoring::getObjectOrNull(objectuuid)
         return if item.nil?
         item[attname] = attvalue
         Phage::commit(item)
     end
 
-    # DESTROY
-
-    # Phage::destroy(uuid)
+    # PhageRefactoring::destroy(uuid)
     def self.destroy(uuid)
         # We extract the latest variant, if there is any, and flip it
-        object = Phage::getObjectOrNull(uuid)
+        object = PhageRefactoring::getObjectOrNull(uuid)
         return if object.nil?
         object["phage_alive"] = false
         Phage::commit(object)
-    end
-end
-
-class PhageMaintenance
-
-    # PhageMaintenance::reduceInventory1(sourcefilepath, targetfilepath)
-    def self.reduceInventory1(sourcefilepath, targetfilepath)
-
-        getPhageUUIDsAtDatabase = lambda {|filepath|
-            phageuuids = []
-            db = SQLite3::Database.new(filepath)
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute("select _phage_uuid_ from _objects_", []) do |row|
-                phageuuids << row["_phage_uuid_"]
-            end
-            db.close
-            phageuuids
-        }
-
-        targetphageuuids = getPhageUUIDsAtDatabase.call(targetfilepath)
-
-        sourcedb = SQLite3::Database.new(sourcefilepath)
-        sourcedb.busy_timeout = 117
-        sourcedb.busy_handler { |count| true }
-        sourcedb.results_as_hash = true
-
-        targetdb = SQLite3::Database.new(targetfilepath)
-        targetdb.busy_timeout = 117
-        targetdb.busy_handler { |count| true }
-        targetdb.results_as_hash = true
-
-        sourcedb.execute("select * from _objects_", []) do |row|
-            object = JSON.parse(row["_object_"])
-            next if targetphageuuids.include?(object["phage_uuid"])
-            puts "writing: phageuuid: #{object["phage_uuid"]}"
-            targetdb.execute "insert into _objects_ (_phage_uuid_, _uuid_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["phage_uuid"], object["uuid"], object["mikuType"], JSON.generate(object)]
-        end
-
-        targetdb.close
-        sourcedb.close
-
-        puts "removing file: #{sourcefilepath}"
-        LucilleCore::removeFileSystemLocation(sourcefilepath)
-
-    end
-
-    # PhageMaintenance::inventory()
-    def self.inventory()
-        LucilleCore::locationsAtFolder("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Phage")
-            .select{|filepath| !File.basename(filepath).start_with?(".") }
-    end
-
-    # PhageMaintenance::shouldReduceInventory()
-    def self.shouldReduceInventory()
-        PhageMaintenance::inventory().size > 10
-    end
-
-    # PhageMaintenance::reduceInventory2()
-    def self.reduceInventory2()
-        return if !PhageMaintenance::shouldReduceInventory()
-        while PhageMaintenance::shouldReduceInventory() do
-            filepaths = PhageMaintenance::inventory().sort
-            filepath1 = filepaths[0]
-            filepath2 = filepaths[1]
-            # We reverse the files to put the smaller one into the bigger one
-            PhageMaintenance::reduceInventory1(filepath2, filepath1)
-        end
     end
 end

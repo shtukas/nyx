@@ -7,7 +7,7 @@ class TxManualCountDowns
 
     # TxManualCountDowns::items()
     def self.items()
-        Phage::objectsForMikuType("TxManualCountDown")
+        PhageRefactoring::objectsForMikuType("TxManualCountDown")
     end
 
     # TxManualCountDowns::commit(item)
@@ -17,7 +17,7 @@ class TxManualCountDowns
 
     # TxManualCountDowns::destroy(uuid)
     def self.destroy(uuid)
-        Phage::destroy(uuid)
+        PhageRefactoring::destroy(uuid)
     end
 
     # Makers
