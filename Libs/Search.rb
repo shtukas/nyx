@@ -11,7 +11,7 @@ class Search
     # Search::nx20s() # Array[Nx20]
     def self.nx20s()
         Search::nx20sTypes()
-            .map{|mikuType| PhageAgentObjects::mikuTypeToObjects(mikuType) }
+            .map{|mikuType| PhagePublic::mikuTypeToObjects(mikuType) }
             .flatten
             .map{|object|
                 {

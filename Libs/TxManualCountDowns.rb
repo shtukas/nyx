@@ -7,17 +7,17 @@ class TxManualCountDowns
 
     # TxManualCountDowns::items()
     def self.items()
-        PhageAgentObjects::mikuTypeToObjects("TxManualCountDown")
+        PhagePublic::mikuTypeToObjects("TxManualCountDown")
     end
 
     # TxManualCountDowns::commit(item)
     def self.commit(item)
-        Phage::commit(item)
+        PhagePublic::commit(item)
     end
 
     # TxManualCountDowns::destroy(uuid)
     def self.destroy(uuid)
-        PhageAgentObjects::destroy(uuid)
+        PhagePublic::destroy(uuid)
     end
 
     # Makers

@@ -44,6 +44,6 @@ class Cx23
         return if cx22.nil?
         cx23 = Cx23::makeNewOrNull(cx22)
         return if cx23.nil?
-        PhageAgentObjects::setAttribute2(item["uuid"], "cx23", cx23)
+        PhagePublic::setAttribute2(item["uuid"], "cx23", cx23)
     end
 end

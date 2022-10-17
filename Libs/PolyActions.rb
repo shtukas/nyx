@@ -66,7 +66,7 @@ class PolyActions
     def self.destroyWithPrompt(item)
         PolyActions::stop(item)
         if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{PolyFunctions::toString(item).green}' ") then
-            PhageAgentObjects::destroy(item["uuid"])
+            PhagePublic::destroy(item["uuid"])
         end
     end
 
@@ -108,13 +108,13 @@ class PolyActions
                             return
                         end
                         if action == "keep as standard and return to listing" then
-                            PhageAgentObjects::setAttribute2(item["uuid"], "nx11e", Nx11E::makeStandard())
+                            PhagePublic::setAttribute2(item["uuid"], "nx11e", Nx11E::makeStandard())
                             return
                         end
                     end
                     if action == "standard >> contribution" then
-                        PhageAgentObjects::setAttribute2(item["uuid"], "nx11e", Nx11E::makeStandard())
-                        item = PhageAgentObjects::getObjectOrNull(item["uuid"])
+                        PhagePublic::setAttribute2(item["uuid"], "nx11e", Nx11E::makeStandard())
+                        item = PhagePublic::getObjectOrNull(item["uuid"])
                         Cx22::interactivelySetANewContributionForItemOrNothing(item)
                         return
                     end
@@ -228,14 +228,14 @@ class PolyActions
     def self.editDatetime(item)
         datetime = CommonUtils::editTextSynchronously(item["datetime"]).strip
         return if !CommonUtils::isDateTime_UTC_ISO8601(datetime)
-        PhageAgentObjects::setAttribute2(item["uuid"], "datetime", datetime)
+        PhagePublic::setAttribute2(item["uuid"], "datetime", datetime)
     end
 
     # PolyActions::editDescription(item)
     def self.editDescription(item)
         description = CommonUtils::editTextSynchronously(item["description"]).strip
         return if description == ""
-        PhageAgentObjects::setAttribute2(item["uuid"], "description", description)
+        PhagePublic::setAttribute2(item["uuid"], "description", description)
     end
 
     # PolyActions::editStartDate(item)
@@ -248,7 +248,7 @@ class PolyActions
 
         startdate = CommonUtils::editTextSynchronously(item["startdate"])
         return if startdate == ""
-        PhageAgentObjects::setAttribute2(item["uuid"], "startdate",   startdate)
+        PhagePublic::setAttribute2(item["uuid"], "startdate",   startdate)
     end
 
     # PolyActions::garbageCollectionAfterItemDeletion(item)
@@ -257,7 +257,7 @@ class PolyActions
         if item["nx113"] then
             nx113 = Nx113Access::getNx113(item["nx113"])
             if nx113["type"] == "Dx8Unit" then
-                Phage::commit({
+                PhagePublic::commit({
                     "uuid"     => SecureRandom.uuid,
                     "mikuType" => "Dx33",
                     "unixtime" => Time.new.to_f,
@@ -314,14 +314,14 @@ class PolyActions
             return
         end
         datetime = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
-        PhageAgentObjects::setAttribute2(item["uuid"], "nx11e", Nx11E::makeOndate(datetime))
+        PhagePublic::setAttribute2(item["uuid"], "nx11e", Nx11E::makeOndate(datetime))
     end
 
     # PolyActions::setNx113(item)
     def self.setNx113(item)
         nx113 = Nx113Make::interactivelyMakeNx113OrNull()
         return if nx113.nil?
-        PhageAgentObjects::setAttribute2(item["uuid"], "nx113", nx113)
+        PhagePublic::setAttribute2(item["uuid"], "nx113", nx113)
     end
 
     # PolyActions::start(item)
@@ -355,9 +355,9 @@ class PolyActions
                     puts "You are going to lose the data"
                     return if !LucilleCore::askQuestionAnswerAsBoolean("confirm operation: ")
                 end
-                PhageAgentObjects::setAttribute2(item["uuid"], "networkType", networkType)
-                PhageAgentObjects::setAttribute2(item["uuid"], "mikuType", "NyxNode")
-                item = PhageAgentObjects::getObjectOrNull(item["uuid"])
+                PhagePublic::setAttribute2(item["uuid"], "networkType", networkType)
+                PhagePublic::setAttribute2(item["uuid"], "mikuType", "NyxNode")
+                item = PhagePublic::getObjectOrNull(item["uuid"])
                 NyxNodes::landing(item)
             end
         end

@@ -5,7 +5,7 @@
 require_relative "../Libs/loader.rb"
 
 uuid = ARGV[0]
-items = PhageAgentObjects::getObjectVariants(uuid)
+items = PhagePublic::getObjectVariants(uuid)
             .sort{|i1, i2| i1["phage_time"] <=> i2["phage_time"] }
 puts JSON.pretty_generate(items)
 

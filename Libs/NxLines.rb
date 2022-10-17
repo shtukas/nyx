@@ -17,7 +17,7 @@ class NxLines
             "datetime"    => datetime,
             "line"        => line
         }
-        Phage::commit(item)
+        PhagePublic::commit(item)
         item
     end
 

@@ -5,7 +5,7 @@
 require_relative "../Libs/loader.rb"
 
 puts "process-Dx33s"
-PhageAgentObjects::mikuTypeToObjects("Dx33").each{|item|
+PhagePublic::mikuTypeToObjects("Dx33").each{|item|
     location = Dx8UnitsUtils::acquireUnitFolderPathOrNull(item["unitId"])
     puts "I am about to garbage collect this location (precaution due to first time): #{location}"
     LucilleCore::pressEnterToContinue()

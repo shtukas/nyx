@@ -32,7 +32,7 @@ class The99Percent
 
     # The99Percent::getCurrentCount()
     def self.getCurrentCount()
-        PhageAgentObjects::mikuTypeObjectCount("NxTodo")
+        PhagePublic::mikuTypeObjectCount("NxTodo")
     end
 
     # The99Percent::ratio()

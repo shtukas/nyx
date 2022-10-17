@@ -5,7 +5,7 @@ class NyxNodes
 
     # NyxNodes::items()
     def self.items()
-        PhageAgentObjects::mikuTypeToObjects("NyxNode")
+        PhagePublic::mikuTypeToObjects("NyxNode")
     end
 
     # NyxNodes::networkType()
@@ -52,7 +52,7 @@ class NyxNodes
             "nx113"       => nx113
         }
 
-        Phage::commit(item)
+        PhagePublic::commit(item)
         item
     end
 
@@ -76,7 +76,7 @@ class NyxNodes
             "description" => description,
             "nx113"       => nx113
         }
-        Phage::commit(item)
+        PhagePublic::commit(item)
         item
     end
 
@@ -100,7 +100,7 @@ class NyxNodes
             "description" => description,
             "nx113"       => nx113
         }
-        Phage::commit(item)
+        PhagePublic::commit(item)
         item
     end
 
@@ -128,7 +128,7 @@ class NyxNodes
             "nx113"       => nx113
         }
 
-        Phage::commit(item)
+        PhagePublic::commit(item)
         item
     end
 
@@ -170,7 +170,7 @@ class NyxNodes
     # NyxNodes::edit(item) # item
     def self.edit(item)
         Nx113Edit::edit(item)
-        PhageAgentObjects::getObjectOrNull(item["uuid"])
+        PhagePublic::getObjectOrNull(item["uuid"])
     end
 
     # NyxNodes::landing(item)
@@ -178,7 +178,7 @@ class NyxNodes
         loop {
             return nil if item.nil?
             uuid = item["uuid"]
-            item = PhageAgentObjects::getObjectOrNull(uuid)
+            item = PhagePublic::getObjectOrNull(uuid)
             return nil if item.nil?
             system("clear")
             puts NyxNodes::toString(item)
@@ -307,7 +307,7 @@ class NyxNodes
             if input == "network type" then
                 networkType = NyxNodes::interactivelySelectNetworkType()
                 item["networkType"] = networkType
-                Phage::commit(item)
+                PhagePublic::commit(item)
                 next
             end
 

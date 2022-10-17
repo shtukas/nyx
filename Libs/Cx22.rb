@@ -3,12 +3,12 @@ class Cx22
 
     # Cx22::items()
     def self.items()
-        PhageAgentObjects::mikuTypeToObjects("Cx22")
+        PhagePublic::mikuTypeToObjects("Cx22")
     end
 
     # Cx22::getOrNull(uuid)
     def self.getOrNull(uuid)
-        PhageAgentObjects::getObjectOrNull(uuid)
+        PhagePublic::getObjectOrNull(uuid)
     end
 
     # --------------------------------------------
@@ -32,7 +32,7 @@ class Cx22
             "ax39"        => ax39
         }
         FileSystemCheck::fsck_Cx22(item, true)
-        Phage::commit(item)
+        PhagePublic::commit(item)
         item
     end
 
@@ -103,16 +103,16 @@ class Cx22
     def self.interactivelySetANewContributionForItemOrNothing(item)
         cx22 = Cx22::architectOrNull()
         return if cx22.nil?
-        PhageAgentObjects::setAttribute2(item["uuid"], "cx22", cx22["uuid"])
-        PhageAgentObjects::getObjectOrNull(item["uuid"])
+        PhagePublic::setAttribute2(item["uuid"], "cx22", cx22["uuid"])
+        PhagePublic::getObjectOrNull(item["uuid"])
     end
 
     # Cx22::interactivelySetANewContributionForItemWithPositionOrNothing(item) # item
     def self.interactivelySetANewContributionForItemWithPositionOrNothing(item)
         cx22 = Cx22::architectOrNull()
         return if cx22.nil?
-        PhageAgentObjects::setAttribute2(item["uuid"], "cx22", cx22["uuid"])
-        item = PhageAgentObjects::getObjectOrNull(item["uuid"])
+        PhagePublic::setAttribute2(item["uuid"], "cx22", cx22["uuid"])
+        item = PhagePublic::getObjectOrNull(item["uuid"])
         Cx23::interactivelySetCx23ForItemOrNothing(item)
     end
 
@@ -221,7 +221,7 @@ class Cx22
                 entity = store.get(indx)
                 next if entity.nil?
                 cx23 = Cx23::makeCx23(cx22, position)
-                PhageAgentObjects::setAttribute2(entity["uuid"], "cx23", cx23)
+                PhagePublic::setAttribute2(entity["uuid"], "cx23", cx23)
                 next
             end
 
@@ -229,7 +229,7 @@ class Cx22
                 NxTodos::itemsInPositionOrderForGroup(cx22).each_with_index{|element, indx|
                     next if element["cx23"].nil?
                     element["cx23"]["position"] = indx
-                    Phage::commit(element)
+                    PhagePublic::commit(element)
                 }
             end
         }
@@ -252,7 +252,7 @@ class Cx22
                 description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
                 next if description == ""
                 cx22["description"] = description
-                Phage::commit(cx22)
+                PhagePublic::commit(cx22)
                 next
             end
             if action == "set: done for the day" then

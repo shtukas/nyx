@@ -7,7 +7,7 @@ class NetworkEdges
 
     # NetworkEdges::relate(uuid1, uuid2)
     def self.relate(uuid1, uuid2)
-        Phage::commit({
+        PhagePublic::commit({
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
             "phage_alive" => Time.new.to_f,
@@ -23,7 +23,7 @@ class NetworkEdges
 
     # NetworkEdges::arrow(uuid1, uuid2)
     def self.arrow(uuid1, uuid2)
-        Phage::commit({
+        PhagePublic::commit({
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
             "phage_alive" => Time.new.to_f,
@@ -39,7 +39,7 @@ class NetworkEdges
 
     # NetworkEdges::detach(uuid1, uuid2)
     def self.detach(uuid1, uuid2)
-        Phage::commit({
+        PhagePublic::commit({
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
             "phage_alive" => Time.new.to_f,
@@ -58,7 +58,7 @@ class NetworkEdges
     # NetworkEdges::parentUUIDs(uuid)
     def self.parentUUIDs(uuid)
         parents = []
-        PhageAgentObjects::mikuTypeToObjects("NxGraphEdge1")
+        PhagePublic::mikuTypeToObjects("NxGraphEdge1")
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .each{|item|
                 if item["uuid2"] == uuid and item["type"] == "arrow" then
@@ -74,7 +74,7 @@ class NetworkEdges
     # NetworkEdges::relatedUUIDs(uuid)
     def self.relatedUUIDs(uuid)
         related = []
-        PhageAgentObjects::mikuTypeToObjects("NxGraphEdge1")
+        PhagePublic::mikuTypeToObjects("NxGraphEdge1")
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .each{|item|
                 if item["uuid1"] == uuid and item["type"] == "bidirectional" then
@@ -96,7 +96,7 @@ class NetworkEdges
     # NetworkEdges::childrenUUIDs(uuid)
     def self.childrenUUIDs(uuid)
         children = []
-        PhageAgentObjects::mikuTypeToObjects("NxGraphEdge1")
+        PhagePublic::mikuTypeToObjects("NxGraphEdge1")
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .each{|item|
                 if item["uuid1"] == uuid and item["type"] == "arrow" then
@@ -112,21 +112,21 @@ class NetworkEdges
     # NetworkEdges::parents(uuid)
     def self.parents(uuid)
         NetworkEdges::parentUUIDs(uuid)
-            .map{|objectuuid| PhageAgentObjects::getObjectOrNull(objectuuid) }
+            .map{|objectuuid| PhagePublic::getObjectOrNull(objectuuid) }
             .compact
     end
 
     # NetworkEdges::relateds(uuid)
     def self.relateds(uuid)
         NetworkEdges::relatedUUIDs(uuid)
-            .map{|objectuuid| PhageAgentObjects::getObjectOrNull(objectuuid) }
+            .map{|objectuuid| PhagePublic::getObjectOrNull(objectuuid) }
             .compact
     end
 
     # NetworkEdges::children(uuid)
     def self.children(uuid)
         NetworkEdges::childrenUUIDs(uuid)
-            .map{|objectuuid| PhageAgentObjects::getObjectOrNull(objectuuid) }
+            .map{|objectuuid| PhagePublic::getObjectOrNull(objectuuid) }
             .compact
     end
 

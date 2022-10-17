@@ -1,14 +1,14 @@
 
 # encoding: UTF-8
 
-class Phage
+class PhageInternals
 
     # phage.sqlite3
     # create table _objects_ (_phage_uuid_ text primary key, _uuid_ text, _mikuType_ text, _object_ text);
 
     # UTILS
 
-    # Phage::variantsToUniqueVariants(variants)
+    # PhageInternals::variantsToUniqueVariants(variants)
     def self.variantsToUniqueVariants(variants)
         answer = []
         phage_uuids_recorded = {}
@@ -20,7 +20,7 @@ class Phage
         answer
     end
 
-    # Phage::variantsToObjects(objects)
+    # PhageInternals::variantsToObjects(objects)
     def self.variantsToObjects(objects)
         higestOfTwo = lambda {|o1Opt, o2|
             if o1Opt.nil? then
@@ -42,13 +42,13 @@ class Phage
 
     # DATABASES
 
-    # Phage::databasesPathsForReading()
+    # PhageInternals::databasesPathsForReading()
     def self.databasesPathsForReading()
         LucilleCore::locationsAtFolder("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Phage")
             .select{|filepath| filepath[-8, 8] == ".sqlite3" }
     end
 
-    # Phage::databasePathForWriting()
+    # PhageInternals::databasePathForWriting()
     def self.databasePathForWriting()
         instanceId = Config::get("instanceId")
         filepath = "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Phage/phage-#{CommonUtils::today()}-#{instanceId}.sqlite3"
@@ -60,9 +60,9 @@ class Phage
         filepath
     end
 
-    # Phage::datatrace()
+    # PhageInternals::datatrace()
     def self.datatrace()
-        Phage::databasesPathsForReading()
+        PhageInternals::databasesPathsForReading()
             .sort
             .map{|filepath|
                 {
@@ -75,29 +75,64 @@ class Phage
             }
     end
 
-    # SETTERS
+    # VARIANTS
 
-    # Phage::commit(object)
-    def self.commit(object)
-        # TODO: this is temporary the time to migrate all objects
-        object["phage_uuid"] = SecureRandom.uuid
-        object["phage_time"] = Time.new.to_f
-        FileSystemCheck::fsck_PhageItem(object, SecureRandom.hex, false)
-        db = SQLite3::Database.new(Phage::databasePathForWriting())
+    # PhageInternals::variantsSelectionAtDatabaseFile(databasefilepath, variantSelector, requestCacheKey)
+    # variantSelector: lambda: Variant -> Boolean
+    def self.variantsSelectionAtDatabaseFile(databasefilepath, variantSelector, requestCacheKey)
+
+        requestCacheKey = "f9232983-34a6-4614-9eed-f7fa8f653562:#{databasefilepath}:#{File.mtime(databasefilepath).to_s}:#{requestCacheKey}"
+
+        data = XCache::getOrNull(requestCacheKey)
+        if data then
+            return JSON.parse(data)
+        end
+
+        variants = []
+
+        db = SQLite3::Database.new(databasefilepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        db.execute "insert into _objects_ (_phage_uuid_, _uuid_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["phage_uuid"], object["uuid"], object["mikuType"], JSON.generate(object)]
+        db.execute("select * from _objects_", []) do |row|
+            variant = JSON.parse(row["_object_"])
+            if variantSelector.call(variant) then
+                variants << variant
+            end
+        end
         db.close
-        nil
+
+        XCache::set(requestCacheKey, JSON.generate(variants))
+
+        variants
     end
 
-    # VARIANTS
+    # PhageInternals::variantsSelectionAtPhage(variantSelector, requestCacheKey)
+    def self.variantsSelectionAtPhage(variantSelector, requestCacheKey)
 
-    # Phage::variantsEnumerator()
+        phagedatatrace = PhageInternals::datatrace()
+
+        data = XCache::getOrNull("2114d32b-c865-4aea-a419-ef43378b9af3:#{phagedatatrace}:#{requestCacheKey}")
+        if data then
+            return JSON.parse(data)
+        end
+
+        variants = PhageInternals::databasesPathsForReading()
+                    .map{|databasefilepath|
+                        PhageInternals::variantsSelectionAtDatabaseFile(databasefilepath, variantSelector, requestCacheKey)
+                    }
+                    .flatten
+        variants = PhageInternals::variantsToUniqueVariants(variants)
+
+        XCache::set("2114d32b-c865-4aea-a419-ef43378b9af3:#{phagedatatrace}:#{requestCacheKey}", JSON.generate(variants))
+
+        variants
+    end
+
+    # PhageInternals::variantsEnumerator()
     def self.variantsEnumerator()
         Enumerator.new do |variants|
-            Phage::databasesPathsForReading().each{|filepath|
+            PhageInternals::databasesPathsForReading().each{|filepath|
                 db = SQLite3::Database.new(filepath)
                 db.busy_timeout = 117
                 db.busy_handler { |count| true }
@@ -110,7 +145,7 @@ class Phage
         end
     end
 
-    # Phage::newIshVariantsOnChannelEnumerator(channelId)
+    # PhageInternals::newIshVariantsOnChannelEnumerator(channelId)
     def self.newIshVariantsOnChannelEnumerator(channelId)
 
         getFileIsDoneForChannel = lambda {|channelId, filepath, mtime|
@@ -122,7 +157,7 @@ class Phage
         }
 
         Enumerator.new do |variants|
-            Phage::databasesPathsForReading().each{|filepath|
+            PhageInternals::databasesPathsForReading().each{|filepath|
                 mtime = File.mtime(filepath)
                 next if getFileIsDoneForChannel.call(channelId, filepath, mtime)
 
@@ -142,83 +177,53 @@ class Phage
 
 end
 
-class PhageAgentMikutypes
+class PhagePublic
 
-    # PhageAgentMikutypes::mikuTypeToVariants(mikuType)
+    # SETTERS
+
+    # PhagePublic::commit(object)
+    def self.commit(object)
+        # TODO: this is temporary the time to migrate all objects
+        object["phage_uuid"] = SecureRandom.uuid
+        object["phage_time"] = Time.new.to_f
+        FileSystemCheck::fsck_PhageItem(object, SecureRandom.hex, false)
+        db = SQLite3::Database.new(PhageInternals::databasePathForWriting())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "insert into _objects_ (_phage_uuid_, _uuid_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["phage_uuid"], object["uuid"], object["mikuType"], JSON.generate(object)]
+        db.close
+        nil
+    end
+
+    # PhagePublic::destroy(uuid)
+    def self.destroy(uuid)
+        # We extract the latest variant, if there is any, and flip it
+        object = PhagePublic::getObjectOrNull(uuid)
+        return if object.nil?
+        object["phage_alive"] = false
+        PhagePublic::commit(object)
+    end
+
+    # GETTERS
+
+    # PhagePublic::mikuTypeToVariants(mikuType)
     def self.mikuTypeToVariants(mikuType)
-
-        variants = []
-
-        phagedatatrace = Phage::datatrace()
-
-        data = XCache::getOrNull("2114d32b-c865-4aea-a419-ef43378b9af3:#{phagedatatrace}:#{mikuType}")
-        if data then
-            return JSON.parse(data)
-        end
-
-        v1s = XCache::getOrNull("19ad36f6-24fb-4ab9-b4bc-1f3aa58cf1d6:#{mikuType}")
-        if v1s then
-            JSON.parse(v1s).each{|variant|
-                variants << variant
-            }
-        end
-        Phage::newIshVariantsOnChannelEnumerator("f7f5e1bb-8154-4f14-a2c4-bb591095c5d1:#{mikuType}")
-            .each{|variant|
-                next if variant["mikuType"] != mikuType
-                variants << variant
-            }
-        variants = Phage::variantsToUniqueVariants(variants)
-        XCache::set("19ad36f6-24fb-4ab9-b4bc-1f3aa58cf1d6:#{mikuType}", JSON.generate(variants))
-
-        XCache::set("2114d32b-c865-4aea-a419-ef43378b9af3:#{phagedatatrace}:#{mikuType}", JSON.generate(variants))
-
-        variants
-    end
-end
-
-class PhageAgentObjects
-
-    # ALL OBJECTS
-
-    # PhageAgentObjects::objects()
-    def self.objects()
-        Phage::variantsToObjects(Phage::variantsEnumerator().to_a)
+        PhageInternals::variantsSelectionAtPhage(lambda {|variant|
+            variant["mikuType"] == mikuType
+        }, "19ad36f6-24fb-4ab9-b4bc-1f3aa58cf1d6:#{mikuType}")
     end
 
-    # SINGLE OBJECTS
-
-    # PhageAgentObjects::getObjectVariants(uuid)
+    # PhagePublic::getObjectVariants(uuid)
     def self.getObjectVariants(uuid)
-
-        variants = []
-
-        phagedatatrace = Phage::datatrace()
-        data = XCache::getOrNull("e5798be0-6986-4aff-8d43-da87641c443d:#{phagedatatrace}:#{uuid}")
-        if data then
-            return JSON.parse(data)
-        end
-
-        v1s = XCache::getOrNull("2fdd2ad1-930c-429b-b74e-560baf6d3d67:#{uuid}")
-        if v1s then
-            JSON.parse(v1s).each{|variant|
-                variants << variant
-            }
-        end
-        Phage::newIshVariantsOnChannelEnumerator("d927148d-44d1-4d9a-a573-af5bd68d56a9:#{uuid}")
-            .each{|variant|
-                next if variant["uuid"] != uuid
-                variants << variant
-            }
-        variants = Phage::variantsToUniqueVariants(variants)
-        XCache::set("2fdd2ad1-930c-429b-b74e-560baf6d3d67:#{uuid}", JSON.generate(variants))
-
-        XCache::set("e5798be0-6986-4aff-8d43-da87641c443d:#{phagedatatrace}:#{uuid}", JSON.generate(variants))
-        variants
+        PhageInternals::variantsSelectionAtPhage(lambda {|variant|
+            variant["uuid"] == uuid
+        }, "d6bb2092-d355-447f-94ca-0cb43f7014d1:#{uuid}")
     end
 
-    # PhageAgentObjects::getObjectOrNull(uuid)
+    # PhagePublic::getObjectOrNull(uuid)
     def self.getObjectOrNull(uuid)
-        objects = Phage::variantsToObjects(PhageAgentObjects::getObjectVariants(uuid))
+        objects = PhageInternals::variantsToObjects(PhagePublic::getObjectVariants(uuid))
         # The number of objects should be zero or one
         if objects.size > 1 then
             raise "(error: 1de85ac2-1788-448c-929f-e9d8e4d913df) unusual number of objects found for uuid: #{uuid}, found #{objects.size}"
@@ -226,46 +231,21 @@ class PhageAgentObjects
         objects.first
     end
 
-    # PhageAgentObjects::setAttribute2(objectuuid, attname, attvalue)
+    # PhagePublic::setAttribute2(objectuuid, attname, attvalue)
     def self.setAttribute2(objectuuid, attname, attvalue)
-        item = PhageAgentObjects::getObjectOrNull(objectuuid)
+        item = PhagePublic::getObjectOrNull(objectuuid)
         return if item.nil?
         item[attname] = attvalue
-        Phage::commit(item)
+        PhagePublic::commit(item)
     end
 
-    # PhageAgentObjects::destroy(uuid)
-    def self.destroy(uuid)
-        # We extract the latest variant, if there is any, and flip it
-        object = PhageAgentObjects::getObjectOrNull(uuid)
-        return if object.nil?
-        object["phage_alive"] = false
-        Phage::commit(object)
-    end
-
-    # MIKUTYPES
-
-    # PhageAgentObjects::mikuTypeToObjects(mikuType)
+    # PhagePublic::mikuTypeToObjects(mikuType)
     def self.mikuTypeToObjects(mikuType)
-        phagedatatrace = Phage::datatrace()
-        objects = XCache::getOrNull("62c5c064-d8b8-4cf4-8d9e-f7f1826fe529:#{phagedatatrace}:#{mikuType}")
-        if objects then
-            return JSON.parse(objects)
-        end
-        objects = Phage::variantsToObjects(PhageAgentMikutypes::mikuTypeToVariants(mikuType))
-        XCache::set("62c5c064-d8b8-4cf4-8d9e-f7f1826fe529:#{phagedatatrace}:#{mikuType}", JSON.generate(objects))
-        objects
+        PhageInternals::variantsToObjects(PhagePublic::mikuTypeToVariants(mikuType))
     end
 
-    # PhageAgentObjects::mikuTypeObjectCount(mikuType) # Integer
+    # PhagePublic::mikuTypeObjectCount(mikuType) # Integer
     def self.mikuTypeObjectCount(mikuType)
-        phagedatatrace = Phage::datatrace()
-        count = XCache::getOrNull("50800c36-e636-4867-beeb-9aab5dac0fa8:#{phagedatatrace}:#{mikuType}")
-        if count then
-            return count.to_i
-        end
-        count = PhageAgentObjects::mikuTypeToObjects(mikuType).size
-        XCache::set("50800c36-e636-4867-beeb-9aab5dac0fa8:#{phagedatatrace}:#{mikuType}", count)
-        count
+        PhageInternals::variantsToObjects(PhagePublic::mikuTypeToVariants(mikuType)).count
     end
 end
