@@ -121,8 +121,6 @@ class Streaming
                 break
             end
 
-            SystemEvents::processIncomingEventsFromLine(true)
-
             LucilleCore::locationsAtFolder("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")
                 .each{|location|
                     next if File.basename(location).start_with?(".")

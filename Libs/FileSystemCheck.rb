@@ -222,31 +222,6 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsck_NxDoNotShowUntil(event, runhash, verbose)
-    def self.fsck_NxDoNotShowUntil(event, runhash, verbose)
-        repeatKey = "#{runhash}:#{JSON.generate(event)}"
-        return if XCache::getFlag(repeatKey)
-
-        if verbose then
-            puts "FileSystemCheck::fsck_NxDoNotShowUntil(#{JSON.pretty_generate(event)}, #{runhash}, #{verbose})"
-        end
-
-        if event["mikuType"].nil? then
-            raise "event has no Miku type"
-        end
-        if event["mikuType"] != "NxDoNotShowUntil" then
-            raise "Incorrect Miku type for function"
-        end
-        if event["targetuuid"].nil? then
-            raise "Missing attribute targetuuid"
-        end
-        if event["targetunixtime"].nil? then
-            raise "Missing attribute targetunixtime"
-        end
-
-        XCache::setFlag(repeatKey, true)
-    end
-
     # FileSystemCheck::fsck_NxGraphEdge1(item, runhash, verbose)
     def self.fsck_NxGraphEdge1(item, runhash, verbose)
         repeatKey = "#{runhash}:#{JSON.generate(item)}"

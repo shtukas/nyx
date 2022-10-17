@@ -6,28 +6,15 @@ class DoNotShowUntil
 
     # DoNotShowUntil::setUnixtime(uuid, unixtime)
     def self.setUnixtime(uuid, unixtime)
-        XCache::set("acc88746-0f3b-45ec-83b4-b511cc1563a4:#{uuid}", unixtime)
-        SystemEvents::broadcast({
-            "mikuType"       => "NxDoNotShowUntil",
-            "targetuuid"     => uuid,
-            "targetunixtime" => unixtime
-        })
-    end
-
-    # DoNotShowUntil::processEvent(event)
-    def self.processEvent(event)
-        if event["mikuType"] == "NxDoNotShowUntil" then
-            FileSystemCheck::fsck_NxDoNotShowUntil(event, SecureRandom.hex, false)
-            uuid     = event["targetuuid"]
-            unixtime = event["targetunixtime"]
-            XCache::set("acc88746-0f3b-45ec-83b4-b511cc1563a4:#{uuid}", unixtime)
-        end
+        filepath = "#{Config::pathToDataCenter()}/DoNotShowUntil/#{uuid}.data"
+        File.open(filepath, "w"){|f| f.write(unixtime) }
     end
 
     # DoNotShowUntil::getUnixtimeOrNull(uuid)
     def self.getUnixtimeOrNull(uuid)
-        unixtime = XCache::getOrNull("acc88746-0f3b-45ec-83b4-b511cc1563a4:#{uuid}")
-        unixtime ? unixtime.to_f : nil
+        filepath = "#{Config::pathToDataCenter()}/DoNotShowUntil/#{uuid}.data"
+        return nil if !File.exists?(filepath)
+        IO.read(filepath).to_f
     end
 
     # DoNotShowUntil::getDateTimeOrNull(uuid)

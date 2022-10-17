@@ -44,14 +44,14 @@ class PhageInternals
 
     # PhageInternals::databasesPathsForReading()
     def self.databasesPathsForReading()
-        LucilleCore::locationsAtFolder("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Phage")
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Phage")
             .select{|filepath| filepath[-8, 8] == ".sqlite3" }
     end
 
     # PhageInternals::databasePathForWriting()
     def self.databasePathForWriting()
         instanceId = Config::get("instanceId")
-        filepath = "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/Phage/phage-#{CommonUtils::today()}-#{instanceId}.sqlite3"
+        filepath = "#{Config::pathToDataCenter()}/Phage/phage-#{CommonUtils::today()}-#{instanceId}.sqlite3"
         if !File.exists?(filepath) then
             db = SQLite3::Database.new(filepath)
             db.execute("create table _objects_ (_phage_uuid_ text primary key, _uuid_ text, _mikuType_ text, _object_ text);")

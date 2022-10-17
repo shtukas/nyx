@@ -48,7 +48,6 @@ checkLocation = lambda{|location|
 
 
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-Config.json")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-DataCenter/CommsLine")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-DataCenter/DataStore1")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")
@@ -194,7 +193,6 @@ require_relative "Phage.rb"
 
 require_relative "SectionsType0141.rb"
 require_relative "Search.rb"
-require_relative "SystemEvents.rb"
 require_relative "Stargate.rb"
 require_relative "Streaming.rb"
 

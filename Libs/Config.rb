@@ -13,4 +13,9 @@ class Config
     def self.userHomeDirectory()
         ENV['HOME']
     end
+
+    # Config::pathToDataCenter()
+    def self.pathToDataCenter()
+        "#{ENV['HOME']}/Galaxy/DataBank/Stargate-DataCenter"
+    end
 end
