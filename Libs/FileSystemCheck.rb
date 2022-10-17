@@ -334,7 +334,6 @@ class FileSystemCheck
             return
         end
 
-
         if mikuType == "NxGraphEdge1" then
             FileSystemCheck::fsck_NxGraphEdge1(item, runhash, verbose)
             XCache::setFlag(repeatKey, true)

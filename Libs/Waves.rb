@@ -169,7 +169,7 @@ class Waves
 
     # Waves::performWaveNx46WaveDone(item)
     def self.performWaveNx46WaveDone(item)
-        NxBallsService::close(item["uuid"], true)
+        NxBallsService::close(NxBallsService::itemToNxBallOpt(item), true)
 
         puts "done-ing: #{Waves::toString(item)}"
         PhagePublic::setAttribute2(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)

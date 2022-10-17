@@ -128,7 +128,7 @@ class Cx22
             elements
                 .each{|element|
                     store.register(element, false)
-                    if NxBallsService::isPresent(element["uuid"]) then
+                    if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(element)) then
                         puts "#{store.prefixString()} #{PolyFunctions::toString(element)}#{NxBallsService::activityStringOrEmptyString(" (", element["uuid"], ")")}".green
                     else
                         puts "#{store.prefixString()} #{PolyFunctions::toString(element)}"
@@ -191,7 +191,7 @@ class Cx22
                 indx = input[5, 99].strip.to_i
                 entity = store.get(indx)
                 next if entity.nil?
-                NxBallsService::pause(entity["uuid"])
+                NxBallsService::pause(NxBallsService::itemToNxBallOpt(entity))
                 next
             end
 
@@ -199,7 +199,7 @@ class Cx22
                 indx = input[6, 99].strip.to_i
                 entity = store.get(indx)
                 next if entity.nil?
-                NxBallsService::pursue(entity["uuid"])
+                NxBallsService::pursue(NxBallsService::itemToNxBallOpt(entity))
                 next
             end
 

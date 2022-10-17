@@ -5,10 +5,10 @@ class Bank
     # Bank::put(setuuid, weight: Float) # Used by regular activity. Emits events for the other computer,
     def self.put(setuuid, weight)
         PhagePublic::commit({
+            "uuid"        => SecureRandom.uuid,
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
             "phage_alive" => Time.new.to_f,
-            "uuid"        => SecureRandom.uuid,
             "mikuType"    => "TxBankEvent",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,

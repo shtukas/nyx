@@ -1,41 +1,6 @@
 
 # encoding: UTF-8
 
-class NxBallsIO 
-
-    # --------------------------------------------------------------------
-    # IO
-
-    # NxBallsIO::nxballs()
-    def self.nxballs()
-        PhagePublic::mikuTypeToObjects("NxBall.v2")
-    end
-
-    # NxBallsIO::getItem(uuid)
-    def self.getItem(uuid)
-        # This uuid is sometimes the uuid of the NxBall, but sometimes the uuid of an unuspecting item (the owner). 
-        # This is because when we want to get the NxBall, we sometimes submit the uuid of the item itself.
-        item = PhagePublic::getObjectOrNull(uuid)
-        return item if (item and item["mikuType"] == "NxBall.v2")
-        NxBallsIO::nxballs()
-            .select{|item| item["owneruuid"] == uuid }
-            .first
-    end
-
-    # NxBallsIO::commitItem(item)
-    def self.commitItem(item)
-        PhagePublic::commit(item)
-    end
-
-    # NxBallsIO::destroyItem(uuid)
-    def self.destroyItem(uuid)
-        item = NxBallsIO::getItem(uuid)
-        return if item.nil?
-        PhagePublic::destroy(item["uuid"])
-    end
-
-end
-
 class NxBallsService
 
 =begin
@@ -77,7 +42,6 @@ class NxBallsService
 
     # NxBallsService::issue(owneruuid, description, accounts, desiredBankedTimeInSeconds)
     def self.issue(owneruuid, description, accounts, desiredBankedTimeInSeconds)
-        return if NxBallsIO::getItem(owneruuid)
         nxball = {
             "uuid"         => SecureRandom.uuid,
             "phage_uuid"   => SecureRandom.uuid,
@@ -92,31 +56,42 @@ class NxBallsService
             "status"       => NxBallsService::makeRunningStatus(nil, 0),
             "accounts"     => accounts
         }
-        NxBallsIO::commitItem(nxball)
+        PhagePublic::commit(nxball)
     end
 
-    # NxBallsService::isRunning(uuid)
-    def self.isRunning(uuid)
-        nxball = NxBallsIO::getItem(uuid)
-        return false if nxball.nil?
-        nxball["status"]["type"] == "running"
+    # NxBallsService::getBallByOwnerOrNull(owneruuid)
+    def self.getBallByOwnerOrNull(owneruuid)
+        PhagePublic::mikuTypeToObjects("NxBall.v2")
+            .select{|nxball| nxball["owneruuid"] == owneruuid }
+            .first
     end
 
-    # NxBallsService::isPaused(uuid)
-    def self.isPaused(uuid)
-        nxball = NxBallsIO::getItem(uuid)
-        return false if nxball.nil?
+    # NxBallsService::itemToNxBallOpt(item)
+    def self.itemToNxBallOpt(item)
+        NxBallsService::getBallByOwnerOrNull(item["uuid"])
+    end
+
+    # NxBallsService::isRunning(nxBallOpt)
+    def self.isRunning(nxBallOpt)
+        return false if nxBallOpt.nil?
+        nxBallOpt["status"]["type"] == "running"
+    end
+
+    # NxBallsService::isPaused(nxball)
+    def self.isPaused(nxball)
         nxball["status"]["type"] == "paused"
     end
 
-    # NxBallsService::isPresent(uuid)
-    def self.isPresent(uuid)
-        NxBallsService::isRunning(uuid) or NxBallsService::isPaused(uuid)
+    # NxBallsService::isActive(nxBallOpt)
+    def self.isActive(nxBallOpt)
+        return false if nxBallOpt.nil?
+        nxball = nxBallOpt
+        NxBallsService::isRunning(nxball) or NxBallsService::isPaused(nxball)
     end
 
     # NxBallsService::marginCall(uuid)
     def self.marginCall(uuid)
-        nxball = NxBallsIO::getItem(uuid)
+        nxball = PhagePublic::getObjectOrNull(uuid)
         return if nxball.nil?
         return if nxball["status"]["type"] != "running"
         referenceTimeForUnrealisedAccounting = nxball["status"]["lastMarginCallUnixtime"] ? nxball["status"]["lastMarginCallUnixtime"] : nxball["status"]["thisSprintStartUnixtime"]
@@ -127,51 +102,49 @@ class NxBallsService
         }
         nxball["status"]["lastMarginCallUnixtime"] = Time.new.to_i
         nxball["status"]["bankedTimeInSeconds"] = nxball["status"]["bankedTimeInSeconds"] + timespan
-        NxBallsIO::commitItem(nxball)
+        PhagePublic::commit(nxball)
     end
 
-    # NxBallsService::marginCallIfIsTime(uuid)
-    def self.marginCallIfIsTime(uuid)
-        nxball = NxBallsIO::getItem(uuid)
-        return if nxball.nil?
+    # NxBallsService::marginCallIfIsTime(nxball)
+    def self.marginCallIfIsTime(nxball)
         return if nxball["status"]["type"] != "running"
         referenceTimeForUnrealisedAccounting = nxball["status"]["lastMarginCallUnixtime"] ? nxball["status"]["lastMarginCallUnixtime"] : nxball["status"]["thisSprintStartUnixtime"]
         return if (Time.new.to_f - referenceTimeForUnrealisedAccounting) < 600
         NxBallsService::marginCall(uuid)
     end
 
-    # NxBallsService::pause(uuid) # timespan in seconds or null
-    def self.pause(uuid)
-        nxball = NxBallsIO::getItem(uuid)
-        return if nxball.nil?
+    # NxBallsService::pause(nxBallOpt)
+    def self.pause(nxBallOpt)
+        return if nxBallOpt.nil?
+        nxball = nxBallOpt
         return if nxball["status"]["type"] != "running"
         NxBallsService::marginCall(uuid)
-        nxball = NxBallsIO::getItem(uuid)
+        nxball = PhagePublic::getObjectOrNull(uuid)
         nxball["status"] = NxBallsService::makePausedStatus(nxball["status"]["bankedTimeInSeconds"])
-        NxBallsIO::commitItem(nxball)
+        PhagePublic::commit(nxball)
     end
 
-    # NxBallsService::pursue(uuid)
-    def self.pursue(uuid)
-        nxball = NxBallsIO::getItem(uuid)
-        return nil if nxball.nil?
+    # NxBallsService::pursue(nxBallOpt)
+    def self.pursue(nxBallOpt)
+        return if nxBallOpt.nil?
+        nxball = nxBallOpt
         if nxball["status"]["type"] == "running" then
             NxBallsService::marginCall(uuid)
-            nxball = NxBallsIO::getItem(uuid)
+            nxball = PhagePublic::getObjectOrNull(uuid)
             # If pursue was called while the item was running, it was because of an 1 hour notification which was shown, we need to reset it.
             nxball["status"]["thisSprintStartUnixtime"] = Time.new.to_f
-            NxBallsIO::commitItem(nxball)
+            PhagePublic::commit(nxball)
         end
         if nxball["status"]["type"] == "paused" then
             nxball["status"] = NxBallsService::makeRunningStatus(nil, nxball["status"]["bankedTimeInSeconds"])
-            NxBallsIO::commitItem(nxball)
+            PhagePublic::commit(nxball)
         end
     end
 
-    # NxBallsService::close(uuid, verbose) # timespan in seconds or null
-    def self.close(uuid, verbose)
-        nxball = NxBallsIO::getItem(uuid)
-        return nil if nxball.nil?
+    # NxBallsService::close(nxBallOpt, verbose) # timespan in seconds or null
+    def self.close(nxBallOpt, verbose)
+        return if nxBallOpt.nil?
+        nxball = nxBallOpt
         timespan = nil
         if nxball["status"]["type"] == "running" then
             if verbose then
@@ -190,28 +163,16 @@ class NxBallsService
                 puts "(#{Time.new.to_s}) Closing paused NxBall"
             end
         end
-        NxBallsIO::destroyItem(uuid)
+        PhagePublic::destroy(nxball["uuid"])
         timespan
     end
 
     # --------------------------------------------------------------------
     # Information
 
-    # NxBallsService::thisSprintStartUnixtimeOrNull(uuid)
-    def self.thisSprintStartUnixtimeOrNull(uuid)
-        nxball = NxBallsIO::getItem(uuid)
-        if nxball.nil? then
-            return nil
-        end
-        if nxball["status"]["type"] == "paused" then
-            return nil
-        end
-        nxball["status"]["thisSprintStartUnixtime"]
-    end
-
-    # NxBallsService::activityStringOrEmptyString(leftSide, uuid, rightSide)
-    def self.activityStringOrEmptyString(leftSide, uuid, rightSide)
-        nxball = NxBallsIO::getItem(uuid)
+    # NxBallsService::activityStringOrEmptyString(leftSide, item, rightSide)
+    def self.activityStringOrEmptyString(leftSide, item, rightSide)
+        nxball = NxBallsService::getBallByOwnerOrNull(item["uuid"])
         if nxball.nil? then
             return ""
         end

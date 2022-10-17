@@ -315,7 +315,7 @@ class CatalystListing
         end
 
         if Interpreting::match("nxballs", input) then
-            puts JSON.pretty_generate(NxBallsIO::nxballs())
+            puts JSON.pretty_generate(PhagePublic::mikuTypeToObjects("NxBall.v2"))
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -335,7 +335,7 @@ class CatalystListing
         if Interpreting::match("pause", input) then
             item = store.getDefault()
             return if item.nil?
-            NxBallsService::pause(item["uuid"])
+            NxBallsService::pause(NxBallsService::itemToNxBallOpt(item))
             return
         end
 
@@ -343,14 +343,14 @@ class CatalystListing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            NxBallsService::pause(item["uuid"])
+            NxBallsService::pause(NxBallsService::itemToNxBallOpt(item))
             return
         end
 
         if Interpreting::match("pursue", input) then
             item = store.getDefault()
             return if item.nil?
-            NxBallsService::pursue(item["uuid"])
+            NxBallsService::pursue(NxBallsService::itemToNxBallOpt(item))
             return
         end
 
@@ -359,7 +359,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             puts "pursuing: #{JSON.pretty_generate(item)}"
-            NxBallsService::pursue(item["uuid"])
+            NxBallsService::pursue(NxBallsService::itemToNxBallOpt(item))
             return
         end
 
@@ -568,8 +568,8 @@ class CatalystListing
             NxTodos::listingItems()
         ]
             .flatten
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
-            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isActive(NxBallsService::itemToNxBallOpt(item)) }
+            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isActive(NxBallsService::itemToNxBallOpt(item)) }
             .map{|item|
                 {
                     "item"     => item,
@@ -623,7 +623,7 @@ class CatalystListing
         end
 
 
-        nxballs = NxBallsIO::nxballs()
+        nxballs = PhagePublic::mikuTypeToObjects("NxBall.v2")
         if nxballs.size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
@@ -645,7 +645,7 @@ class CatalystListing
                 break if vspaceleft <= 0
                 store.register(item, true)
                 line = "#{store.prefixString()} #{PolyFunctions::toString(item)}"
-                if NxBallsService::isPresent(item["uuid"]) then
+                if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(item)) then
                     line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                 end
                 puts line

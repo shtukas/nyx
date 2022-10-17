@@ -131,7 +131,7 @@ class Streaming
                     LucilleCore::removeFileSystemLocation(location)
                 }
 
-            if NxBallsIO::nxballs().size > 0 then
+            if PhagePublic::mikuTypeToObjects("NxBall.v2").size > 0 then
                 CatalystListing::displayListing()
                 next
             end

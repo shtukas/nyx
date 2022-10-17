@@ -183,9 +183,9 @@ class PhagePublic
 
     # PhagePublic::commit(object)
     def self.commit(object)
-        # TODO: this is temporary the time to migrate all objects
         object["phage_uuid"] = SecureRandom.uuid
         object["phage_time"] = Time.new.to_f
+        puts "PhagePublic::commit(#{JSON.pretty_generate(object)})"
         FileSystemCheck::fsck_PhageItem(object, SecureRandom.hex, false)
         db = SQLite3::Database.new(PhageInternals::databasePathForWriting())
         db.busy_timeout = 117
