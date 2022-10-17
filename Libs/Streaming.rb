@@ -2,13 +2,28 @@
 
 class Streaming
 
+    # Streaming::states()
+    def self.states()
+        ["awaiting start", "running", "stopped"]
+    end
+
+    # Streaming::statesPadding()
+    def self.statesPadding()
+        Streaming::states().map{|state| state.size }.max
+    end
+
+    # Streaming::stateToString(state)
+    def self.stateToString(state)
+        "#{state.ljust(Streaming::statesPadding())}"
+    end
+
     # Streaming::runItem(item, state)
     def self.runItem(item, state)
 
         return if PhagePublic::getObjectOrNull(item["uuid"]).nil?
 
         if state == "awaiting start" then
-            input = LucilleCore::askQuestionAnswerAsString("[#{state}] #{PolyFunctions::toString(item).green} (.. | start | done | time | skip | +(datecode) | landing | exit | commands) : ")
+            input = LucilleCore::askQuestionAnswerAsString("[#{Streaming::stateToString(state)}] #{PolyFunctions::toString(item).green} (.. | start | done | time | skip | +(datecode) | landing | exit | commands) : ")
             if input == "" then
                 Streaming::runItem(item, state)
             end
@@ -54,7 +69,7 @@ class Streaming
         end
 
         if state == "running" then
-            input = LucilleCore::askQuestionAnswerAsString("[#{state}] #{PolyFunctions::toString(item).green} (access | done | stop | (stop+) skip | landing | commands) : ")
+            input = LucilleCore::askQuestionAnswerAsString("[#{Streaming::stateToString(state)}] #{PolyFunctions::toString(item).green} (access | done | stop | (stop+) skip | landing | commands) : ")
             if input == "" then
                 Streaming::runItem(item, state)
             end
@@ -88,7 +103,7 @@ class Streaming
         end
 
         if state == "stopped" then
-            input = LucilleCore::askQuestionAnswerAsString("[#{state}] #{PolyFunctions::toString(item).green} (.. | start | done | skip | +(datecode) | landing | commands) : ")
+            input = LucilleCore::askQuestionAnswerAsString("[#{Streaming::stateToString(state)}] #{PolyFunctions::toString(item).green} (.. | start | done | skip | +(datecode) | landing | commands) : ")
             if input == "" then
                 Streaming::runItem(item, state)
             end
@@ -151,6 +166,8 @@ class Streaming
                 CatalystListing::displayListing()
                 next
             end
+
+            system("clear")
 
             Streaming::runItem(CatalystListing::listingItemsInPriorityOrderDesc().first, "awaiting start")
         }
