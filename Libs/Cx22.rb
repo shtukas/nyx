@@ -130,9 +130,15 @@ class Cx22
         loop {
             system("clear")
             puts ""
+            count1 = 0
             puts Cx22::toString(cx22)
+            PhagePublic::mikuTypeToObjects("NxBall.v2")
+                .each{|nxball|
+                    puts "[NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})".green
+                    count1 = count1 + 1
+                }
             puts ""
-            elements = NxTodos::itemsInPositionOrderForGroup(cx22).first(CommonUtils::screenHeight() - 10)
+            elements = NxTodos::itemsInPositionOrderForGroup(cx22).first(CommonUtils::screenHeight() - (10+count1))
             store = ItemStore.new()
             elements
                 .each{|element|
@@ -262,17 +268,15 @@ class Cx22
     # Cx22::dive(cx22)
     def self.dive(cx22)
         loop {
-            puts Cx22::toString(cx22).green
+            system("clear")
+            puts Cx22::toString(cx22)
 
             nxballs = PhagePublic::mikuTypeToObjects("NxBall.v2")
             if nxballs.size > 0 then
-                puts ""
                 nxballs
                     .each{|nxball|
-                        line = "[NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
-                        puts line.green
+                        puts "[NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})".green
                     }
-                puts ""
             end
 
             puts "completion ratio: #{Ax39::completionRatio(cx22["ax39"], cx22["bankaccount"])}"
@@ -329,6 +333,7 @@ class Cx22
     # Cx22::maindive()
     def self.maindive()
         loop {
+            system("clear")
             nxballs = PhagePublic::mikuTypeToObjects("NxBall.v2")
             if nxballs.size > 0 then
                 puts ""
