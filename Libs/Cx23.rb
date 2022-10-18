@@ -20,9 +20,10 @@ class Cx23
                     "description" => item["description"]
                 }
             }
-        data.each{|i|
-            puts "#{i["position"]} : #{i["description"]}"
-        }
+        data.take(CommonUtils::screenHeight()-4)
+             .each{|i|
+                puts "#{i["position"]} : #{i["description"]}"
+            }
         position = LucilleCore::askQuestionAnswerAsString("position (empty for next): ")
         if position == "" then
             position = Cx22::nextPositionForCx22(cx22)

@@ -342,6 +342,11 @@ class PolyActions
     # PolyActions::stop(item)
     def self.stop(item)
         #puts "PolyActions::stop(#{JSON.pretty_generate(item)})"
+        if item["mikuType"] == "NxBall.v2" then
+            NxBallsService::close(item, true)
+            return
+        end
+
         NxBallsService::close(NxBallsService::itemToNxBallOpt(item), true)
     end
 

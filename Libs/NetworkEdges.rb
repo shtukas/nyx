@@ -90,7 +90,7 @@ class NetworkEdges
                     related = related - [item["uuid1"]]
                 end
             }
-        related.uniq
+        (related - [uuid]).uniq
     end
 
     # NetworkEdges::childrenUUIDs(uuid)
