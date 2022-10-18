@@ -116,14 +116,29 @@ class Cx22
         Cx23::interactivelySetCx23ForItemOrNothing(item)
     end
 
+    # Cx22::nextPositionForCx22(cx22)
+    def self.nextPositionForCx22(cx22)
+        (NxTodos::items()
+            .select{|item| item["cx22"] }
+            .select{|item| item["cx22"] == cx22["uuid"] }
+            .select{|item| item["cx23"] }
+            .map{|item| item["cx23"]["position"] } + [0]).max + 1
+    end
+
     # Cx22::elementsDive(cx22)
     def self.elementsDive(cx22)
         loop {
             system("clear")
             puts ""
+            count1 = 0
             puts Cx22::toString(cx22)
+            PhagePublic::mikuTypeToObjects("NxBall.v2")
+                .each{|nxball|
+                    puts "[NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})".green
+                    count1 = count1 + 1
+                }
             puts ""
-            elements = NxTodos::itemsInPositionOrderForGroup(cx22).first(CommonUtils::screenHeight() - 8)
+            elements = NxTodos::itemsInPositionOrderForGroup(cx22).first(CommonUtils::screenHeight() - (10+count1))
             store = ItemStore.new()
             elements
                 .each{|element|
@@ -135,7 +150,7 @@ class Cx22
                     end
                 }
             puts ""
-            puts "<n> | insert | position <n> <position> | start <n> | stop <n> | pause <n> | pursue <n> | done <n> | reissue positions sequence | exit".yellow
+            puts "<n> | insert | position <n> <position> | start <n> | access <n> | stop <n> | pause <n> | pursue <n> | done <n> | start group | reissue positions sequence | exit".yellow
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
             return if input == "exit"
@@ -161,7 +176,8 @@ class Cx22
                                 next
                             end
                             if position == "next" then
-                                return Cx23::makeCx23(cx22, Time.new.to_f)
+                                position = Cx22::nextPositionForCx22(cx22) + 1
+                                return Cx23::makeCx23(cx22, position)
                             end
                             return Cx23::makeCx23(cx22, position.to_f)
                         }
@@ -171,11 +187,19 @@ class Cx22
                 next
             end
 
-            if input.start_with?("start") then
+            if input.start_with?("start") and input != "start group" then
                 indx = input[5, 99].strip.to_i
                 entity = store.get(indx)
                 next if entity.nil?
                 PolyActions::start(entity)
+                next
+            end
+
+            if input.start_with?("access") then
+                indx = input[6, 99].strip.to_i
+                entity = store.get(indx)
+                next if entity.nil?
+                PolyActions::access(entity)
                 next
             end
 
@@ -225,9 +249,15 @@ class Cx22
                 next
             end
 
+            if input == "start group" then
+                NxBallsService::issue(SecureRandom.uuid, "cx22: #{cx22["description"]}", [cx22["bankaccount"]], 3600)
+                next
+            end
+
             if input == "reissue positions sequence" then
                 NxTodos::itemsInPositionOrderForGroup(cx22).each_with_index{|element, indx|
                     next if element["cx23"].nil?
+                    puts JSON.pretty_generate(element)
                     element["cx23"]["position"] = indx
                     PhagePublic::commit(element)
                 }
@@ -238,7 +268,18 @@ class Cx22
     # Cx22::dive(cx22)
     def self.dive(cx22)
         loop {
-            puts Cx22::toString(cx22).green
+            system("clear")
+            puts Cx22::toString(cx22)
+
+            nxballs = PhagePublic::mikuTypeToObjects("NxBall.v2")
+            if nxballs.size > 0 then
+                nxballs
+                    .each{|nxball|
+                        puts "[NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})".green
+                    }
+            end
+
+            puts "completion ratio: #{Ax39::completionRatio(cx22["ax39"], cx22["bankaccount"])}"
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["elements (program)", "start NxBall", "update description", "set: done for the day", "unset: done for the day", "expose", "completion ratio", "add time"])
             break if action.nil?
             if action == "elements (program)" then
@@ -292,6 +333,17 @@ class Cx22
     # Cx22::maindive()
     def self.maindive()
         loop {
+            system("clear")
+            nxballs = PhagePublic::mikuTypeToObjects("NxBall.v2")
+            if nxballs.size > 0 then
+                puts ""
+                nxballs
+                    .each{|nxball|
+                        line = "[NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
+                        puts line.green
+                    }
+                puts ""
+            end
             cx22 = Cx22::interactivelySelectCx22OrNullDiveStyle()
             return if cx22.nil?
             Cx22::dive(cx22)

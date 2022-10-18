@@ -4,6 +4,7 @@ class Cx23
     # Cx23::makeCx23(cx22, position)
     def self.makeCx23(cx22, position)
         {
+            "mikuType"  => "Cx23",
             "groupuuid" => cx22["uuid"],
             "position"  => position
         }
@@ -19,12 +20,16 @@ class Cx23
                     "description" => item["description"]
                 }
             }
-        data.each{|i|
-            puts "#{i["position"]} : #{i["description"]}"
-        }
-        position = LucilleCore::askQuestionAnswerAsString("position (empty for abort): ")
-        return nil if position == ""
-        position = position.to_f
+        data.take(CommonUtils::screenHeight()-4)
+             .each{|i|
+                puts "#{i["position"]} : #{i["description"]}"
+            }
+        position = LucilleCore::askQuestionAnswerAsString("position (empty for next): ")
+        if position == "" then
+            position = Cx22::nextPositionForCx22(cx22)
+        else
+            position = position.to_f
+        end
         Cx23::makeCx23(cx22, position)
     end
 

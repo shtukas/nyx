@@ -188,14 +188,23 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxBall.v2" then
+            NxBallsService::close(item, true)
             return
         end
 
         if item["mikuType"] == "NxTodo" then
             if item["nx113"] then
-                puts "You cannot done a todo with some contents (Nx113), you need to land on it and destroy it"
-                if LucilleCore::askQuestionAnswerAsBoolean("landing ? ") then
+                puts "You are attempting to done a NxTodo which carries some contents (Nx113)"
+                option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["landing", "Luke, use the Force (destroy)", "exit"])
+                return if option == ""
+                if option == "landing" then
                     PolyActions::landing(item)
+                end
+                if option == "Luke, use the Force (destroy)" then
+                    NxTodos::destroy(item["uuid"])
+                end
+                if option == "exit" then
+                    return
                 end
                 return
             end
@@ -257,13 +266,7 @@ class PolyActions
         if item["nx113"] then
             nx113 = Nx113Access::getNx113(item["nx113"])
             if nx113["type"] == "Dx8Unit" then
-                PhagePublic::commit({
-                    "uuid"     => SecureRandom.uuid,
-                    "mikuType" => "Dx33",
-                    "unixtime" => Time.new.to_f,
-                    "datetime" => Time.new.utc.iso8601,
-                    "unitId"   => nx113["unitId"]
-                })
+                Nx113SpecialCircumstances::issueDx33(nx113["unitId"])
             end
         end
     end
@@ -339,6 +342,11 @@ class PolyActions
     # PolyActions::stop(item)
     def self.stop(item)
         #puts "PolyActions::stop(#{JSON.pretty_generate(item)})"
+        if item["mikuType"] == "NxBall.v2" then
+            NxBallsService::close(item, true)
+            return
+        end
+
         NxBallsService::close(NxBallsService::itemToNxBallOpt(item), true)
     end
 

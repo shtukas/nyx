@@ -559,8 +559,8 @@ class CatalystListing
         end
     end
 
-    # CatalystListing::listingItems()
-    def self.listingItems()
+    # CatalystListing::listingItemsInPriorityOrderDesc()
+    def self.listingItemsInPriorityOrderDesc()
         [
             Anniversaries::listingItems(),
             TxManualCountDowns::listingItems(),
@@ -640,7 +640,7 @@ class CatalystListing
         puts ""
         vspaceleft = vspaceleft - 1
 
-        CatalystListing::listingItems()
+        CatalystListing::listingItemsInPriorityOrderDesc()
             .each{|item|
                 break if vspaceleft <= 0
                 store.register(item, true)
