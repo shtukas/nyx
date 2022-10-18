@@ -3,7 +3,7 @@
 
 class Nx113Make
 
-    # Nx113Make::text(text) # nhash pointer to DataStore1 location of JSON encoded Nx113
+    # Nx113Make::text(text) # Nx113
     def self.text(text)
         {
             "mikuType" => "Nx113",
@@ -12,7 +12,7 @@ class Nx113Make
         }
     end
 
-    # Nx113Make::url(url) # nhash pointer to DataStore1 location of JSON encoded Nx113
+    # Nx113Make::url(url) # Nx113
     def self.url(url)
         {
             "mikuType" => "Nx113",
@@ -21,7 +21,7 @@ class Nx113Make
         }
     end
 
-    # Nx113Make::file(filepath) # nhash pointer to DataStore1 location of JSON encoded Nx113
+    # Nx113Make::file(filepath) # Nx113
     def self.file(filepath)
         raise "(error: d3539fc0-5615-46ff-809b-85ac34850070)" if !File.exists?(filepath)
 
@@ -38,7 +38,7 @@ class Nx113Make
         }
     end
 
-    # Nx113Make::aionpoint(location) # nhash pointer to DataStore1 location of JSON encoded Nx113
+    # Nx113Make::aionpoint(location) # Nx113
     def self.aionpoint(location)
         raise "(error: 93590239-f8e0-4f35-af47-d7f1407e21f2)" if !File.exists?(location)
         operator = DataStore2SQLiteBlobStoreElizabethTheForge.new()
@@ -51,7 +51,7 @@ class Nx113Make
         }
     end
 
-    # Nx113Make::dx8Unit(unitId) # nhash pointer to DataStore1 location of JSON encoded Nx113
+    # Nx113Make::dx8Unit(unitId) # Nx113
     def self.dx8Unit(unitId)
         {
             "mikuType" => "Nx113",
@@ -60,7 +60,7 @@ class Nx113Make
         }
     end
 
-    # Nx113Make::uniqueString(uniquestring) # nhash pointer to DataStore1 location of JSON encoded Nx113
+    # Nx113Make::uniqueString(uniquestring) # Nx113
     def self.uniqueString(uniquestring)
         {
             "mikuType"     => "Nx113",
@@ -79,7 +79,7 @@ class Nx113Make
         LucilleCore::selectEntityFromListOfEntitiesOrNull("type", Nx113Make::types())
     end
 
-    # Nx113Make::interactivelyMakeNx113OrNull() # nhash pointer to DataStore1 location of JSON encoded Nx113
+    # Nx113Make::interactivelyMakeNx113OrNull() # Nx113
     def self.interactivelyMakeNx113OrNull()
         type = Nx113Make::interactivelySelectOneNx113TypeOrNull()
         return nil if type.nil?
@@ -292,5 +292,55 @@ class Nx113Edit
             puts "Edit is not implemented for unique-string"
             LucilleCore::pressEnterToContinue()
         end
+    end
+end
+
+class Nx113SpecialCircumstances
+
+    # Nx113SpecialCircumstances::issueDx33(unitId)
+    def self.issueDx33(unitId)
+        dx33 = {
+            "uuid"     => SecureRandom.uuid,
+            "mikuType" => "Dx33",
+            "unixtime" => Time.new.to_f,
+            "datetime" => Time.new.utc.iso8601,
+            "unitId"   => unitId
+        }
+        puts JSON.pretty_generate(dx33)
+        PhagePublic::commit(dx33)
+    end
+end
+
+class Nx113Transforms
+
+    # Nx113Edit::transformDx8UnitToAionPointOrNull(nx113)
+    def self.transformDx8UnitToAionPointOrNull(nx113)
+        return nil if nx113["type"] != "Dx8Unit" # Not the right Nx113 type
+        # We access the unit if we can, and then make a aion point, and then issue a Dx33
+        unitId = nx113["unitId"]
+        location = Dx8UnitsUtils::acquireUnitFolderPathOrNull(unitId)
+        return nil if !File.exists?(location) # Dx8Unit is not reachable
+        nx113v2 = Nx113Make::aionpoint(location) # Nx113
+        # We should not forget to issue the Dx33
+        Nx113SpecialCircumstances::issueDx33(unitId)
+        nx113v2
+    end
+
+    # Nx113Edit::mutateItemIfCarryingADx8UnitToCarryAnAionPoint(item)
+    def self.mutateItemIfCarryingDx8UnitToCarryAionPoint(item)
+        return if item["nx113"].nil?
+        nx113v2 = Nx113Edit::transformDx8UnitToAionPointOrNull(item["nx113"])
+        return if nx113v2.nil?
+        FileSystemCheck::fsck_Nx113(nx113v2, SecureRandom.hex, true)
+        puts "Nx113Edit::mutateItemIfCarryingADx8UnitToCarryAnAionPoint: #{PolyFunctions::toString(item).green}, #{JSON.pretty_generate(item["nx113"])}, #{JSON.pretty_generate(nx113v2)}"
+        item["nx113"] = nx113v2
+        PhagePublic::commit(item)
+    end
+
+    # Nx113Edit::transformDx8UnitToAionPointsDuringEnergyGridUpdate()
+    def self.transformDx8UnitToAionPointsDuringEnergyGridUpdate()
+        NxTodos::listingItems().each{|item|
+            Nx113Edit::mutateItemIfCarryingADx8UnitToCarryAnAionPoint(item)
+        }
     end
 end

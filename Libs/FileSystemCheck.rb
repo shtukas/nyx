@@ -43,6 +43,10 @@ class FileSystemCheck
             puts "FileSystemCheck::fsck_Nx11E(#{JSON.pretty_generate(nx11e)}, #{verbose})"
         end
 
+        if item["mikuType"] != "Nx11E" then
+            raise "Incorrect Miku type for function"
+        end
+
         FileSystemCheck::ensureAttribute(nx11e, "uuid", "String")
 
         if nx11e["type"] == "hot" then
@@ -82,6 +86,10 @@ class FileSystemCheck
 
         if verbose then
             puts "FileSystemCheck::fsck_Nx113(#{JSON.pretty_generate(nx113)}, #{runhash}, #{verbose})"
+        end
+
+        if item["mikuType"] != "Nx113" then
+            raise "Incorrect Miku type for function"
         end
 
         if nx113["type"].nil? then
@@ -172,6 +180,10 @@ class FileSystemCheck
 
         FileSystemCheck::phageCore(cx22, verbose)
 
+        if item["mikuType"] != "Cx22" then
+            raise "Incorrect Miku type for function"
+        end
+
         FileSystemCheck::ensureAttribute(cx22, "description", "String")
         FileSystemCheck::ensureAttribute(cx22, "bankaccount", "String")
         FileSystemCheck::ensureAttribute(cx22, "ax39", "Hash")
@@ -185,6 +197,10 @@ class FileSystemCheck
             "FileSystemCheck::fsck_Cx23(#{cx23}, #{verbose})"
         end
 
+        if item["mikuType"] != "Cx23" then
+            raise "Incorrect Miku type for function"
+        end
+
         FileSystemCheck::ensureAttribute(cx23, "groupuuid", "String")
         FileSystemCheck::ensureAttribute(cx23, "position", "Number")
     end
@@ -195,6 +211,10 @@ class FileSystemCheck
 
         if verbose then
             "FileSystemCheck::fsck_Dx33(#{item}, #{verbose})"
+        end
+
+        if item["mikuType"] != "Dx33" then
+            raise "Incorrect Miku type for function"
         end
 
         FileSystemCheck::ensureAttribute(item, "unitId", "String")

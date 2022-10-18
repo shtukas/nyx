@@ -1,0 +1,8 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "../Libs/loader.rb"
+
+puts "Nx113Edit::transformDx8UnitToAionPointsDuringEnergyGridUpdate()"
+Nx113Edit::transformDx8UnitToAionPointsDuringEnergyGridUpdate()
