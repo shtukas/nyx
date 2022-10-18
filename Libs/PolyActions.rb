@@ -188,6 +188,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxBall.v2" then
+            NxBallsService::close(item, true)
             return
         end
 
