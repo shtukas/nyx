@@ -185,7 +185,6 @@ class FileSystemCheck
         end
 
         FileSystemCheck::ensureAttribute(item, "description", "String")
-        FileSystemCheck::ensureAttribute(item, "bankaccount", "String")
         FileSystemCheck::ensureAttribute(item, "ax39", "Hash")
     end
 

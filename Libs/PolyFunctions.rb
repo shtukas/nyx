@@ -2,6 +2,19 @@ class PolyFunctions
 
     # ordering: alphabetical
 
+    # PolyFunctions::bankAccountsForItem(item)
+    def self.bankAccountsForItem(item)
+        accounts = []
+        accounts << item["uuid"]
+        if item["cx22"] then
+            cx22 = Cx22::getOrNull(item["cx22"])
+            if cx22 then
+                accounts << cx22["uuid"]
+            end
+        end
+        accounts.uniq
+    end
+
     # PolyFunctions::edit(item) # item
     def self.edit(item)
 
@@ -119,6 +132,10 @@ class PolyFunctions
     # We return a null value when the item should not be displayed
     def self.listingPriorityOrNull(item) # Float between 0 and 1
 
+        if item["mikuType"] == "Cx22" then
+            return 2
+        end
+
         shiftOnDateTime = lambda {|item, datetime|
             0.001*(Time.new.to_f - DateTime.parse(datetime).to_time.to_f)/86400
         }
@@ -158,6 +175,9 @@ class PolyFunctions
 
         # order: lexicographic
 
+        if item["mikuType"] == "Cx22" then
+            return Cx22::toString(item)
+        end
         if item["mikuType"] == "NxAnniversary" then
             return Anniversaries::toString(item)
         end
@@ -181,5 +201,16 @@ class PolyFunctions
         end
         puts "I do not know how to PolyFunctions::toString(#{JSON.pretty_generate(item)})"
         raise "(error: 820ce38d-e9db-4182-8e14-69551f58671c)"
+    end
+
+    # PolyFunctions::toStringForListing(item)
+    def self.toStringForListing(item)
+        if item["mikuType"] == "Cx22" then
+            return Cx22::toStringDiveStyle(item)
+        end
+        if item["mikuType"] == "NxTodo" then
+            return NxTodos::toStringForListing(item)
+        end
+        PolyFunctions::toString(item)
     end
 end

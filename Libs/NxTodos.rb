@@ -195,14 +195,21 @@ class NxTodos
     def self.toString(item)
         nx11estr = Nx11E::toString(item["nx11e"])
         nx113str = Nx113Access::toStringOrNull(" ", item["nx113"], "")
-        cx22str  = item["cx22"] ? " #{Cx22::toStringFromUUID(item["cx22"]).green}" : ""
+        cx22str  = item["cx22"] ? " #{Cx22::toString3(item["cx22"]).green}" : ""
         cx23str  = item["cx23"] ? " (pos: #{"%6.2f" % item["cx23"]["position"]})" : ""
-        "(todo)#{cx23str} #{nx11estr} #{item["description"]}#{nx113str}#{cx22str}".strip.gsub("(todo) (standard)", "(todo)")
+        "(todo)#{cx23str} #{nx11estr} #{item["description"]}#{nx113str}#{cx22str}"
     end
 
     # NxTodos::toStringForSearch(item)
     def self.toStringForSearch(item)
         "(todo) #{item["description"]}"
+    end
+
+    # NxTodos::toStringForListing(item)
+    def self.toStringForListing(item)
+        datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
+        dnsustr  = datetimeOpt ? " (do not show until: #{datetimeOpt})" : ""
+        "#{NxTodos::toString(item)}#{dnsustr}"
     end
 
     # NxTodos::itemsOndates()
@@ -262,7 +269,7 @@ class NxTodos
                 PhagePublic::setAttribute2(item["uuid"], "cx22", nil)
                 return nil
             end
-            completionRatio = Ax39::completionRatioCached(cx22["ax39"], cx22["bankaccount"])
+            completionRatio = Ax39::completionRatioCached(cx22["ax39"], cx22["uuid"])
             return nil if completionRatio >= 1
             return 0.60 + shiftOnCompletionRatio.call(completionRatio) + shiftOnPosition.call(item["cx23"]["position"]).to_f/100
         end
@@ -276,7 +283,7 @@ class NxTodos
                 PhagePublic::setAttribute2(item["uuid"], "cx22", nil)
                 return nil
             end
-            completionRatio = Ax39::completionRatioCached(cx22["ax39"], cx22["bankaccount"])
+            completionRatio = Ax39::completionRatioCached(cx22["ax39"], cx22["uuid"])
             return nil if completionRatio >= 1
             return 0.50 + shiftOnCompletionRatio.call(completionRatio)
         end

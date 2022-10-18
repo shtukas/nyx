@@ -8,6 +8,11 @@ class PolyActions
     # PolyActions::access(item)
     def self.access(item)
 
+        if item["mikuType"] == "Cx22" then
+            Cx22::dive(item)
+            return
+        end
+
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::access(item)
             return
@@ -47,19 +52,6 @@ class PolyActions
         end
 
         raise "(error: abb645e9-2575-458e-b505-f9c029f4ca69) I do not know how to access mikuType: #{item["mikuType"]}"
-    end
-
-    # PolyActions::bankAccountsForItem(item)
-    def self.bankAccountsForItem(item)
-        accounts = []
-        accounts << item["uuid"]
-        if item["cx22"] then
-            cx22 = Cx22::getOrNull(item["cx22"])
-            if cx22 then
-                accounts << cx22["bankaccount"]
-            end
-        end
-        accounts
     end
 
     # PolyActions::destroyWithPrompt(item)
@@ -178,6 +170,10 @@ class PolyActions
     # PolyActions::done(item, useConfirmationIfRelevant = true)
     def self.done(item, useConfirmationIfRelevant = true)
 
+        if item["mikuType"] == "Cx22" then
+            return
+        end
+
         PolyActions::stop(item)
 
         # order: alphabetical order
@@ -273,7 +269,7 @@ class PolyActions
 
     # PolyActions::giveTime(item, timeInSeconds)
     def self.giveTime(item, timeInSeconds)
-        PolyActions::bankAccountsForItem(item).each{|account|
+        PolyFunctions::bankAccountsForItem(item).each{|account|
             puts "(#{Time.new.to_s}) putting #{timeInSeconds} seconds into account: #{account}"
             Bank::put(account, timeInSeconds)
         }
@@ -281,6 +277,11 @@ class PolyActions
 
     # PolyActions::landing(item)
     def self.landing(item)
+        if item["mikuType"] == "Cx22" then
+            Cx22::dive(item)
+            return
+        end
+
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::landing(item)
             return
@@ -334,7 +335,7 @@ class PolyActions
         NxBallsService::issue(
             item["uuid"], 
             PolyFunctions::toString(item), 
-            PolyActions::bankAccountsForItem(item), 
+            PolyFunctions::bankAccountsForItem(item), 
             PolyFunctions::timeBeforeNotificationsInHours(item)*3600
         )
     end

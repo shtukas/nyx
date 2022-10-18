@@ -5,7 +5,7 @@ class CatalystListing
     # CatalystListing::listingCommands()
     def self.listingCommands()
         [
-            ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | nx113 (<n>) | engine (<n>) | contribution (<n>) | cx23 (group position) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | group done for today | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
+            ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | nx113 (<n>) | engine (<n>) | contribution (<n>) | cx23 (group position) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
             "update start date (<n>)",
             "wave | anniversary | hot | today | ondate | todo",
             "anniversaries | ondates | waves | groups | todos | todos-latest-first",
@@ -286,16 +286,6 @@ class CatalystListing
             return
         end
 
-        if input == "group done for today" then
-            item = store.getDefault()
-            return if item.nil?
-            return if item["cx22"].nil?
-            cx22 = Cx22::getOrNull(item["cx22"])
-            return if cx22.nil?
-            BankAccountDoneForToday::setDoneToday(cx22["bankaccount"])
-            return
-        end
-
         if Interpreting::match("groups", input) then
             Cx22::maindive()
             return
@@ -472,7 +462,7 @@ class CatalystListing
                 cx22 = Cx22::getOrNull(item["cx22"])
                 if cx22 then
                     puts "Adding #{timeInHours.to_f} hours to #{Cx22::toString(cx22)}"
-                    Bank::put(cx22["bankaccount"], timeInHours.to_f*3600)
+                    Bank::put(cx22["uuid"], timeInHours.to_f*3600)
                 end
             end
             return
@@ -649,13 +639,15 @@ class CatalystListing
             vspaceleft = vspaceleft - 1
             packets = Cx22::cx22WithCompletionRatiosOrdered()
                         .select{|packet| packet["completionratio"] < 1 }
-            padding = packets.map{|packet| packet["cx22"]["description"].size }.max
+            padding = packets.map{|packet| PolyFunctions::toStringForListing(packet["item"]).size }.max
             packets
                 .each{|packet|
-                    item = packet["cx22"]
-                    cr = packet["completionratio"]
+                    item = packet["item"]
                     store.register(item, false)
-                    line = "(group) #{item["description"].ljust(padding)} : #{(100*cr).to_i.to_s.rjust(2)} %".yellow
+                    line = "#{store.prefixString()} #{PolyFunctions::toStringForListing(item).ljust(padding)}".yellow
+                    if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(item)) then
+                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                    end
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
@@ -682,7 +674,7 @@ class CatalystListing
             .each{|item|
                 break if vspaceleft <= 0
                 store.register(item, true)
-                line = "#{store.prefixString()} #{PolyFunctions::toString(item)}"
+                line = "#{store.prefixString()} #{PolyFunctions::toStringForListing(item)}"
                 if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(item)) then
                     line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                 end

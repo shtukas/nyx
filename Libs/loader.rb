@@ -146,7 +146,6 @@ require_relative "AionTransforms.rb"
 require_relative "Ax39.rb"
 
 require_relative "Bank.rb"
-require_relative "BankAccountDoneForToday.rb"
 
 require_relative "Catalyst.rb"
 require_relative "CatalystListing.rb"
