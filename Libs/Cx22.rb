@@ -132,7 +132,7 @@ class Cx22
             puts ""
             puts Cx22::toString(cx22)
             puts ""
-            elements = NxTodos::itemsInPositionOrderForGroup(cx22).first(CommonUtils::screenHeight() - 8)
+            elements = NxTodos::itemsInPositionOrderForGroup(cx22).first(CommonUtils::screenHeight() - 10)
             store = ItemStore.new()
             elements
                 .each{|element|
@@ -246,6 +246,7 @@ class Cx22
             if input == "reissue positions sequence" then
                 NxTodos::itemsInPositionOrderForGroup(cx22).each_with_index{|element, indx|
                     next if element["cx23"].nil?
+                    puts JSON.pretty_generate(element)
                     element["cx23"]["position"] = indx
                     PhagePublic::commit(element)
                 }

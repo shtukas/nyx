@@ -4,6 +4,7 @@ class Cx23
     # Cx23::makeCx23(cx22, position)
     def self.makeCx23(cx22, position)
         {
+            "mikuType"  => "Cx23",
             "groupuuid" => cx22["uuid"],
             "position"  => position
         }

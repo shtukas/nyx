@@ -175,7 +175,7 @@ class FileSystemCheck
         return if item.nil?
 
         if verbose then
-            "FileSystemCheck::fsck_Cx22(#{item}, #{verbose})"
+            puts "FileSystemCheck::fsck_Cx22(#{JSON.pretty_generate(item)}, #{verbose})"
         end
 
         FileSystemCheck::phageCore(item, verbose)
@@ -193,9 +193,9 @@ class FileSystemCheck
     def self.fsck_Cx23(item, verbose)
         return if item.nil?
 
-        if verbose then
-            "FileSystemCheck::fsck_Cx23(#{item}, #{verbose})"
-        end
+        #if verbose then
+            puts "FileSystemCheck::fsck_Cx23(#{JSON.pretty_generate(item)}, #{verbose})"
+        #end
 
         if item["mikuType"] != "Cx23" then
             raise "Incorrect Miku type for function"
@@ -210,7 +210,7 @@ class FileSystemCheck
         return if item.nil?
 
         if verbose then
-            "FileSystemCheck::fsck_Dx33(#{item}, #{verbose})"
+            puts "FileSystemCheck::fsck_Dx33(#{JSON.pretty_generate(item)}, #{verbose})"
         end
 
         if item["mikuType"] != "Dx33" then
