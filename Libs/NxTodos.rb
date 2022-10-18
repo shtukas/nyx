@@ -269,6 +269,7 @@ class NxTodos
                 PhagePublic::setAttribute2(item["uuid"], "cx22", nil)
                 return nil
             end
+            return nil if !DoNotShowUntil::isVisible(cx22["uuid"])
             completionRatio = Ax39::completionRatioCached(cx22["ax39"], cx22["uuid"])
             return nil if completionRatio >= 1
             return 0.60 + shiftOnCompletionRatio.call(completionRatio) + shiftOnPosition.call(item["cx23"]["position"]).to_f/100
@@ -283,6 +284,7 @@ class NxTodos
                 PhagePublic::setAttribute2(item["uuid"], "cx22", nil)
                 return nil
             end
+            return nil if !DoNotShowUntil::isVisible(cx22["uuid"])
             completionRatio = Ax39::completionRatioCached(cx22["ax39"], cx22["uuid"])
             return nil if completionRatio >= 1
             return 0.50 + shiftOnCompletionRatio.call(completionRatio)

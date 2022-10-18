@@ -461,7 +461,7 @@ class CatalystListing
             if item["cx22"] then
                 cx22 = Cx22::getOrNull(item["cx22"])
                 if cx22 then
-                    puts "Adding #{timeInHours.to_f} hours to #{Cx22::toString(cx22)}"
+                    puts "Adding #{timeInHours.to_f} hours to #{Cx22::toString1(cx22)}"
                     Bank::put(cx22["uuid"], timeInHours.to_f*3600)
                 end
             end
@@ -638,7 +638,6 @@ class CatalystListing
             puts ""
             vspaceleft = vspaceleft - 1
             packets = Cx22::cx22WithCompletionRatiosOrdered()
-                        .select{|packet| packet["completionratio"] < 1 }
             padding = packets.map{|packet| PolyFunctions::toStringForListing(packet["item"]).size }.max
             packets
                 .each{|packet|

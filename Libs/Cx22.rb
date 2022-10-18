@@ -57,7 +57,7 @@ class Cx22
 
     # ----------------------------------------------------------------
 
-    # Cx22::toString(item)
+    # Cx22::toString1(item)
     def self.toString(item)
         "(group) #{item["description"]}"
     end
@@ -66,7 +66,7 @@ class Cx22
     def self.toString2(uuid)
         item = PhagePublic::getObjectOrNull(uuid)
         return "(Cx22 not found for uuid: #{uuid})" if item.nil?
-        Cx22::toString(item)
+        Cx22::toString1(item)
     end
 
     # Cx22::toString3(uuid)
@@ -137,29 +137,38 @@ class Cx22
             system("clear")
             puts ""
             count1 = 0
-            puts Cx22::toString(cx22)
+            puts Cx22::toStringDiveStyle(cx22)
             PhagePublic::mikuTypeToObjects("NxBall.v2")
                 .each{|nxball|
                     puts "[NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})".green
                     count1 = count1 + 1
                 }
             puts ""
-            elements = NxTodos::itemsInPositionOrderForGroup(cx22).first(CommonUtils::screenHeight() - (10+count1))
+            elements = NxTodos::itemsInPositionOrderForGroup(cx22)
+                            .select{|element| DoNotShowUntil::isVisible(element["uuid"]) }
+                            .first(CommonUtils::screenHeight() - (10+count1))
             store = ItemStore.new()
             elements
                 .each{|element|
                     store.register(element, false)
                     if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(element)) then
-                        puts "#{store.prefixString()} #{PolyFunctions::toString(element)}#{NxBallsService::activityStringOrEmptyString(" (", element["uuid"], ")")}".green
+                        puts "#{store.prefixString()} #{PolyFunctions::toStringForListing(element)}#{NxBallsService::activityStringOrEmptyString(" (", element["uuid"], ")")}".green
                     else
-                        puts "#{store.prefixString()} #{PolyFunctions::toString(element)}"
+                        puts "#{store.prefixString()} #{PolyFunctions::toStringForListing(element)}"
                     end
                 }
             puts ""
-            puts "<n> | insert | position <n> <position> | start <n> | access <n> | stop <n> | pause <n> | pursue <n> | done <n> | expose <n>  | start group | reissue positions sequence | exit".yellow
+            puts "+(datecode) for index 0 | <n> | insert | position <n> <position> | start <n> | access <n> | stop <n> | pause <n> | pursue <n> | done <n> | expose <n>  | start group | reissue positions sequence | exit".yellow
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
             return if input == "exit"
+
+            if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
+                entity = store.get(0)
+                next if entity.nil?
+                PolyActions::stop(entity)
+                DoNotShowUntil::setUnixtime(entity["uuid"], unixtime)
+            end
 
             if (indx = Interpreting::readAsIntegerOrNull(input)) then
                 entity = store.get(indx)
@@ -284,7 +293,7 @@ class Cx22
     def self.dive(cx22)
         loop {
             system("clear")
-            puts Cx22::toString(cx22)
+            puts Cx22::toStringDiveStyle(cx22)
 
             nxballs = PhagePublic::mikuTypeToObjects("NxBall.v2")
             if nxballs.size > 0 then

@@ -67,6 +67,10 @@ class PolyActions
 
         #puts "PolyActions::doubleDot(#{JSON.pretty_generate(item)})"
 
+        if item["mikuType"] == "Cx22" then
+            return
+        end
+
         if item["mikuType"] == "NxTodo" then
 
             # We havea a special processing of triage items

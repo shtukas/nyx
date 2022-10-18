@@ -176,7 +176,7 @@ class PolyFunctions
         # order: lexicographic
 
         if item["mikuType"] == "Cx22" then
-            return Cx22::toString(item)
+            return Cx22::toString1(item)
         end
         if item["mikuType"] == "NxAnniversary" then
             return Anniversaries::toString(item)
