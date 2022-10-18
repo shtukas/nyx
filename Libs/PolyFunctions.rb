@@ -206,7 +206,7 @@ class PolyFunctions
     # PolyFunctions::toStringForListing(item)
     def self.toStringForListing(item)
         if item["mikuType"] == "Cx22" then
-            return Cx22::toStringDiveStyle(item)
+            return Cx22::toStringDiveStyleFormatted(item)
         end
         if item["mikuType"] == "NxTodo" then
             return NxTodos::toStringForListing(item)

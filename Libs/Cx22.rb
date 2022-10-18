@@ -42,7 +42,7 @@ class Cx22
 
     # Cx22::interactivelySelectCx22OrNullDiveStyle()
     def self.interactivelySelectCx22OrNullDiveStyle()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("cx22", Cx22::items(), lambda{|cx22| Cx22::toStringDiveStyle(cx22)})
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("cx22", Cx22::items(), lambda{|cx22| Cx22::toStringDiveStyleFormatted(cx22)})
     end
 
     # Cx22::architectOrNull()
@@ -76,8 +76,19 @@ class Cx22
         "(group: #{item["description"]})"
     end
 
-    # Cx22::toStringDiveStyle(item)
-    def self.toStringDiveStyle(item)
+    # Cx22::toStringWithDetails(item)
+    def self.toStringWithDetails(item)
+        percentage = 100 * Ax39::completionRatio(item["ax39"], item["uuid"])
+        percentageStr = ": #{percentage.to_i.to_s.rjust(3)} %"
+
+        datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
+        dnsustr  = datetimeOpt ? ": (do not show until: #{datetimeOpt})" : ""
+
+        "#{item["description"]} : #{Ax39::toString(item["ax39"])}#{percentageStr}#{dnsustr}"
+    end
+
+    # Cx22::toStringDiveStyleFormatted(item)
+    def self.toStringDiveStyleFormatted(item)
         percentage = 100 * Ax39::completionRatio(item["ax39"], item["uuid"])
         percentageStr = ": #{percentage.to_i.to_s.rjust(3)} %"
 
@@ -137,7 +148,7 @@ class Cx22
             system("clear")
             puts ""
             count1 = 0
-            puts Cx22::toStringDiveStyle(cx22)
+            puts Cx22::toStringWithDetails(cx22)
             PhagePublic::mikuTypeToObjects("NxBall.v2")
                 .each{|nxball|
                     puts "[NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})".green
@@ -158,7 +169,7 @@ class Cx22
                     end
                 }
             puts ""
-            puts "+(datecode) for index 0 | <n> | insert | position <n> <position> | start <n> | access <n> | stop <n> | pause <n> | pursue <n> | done <n> | expose <n>  | start group | reissue positions sequence | exit".yellow
+            puts "+(datecode) for index 0 | <n> | insert | position <n> <position> | start <n> | access <n> | stop <n> | pause <n> | pursue <n> | done <n> | expose <n>  | start group | stop group | reissue positions sequence | exit".yellow
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
             return if input == "exit"
@@ -274,7 +285,12 @@ class Cx22
             end
 
             if input == "start group" then
-                NxBallsService::issue(SecureRandom.uuid, "cx22: #{cx22["description"]}", [cx22["uuid"]], 3600)
+                PolyActions::start(cx22)
+                next
+            end
+
+            if input == "stop group" then
+                PolyActions::stop(cx22)
                 next
             end
 
@@ -293,7 +309,7 @@ class Cx22
     def self.dive(cx22)
         loop {
             system("clear")
-            puts Cx22::toStringDiveStyle(cx22)
+            puts Cx22::toStringWithDetails(cx22)
 
             nxballs = PhagePublic::mikuTypeToObjects("NxBall.v2")
             if nxballs.size > 0 then
@@ -302,9 +318,7 @@ class Cx22
                         puts "[NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})".green
                     }
             end
-
-            puts "completion ratio: #{Ax39::completionRatio(cx22["ax39"], cx22["uuid"])}"
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["elements (program)", "start NxBall", "update description", "push (do not display until)", "expose", "completion ratio", "add time"])
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["elements (program)", "start NxBall", "update description", "push (do not display until)", "expose", "add time"])
             break if action.nil?
             if action == "elements (program)" then
                 Cx22::elementsDive(cx22)
@@ -330,15 +344,6 @@ class Cx22
             end
             if action == "expose" then
                 puts JSON.pretty_generate(cx22)
-                LucilleCore::pressEnterToContinue()
-                next
-            end
-            if action == "completion ratio" then
-                puts JSON.pretty_generate(cx22)
-                ax39     = cx22["ax39"]
-                account  = cx22["uuid"]
-                cr = Ax39::completionRatio(ax39, account)
-                puts "completion ratio: #{cr}"
                 LucilleCore::pressEnterToContinue()
                 next
             end
