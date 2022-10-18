@@ -22,9 +22,12 @@ class Cx23
         data.each{|i|
             puts "#{i["position"]} : #{i["description"]}"
         }
-        position = LucilleCore::askQuestionAnswerAsString("position (empty for abort): ")
-        return nil if position == ""
-        position = position.to_f
+        position = LucilleCore::askQuestionAnswerAsString("position (empty for next): ")
+        if position == "" then
+            position = Cx22::nextPositionForCx22(cx22)
+        else
+            position = position.to_f
+        end
         Cx23::makeCx23(cx22, position)
     end
 

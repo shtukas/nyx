@@ -122,7 +122,7 @@ class Cx22
             .select{|item| item["cx22"] }
             .select{|item| item["cx22"] == cx22["uuid"] }
             .select{|item| item["cx23"] }
-            .map{|item| item["cx23"]["position"] } + [0]).max
+            .map{|item| item["cx23"]["position"] } + [0]).max + 1
     end
 
     # Cx22::elementsDive(cx22)
