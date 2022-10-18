@@ -300,11 +300,14 @@ class Nx113SpecialCircumstances
     # Nx113SpecialCircumstances::issueDx33(unitId)
     def self.issueDx33(unitId)
         dx33 = {
-            "uuid"     => SecureRandom.uuid,
-            "mikuType" => "Dx33",
-            "unixtime" => Time.new.to_f,
-            "datetime" => Time.new.utc.iso8601,
-            "unitId"   => unitId
+            "phage_uuid"  => SecureRandom.uuid,
+            "phage_time"  => Time.new.to_f,
+            "phage_alive" => true,
+            "uuid"        => SecureRandom.uuid,
+            "mikuType"    => "Dx33",
+            "unixtime"    => Time.new.to_f,
+            "datetime"    => Time.new.utc.iso8601,
+            "unitId"      => unitId
         }
         puts JSON.pretty_generate(dx33)
         PhagePublic::commit(dx33)
@@ -313,7 +316,7 @@ end
 
 class Nx113Transforms
 
-    # Nx113Edit::transformDx8UnitToAionPointOrNull(nx113)
+    # Nx113Transforms::transformDx8UnitToAionPointOrNull(nx113)
     def self.transformDx8UnitToAionPointOrNull(nx113)
         return nil if nx113["type"] != "Dx8Unit" # Not the right Nx113 type
         # We access the unit if we can, and then make a aion point, and then issue a Dx33
@@ -326,21 +329,23 @@ class Nx113Transforms
         nx113v2
     end
 
-    # Nx113Edit::mutateItemIfCarryingADx8UnitToCarryAnAionPoint(item)
+    # Nx113Transforms::mutateItemIfCarryingDx8UnitToCarryAionPoint(item)
     def self.mutateItemIfCarryingDx8UnitToCarryAionPoint(item)
         return if item["nx113"].nil?
-        nx113v2 = Nx113Edit::transformDx8UnitToAionPointOrNull(item["nx113"])
+        nx113v2 = Nx113Transforms::transformDx8UnitToAionPointOrNull(item["nx113"])
         return if nx113v2.nil?
         FileSystemCheck::fsck_Nx113(nx113v2, SecureRandom.hex, true)
-        puts "Nx113Edit::mutateItemIfCarryingADx8UnitToCarryAnAionPoint: #{PolyFunctions::toString(item).green}, #{JSON.pretty_generate(item["nx113"])}, #{JSON.pretty_generate(nx113v2)}"
+        puts "Nx113Transforms::mutateItemIfCarryingDx8UnitToCarryAionPoint: #{PolyFunctions::toString(item).green}, #{JSON.pretty_generate(item["nx113"])}, #{JSON.pretty_generate(nx113v2)}"
+        puts JSON.pretty_generate(item)
         item["nx113"] = nx113v2
+        puts JSON.pretty_generate(item)
         PhagePublic::commit(item)
     end
 
-    # Nx113Edit::transformDx8UnitToAionPointsDuringEnergyGridUpdate()
+    # Nx113Transforms::transformDx8UnitToAionPointsDuringEnergyGridUpdate()
     def self.transformDx8UnitToAionPointsDuringEnergyGridUpdate()
         NxTodos::listingItems().each{|item|
-            Nx113Edit::mutateItemIfCarryingADx8UnitToCarryAnAionPoint(item)
+            Nx113Transforms::mutateItemIfCarryingDx8UnitToCarryAionPoint(item)
         }
     end
 end

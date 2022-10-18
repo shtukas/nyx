@@ -4,5 +4,5 @@
 
 require_relative "../Libs/loader.rb"
 
-puts "Nx113Edit::transformDx8UnitToAionPointsDuringEnergyGridUpdate()"
-Nx113Edit::transformDx8UnitToAionPointsDuringEnergyGridUpdate()
+puts "Nx113Transforms::transformDx8UnitToAionPointsDuringEnergyGridUpdate()"
+Nx113Transforms::transformDx8UnitToAionPointsDuringEnergyGridUpdate()
