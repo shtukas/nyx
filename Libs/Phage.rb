@@ -50,7 +50,7 @@ class PhageInternals
 
     # PhageInternals::databasePathForWriting()
     def self.databasePathForWriting()
-        instanceId = Config::get("instanceId")
+        instanceId = Config::getOrFail("instanceId")
         filepath = "#{Config::pathToDataCenter()}/Phage/phage-#{CommonUtils::today()}-#{instanceId}.sqlite3"
         if !File.exists?(filepath) then
             db = SQLite3::Database.new(filepath)

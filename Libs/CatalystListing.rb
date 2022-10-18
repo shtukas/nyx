@@ -10,7 +10,11 @@ class CatalystListing
             "wave | anniversary | hot | today | ondate | todo",
             "anniversaries | ondates | waves | groups | todos | todos-latest-first",
             "require internet",
-            "search | nyx | speed | nxballs | streaming",
+            "search | nyx | speed | nxballs | streaming | commands",
+            "config listing show groups true",
+            "config listing show groups false",
+            "config listing show commands true",
+            "config listing show commands false"
         ].join("\n")
     end
 
@@ -80,6 +84,39 @@ class CatalystListing
 
         if Interpreting::match("anniversaries", input) then
             Anniversaries::anniversariesDive()
+            return
+        end
+
+        if Interpreting::match("config listing show commands true", input) then
+            Config::set("listing.showCommands", true)
+            return
+        end
+
+        if Interpreting::match("config listing show commands false", input) then
+            Config::set("listing.showCommands", false)
+            return
+        end
+
+        if Interpreting::match("config listing show groups true", input) then
+            Config::set("listing.showGroups", true)
+            return
+        end
+
+        if Interpreting::match("config listing show groups false", input) then
+            Config::set("listing.showGroups", false)
+            return
+        end
+
+        if Interpreting::match("commands", input) then
+            puts CatalystListing::listingCommands().yellow
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if Interpreting::match("contribution", input) then
+            item = store.getDefault()
+            return if item.nil?
+            Cx22::interactivelySetANewContributionForItemOrNothing(item)
             return
         end
 
@@ -588,9 +625,11 @@ class CatalystListing
 
         vspaceleft = CommonUtils::screenHeight() - 4
 
-        vspaceleft =  vspaceleft - CommonUtils::verticalSize(CatalystListing::listingCommands())
+        if Config::getOrNull("listing.showCommands") then
+            vspaceleft =  vspaceleft - CommonUtils::verticalSize(CatalystListing::listingCommands())
+        end
 
-        if Config::get("instanceId") == "Lucille20-pascal" then
+        if Config::getOrFail("instanceId") == "Lucille20-pascal" then
             line = The99Percent::displayLineFromCache()
             puts ""
             puts line
@@ -605,23 +644,22 @@ class CatalystListing
             vspaceleft = vspaceleft - 2
         end
 
-        packets = Cx22::cx22WithCompletionRatiosOrdered()
-                    .select{|packet| packet["completionratio"] < 1 }
-
-        if packets.size > 0 then
-            padding = packets.map{|packet| packet["cx22"]["description"].size }.max
+        if Config::getOrNull("listing.showGroups") then
             puts ""
-            puts "Cx22s below completion 1:".yellow
-            vspaceleft = vspaceleft - 2
+            vspaceleft = vspaceleft - 1
+            packets = Cx22::cx22WithCompletionRatiosOrdered()
+                        .select{|packet| packet["completionratio"] < 1 }
+            padding = packets.map{|packet| packet["cx22"]["description"].size }.max
             packets
                 .each{|packet|
-                    cx22 = packet["cx22"]
+                    item = packet["cx22"]
                     cr = packet["completionratio"]
-                    puts "    - #{cx22["description"].ljust(padding)} : #{(100*cr).to_i.to_s.rjust(2)} %".yellow
-                    vspaceleft = vspaceleft - 1
+                    store.register(item, false)
+                    line = "(group) #{item["description"].ljust(padding)} : #{(100*cr).to_i.to_s.rjust(2)} %".yellow
+                    puts line
+                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
         end
-
 
         nxballs = PhagePublic::mikuTypeToObjects("NxBall.v2")
         if nxballs.size > 0 then
@@ -652,8 +690,11 @@ class CatalystListing
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }
 
-        puts ""
-        puts CatalystListing::listingCommands().yellow
+        if Config::getOrNull("listing.showCommands") then
+            puts ""
+            puts CatalystListing::listingCommands().yellow
+        end
+
         puts ""
         input = LucilleCore::askQuestionAnswerAsString("> ")
         return if input == ""

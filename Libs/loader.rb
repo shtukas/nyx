@@ -220,11 +220,11 @@ $arrows_database_semaphore = Mutex.new
 
 if $RunNonEssentialThreads then
     ThreadsX::nxBallsMonitoringAndNotification()
-    if Config::get("instanceId") == "Lucille20-pascal" then 
+    if Config::getOrFail("instanceId") == "Lucille20-pascal" then 
         ThreadsX::startViennaImport()
     end
 
-    if (Config::get("instanceId") == "Lucille20-pascal") then
+    if (Config::getOrFail("instanceId") == "Lucille20-pascal") then
         Thread.new {
             loop {
                 sleep 12
