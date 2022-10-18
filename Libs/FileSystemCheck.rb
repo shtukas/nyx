@@ -37,66 +37,66 @@ class FileSystemCheck
         FileSystemCheck::ensureAttribute(item, "datetime", "String")
     end
 
-    # FileSystemCheck::fsck_Nx11E(nx11e, verbose)
-    def self.fsck_Nx11E(nx11e, verbose)
+    # FileSystemCheck::fsck_Nx11E(item, verbose)
+    def self.fsck_Nx11E(item, verbose)
         if verbose then
-            puts "FileSystemCheck::fsck_Nx11E(#{JSON.pretty_generate(nx11e)}, #{verbose})"
+            puts "FileSystemCheck::fsck_Nx11E(#{JSON.pretty_generate(item)}, #{verbose})"
         end
 
         if item["mikuType"] != "Nx11E" then
             raise "Incorrect Miku type for function"
         end
 
-        FileSystemCheck::ensureAttribute(nx11e, "uuid", "String")
+        FileSystemCheck::ensureAttribute(item, "uuid", "String")
 
-        if nx11e["type"] == "hot" then
-            FileSystemCheck::ensureAttribute(nx11e, "unixtime", "Number")
+        if item["type"] == "hot" then
+            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             return
         end
 
-        if nx11e["type"] == "triage" then
-            FileSystemCheck::ensureAttribute(nx11e, "unixtime", "Number")
+        if item["type"] == "triage" then
+            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             return
         end
 
-        if nx11e["type"] == "ordinal" then
-            FileSystemCheck::ensureAttribute(nx11e, "ordinal", "Number")
+        if item["type"] == "ordinal" then
+            FileSystemCheck::ensureAttribute(item, "ordinal", "Number")
             return
         end
 
-        if nx11e["type"] == "ondate" then
-            FileSystemCheck::ensureAttribute(nx11e, "datetime", "String")
+        if item["type"] == "ondate" then
+            FileSystemCheck::ensureAttribute(item, "datetime", "String")
             return
         end
 
-        if nx11e["type"] == "standard" then
-            FileSystemCheck::ensureAttribute(nx11e, "unixtime", "Number")
+        if item["type"] == "standard" then
+            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             return
         end
 
         raise "(error: 2a5f46bd-c5db-48e7-a20f-4dd079868948)"
     end
 
-    # FileSystemCheck::fsck_Nx113(nx113, runhash, verbose)
-    def self.fsck_Nx113(nx113, runhash, verbose)
-        return if nx113.nil?
+    # FileSystemCheck::fsck_Nx113(item, runhash, verbose)
+    def self.fsck_Nx113(item, runhash, verbose)
+        return if item.nil?
 
-        repeatKey = "#{runhash}:#{nx113}"
+        repeatKey = "#{runhash}:#{item}"
         return if XCache::getFlag(repeatKey)
 
         if verbose then
-            puts "FileSystemCheck::fsck_Nx113(#{JSON.pretty_generate(nx113)}, #{runhash}, #{verbose})"
+            puts "FileSystemCheck::fsck_Nx113(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
         end
 
         if item["mikuType"] != "Nx113" then
             raise "Incorrect Miku type for function"
         end
 
-        if nx113["type"].nil? then
+        if item["type"].nil? then
             raise "Nx113 doesn't have a type"
         end
 
-        type = nx113["type"]
+        type = item["type"]
 
         if type == "text" then
             XCache::setFlag(repeatKey, true)
@@ -109,22 +109,22 @@ class FileSystemCheck
         end
 
         if type == "file" then
-            if nx113["dottedExtension"].nil? then
-                 raise "dottedExtension is not defined on #{nx113}"
+            if item["dottedExtension"].nil? then
+                 raise "dottedExtension is not defined on #{item}"
             end
-            if nx113["nhash"].nil? then
-                 raise "nhash is not defined on #{nx113}"
+            if item["nhash"].nil? then
+                 raise "nhash is not defined on #{item}"
             end
-            if nx113["parts"].nil? then
-                 raise "parts is not defined on #{nx113}"
+            if item["parts"].nil? then
+                 raise "parts is not defined on #{item}"
             end
-            if nx113["database"].nil? then
-                 raise "database is not defined on #{nx113}"
+            if item["database"].nil? then
+                 raise "database is not defined on #{item}"
             end
-            dottedExtension  = nx113["dottedExtension"]
-            nhash            = nx113["nhash"]
-            parts            = nx113["parts"]
-            database         = nx113["database"]
+            dottedExtension  = item["dottedExtension"]
+            nhash            = item["nhash"]
+            parts            = item["parts"]
+            database         = item["database"]
             databasefilepath = DataStore1::getNearestFilepathForReadingErrorIfNotAcquisable(database, false)
             operator         = DataStore2SQLiteBlobStoreElizabethReadOnly.new(databasefilepath)
             status = PrimitiveFiles::fsckPrimitiveFileDataRaiseAtFirstError(operator, dottedExtension, nhash, parts, verbose)
@@ -137,14 +137,14 @@ class FileSystemCheck
         end
 
         if type == "aion-point" then
-            if nx113["rootnhash"].nil? then
-                 raise "rootnhash is not defined on #{nx113}"
+            if item["rootnhash"].nil? then
+                 raise "rootnhash is not defined on #{item}"
             end
-            if nx113["database"].nil? then
-                 raise "database is not defined on #{nx113}"
+            if item["database"].nil? then
+                 raise "database is not defined on #{item}"
             end
-            rootnhash        = nx113["rootnhash"]
-            database         = nx113["database"]
+            rootnhash        = item["rootnhash"]
+            database         = item["database"]
             databasefilepath = DataStore1::getNearestFilepathForReadingErrorIfNotAcquisable(database, false)
             operator         = DataStore2SQLiteBlobStoreElizabethReadOnly.new(databasefilepath)
             status = AionFsck::structureCheckAionHash(operator, rootnhash)
@@ -166,43 +166,43 @@ class FileSystemCheck
             return
         end
 
-        puts "FileSystemCheck::fsckNx113(#{JSON.pretty_generate(nx113)}, #{verbose})"
+        puts "FileSystemCheck::fsckNx113(#{JSON.pretty_generate(item)}, #{verbose})"
         raise "Unsupported Nx113 type: #{type}"
     end
 
-    # FileSystemCheck::fsck_Cx22(cx22, verbose)
-    def self.fsck_Cx22(cx22, verbose)
-        return if cx22.nil?
+    # FileSystemCheck::fsck_Cx22(item, verbose)
+    def self.fsck_Cx22(item, verbose)
+        return if item.nil?
 
         if verbose then
-            "FileSystemCheck::fsck_Cx22(#{cx22}, #{verbose})"
+            "FileSystemCheck::fsck_Cx22(#{item}, #{verbose})"
         end
 
-        FileSystemCheck::phageCore(cx22, verbose)
+        FileSystemCheck::phageCore(item, verbose)
 
         if item["mikuType"] != "Cx22" then
             raise "Incorrect Miku type for function"
         end
 
-        FileSystemCheck::ensureAttribute(cx22, "description", "String")
-        FileSystemCheck::ensureAttribute(cx22, "bankaccount", "String")
-        FileSystemCheck::ensureAttribute(cx22, "ax39", "Hash")
+        FileSystemCheck::ensureAttribute(item, "description", "String")
+        FileSystemCheck::ensureAttribute(item, "bankaccount", "String")
+        FileSystemCheck::ensureAttribute(item, "ax39", "Hash")
     end
 
-    # FileSystemCheck::fsck_Cx23(cx23, verbose)
-    def self.fsck_Cx23(cx23, verbose)
-        return if cx23.nil?
+    # FileSystemCheck::fsck_Cx23(item, verbose)
+    def self.fsck_Cx23(item, verbose)
+        return if item.nil?
 
         if verbose then
-            "FileSystemCheck::fsck_Cx23(#{cx23}, #{verbose})"
+            "FileSystemCheck::fsck_Cx23(#{item}, #{verbose})"
         end
 
         if item["mikuType"] != "Cx23" then
             raise "Incorrect Miku type for function"
         end
 
-        FileSystemCheck::ensureAttribute(cx23, "groupuuid", "String")
-        FileSystemCheck::ensureAttribute(cx23, "position", "Number")
+        FileSystemCheck::ensureAttribute(item, "groupuuid", "String")
+        FileSystemCheck::ensureAttribute(item, "position", "Number")
     end
 
     # FileSystemCheck::fsck_Dx33(item, verbose)
