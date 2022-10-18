@@ -144,7 +144,7 @@ class Cx22
                     end
                 }
             puts ""
-            puts "<n> | insert | position <n> <position> | start <n> | access <n> | stop <n> | pause <n> | pursue <n> | done <n> | reissue positions sequence | exit".yellow
+            puts "<n> | insert | position <n> <position> | start <n> | access <n> | stop <n> | pause <n> | pursue <n> | done <n> | start group | reissue positions sequence | exit".yellow
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
             return if input == "exit"
@@ -181,7 +181,7 @@ class Cx22
                 next
             end
 
-            if input.start_with?("start") then
+            if input.start_with?("start") and input != "start group" then
                 indx = input[5, 99].strip.to_i
                 entity = store.get(indx)
                 next if entity.nil?
@@ -240,6 +240,11 @@ class Cx22
                 next if entity.nil?
                 cx23 = Cx23::makeCx23(cx22, position)
                 PhagePublic::setAttribute2(entity["uuid"], "cx23", cx23)
+                next
+            end
+
+            if input == "start group" then
+                NxBallsService::issue(SecureRandom.uuid, "cx22: #{cx22["description"]}", [cx22["bankaccount"]], 3600)
                 next
             end
 
