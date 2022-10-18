@@ -193,9 +193,9 @@ class FileSystemCheck
     def self.fsck_Cx23(item, verbose)
         return if item.nil?
 
-        #if verbose then
+        if verbose then
             puts "FileSystemCheck::fsck_Cx23(#{JSON.pretty_generate(item)}, #{verbose})"
-        #end
+        end
 
         if item["mikuType"] != "Cx23" then
             raise "Incorrect Miku type for function"

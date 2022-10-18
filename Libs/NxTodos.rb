@@ -182,7 +182,8 @@ class NxTodos
             "nx113"       => nx113,
             "nx11e"       => nx11e,
             "cx22"        => cx22["uuid"],
-            "cx23"        => cx23
+            "cx23"        => cx23,
+            "listeable"   => true
         }
         PhagePublic::commit(item)
     end
@@ -317,7 +318,6 @@ class NxTodos
                         PhagePublic::setAttribute2(item["uuid"], "listeable", true)
                     }
             }
-
 
         end
 
