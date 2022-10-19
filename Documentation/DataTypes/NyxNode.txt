@@ -6,3 +6,36 @@ NyxNode:
     "nx113"       : String # nhash to the DataStore1 of the Nx113
 
 NetworkType: "PureData" | "Entity" | "Concept" | "Event" | "Person" | "Collection" | "Timeline"
+
+# --------------------------------------------------------------------------
+
+NxSt1 
+{
+    "type" : "void"
+}
+{
+    "type"  : "Nx113"
+    "nx113" : Nx113
+}
+{
+    "type"  : "NxQuantumDrop"
+    "drop"  : NxQuantumDrop
+}
+{
+    "type"  : "Entity"
+}
+{
+    "type"  : "Concept"
+}
+{
+    "type"  : "Event"
+}
+{
+    "type"  : "Person"
+}
+{
+    "type"  : "Collection"
+}
+{
+    "type"  : "Timeline"
+}

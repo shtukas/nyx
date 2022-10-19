@@ -5,6 +5,20 @@ The main logic is:
     1. If the element on the Nyx network is updated then the file tree nodes are also updated
     2. If a file tree node is updated, then the Nyx node is updated and then any other file tree node is also updated.
 
-Quantum Drops could be a special case of PureData, but they are instead their own Nyx network type: 'QuantumDrop'.
-
 Essentially a Quantum Drop is an array of Quantum States, A quantum state is a timed aion point rootnhash.
+
+NxQuantumState {
+    "uuid"      : String
+    "mikuType"  : "NxQuantumState"
+    "unixtime"  : Float
+    "rootnhash" : String
+}
+
+Quantum Drops on the Nyx Network looks like this:
+
+NxQuantumDrop {
+    "mikuType"      : "QuantumDrop"
+    "quantumStates" : Array[NxQuantumState]
+}
+
+
