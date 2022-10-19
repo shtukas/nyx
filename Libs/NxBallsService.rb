@@ -118,8 +118,8 @@ class NxBallsService
         return if nxBallOpt.nil?
         nxball = nxBallOpt
         return if nxball["status"]["type"] != "running"
-        NxBallsService::marginCall(uuid)
-        nxball = PhagePublic::getObjectOrNull(uuid)
+        NxBallsService::marginCall(nxball["uuid"])
+        nxball = PhagePublic::getObjectOrNull(nxball["uuid"])
         nxball["status"] = NxBallsService::makePausedStatus(nxball["status"]["bankedTimeInSeconds"])
         PhagePublic::commit(nxball)
     end
@@ -129,8 +129,8 @@ class NxBallsService
         return if nxBallOpt.nil?
         nxball = nxBallOpt
         if nxball["status"]["type"] == "running" then
-            NxBallsService::marginCall(uuid)
-            nxball = PhagePublic::getObjectOrNull(uuid)
+            NxBallsService::marginCall(nxball["uuid"])
+            nxball = PhagePublic::getObjectOrNull(nxball["uuid"])
             # If pursue was called while the item was running, it was because of an 1 hour notification which was shown, we need to reset it.
             nxball["status"]["thisSprintStartUnixtime"] = Time.new.to_f
             PhagePublic::commit(nxball)
