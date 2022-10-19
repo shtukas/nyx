@@ -58,7 +58,7 @@ class Cx22
     # ----------------------------------------------------------------
 
     # Cx22::toString1(item)
-    def self.toString(item)
+    def self.toString1(item)
         "(group) #{item["description"]}"
     end
 
