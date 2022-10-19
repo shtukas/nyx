@@ -5,12 +5,16 @@ class CatalystListing
     # CatalystListing::listingCommands()
     def self.listingCommands()
         [
-            ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | nx113 (<n>) | engine (<n>) | contribution (<n>) | cx23 (group position) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | group done for today | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
+            ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | nx113 (<n>) | engine (<n>) | contribution (<n>) | cx23 (group position) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
             "update start date (<n>)",
             "wave | anniversary | hot | today | ondate | todo",
             "anniversaries | ondates | waves | groups | todos | todos-latest-first",
             "require internet",
-            "search | nyx | speed | nxballs | streaming",
+            "search | nyx | speed | nxballs | streaming | commands",
+            "config listing show groups true",
+            "config listing show groups false",
+            "config listing show commands true",
+            "config listing show commands false"
         ].join("\n")
     end
 
@@ -80,6 +84,39 @@ class CatalystListing
 
         if Interpreting::match("anniversaries", input) then
             Anniversaries::anniversariesDive()
+            return
+        end
+
+        if Interpreting::match("config listing show commands true", input) then
+            Config::set("listing.showCommands", true)
+            return
+        end
+
+        if Interpreting::match("config listing show commands false", input) then
+            Config::set("listing.showCommands", false)
+            return
+        end
+
+        if Interpreting::match("config listing show groups true", input) then
+            Config::set("listing.showGroups", true)
+            return
+        end
+
+        if Interpreting::match("config listing show groups false", input) then
+            Config::set("listing.showGroups", false)
+            return
+        end
+
+        if Interpreting::match("commands", input) then
+            puts CatalystListing::listingCommands().yellow
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if Interpreting::match("contribution", input) then
+            item = store.getDefault()
+            return if item.nil?
+            Cx22::interactivelySetANewContributionForItemOrNothing(item)
             return
         end
 
@@ -246,16 +283,6 @@ class CatalystListing
             end
             puts "PolyFunctions::listingPriorityOrNull(item): #{PolyFunctions::listingPriorityOrNull(item)}"
             LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if input == "group done for today" then
-            item = store.getDefault()
-            return if item.nil?
-            return if item["cx22"].nil?
-            cx22 = Cx22::getOrNull(item["cx22"])
-            return if cx22.nil?
-            BankAccountDoneForToday::setDoneToday(cx22["bankaccount"])
             return
         end
 
@@ -434,8 +461,8 @@ class CatalystListing
             if item["cx22"] then
                 cx22 = Cx22::getOrNull(item["cx22"])
                 if cx22 then
-                    puts "Adding #{timeInHours.to_f} hours to #{Cx22::toString(cx22)}"
-                    Bank::put(cx22["bankaccount"], timeInHours.to_f*3600)
+                    puts "Adding #{timeInHours.to_f} hours to #{Cx22::toString1(cx22)}"
+                    Bank::put(cx22["uuid"], timeInHours.to_f*3600)
                 end
             end
             return
@@ -588,9 +615,11 @@ class CatalystListing
 
         vspaceleft = CommonUtils::screenHeight() - 4
 
-        vspaceleft =  vspaceleft - CommonUtils::verticalSize(CatalystListing::listingCommands())
+        if Config::getOrNull("listing.showCommands") then
+            vspaceleft =  vspaceleft - CommonUtils::verticalSize(CatalystListing::listingCommands())
+        end
 
-        if Config::get("instanceId") == "Lucille20-pascal" then
+        if Config::getOrFail("instanceId") == "Lucille20-pascal" then
             line = The99Percent::displayLineFromCache()
             puts ""
             puts line
@@ -605,23 +634,23 @@ class CatalystListing
             vspaceleft = vspaceleft - 2
         end
 
-        packets = Cx22::cx22WithCompletionRatiosOrdered()
-                    .select{|packet| packet["completionratio"] < 1 }
-
-        if packets.size > 0 then
-            padding = packets.map{|packet| packet["cx22"]["description"].size }.max
+        if Config::getOrNull("listing.showGroups") then
             puts ""
-            puts "Cx22s below completion 1:".yellow
-            vspaceleft = vspaceleft - 2
+            vspaceleft = vspaceleft - 1
+            packets = Cx22::cx22WithCompletionRatiosOrdered()
+            padding = packets.map{|packet| PolyFunctions::toStringForListing(packet["item"]).size }.max
             packets
                 .each{|packet|
-                    cx22 = packet["cx22"]
-                    cr = packet["completionratio"]
-                    puts "    - #{cx22["description"].ljust(padding)} : #{(100*cr).to_i.to_s.rjust(2)} %".yellow
-                    vspaceleft = vspaceleft - 1
+                    item = packet["item"]
+                    store.register(item, false)
+                    line = "#{store.prefixString()} #{PolyFunctions::toStringForListing(item).ljust(padding)}".yellow
+                    if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(item)) then
+                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                    end
+                    puts line
+                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
         end
-
 
         nxballs = PhagePublic::mikuTypeToObjects("NxBall.v2")
         if nxballs.size > 0 then
@@ -644,7 +673,7 @@ class CatalystListing
             .each{|item|
                 break if vspaceleft <= 0
                 store.register(item, true)
-                line = "#{store.prefixString()} #{PolyFunctions::toString(item)}"
+                line = "#{store.prefixString()} #{PolyFunctions::toStringForListing(item)}"
                 if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(item)) then
                     line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                 end
@@ -652,8 +681,11 @@ class CatalystListing
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }
 
-        puts ""
-        puts CatalystListing::listingCommands().yellow
+        if Config::getOrNull("listing.showCommands") then
+            puts ""
+            puts CatalystListing::listingCommands().yellow
+        end
+
         puts ""
         input = LucilleCore::askQuestionAnswerAsString("> ")
         return if input == ""

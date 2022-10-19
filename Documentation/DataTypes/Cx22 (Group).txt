@@ -4,6 +4,5 @@ Cx22, Contribution, optional attribute for NxTodos and Waves (NxTodos and Waves 
 Cx22 {
     ... Stargate Item ("Cx22")
     "description"  : String
-    "bankaccount"  : String
     "ax39"         : Ax39
 }

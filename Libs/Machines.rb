@@ -11,6 +11,6 @@ class Machines
     # Machines::theOtherInstanceIds()
     def self.theOtherInstanceIds()
         instanceIds = ["Lucille18-pascal", "Lucille20-pascal", "Lucille20-guardian"]
-        instanceIds - [Config::get("instanceId")]
+        instanceIds - [Config::getOrFail("instanceId")]
     end
 end

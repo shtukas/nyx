@@ -28,7 +28,6 @@ class Cx22
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "bankaccount" => SecureRandom.uuid,
             "ax39"        => ax39
         }
         FileSystemCheck::fsck_Cx22(item, true)
@@ -43,7 +42,7 @@ class Cx22
 
     # Cx22::interactivelySelectCx22OrNullDiveStyle()
     def self.interactivelySelectCx22OrNullDiveStyle()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("cx22", Cx22::items(), lambda{|cx22| Cx22::toStringDiveStyle(cx22)})
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("cx22", Cx22::items(), lambda{|cx22| Cx22::toStringDiveStyleFormatted(cx22)})
     end
 
     # Cx22::architectOrNull()
@@ -58,38 +57,56 @@ class Cx22
 
     # ----------------------------------------------------------------
 
-    # Cx22::toString(cx22)
-    def self.toString(cx22)
-        "(group: #{cx22["description"]})"
+    # Cx22::toString1(item)
+    def self.toString(item)
+        "(group) #{item["description"]}"
     end
 
-    # Cx22::toStringFromUUID(uuid)
-    def self.toStringFromUUID(uuid)
-        cx22 = Cx22::getOrNull(uuid)
-        if cx22.nil? then
-            return "(no cx22 found for uuid: #{uuid})"
-        end
-        Cx22::toString(cx22)
+    # Cx22::toString2(uuid)
+    def self.toString2(uuid)
+        item = PhagePublic::getObjectOrNull(uuid)
+        return "(Cx22 not found for uuid: #{uuid})" if item.nil?
+        Cx22::toString1(item)
     end
 
-    # Cx22::toStringDiveStyle(cx22)
-    def self.toStringDiveStyle(cx22)
-        percentage = 100 * Ax39::completionRatio(cx22["ax39"], cx22["bankaccount"])
-        percentageStr = "#{percentage.to_i.to_s.rjust(3)} %"
-        isDoneToday = BankAccountDoneForToday::isDoneToday(cx22["bankaccount"])
-        isDoneTodayStr = isDoneToday ? "(is done today)" : "               "
-        "#{cx22["description"].ljust(28)} , #{Ax39::toString(cx22["ax39"]).ljust(18)}, #{percentageStr} , #{isDoneTodayStr}"
+    # Cx22::toString3(uuid)
+    def self.toString3(uuid)
+        item = PhagePublic::getObjectOrNull(uuid)
+        return "(Cx22 not found for uuid: #{uuid})" if item.nil?
+        "(group: #{item["description"]})"
+    end
+
+    # Cx22::toStringWithDetails(item)
+    def self.toStringWithDetails(item)
+        percentage = 100 * Ax39::completionRatio(item["ax39"], item["uuid"])
+        percentageStr = ": #{percentage.to_i.to_s.rjust(3)} %"
+
+        datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
+        dnsustr  = datetimeOpt ? ": (do not show until: #{datetimeOpt})" : ""
+
+        "#{item["description"]} : #{Ax39::toString(item["ax39"])}#{percentageStr}#{dnsustr}"
+    end
+
+    # Cx22::toStringDiveStyleFormatted(item)
+    def self.toStringDiveStyleFormatted(item)
+        percentage = 100 * Ax39::completionRatio(item["ax39"], item["uuid"])
+        percentageStr = ": #{percentage.to_i.to_s.rjust(3)} %"
+
+        datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
+        dnsustr  = datetimeOpt ? ": (do not show until: #{datetimeOpt})" : ""
+
+        "#{item["description"].ljust(28)} : #{Ax39::toString(item["ax39"]).ljust(18)}#{percentageStr}#{dnsustr}"
     end
 
     # Cx22::cx22WithCompletionRatiosOrdered()
     def self.cx22WithCompletionRatiosOrdered()
-        cx22s = Cx22::items()
-        packets = cx22s
-                    .map{|cx22|
+        items = Cx22::items()
+        packets = items
+                    .map{|item|
                         {
                             "mikuType"        => "Cx22WithCompletionRatio",
-                            "cx22"            => cx22,
-                            "completionratio" => Ax39::completionRatio(cx22["ax39"], cx22["bankaccount"])
+                            "item"            => item,
+                            "completionratio" => Ax39::completionRatio(item["ax39"], item["uuid"])
                         }
                     }
                     .sort{|p1, p2| p1["completionratio"] <=> p2["completionratio"] }
@@ -131,29 +148,38 @@ class Cx22
             system("clear")
             puts ""
             count1 = 0
-            puts Cx22::toString(cx22)
+            puts Cx22::toStringWithDetails(cx22)
             PhagePublic::mikuTypeToObjects("NxBall.v2")
                 .each{|nxball|
                     puts "[NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})".green
                     count1 = count1 + 1
                 }
             puts ""
-            elements = NxTodos::itemsInPositionOrderForGroup(cx22).first(CommonUtils::screenHeight() - (10+count1))
+            elements = NxTodos::itemsInPositionOrderForGroup(cx22)
+                            .select{|element| DoNotShowUntil::isVisible(element["uuid"]) }
+                            .first(CommonUtils::screenHeight() - (10+count1))
             store = ItemStore.new()
             elements
                 .each{|element|
                     store.register(element, false)
                     if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(element)) then
-                        puts "#{store.prefixString()} #{PolyFunctions::toString(element)}#{NxBallsService::activityStringOrEmptyString(" (", element["uuid"], ")")}".green
+                        puts "#{store.prefixString()} #{PolyFunctions::toStringForListing(element)}#{NxBallsService::activityStringOrEmptyString(" (", element["uuid"], ")")}".green
                     else
-                        puts "#{store.prefixString()} #{PolyFunctions::toString(element)}"
+                        puts "#{store.prefixString()} #{PolyFunctions::toStringForListing(element)}"
                     end
                 }
             puts ""
-            puts "<n> | insert | position <n> <position> | start <n> | access <n> | stop <n> | pause <n> | pursue <n> | done <n> | expose <n>  | start group | reissue positions sequence | exit".yellow
+            puts "+(datecode) for index 0 | <n> | insert | position <n> <position> | start <n> | access <n> | stop <n> | pause <n> | pursue <n> | done <n> | expose <n>  | start group | stop group | reissue positions sequence | exit".yellow
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
             return if input == "exit"
+
+            if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
+                entity = store.get(0)
+                next if entity.nil?
+                PolyActions::stop(entity)
+                DoNotShowUntil::setUnixtime(entity["uuid"], unixtime)
+            end
 
             if (indx = Interpreting::readAsIntegerOrNull(input)) then
                 entity = store.get(indx)
@@ -259,7 +285,12 @@ class Cx22
             end
 
             if input == "start group" then
-                NxBallsService::issue(SecureRandom.uuid, "cx22: #{cx22["description"]}", [cx22["bankaccount"]], 3600)
+                PolyActions::start(cx22)
+                next
+            end
+
+            if input == "stop group" then
+                PolyActions::stop(cx22)
                 next
             end
 
@@ -278,7 +309,7 @@ class Cx22
     def self.dive(cx22)
         loop {
             system("clear")
-            puts Cx22::toString(cx22)
+            puts Cx22::toStringWithDetails(cx22)
 
             nxballs = PhagePublic::mikuTypeToObjects("NxBall.v2")
             if nxballs.size > 0 then
@@ -287,15 +318,13 @@ class Cx22
                         puts "[NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})".green
                     }
             end
-
-            puts "completion ratio: #{Ax39::completionRatio(cx22["ax39"], cx22["bankaccount"])}"
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["elements (program)", "start NxBall", "update description", "set: done for the day", "unset: done for the day", "expose", "completion ratio", "add time"])
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["elements (program)", "start NxBall", "update description", "push (do not display until)", "expose", "add time"])
             break if action.nil?
             if action == "elements (program)" then
                 Cx22::elementsDive(cx22)
             end
             if action == "start NxBall" then
-                NxBallsService::issue(SecureRandom.uuid, "cx22: #{cx22["description"]}", [cx22["bankaccount"]], 3600)
+                NxBallsService::issue(SecureRandom.uuid, "cx22: #{cx22["description"]}", [cx22["uuid"]], 3600)
                 next
             end
             if action == "update description" then
@@ -305,35 +334,24 @@ class Cx22
                 PhagePublic::commit(cx22)
                 next
             end
-            if action == "set: done for the day" then
-                bankaccount = cx22["bankaccount"]
-                BankAccountDoneForToday::setDoneToday(bankaccount)
-                next
-            end
-            if action == "unset: done for the day" then
-                bankaccount = cx22["bankaccount"]
-                BankAccountDoneForToday::setUnDoneToday(bankaccount)
-                next
+            if action == "push (do not display until)" then
+                datecode = LucilleCore::askQuestionAnswerAsString("datecode: ")
+                next if datecode == ""
+                unixtime = CommonUtils::codeToUnixtimeOrNull(datecode.gsub(" ", ""))
+                next if unixtime.nil?
+                PolyActions::stop(cx22)
+                DoNotShowUntil::setUnixtime(cx22["uuid"], unixtime)
             end
             if action == "expose" then
                 puts JSON.pretty_generate(cx22)
                 LucilleCore::pressEnterToContinue()
                 next
             end
-            if action == "completion ratio" then
-                puts JSON.pretty_generate(cx22)
-                ax39     = cx22["ax39"]
-                account  = cx22["bankaccount"]
-                cr = Ax39::completionRatio(ax39, account)
-                puts "completion ratio: #{cr}"
-                LucilleCore::pressEnterToContinue()
-                next
-            end
             if action == "add time" then
                 timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
                 time = timeInHours*3600
-                puts "Adding #{time} seconds to #{cx22["bankaccount"]}"
-                Bank::put(cx22["bankaccount"], time)
+                puts "Adding #{time} seconds to #{cx22["uuid"]}"
+                Bank::put(cx22["uuid"], time)
                 next
             end
         }

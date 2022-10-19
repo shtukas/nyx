@@ -21,6 +21,7 @@ class DoNotShowUntil
     def self.getDateTimeOrNull(uuid)
         unixtime = DoNotShowUntil::getUnixtimeOrNull(uuid)
         return nil if unixtime.nil?
+        return nil if Time.new.to_i >= unixtime.to_i
         Time.at(unixtime).utc.iso8601
     end
 

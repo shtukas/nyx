@@ -62,23 +62,23 @@ class Ax39
         end
     end
 
-    # Ax39::completionRatio(ax39, bankaccount)
-    def self.completionRatio(ax39, bankaccount)
+    # Ax39::completionRatio(ax39, uuid)
+    def self.completionRatio(ax39, uuid)
         raise "(error: 92e23de4-61eb-4a07-a128-526e4be0e72a)" if ax39.nil?
-        return 1 if BankAccountDoneForToday::isDoneToday(bankaccount)
+        return 1 if !DoNotShowUntil::isVisible(uuid)
         if ax39["type"] == "daily-singleton-run" then
-            return BankAccountDoneForToday::isDoneToday(bankaccount) ? 1 : 0
+            return 0
         end
         if ax39["type"] == "daily-time-commitment" then
             return [
-                Bank::valueAtDate(bankaccount, CommonUtils::today()).to_f/(3600*ax39["hours"]),
-                BankExtended::stdRecoveredDailyTimeInHours(bankaccount).to_f/ax39["hours"]
+                Bank::valueAtDate(uuid, CommonUtils::today()).to_f/(3600*ax39["hours"]),
+                BankExtended::stdRecoveredDailyTimeInHours(uuid).to_f/ax39["hours"]
             ].max
         end
         if ax39["type"] == "weekly-time-commitment" then
             return [
-                Bank::valueAtDate(bankaccount, CommonUtils::today()).to_f/(0.3*3600*ax39["hours"]),
-                Bank::combinedValueOnThoseDays(bankaccount, CommonUtils::dateSinceLastSaturday()).to_f/(3600*ax39["hours"])
+                Bank::valueAtDate(uuid, CommonUtils::today()).to_f/(0.3*3600*ax39["hours"]),
+                Bank::combinedValueOnThoseDays(uuid, CommonUtils::dateSinceLastSaturday()).to_f/(3600*ax39["hours"])
             ].max
         end
     end
