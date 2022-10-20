@@ -4,7 +4,7 @@ class Bank
 
     # Bank::put(setuuid, weight: Float) # Used by regular activity. Emits events for the other computer,
     def self.put(setuuid, weight)
-        PhagePublic::commit({
+        variant = {
             "uuid"        => SecureRandom.uuid,
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
@@ -15,17 +15,39 @@ class Bank
             "setuuid"     => setuuid,
             "date"        => CommonUtils::today(),
             "weight"      => weight
-        })
+        }
+
+        FileSystemCheck::fsck_PhageItem(variant, SecureRandom.hex, false)
+
+        filepath = "#{Config::pathToDataCenter()}/Bank/#{variant["setuuid"]}/#{variant["uuid"]}.json"
+        if !File.exists?(File.dirname(filepath)) then
+            FileUtils.mkpath(File.dirname(filepath))
+        end
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(variant)) }
+
         XCache::destroy("256e3994-7469-46a8-abd2-238bb25d5976:#{setuuid}:#{CommonUtils::today()}")
     end
 
     # Bank::valueAtDate(setuuid, date)
     def self.valueAtDate(setuuid, date)
-        PhagePublic::mikuTypeToObjects("TxBankEvent")
-            .select{|item| item["setuuid"] == setuuid }
-            .select{|item| item["date"] == date }
-            .map{|item| item["weight"] }
-            .inject(0, :+)
+        value = XCache::getOrNull("256e3994-7469-46a8-abd2-238bb25d5976:#{setuuid}:#{CommonUtils::today()}")
+        return value.to_f if value
+
+        folderpath = "#{Config::pathToDataCenter()}/Bank/#{setuuid}"
+
+        return 0 if !File.exists?(folderpath)
+
+        value = LucilleCore::locationsAtFolder(folderpath)
+                    .select{|filepath| filepath[-5, 5] == ".json" }
+                    .map{|filepath| JSON.parse(IO.read(filepath)) }
+                    .select{|item| item["setuuid"] == setuuid } # redundant
+                    .select{|item| item["date"] == date }
+                    .map{|item| item["weight"] }
+                    .inject(0, :+)
+
+        XCache::set("256e3994-7469-46a8-abd2-238bb25d5976:#{setuuid}:#{CommonUtils::today()}", value)
+
+        value
     end
 
     # Bank::combinedValueOnThoseDays(setuuid, dates)

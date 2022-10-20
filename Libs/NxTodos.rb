@@ -4,12 +4,45 @@ class NxTodos
 
     # NxTodos::items()
     def self.items()
-        PhagePublic::mikuTypeToObjects("NxTodo")
+        variants = []
+        Find.find("#{Config::pathToDataCenter()}/NxTodo") do |path|
+            next if File.basename(path)[-5, 5] != ".json"
+            variants << JSON.parse(IO.read(path))
+        end
+        PhageInternals::variantsToObjects(variants)
+    end
+
+    # NxTodos::getItemOrNull(uuid)
+    def self.getItemOrNull(uuid)
+        fragment = Digest::SHA1.hexdigest(uuid)[0, 3]
+        folderpath = "#{Config::pathToDataCenter()}/NxTodo/#{fragment}/#{uuid}"
+        variants = LucilleCore::locationsAtFolder(folderpath)
+                    .select{|filepath| filepath[-5, 5] == ".json" }
+                    .map{|filepath| JSON.parse(IO.read(filepath)) }
+        objects = PhageInternals::variantsToObjects(variants)
+        raise "(error: 3abab948-de21-4c44-806d-a66cd995a10f)" if objects.size >= 2
+        objects.first
+    end
+
+    # NxTodos::commitVariant(variant)
+    def self.commitVariant(variant)
+        variant["phage_uuid"] = SecureRandom.uuid
+        variant["phage_time"] = Time.new.to_f
+        FileSystemCheck::fsck_PhageItem(variant, SecureRandom.hex, false)
+        fragment = Digest::SHA1.hexdigest(variant["uuid"])[0, 3]
+        filepath = "#{Config::pathToDataCenter()}/NxTodo/#{fragment}/#{variant["uuid"]}/#{variant["phage_uuid"]}.json"
+        if !File.exists?(File.dirname(filepath)) then
+            FileUtils.mkpath(File.dirname(filepath))
+        end
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(variant)) }
     end
 
     # NxTodos::destroy(uuid)
     def self.destroy(uuid)
-        PhagePublic::destroy(uuid)
+        object = NxTodos::getItemOrNull(uuid)
+        return if object.nil?
+        object["phage_alive"] = false
+        NxTodos::commitVariant(object)
     end
 
     # --------------------------------------------------
@@ -37,7 +70,7 @@ class NxTodos
             "cx23"        => cx23,
             "listeable"   => true
         }
-        PhagePublic::commit(item)
+        NxTodos::commitVariant(item)
         item
     end
 
@@ -62,7 +95,7 @@ class NxTodos
             "nx11e"       => nx11e,
             "listeable"   => true
         }
-        PhagePublic::commit(item)
+        NxTodos::commitVariant(item)
         item
     end
 
@@ -87,7 +120,7 @@ class NxTodos
             "nx11e"       => nx11e,
             "listeable"   => true
         }
-        PhagePublic::commit(item)
+        NxTodos::commitVariant(item)
         item
     end
 
@@ -110,7 +143,7 @@ class NxTodos
             "nx11e"       => nx11e,
             "listeable"   => true
         }
-        PhagePublic::commit(item)
+        NxTodos::commitVariant(item)
         item
     end
 
@@ -133,7 +166,7 @@ class NxTodos
             "nx11e"       => nx11e,
             "listeable"   => true
         }
-        PhagePublic::commit(item)
+        NxTodos::commitVariant(item)
         item
     end
 
@@ -156,7 +189,7 @@ class NxTodos
             "nx11e"       => nx11e,
             "listeable"   => true
         }
-        PhagePublic::commit(item)
+        NxTodos::commitVariant(item)
         item
     end
 
@@ -176,7 +209,7 @@ class NxTodos
             "cx23"        => cx23,
             "listeable"   => true
         }
-        PhagePublic::commit(item)
+        NxTodos::commitVariant(item)
     end
 
     # --------------------------------------------------
@@ -296,7 +329,8 @@ class NxTodos
                     .each{|item|
                         next if item["listeable"]
                         puts "set to listeable: #{NxTodos::toString(item)}"
-                        PhagePublic::setAttribute2(item["uuid"], "listeable", true)
+                        item["listeable"] =  true
+                        NxTodos::commitVariant(item)
                     }
             }
 
@@ -336,13 +370,13 @@ class NxTodos
             status = LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit the description instead ? ")
             if status then
                 PolyActions::editDescription(item)
-                return PhagePublic::getObjectOrNull(item["uuid"])
+                return NxTodos::getItemOrNull(item["uuid"])
             else
                 return item
             end
         end
         Nx113Edit::edit(item)
-        PhagePublic::getObjectOrNull(item["uuid"])
+        NxTodos::getItemOrNull(item["uuid"])
     end
 
     # NxTodos::landing(item)
@@ -352,7 +386,7 @@ class NxTodos
             return nil if item.nil?
 
             uuid = item["uuid"]
-            item = PhagePublic::getObjectOrNull(uuid)
+            item = NxTodos::getItemOrNull(uuid)
             return nil if item.nil?
 
             system("clear")
@@ -412,7 +446,8 @@ class NxTodos
             if Interpreting::match("engine", input) then
                 engine = Nx11E::interactivelyCreateNewNx11EOrNull()
                 next if engine.nil?
-                PhagePublic::setAttribute2(item["uuid"], "nx11e", engine)
+                item["nx11e"] =  engine
+                NxTodos::commitVariant(item)
                 next
             end
 
