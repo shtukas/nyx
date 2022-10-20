@@ -16,11 +16,11 @@ class Cx22
         JSON.parse(IO.read(filepath))
     end
 
-    # Cx22::commit(cx22)
-    def self.commit(cx22)
-        FileSystemCheck::fsck_PhageItem(cx22, SecureRandom.hex, false)
-        filepath = "#{Config::pathToDataCenter()}/Cx22/#{cx22["uuid"]}.json"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(cx22)) }
+    # Cx22::commit(item)
+    def self.commit(item)
+        FileSystemCheck::fsck_PhageItem(item, SecureRandom.hex, false)
+        filepath = "#{Config::pathToDataCenter()}/Cx22/#{item["uuid"]}.json"
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
     # --------------------------------------------

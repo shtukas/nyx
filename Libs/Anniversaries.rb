@@ -1,6 +1,22 @@
 
 class Anniversaries
 
+    # Anniversaries::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        filepath = "#{Config::pathToDataCenter()}/Anniversaries/#{uuid}.json"
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
+    end
+
+    # Anniversaries::commit(item)
+    def self.commit(item)
+        FileSystemCheck::fsck_PhageItem(item, SecureRandom.hex, false)
+        filepath = "#{Config::pathToDataCenter()}/Anniversaries/#{item["uuid"]}.json"
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
+    end
+
+    # ---------------------------------------------------------------------------------
+
     # Anniversaries::dateIsCorrect(date)
     def self.dateIsCorrect(date)
         begin
@@ -83,7 +99,10 @@ class Anniversaries
 
     # Anniversaries::anniversaries()
     def self.anniversaries()
-        PhagePublic::mikuTypeToObjects("NxAnniversary")
+        folderpath = "#{Config::pathToDataCenter()}/Anniversaries"
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Anniversaries")
+            .select{|filepath| filepath[-5, 5] == ".json" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
 
     # Anniversaries::issueNewAnniversaryOrNullInteractively()
@@ -124,7 +143,7 @@ class Anniversaries
             "repeatType"          => repeatType,
             "lastCelebrationDate" => lastCelebrationDate
         }
-        PhagePublic::commit(item)
+        Anniversaries::commit(item)
         item
     end
 
@@ -141,7 +160,10 @@ class Anniversaries
 
     # Anniversaries::done(uuid)
     def self.done(uuid)
-        PhagePublic::setAttribute2(uuid, "lastCelebrationDate", Time.new.to_s[0, 10])
+        item = Anniversaries::getOrNull(uuid)
+        return if item.nil?
+        item["lastCelebrationDate"] = Time.new.to_s[0, 10]
+        Anniversaries::commit(item)
     end
 
     # Anniversaries::access(anniversary)
@@ -193,7 +215,7 @@ class Anniversaries
             return nil if item.nil?
 
             uuid = item["uuid"]
-            item = PhagePublic::getObjectOrNull(uuid)
+            item = Anniversaries::getOrNull(uuid)
             return nil if item.nil?
 
             system("clear")
@@ -243,6 +265,5 @@ class Anniversaries
                 next
             end
         }
-
     end
 end
