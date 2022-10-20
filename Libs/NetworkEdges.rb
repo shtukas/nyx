@@ -3,6 +3,39 @@
 
 class NetworkEdges
 
+    # SPECIFIC IO
+
+    # NetworkEdges::commitPhageVariant(item)
+    def self.commitPhageVariant(item)
+        return if item["mikuType"] != "NxGraphEdge1"
+
+        uuid1 = item["uuid1"]
+        filepath1 = "#{Config::pathToDataCenter()}/NxGraphEdge1/#{uuid1[0, 3]}/#{item["uuid1"]}/#{item["phage_uuid"]}.json"
+        
+        uuid2 = item["uuid2"]
+        filepath2 = "#{Config::pathToDataCenter()}/NxGraphEdge1/#{uuid2[0, 3]}/#{item["uuid2"]}/#{item["phage_uuid"]}.json"
+
+        [filepath1, filepath2].each{|filepath|
+            if !File.exists?(File.dirname(filepath)) then
+                FileUtils.mkpath(File.dirname(filepath))
+            end
+            File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
+        }
+    end
+
+    # NetworkEdges::variantsForUUID(nodeuuid)
+    def self.variantsForUUID(nodeuuid)
+        folderpath = "#{Config::pathToDataCenter()}/NxGraphEdge1/#{nodeuuid[0, 3]}/#{nodeuuid}"
+        return [] if !File.exists?(folderpath)
+        LucilleCore::locationsAtFolder(folderpath)
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
+    end
+
+    # NetworkEdges::objectsForUUID(nodeuuid)
+    def self.objectsForUUID(nodeuuid)
+        PhageInternals::variantsToObjects(NetworkEdges::variantsForUUID(nodeuuid))
+    end
+
     # SETTERS
 
     # NetworkEdges::relate(uuid1, uuid2)
@@ -55,54 +88,54 @@ class NetworkEdges
 
     # GETTERS
 
-    # NetworkEdges::parentUUIDs(uuid)
-    def self.parentUUIDs(uuid)
+    # NetworkEdges::parentUUIDs(nodeuuid)
+    def self.parentUUIDs(nodeuuid)
         parents = []
-        PhagePublic::mikuTypeToObjects("NxGraphEdge1")
+        NetworkEdges::objectsForUUID(nodeuuid)
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .each{|item|
-                if item["uuid2"] == uuid and item["type"] == "arrow" then
+                if item["uuid2"] == nodeuuid and item["type"] == "arrow" then
                     parents = parents + [item["uuid1"]]
                 end
-                if item["uuid2"] == uuid and item["type"] == "none" then
+                if item["uuid2"] == nodeuuid and item["type"] == "none" then
                     parents = parents - [item["uuid1"]]
                 end
             }
         parents.uniq
     end
 
-    # NetworkEdges::relatedUUIDs(uuid)
-    def self.relatedUUIDs(uuid)
+    # NetworkEdges::relatedUUIDs(nodeuuid)
+    def self.relatedUUIDs(nodeuuid)
         related = []
-        PhagePublic::mikuTypeToObjects("NxGraphEdge1")
+        NetworkEdges::objectsForUUID(nodeuuid)
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .each{|item|
-                if item["uuid1"] == uuid and item["type"] == "bidirectional" then
+                if item["uuid1"] == nodeuuid and item["type"] == "bidirectional" then
                     related = related + [item["uuid2"]]
                 end
-                if item["uuid2"] == uuid and item["type"] == "bidirectional" then
+                if item["uuid2"] == nodeuuid and item["type"] == "bidirectional" then
                     related = related + [item["uuid2"]]
                 end
-                if item["uuid1"] == uuid and item["type"] == "none" then
+                if item["uuid1"] == nodeuuid and item["type"] == "none" then
                     related = related - [item["uuid2"]]
                 end
-                if item["uuid2"] == uuid and item["type"] == "none" then
+                if item["uuid2"] == nodeuuid and item["type"] == "none" then
                     related = related - [item["uuid1"]]
                 end
             }
-        (related - [uuid]).uniq
+        (related - [nodeuuid]).uniq
     end
 
-    # NetworkEdges::childrenUUIDs(uuid)
-    def self.childrenUUIDs(uuid)
+    # NetworkEdges::childrenUUIDs(nodeuuid)
+    def self.childrenUUIDs(nodeuuid)
         children = []
-        PhagePublic::mikuTypeToObjects("NxGraphEdge1")
+        NetworkEdges::objectsForUUID(nodeuuid)
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .each{|item|
-                if item["uuid1"] == uuid and item["type"] == "arrow" then
+                if item["uuid1"] == nodeuuid and item["type"] == "arrow" then
                     children = children + [item["uuid2"]]
                 end
-                if item["uuid1"] == uuid and item["type"] == "none" then
+                if item["uuid1"] == nodeuuid and item["type"] == "none" then
                     children = children - [item["uuid2"]]
                 end
             }

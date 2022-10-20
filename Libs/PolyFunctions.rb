@@ -12,6 +12,12 @@ class PolyFunctions
                 accounts << cx22["uuid"]
             end
         end
+        if item["cx23"] then
+            cx22 = Cx22::getOrNull(item["cx23"]["groupuuid"])
+            if cx22 then
+                accounts << cx22["uuid"]
+            end
+        end
         accounts.uniq
     end
 

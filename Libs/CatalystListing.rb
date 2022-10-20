@@ -44,24 +44,6 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match(">>", input) then
-            item = store.getDefault()
-            return if item.nil?
-            if item["mikuType"] != "NxTodo" then
-                puts "command >> is only availaible for NxTodos (in triage)"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            if item["nx11e"]["type"] != "triage" then
-                puts "command >> is only availaible for NxTodos in triage"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            Cx22::interactivelySetANewContributionForItemOrNothing(item)
-            PhagePublic::setAttribute2(item["uuid"], "nx11e", Nx11E::makeStandard())
-            return
-        end
-
         if Interpreting::match("access", input) then
             item = store.getDefault()
             return if item.nil?
@@ -110,13 +92,6 @@ class CatalystListing
         if Interpreting::match("commands", input) then
             puts CatalystListing::listingCommands().yellow
             LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if Interpreting::match("contribution", input) then
-            item = store.getDefault()
-            return if item.nil?
-            Cx22::interactivelySetANewContributionForItemOrNothing(item)
             return
         end
 
@@ -242,7 +217,7 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             item = Nx11E::interactivelySetANewEngineForItemOrNothing(item)
-            Cx22::interactivelySetANewContributionForItemWithPositionOrNothing(item)
+            Cx23::interactivelySetCx23ForItemOrNothing(item)
             return
         end
 
@@ -251,7 +226,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             item = Nx11E::interactivelySetANewEngineForItemOrNothing(item)
-            Cx22::interactivelySetANewContributionForItemWithPositionOrNothing(item)
+            Cx23::interactivelySetCx23ForItemOrNothing(item)
             return
         end
 
@@ -460,6 +435,13 @@ class CatalystListing
             Bank::put(item["uuid"], timeInHours.to_f*3600)
             if item["cx22"] then
                 cx22 = Cx22::getOrNull(item["cx22"])
+                if cx22 then
+                    puts "Adding #{timeInHours.to_f} hours to #{Cx22::toString1(cx22)}"
+                    Bank::put(cx22["uuid"], timeInHours.to_f*3600)
+                end
+            end
+            if item["cx23"] then
+                cx22 = Cx22::getOrNull(item["cx23"]["groupuuid"])
                 if cx22 then
                     puts "Adding #{timeInHours.to_f} hours to #{Cx22::toString1(cx22)}"
                     Bank::put(cx22["uuid"], timeInHours.to_f*3600)

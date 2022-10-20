@@ -312,6 +312,12 @@ class FileSystemCheck
             return
         end
 
+        if mikuType == "NxGraphEdge1" then
+            FileSystemCheck::fsck_NxGraphEdge1(item, runhash, verbose)
+            XCache::setFlag(repeatKey, true)
+            return
+        end
+
         if mikuType == "NxLine" then
             FileSystemCheck::ensureAttribute(item, "line", "String")
             XCache::setFlag(repeatKey, true)
@@ -324,12 +330,9 @@ class FileSystemCheck
             FileSystemCheck::fsck_Nx11E(item["nx11e"], verbose)
             FileSystemCheck::fsck_Nx113(item["nx113"], runhash, verbose)
             FileSystemCheck::fsck_Cx23(item["cx23"], verbose)
-            XCache::setFlag(repeatKey, true)
-            return
-        end
-
-        if mikuType == "NxGraphEdge1" then
-            FileSystemCheck::fsck_NxGraphEdge1(item, runhash, verbose)
+            if item["nx22"] then
+                raise "NxTodos should not carry a Nx22"
+            end
             XCache::setFlag(repeatKey, true)
             return
         end
@@ -364,6 +367,9 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "nx46", "Hash")
             FileSystemCheck::ensureAttribute(item, "lastDoneDateTime", "String")
             FileSystemCheck::fsck_Nx113(item["nx113"], runhash, verbose)
+            if item["nx23"] then
+                raise "Waves should not carry a Nx23"
+            end
             XCache::setFlag(repeatKey, true)
             return
         end

@@ -118,19 +118,15 @@ class Cx22
 
     # Cx22::interactivelySetANewContributionForItemOrNothing(item) # item
     def self.interactivelySetANewContributionForItemOrNothing(item)
+        if item["mikuType"] != "Wave" then
+            puts "You can set a Cx22 only for Waves. (For NxTodos set a Cx23.)"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
         cx22 = Cx22::architectOrNull()
         return if cx22.nil?
         PhagePublic::setAttribute2(item["uuid"], "cx22", cx22["uuid"])
         PhagePublic::getObjectOrNull(item["uuid"])
-    end
-
-    # Cx22::interactivelySetANewContributionForItemWithPositionOrNothing(item) # item
-    def self.interactivelySetANewContributionForItemWithPositionOrNothing(item)
-        cx22 = Cx22::architectOrNull()
-        return if cx22.nil?
-        PhagePublic::setAttribute2(item["uuid"], "cx22", cx22["uuid"])
-        item = PhagePublic::getObjectOrNull(item["uuid"])
-        Cx23::interactivelySetCx23ForItemOrNothing(item)
     end
 
     # Cx22::nextPositionForCx22(cx22)
@@ -194,22 +190,8 @@ class Cx22
                 uuid   = SecureRandom.uuid
                 nx11e  = Nx11E::makeStandard()
                 nx113  = Nx113Make::interactivelyMakeNx113OrNull()
-                cx23   =
-                    (lambda {
-                        loop {
-                            position = LucilleCore::askQuestionAnswerAsString("position (or `next`): ")
-                            if position == "" then
-                                next
-                            end
-                            if position == "next" then
-                                position = Cx22::nextPositionForCx22(cx22) + 1
-                                return Cx23::makeCx23(cx22, position)
-                            end
-                            return Cx23::makeCx23(cx22, position.to_f)
-                        }
-                    }).call()
-
-                NxTodos::issueFromElements(description, nx113, nx11e, cx22, cx23)
+                cx23   = Cx23::interactivelyMakeNewGivenCx22OrNull(cx22)
+                NxTodos::issueFromElements(description, nx113, nx11e, cx23)
                 next
             end
 

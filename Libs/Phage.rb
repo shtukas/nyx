@@ -20,8 +20,8 @@ class PhageInternals
         answer
     end
 
-    # PhageInternals::variantsToObjects(objects)
-    def self.variantsToObjects(objects)
+    # PhageInternals::variantsToObjects(variants)
+    def self.variantsToObjects(variants)
         higestOfTwo = lambda {|o1Opt, o2|
             if o1Opt.nil? then
                 return o2
@@ -34,8 +34,8 @@ class PhageInternals
             end
         }
         projection = {}
-        objects.each{|object|
-            projection[object["uuid"]] = higestOfTwo.call(projection[object["uuid"]], object)
+        variants.each{|variant|
+            projection[variant["uuid"]] = higestOfTwo.call(projection[variant["uuid"]], variant)
         }
         projection.values.select{|object| object["phage_alive"] }
     end
@@ -175,6 +175,26 @@ class PhageInternals
         end
     end
 
+    # PhageInternals::reCommitVariant(object)
+    def self.reCommitVariant(object)
+        FileSystemCheck::fsck_PhageItem(object, SecureRandom.hex, false)
+        PhageInternals::databasesPathsForReading().each{|filepath|
+            db = SQLite3::Database.new(filepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute "delete from _objects_ where _phage_uuid_=?", [object["phage_uuid"]]
+            db.close
+        }
+        db = SQLite3::Database.new(PhageInternals::databasePathForWriting())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "insert into _objects_ (_phage_uuid_, _uuid_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["phage_uuid"], object["uuid"], object["mikuType"], JSON.generate(object)]
+        db.close
+        nil
+    end
+
 end
 
 class PhagePublic
@@ -185,14 +205,19 @@ class PhagePublic
     def self.commit(object)
         object["phage_uuid"] = SecureRandom.uuid
         object["phage_time"] = Time.new.to_f
+
         #puts "PhagePublic::commit(#{JSON.pretty_generate(object)})"
         FileSystemCheck::fsck_PhageItem(object, SecureRandom.hex, false)
+
         db = SQLite3::Database.new(PhageInternals::databasePathForWriting())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
         db.execute "insert into _objects_ (_phage_uuid_, _uuid_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["phage_uuid"], object["uuid"], object["mikuType"], JSON.generate(object)]
         db.close
+
+        NetworkEdges::commitPhageVariant(item)
+
         nil
     end
 

@@ -22,8 +22,7 @@ class NxTodos
         uuid  = SecureRandom.uuid
         nx11e = Nx11E::interactivelyCreateNewNx11E()
         nx113 = Nx113Make::interactivelyMakeNx113OrNull()
-        cx22  = Cx22::architectOrNull()
-        cx23  = cx22 ? Cx23::makeNewOrNull(cx22) : nil
+        cx23  = (nx11e["type"] == "standard") ? Cx23::interactivelyMakeNewOrNull() : nil
         item = {
             "uuid"        => uuid,
             "phage_uuid"  => SecureRandom.uuid,
@@ -35,7 +34,6 @@ class NxTodos
             "description" => description,
             "nx113"       => nx113,
             "nx11e"       => nx11e,
-            "cx22"        => cx22 ? cx22["uuid"] : nil,
             "cx23"        => cx23,
             "listeable"   => true
         }
@@ -51,7 +49,6 @@ class NxTodos
         datetime = datetime || CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
         nx11e    = Nx11E::makeOndate(datetime)
         nx113    = Nx113Make::interactivelyMakeNx113OrNull()
-        cx22     = Cx22::architectOrNull()
         item = {
             "uuid"        => uuid,
             "phage_uuid"  => SecureRandom.uuid,
@@ -63,7 +60,6 @@ class NxTodos
             "description" => description,
             "nx113"       => nx113,
             "nx11e"       => nx11e,
-            "cx22"        => cx22 ? cx22["uuid"] : nil,
             "listeable"   => true
         }
         PhagePublic::commit(item)
@@ -79,8 +75,6 @@ class NxTodos
     def self.interactivelyIssueNewHot(description)
         uuid  = SecureRandom.uuid
         nx11e = Nx11E::makeHot()
-        nx113 = nil
-        cx22  = Cx22::architectOrNull()
         item = {
             "uuid"        => uuid,
             "phage_uuid"  => SecureRandom.uuid,
@@ -90,9 +84,7 @@ class NxTodos
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "nx113"       => nx113,
             "nx11e"       => nx11e,
-            "cx22"        => cx22 ? cx22["uuid"] : nil,
             "listeable"   => true
         }
         PhagePublic::commit(item)
@@ -168,8 +160,8 @@ class NxTodos
         item
     end
 
-    # NxTodos::issueFromElements(description, nx113, nx11e, cx22, cx23)
-    def self.issueFromElements(description, nx113, nx11e, cx22, cx23)
+    # NxTodos::issueFromElements(description, nx113, nx11e, cx23)
+    def self.issueFromElements(description, nx113, nx11e, cx23)
         item = {
             "uuid"        => SecureRandom.uuid,
             "phage_uuid"  => SecureRandom.uuid,
@@ -181,7 +173,6 @@ class NxTodos
             "description" => description,
             "nx113"       => nx113,
             "nx11e"       => nx11e,
-            "cx22"        => cx22["uuid"],
             "cx23"        => cx23,
             "listeable"   => true
         }
@@ -195,9 +186,10 @@ class NxTodos
     def self.toString(item)
         nx11estr = Nx11E::toString(item["nx11e"])
         nx113str = Nx113Access::toStringOrNull(" ", item["nx113"], "")
-        cx22str  = item["cx22"] ? " #{Cx22::toString3(item["cx22"]).green}" : ""
-        cx23str  = item["cx23"] ? " (pos: #{"%6.2f" % item["cx23"]["position"]})" : ""
-        "(todo)#{cx23str} #{nx11estr} #{item["description"]}#{nx113str}#{cx22str}"
+        cx23 = item["cx23"]
+        str1 = Cx23::toStringOrNull(cx23)
+        cx23str  = str1 ? " (#{str1})" : ""
+        "(todo) #{nx11estr} #{item["description"]}#{nx113str}#{cx23str}"
     end
 
     # NxTodos::toStringForSearch(item)
@@ -260,34 +252,14 @@ class NxTodos
             return 0.70 + shiftOnDateTime.call(item["nx11e"]["datetime"])
         end
 
-        if item["nx11e"]["type"] == "standard" and item["cx22"] and item["cx23"] then
-            cx22 = Cx22::getOrNull(item["cx22"])
-            if cx22.nil? then
-                puts "I could not find a Cx22 for uuid: #{item["cx22"]} inside #{item}"
-                puts "I am going to nullify the attribute"
-                LucilleCore::pressEnterToContinue()
-                PhagePublic::setAttribute2(item["uuid"], "cx22", nil)
-                return nil
+        if item["nx11e"]["type"] == "standard" and item["cx23"] then
+            cx22 = Cx22::getOrNull(item["cx23"]["groupuuid"])
+            if cx22 then
+                return nil if !DoNotShowUntil::isVisible(cx22["uuid"])
+                completionRatio = Ax39::completionRatioCached(cx22["ax39"], cx22["uuid"])
+                return nil if completionRatio >= 1
+                return 0.60 + shiftOnCompletionRatio.call(completionRatio) + shiftOnPosition.call(item["cx23"]["position"]).to_f/100
             end
-            return nil if !DoNotShowUntil::isVisible(cx22["uuid"])
-            completionRatio = Ax39::completionRatioCached(cx22["ax39"], cx22["uuid"])
-            return nil if completionRatio >= 1
-            return 0.60 + shiftOnCompletionRatio.call(completionRatio) + shiftOnPosition.call(item["cx23"]["position"]).to_f/100
-        end
-
-        if item["nx11e"]["type"] == "standard" and item["cx22"] then
-            cx22 = Cx22::getOrNull(item["cx22"])
-            if cx22.nil? then
-                puts "I could not find a Cx22 for uuid: #{item["cx22"]} inside #{item}"
-                puts "I am going to nullify the attribute"
-                LucilleCore::pressEnterToContinue()
-                PhagePublic::setAttribute2(item["uuid"], "cx22", nil)
-                return nil
-            end
-            return nil if !DoNotShowUntil::isVisible(cx22["uuid"])
-            completionRatio = Ax39::completionRatioCached(cx22["ax39"], cx22["uuid"])
-            return nil if completionRatio >= 1
-            return 0.50 + shiftOnCompletionRatio.call(completionRatio)
         end
 
         if item["nx11e"]["type"] == "standard" then
@@ -304,7 +276,7 @@ class NxTodos
         if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("e38d89ee-0e4e-4b71-adcd-bfdcb7891e72", 86400) then
             Cx22::items().each{|cx22|
                 NxTodos::items()
-                    .select{|item| item["cx22"] and item["cx22"] == cx22["uuid"] }
+                    .select{|item| item["cx23"] and item["cx23"]["groupuuid"] == cx22["uuid"] }
                     .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
                     .reduce([]){|selected, item|
                         (lambda {
@@ -335,16 +307,14 @@ class NxTodos
 
     # NxTodos::itemsInPositionOrderForGroup(cx22)
     def self.itemsInPositionOrderForGroup(cx22)
-        items = NxTodos::items()
-                    .select{|item| item["cx22"] }
-                    .select{|item| item["cx22"] == cx22["uuid"] }
         items1 = items
+                    .select{|item| item["cx23"].nil? }
+                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+
+        items2 = items
                     .select{|item| item["cx23"] }
                     .sort{|i1, i2| i1["cx23"]["position"] <=> i2["cx23"]["position"] }
 
-        items2 = items
-                    .select{|item| item["cx23"].nil? }
-                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
         items1 + items2
     end
 
@@ -393,8 +363,7 @@ class NxTodos
             puts "datetime: #{item["datetime"]}".yellow
             puts "Nx11E (engine): #{JSON.generate(item["nx11e"])}".yellow
             puts "Nx113 (payload): #{Nx113Access::toStringOrNull("", item["nx113"], "")}".yellow
-            puts "Cx22 (Contribution Group): #{JSON.generate(item["cx22"])}".yellow
-            puts "Cx23 (Group position): #{JSON.generate(item["cx23"])}".yellow
+            puts "Cx23 (Contribution Group & Position): #{JSON.generate(item["cx23"])}".yellow
 
             puts ""
             puts "description | access | start | stop | engine | edit | nx113 | cx22 | done | do not show until | expose | destroy | nyx".yellow
@@ -456,11 +425,6 @@ class NxTodos
             if Interpreting::match("nx113", input) then
                 PolyActions::setNx113(item)
                 next
-            end
-
-            if Interpreting::match("cx22", input) then
-                Cx22::interactivelySetANewContributionForItemWithPositionOrNothing(item)
-                break
             end
 
             if Interpreting::match("nyx", input) then
