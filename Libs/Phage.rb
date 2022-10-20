@@ -175,23 +175,50 @@ class PhageInternals
         end
     end
 
-    # PhageInternals::reCommitVariant(object)
-    def self.reCommitVariant(object)
-        FileSystemCheck::fsck_PhageItem(object, SecureRandom.hex, false)
+    # PhageInternals::reCommitVariant(variant)
+    def self.reCommitVariant(variant)
+        FileSystemCheck::fsck_PhageItem(variant, SecureRandom.hex, false)
         PhageInternals::databasesPathsForReading().each{|filepath|
             db = SQLite3::Database.new(filepath)
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.results_as_hash = true
-            db.execute "delete from _objects_ where _phage_uuid_=?", [object["phage_uuid"]]
+            db.execute "delete from _objects_ where _phage_uuid_=?", [variant["phage_uuid"]]
             db.close
         }
         db = SQLite3::Database.new(PhageInternals::databasePathForWriting())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        db.execute "insert into _objects_ (_phage_uuid_, _uuid_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["phage_uuid"], object["uuid"], object["mikuType"], JSON.generate(object)]
+        db.execute "insert into _objects_ (_phage_uuid_, _uuid_, _mikuType_, _object_) values (?, ?, ?, ?)", [variant["phage_uuid"], variant["uuid"], variant["mikuType"], JSON.generate(variant)]
         db.close
+        nil
+    end
+
+    # PhageInternals::deleteVariant(variant)
+    def self.deleteVariant(variant)
+        FileSystemCheck::fsck_PhageItem(variant, SecureRandom.hex, false)
+        PhageInternals::databasesPathsForReading().each{|filepath|
+            db = SQLite3::Database.new(filepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute "delete from _objects_ where _phage_uuid_=?", [variant["phage_uuid"]]
+            db.close
+        }
+        nil
+    end
+
+    # PhageInternals::vacuum()
+    def self.vacuum()
+        PhageInternals::databasesPathsForReading().each{|filepath|
+            db = SQLite3::Database.new(filepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute "vacuum", []
+            db.close
+        }
         nil
     end
 
@@ -215,8 +242,6 @@ class PhagePublic
         db.results_as_hash = true
         db.execute "insert into _objects_ (_phage_uuid_, _uuid_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["phage_uuid"], object["uuid"], object["mikuType"], JSON.generate(object)]
         db.close
-
-        NetworkEdges::commitPhageVariant(item)
 
         nil
     end

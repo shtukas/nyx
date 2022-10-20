@@ -5,21 +5,23 @@ class NetworkEdges
 
     # SPECIFIC IO
 
-    # NetworkEdges::commitPhageVariant(item)
-    def self.commitPhageVariant(item)
-        return if item["mikuType"] != "NxGraphEdge1"
+    # NetworkEdges::commitVariant(variant)
+    def self.commitVariant(variant)
+        return if variant["mikuType"] != "NxGraphEdge1"
 
-        uuid1 = item["uuid1"]
-        filepath1 = "#{Config::pathToDataCenter()}/NxGraphEdge1/#{uuid1[0, 3]}/#{item["uuid1"]}/#{item["phage_uuid"]}.json"
+        FileSystemCheck::fsck_PhageItem(variant, SecureRandom.hex, false)
+
+        uuid1 = variant["uuid1"]
+        filepath1 = "#{Config::pathToDataCenter()}/NxGraphEdge1/#{uuid1[0, 3]}/#{variant["uuid1"]}/#{variant["phage_uuid"]}.json"
         
-        uuid2 = item["uuid2"]
-        filepath2 = "#{Config::pathToDataCenter()}/NxGraphEdge1/#{uuid2[0, 3]}/#{item["uuid2"]}/#{item["phage_uuid"]}.json"
+        uuid2 = variant["uuid2"]
+        filepath2 = "#{Config::pathToDataCenter()}/NxGraphEdge1/#{uuid2[0, 3]}/#{variant["uuid2"]}/#{variant["phage_uuid"]}.json"
 
         [filepath1, filepath2].each{|filepath|
             if !File.exists?(File.dirname(filepath)) then
                 FileUtils.mkpath(File.dirname(filepath))
             end
-            File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
+            File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(variant)) }
         }
     end
 
@@ -28,6 +30,7 @@ class NetworkEdges
         folderpath = "#{Config::pathToDataCenter()}/NxGraphEdge1/#{nodeuuid[0, 3]}/#{nodeuuid}"
         return [] if !File.exists?(folderpath)
         LucilleCore::locationsAtFolder(folderpath)
+            .select{|filepath| filepath[-5, 5] == ".json" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
 
@@ -40,7 +43,7 @@ class NetworkEdges
 
     # NetworkEdges::relate(uuid1, uuid2)
     def self.relate(uuid1, uuid2)
-        PhagePublic::commit({
+        NetworkEdges::commitVariant({
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
             "phage_alive" => true,
@@ -56,7 +59,7 @@ class NetworkEdges
 
     # NetworkEdges::arrow(uuid1, uuid2)
     def self.arrow(uuid1, uuid2)
-        PhagePublic::commit({
+        NetworkEdges::commitVariant({
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
             "phage_alive" => true,
@@ -72,7 +75,7 @@ class NetworkEdges
 
     # NetworkEdges::detach(uuid1, uuid2)
     def self.detach(uuid1, uuid2)
-        PhagePublic::commit({
+        NetworkEdges::commitVariant({
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
             "phage_alive" => true,

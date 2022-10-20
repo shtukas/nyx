@@ -3,12 +3,24 @@ class Cx22
 
     # Cx22::items()
     def self.items()
-        PhagePublic::mikuTypeToObjects("Cx22")
+        folderpath = "#{Config::pathToDataCenter()}/Cx22"
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Cx22")
+            .select{|filepath| filepath[-5, 5] == ".json" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
 
     # Cx22::getOrNull(uuid)
     def self.getOrNull(uuid)
-        PhagePublic::getObjectOrNull(uuid)
+        filepath = "#{Config::pathToDataCenter()}/Cx22/#{uuid}.json"
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
+    end
+
+    # Cx22::commit(cx22)
+    def self.commit(cx22)
+        FileSystemCheck::fsck_PhageItem(cx22, SecureRandom.hex, false)
+        filepath = "#{Config::pathToDataCenter()}/Cx22/#{cx22["uuid"]}.json"
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(cx22)) }
     end
 
     # --------------------------------------------
@@ -64,14 +76,14 @@ class Cx22
 
     # Cx22::toString2(uuid)
     def self.toString2(uuid)
-        item = PhagePublic::getObjectOrNull(uuid)
+        item = Cx22::getOrNull(uuid)
         return "(Cx22 not found for uuid: #{uuid})" if item.nil?
         Cx22::toString1(item)
     end
 
     # Cx22::toString3(uuid)
     def self.toString3(uuid)
-        item = PhagePublic::getObjectOrNull(uuid)
+        item = Cx22::getOrNull(uuid)
         return "(Cx22 not found for uuid: #{uuid})" if item.nil?
         "(group: #{item["description"]})"
     end
