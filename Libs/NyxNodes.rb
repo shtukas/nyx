@@ -8,37 +8,20 @@ class NyxNodes
 
     # NyxNodes::items()
     def self.items()
-        variants = []
-        Find.find("#{Config::pathToDataCenter()}/NyxNode") do |path|
-            next if File.basename(path)[-5, 5] != ".json"
-            variants << JSON.parse(IO.read(path))
-        end
-        PhageInternals::variantsToObjects(variants)
+        TheBook::getObjects("#{Config::pathToDataCenter()}/NyxNode.v2")
     end
 
     # NyxNodes::getItemOrNull(uuid)
     def self.getItemOrNull(uuid)
-        fragment = Digest::SHA1.hexdigest(uuid)[0, 3]
-        folderpath = "#{Config::pathToDataCenter()}/NyxNode/#{fragment}/#{uuid}"
-        variants = LucilleCore::locationsAtFolder(folderpath)
-                    .select{|filepath| filepath[-5, 5] == ".json" }
-                    .map{|filepath| JSON.parse(IO.read(filepath)) }
-        objects = PhageInternals::variantsToObjects(variants)
-        raise "(error: d8015bf3-542f-4830-9a3b-b72c9c3c4589)" if objects.size >= 2
-        objects.first
+        TheBook::mostRecentBookWithMutations("#{Config::pathToDataCenter()}/NyxNode.v2")[uuid]
     end
 
-    # NyxNodes::commitVariant(variant)
-    def self.commitVariant(variant)
+    # NyxNodes::commitObject(variant)
+    def self.commitObject(variant)
         variant["phage_uuid"] = SecureRandom.uuid
         variant["phage_time"] = Time.new.to_f
         FileSystemCheck::fsck_MikuTypedItem(variant, SecureRandom.hex, false)
-        fragment = Digest::SHA1.hexdigest(variant["uuid"])[0, 3]
-        filepath = "#{Config::pathToDataCenter()}/NyxNode/#{fragment}/#{variant["uuid"]}/#{variant["phage_uuid"]}.json"
-        if !File.exists?(File.dirname(filepath)) then
-            FileUtils.mkpath(File.dirname(filepath))
-        end
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(variant)) }
+        TheBook::commitObjectToDisk("#{Config::pathToDataCenter()}/NyxNode.v2", object)
     end
 
     # NxTodos::destroy(uuid)
@@ -46,7 +29,7 @@ class NyxNodes
         object = NyxNodes::getItemOrNull(uuid)
         return if object.nil?
         object["phage_alive"] = false
-        NyxNodes::commitVariant(object)
+        NyxNodes::commitObject(object)
     end
 
     # ----------------------------------------------------------------------
@@ -96,7 +79,7 @@ class NyxNodes
             "nx113"       => nx113
         }
 
-        NyxNodes::commitVariant(item)
+        NyxNodes::commitObject(item)
         item
     end
 
@@ -120,7 +103,7 @@ class NyxNodes
             "description" => description,
             "nx113"       => nx113
         }
-        NyxNodes::commitVariant(item)
+        NyxNodes::commitObject(item)
         item
     end
 
@@ -144,7 +127,7 @@ class NyxNodes
             "description" => description,
             "nx113"       => nx113
         }
-        NyxNodes::commitVariant(item)
+        NyxNodes::commitObject(item)
         item
     end
 
@@ -172,7 +155,7 @@ class NyxNodes
             "nx113"       => nx113
         }
 
-        NyxNodes::commitVariant(item)
+        NyxNodes::commitObject(item)
         item
     end
 
@@ -351,7 +334,7 @@ class NyxNodes
             if input == "network type" then
                 networkType = NyxNodes::interactivelySelectNetworkType()
                 item["networkType"] = networkType
-                NyxNodes::commitVariant(item)
+                NyxNodes::commitObject(item)
                 next
             end
 
