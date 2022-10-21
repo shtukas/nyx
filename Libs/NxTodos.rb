@@ -28,7 +28,7 @@ class NxTodos
     def self.commitVariant(variant)
         variant["phage_uuid"] = SecureRandom.uuid
         variant["phage_time"] = Time.new.to_f
-        FileSystemCheck::fsck_PhageItem(variant, SecureRandom.hex, false)
+        FileSystemCheck::fsck_MikuTypedItem(variant, SecureRandom.hex, false)
         fragment = Digest::SHA1.hexdigest(variant["uuid"])[0, 3]
         filepath = "#{Config::pathToDataCenter()}/NxTodo/#{fragment}/#{variant["uuid"]}/#{variant["phage_uuid"]}.json"
         if !File.exists?(File.dirname(filepath)) then

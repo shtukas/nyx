@@ -17,7 +17,8 @@ class Upload
             puts "processing: #{location}"
             child = NyxNodes::issueNewUsingLocation(location)
             if overrideDatetime then
-                PhagePublic::setAttribute2(child["uuid"], "datetime", overrideDatetime)
+                child["datetime"] = overrideDatetime
+                PolyActions::commit(child)
             end
             NetworkEdges::arrow(item["uuid"], child["uuid"])
         }
@@ -40,7 +41,8 @@ class Upload
             puts "processing: #{filepath}"
             child = NyxNodes::issueNewUsingFile(filepath)
             if overrideDatetime then
-                PhagePublic::setAttribute2(child["uuid"], "datetime", overrideDatetime)
+                child["datetime"] = overrideDatetime
+                PolyActions::commit(child)
             end
             NetworkEdges::arrow(item["uuid"], child["uuid"])
         }
@@ -61,7 +63,8 @@ class Upload
             return if !File.file?(location)
             child = NyxNodes::issueNewUsingFile(location)
             if overrideDatetime then
-                PhagePublic::setAttribute2(child["uuid"], "datetime", overrideDatetime)
+                child["datetime"] = overrideDatetime
+                PolyActions::commit(child)
             end
             NetworkEdges::arrow(item["uuid"], child["uuid"])
         end

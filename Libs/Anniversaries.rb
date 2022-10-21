@@ -10,7 +10,7 @@ class Anniversaries
 
     # Anniversaries::commit(item)
     def self.commit(item)
-        FileSystemCheck::fsck_PhageItem(item, SecureRandom.hex, false)
+        FileSystemCheck::fsck_MikuTypedItem(item, SecureRandom.hex, false)
         filepath = "#{Config::pathToDataCenter()}/Anniversaries/#{item["uuid"]}.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end

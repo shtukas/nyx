@@ -4,14 +4,33 @@ class Waves
     # --------------------------------------------------
     # IO
 
+    # Waves::commit(item)
+    def self.commit(item)
+        FileSystemCheck::fsck_MikuTypedItem(item, SecureRandom.hex, false)
+        filepath = "#{Config::pathToDataCenter()}/Wave/#{item["uuid"]}.json"
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
+    end
+
     # Waves::items()
     def self.items()
-        PhagePublic::mikuTypeToObjects("Wave")
+        folderpath = "#{Config::pathToDataCenter()}/Wave"
+        LucilleCore::locationsAtFolder(folderpath)
+            .select{|filepath| filepath[-5, 5] == ".json" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
+    end
+
+    # Waves::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        filepath = "#{Config::pathToDataCenter()}/Wave/#{uuid}.json"
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
     end
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        PhagePublic::destroy(uuid)
+        filepath = "#{Config::pathToDataCenter()}/Wave/#{uuid}.json"
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
     end
 
     # --------------------------------------------------
@@ -141,7 +160,7 @@ class Waves
             "nx113"            => nx113,
             "lastDoneDateTime" => "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         }
-        PhagePublic::commit(item)
+        Waves::commit(item)
         item
     end
 
@@ -172,7 +191,8 @@ class Waves
         NxBallsService::close(NxBallsService::itemToNxBallOpt(item), true)
 
         puts "done-ing: #{Waves::toString(item)}"
-        PhagePublic::setAttribute2(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
+        item["lastDoneDateTime"] =  Time.now.utc.iso8601
+        Waves::commit(item)
 
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
         puts "not shown until: #{Time.at(unixtime).to_s}"
@@ -215,13 +235,13 @@ class Waves
             status = LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit the description instead ? ")
             if status then
                 PolyActions::editDescription(item)
-                return PhagePublic::getObjectOrNull(item["uuid"])
+                return Waves::getOrNull(item["uuid"])
             else
                 return item
             end
         end
         Nx113Edit::edit(item)
-        PhagePublic::getObjectOrNull(item["uuid"])
+        Waves::getOrNull(item["uuid"])
     end
 
     # Waves::landing(item)
@@ -231,7 +251,7 @@ class Waves
             return nil if item.nil?
 
             uuid = item["uuid"]
-            item = PhagePublic::getObjectOrNull(uuid)
+            item = Waves::getOrNull(uuid)
             return nil if item.nil?
 
             system("clear")
@@ -294,7 +314,8 @@ class Waves
             if Interpreting::match("nx46", input) then
                 nx46 = Waves::makeNx46InteractivelyOrNull()
                 next if nx46.nil?
-                PhagePublic::setAttribute2(item["uuid"], "nx46", nx46)
+                item["nx46"] = nx46
+                Waves::commit(item)
                 next
             end
 

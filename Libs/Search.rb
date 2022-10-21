@@ -3,14 +3,9 @@
 
 class Search
 
-    # Search::nx20sTypes()
-    def self.nx20sTypes()
-        ["NxTodo", "Wave", "NyxNode"]
-    end
-
     # Search::nx20s() # Array[Nx20]
     def self.nx20s()
-        (NxTodos::items() + Waves::items() + NyxNodes::items())
+        (NxTodos::items() + Waves::items() + NyxNodes::items() + NxLines::items())
             .map{|item|
                 {
                     "announce" => "(#{item["mikuType"]}) #{PolyFunctions::genericDescriptionOrNull(item)}",
@@ -51,7 +46,7 @@ class Search
 
     # Search::nyx()
     def self.nyx()
-        mikuTypes = ["NyxNode"]
+        mikuTypes = ["NyxNode", "NxLine"]
         loop {
             system('clear')
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort) : ")

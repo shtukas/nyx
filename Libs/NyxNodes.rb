@@ -32,7 +32,7 @@ class NyxNodes
     def self.commitVariant(variant)
         variant["phage_uuid"] = SecureRandom.uuid
         variant["phage_time"] = Time.new.to_f
-        FileSystemCheck::fsck_PhageItem(variant, SecureRandom.hex, false)
+        FileSystemCheck::fsck_MikuTypedItem(variant, SecureRandom.hex, false)
         fragment = Digest::SHA1.hexdigest(variant["uuid"])[0, 3]
         filepath = "#{Config::pathToDataCenter()}/NyxNode/#{fragment}/#{variant["uuid"]}/#{variant["phage_uuid"]}.json"
         if !File.exists?(File.dirname(filepath)) then
@@ -291,7 +291,7 @@ class NyxNodes
             end
             if input == "line" then
                 line = LucilleCore::askQuestionAnswerAsString("line: ")
-                i2 = NxLines::issueNew(line)
+                i2 = NxLines::issue(line)
                 NetworkEdges::arrow(item["uuid"], i2["uuid"])
                 next
             end

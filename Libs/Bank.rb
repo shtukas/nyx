@@ -17,7 +17,7 @@ class Bank
             "weight"      => weight
         }
 
-        FileSystemCheck::fsck_PhageItem(variant, SecureRandom.hex, false)
+        FileSystemCheck::fsck_MikuTypedItem(variant, SecureRandom.hex, false)
 
         filepath = "#{Config::pathToDataCenter()}/Bank/#{variant["setuuid"]}/#{variant["uuid"]}.json"
         if !File.exists?(File.dirname(filepath)) then

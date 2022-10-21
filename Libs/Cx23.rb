@@ -13,7 +13,7 @@ class Cx23
     # Cx23::toStringOrNull(cx23)
     def self.toStringOrNull(cx23)
         return nil if cx23.nil?
-        cx22 = PhagePublic::getObjectOrNull(cx23["groupuuid"])
+        cx22 = Cx22::getOrNull(cx23["groupuuid"])
         return nil if cx22.nil?
         "#{cx22["description"]}, #{cx23["position"]}"
     end
@@ -59,6 +59,7 @@ class Cx23
         return if cx22.nil?
         cx23 = Cx23::interactivelyMakeNewGivenCx22OrNull(cx22)
         return if cx23.nil?
-        PhagePublic::setAttribute2(item["uuid"], "cx23", cx23)
+        item["cx23"] = cx23
+        PolyActions::commit(item)
     end
 end

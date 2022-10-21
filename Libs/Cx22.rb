@@ -4,7 +4,7 @@ class Cx22
     # Cx22::items()
     def self.items()
         folderpath = "#{Config::pathToDataCenter()}/Cx22"
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Cx22")
+        LucilleCore::locationsAtFolder(folderpath)
             .select{|filepath| filepath[-5, 5] == ".json" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
@@ -18,7 +18,7 @@ class Cx22
 
     # Cx22::commit(item)
     def self.commit(item)
-        FileSystemCheck::fsck_PhageItem(item, SecureRandom.hex, false)
+        FileSystemCheck::fsck_MikuTypedItem(item, SecureRandom.hex, false)
         filepath = "#{Config::pathToDataCenter()}/Cx22/#{item["uuid"]}.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
@@ -137,8 +137,9 @@ class Cx22
         end
         cx22 = Cx22::architectOrNull()
         return if cx22.nil?
-        PhagePublic::setAttribute2(item["uuid"], "cx22", cx22["uuid"])
-        PhagePublic::getObjectOrNull(item["uuid"])
+        item["cx22"] = cx22["uuid"]
+        PolyActions::commit(item)
+        item
     end
 
     # Cx22::nextPositionForCx22(cx22)
@@ -157,7 +158,7 @@ class Cx22
             puts ""
             count1 = 0
             puts Cx22::toStringWithDetails(cx22)
-            PhagePublic::mikuTypeToObjects("NxBall.v2")
+            NxBallsService::items()
                 .each{|nxball|
                     puts "[NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})".green
                     count1 = count1 + 1
@@ -274,7 +275,8 @@ class Cx22
                 entity = store.get(indx)
                 next if entity.nil?
                 cx23 = Cx23::makeCx23(cx22, position)
-                PhagePublic::setAttribute2(entity["uuid"], "cx23", cx23)
+                entity["cx23"] = cx23
+                PolyActions::commit(entity)
                 next
             end
 
@@ -293,7 +295,7 @@ class Cx22
                     next if element["cx23"].nil?
                     puts JSON.pretty_generate(element)
                     element["cx23"]["position"] = indx
-                    PhagePublic::commit(element)
+                    PolyActions::commit(element)
                 }
             end
         }
@@ -305,7 +307,7 @@ class Cx22
             system("clear")
             puts Cx22::toStringWithDetails(cx22)
 
-            nxballs = PhagePublic::mikuTypeToObjects("NxBall.v2")
+            nxballs = NxBallsService::items()
             if nxballs.size > 0 then
                 nxballs
                     .each{|nxball|
@@ -325,7 +327,7 @@ class Cx22
                 description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
                 next if description == ""
                 cx22["description"] = description
-                PhagePublic::commit(cx22)
+                PolyActions::commit(cx22)
                 next
             end
             if action == "push (do not display until)" then
@@ -355,7 +357,7 @@ class Cx22
     def self.maindive()
         loop {
             system("clear")
-            nxballs = PhagePublic::mikuTypeToObjects("NxBall.v2")
+            nxballs = NxBallsService::items()
             if nxballs.size > 0 then
                 puts ""
                 nxballs

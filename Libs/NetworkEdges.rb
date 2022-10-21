@@ -9,7 +9,7 @@ class NetworkEdges
     def self.commitVariant(variant)
         return if variant["mikuType"] != "NxGraphEdge1"
 
-        FileSystemCheck::fsck_PhageItem(variant, SecureRandom.hex, false)
+        FileSystemCheck::fsck_MikuTypedItem(variant, SecureRandom.hex, false)
 
         uuid1 = variant["uuid1"]
         filepath1 = "#{Config::pathToDataCenter()}/NxGraphEdge1/#{uuid1[0, 3]}/#{variant["uuid1"]}/#{variant["phage_uuid"]}.json"

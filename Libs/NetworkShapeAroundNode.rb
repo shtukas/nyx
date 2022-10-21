@@ -1,6 +1,15 @@
 
 class NetworkShapeAroundNode
 
+    # NetworkShapeAroundNode::getGenericNyxNetworkObjectOrNull(uuid)
+    def self.getGenericNyxNetworkObjectOrNull(uuid)
+        item = NyxNodes::getItemOrNull(uuid)
+        return item if item
+        item = NxLines::getOrNull(uuid)
+        return item if item
+        nil
+    end
+
     # Selection
 
     # NetworkShapeAroundNode::interactivelySelectChildOrNull(uuid)
@@ -125,7 +134,7 @@ class NetworkShapeAroundNode
         children = NetworkShapeAroundNode::interactivelySelectChildren(item["uuid"])
         targetuuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
         return if targetuuid == item["uuid"]
-        targetitem = PhagePublic::getObjectOrNull(targetuuid)
+        targetitem = NetworkShapeAroundNode::getGenericNyxNetworkObjectOrNull(targetuuid)
         return if targetitem.nil?
         children.each{|childX|
             NetworkEdges::arrow(targetitem["uuid"], childX["uuid"])
@@ -139,7 +148,7 @@ class NetworkShapeAroundNode
 
         NetworkEdges::relatedUUIDs(item["uuid"]) # .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
             .each{|entityuuid|
-                entity = PhagePublic::getObjectOrNull(entityuuid)
+                entity = NetworkShapeAroundNode::getGenericNyxNetworkObjectOrNull(entityuuid)
                 next if entity.nil?
                 indx = store.register(entity, false)
                 puts "[#{indx.to_s.ljust(3)}] #{PolyFunctions::toString(entity)}"

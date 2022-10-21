@@ -317,7 +317,7 @@ class CatalystListing
         end
 
         if Interpreting::match("nxballs", input) then
-            puts JSON.pretty_generate(PhagePublic::mikuTypeToObjects("NxBall.v2"))
+            puts JSON.pretty_generate(NxBallsService::items())
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -648,7 +648,7 @@ class CatalystListing
                 }
         end
 
-        nxballs = PhagePublic::mikuTypeToObjects("NxBall.v2")
+        nxballs = NxBallsService::items()
         if nxballs.size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1

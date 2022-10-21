@@ -226,21 +226,24 @@ class Nx113Edit
         if nx113["type"] == "text" then
             newtext = CommonUtils::editTextSynchronously(nx113["text"])
             nx113 = Nx113Make::text(newtext)
-            PhagePublic::setAttribute2(item["uuid"], "nx113", nx113)
+            item["nx113"] = nx113
+            PolyActions::commit(item)
         end
 
         if nx113["type"] == "url" then
             puts "current url: #{nx113["url"]}"
             url2 = LucilleCore::askQuestionAnswerAsString("new url: ")
             nx113 = Nx113Make::url(url2)
-            PhagePublic::setAttribute2(item["uuid"], "nx113", nx113)
+            item["nx113"] = nx113
+            PolyActions::commit(item)
         end
 
         if nx113["type"] == "file" then
             Nx113Access::access(item["nx113"])
             filepath = CommonUtils::interactivelySelectDesktopLocationOrNull()
             nx113 = Nx113Make::file(filepath)
-            PhagePublic::setAttribute2(item["uuid"], "nx113", nx113)
+            item["nx113"] = nx113
+            PolyActions::commit(item)
         end
 
         if nx113["type"] == "aion-point" then
@@ -280,7 +283,8 @@ class Nx113Edit
                 "rootnhash"  => rootnhash,
                 "database"   => operator.publish()
             }
-            PhagePublic::setAttribute2(item["uuid"], "nx113", nx113)
+            item["nx113"] = nx113
+            PolyActions::commit(item)
         end
 
         if nx113["type"] == "Dx8Unit" then
@@ -295,10 +299,17 @@ class Nx113Edit
     end
 end
 
-class Nx113SpecialCircumstances
+class Nx113Dx33s
 
-    # Nx113SpecialCircumstances::issueDx33(unitId)
-    def self.issueDx33(unitId)
+    # Nx113Dx33s::commit(item)
+    def self.commit(item)
+        FileSystemCheck::fsck_MikuTypedItem(item, SecureRandom.hex, false)
+        filepath = "#{Config::pathToDataCenter()}/Dx33/#{item["uuid"]}.json"
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
+    end
+
+    # Nx113Dx33s::issue(unitId)
+    def self.issue(unitId)
         dx33 = {
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
@@ -310,7 +321,22 @@ class Nx113SpecialCircumstances
             "unitId"      => unitId
         }
         puts JSON.pretty_generate(dx33)
-        PhagePublic::commit(dx33)
+        Nx113Dx33s::commit(item)
+    end
+
+    # Nx113Dx33s::getItems()
+    def self.getItems()
+        folderpath = "#{Config::pathToDataCenter()}/Dx33"
+        LucilleCore::locationsAtFolder(folderpath)
+            .select{|filepath| filepath[-5, 5] == ".json" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
+    end
+
+    # Nx113Dx33s::destroy(uuid)
+    def self.destroy(uuid)
+        filepath = "#{Config::pathToDataCenter()}/Dx33/#{item["uuid"]}.json"
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
     end
 end
 
@@ -325,7 +351,7 @@ class Nx113Transforms
         return nil if !File.exists?(location) # Dx8Unit is not reachable
         nx113v2 = Nx113Make::aionpoint(location) # Nx113
         # We should not forget to issue the Dx33
-        Nx113SpecialCircumstances::issueDx33(unitId)
+        Nx113Dx33s::issue(unitId)
         nx113v2
     end
 
@@ -339,7 +365,7 @@ class Nx113Transforms
         puts JSON.pretty_generate(item)
         item["nx113"] = nx113v2
         puts JSON.pretty_generate(item)
-        PhagePublic::commit(item)
+        PolyActions::commit(item)
     end
 
     # Nx113Transforms::transformDx8UnitToAionPointsDuringEnergyGridUpdate()

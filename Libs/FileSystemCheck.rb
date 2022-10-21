@@ -268,14 +268,14 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsck_PhageItem(item, runhash, verbose)
-    def self.fsck_PhageItem(item, runhash, verbose)
+    # FileSystemCheck::fsck_MikuTypedItem(item, runhash, verbose)
+    def self.fsck_MikuTypedItem(item, runhash, verbose)
 
         repeatKey = "#{runhash}:#{JSON.generate(item)}"
         return if XCache::getFlag(repeatKey)
 
         if verbose then
-            puts "FileSystemCheck::fsck_PhageItem(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
+            puts "FileSystemCheck::fsck_MikuTypedItem(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
         end
 
         FileSystemCheck::phageCore(item, verbose)
@@ -404,9 +404,11 @@ class FileSystemCheck
 
     # FileSystemCheck::fsckErrorAtFirstFailure(runhash)
     def self.fsckErrorAtFirstFailure(runhash)
-        PhageInternals::variantsEnumerator().each{|item|
+        puts "(error) we do not have an enumeration of objects and variants"
+        exit
+        [].each{|item|
             FileSystemCheck::exitIfMissingCanary()
-            FileSystemCheck::fsck_PhageItem(item, runhash, true)
+            FileSystemCheck::fsck_MikuTypedItem(item, runhash, true)
         }
         puts "fsck completed successfully".green
     end
