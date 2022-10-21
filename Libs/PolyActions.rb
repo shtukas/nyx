@@ -57,13 +57,17 @@ class PolyActions
     # PolyActions::commit(item)
     def self.commit(item)
 
+        if item["mikuType"] == "NxTodo" then
+            NxTodos::commitVariant(item)
+            return
+        end
 
         if item["mikuType"] == "Wave" then
             Waves::commit(item)
             return
         end
 
-        raise "(error: 92a90b00-4582-4678-9c7b-686b74e64713) I don't know how to commit Miku type: #{item["mikyType"]}"
+        raise "(error: 92a90b00-4582-4678-9c7b-686b74e64713) I don't know how to commit Miku type: #{item["mikuType"]}"
     end
 
     # PolyActions::destroy(item)
@@ -76,7 +80,7 @@ class PolyActions
         end
 
 
-        raise "(error: 518883e2-76bc-4611-b0aa-9a69c8877400) I don't know how to destroy Miku type: #{item["mikyType"]}"
+        raise "(error: 518883e2-76bc-4611-b0aa-9a69c8877400) I don't know how to destroy Miku type: #{item["mikuType"]}"
     end
 
     # PolyActions::destroyWithPrompt(item)
@@ -101,6 +105,7 @@ class PolyActions
             # We havea a special processing of triage items
             if item["nx11e"]["type"] == "triage" then
                 loop {
+                    puts PolyFunctions::toString(item).green
                     actions = ["access >> ♻️", "access >> description >> ♻️", "standard >> contribution", "start >> access >> al.", "destroy"]
                     action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
                     next if action.nil?

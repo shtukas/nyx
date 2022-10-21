@@ -4,6 +4,7 @@ class Bank
 
     # Bank::put(setuuid, weight: Float) # Used by regular activity. Emits events for the other computer,
     def self.put(setuuid, weight)
+        date = CommonUtils::today()
         variant = {
             "uuid"        => SecureRandom.uuid,
             "phage_uuid"  => SecureRandom.uuid,
@@ -13,7 +14,7 @@ class Bank
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "setuuid"     => setuuid,
-            "date"        => CommonUtils::today(),
+            "date"        => date,
             "weight"      => weight
         }
 
@@ -25,18 +26,17 @@ class Bank
         end
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(variant)) }
 
-        XCache::destroy("256e3994-7469-46a8-abd2-238bb25d5976:#{setuuid}:#{CommonUtils::today()}")
+        XCache::destroy("256e3994-7469-46a8-abd2-238bb25d5977:#{setuuid}:#{date}")
     end
 
     # Bank::valueAtDate(setuuid, date)
     def self.valueAtDate(setuuid, date)
-        value = XCache::getOrNull("256e3994-7469-46a8-abd2-238bb25d5976:#{setuuid}:#{CommonUtils::today()}")
+        cachekey = "256e3994-7469-46a8-abd2-238bb25d5977:#{setuuid}:#{date}"
+        value = XCache::getOrNull(cachekey)
+
         return value.to_f if value
-
         folderpath = "#{Config::pathToDataCenter()}/Bank/#{setuuid}"
-
         return 0 if !File.exists?(folderpath)
-
         value = LucilleCore::locationsAtFolder(folderpath)
                     .select{|filepath| filepath[-5, 5] == ".json" }
                     .map{|filepath| JSON.parse(IO.read(filepath)) }
@@ -45,8 +45,7 @@ class Bank
                     .map{|item| item["weight"] }
                     .inject(0, :+)
 
-        XCache::set("256e3994-7469-46a8-abd2-238bb25d5976:#{setuuid}:#{CommonUtils::today()}", value)
-
+        XCache::set(cachekey, value)
         value
     end
 

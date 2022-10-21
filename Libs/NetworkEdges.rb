@@ -12,10 +12,12 @@ class NetworkEdges
         FileSystemCheck::fsck_MikuTypedItem(variant, SecureRandom.hex, false)
 
         uuid1 = variant["uuid1"]
-        filepath1 = "#{Config::pathToDataCenter()}/NxGraphEdge1/#{uuid1[0, 3]}/#{variant["uuid1"]}/#{variant["phage_uuid"]}.json"
+        objnhash1 = "SHA256-#{Digest::SHA1.hexdigest(variant["phage_uuid"])}"
+        filepath1 = "#{Config::pathToDataCenter()}/NxGraphEdge1/#{uuid1[0, 3]}/#{variant["uuid1"]}/#{objnhash1}.json"
         
         uuid2 = variant["uuid2"]
-        filepath2 = "#{Config::pathToDataCenter()}/NxGraphEdge1/#{uuid2[0, 3]}/#{variant["uuid2"]}/#{variant["phage_uuid"]}.json"
+        objnhash2 = "SHA256-#{Digest::SHA1.hexdigest(variant["phage_uuid"])}"
+        filepath2 = "#{Config::pathToDataCenter()}/NxGraphEdge1/#{uuid2[0, 3]}/#{variant["uuid2"]}/#{objnhash2}.json"
 
         [filepath1, filepath2].each{|filepath|
             if !File.exists?(File.dirname(filepath)) then

@@ -16,12 +16,15 @@ class NxTodos
     def self.getItemOrNull(uuid)
         fragment = Digest::SHA1.hexdigest(uuid)[0, 3]
         folderpath = "#{Config::pathToDataCenter()}/NxTodo/#{fragment}/#{uuid}"
-        variants = LucilleCore::locationsAtFolder(folderpath)
-                    .select{|filepath| filepath[-5, 5] == ".json" }
-                    .map{|filepath| JSON.parse(IO.read(filepath)) }
-        objects = PhageInternals::variantsToObjects(variants)
-        raise "(error: 3abab948-de21-4c44-806d-a66cd995a10f)" if objects.size >= 2
-        objects.first
+        return nil if !File.exists?(folderpath)
+        item = LucilleCore::locationsAtFolder(folderpath)
+                .select{|filepath| filepath[-5, 5] == ".json" }
+                .map{|filepath| JSON.parse(IO.read(filepath)) }
+                .sort{|i1, i2| i1["phage_time"] <=> i2["phage_time"] }
+                .last
+        return nil if item.nil?
+        return nil if !item["phage_alive"]
+        item
     end
 
     # NxTodos::commitVariant(variant)
@@ -30,7 +33,8 @@ class NxTodos
         variant["phage_time"] = Time.new.to_f
         FileSystemCheck::fsck_MikuTypedItem(variant, SecureRandom.hex, false)
         fragment = Digest::SHA1.hexdigest(variant["uuid"])[0, 3]
-        filepath = "#{Config::pathToDataCenter()}/NxTodo/#{fragment}/#{variant["uuid"]}/#{variant["phage_uuid"]}.json"
+        objnhash = "SHA256-#{Digest::SHA1.hexdigest(variant["phage_uuid"])}"
+        filepath = "#{Config::pathToDataCenter()}/NxTodo/#{fragment}/#{variant["uuid"]}/#{objnhash}.json"
         if !File.exists?(File.dirname(filepath)) then
             FileUtils.mkpath(File.dirname(filepath))
         end
@@ -341,15 +345,10 @@ class NxTodos
 
     # NxTodos::itemsInPositionOrderForGroup(cx22)
     def self.itemsInPositionOrderForGroup(cx22)
-        items1 = items
-                    .select{|item| item["cx23"].nil? }
-                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-
-        items2 = items
-                    .select{|item| item["cx23"] }
-                    .sort{|i1, i2| i1["cx23"]["position"] <=> i2["cx23"]["position"] }
-
-        items1 + items2
+        NxTodos::items()
+            .select{|item| item["cx23"] }
+            .select{|item| item["cx23"]["groupuuid"] == cx22["uuid"] }
+            .sort{|i1, i2| i1["cx23"]["position"] <=> i2["cx23"]["position"] }
     end
 
     # --------------------------------------------------
