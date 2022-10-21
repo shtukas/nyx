@@ -4,12 +4,12 @@ class NxTodos
 
     # NxTodos::items()
     def self.items()
-        TheBook::getObjects("#{Config::pathToDataCenter()}/NxTodo.v2")
+        TheBook::getObjects("#{Config::pathToDataCenter()}/NxTodo")
     end
 
     # NxTodos::getItemOrNull(uuid)
     def self.getItemOrNull(uuid)
-        TheBook::mostRecentBookWithMutations("#{Config::pathToDataCenter()}/NxTodo.v2")[uuid]
+        TheBook::mostRecentBookWithMutations("#{Config::pathToDataCenter()}/NxTodo")[uuid]
     end
 
     # NxTodos::commitObject(object)
@@ -17,7 +17,7 @@ class NxTodos
         object["phage_uuid"] = SecureRandom.uuid
         object["phage_time"] = Time.new.to_f
         FileSystemCheck::fsck_MikuTypedItem(object, SecureRandom.hex, false)
-        TheBook::commitObjectToDisk("#{Config::pathToDataCenter()}/NxTodo.v2", object)
+        TheBook::commitObjectToDisk("#{Config::pathToDataCenter()}/NxTodo", object)
     end
 
     # NxTodos::destroy(uuid)

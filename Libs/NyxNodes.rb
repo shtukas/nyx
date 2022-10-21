@@ -8,12 +8,12 @@ class NyxNodes
 
     # NyxNodes::items()
     def self.items()
-        TheBook::getObjects("#{Config::pathToDataCenter()}/NyxNode.v2")
+        TheBook::getObjects("#{Config::pathToDataCenter()}/NyxNode")
     end
 
     # NyxNodes::getItemOrNull(uuid)
     def self.getItemOrNull(uuid)
-        TheBook::mostRecentBookWithMutations("#{Config::pathToDataCenter()}/NyxNode.v2")[uuid]
+        TheBook::mostRecentBookWithMutations("#{Config::pathToDataCenter()}/NyxNode")[uuid]
     end
 
     # NyxNodes::commitObject(variant)
@@ -21,7 +21,7 @@ class NyxNodes
         variant["phage_uuid"] = SecureRandom.uuid
         variant["phage_time"] = Time.new.to_f
         FileSystemCheck::fsck_MikuTypedItem(variant, SecureRandom.hex, false)
-        TheBook::commitObjectToDisk("#{Config::pathToDataCenter()}/NyxNode.v2", object)
+        TheBook::commitObjectToDisk("#{Config::pathToDataCenter()}/NyxNode", object)
     end
 
     # NxTodos::destroy(uuid)
