@@ -98,7 +98,7 @@ class CatalystListing
         if Interpreting::match("contribution", input) then
             item = store.getDefault()
             return if item.nil?
-            Cx22::interactivelySetANewContributionForItemOrNothing(item)
+            Waves::interactivelySetANewContributionForItemOrNothing(item)
             return
         end
 
@@ -106,7 +106,7 @@ class CatalystListing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            Cx22::interactivelySetANewContributionForItemOrNothing(item)
+            Waves::interactivelySetANewContributionForItemOrNothing(item)
             return
         end
 

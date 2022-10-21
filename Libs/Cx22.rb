@@ -128,20 +128,6 @@ class Cx22
     # --------------------------------------------
     # Ops
 
-    # Cx22::interactivelySetANewContributionForItemOrNothing(item) # item
-    def self.interactivelySetANewContributionForItemOrNothing(item)
-        if item["mikuType"] != "Wave" then
-            puts "You can set a Cx22 only for Waves. (For NxTodos set a Cx23.)"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        cx22 = Cx22::architectOrNull()
-        return if cx22.nil?
-        item["cx22"] = cx22["uuid"]
-        PolyActions::commit(item)
-        item
-    end
-
     # Cx22::nextPositionForCx22(cx22)
     def self.nextPositionForCx22(cx22)
         (NxTodos::items()

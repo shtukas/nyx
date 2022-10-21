@@ -121,8 +121,7 @@ class PolyActions
                     if action == "start >> access >> al." then
                         PolyActions::start(item)
                         PolyActions::access(item)
-                        LucilleCore::pressEnterToContinue("Press enter to move to stop and al.")
-                        item = Cx22::interactivelySetANewContributionForItemOrNothing(item)
+                        LucilleCore::pressEnterToContinue("Press enter to move to stop and continue")
                         PolyActions::stop(item)
                         actions = ["destroy", "keep as standard and return to listing"]
                         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
@@ -135,14 +134,15 @@ class PolyActions
                         end
                         if action == "keep as standard and return to listing" then
                             item["nx11e"] = Nx11E::makeStandard()
+                            item["cx23"] = Cx23::interactivelyMakeNewOrNull()
                             PolyActions::commit(item)
                             return
                         end
                     end
                     if action == "standard >> contribution" then
                         item["nx11e"] = Nx11E::makeStandard()
+                        item["cx23"] = Cx23::interactivelyMakeNewOrNull()
                         PolyActions::commit(item)
-                        Cx22::interactivelySetANewContributionForItemOrNothing(item)
                         return
                     end
                     if action == "destroy" then
