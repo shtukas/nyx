@@ -58,7 +58,7 @@ class PolyActions
     def self.commit(item)
 
         if item["mikuType"] == "NxTodo" then
-            NxTodos::commitVariant(item)
+            NxTodos::commitObject(item)
             return
         end
 

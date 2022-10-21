@@ -542,11 +542,9 @@ class CatalystListing
                     "lambda" => lambda { NyxNodes::items() }
                 },
                 {
-                    "name" => "Search::nx20s()",
-                    "lambda" => lambda { Search::nx20s() }
+                    "name" => "NxLines::items()",
+                    "lambda" => lambda { NxLines::items() }
                 }
-
-                
             ]
 
             # dry run to initialise things

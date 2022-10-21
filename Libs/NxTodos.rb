@@ -4,41 +4,20 @@ class NxTodos
 
     # NxTodos::items()
     def self.items()
-        variants = []
-        Find.find("#{Config::pathToDataCenter()}/NxTodo") do |path|
-            next if File.basename(path)[-5, 5] != ".json"
-            variants << JSON.parse(IO.read(path))
-        end
-        PhageInternals::variantsToObjects(variants)
+        TheBook::getObjects("#{Config::pathToDataCenter()}/NxTodo.v2")
     end
 
     # NxTodos::getItemOrNull(uuid)
     def self.getItemOrNull(uuid)
-        fragment = Digest::SHA1.hexdigest(uuid)[0, 3]
-        folderpath = "#{Config::pathToDataCenter()}/NxTodo/#{fragment}/#{uuid}"
-        return nil if !File.exists?(folderpath)
-        item = LucilleCore::locationsAtFolder(folderpath)
-                .select{|filepath| filepath[-5, 5] == ".json" }
-                .map{|filepath| JSON.parse(IO.read(filepath)) }
-                .sort{|i1, i2| i1["phage_time"] <=> i2["phage_time"] }
-                .last
-        return nil if item.nil?
-        return nil if !item["phage_alive"]
-        item
+        TheBook::mostRecentBookWithMutations("#{Config::pathToDataCenter()}/NxTodo.v2")[uuid]
     end
 
-    # NxTodos::commitVariant(variant)
-    def self.commitVariant(variant)
-        variant["phage_uuid"] = SecureRandom.uuid
-        variant["phage_time"] = Time.new.to_f
-        FileSystemCheck::fsck_MikuTypedItem(variant, SecureRandom.hex, false)
-        fragment = Digest::SHA1.hexdigest(variant["uuid"])[0, 3]
-        objnhash = "SHA256-#{Digest::SHA1.hexdigest(variant["phage_uuid"])}"
-        filepath = "#{Config::pathToDataCenter()}/NxTodo/#{fragment}/#{variant["uuid"]}/#{objnhash}.json"
-        if !File.exists?(File.dirname(filepath)) then
-            FileUtils.mkpath(File.dirname(filepath))
-        end
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(variant)) }
+    # NxTodos::commitObject(object)
+    def self.commitObject(object)
+        object["phage_uuid"] = SecureRandom.uuid
+        object["phage_time"] = Time.new.to_f
+        FileSystemCheck::fsck_MikuTypedItem(object, SecureRandom.hex, false)
+        TheBook::commitObjectToDisk("#{Config::pathToDataCenter()}/NxTodo.v2", object)
     end
 
     # NxTodos::destroy(uuid)
@@ -46,7 +25,7 @@ class NxTodos
         object = NxTodos::getItemOrNull(uuid)
         return if object.nil?
         object["phage_alive"] = false
-        NxTodos::commitVariant(object)
+        NxTodos::commitObject(object)
     end
 
     # --------------------------------------------------
@@ -74,7 +53,7 @@ class NxTodos
             "cx23"        => cx23,
             "listeable"   => true
         }
-        NxTodos::commitVariant(item)
+        NxTodos::commitObject(item)
         item
     end
 
@@ -99,7 +78,7 @@ class NxTodos
             "nx11e"       => nx11e,
             "listeable"   => true
         }
-        NxTodos::commitVariant(item)
+        NxTodos::commitObject(item)
         item
     end
 
@@ -124,7 +103,7 @@ class NxTodos
             "nx11e"       => nx11e,
             "listeable"   => true
         }
-        NxTodos::commitVariant(item)
+        NxTodos::commitObject(item)
         item
     end
 
@@ -147,7 +126,7 @@ class NxTodos
             "nx11e"       => nx11e,
             "listeable"   => true
         }
-        NxTodos::commitVariant(item)
+        NxTodos::commitObject(item)
         item
     end
 
@@ -170,7 +149,7 @@ class NxTodos
             "nx11e"       => nx11e,
             "listeable"   => true
         }
-        NxTodos::commitVariant(item)
+        NxTodos::commitObject(item)
         item
     end
 
@@ -193,7 +172,7 @@ class NxTodos
             "nx11e"       => nx11e,
             "listeable"   => true
         }
-        NxTodos::commitVariant(item)
+        NxTodos::commitObject(item)
         item
     end
 
@@ -213,7 +192,7 @@ class NxTodos
             "cx23"        => cx23,
             "listeable"   => true
         }
-        NxTodos::commitVariant(item)
+        NxTodos::commitObject(item)
     end
 
     # --------------------------------------------------
@@ -334,7 +313,7 @@ class NxTodos
                         next if item["listeable"]
                         puts "set to listeable: #{NxTodos::toString(item)}"
                         item["listeable"] =  true
-                        NxTodos::commitVariant(item)
+                        NxTodos::commitObject(item)
                     }
             }
 
@@ -446,7 +425,7 @@ class NxTodos
                 engine = Nx11E::interactivelyCreateNewNx11EOrNull()
                 next if engine.nil?
                 item["nx11e"] =  engine
-                NxTodos::commitVariant(item)
+                NxTodos::commitObject(item)
                 next
             end
 

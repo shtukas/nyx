@@ -2,7 +2,15 @@
 Cx22, Contribution, optional attribute for Waves (Waves carry the Cx22's uuid)
 
 Cx22 {
-    ... Stargate Item ("Cx22")
+
+    "phage_uuid"  : String # Primary Key
+    "phage_time"  : Float
+    "phage_alive" : Boolean
+    "uuid"        : String
+    "mikuType"    : "Cx22"
+    "unixtime"    : Float
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+
     "description"  : String
     "ax39"         : Ax39
 }

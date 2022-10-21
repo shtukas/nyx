@@ -3,7 +3,15 @@ NxBall
 The name comes from jungling balls :)
 
 NxBall {
-    ... Stargate Item ("NxBall.v2")
+
+    "phage_uuid"  : String # Primary Key
+    "phage_time"  : Float
+    "phage_alive" : Boolean
+    "uuid"        : String
+    "mikuType"    : "NxBall.v2"
+    "unixtime"    : Float
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+
     "description"                 : description,
     "desiredBankedTimeInSeconds " : null or Float # Indicate how long
                                                   # we should ideally run, for the notification.

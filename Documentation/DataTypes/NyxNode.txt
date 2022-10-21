@@ -1,6 +1,14 @@
 
 NyxNode:
-    ... Stargate Item ("NyxNode")
+
+    "phage_uuid"  : String # Primary Key
+    "phage_time"  : Float
+    "phage_alive" : Boolean
+    "uuid"        : String
+    "mikuType"    : "NyxNode"
+    "unixtime"    : Float
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+
     "networkType" : NetworkType
     "description" : description
     "nx113"       : String # nhash to the DataStore1 of the Nx113
