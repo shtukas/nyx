@@ -49,12 +49,8 @@ class Cx22
 
     # Cx22::interactivelySelectCx22OrNull()
     def self.interactivelySelectCx22OrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("cx22", Cx22::items(), lambda{|cx22| cx22["description"]})
-    end
-
-    # Cx22::interactivelySelectCx22OrNullDiveStyle()
-    def self.interactivelySelectCx22OrNullDiveStyle()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("cx22", Cx22::items(), lambda{|cx22| Cx22::toStringDiveStyleFormatted(cx22)})
+        cx22s = Cx22::cx22WithCompletionRatiosOrdered().map{|packet| packet["item"] }
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("cx22", cx22s, lambda{|cx22| Cx22::toStringDiveStyleFormatted(cx22)})
     end
 
     # Cx22::architectOrNull()
@@ -353,7 +349,7 @@ class Cx22
                     }
                 puts ""
             end
-            cx22 = Cx22::interactivelySelectCx22OrNullDiveStyle()
+            cx22 = Cx22::interactivelySelectCx22OrNull()
             return if cx22.nil?
             Cx22::dive(cx22)
         }

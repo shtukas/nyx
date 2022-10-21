@@ -30,7 +30,7 @@ class Cx23
             }
         data.take(CommonUtils::screenHeight()-4)
              .each{|i|
-                puts "#{i["position"]} : #{i["description"]}"
+                puts "#{"%6.2f" % i["position"]} : #{i["description"]}"
             }
         position = LucilleCore::askQuestionAnswerAsString("position (empty for next): ")
         if position == "" then
