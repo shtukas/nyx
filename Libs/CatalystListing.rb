@@ -632,6 +632,7 @@ class CatalystListing
             puts ""
             vspaceleft = vspaceleft - 1
             packets = Cx22::cx22WithCompletionRatiosOrdered()
+                        .select{|packet| packet["completionratio"] < 1 }
             padding = packets.map{|packet| PolyFunctions::toStringForListing(packet["item"]).size }.max
             packets
                 .each{|packet|
