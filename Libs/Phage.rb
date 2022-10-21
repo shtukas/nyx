@@ -197,7 +197,6 @@ class PhageInternals
 
     # PhageInternals::deleteVariant(variant)
     def self.deleteVariant(variant)
-        FileSystemCheck::fsck_PhageItem(variant, SecureRandom.hex, false)
         PhageInternals::databasesPathsForReading().each{|filepath|
             db = SQLite3::Database.new(filepath)
             db.busy_timeout = 117

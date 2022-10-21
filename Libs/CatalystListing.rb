@@ -532,7 +532,21 @@ class CatalystListing
                 {
                     "name" => "Waves::items()",
                     "lambda" => lambda { Waves::items() }
+                },
+                {
+                    "name" => "NxTodos::items()",
+                    "lambda" => lambda { NxTodos::items() }
+                },
+                {
+                    "name" => "NyxNodes::items()",
+                    "lambda" => lambda { NyxNodes::items() }
+                },
+                {
+                    "name" => "Search::nx20s()",
+                    "lambda" => lambda { Search::nx20s() }
                 }
+
+                
             ]
 
             # dry run to initialise things

@@ -43,7 +43,7 @@ class Cx22
             "ax39"        => ax39
         }
         FileSystemCheck::fsck_Cx22(item, true)
-        PhagePublic::commit(item)
+        Cx22::commit(item)
         item
     end
 
