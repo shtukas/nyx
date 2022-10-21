@@ -204,7 +204,7 @@ class NxTodos
         nx113str = Nx113Access::toStringOrNull(" ", item["nx113"], "")
         cx23 = item["cx23"]
         str1 = Cx23::toStringOrNull(cx23)
-        cx23str  = str1 ? " (#{str1})" : ""
+        cx23str  = str1 ? " (#{str1})".green : ""
         "(todo) #{nx11estr} #{item["description"]}#{nx113str}#{cx23str}"
     end
 
