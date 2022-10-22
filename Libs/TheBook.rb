@@ -77,7 +77,8 @@ class TheBook
         end
         book1 = TheBook::mostRecentBook(pathToRepository)
         TheBook::mutationFilepaths(pathToRepository)
-            .reduce(book1){|runningbook, item|
+            .reduce(book1){|runningbook, filepath|
+                item = JSON.parse(IO.read(filepath))
                 runningbook[item["uuid"]] = item
                 runningbook
             }

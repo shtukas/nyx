@@ -5,7 +5,7 @@ class Nyx
 
     # Nyx::nyxNodes()
     def self.nyxNodes()
-        NyxNodes::items()
+        NyxNodes::items() + NxLines::items()
     end
 
     # Nyx::selectExistingNetworkNodeOrNull()
