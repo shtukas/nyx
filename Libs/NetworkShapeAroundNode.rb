@@ -68,11 +68,12 @@ class NetworkShapeAroundNode
         entities = NetworkShapeAroundNode::interactivelySelectRelatedEntities(uuid)
         return if entities.empty?
         entities.each{|child|
-            NetworkEdges::arrow(item["uuid"], child["uuid"])
-        }
-        entities.each{|child|
             NetworkEdges::detach(item["uuid"], child["uuid"])
         }
+        entities.each{|child|
+            NetworkEdges::arrow(item["uuid"], child["uuid"])
+        }
+
     end
 
     # NetworkShapeAroundNode::selectLinkedAndRecastAsParents(item)
@@ -81,10 +82,10 @@ class NetworkShapeAroundNode
         entities = NetworkShapeAroundNode::interactivelySelectRelatedEntities(uuid)
         return if entities.empty?
         entities.each{|parent|
-            NetworkEdges::arrow(parent["uuid"], item["uuid"])
+            NetworkEdges::detach(parent["uuid"], item["uuid"])
         }
         entities.each{|parent|
-            NetworkEdges::detach(parent["uuid"], item["uuid"])
+            NetworkEdges::arrow(parent["uuid"], item["uuid"])
         }
     end
 
@@ -94,10 +95,10 @@ class NetworkShapeAroundNode
         entities = NetworkShapeAroundNode::interactivelySelectChildren(uuid)
         return if entities.empty?
         entities.each{|child|
-            NetworkEdges::relate(item["uuid"], child["uuid"])
+            NetworkEdges::detach(item["uuid"], child["uuid"])
         }
         entities.each{|child|
-            NetworkEdges::detach(item["uuid"], child["uuid"])
+            NetworkEdges::relate(item["uuid"], child["uuid"])
         }
     end
 
@@ -124,8 +125,8 @@ class NetworkShapeAroundNode
         children = NetworkShapeAroundNode::interactivelySelectChildren(item["uuid"])
         theChild = NetworkShapeAroundNode::interactivelySelectChildOrNull(item["uuid"])
         children.each{|childX|
-            NetworkEdges::arrow(theChild["uuid"], childX["uuid"])
             NetworkEdges::detach(item["uuid"], childX["uuid"])
+            NetworkEdges::arrow(theChild["uuid"], childX["uuid"])
         }
     end
 
@@ -137,8 +138,8 @@ class NetworkShapeAroundNode
         targetitem = NetworkShapeAroundNode::getGenericNyxNetworkObjectOrNull(targetuuid)
         return if targetitem.nil?
         children.each{|childX|
-            NetworkEdges::arrow(targetitem["uuid"], childX["uuid"])
             NetworkEdges::detach(item["uuid"], childX["uuid"])
+            NetworkEdges::arrow(targetitem["uuid"], childX["uuid"])
         }
     end
 
