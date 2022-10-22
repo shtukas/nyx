@@ -21,22 +21,6 @@ class FileSystemCheck
         end
     end
 
-    # FileSystemCheck::phageCore(item, verbose)
-    def self.phageCore(item, verbose)
-
-        if verbose then
-            "FileSystemCheck::phageCore(#{JSON.pretty_generate(item)}, #{verbose})"
-        end
-
-        FileSystemCheck::ensureAttribute(item, "uuid", "String")
-        FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
-        FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
-        FileSystemCheck::ensureAttribute(item, "phage_alive", nil)
-        FileSystemCheck::ensureAttribute(item, "mikuType", "String")
-        FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-        FileSystemCheck::ensureAttribute(item, "datetime", "String")
-    end
-
     # FileSystemCheck::fsck_Nx11E(item, verbose)
     def self.fsck_Nx11E(item, verbose)
         if verbose then
@@ -178,7 +162,13 @@ class FileSystemCheck
             puts "FileSystemCheck::fsck_Cx22(#{JSON.pretty_generate(item)}, #{verbose})"
         end
 
-        FileSystemCheck::phageCore(item, verbose)
+        FileSystemCheck::ensureAttribute(item, "uuid", "String")
+        FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
+        FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
+        FileSystemCheck::ensureAttribute(item, "phage_alive", nil)
+        FileSystemCheck::ensureAttribute(item, "mikuType", "String")
+        FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+        FileSystemCheck::ensureAttribute(item, "datetime", "String")
 
         if item["mikuType"] != "Cx22" then
             raise "Incorrect Miku type for function"
@@ -216,6 +206,14 @@ class FileSystemCheck
             raise "Incorrect Miku type for function"
         end
 
+        FileSystemCheck::ensureAttribute(item, "uuid", "String")
+        FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
+        FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
+        FileSystemCheck::ensureAttribute(item, "phage_alive", nil)
+        FileSystemCheck::ensureAttribute(item, "mikuType", "String")
+        FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+        FileSystemCheck::ensureAttribute(item, "datetime", "String")
+
         FileSystemCheck::ensureAttribute(item, "unitId", "String")
     end
 
@@ -228,7 +226,13 @@ class FileSystemCheck
             puts "FileSystemCheck::fsck_TxBankEvent(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
         end
 
-        FileSystemCheck::phageCore(item, verbose)
+        FileSystemCheck::ensureAttribute(item, "uuid", "String")
+        FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
+        FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
+        FileSystemCheck::ensureAttribute(item, "phage_alive", nil)
+        FileSystemCheck::ensureAttribute(item, "mikuType", "String")
+        FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+        FileSystemCheck::ensureAttribute(item, "datetime", "String")
 
         if item["mikuType"] != "TxBankEvent" then
             raise "Incorrect Miku type for function"
@@ -250,7 +254,13 @@ class FileSystemCheck
             puts "FileSystemCheck::fsck_NxGraphEdge1(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
         end
 
-        FileSystemCheck::phageCore(item, verbose)
+        FileSystemCheck::ensureAttribute(item, "uuid", "String")
+        FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
+        FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
+        FileSystemCheck::ensureAttribute(item, "phage_alive", nil)
+        FileSystemCheck::ensureAttribute(item, "mikuType", "String")
+        FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+        FileSystemCheck::ensureAttribute(item, "datetime", "String")
 
         if item["mikuType"].nil? then
             raise "item has no Miku type"
@@ -268,6 +278,54 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
+    # FileSystemCheck::fsck_NxSt1(item, runhash, verbose)
+    def self.fsck_NxSt1(item, runhash, verbose)
+        repeatKey = "#{runhash}:#{JSON.generate(item)}"
+        return if XCache::getFlag(repeatKey)
+
+        if verbose then
+            puts "FileSystemCheck::fsck_NxSt1(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
+        end
+
+        FileSystemCheck::ensureAttribute(item, "type", "String")
+
+        if !NxSt1::types().include?(item["type"]) then
+            raise "unsupported NxSt1 type: #{item["type"]}"
+        end
+
+        type = item["type"]
+
+        if type == "null" then
+
+        end
+        if type == "Nx113" then
+            FileSystemCheck::fsck_Nx113(item["nx113"], runhash, verbose)
+        end
+        if type == "NxQuantumDrop" then
+            FileSystemCheck::fsck_NxQuantumDrop(item["drop"], runhash, verbose)
+        end
+        if type == "Entity" then
+
+        end
+        if type == "Concept" then
+
+        end
+        if type == "Event" then
+            FileSystemCheck::fsck_Nx113(item["nx113"], runhash, verbose)
+        end
+        if type == "Person" then
+
+        end
+        if type == "Collection" then
+
+        end
+        if type == "Timeline" then
+
+        end
+
+        XCache::setFlag(repeatKey, true)
+    end
+
     # FileSystemCheck::fsck_MikuTypedItem(item, runhash, verbose)
     def self.fsck_MikuTypedItem(item, runhash, verbose)
 
@@ -277,8 +335,6 @@ class FileSystemCheck
         if verbose then
             puts "FileSystemCheck::fsck_MikuTypedItem(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
         end
-
-        FileSystemCheck::phageCore(item, verbose)
 
         mikuType = item["mikuType"]
 
@@ -295,6 +351,13 @@ class FileSystemCheck
         end
 
         if mikuType == "NxAnniversary" then
+            FileSystemCheck::ensureAttribute(item, "uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
+            FileSystemCheck::ensureAttribute(item, "phage_alive", nil)
+            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
+            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+            FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
             FileSystemCheck::ensureAttribute(item, "startdate", "String")
             FileSystemCheck::ensureAttribute(item, "repeatType", "String")
@@ -304,6 +367,13 @@ class FileSystemCheck
         end
 
         if mikuType == "NxBall.v2" then
+            FileSystemCheck::ensureAttribute(item, "uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
+            FileSystemCheck::ensureAttribute(item, "phage_alive", nil)
+            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
+            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+            FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
             FileSystemCheck::ensureAttribute(item, "desiredBankedTimeInSeconds", "Number")
             FileSystemCheck::ensureAttribute(item, "status", "Hash")
@@ -319,12 +389,26 @@ class FileSystemCheck
         end
 
         if mikuType == "NxLine" then
+            FileSystemCheck::ensureAttribute(item, "uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
+            FileSystemCheck::ensureAttribute(item, "phage_alive", nil)
+            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
+            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+            FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "line", "String")
             XCache::setFlag(repeatKey, true)
             return
         end
 
         if mikuType == "NxTodo" then
+            FileSystemCheck::ensureAttribute(item, "uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
+            FileSystemCheck::ensureAttribute(item, "phage_alive", nil)
+            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
+            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+            FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
             FileSystemCheck::ensureAttribute(item, "nx11e", "Hash")
             FileSystemCheck::fsck_Nx11E(item["nx11e"], verbose)
@@ -338,13 +422,28 @@ class FileSystemCheck
         end
 
         if mikuType == "NyxNode" then
+            FileSystemCheck::ensureAttribute(item, "uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
+            FileSystemCheck::ensureAttribute(item, "phage_alive", nil)
+            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
+            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+            FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
-            FileSystemCheck::fsck_Nx113(item["nx113"], runhash, verbose)
+            FileSystemCheck::ensureAttribute(item, "nxst1", "Hash")
+            FileSystemCheck::fsck_NxSt1(item["nxst1"], runhash, verbose)
             XCache::setFlag(repeatKey, true)
             return
         end
 
         if mikuType == "TxBankEvent" then
+            FileSystemCheck::ensureAttribute(item, "uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
+            FileSystemCheck::ensureAttribute(item, "phage_alive", nil)
+            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
+            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+            FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "setuuid", "String")
             FileSystemCheck::ensureAttribute(item, "date", "String")
             FileSystemCheck::ensureAttribute(item, "weight", "Number")
@@ -353,6 +452,13 @@ class FileSystemCheck
         end
 
         if mikuType == "TxManualCountDown" then
+            FileSystemCheck::ensureAttribute(item, "uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
+            FileSystemCheck::ensureAttribute(item, "phage_alive", nil)
+            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
+            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+            FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
             FileSystemCheck::ensureAttribute(item, "dailyTarget", "Number")
             FileSystemCheck::ensureAttribute(item, "date", "String")
@@ -363,6 +469,13 @@ class FileSystemCheck
         end
 
         if mikuType == "Wave" then
+            FileSystemCheck::ensureAttribute(item, "uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
+            FileSystemCheck::ensureAttribute(item, "phage_alive", nil)
+            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
+            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+            FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
             FileSystemCheck::ensureAttribute(item, "nx46", "Hash")
             FileSystemCheck::ensureAttribute(item, "lastDoneDateTime", "String")

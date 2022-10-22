@@ -9,17 +9,12 @@ NyxNode:
     "unixtime"    : Float
     "datetime"    : DateTime Iso 8601 UTC Zulu
 
-    "networkType" : NetworkType
     "description" : description
-    "nx113"       : String # nhash to the DataStore1 of the Nx113
-
-NetworkType: "PureData" | "Entity" | "Concept" | "Event" | "Person" | "Collection" | "Timeline"
-
-# --------------------------------------------------------------------------
+    "nxst1"       : NxSt1 
 
 NxSt1 
 {
-    "type" : "void"
+    "type" : "null"
 }
 {
     "type"  : "Nx113"
@@ -37,6 +32,7 @@ NxSt1
 }
 {
     "type"  : "Event"
+    "nx113" : Nx113
 }
 {
     "type"  : "Person"

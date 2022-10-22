@@ -435,11 +435,6 @@ class NxTodos
                 next
             end
 
-            if Interpreting::match("nx113", input) then
-                PolyActions::setNx113(item)
-                next
-            end
-
             if Interpreting::match("nyx", input) then
                 Nyx::program()
                 next

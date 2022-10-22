@@ -320,7 +320,10 @@ class Waves
             end
 
             if Interpreting::match("nx113", input) then
-                PolyActions::setNx113(item)
+                nx113 = Nx113Make::interactivelyMakeNx113OrNull()
+                return if nx113.nil?
+                item["nx113"] = nx113
+                Waves::commit(item)
                 next
             end
 

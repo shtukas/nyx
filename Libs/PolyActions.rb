@@ -360,13 +360,6 @@ class PolyActions
         PolyAction::commit(item)
     end
 
-    # PolyActions::setNx113(item)
-    def self.setNx113(item)
-        nx113 = Nx113Make::interactivelyMakeNx113OrNull()
-        return if nx113.nil?
-        item["nx113"] = nx113
-    end
-
     # PolyActions::start(item)
     def self.start(item)
         #puts "PolyActions::start(#{JSON.pretty_generate(item)})"

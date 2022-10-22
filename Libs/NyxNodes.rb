@@ -16,11 +16,11 @@ class NyxNodes
         TheBook::getObjectOrNull("#{Config::pathToDataCenter()}/NyxNode", uuid)
     end
 
-    # NyxNodes::commitObject(variant)
-    def self.commitObject(variant)
-        variant["phage_uuid"] = SecureRandom.uuid
-        variant["phage_time"] = Time.new.to_f
-        FileSystemCheck::fsck_MikuTypedItem(variant, SecureRandom.hex, false)
+    # NyxNodes::commitObject(object)
+    def self.commitObject(object)
+        object["phage_uuid"] = SecureRandom.uuid
+        object["phage_time"] = Time.new.to_f
+        FileSystemCheck::fsck_MikuTypedItem(object, SecureRandom.hex, false)
         TheBook::commitObjectToDisk("#{Config::pathToDataCenter()}/NyxNode", object)
     end
 
@@ -50,35 +50,22 @@ class NyxNodes
     # NyxNodes::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
         uuid = SecureRandom.uuid
-
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
-
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-
-        networkType = NyxNodes::interactivelySelectNetworkType()
-
-        nx113 = nil
-
-        # We have the convention that only PureData NyxNodes carry (points to) a Nx113
-        if networkType == "PureData" then
-            nx113 = Nx113Make::interactivelyMakeNx113OrNull()
-        end
-
+        nxst1 = NxSt1::interactivelyMake()
         item = {
             "uuid"        => uuid,
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
             "phage_alive" => true,
             "mikuType"    => "NyxNode",
-            "networkType" => networkType,
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "nx113"       => nx113
+            "nxst1"       => nxst1
         }
-
         NyxNodes::commitObject(item)
         item
     end
@@ -89,19 +76,17 @@ class NyxNodes
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
         description = File.basename(location)
-        networkType = "PureData"
-        nx113 = Nx113Make::aionpoint(location)
+        nxst1 = NxSt1::makeNewUsingLocation(location)
         item = {
             "uuid"        => uuid,
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
             "phage_alive" => true,
             "mikuType"    => "NyxNode",
-            "networkType" => networkType,
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "nx113"       => nx113
+            "nxst1"       => nxst1
         }
         NyxNodes::commitObject(item)
         item
@@ -113,19 +98,17 @@ class NyxNodes
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
         description = File.basename(filepath)
-        networkType = "PureData"
-        nx113 = Nx113Make::file(filepath)
+        nxst1 = NxSt1::makeNewUsingFile(filepath)
         item = {
             "uuid"        => uuid,
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
             "phage_alive" => true,
             "mikuType"    => "NyxNode",
-            "networkType" => networkType,
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "nx113"       => nx113
+            "nxst1"       => nxst1
         }
         NyxNodes::commitObject(item)
         item
@@ -138,9 +121,7 @@ class NyxNodes
         datetime = Time.new.utc.iso8601
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-        networkType = "PureData"
-        text = CommonUtils::editTextSynchronously("")
-        nx113 = Nx113Make::text(text)
+        nxst1 = NxSt1::makeNewText()
 
         item = {
             "uuid"        => uuid,
@@ -148,11 +129,10 @@ class NyxNodes
             "phage_time"  => Time.new.to_f,
             "phage_alive" => true,
             "mikuType"    => "NyxNode",
-            "networkType" => networkType,
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "nx113"       => nx113
+            "nxst1"       => nxst1
         }
 
         NyxNodes::commitObject(item)
@@ -164,8 +144,7 @@ class NyxNodes
 
     # NyxNodes::toString(item)
     def self.toString(item)
-        nwt = item["networkType"] ? ": #{item["networkType"]}" : ""
-        "(NyxNode#{nwt})#{Nx113Access::toStringOrNullShort(" ", item["nx113"], "")} #{item["description"]}"
+        "(NyxNode) (#{NxSt1::toString(item["nxst1"])}) #{item["description"]}"
     end
 
     # NyxNodes::toStringForSearchResult(item)
@@ -178,7 +157,7 @@ class NyxNodes
             else
                 ""
             end
-        "(NyxNode#{nwt})#{Nx113Access::toStringOrNullShort(" ", item["nx113"], "")} #{item["description"]}#{parentsstr}"
+        "(NyxNode) (#{NxSt1::toString(item["nxst1"])}) #{item["description"]}#{parentsstr}"
     end
 
     # ----------------------------------------------------------------------
@@ -186,18 +165,16 @@ class NyxNodes
 
     # NyxNodes::access(item)
     def self.access(item)
-        if item["nx113"] then
-            Nx113Access::access(item["nx113"])
-        else
-            puts item["description"]
-            LucilleCore::pressEnterToContinue()
-        end
+        puts item["description"]
+        NxSt1::access(item["nxst1"])
     end
 
     # NyxNodes::edit(item) # item
     def self.edit(item)
-        Nx113Edit::edit(item)
-        NyxNodes::getItemOrNull(item["uuid"])
+        nxst1v2 = NxSt1::edit(item["nxst1"])
+        return if nxst1v2.nil?
+        item["nxst1"] = nxst1v2
+        NyxNodes::commitObject(item)
     end
 
     # NyxNodes::landing(item)
@@ -253,7 +230,7 @@ class NyxNodes
             end
 
             puts ""
-            puts "<n> | access | description | name | datetime | nx113 | edit | network type | expose | destroy".yellow
+            puts "<n> | access | description | name | datetime | nxst1 | edit | network type | expose | destroy".yellow
             puts "line | link | child | parent | upload".yellow
             puts "[link type update] parents>related | parents>children | related>children | related>parents | children>related".yellow
             puts "[network shape] select children; move to selected child | select children; move to uuid | acquire children by uuid".yellow
@@ -311,8 +288,11 @@ class NyxNodes
                 next
             end
 
-            if Interpreting::match("nx113", input) then
-                PolyActions::setNx113(item)
+            if Interpreting::match("nxst1", input) then
+                nxst1 = NxSt1::interactivelyMakeNewOrNull()
+                next if nxst1.nil?
+                item["nxst1"] = nxst1
+                NyxNodes::commitObject(item)
                 next
             end
 
