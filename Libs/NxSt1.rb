@@ -58,10 +58,7 @@ class NxSt1
             }
         end
         if type == "NxQuantumDrop" then
-            puts "We are not yet offering Quantum Drops"
-            LucilleCore::pressEnterToContinue()
-            return NxSt1::interactivelyMakeNewOrNull()
-            drop = nil
+            drop = QuantumDrops::issueNewDrop(SecureRandom.uuid, [])
             return {
                 "type" => "NxQuantumDrop",
                 "drop" => drop
