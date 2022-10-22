@@ -240,7 +240,7 @@ class Waves
                 return item
             end
         end
-        Nx113Edit::edit(item)
+        Nx113Edit::editNx113Carrier(item)
         Waves::getOrNull(item["uuid"])
     end
 

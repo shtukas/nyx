@@ -126,8 +126,8 @@ class NxSt1
             return
         end
         if type == "NxQuantumDrop" then
-            puts "We are not yet offering Quantum Drops"
-            LucilleCore::pressEnterToContinue()
+            drop = nxst1["drop"] # NxQuantumDrop
+            QuantumDrops::accessNxQuantumDrop(drop)
             return
         end
         if type == "Entity" then
@@ -160,7 +160,7 @@ class NxSt1
             return nil
         end
         if type == "Nx113" then
-            nx113v2 = Nx113Edit::editFunction(nxst1["nx113"])
+            nx113v2 = Nx113Edit::editNx113(nxst1["nx113"])
             return nil if nx113v2.nil?
             return {
                 "type"  => "Nx113",
@@ -168,9 +168,12 @@ class NxSt1
             }
         end
         if type == "NxQuantumDrop" then
-            puts "We are not yet offering Quantum Drops"
-            LucilleCore::pressEnterToContinue()
-            return
+            drop = nxst1["drop"] # NxQuantumDrop
+            drop = QuantumDrops::editNxQuantumDrop(drop) # NxQuantumDrop
+            return {
+                "type" => "NxQuantumDrop",
+                "drop" => drop
+            }
         end
         if type == "Entity" then
             return nil
@@ -179,7 +182,7 @@ class NxSt1
             return nil
         end
         if type == "Event" then
-            nx113v2 = Nx113Edit::editFunction(nxst1["nx113"])
+            nx113v2 = Nx113Edit::editNx113(nxst1["nx113"])
             return nil if nx113v2.nil?
             return {
                 "type"  => "Event",

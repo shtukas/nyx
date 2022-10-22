@@ -51,6 +51,12 @@ class Nx113Make
         }
     end
 
+    # Nx113Make::interactivelyMakeNx113AionPoint()
+    def self.interactivelyMakeNx113AionPoint()
+        location = CommonUtils::interactivelySelectDesktopLocation()
+        Nx113Make::aionpoint(location)
+    end
+
     # Nx113Make::dx8Unit(unitId) # Nx113
     def self.dx8Unit(unitId)
         {
@@ -106,8 +112,7 @@ class Nx113Make
             return nx113
         end
         if type == "aion-point" then
-            location = CommonUtils::interactivelySelectDesktopLocation()
-            nx113 = Nx113Make::aionpoint(location)
+            nx113 = Nx113Make::interactivelyMakeNx113AionPoint()
             FileSystemCheck::fsck_Nx113(nx113, SecureRandom.hex, true)
             return nx113
         end
@@ -130,6 +135,24 @@ class Nx113Make
 end
 
 class Nx113Access
+
+    # Nx113Access::accessAionPointAtExportDirectory(rootnhash, database, parentLocation)
+    def self.accessAionPointAtExportDirectory(rootnhash, database, parentLocation)
+        databasefilepath = DataStore1::getNearestFilepathForReadingErrorIfNotAcquisable(database, true)
+        operator         = DataStore2SQLiteBlobStoreElizabethReadOnly.new(databasefilepath)
+        if !File.exists?(parentLocation) then
+            FileUtils.mkdir(parentLocation)
+        end
+        AionCore::exportHashAtFolder(operator, rootnhash, parentLocation)
+    end
+
+    # Nx113Access::accessAionPoint(rootnhash, database)
+    def self.accessAionPoint(rootnhash, database)
+        exportDirectory = "#{ENV['HOME']}/Desktop/aion-point-#{SecureRandom.hex(4)}"
+        Nx113Access::accessAionPointAtExportDirectory(rootnhash, database, exportDirectory)
+        puts "Item exported at #{exportDirectory}"
+        LucilleCore::pressEnterToContinue()
+    end
 
     # Nx113Access::access(nx113)
     def self.access(nx113)
@@ -164,14 +187,7 @@ class Nx113Access
         end
 
         if nx113["type"] == "aion-point" then
-            databasefilepath = DataStore1::getNearestFilepathForReadingErrorIfNotAcquisable(nx113["database"], true)
-            operator         = DataStore2SQLiteBlobStoreElizabethReadOnly.new(databasefilepath)
-            rootnhash        = nx113["rootnhash"]
-            parentLocation   = "#{ENV['HOME']}/Desktop/aion-point-#{SecureRandom.hex(4)}"
-            FileUtils.mkdir(parentLocation)
-            AionCore::exportHashAtFolder(operator, rootnhash, parentLocation)
-            puts "Item exported at #{parentLocation}"
-            LucilleCore::pressEnterToContinue()
+            Nx113Access::accessAionPoint(nx113["rootnhash"], nx113["database"])
         end
 
         if nx113["type"] == "Dx8Unit" then
@@ -217,165 +233,101 @@ end
 
 class Nx113Edit
 
-    # Nx113Edit::edit(item)
-    def self.edit(item)
-        return if item["nx113"].nil?
+    # Nx113Edit::editAionPointComponents(rootnhash, database) # {rootnhash, database}
+    def self.editAionPointComponents(rootnhash, database) # {rootnhash, database}
+        databasefilepath = DataStore1::getNearestFilepathForReadingErrorIfNotAcquisable(database, true)
+        operator         = DataStore2SQLiteBlobStoreElizabethReadOnly.new(databasefilepath)
+        exportLocation   = "#{ENV['HOME']}/Desktop/aion-point-#{SecureRandom.hex(4)}"
+        FileUtils.mkdir(exportLocation)
+        AionCore::exportHashAtFolder(operator, rootnhash, exportLocation)
+        puts "Item exported at #{exportLocation} for edition"
+        LucilleCore::pressEnterToContinue()
 
-        nx113 = item["nx113"]
+        acquireLocationInsideExportFolder = lambda {|exportLocation|
+            locations = LucilleCore::locationsAtFolder(exportLocation).select{|loc| File.basename(loc)[0, 1] != "."}
+            if locations.size == 0 then
+                puts "I am in the middle of a Nx113 aion-point edit. I cannot see anything inside the export folder"
+                puts "Exit"
+                exit
+            end
+            if locations.size == 1 then
+                return locations[0]
+            end
+            if locations.size > 1 then
+                puts "I am in the middle of a Nx113 aion-point edit. I found more than one location in the export folder."
+                puts "Exit"
+                exit
+            end
+        }
+
+        operator = DataStore2SQLiteBlobStoreElizabethTheForge.new()
+        location = acquireLocationInsideExportFolder.call(exportLocation)
+        puts "reading: #{location}"
+        rootnhash = AionCore::commitLocationReturnHash(operator, location)
+        return {
+            "rootnhash"  => rootnhash,
+            "database"   => operator.publish()
+        }
+    end
+
+    # Nx113Edit::editNx113(nx113) # Nx113 or null if no change
+    def self.editNx113(nx113)
 
         if nx113["type"] == "text" then
-            newtext = CommonUtils::editTextSynchronously(nx113["text"])
-            nx113 = Nx113Make::text(newtext)
-            item["nx113"] = nx113
-            PolyActions::commit(item)
+            text1 = nx113["text"]
+            text2 = CommonUtils::editTextSynchronously(text1)
+            if text2 != text1 then
+                return Nx113Make::text(text2)
+            else
+                return nil
+            end
         end
 
         if nx113["type"] == "url" then
             puts "current url: #{nx113["url"]}"
             url2 = LucilleCore::askQuestionAnswerAsString("new url: ")
-            nx113 = Nx113Make::url(url2)
-            item["nx113"] = nx113
-            PolyActions::commit(item)
+            return Nx113Make::url(url2)
         end
 
         if nx113["type"] == "file" then
             Nx113Access::access(item["nx113"])
             filepath = CommonUtils::interactivelySelectDesktopLocationOrNull()
-            nx113 = Nx113Make::file(filepath)
-            item["nx113"] = nx113
-            PolyActions::commit(item)
+            return nil if filepath.nil?
+            return Nx113Make::file(filepath)
         end
 
         if nx113["type"] == "aion-point" then
-            databasefilepath = DataStore1::getNearestFilepathForReadingErrorIfNotAcquisable(nx113["database"], true)
-            operator         = DataStore2SQLiteBlobStoreElizabethReadOnly.new(databasefilepath)
-            rootnhash        = nx113["rootnhash"]
-            exportLocation   = "#{ENV['HOME']}/Desktop/aion-point-#{SecureRandom.hex(4)}"
-            FileUtils.mkdir(exportLocation)
-            AionCore::exportHashAtFolder(operator, rootnhash, exportLocation)
-            puts "Item exported at #{exportLocation} for edition"
-            LucilleCore::pressEnterToContinue()
-
-            acquireLocationInsideExportFolder = lambda {|exportLocation|
-                locations = LucilleCore::locationsAtFolder(exportLocation).select{|loc| File.basename(loc)[0, 1] != "."}
-                if locations.size == 0 then
-                    puts "I am in the middle of a Nx113 aion-point edit. I cannot see anything inside the export folder"
-                    puts "Exit"
-                    exit
-                end
-                if locations.size == 1 then
-                    return locations[0]
-                end
-                if locations.size > 1 then
-                    puts "I am in the middle of a Nx113 aion-point edit. I found more than one location in the export folder."
-                    puts "Exit"
-                    exit
-                end
-            }
-
-            operator = DataStore2SQLiteBlobStoreElizabethTheForge.new()
-            location = acquireLocationInsideExportFolder.call(exportLocation)
-            puts "reading: #{location}"
-            rootnhash = AionCore::commitLocationReturnHash(operator, location)
+            packet = Nx113Edit::editAionPointComponents(nx113["rootnhash"], nx113["database"])
             nx113 = {
                 "mikuType"   => "Nx113",
                 "type"       => "aion-point",
-                "rootnhash"  => rootnhash,
-                "database"   => operator.publish()
+                "rootnhash"  => packet["rootnhash"],
+                "database"   => packet["database"]
             }
-            item["nx113"] = nx113
-            PolyActions::commit(item)
+            return nx113
         end
 
         if nx113["type"] == "Dx8Unit" then
             puts "Edit is not implemented for Dx8Units"
             LucilleCore::pressEnterToContinue()
+            return nil
         end
 
         if nx113["type"] == "unique-string" then
             puts "Edit is not implemented for unique-string"
             LucilleCore::pressEnterToContinue()
+            return nil
         end
     end
 
-    # Nx113Edit::editFunction(nx113) # Nx113 or null if no change
-    def self.editFunction(nx113)
-
+    # Nx113Edit::editNx113Carrier(item)
+    def self.editNx113Carrier(item)
+        return if item["nx113"].nil?
         nx113 = item["nx113"]
-
-        if nx113["type"] == "text" then
-            newtext = CommonUtils::editTextSynchronously(nx113["text"])
-            nx113 = Nx113Make::text(newtext)
-            item["nx113"] = nx113
-            PolyActions::commit(item)
-        end
-
-        if nx113["type"] == "url" then
-            puts "current url: #{nx113["url"]}"
-            url2 = LucilleCore::askQuestionAnswerAsString("new url: ")
-            nx113 = Nx113Make::url(url2)
-            item["nx113"] = nx113
-            PolyActions::commit(item)
-        end
-
-        if nx113["type"] == "file" then
-            Nx113Access::access(item["nx113"])
-            filepath = CommonUtils::interactivelySelectDesktopLocationOrNull()
-            nx113 = Nx113Make::file(filepath)
-            item["nx113"] = nx113
-            PolyActions::commit(item)
-        end
-
-        if nx113["type"] == "aion-point" then
-            databasefilepath = DataStore1::getNearestFilepathForReadingErrorIfNotAcquisable(nx113["database"], true)
-            operator         = DataStore2SQLiteBlobStoreElizabethReadOnly.new(databasefilepath)
-            rootnhash        = nx113["rootnhash"]
-            exportLocation   = "#{ENV['HOME']}/Desktop/aion-point-#{SecureRandom.hex(4)}"
-            FileUtils.mkdir(exportLocation)
-            AionCore::exportHashAtFolder(operator, rootnhash, exportLocation)
-            puts "Item exported at #{exportLocation} for edition"
-            LucilleCore::pressEnterToContinue()
-
-            acquireLocationInsideExportFolder = lambda {|exportLocation|
-                locations = LucilleCore::locationsAtFolder(exportLocation).select{|loc| File.basename(loc)[0, 1] != "."}
-                if locations.size == 0 then
-                    puts "I am in the middle of a Nx113 aion-point edit. I cannot see anything inside the export folder"
-                    puts "Exit"
-                    exit
-                end
-                if locations.size == 1 then
-                    return locations[0]
-                end
-                if locations.size > 1 then
-                    puts "I am in the middle of a Nx113 aion-point edit. I found more than one location in the export folder."
-                    puts "Exit"
-                    exit
-                end
-            }
-
-            operator = DataStore2SQLiteBlobStoreElizabethTheForge.new()
-            location = acquireLocationInsideExportFolder.call(exportLocation)
-            puts "reading: #{location}"
-            rootnhash = AionCore::commitLocationReturnHash(operator, location)
-            nx113 = {
-                "mikuType"   => "Nx113",
-                "type"       => "aion-point",
-                "rootnhash"  => rootnhash,
-                "database"   => operator.publish()
-            }
-            item["nx113"] = nx113
-            PolyActions::commit(item)
-        end
-
-        if nx113["type"] == "Dx8Unit" then
-            puts "Edit is not implemented for Dx8Units"
-            LucilleCore::pressEnterToContinue()
-        end
-
-        if nx113["type"] == "unique-string" then
-            puts "Edit is not implemented for unique-string"
-            LucilleCore::pressEnterToContinue()
-        end
+        nx113v2 = Nx113Edit::editNx113(nx113)
+        return if nx113v2.nil?
+        item["nx113"] = nx113v2
+        PolyActions::commit(item)
     end
 end
 

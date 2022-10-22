@@ -11,35 +11,3 @@ NyxNode:
 
     "description" : description
     "nxst1"       : NxSt1 
-
-NxSt1 
-{
-    "type" : "null"
-}
-{
-    "type"  : "Nx113"
-    "nx113" : Nx113
-}
-{
-    "type"  : "NxQuantumDrop"
-    "drop"  : NxQuantumDrop
-}
-{
-    "type"  : "Entity"
-}
-{
-    "type"  : "Concept"
-}
-{
-    "type"  : "Event"
-    "nx113" : Nx113
-}
-{
-    "type"  : "Person"
-}
-{
-    "type"  : "Collection"
-}
-{
-    "type"  : "Timeline"
-}

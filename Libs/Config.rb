@@ -8,6 +8,11 @@ class Config
         ENV['HOME']
     end
 
+    # Config::pathToGalaxy()
+    def self.pathToGalaxy()
+        "#{Config::userHomeDirectory()}/Galaxy"
+    end
+
     # Config::pathToDataCenter()
     def self.pathToDataCenter()
         "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter"

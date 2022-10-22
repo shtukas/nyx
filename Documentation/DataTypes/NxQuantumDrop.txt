@@ -11,7 +11,8 @@ NxQuantumState {
     "uuid"      : String
     "mikuType"  : "NxQuantumState"
     "unixtime"  : Float
-    "rootnhash" : String
+    "rootnhash" => String
+    "database"  => nhash # pointer to a SQLite file which contains all the data
 }
 
 Quantum Drops on the Nyx Network looks like this:

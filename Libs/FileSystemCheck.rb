@@ -61,6 +61,17 @@ class FileSystemCheck
         raise "(error: 2a5f46bd-c5db-48e7-a20f-4dd079868948)"
     end
 
+    # FileSystemCheck::fsck_rootnhash_and_database(rootnhash, database)
+    def self.fsck_rootnhash_and_database(rootnhash, database)
+        databasefilepath = DataStore1::getNearestFilepathForReadingErrorIfNotAcquisable(database, false)
+        operator         = DataStore2SQLiteBlobStoreElizabethReadOnly.new(databasefilepath)
+        status = AionFsck::structureCheckAionHash(operator, rootnhash)
+        if !status then
+            puts JSON.pretty_generate(item)
+            raise "(error: 50daf867-0dab-47d9-ae79-d8e431650eab) aion structure fsck failed "
+        end
+    end
+
     # FileSystemCheck::fsck_Nx113(item, runhash, verbose)
     def self.fsck_Nx113(item, runhash, verbose)
         return if item.nil?
@@ -127,15 +138,9 @@ class FileSystemCheck
             if item["database"].nil? then
                  raise "database is not defined on #{item}"
             end
-            rootnhash        = item["rootnhash"]
-            database         = item["database"]
-            databasefilepath = DataStore1::getNearestFilepathForReadingErrorIfNotAcquisable(database, false)
-            operator         = DataStore2SQLiteBlobStoreElizabethReadOnly.new(databasefilepath)
-            status = AionFsck::structureCheckAionHash(operator, rootnhash)
-            if !status then
-                puts JSON.pretty_generate(item)
-                raise "(error: 50daf867-0dab-47d9-ae79-d8e431650eab) aion structure fsck failed "
-            end
+            rootnhash = item["rootnhash"]
+            database  = item["database"]
+            FileSystemCheck::fsck_rootnhash_and_database(rootnhash, database)
             XCache::setFlag(repeatKey, true)
             return
         end
@@ -322,6 +327,54 @@ class FileSystemCheck
         if type == "Timeline" then
 
         end
+
+        XCache::setFlag(repeatKey, true)
+    end
+
+    # FileSystemCheck::fsck_NxQuantumState(item, runhash, verbose)
+    def self.fsck_NxQuantumState(item, runhash, verbose)
+        repeatKey = "#{runhash}:#{JSON.generate(item)}"
+        return if XCache::getFlag(repeatKey)
+
+        if verbose then
+            puts "FileSystemCheck::fsck_NxQuantumState(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
+        end
+
+        FileSystemCheck::ensureAttribute(item, "mikuType", "String")
+
+        if item["mikuType"] != "NxQuantumState" then
+            raise "Incorrect Miku type for function"
+        end
+
+        FileSystemCheck::ensureAttribute(item, "unixtime", "Float")
+
+        rootnhash = item["rootnhash"]
+        database  = item["database"]
+        FileSystemCheck::fsck_rootnhash_and_database(rootnhash, database)
+
+        XCache::setFlag(repeatKey, true)
+    end
+
+    # FileSystemCheck::fsck_NxQuantumDrop(item, runhash, verbose)
+    def self.fsck_NxQuantumDrop(item, runhash, verbose)
+        repeatKey = "#{runhash}:#{JSON.generate(item)}"
+        return if XCache::getFlag(repeatKey)
+
+        if verbose then
+            puts "FileSystemCheck::fsck_NxQuantumDrop(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
+        end
+
+        FileSystemCheck::ensureAttribute(item, "mikuType", "String")
+
+        if item["mikuType"] != "NxQuantumDrop" then
+            raise "Incorrect Miku type for function"
+        end
+
+        FileSystemCheck::ensureAttribute(item, "quantumStates", "Array")
+
+        item["quantumStates"].each{|quantumState|
+            FileSystemCheck::fsck_NxQuantumState(quantumState, runhash, verbose)
+        }
 
         XCache::setFlag(repeatKey, true)
     end

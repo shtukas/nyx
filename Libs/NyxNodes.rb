@@ -160,6 +160,14 @@ class NyxNodes
         "(NyxNode) (#{NxSt1::toString(item["nxst1"])}) #{item["description"]}#{parentsstr}"
     end
 
+    # NyxNodes::getNyxNodeByQuantumDropUUIDOrNull(dropuuid)
+    def self.getNyxNodeByQuantumDropUUIDOrNull(dropuuid)
+        NyxNodes::items()
+            .select{|item| item["nxst1"]["type"] == "NxQuantumDrop" }
+            .select{|item| item["nxst1"]["drop"]["uuid"] == dropuuid }
+            .first
+    end
+
     # ----------------------------------------------------------------------
     # Operations
 
@@ -175,6 +183,14 @@ class NyxNodes
         return if nxst1v2.nil?
         item["nxst1"] = nxst1v2
         NyxNodes::commitObject(item)
+
+        # So now that the object has been sent to disk, we need to consider that 
+        # a QuantumDrop could have been updated and propagate the changes to disk.
+
+        return if nxst1v2["type"] != "NxQuantumDrop"
+        QuantumDrops::propagateQuantumDrop(nxst1v2["drop"])
+
+        item
     end
 
     # NyxNodes::landing(item)
