@@ -9,7 +9,7 @@ class NxTodos
 
     # NxTodos::getItemOrNull(uuid)
     def self.getItemOrNull(uuid)
-        TheBook::mostRecentBookWithMutations("#{Config::pathToDataCenter()}/NxTodo")[uuid]
+        TheBook::getObjectOrNull("#{Config::pathToDataCenter()}/NxTodo", uuid)
     end
 
     # NxTodos::commitObject(object)

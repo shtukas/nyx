@@ -25,23 +25,6 @@ class TheBook
             .sort
     end
 
-    # TheBook::mostRecentBookWithMutations(pathToRepository)
-    def self.mostRecentBookWithMutations(pathToRepository)
-        book1 = TheBook::mostRecentBook(pathToRepository)
-        TheBook::mutationFilepaths(pathToRepository)
-            .reduce(book1){|runningbook, item|
-                runningbook[item["uuid"]] = item
-                runningbook
-            }
-    end
-
-    # TheBook::getObjects(pathToRepository)
-    def self.getObjects(pathToRepository)
-        TheBook::mostRecentBookWithMutations(pathToRepository)
-            .values
-            .select{|object| object["phage_alive"] }
-    end
-
     # ---------------------------------------------------
     # UPDATES
 
@@ -49,13 +32,6 @@ class TheBook
     def self.commitBookToDisk(pathToRepository, book)
         filepath = "#{pathToRepository}/01-Book-#{CommonUtils::timeStringL22()}.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(book)) }
-    end
-
-    # TheBook::commitObjectToDisk(pathToRepository, object)
-    def self.commitObjectToDisk(pathToRepository, object)
-        FileSystemCheck::fsck_MikuTypedItem(object, SecureRandom.hex, false)
-        filepath = "#{pathToRepository}/02-Object-#{CommonUtils::timeStringL22()}.json"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(object)) }
     end
 
     # TheBook::importsMutations(pathToRepository)
@@ -87,4 +63,46 @@ class TheBook
             FileUtils.rm(filepath)
         }
     end
+
+    # ---------------------------------------------------
+    # READS
+
+    # TheBook::mostRecentBookWithMutations(pathToRepository)
+    def self.mostRecentBookWithMutations(pathToRepository)
+        if TheBook::mutationFilepaths(pathToRepository).size > 200 then
+            TheBook::importsMutations(pathToRepository)
+        end
+        if (Time.new.to_i - File.mtime(TheBook::mostRecentBookFilepath(pathToRepository)).to_i) > 86400 then
+            TheBook::importsMutations(pathToRepository)
+        end
+        book1 = TheBook::mostRecentBook(pathToRepository)
+        TheBook::mutationFilepaths(pathToRepository)
+            .reduce(book1){|runningbook, item|
+                runningbook[item["uuid"]] = item
+                runningbook
+            }
+    end
+
+    # ---------------------------------------------------
+    # PUBLIC INTERFACE
+
+    # TheBook::getObjects(pathToRepository)
+    def self.getObjects(pathToRepository)
+        TheBook::mostRecentBookWithMutations(pathToRepository)
+            .values
+            .select{|object| object["phage_alive"] }
+    end
+
+    # TheBook::getObjectOrNull(pathToRepository, uuid)
+    def self.getObjectOrNull(pathToRepository, uuid)
+        TheBook::mostRecentBookWithMutations(pathToRepository)[uuid]
+    end
+
+    # TheBook::commitObjectToDisk(pathToRepository, object)
+    def self.commitObjectToDisk(pathToRepository, object)
+        FileSystemCheck::fsck_MikuTypedItem(object, SecureRandom.hex, false)
+        filepath = "#{pathToRepository}/02-Object-#{CommonUtils::timeStringL22()}.json"
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(object)) }
+    end
+
 end

@@ -13,7 +13,7 @@ class NyxNodes
 
     # NyxNodes::getItemOrNull(uuid)
     def self.getItemOrNull(uuid)
-        TheBook::mostRecentBookWithMutations("#{Config::pathToDataCenter()}/NyxNode")[uuid]
+        TheBook::getObjectOrNull("#{Config::pathToDataCenter()}/NyxNode", uuid)
     end
 
     # NyxNodes::commitObject(variant)
