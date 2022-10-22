@@ -153,10 +153,16 @@ class Cx22
             elements
                 .each{|element|
                     store.register(element, false)
+                    cx23str = 
+                        if element["cx23"] then
+                            " #{"%6.2f" % element["cx23"]["position"]}"
+                        else
+                            ""
+                        end
                     if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(element)) then
-                        puts "#{store.prefixString()} #{PolyFunctions::toStringForListing(element)}#{NxBallsService::activityStringOrEmptyString(" (", element["uuid"], ")")}".green
+                        puts "#{store.prefixString()}#{cx23str} #{PolyFunctions::toStringForListing(element)}#{NxBallsService::activityStringOrEmptyString(" (", element["uuid"], ")")}".green
                     else
-                        puts "#{store.prefixString()} #{PolyFunctions::toStringForListing(element)}"
+                        puts "#{store.prefixString()}#{cx23str} #{PolyFunctions::toStringForListing(element)}"
                     end
                 }
             puts ""
