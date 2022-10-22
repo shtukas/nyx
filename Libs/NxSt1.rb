@@ -115,7 +115,7 @@ class NxSt1
 
     # NxSt1::toString(nxst1)
     def self.toString(nxst1)
-        nxst1.to_s
+        nxst1["type"]
     end
 
     # NxSt1::access(nxst1)
