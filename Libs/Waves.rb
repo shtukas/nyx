@@ -253,7 +253,7 @@ class Waves
             puts "datetime: #{item["datetime"]}".yellow
 
             puts ""
-            puts "description | access | start | stop | edit | done | do not show until | nx46 (schedule) | nx113 | expose | destroy | nyx".yellow
+            puts "description | access | start | stop | edit | done | do not show until | nx46 (schedule) | only on days | nx113 | expose | destroy | nyx".yellow
             puts ""
 
             input = LucilleCore::askQuestionAnswerAsString("> ")
@@ -306,6 +306,14 @@ class Waves
                 nx46 = Waves::makeNx46InteractivelyOrNull()
                 next if nx46.nil?
                 item["nx46"] = nx46
+                Waves::commit(item)
+                next
+            end
+
+            if input == "only on days" then
+                days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+                selected, _ = LucilleCore::selectZeroOrMore("days", [], days)
+                item["onlyOnDays"] = selected
                 Waves::commit(item)
                 next
             end

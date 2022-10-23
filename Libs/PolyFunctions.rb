@@ -182,6 +182,9 @@ class PolyFunctions
         end
 
         if item["mikuType"] == "Wave" then
+            if item["onlyOnDays"] and !item["onlyOnDays"].include?(CommonUtils::todayAsLowercaseEnglishWeekDayName()) then
+                return nil
+            end
             return (Waves::isPriority(item) ? 0.9 : 0.4) + shiftOnDateTime.call(item, item["lastDoneDateTime"])
         end
 

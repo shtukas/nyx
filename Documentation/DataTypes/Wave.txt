@@ -9,6 +9,7 @@ Wave:
     "lastDoneDateTime" : DateTime Iso 8601 UTC Zulu
     "nx113"       : String # nhash to the DataStore1 of the Nx113
     "cx22"        : UUID of Cx22 # optional
+    "onlyOnDays"  : null or Array[week days names lowercase english] # Indicates on which days the wave can show up
 
 Nx46 {
     "type"  : Nx46Type
