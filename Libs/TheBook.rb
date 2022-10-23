@@ -42,7 +42,7 @@ class TheBook
     # TheBook::bookingTrace(pathToRepository)
     def self.bookingTrace(pathToRepository)
         LucilleCore::locationsAtFolder(pathToRepository)
-            .select{|location| File.basename(location).start_with?("00-Mutation-Mark-#{Config::thisInstanceId()}") }
+            .select{|location| File.basename(location).start_with?("00-Mutation-Mark") }
             .join(":")
     end
 
