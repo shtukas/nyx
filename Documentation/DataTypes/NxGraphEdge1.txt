@@ -1,8 +1,5 @@
 NxGraphEdge1 {
 
-    "phage_uuid"  : String # Primary Key
-    "phage_time"  : Float
-    "uuid"        : String
     "mikuType"    : "NxGraphEdge1"
     "unixtime"    : Float
     "datetime"    : DateTime Iso 8601 UTC Zulu

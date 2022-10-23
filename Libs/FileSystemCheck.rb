@@ -167,17 +167,16 @@ class FileSystemCheck
             puts "FileSystemCheck::fsck_Cx22(#{JSON.pretty_generate(item)}, #{verbose})"
         end
 
+        if item["mikuType"] != "Cx22" then
+            raise "Incorrect Miku type for function"
+        end
+
         FileSystemCheck::ensureAttribute(item, "uuid", "String")
         FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
         FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
         FileSystemCheck::ensureAttribute(item, "mikuType", "String")
         FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
         FileSystemCheck::ensureAttribute(item, "datetime", "String")
-
-        if item["mikuType"] != "Cx22" then
-            raise "Incorrect Miku type for function"
-        end
-
         FileSystemCheck::ensureAttribute(item, "description", "String")
         FileSystemCheck::ensureAttribute(item, "ax39", "Hash")
     end
@@ -229,16 +228,15 @@ class FileSystemCheck
             puts "FileSystemCheck::fsck_TxBankEvent(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
         end
 
+        if item["mikuType"] != "TxBankEvent" then
+            raise "Incorrect Miku type for function"
+        end
         FileSystemCheck::ensureAttribute(item, "uuid", "String")
         FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
         FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
         FileSystemCheck::ensureAttribute(item, "mikuType", "String")
         FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
         FileSystemCheck::ensureAttribute(item, "datetime", "String")
-
-        if item["mikuType"] != "TxBankEvent" then
-            raise "Incorrect Miku type for function"
-        end
         FileSystemCheck::ensureAttribute(item, "setuuid", "String")
         FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
         FileSystemCheck::ensureAttribute(item, "date", "String")
@@ -256,19 +254,15 @@ class FileSystemCheck
             puts "FileSystemCheck::fsck_NxGraphEdge1(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
         end
 
-        FileSystemCheck::ensureAttribute(item, "uuid", "String")
-        FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
-        FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
-        FileSystemCheck::ensureAttribute(item, "mikuType", "String")
-        FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-        FileSystemCheck::ensureAttribute(item, "datetime", "String")
-
         if item["mikuType"].nil? then
             raise "item has no Miku type"
         end
         if item["mikuType"] != "NxGraphEdge1" then
             raise "Incorrect Miku type for function"
         end
+        FileSystemCheck::ensureAttribute(item, "mikuType", "String")
+        FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+        FileSystemCheck::ensureAttribute(item, "datetime", "String")
         FileSystemCheck::ensureAttribute(item, "uuid1", "String")
         FileSystemCheck::ensureAttribute(item, "uuid2", "String")
         FileSystemCheck::ensureAttribute(item, "type", "String")
@@ -450,6 +444,15 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "line", "String")
+            XCache::setFlag(repeatKey, true)
+            return
+        end
+
+        if mikuType == "NxNetworkLocalView" then
+            FileSystemCheck::ensureAttribute(item, "center", "String")
+            FileSystemCheck::ensureAttribute(item, "parents", "Array")
+            FileSystemCheck::ensureAttribute(item, "related", "Array")
+            FileSystemCheck::ensureAttribute(item, "children", "Array")
             XCache::setFlag(repeatKey, true)
             return
         end

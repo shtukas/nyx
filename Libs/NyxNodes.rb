@@ -143,7 +143,7 @@ class NyxNodes
     # NyxNodes::toStringForSearchResult(item)
     def self.toStringForSearchResult(item)
         nwt = item["networkType"] ? ": #{item["networkType"]}" : ""
-        parents = NetworkEdges::parents(item["uuid"])
+        parents = NetworkLocalViews::parents(item["uuid"])
         parentsstr = 
             if parents.size > 0 then
                 " #{parents.map{|i| "(#{i["description"]})".green }.join(" ")}"
@@ -202,7 +202,7 @@ class NyxNodes
             # We register the item which is also the default element in the store
             store.register(item, true)
 
-            parents = NetworkEdges::parents(item["uuid"])
+            parents = NetworkLocalViews::parents(item["uuid"])
             if parents.size > 0 then
                 puts ""
                 puts "parents: "
@@ -214,7 +214,7 @@ class NyxNodes
                     }
             end
 
-            entities = NetworkEdges::relateds(item["uuid"])
+            entities = NetworkLocalViews::relateds(item["uuid"])
             if entities.size > 0 then
                 puts ""
                 puts "related: "
@@ -226,7 +226,7 @@ class NyxNodes
                     }
             end
 
-            children = NetworkEdges::children(item["uuid"])
+            children = NetworkLocalViews::children(item["uuid"])
             if children.size > 0 then
                 puts ""
                 puts "children: "
@@ -261,7 +261,7 @@ class NyxNodes
             if input == "line" then
                 line = LucilleCore::askQuestionAnswerAsString("line: ")
                 i2 = NxLines::issue(line)
-                NetworkEdges::arrow(item["uuid"], i2["uuid"])
+                NetworkLocalViews::arrow(item["uuid"], i2["uuid"])
                 next
             end
 
@@ -380,7 +380,7 @@ class NyxNodes
                     targetuuids << targetuuid
                 }
                 targetuuids.each{|targetuuid|
-                    NetworkEdges::arrow(item["uuid"], targetuuid)
+                    NetworkLocalViews::arrow(item["uuid"], targetuuid)
                 }
             end
 

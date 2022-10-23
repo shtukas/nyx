@@ -67,7 +67,7 @@ class PolyFunctions
             store = ItemStore.new()
             # We register the item which is also the default element in the store
             store.register(item, true)
-            entities = NetworkEdges::relateds(item["uuid"])
+            entities = NetworkLocalViews::relateds(item["uuid"])
             if entities.size > 0 then
                 puts ""
                 if entities.size < 200 then

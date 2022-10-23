@@ -1,6 +1,0 @@
-
-items-events-log.sqlite3
-create table _events_ (_objectuuid_ text, _eventuuid_ text primary key, _eventTime_ float, _attname_ text, _attvalue_ blob);
-
-In the case of "attribute" the value is JSON encoded.
-

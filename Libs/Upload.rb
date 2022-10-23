@@ -20,7 +20,7 @@ class Upload
                 child["datetime"] = overrideDatetime
                 PolyActions::commit(child)
             end
-            NetworkEdges::arrow(item["uuid"], child["uuid"])
+            NetworkLocalViews::arrow(item["uuid"], child["uuid"])
         }
     end
 
@@ -44,7 +44,7 @@ class Upload
                 child["datetime"] = overrideDatetime
                 PolyActions::commit(child)
             end
-            NetworkEdges::arrow(item["uuid"], child["uuid"])
+            NetworkLocalViews::arrow(item["uuid"], child["uuid"])
         }
     end
 
@@ -66,7 +66,7 @@ class Upload
                 child["datetime"] = overrideDatetime
                 PolyActions::commit(child)
             end
-            NetworkEdges::arrow(item["uuid"], child["uuid"])
+            NetworkLocalViews::arrow(item["uuid"], child["uuid"])
         end
         if action == "aion-points" then
             Upload::uploadAllLocationsOfAFolderAsChildrenAionPoints(item, overrideDatetime)
