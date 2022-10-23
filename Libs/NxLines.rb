@@ -18,7 +18,6 @@ class NxLines
             "uuid"        => uuid,
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
-            "phage_alive" => true,
             "mikuType"    => "NxLine",
             "unixtime"    => unixtime,
             "datetime"    => datetime,

@@ -71,21 +71,19 @@ class TheBook
         # The original book
         book1 = TheBook::mostRecentBook(pathToRepository)
 
-        # The book with updates in
+        # The book with updates in (including deletion)
         book2 = mutationFilepaths
                     .reduce(book1){|runningbook, filepath|
                         item = JSON.parse(IO.read(filepath))
-                        runningbook[item["uuid"]] = item
+                        if item["mikuType"] == "NxDeleted" then
+                            runningbook.delete(item["uuid"])
+                        else
+                            runningbook[item["uuid"]] = item
+                        end
                         runningbook
                     }
 
-        # The book garbage collected
-        book3 = {}
-        objects = book2.values.select{|item| item["phage_alive"] }
-        objects.each{|object|
-            book3[object["uuid"]] = object
-        }
-        TheBook::commitBookToDisk(pathToRepository, book3)
+        TheBook::commitBookToDisk(pathToRepository, book2)
 
         # fs garbage collection
         mutationFilepaths.each{|filepath|
@@ -115,7 +113,11 @@ class TheBook
         book2 = TheBook::mutationFilepaths(pathToRepository)
                     .reduce(book1){|runningbook, filepath|
                         item = JSON.parse(IO.read(filepath))
-                        runningbook[item["uuid"]] = item
+                        if item["mikuType"] == "NxDeleted" then
+                            runningbook.delete(item["uuid"])
+                        else
+                            runningbook[item["uuid"]] = item
+                        end
                         runningbook
                     }
 
@@ -130,7 +132,6 @@ class TheBook
     def self.getObjects(pathToRepository)
         TheBook::mostRecentBookWithMutations(pathToRepository)
             .values
-            .select{|object| object["phage_alive"] }
     end
 
     # TheBook::getObjectOrNull(pathToRepository, uuid)
@@ -141,5 +142,17 @@ class TheBook
     # TheBook::commitObjectToDisk(pathToRepository, object)
     def self.commitObjectToDisk(pathToRepository, object)
         TheBook::commitMutation(pathToRepository, object)
+    end
+
+    # TheBook::destroy(pathToRepository, uuid)
+    def self.destroy(pathToRepository, uuid)
+        object = {
+            "uuid"     => uuid,
+            "mikuType" => "NxDeleted"
+        }
+        filepath = "#{pathToRepository}/02-Object-#{CommonUtils::timeStringL22()}.json"
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(object)) }
+
+        TheBook::markBookFolderAsMutated(pathToRepository)
     end
 end

@@ -79,11 +79,20 @@ class PolyActions
     def self.destroy(item)
         PolyActions::stop(item)
 
+        if item["mikuType"] == "NxTodo" then
+            NxTodos::destroy(item["uuid"])
+            return
+        end
+
+        if item["mikuType"] == "NyxNode" then
+            NyxNodes::destroy(item["uuid"])
+            return
+        end
+
         if item["mikuType"] == "Wave" then
             Waves::destroy(item["uuid"])
             return
         end
-
 
         raise "(error: 518883e2-76bc-4611-b0aa-9a69c8877400) I don't know how to destroy Miku type: #{item["mikuType"]}"
     end

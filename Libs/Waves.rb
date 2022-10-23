@@ -22,10 +22,7 @@ class Waves
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        object = Waves::getOrNull(uuid)
-        return if object.nil?
-        object["phage_alive"] = false
-        Waves::commit(object)
+        TheBook::destroy("/Users/pascal/Galaxy/DataBank/Stargate-DataCenter/Wave", uuid)
     end
 
     # --------------------------------------------------
@@ -146,7 +143,6 @@ class Waves
             "uuid"             => uuid,
             "phage_uuid"       => SecureRandom.uuid,
             "phage_time"       => Time.new.to_f,
-            "phage_alive"      => true,
             "mikuType"         => "Wave",
             "unixtime"         => Time.new.to_i,
             "datetime"         => Time.new.utc.iso8601,

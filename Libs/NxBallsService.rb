@@ -34,7 +34,6 @@ class NxBallsService
             "uuid"         => SecureRandom.uuid,
             "phage_uuid"   => SecureRandom.uuid,
             "phage_time"   => Time.new.to_f,
-            "phage_alive"  => true,
             "owneruuid"    => owneruuid,
             "mikuType"     => "NxBall.v2",
             "unixtime"     => Time.new.to_f,

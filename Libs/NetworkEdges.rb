@@ -48,7 +48,6 @@ class NetworkEdges
         NetworkEdges::commitVariant({
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
-            "phage_alive" => true,
             "uuid"        => SecureRandom.uuid,
             "mikuType"    => "NxGraphEdge1",
             "unixtime"    => Time.new.to_i,
@@ -64,7 +63,6 @@ class NetworkEdges
         NetworkEdges::commitVariant({
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
-            "phage_alive" => true,
             "uuid"        => SecureRandom.uuid,
             "mikuType"    => "NxGraphEdge1",
             "unixtime"    => Time.new.to_i,
@@ -80,7 +78,6 @@ class NetworkEdges
         NetworkEdges::commitVariant({
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
-            "phage_alive" => true,
             "uuid"        => SecureRandom.uuid,
             "mikuType"    => "NxGraphEdge1",
             "unixtime"    => Time.new.to_i,

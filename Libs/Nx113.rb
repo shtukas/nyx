@@ -345,7 +345,6 @@ class Nx113Dx33s
         dx33 = {
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
-            "phage_alive" => true,
             "uuid"        => SecureRandom.uuid,
             "mikuType"    => "Dx33",
             "unixtime"    => Time.new.to_f,

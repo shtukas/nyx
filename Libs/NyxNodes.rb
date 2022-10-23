@@ -24,12 +24,9 @@ class NyxNodes
         TheBook::commitObjectToDisk("#{Config::pathToDataCenter()}/NyxNode", object)
     end
 
-    # NxTodos::destroy(uuid)
+    # NyxNodes::destroy(uuid)
     def self.destroy(uuid)
-        object = NyxNodes::getItemOrNull(uuid)
-        return if object.nil?
-        object["phage_alive"] = false
-        NyxNodes::commitObject(object)
+        TheBook::destroy("#{Config::pathToDataCenter()}/NyxNode", uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -59,7 +56,6 @@ class NyxNodes
             "uuid"        => uuid,
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
-            "phage_alive" => true,
             "mikuType"    => "NyxNode",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
@@ -81,7 +77,6 @@ class NyxNodes
             "uuid"        => uuid,
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
-            "phage_alive" => true,
             "mikuType"    => "NyxNode",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
@@ -103,7 +98,6 @@ class NyxNodes
             "uuid"        => uuid,
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
-            "phage_alive" => true,
             "mikuType"    => "NyxNode",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
@@ -127,7 +121,6 @@ class NyxNodes
             "uuid"        => uuid,
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
-            "phage_alive" => true,
             "mikuType"    => "NyxNode",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,

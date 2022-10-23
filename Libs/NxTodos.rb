@@ -22,10 +22,7 @@ class NxTodos
 
     # NxTodos::destroy(uuid)
     def self.destroy(uuid)
-        object = NxTodos::getItemOrNull(uuid)
-        return if object.nil?
-        object["phage_alive"] = false
-        NxTodos::commitObject(object)
+        TheBook::destroy("#{Config::pathToDataCenter()}/NxTodo", uuid)
     end
 
     # --------------------------------------------------
@@ -43,7 +40,6 @@ class NxTodos
             "uuid"        => uuid,
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
-            "phage_alive" => true,
             "mikuType"    => "NxTodo",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
@@ -69,7 +65,6 @@ class NxTodos
             "uuid"        => uuid,
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
-            "phage_alive" => true,
             "mikuType"    => "NxTodo",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
@@ -95,7 +90,6 @@ class NxTodos
             "uuid"        => uuid,
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
-            "phage_alive" => true,
             "mikuType"    => "NxTodo",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
@@ -117,7 +111,6 @@ class NxTodos
             "uuid"        => uuid,
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
-            "phage_alive" => true,
             "mikuType"    => "NxTodo",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
@@ -140,7 +133,6 @@ class NxTodos
             "uuid"        => uuid,
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
-            "phage_alive" => true,
             "mikuType"    => "NxTodo",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
@@ -163,7 +155,6 @@ class NxTodos
             "uuid"        => uuid,
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
-            "phage_alive" => true,
             "mikuType"    => "NxTodo",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
@@ -182,7 +173,6 @@ class NxTodos
             "uuid"        => SecureRandom.uuid,
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
-            "phage_alive" => true,
             "mikuType"    => "NxTodo",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,

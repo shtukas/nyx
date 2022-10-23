@@ -3,7 +3,6 @@ NxLine:
 
     "phage_uuid"  : String # Primary Key
     "phage_time"  : Float
-    "phage_alive" : Boolean
     "uuid"        : String
     "mikuType"    : "NxLine"
     "unixtime"    : Float

@@ -4,7 +4,6 @@ We do not have a shared mercury channel, so we use those specific objects to rec
 {
     "phage_uuid"  : String # Primary Key
     "phage_time"  : Float
-    "phage_alive" : Boolean
     "uuid"        : String
     "mikuType"    : "Dx33"
     "unixtime"    : Float
