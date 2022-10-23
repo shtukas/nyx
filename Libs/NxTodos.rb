@@ -14,8 +14,6 @@ class NxTodos
 
     # NxTodos::commitObject(object)
     def self.commitObject(object)
-        object["phage_uuid"] = SecureRandom.uuid
-        object["phage_time"] = Time.new.to_f
         FileSystemCheck::fsck_MikuTypedItem(object, SecureRandom.hex, false)
         TheBook::commitObjectToDisk("#{Config::pathToDataCenter()}/NxTodo", object)
     end
@@ -38,8 +36,6 @@ class NxTodos
         cx23  = (nx11e["type"] == "standard") ? Cx23::interactivelyMakeNewOrNull() : nil
         item = {
             "uuid"        => uuid,
-            "phage_uuid"  => SecureRandom.uuid,
-            "phage_time"  => Time.new.to_f,
             "mikuType"    => "NxTodo",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
@@ -63,8 +59,6 @@ class NxTodos
         nx113    = Nx113Make::interactivelyMakeNx113OrNull()
         item = {
             "uuid"        => uuid,
-            "phage_uuid"  => SecureRandom.uuid,
-            "phage_time"  => Time.new.to_f,
             "mikuType"    => "NxTodo",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
@@ -88,8 +82,6 @@ class NxTodos
         nx11e = Nx11E::makeHot()
         item = {
             "uuid"        => uuid,
-            "phage_uuid"  => SecureRandom.uuid,
-            "phage_time"  => Time.new.to_f,
             "mikuType"    => "NxTodo",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
@@ -109,8 +101,6 @@ class NxTodos
         nx11e = Nx11E::makeStandard()
         item = {
             "uuid"        => uuid,
-            "phage_uuid"  => SecureRandom.uuid,
-            "phage_time"  => Time.new.to_f,
             "mikuType"    => "NxTodo",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
@@ -131,8 +121,6 @@ class NxTodos
         nx11e = Nx11E::makeTriage()
         item = {
             "uuid"        => uuid,
-            "phage_uuid"  => SecureRandom.uuid,
-            "phage_time"  => Time.new.to_f,
             "mikuType"    => "NxTodo",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
@@ -153,8 +141,6 @@ class NxTodos
         nx11e = Nx11E::makeStandard()
         item = {
             "uuid"        => uuid,
-            "phage_uuid"  => SecureRandom.uuid,
-            "phage_time"  => Time.new.to_f,
             "mikuType"    => "NxTodo",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
@@ -171,8 +157,6 @@ class NxTodos
     def self.issueFromElements(description, nx113, nx11e, cx23)
         item = {
             "uuid"        => SecureRandom.uuid,
-            "phage_uuid"  => SecureRandom.uuid,
-            "phage_time"  => Time.new.to_f,
             "mikuType"    => "NxTodo",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,

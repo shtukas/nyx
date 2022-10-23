@@ -2,8 +2,6 @@
 We do not have a shared mercury channel, so we use those specific objects to record and signify that a Dx8Unit needs to be garbage collected.
 
 {
-    "phage_uuid"  : String # Primary Key
-    "phage_time"  : Float
     "uuid"        : String
     "mikuType"    : "Dx33"
     "unixtime"    : Float

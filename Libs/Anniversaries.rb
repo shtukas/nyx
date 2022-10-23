@@ -132,8 +132,6 @@ class Anniversaries
         uuid = SecureRandom.uuid
         item = {
             "uuid"                => uuid,
-            "phage_uuid"          => SecureRandom.uuid,
-            "phage_time"          => Time.new.to_f,
             "mikuType"            => "NxAnniversary",
             "unixtime"            => Time.new.to_i,
             "datetime"            => Time.new.utc.iso8601,

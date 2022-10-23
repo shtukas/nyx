@@ -32,8 +32,6 @@ class NxBallsService
     def self.issue(owneruuid, description, accounts, desiredBankedTimeInSeconds)
         nxball = {
             "uuid"         => SecureRandom.uuid,
-            "phage_uuid"   => SecureRandom.uuid,
-            "phage_time"   => Time.new.to_f,
             "owneruuid"    => owneruuid,
             "mikuType"     => "NxBall.v2",
             "unixtime"     => Time.new.to_f,

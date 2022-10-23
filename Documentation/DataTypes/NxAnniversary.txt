@@ -1,8 +1,6 @@
 
 NxAnniversary
 
-    "phage_uuid"  : String # Primary Key
-    "phage_time"  : Float
     "uuid"        : String
     "mikuType"    : "NxAnniversary"
     "unixtime"    : Float

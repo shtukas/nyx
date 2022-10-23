@@ -343,8 +343,6 @@ class Nx113Dx33s
     # Nx113Dx33s::issue(unitId)
     def self.issue(unitId)
         dx33 = {
-            "phage_uuid"  => SecureRandom.uuid,
-            "phage_time"  => Time.new.to_f,
             "uuid"        => SecureRandom.uuid,
             "mikuType"    => "Dx33",
             "unixtime"    => Time.new.to_f,

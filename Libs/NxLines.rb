@@ -16,8 +16,6 @@ class NxLines
         datetime = Time.new.utc.iso8601
         item = {
             "uuid"        => uuid,
-            "phage_uuid"  => SecureRandom.uuid,
-            "phage_time"  => Time.new.to_f,
             "mikuType"    => "NxLine",
             "unixtime"    => unixtime,
             "datetime"    => datetime,

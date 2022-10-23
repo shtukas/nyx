@@ -7,8 +7,6 @@ class Bank
         date = CommonUtils::today()
         variant = {
             "uuid"        => SecureRandom.uuid,
-            "phage_uuid"  => SecureRandom.uuid,
-            "phage_time"  => Time.new.to_f,
             "mikuType"    => "TxBankEvent",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,

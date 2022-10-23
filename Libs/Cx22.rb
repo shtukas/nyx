@@ -33,8 +33,6 @@ class Cx22
         ax39 = Ax39::interactivelyCreateNewAx()
         item = {
             "uuid"        => SecureRandom.uuid,
-            "phage_uuid"  => SecureRandom.uuid,
-            "phage_time"  => Time.new.to_f,
             "mikuType"    => "Cx22",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,

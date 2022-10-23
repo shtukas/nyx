@@ -18,8 +18,6 @@ class NyxNodes
 
     # NyxNodes::commitObject(object)
     def self.commitObject(object)
-        object["phage_uuid"] = SecureRandom.uuid
-        object["phage_time"] = Time.new.to_f
         FileSystemCheck::fsck_MikuTypedItem(object, SecureRandom.hex, false)
         TheBook::commitObjectToDisk("#{Config::pathToDataCenter()}/NyxNode", object)
     end
@@ -54,8 +52,6 @@ class NyxNodes
         nxst1 = NxSt1::interactivelyMake()
         item = {
             "uuid"        => uuid,
-            "phage_uuid"  => SecureRandom.uuid,
-            "phage_time"  => Time.new.to_f,
             "mikuType"    => "NyxNode",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
@@ -75,8 +71,6 @@ class NyxNodes
         nxst1 = NxSt1::makeNewUsingLocation(location)
         item = {
             "uuid"        => uuid,
-            "phage_uuid"  => SecureRandom.uuid,
-            "phage_time"  => Time.new.to_f,
             "mikuType"    => "NyxNode",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
@@ -96,8 +90,6 @@ class NyxNodes
         nxst1 = NxSt1::makeNewUsingFile(filepath)
         item = {
             "uuid"        => uuid,
-            "phage_uuid"  => SecureRandom.uuid,
-            "phage_time"  => Time.new.to_f,
             "mikuType"    => "NyxNode",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
@@ -119,8 +111,6 @@ class NyxNodes
 
         item = {
             "uuid"        => uuid,
-            "phage_uuid"  => SecureRandom.uuid,
-            "phage_time"  => Time.new.to_f,
             "mikuType"    => "NyxNode",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,

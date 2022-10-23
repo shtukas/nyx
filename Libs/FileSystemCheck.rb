@@ -172,8 +172,6 @@ class FileSystemCheck
         end
 
         FileSystemCheck::ensureAttribute(item, "uuid", "String")
-        FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
-        FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
         FileSystemCheck::ensureAttribute(item, "mikuType", "String")
         FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
         FileSystemCheck::ensureAttribute(item, "datetime", "String")
@@ -210,8 +208,6 @@ class FileSystemCheck
         end
 
         FileSystemCheck::ensureAttribute(item, "uuid", "String")
-        FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
-        FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
         FileSystemCheck::ensureAttribute(item, "mikuType", "String")
         FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
         FileSystemCheck::ensureAttribute(item, "datetime", "String")
@@ -232,8 +228,6 @@ class FileSystemCheck
             raise "Incorrect Miku type for function"
         end
         FileSystemCheck::ensureAttribute(item, "uuid", "String")
-        FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
-        FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
         FileSystemCheck::ensureAttribute(item, "mikuType", "String")
         FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
         FileSystemCheck::ensureAttribute(item, "datetime", "String")
@@ -395,8 +389,6 @@ class FileSystemCheck
 
         if mikuType == "NxAnniversary" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
             FileSystemCheck::ensureAttribute(item, "mikuType", "String")
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
@@ -410,8 +402,6 @@ class FileSystemCheck
 
         if mikuType == "NxBall.v2" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
             FileSystemCheck::ensureAttribute(item, "mikuType", "String")
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
@@ -438,8 +428,6 @@ class FileSystemCheck
 
         if mikuType == "NxLine" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
             FileSystemCheck::ensureAttribute(item, "mikuType", "String")
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
@@ -459,8 +447,6 @@ class FileSystemCheck
 
         if mikuType == "NxTodo" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
             FileSystemCheck::ensureAttribute(item, "mikuType", "String")
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
@@ -478,8 +464,6 @@ class FileSystemCheck
 
         if mikuType == "NyxNode" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
             FileSystemCheck::ensureAttribute(item, "mikuType", "String")
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
@@ -492,8 +476,6 @@ class FileSystemCheck
 
         if mikuType == "TxBankEvent" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
             FileSystemCheck::ensureAttribute(item, "mikuType", "String")
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
@@ -506,8 +488,6 @@ class FileSystemCheck
 
         if mikuType == "TxManualCountDown" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
             FileSystemCheck::ensureAttribute(item, "mikuType", "String")
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
@@ -522,8 +502,6 @@ class FileSystemCheck
 
         if mikuType == "Wave" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "phage_uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "phage_time", "Number")
             FileSystemCheck::ensureAttribute(item, "mikuType", "String")
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "datetime", "String")

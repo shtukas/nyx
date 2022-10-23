@@ -1,8 +1,6 @@
 
 TxBankEvent {
 
-    "phage_uuid"  : String # Primary Key
-    "phage_time"  : Float
     "uuid"        : String
     "mikuType"    : "TxBankEvent"
     "unixtime"    : Float
