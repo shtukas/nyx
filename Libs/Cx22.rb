@@ -3,12 +3,24 @@ class Cx22
 
     # Cx22::items()
     def self.items()
-        PhagePublic::mikuTypeToObjects("Cx22")
+        folderpath = "#{Config::pathToDataCenter()}/Cx22"
+        LucilleCore::locationsAtFolder(folderpath)
+            .select{|filepath| filepath[-5, 5] == ".json" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
 
     # Cx22::getOrNull(uuid)
     def self.getOrNull(uuid)
-        PhagePublic::getObjectOrNull(uuid)
+        filepath = "#{Config::pathToDataCenter()}/Cx22/#{uuid}.json"
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
+    end
+
+    # Cx22::commit(item)
+    def self.commit(item)
+        FileSystemCheck::fsck_MikuTypedItem(item, SecureRandom.hex, false)
+        filepath = "#{Config::pathToDataCenter()}/Cx22/#{item["uuid"]}.json"
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
     # --------------------------------------------
@@ -23,7 +35,6 @@ class Cx22
             "uuid"        => SecureRandom.uuid,
             "phage_uuid"  => SecureRandom.uuid,
             "phage_time"  => Time.new.to_f,
-            "phage_alive" => true,
             "mikuType"    => "Cx22",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
@@ -31,13 +42,14 @@ class Cx22
             "ax39"        => ax39
         }
         FileSystemCheck::fsck_Cx22(item, true)
-        PhagePublic::commit(item)
+        Cx22::commit(item)
         item
     end
 
     # Cx22::interactivelySelectCx22OrNull()
     def self.interactivelySelectCx22OrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("cx22", Cx22::items(), lambda{|cx22| cx22["description"]})
+        cx22s = Cx22::cx22WithCompletionRatiosOrdered().map{|packet| packet["item"] }
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("cx22", cx22s, lambda{|cx22| Cx22::toStringDiveStyleFormatted(cx22)})
     end
 
     # Cx22::interactivelySelectCx22OrNullDiveStyle()
@@ -65,14 +77,14 @@ class Cx22
 
     # Cx22::toString2(uuid)
     def self.toString2(uuid)
-        item = PhagePublic::getObjectOrNull(uuid)
+        item = Cx22::getOrNull(uuid)
         return "(Cx22 not found for uuid: #{uuid})" if item.nil?
         Cx22::toString1(item)
     end
 
     # Cx22::toString3(uuid)
     def self.toString3(uuid)
-        item = PhagePublic::getObjectOrNull(uuid)
+        item = Cx22::getOrNull(uuid)
         return "(Cx22 not found for uuid: #{uuid})" if item.nil?
         "(group: #{item["description"]})"
     end
@@ -117,23 +129,6 @@ class Cx22
     # --------------------------------------------
     # Ops
 
-    # Cx22::interactivelySetANewContributionForItemOrNothing(item) # item
-    def self.interactivelySetANewContributionForItemOrNothing(item)
-        cx22 = Cx22::architectOrNull()
-        return if cx22.nil?
-        PhagePublic::setAttribute2(item["uuid"], "cx22", cx22["uuid"])
-        PhagePublic::getObjectOrNull(item["uuid"])
-    end
-
-    # Cx22::interactivelySetANewContributionForItemWithPositionOrNothing(item) # item
-    def self.interactivelySetANewContributionForItemWithPositionOrNothing(item)
-        cx22 = Cx22::architectOrNull()
-        return if cx22.nil?
-        PhagePublic::setAttribute2(item["uuid"], "cx22", cx22["uuid"])
-        item = PhagePublic::getObjectOrNull(item["uuid"])
-        Cx23::interactivelySetCx23ForItemOrNothing(item)
-    end
-
     # Cx22::nextPositionForCx22(cx22)
     def self.nextPositionForCx22(cx22)
         (NxTodos::items()
@@ -150,7 +145,7 @@ class Cx22
             puts ""
             count1 = 0
             puts Cx22::toStringWithDetails(cx22)
-            PhagePublic::mikuTypeToObjects("NxBall.v2")
+            NxBallsService::items()
                 .each{|nxball|
                     puts "[NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})".green
                     count1 = count1 + 1
@@ -163,8 +158,14 @@ class Cx22
             elements
                 .each{|element|
                     store.register(element, false)
+                    cx23str = 
+                        if element["cx23"] then
+                            " #{"%6.2f" % element["cx23"]["position"]}"
+                        else
+                            ""
+                        end
                     if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(element)) then
-                        puts "#{store.prefixString()} #{PolyFunctions::toStringForListing(element)}#{NxBallsService::activityStringOrEmptyString(" (", element["uuid"], ")")}".green
+                        puts "#{store.prefixString()}#{cx23str} #{PolyFunctions::toStringForListing(element)}#{NxBallsService::activityStringOrEmptyString(" (", element["uuid"], ")")}".green
                     else
                         if DoNotShowUntil::isVisible(element["uuid"])  then
                             puts "#{store.prefixString()} #{PolyFunctions::toStringForListing(element)}"
@@ -199,22 +200,8 @@ class Cx22
                 uuid   = SecureRandom.uuid
                 nx11e  = Nx11E::makeStandard()
                 nx113  = Nx113Make::interactivelyMakeNx113OrNull()
-                cx23   =
-                    (lambda {
-                        loop {
-                            position = LucilleCore::askQuestionAnswerAsString("position (or `next`): ")
-                            if position == "" then
-                                next
-                            end
-                            if position == "next" then
-                                position = Cx22::nextPositionForCx22(cx22) + 1
-                                return Cx23::makeCx23(cx22, position)
-                            end
-                            return Cx23::makeCx23(cx22, position.to_f)
-                        }
-                    }).call()
-
-                NxTodos::issueFromElements(description, nx113, nx11e, cx22, cx23)
+                cx23   = Cx23::interactivelyMakeNewGivenCx22OrNull(cx22)
+                NxTodos::issueFromElements(description, nx113, nx11e, cx23)
                 next
             end
 
@@ -285,7 +272,8 @@ class Cx22
                 entity = store.get(indx)
                 next if entity.nil?
                 cx23 = Cx23::makeCx23(cx22, position)
-                PhagePublic::setAttribute2(entity["uuid"], "cx23", cx23)
+                entity["cx23"] = cx23
+                PolyActions::commit(entity)
                 next
             end
 
@@ -304,7 +292,7 @@ class Cx22
                     next if element["cx23"].nil?
                     puts JSON.pretty_generate(element)
                     element["cx23"]["position"] = indx
-                    PhagePublic::commit(element)
+                    PolyActions::commit(element)
                 }
             end
         }
@@ -316,7 +304,7 @@ class Cx22
             system("clear")
             puts Cx22::toStringWithDetails(cx22)
             puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(cx22["uuid"])}"
-            nxballs = PhagePublic::mikuTypeToObjects("NxBall.v2")
+            nxballs = NxBallsService::items()
             if nxballs.size > 0 then
                 nxballs
                     .each{|nxball|
@@ -336,7 +324,7 @@ class Cx22
                 description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
                 next if description == ""
                 cx22["description"] = description
-                PhagePublic::commit(cx22)
+                PolyActions::commit(cx22)
                 next
             end
             if action == "push (do not display until)" then
@@ -366,7 +354,7 @@ class Cx22
     def self.maindive()
         loop {
             system("clear")
-            nxballs = PhagePublic::mikuTypeToObjects("NxBall.v2")
+            nxballs = NxBallsService::items()
             if nxballs.size > 0 then
                 puts ""
                 nxballs
@@ -376,7 +364,7 @@ class Cx22
                     }
                 puts ""
             end
-            cx22 = Cx22::interactivelySelectCx22OrNullDiveStyle()
+            cx22 = Cx22::interactivelySelectCx22OrNull()
             return if cx22.nil?
             Cx22::dive(cx22)
         }

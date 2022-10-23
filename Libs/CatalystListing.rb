@@ -5,7 +5,7 @@ class CatalystListing
     # CatalystListing::listingCommands()
     def self.listingCommands()
         [
-            ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | nx113 (<n>) | engine (<n>) | contribution (<n>) | cx23 (group position) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
+            ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | engine (<n>) | contribution (<n>) | cx23 (group position) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
             "update start date (<n>)",
             "wave | anniversary | hot | today | ondate | todo",
             "anniversaries | ondates | waves | groups | todos | todos-latest-first",
@@ -41,24 +41,6 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::doubleDot(item)
-            return
-        end
-
-        if Interpreting::match(">>", input) then
-            item = store.getDefault()
-            return if item.nil?
-            if item["mikuType"] != "NxTodo" then
-                puts "command >> is only availaible for NxTodos (in triage)"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            if item["nx11e"]["type"] != "triage" then
-                puts "command >> is only availaible for NxTodos in triage"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            Cx22::interactivelySetANewContributionForItemOrNothing(item)
-            PhagePublic::setAttribute2(item["uuid"], "nx11e", Nx11E::makeStandard())
             return
         end
 
@@ -116,14 +98,7 @@ class CatalystListing
         if Interpreting::match("contribution", input) then
             item = store.getDefault()
             return if item.nil?
-            Cx22::interactivelySetANewContributionForItemOrNothing(item)
-            return
-        end
-
-        if Interpreting::match("contribution", input) then
-            item = store.getDefault()
-            return if item.nil?
-            Cx22::interactivelySetANewContributionForItemOrNothing(item)
+            Waves::interactivelySetANewContributionForItemOrNothing(item)
             return
         end
 
@@ -131,7 +106,7 @@ class CatalystListing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            Cx22::interactivelySetANewContributionForItemOrNothing(item)
+            Waves::interactivelySetANewContributionForItemOrNothing(item)
             return
         end
 
@@ -242,7 +217,7 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             item = Nx11E::interactivelySetANewEngineForItemOrNothing(item)
-            Cx22::interactivelySetANewContributionForItemWithPositionOrNothing(item)
+            Cx23::interactivelySetCx23ForItemOrNothing(item)
             return
         end
 
@@ -251,7 +226,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             item = Nx11E::interactivelySetANewEngineForItemOrNothing(item)
-            Cx22::interactivelySetANewContributionForItemWithPositionOrNothing(item)
+            Cx23::interactivelySetCx23ForItemOrNothing(item)
             return
         end
 
@@ -321,28 +296,13 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("nx113", input) then
-            item = store.getDefault()
-            return if item.nil?
-            PolyActions::setNx113(item)
-            return
-        end
-
-        if Interpreting::match("nx113 *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            PolyActions::setNx113(item)
-            return
-        end
-
         if Interpreting::match("nyx", input) then
             Nyx::program()
             return
         end
 
         if Interpreting::match("nxballs", input) then
-            puts JSON.pretty_generate(PhagePublic::mikuTypeToObjects("NxBall.v2"))
+            puts JSON.pretty_generate(NxBallsService::items())
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -465,6 +425,13 @@ class CatalystListing
                     Bank::put(cx22["uuid"], timeInHours.to_f*3600)
                 end
             end
+            if item["cx23"] then
+                cx22 = Cx22::getOrNull(item["cx23"]["groupuuid"])
+                if cx22 then
+                    puts "Adding #{timeInHours.to_f} hours to #{Cx22::toString1(cx22)}"
+                    Bank::put(cx22["uuid"], timeInHours.to_f*3600)
+                end
+            end
             return
         end
 
@@ -550,6 +517,18 @@ class CatalystListing
                 {
                     "name" => "Waves::items()",
                     "lambda" => lambda { Waves::items() }
+                },
+                {
+                    "name" => "NxTodos::items()",
+                    "lambda" => lambda { NxTodos::items() }
+                },
+                {
+                    "name" => "NyxNodes::items()",
+                    "lambda" => lambda { NyxNodes::items() }
+                },
+                {
+                    "name" => "NxLines::items()",
+                    "lambda" => lambda { NxLines::items() }
                 }
             ]
 
@@ -619,7 +598,7 @@ class CatalystListing
             vspaceleft =  vspaceleft - CommonUtils::verticalSize(CatalystListing::listingCommands())
         end
 
-        if Config::getOrFail("instanceId") == "Lucille20-pascal" then
+        if Config::isAlexandra() then
             line = The99Percent::displayLineFromCache()
             puts ""
             puts line
@@ -638,6 +617,7 @@ class CatalystListing
             puts ""
             vspaceleft = vspaceleft - 1
             packets = Cx22::cx22WithCompletionRatiosOrdered()
+                        .select{|packet| packet["completionratio"] < 1 }
             padding = packets.map{|packet| PolyFunctions::toStringForListing(packet["item"]).size }.max
             packets
                 .each{|packet|
@@ -652,7 +632,7 @@ class CatalystListing
                 }
         end
 
-        nxballs = PhagePublic::mikuTypeToObjects("NxBall.v2")
+        nxballs = NxBallsService::items()
         if nxballs.size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1

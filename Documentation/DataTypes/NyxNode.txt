@@ -1,41 +1,12 @@
 
 NyxNode:
-    ... Stargate Item ("NyxNode")
-    "networkType" : NetworkType
+
+    "phage_uuid"  : String # Primary Key
+    "phage_time"  : Float
+    "uuid"        : String
+    "mikuType"    : "NyxNode"
+    "unixtime"    : Float
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+
     "description" : description
-    "nx113"       : String # nhash to the DataStore1 of the Nx113
-
-NetworkType: "PureData" | "Entity" | "Concept" | "Event" | "Person" | "Collection" | "Timeline"
-
-# --------------------------------------------------------------------------
-
-NxSt1 
-{
-    "type" : "void"
-}
-{
-    "type"  : "Nx113"
-    "nx113" : Nx113
-}
-{
-    "type"  : "NxQuantumDrop"
-    "drop"  : NxQuantumDrop
-}
-{
-    "type"  : "Entity"
-}
-{
-    "type"  : "Concept"
-}
-{
-    "type"  : "Event"
-}
-{
-    "type"  : "Person"
-}
-{
-    "type"  : "Collection"
-}
-{
-    "type"  : "Timeline"
-}
+    "nxst1"       : NxSt1 

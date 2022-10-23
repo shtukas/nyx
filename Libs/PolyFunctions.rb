@@ -12,6 +12,12 @@ class PolyFunctions
                 accounts << cx22["uuid"]
             end
         end
+        if item["cx23"] then
+            cx22 = Cx22::getOrNull(item["cx23"]["groupuuid"])
+            if cx22 then
+                accounts << cx22["uuid"]
+            end
+        end
         accounts.uniq
     end
 
@@ -61,7 +67,7 @@ class PolyFunctions
             store = ItemStore.new()
             # We register the item which is also the default element in the store
             store.register(item, true)
-            entities = NetworkEdges::relateds(item["uuid"])
+            entities = NetworkLocalViews::relateds(item["uuid"])
             if entities.size > 0 then
                 puts ""
                 if entities.size < 200 then

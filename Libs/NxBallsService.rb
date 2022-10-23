@@ -19,6 +19,57 @@ class NxBallsService
 
 =end
 
+    # Basic IO
+
+    # NxBallsService::commit(item)
+    def self.commit(item)
+        FileSystemCheck::fsck_MikuTypedItem(item, SecureRandom.hex, false)
+        filepath = "#{Config::pathToDataCenter()}/NxBallsService/#{item["uuid"]}.json"
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
+    end
+
+    # NxBallsService::issue(owneruuid, description, accounts, desiredBankedTimeInSeconds)
+    def self.issue(owneruuid, description, accounts, desiredBankedTimeInSeconds)
+        nxball = {
+            "uuid"         => SecureRandom.uuid,
+            "phage_uuid"   => SecureRandom.uuid,
+            "phage_time"   => Time.new.to_f,
+            "owneruuid"    => owneruuid,
+            "mikuType"     => "NxBall.v2",
+            "unixtime"     => Time.new.to_f,
+            "datetime"     => Time.new.utc.iso8601,
+            "description"  => description,
+            "desiredBankedTimeInSeconds" => desiredBankedTimeInSeconds,
+            "status"       => NxBallsService::makeRunningStatus(nil, 0),
+            "accounts"     => accounts
+        }
+        NxBallsService::commit(nxball)
+    end
+
+    # NxBallsService::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        filepath = "#{Config::pathToDataCenter()}/NxBallsService/#{uuid}.json"
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
+    end
+
+    # NxBallsService::items()
+    def self.items()
+        folderpath = "#{Config::pathToDataCenter()}/NxBallsService"
+        LucilleCore::locationsAtFolder(folderpath)
+            .select{|filepath| filepath[-5, 5] == ".json" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
+    end
+
+    # NxBallsService::destroy(uuid)
+    def self.destroy(uuid)
+        filepath = "#{Config::pathToDataCenter()}/NxBallsService/#{uuid}.json"
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
+    end
+
+    # Statuses
+
     # NxBallsService::makeRunningStatus(lastMarginCallUnixtime, bankedTimeInSeconds)
     def self.makeRunningStatus(lastMarginCallUnixtime, bankedTimeInSeconds)
         {
@@ -40,28 +91,9 @@ class NxBallsService
     # --------------------------------------------------------------------
     # Operations
 
-    # NxBallsService::issue(owneruuid, description, accounts, desiredBankedTimeInSeconds)
-    def self.issue(owneruuid, description, accounts, desiredBankedTimeInSeconds)
-        nxball = {
-            "uuid"         => SecureRandom.uuid,
-            "phage_uuid"   => SecureRandom.uuid,
-            "phage_time"   => Time.new.to_f,
-            "phage_alive"  => true,
-            "owneruuid"    => owneruuid,
-            "mikuType"     => "NxBall.v2",
-            "unixtime"     => Time.new.to_f,
-            "datetime"     => Time.new.utc.iso8601,
-            "description"  => description,
-            "desiredBankedTimeInSeconds" => desiredBankedTimeInSeconds,
-            "status"       => NxBallsService::makeRunningStatus(nil, 0),
-            "accounts"     => accounts
-        }
-        PhagePublic::commit(nxball)
-    end
-
     # NxBallsService::getBallByOwnerOrNull(owneruuid)
     def self.getBallByOwnerOrNull(owneruuid)
-        PhagePublic::mikuTypeToObjects("NxBall.v2")
+        NxBallsService::items()
             .select{|nxball| nxball["owneruuid"] == owneruuid }
             .first
     end
@@ -91,7 +123,7 @@ class NxBallsService
 
     # NxBallsService::marginCall(uuid)
     def self.marginCall(uuid)
-        nxball = PhagePublic::getObjectOrNull(uuid)
+        nxball = NxBallsService::getOrNull(uuid)
         return if nxball.nil?
         return if nxball["status"]["type"] != "running"
         referenceTimeForUnrealisedAccounting = nxball["status"]["lastMarginCallUnixtime"] ? nxball["status"]["lastMarginCallUnixtime"] : nxball["status"]["thisSprintStartUnixtime"]
@@ -102,7 +134,7 @@ class NxBallsService
         }
         nxball["status"]["lastMarginCallUnixtime"] = Time.new.to_i
         nxball["status"]["bankedTimeInSeconds"] = nxball["status"]["bankedTimeInSeconds"] + timespan
-        PhagePublic::commit(nxball)
+        NxBallsService::commit(nxball)
     end
 
     # NxBallsService::marginCallIfIsTime(nxball)
@@ -119,9 +151,9 @@ class NxBallsService
         nxball = nxBallOpt
         return if nxball["status"]["type"] != "running"
         NxBallsService::marginCall(nxball["uuid"])
-        nxball = PhagePublic::getObjectOrNull(nxball["uuid"])
+        nxball = NxBallsService::getOrNull(nxball["uuid"])
         nxball["status"] = NxBallsService::makePausedStatus(nxball["status"]["bankedTimeInSeconds"])
-        PhagePublic::commit(nxball)
+        NxBallsService::commit(nxball)
     end
 
     # NxBallsService::pursue(nxBallOpt)
@@ -130,14 +162,14 @@ class NxBallsService
         nxball = nxBallOpt
         if nxball["status"]["type"] == "running" then
             NxBallsService::marginCall(nxball["uuid"])
-            nxball = PhagePublic::getObjectOrNull(nxball["uuid"])
+            nxball = NxBallsService::getOrNull(nxball["uuid"])
             # If pursue was called while the item was running, it was because of an 1 hour notification which was shown, we need to reset it.
             nxball["status"]["thisSprintStartUnixtime"] = Time.new.to_f
-            PhagePublic::commit(nxball)
+            NxBallsService::commit(nxball)
         end
         if nxball["status"]["type"] == "paused" then
             nxball["status"] = NxBallsService::makeRunningStatus(nil, nxball["status"]["bankedTimeInSeconds"])
-            PhagePublic::commit(nxball)
+            NxBallsService::commit(nxball)
         end
     end
 
@@ -163,7 +195,7 @@ class NxBallsService
                 puts "(#{Time.new.to_s}) Closing paused NxBall"
             end
         end
-        PhagePublic::destroy(nxball["uuid"])
+        NxBallsService::destroy(nxball["uuid"])
         timespan
     end
 

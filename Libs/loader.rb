@@ -169,6 +169,7 @@ require_relative "Galaxy.rb"
 require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"
 require_relative "InternetStatus.rb"
+require_relative "InMemoryStore.rb"
 
 require_relative "FileSystemCheck.rb"
 
@@ -182,13 +183,15 @@ require_relative "Nx11E.rb"
 require_relative "NxTodos.rb"
 require_relative "NetworkShapeAroundNode.rb"
 require_relative "NxLines.rb"
-require_relative "NetworkEdges.rb"
+require_relative "NetworkLocalViews.rb"
+require_relative "NxSt1.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"
 require_relative "PolyActions.rb"
 require_relative "PolyFunctions.rb"
-require_relative "Phage.rb"
+
+require_relative "QuantumDrops.rb"
 
 require_relative "SectionsType0141.rb"
 require_relative "Search.rb"
@@ -198,6 +201,7 @@ require_relative "Streaming.rb"
 require_relative "TxManualCountDowns.rb"
 require_relative "The99Percent.rb"
 require_relative "ThreadsX.rb"
+require_relative "TheBook.rb"
 
 require_relative "UniqueStringsFunctions.rb"
 require_relative "Upload.rb"
@@ -218,12 +222,14 @@ $arrows_database_semaphore = Mutex.new
 # ------------------------------------------------------------
 
 if $RunNonEssentialThreads then
+
     ThreadsX::nxBallsMonitoringAndNotification()
-    if Config::getOrFail("instanceId") == "Lucille20-pascal" then 
+
+    if Config::isAlexandra() then 
         ThreadsX::startViennaImport()
     end
 
-    if (Config::getOrFail("instanceId") == "Lucille20-pascal") then
+    if Config::isAlexandra() then
         Thread.new {
             loop {
                 sleep 12

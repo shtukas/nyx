@@ -54,11 +54,54 @@ class PolyActions
         raise "(error: abb645e9-2575-458e-b505-f9c029f4ca69) I do not know how to access mikuType: #{item["mikuType"]}"
     end
 
+    # PolyActions::commit(item)
+    def self.commit(item)
+
+        if item["mikuType"] == "Cx22" then
+            Cx22::commit(item)
+            return
+        end
+
+        if item["mikuType"] == "NxTodo" then
+            NxTodos::commitObject(item)
+            return
+        end
+
+        if item["mikuType"] == "Wave" then
+            Waves::commit(item)
+            return
+        end
+
+        raise "(error: 92a90b00-4582-4678-9c7b-686b74e64713) I don't know how to commit Miku type: #{item["mikuType"]}"
+    end
+
+    # PolyActions::destroy(item)
+    def self.destroy(item)
+        PolyActions::stop(item)
+
+        if item["mikuType"] == "NxTodo" then
+            NxTodos::destroy(item["uuid"])
+            return
+        end
+
+        if item["mikuType"] == "NyxNode" then
+            NyxNodes::destroy(item["uuid"])
+            return
+        end
+
+        if item["mikuType"] == "Wave" then
+            Waves::destroy(item["uuid"])
+            return
+        end
+
+        raise "(error: 518883e2-76bc-4611-b0aa-9a69c8877400) I don't know how to destroy Miku type: #{item["mikuType"]}"
+    end
+
     # PolyActions::destroyWithPrompt(item)
     def self.destroyWithPrompt(item)
         PolyActions::stop(item)
         if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{PolyFunctions::toString(item).green}' ") then
-            PhagePublic::destroy(item["uuid"])
+            PolyActions::destroy(item)
         end
     end
 
@@ -76,6 +119,7 @@ class PolyActions
             # We havea a special processing of triage items
             if item["nx11e"]["type"] == "triage" then
                 loop {
+                    puts PolyFunctions::toString(item).green
                     actions = ["access >> ♻️", "access >> description >> ♻️", "standard >> contribution", "start >> access >> al.", "destroy"]
                     action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
                     next if action.nil?
@@ -91,8 +135,7 @@ class PolyActions
                     if action == "start >> access >> al." then
                         PolyActions::start(item)
                         PolyActions::access(item)
-                        LucilleCore::pressEnterToContinue("Press enter to move to stop and al.")
-                        item = Cx22::interactivelySetANewContributionForItemOrNothing(item)
+                        LucilleCore::pressEnterToContinue("Press enter to move to stop and continue")
                         PolyActions::stop(item)
                         actions = ["destroy", "keep as standard and return to listing"]
                         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
@@ -104,14 +147,16 @@ class PolyActions
                             return
                         end
                         if action == "keep as standard and return to listing" then
-                            PhagePublic::setAttribute2(item["uuid"], "nx11e", Nx11E::makeStandard())
+                            item["nx11e"] = Nx11E::makeStandard()
+                            item["cx23"] = Cx23::interactivelyMakeNewOrNull()
+                            PolyActions::commit(item)
                             return
                         end
                     end
                     if action == "standard >> contribution" then
-                        PhagePublic::setAttribute2(item["uuid"], "nx11e", Nx11E::makeStandard())
-                        item = PhagePublic::getObjectOrNull(item["uuid"])
-                        Cx22::interactivelySetANewContributionForItemOrNothing(item)
+                        item["nx11e"] = Nx11E::makeStandard()
+                        item["cx23"] = Cx23::interactivelyMakeNewOrNull()
+                        PolyActions::commit(item)
                         return
                     end
                     if action == "destroy" then
@@ -237,14 +282,16 @@ class PolyActions
     def self.editDatetime(item)
         datetime = CommonUtils::editTextSynchronously(item["datetime"]).strip
         return if !CommonUtils::isDateTime_UTC_ISO8601(datetime)
-        PhagePublic::setAttribute2(item["uuid"], "datetime", datetime)
+        item["datetime"] = datetime
+        PolyAction::commit(item)
     end
 
     # PolyActions::editDescription(item)
     def self.editDescription(item)
         description = CommonUtils::editTextSynchronously(item["description"]).strip
         return if description == ""
-        PhagePublic::setAttribute2(item["uuid"], "description", description)
+        item["description"] = description
+        PolyAction::commit(item)
     end
 
     # PolyActions::editStartDate(item)
@@ -257,7 +304,8 @@ class PolyActions
 
         startdate = CommonUtils::editTextSynchronously(item["startdate"])
         return if startdate == ""
-        PhagePublic::setAttribute2(item["uuid"], "startdate",   startdate)
+        item["startdate"] = startdate
+        PolyAction::commit(item)
     end
 
     # PolyActions::garbageCollectionAfterItemDeletion(item)
@@ -266,7 +314,7 @@ class PolyActions
         if item["nx113"] then
             nx113 = Nx113Access::getNx113(item["nx113"])
             if nx113["type"] == "Dx8Unit" then
-                Nx113SpecialCircumstances::issueDx33(nx113["unitId"])
+                Nx113Dx33s::issue(nx113["unitId"])
             end
         end
     end
@@ -322,14 +370,8 @@ class PolyActions
             return
         end
         datetime = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
-        PhagePublic::setAttribute2(item["uuid"], "nx11e", Nx11E::makeOndate(datetime))
-    end
-
-    # PolyActions::setNx113(item)
-    def self.setNx113(item)
-        nx113 = Nx113Make::interactivelyMakeNx113OrNull()
-        return if nx113.nil?
-        PhagePublic::setAttribute2(item["uuid"], "nx113", nx113)
+        item["nx11e"] = Nx11E::makeOndate(datetime)
+        PolyAction::commit(item)
     end
 
     # PolyActions::start(item)
@@ -372,9 +414,9 @@ class PolyActions
                     puts "You are going to lose the data"
                     return if !LucilleCore::askQuestionAnswerAsBoolean("confirm operation: ")
                 end
-                PhagePublic::setAttribute2(item["uuid"], "networkType", networkType)
-                PhagePublic::setAttribute2(item["uuid"], "mikuType", "NyxNode")
-                item = PhagePublic::getObjectOrNull(item["uuid"])
+                item["networkType"] = networkType
+                item["mikuType"] = "NyxNode"
+                PolyActions::commit(item)
                 NyxNodes::landing(item)
             end
         end

@@ -1,4 +1,0 @@
-network-edges.sqlite3
-create table _edges_ (_uuid1_ text, _uuid2_ text, _type_ text)
-
-_type_ = "arrow" or "bidirectional"

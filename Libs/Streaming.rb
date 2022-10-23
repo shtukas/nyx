@@ -17,10 +17,21 @@ class Streaming
         "#{state.ljust(Streaming::statesPadding())}"
     end
 
+    # Streaming::getItemOrNull(uuid)
+    def self.getItemOrNull(uuid)
+        item = Waves::getOrNull(uuid)
+        return item if item
+
+        item = NxTodos::getItemOrNull(uuid)
+        return item if item
+
+        nil
+    end
+
     # Streaming::runItem(item, state)
     def self.runItem(item, state)
 
-        return if PhagePublic::getObjectOrNull(item["uuid"]).nil?
+        return if Streaming::getItemOrNull(item["uuid"]).nil?
 
         if state == "awaiting start" then
             input = LucilleCore::askQuestionAnswerAsString("[#{Streaming::stateToString(state)}] #{PolyFunctions::toString(item).green} (.. | start | done | time | skip | +(datecode) | landing | exit | commands) : ")
@@ -162,7 +173,7 @@ class Streaming
                     LucilleCore::removeFileSystemLocation(location)
                 }
 
-            if PhagePublic::mikuTypeToObjects("NxBall.v2").size > 0 then
+            if NxBallsService::items().size > 0 then
                 CatalystListing::displayListing()
                 next
             end

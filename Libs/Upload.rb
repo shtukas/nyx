@@ -17,9 +17,10 @@ class Upload
             puts "processing: #{location}"
             child = NyxNodes::issueNewUsingLocation(location)
             if overrideDatetime then
-                PhagePublic::setAttribute2(child["uuid"], "datetime", overrideDatetime)
+                child["datetime"] = overrideDatetime
+                PolyActions::commit(child)
             end
-            NetworkEdges::arrow(item["uuid"], child["uuid"])
+            NetworkLocalViews::arrow(item["uuid"], child["uuid"])
         }
     end
 
@@ -40,9 +41,10 @@ class Upload
             puts "processing: #{filepath}"
             child = NyxNodes::issueNewUsingFile(filepath)
             if overrideDatetime then
-                PhagePublic::setAttribute2(child["uuid"], "datetime", overrideDatetime)
+                child["datetime"] = overrideDatetime
+                PolyActions::commit(child)
             end
-            NetworkEdges::arrow(item["uuid"], child["uuid"])
+            NetworkLocalViews::arrow(item["uuid"], child["uuid"])
         }
     end
 
@@ -61,9 +63,10 @@ class Upload
             return if !File.file?(location)
             child = NyxNodes::issueNewUsingFile(location)
             if overrideDatetime then
-                PhagePublic::setAttribute2(child["uuid"], "datetime", overrideDatetime)
+                child["datetime"] = overrideDatetime
+                PolyActions::commit(child)
             end
-            NetworkEdges::arrow(item["uuid"], child["uuid"])
+            NetworkLocalViews::arrow(item["uuid"], child["uuid"])
         end
         if action == "aion-points" then
             Upload::uploadAllLocationsOfAFolderAsChildrenAionPoints(item, overrideDatetime)

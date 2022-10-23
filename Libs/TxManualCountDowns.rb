@@ -7,20 +7,25 @@ class TxManualCountDowns
 
     # TxManualCountDowns::items()
     def self.items()
-        PhagePublic::mikuTypeToObjects("TxManualCountDown")
+        folderpath = "#{Config::pathToDataCenter()}/TxManualCountDown"
+        LucilleCore::locationsAtFolder(folderpath)
+            .select{|filepath| filepath[-5, 5] == ".json" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
 
     # TxManualCountDowns::commit(item)
     def self.commit(item)
-        PhagePublic::commit(item)
+        FileSystemCheck::fsck_MikuTypedItem(item, SecureRandom.hex, false)
+        filepath = "#{Config::pathToDataCenter()}/TxManualCountDown/#{item["uuid"]}.json"
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
     # TxManualCountDowns::destroy(uuid)
     def self.destroy(uuid)
-        PhagePublic::destroy(uuid)
+        filepath = "#{Config::pathToDataCenter()}/TxManualCountDown/#{uuid}.json"
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
     end
-
-    # Makers
 
     # TxManualCountDowns::issueNewOrNull()
     def self.issueNewOrNull()

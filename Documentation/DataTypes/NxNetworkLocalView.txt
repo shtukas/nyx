@@ -1,0 +1,7 @@
+
+NxNetworkLocalView
+    "mikuType" : "NxNetworkLocalView"
+    "center"   : String        # UUID of the center view
+    "parents"  : Array[String] # UUIDs
+    "related"  : Array[String] # UUIDs
+    "children" : Array[String] # UUIDs

@@ -8,6 +8,11 @@ class Config
         ENV['HOME']
     end
 
+    # Config::pathToGalaxy()
+    def self.pathToGalaxy()
+        "#{Config::userHomeDirectory()}/Galaxy"
+    end
+
     # Config::pathToDataCenter()
     def self.pathToDataCenter()
         "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter"
@@ -39,5 +44,15 @@ class Config
         config = JSON.parse(IO.read(Config::configFilepath()))
         config[key] = value
         File.open(Config::configFilepath(), "w"){|f| f.puts(JSON.pretty_generate(config)) }
+    end
+
+    # Config::thisInstanceId()
+    def self.thisInstanceId()
+        Config::getOrFail("instanceId")
+    end
+
+    # Config::isAlexandra()
+    def self.isAlexandra()
+        Config::getOrFail("instanceId") == "Lucille20-pascal"
     end
 end

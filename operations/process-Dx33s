@@ -5,14 +5,14 @@
 require_relative "../Libs/loader.rb"
 
 puts "process-Dx33s"
-PhagePublic::mikuTypeToObjects("Dx33").each{|item|
+Nx113Dx33s::getItems().each{|item|
     next if !File.exists?("/Volumes/EnergyGrid1/Stargate/Data/Dx8Units")
     location = Dx8UnitsUtils::acquireUnitFolderPathOrNull(item["unitId"])
     if location.nil? then
-        PhagePublic::destroy(item["uuid"])
+        Nx113Dx33s::destroy(item["uuid"])
         next
     end
     puts "Dx33 deletion: #{location}"
     LucilleCore::removeFileSystemLocation(location)
-    PhagePublic::destroy(item["uuid"])
+    Nx113Dx33s::destroy(item["uuid"])
 }

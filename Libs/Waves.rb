@@ -4,14 +4,25 @@ class Waves
     # --------------------------------------------------
     # IO
 
+    # Waves::commit(item)
+    def self.commit(item)
+        FileSystemCheck::fsck_MikuTypedItem(item, SecureRandom.hex, false)
+        TheBook::commitObjectToDisk("/Users/pascal/Galaxy/DataBank/Stargate-DataCenter/Wave", item)
+    end
+
     # Waves::items()
     def self.items()
-        PhagePublic::mikuTypeToObjects("Wave")
+        TheBook::getObjects("/Users/pascal/Galaxy/DataBank/Stargate-DataCenter/Wave")
+    end
+
+    # Waves::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        TheBook::getObjectOrNull("/Users/pascal/Galaxy/DataBank/Stargate-DataCenter/Wave", uuid)
     end
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        PhagePublic::destroy(uuid)
+        TheBook::destroy("/Users/pascal/Galaxy/DataBank/Stargate-DataCenter/Wave", uuid)
     end
 
     # --------------------------------------------------
@@ -132,7 +143,6 @@ class Waves
             "uuid"             => uuid,
             "phage_uuid"       => SecureRandom.uuid,
             "phage_time"       => Time.new.to_f,
-            "phage_alive"      => true,
             "mikuType"         => "Wave",
             "unixtime"         => Time.new.to_i,
             "datetime"         => Time.new.utc.iso8601,
@@ -141,7 +151,7 @@ class Waves
             "nx113"            => nx113,
             "lastDoneDateTime" => "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         }
-        PhagePublic::commit(item)
+        Waves::commit(item)
         item
     end
 
@@ -172,7 +182,8 @@ class Waves
         NxBallsService::close(NxBallsService::itemToNxBallOpt(item), true)
 
         puts "done-ing: #{Waves::toString(item)}"
-        PhagePublic::setAttribute2(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
+        item["lastDoneDateTime"] =  Time.now.utc.iso8601
+        Waves::commit(item)
 
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
         puts "not shown until: #{Time.at(unixtime).to_s}"
@@ -215,13 +226,13 @@ class Waves
             status = LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit the description instead ? ")
             if status then
                 PolyActions::editDescription(item)
-                return PhagePublic::getObjectOrNull(item["uuid"])
+                return Waves::getOrNull(item["uuid"])
             else
                 return item
             end
         end
-        Nx113Edit::edit(item)
-        PhagePublic::getObjectOrNull(item["uuid"])
+        Nx113Edit::editNx113Carrier(item)
+        Waves::getOrNull(item["uuid"])
     end
 
     # Waves::landing(item)
@@ -231,7 +242,7 @@ class Waves
             return nil if item.nil?
 
             uuid = item["uuid"]
-            item = PhagePublic::getObjectOrNull(uuid)
+            item = Waves::getOrNull(uuid)
             return nil if item.nil?
 
             system("clear")
@@ -294,12 +305,16 @@ class Waves
             if Interpreting::match("nx46", input) then
                 nx46 = Waves::makeNx46InteractivelyOrNull()
                 next if nx46.nil?
-                PhagePublic::setAttribute2(item["uuid"], "nx46", nx46)
+                item["nx46"] = nx46
+                Waves::commit(item)
                 next
             end
 
             if Interpreting::match("nx113", input) then
-                PolyActions::setNx113(item)
+                nx113 = Nx113Make::interactivelyMakeNx113OrNull()
+                return if nx113.nil?
+                item["nx113"] = nx113
+                Waves::commit(item)
                 next
             end
 
@@ -318,5 +333,19 @@ class Waves
                 next
             end
         }
+    end
+
+    # Waves::interactivelySetANewContributionForItemOrNothing(item) # item
+    def self.interactivelySetANewContributionForItemOrNothing(item)
+        if item["mikuType"] != "Wave" then
+            puts "You can set a Cx22 only for Waves. (For NxTodos set a Cx23.)"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        cx22 = Cx22::architectOrNull()
+        return if cx22.nil?
+        item["cx22"] = cx22["uuid"]
+        PolyActions::commit(item)
+        item
     end
 end

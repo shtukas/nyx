@@ -6,15 +6,19 @@ class DoNotShowUntil
 
     # DoNotShowUntil::setUnixtime(uuid, unixtime)
     def self.setUnixtime(uuid, unixtime)
-        filepath = "#{Config::pathToDataCenter()}/DoNotShowUntil/#{uuid}.data"
-        File.open(filepath, "w"){|f| f.write(unixtime) }
+        item = {
+            "uuid"     => uuid,
+            "mikuType" => "NxDoNotShowUntil",
+            "unixtime" => unixtime
+        }
+        TheBook::commitObjectToDisk("#{Config::pathToDataCenter()}/DoNotShowUntil", item)
     end
 
     # DoNotShowUntil::getUnixtimeOrNull(uuid)
     def self.getUnixtimeOrNull(uuid)
-        filepath = "#{Config::pathToDataCenter()}/DoNotShowUntil/#{uuid}.data"
-        return nil if !File.exists?(filepath)
-        IO.read(filepath).to_f
+        object = TheBook::getObjectOrNull("#{Config::pathToDataCenter()}/DoNotShowUntil", uuid)
+        return nil if object.nil?
+        object["unixtime"]
     end
 
     # DoNotShowUntil::getDateTimeOrNull(uuid)

@@ -11,14 +11,18 @@ NxQuantumState {
     "uuid"      : String
     "mikuType"  : "NxQuantumState"
     "unixtime"  : Float
-    "rootnhash" : String
+    "rootnhash" => String
+    "database"  => nhash # pointer to a SQLite file which contains all the data
 }
 
 Quantum Drops on the Nyx Network looks like this:
 
 NxQuantumDrop {
-    "mikuType"      : "QuantumDrop"
+    "uuid"          : String
+    "mikuType"      : "NxQuantumDrop"
     "quantumStates" : Array[NxQuantumState]
 }
+
+When a quantum drop is created a file named "QuantumDrop-<UUID>" is created on the Desktop to be put at the top of the fs directory. We expect that directory to contain only one file or one sub-directory.
 
 
