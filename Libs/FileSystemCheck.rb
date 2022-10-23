@@ -429,6 +429,13 @@ class FileSystemCheck
             return
         end
 
+        if mikuType == "NxDoNotShowUntil" then
+            FileSystemCheck::ensureAttribute(item, "uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+            XCache::setFlag(repeatKey, true)
+            return
+        end
+
         if mikuType == "NxGraphEdge1" then
             FileSystemCheck::fsck_NxGraphEdge1(item, runhash, verbose)
             XCache::setFlag(repeatKey, true)
