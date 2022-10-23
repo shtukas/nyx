@@ -171,21 +171,21 @@ class NetworkLocalViews
     # NetworkLocalViews::parents(uuid)
     def self.parents(uuid)
         NetworkLocalViews::parentUUIDs(uuid)
-            .map{|objectuuid| NyxNodes::getItemOrNull(objectuuid) }
+            .map{|objectuuid| PolyFunctions::getItemOrNull(objectuuid) }
             .compact
     end
 
     # NetworkLocalViews::relateds(uuid)
     def self.relateds(uuid)
         NetworkLocalViews::relatedUUIDs(uuid)
-            .map{|objectuuid| NyxNodes::getItemOrNull(objectuuid) }
+            .map{|objectuuid| PolyFunctions::getItemOrNull(objectuuid) }
             .compact
     end
 
     # NetworkLocalViews::children(uuid)
     def self.children(uuid)
         NetworkLocalViews::childrenUUIDs(uuid)
-            .map{|objectuuid| NyxNodes::getItemOrNull(objectuuid) }
+            .map{|objectuuid| PolyFunctions::getItemOrNull(objectuuid) }
             .compact
     end
 

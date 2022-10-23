@@ -132,9 +132,8 @@ class Cx22
     # Cx22::nextPositionForCx22(cx22)
     def self.nextPositionForCx22(cx22)
         (NxTodos::items()
-            .select{|item| item["cx22"] }
-            .select{|item| item["cx22"] == cx22["uuid"] }
             .select{|item| item["cx23"] }
+            .select{|item| item["cx23"]["groupuuid"] == cx22["uuid"] }
             .map{|item| item["cx23"]["position"] } + [0]).max + 1
     end
 
