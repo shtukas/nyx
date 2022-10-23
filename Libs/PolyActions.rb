@@ -57,6 +57,11 @@ class PolyActions
     # PolyActions::commit(item)
     def self.commit(item)
 
+        if item["mikuType"] == "Cx22" then
+            Cx22::commit(item)
+            return
+        end
+
         if item["mikuType"] == "NxTodo" then
             NxTodos::commitObject(item)
             return

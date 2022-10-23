@@ -598,7 +598,7 @@ class CatalystListing
             vspaceleft =  vspaceleft - CommonUtils::verticalSize(CatalystListing::listingCommands())
         end
 
-        if Config::getOrFail("instanceId") == "Lucille20-pascal" then
+        if Config::isAlexandra() then
             line = The99Percent::displayLineFromCache()
             puts ""
             puts line

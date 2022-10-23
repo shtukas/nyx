@@ -45,4 +45,9 @@ class Config
         config[key] = value
         File.open(Config::configFilepath(), "w"){|f| f.puts(JSON.pretty_generate(config)) }
     end
+
+    # Config::isAlexandra()
+    def self.isAlexandra()
+        Config::getOrFail("instanceId") == "Lucille20-pascal"
+    end
 end

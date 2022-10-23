@@ -69,10 +69,10 @@ class TheBook
 
     # TheBook::mostRecentBookWithMutations(pathToRepository)
     def self.mostRecentBookWithMutations(pathToRepository)
-        if TheBook::mutationFilepaths(pathToRepository).size > 200 then
+        if Config::isAlexandra() and (TheBook::mutationFilepaths(pathToRepository).size > 200) then
             TheBook::importsMutations(pathToRepository)
         end
-        if (Time.new.to_i - File.mtime(TheBook::mostRecentBookFilepath(pathToRepository)).to_i) > 86400 then
+        if Config::isAlexandra() and ((Time.new.to_i - File.mtime(TheBook::mostRecentBookFilepath(pathToRepository)).to_i) > 86400) then
             TheBook::importsMutations(pathToRepository)
         end
         book1 = TheBook::mostRecentBook(pathToRepository)
