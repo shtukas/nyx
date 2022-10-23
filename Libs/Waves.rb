@@ -7,30 +7,25 @@ class Waves
     # Waves::commit(item)
     def self.commit(item)
         FileSystemCheck::fsck_MikuTypedItem(item, SecureRandom.hex, false)
-        filepath = "#{Config::pathToDataCenter()}/Wave/#{item["uuid"]}.json"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
+        TheBook::commitObjectToDisk("/Users/pascal/Galaxy/DataBank/Stargate-DataCenter/Wave", item)
     end
 
     # Waves::items()
     def self.items()
-        folderpath = "#{Config::pathToDataCenter()}/Wave"
-        LucilleCore::locationsAtFolder(folderpath)
-            .select{|filepath| filepath[-5, 5] == ".json" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
+        TheBook::getObjects("/Users/pascal/Galaxy/DataBank/Stargate-DataCenter/Wave")
     end
 
     # Waves::getOrNull(uuid)
     def self.getOrNull(uuid)
-        filepath = "#{Config::pathToDataCenter()}/Wave/#{uuid}.json"
-        return nil if !File.exists?(filepath)
-        JSON.parse(IO.read(filepath))
+        TheBook::getObjectOrNull("/Users/pascal/Galaxy/DataBank/Stargate-DataCenter/Wave", uuid)
     end
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        filepath = "#{Config::pathToDataCenter()}/Wave/#{uuid}.json"
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
+        object = Waves::getOrNull(uuid)
+        return if object.nil?
+        object["phage_alive"] = false
+        Waves::commit(object)
     end
 
     # --------------------------------------------------
