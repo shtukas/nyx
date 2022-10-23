@@ -37,7 +37,7 @@ class NxLines
 
     # NxLines::getOrNull(uuid)
     def self.getOrNull(uuid)
-        filepath = "#{Config::pathToDataCenter()}/NxLine/#{item["uuid"]}.json"
+        filepath = "#{Config::pathToDataCenter()}/NxLine/#{uuid}.json"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end

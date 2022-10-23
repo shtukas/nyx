@@ -17,21 +17,10 @@ class Streaming
         "#{state.ljust(Streaming::statesPadding())}"
     end
 
-    # Streaming::getItemOrNull(uuid)
-    def self.getItemOrNull(uuid)
-        item = Waves::getOrNull(uuid)
-        return item if item
-
-        item = NxTodos::getItemOrNull(uuid)
-        return item if item
-
-        nil
-    end
-
     # Streaming::runItem(item, state)
     def self.runItem(item, state)
 
-        return if Streaming::getItemOrNull(item["uuid"]).nil?
+        return if PolyFunctions::getItemOrNull(item["uuid"]).nil?
 
         if state == "awaiting start" then
             input = LucilleCore::askQuestionAnswerAsString("[#{Streaming::stateToString(state)}] #{PolyFunctions::toString(item).green} (.. | start | done | time | skip | +(datecode) | landing | exit | commands) : ")

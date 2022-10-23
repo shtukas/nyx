@@ -134,6 +134,23 @@ class PolyFunctions
         return nil
     end
 
+    # PolyFunctions::getItemOrNull(uuid)
+    def self.getItemOrNull(uuid)
+        item = Waves::getOrNull(uuid)
+        return item if item
+
+        item = NxTodos::getItemOrNull(uuid)
+        return item if item
+
+        item = NyxNodes::getItemOrNull(uuid)
+        return item if item
+
+        item = NxLines::getOrNull(uuid)
+        return item if item
+
+        nil
+    end
+
     # PolyFunctions::listingPriorityOrNull(item)
     # We return a null value when the item should not be displayed
     def self.listingPriorityOrNull(item) # Float between 0 and 1
