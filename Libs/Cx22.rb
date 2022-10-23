@@ -42,7 +42,8 @@ class Cx22
 
     # Cx22::interactivelySelectCx22OrNullDiveStyle()
     def self.interactivelySelectCx22OrNullDiveStyle()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("cx22", Cx22::items(), lambda{|cx22| Cx22::toStringDiveStyleFormatted(cx22)})
+        cx22s = Cx22::cx22WithCompletionRatiosOrdered().map{|packet| packet["item"] }
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("cx22", cx22s, lambda{|cx22| Cx22::toStringDiveStyleFormatted(cx22)})
     end
 
     # Cx22::architectOrNull()
@@ -165,7 +166,11 @@ class Cx22
                     if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(element)) then
                         puts "#{store.prefixString()} #{PolyFunctions::toStringForListing(element)}#{NxBallsService::activityStringOrEmptyString(" (", element["uuid"], ")")}".green
                     else
-                        puts "#{store.prefixString()} #{PolyFunctions::toStringForListing(element)}"
+                        if DoNotShowUntil::isVisible(element["uuid"])  then
+                            puts "#{store.prefixString()} #{PolyFunctions::toStringForListing(element)}"
+                        else
+                            puts "#{store.prefixString()} #{PolyFunctions::toStringForListing(element)}".yellow
+                        end
                     end
                 }
             puts ""
@@ -310,7 +315,7 @@ class Cx22
         loop {
             system("clear")
             puts Cx22::toStringWithDetails(cx22)
-
+            puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(cx22["uuid"])}"
             nxballs = PhagePublic::mikuTypeToObjects("NxBall.v2")
             if nxballs.size > 0 then
                 nxballs
