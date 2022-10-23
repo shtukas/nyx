@@ -28,10 +28,39 @@ class TheBook
     # ---------------------------------------------------
     # UPDATES
 
+    # TheBook::markBookFolderAsMutated(pathToRepository)
+    def self.markBookFolderAsMutated(pathToRepository)
+        LucilleCore::locationsAtFolder(pathToRepository)
+            .select{|location| File.basename(location).start_with?("00-Mutation-Mark-#{Config::thisInstanceId()}") }
+            .each{|filepath| FileUtils.rm(filepath) }
+
+        filename = "00-Mutation-Mark-#{Config::thisInstanceId()}-#{CommonUtils::timeStringL22()}"
+        filepath = "#{pathToRepository}/#{filename}"
+        FileUtils.touch(filepath)
+    end
+
+    # TheBook::bookingTrace(pathToRepository)
+    def self.bookingTrace(pathToRepository)
+        LucilleCore::locationsAtFolder(pathToRepository)
+            .select{|location| File.basename(location).start_with?("00-Mutation-Mark-#{Config::thisInstanceId()}") }
+            .join(":")
+    end
+
     # TheBook::commitBookToDisk(pathToRepository, book)
     def self.commitBookToDisk(pathToRepository, book)
         filepath = "#{pathToRepository}/01-Book-#{CommonUtils::timeStringL22()}.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(book)) }
+
+        TheBook::markBookFolderAsMutated(pathToRepository)
+    end
+
+    # TheBook::commitMutation(pathToRepository, object)
+    def self.commitMutation(pathToRepository, object)
+        FileSystemCheck::fsck_MikuTypedItem(object, SecureRandom.hex, false)
+        filepath = "#{pathToRepository}/02-Object-#{CommonUtils::timeStringL22()}.json"
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(object)) }
+
+        TheBook::markBookFolderAsMutated(pathToRepository)
     end
 
     # TheBook::importsMutations(pathToRepository)
@@ -62,6 +91,8 @@ class TheBook
         mutationFilepaths.each{|filepath|
             FileUtils.rm(filepath)
         }
+
+        TheBook::markBookFolderAsMutated(pathToRepository)
     end
 
     # ---------------------------------------------------
@@ -69,6 +100,11 @@ class TheBook
 
     # TheBook::mostRecentBookWithMutations(pathToRepository)
     def self.mostRecentBookWithMutations(pathToRepository)
+
+        bookingtrace = TheBook::bookingTrace(pathToRepository)
+        book = InMemoryStore::getOrNull(bookingtrace)
+        return book if book
+
         if Config::isAlexandra() and (TheBook::mutationFilepaths(pathToRepository).size > 200) then
             TheBook::importsMutations(pathToRepository)
         end
@@ -76,12 +112,15 @@ class TheBook
             TheBook::importsMutations(pathToRepository)
         end
         book1 = TheBook::mostRecentBook(pathToRepository)
-        TheBook::mutationFilepaths(pathToRepository)
-            .reduce(book1){|runningbook, filepath|
-                item = JSON.parse(IO.read(filepath))
-                runningbook[item["uuid"]] = item
-                runningbook
-            }
+        book2 = TheBook::mutationFilepaths(pathToRepository)
+                    .reduce(book1){|runningbook, filepath|
+                        item = JSON.parse(IO.read(filepath))
+                        runningbook[item["uuid"]] = item
+                        runningbook
+                    }
+
+        InMemoryStore::set(bookingtrace, book2)
+        book2
     end
 
     # ---------------------------------------------------
@@ -101,9 +140,6 @@ class TheBook
 
     # TheBook::commitObjectToDisk(pathToRepository, object)
     def self.commitObjectToDisk(pathToRepository, object)
-        FileSystemCheck::fsck_MikuTypedItem(object, SecureRandom.hex, false)
-        filepath = "#{pathToRepository}/02-Object-#{CommonUtils::timeStringL22()}.json"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(object)) }
+        TheBook::commitMutation(pathToRepository, object)
     end
-
 end
