@@ -7,22 +7,22 @@ class Waves
     # Waves::commit(item)
     def self.commit(item)
         FileSystemCheck::fsck_MikuTypedItem(item, SecureRandom.hex, false)
-        TheBook::commitObjectToDisk("/Users/pascal/Galaxy/DataBank/Stargate-DataCenter/Wave", item)
+        TheBook::commitObjectToDisk("#{Config::pathToDataCenter()}/Wave", item)
     end
 
     # Waves::items()
     def self.items()
-        TheBook::getObjects("/Users/pascal/Galaxy/DataBank/Stargate-DataCenter/Wave")
+        TheBook::getObjects("#{Config::pathToDataCenter()}/Wave")
     end
 
     # Waves::getOrNull(uuid)
     def self.getOrNull(uuid)
-        TheBook::getObjectOrNull("/Users/pascal/Galaxy/DataBank/Stargate-DataCenter/Wave", uuid)
+        TheBook::getObjectOrNull("#{Config::pathToDataCenter()}/Wave", uuid)
     end
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        TheBook::destroy("/Users/pascal/Galaxy/DataBank/Stargate-DataCenter/Wave", uuid)
+        TheBook::destroy("#{Config::pathToDataCenter()}/Wave", uuid)
     end
 
     # --------------------------------------------------
