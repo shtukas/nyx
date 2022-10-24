@@ -30,16 +30,16 @@ class NyxNodes
     # ----------------------------------------------------------------------
     # Makers
 
-    # NyxNodes::networkType()
-    def self.networkType()
-        ["PureData", "Entity", "Concept", "Event", "Person", "Collection", "Timeline"]
+    # NyxNodes::type1s()
+    def self.type1s()
+        ["Information", "Entity", "Concept", "Event", "Person", "Collection", "Timeline"]
     end
 
-    # NyxNodes::interactivelySelectNetworkType()
-    def self.interactivelySelectNetworkType()
-        choice = LucilleCore::selectEntityFromListOfEntitiesOrNull("networkType", NyxNodes::networkType())
+    # NyxNodes::interactivelySelectType1s()
+    def self.interactivelySelectType1s()
+        choice = LucilleCore::selectEntityFromListOfEntitiesOrNull("networkType", NyxNodes::type1s())
         return choice if choice
-        NyxNodes::interactivelySelectNetworkType()
+        NyxNodes::interactivelySelectType1s()
     end
 
     # NyxNodes::interactivelyIssueNewOrNull()
@@ -49,14 +49,16 @@ class NyxNodes
         datetime = Time.new.utc.iso8601
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-        nxst1 = NxSt1::interactivelyMake()
+        type_1 = NyxNodes::interactivelySelectType1s()
+        payload_1 = Payload1::interactivelyMake()
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NyxNode",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "nxst1"       => nxst1
+            "type_1"      => type_1,
+            "payload_1"   => payload_1
         }
         NyxNodes::commitObject(item)
         item
@@ -68,14 +70,16 @@ class NyxNodes
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
         description = File.basename(location)
-        nxst1 = NxSt1::makeNewUsingLocation(location)
+        type_1 = "Information"
+        payload_1 = Payload1::makeNewUsingLocation(location)
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NyxNode",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "nxst1"       => nxst1
+            "type_1"      => type_1,
+            "payload_1"   => payload_1
         }
         NyxNodes::commitObject(item)
         item
@@ -87,37 +91,17 @@ class NyxNodes
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
         description = File.basename(filepath)
-        nxst1 = NxSt1::makeNewUsingFile(filepath)
+        type_1 = "Information"
+        payload_1 = Payload1::makeNewUsingFile(filepath)
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NyxNode",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "nxst1"       => nxst1
+            "type_1"      => type_1,
+            "payload_1"   => payload_1
         }
-        NyxNodes::commitObject(item)
-        item
-    end
-
-    # NyxNodes::interactivelyIssueNewPureDataTextOrNull()
-    def self.interactivelyIssueNewPureDataTextOrNull()
-        uuid = SecureRandom.uuid
-        unixtime = Time.new.to_i
-        datetime = Time.new.utc.iso8601
-        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-        return nil if description == ""
-        nxst1 = NxSt1::makeNewText()
-
-        item = {
-            "uuid"        => uuid,
-            "mikuType"    => "NyxNode",
-            "unixtime"    => Time.new.to_i,
-            "datetime"    => Time.new.utc.iso8601,
-            "description" => description,
-            "nxst1"       => nxst1
-        }
-
         NyxNodes::commitObject(item)
         item
     end
@@ -127,7 +111,7 @@ class NyxNodes
 
     # NyxNodes::toString(item)
     def self.toString(item)
-        "(NyxNode) (#{NxSt1::toString(item["nxst1"])}) #{item["description"]}"
+        "(NyxNode) (#{Payload1::toString(item["payload_1"])}) #{item["description"]}"
     end
 
     # NyxNodes::toStringForSearchResult(item)
@@ -140,14 +124,14 @@ class NyxNodes
             else
                 ""
             end
-        "(NyxNode) (#{NxSt1::toString(item["nxst1"])}) #{item["description"]}#{parentsstr}"
+        "(NyxNode) (#{Payload1::toString(item["payload_1"])}) #{item["description"]}#{parentsstr}"
     end
 
     # NyxNodes::getNyxNodeByQuantumDropUUIDOrNull(dropuuid)
     def self.getNyxNodeByQuantumDropUUIDOrNull(dropuuid)
         NyxNodes::items()
-            .select{|item| item["nxst1"]["type"] == "NxQuantumDrop" }
-            .select{|item| item["nxst1"]["drop"]["uuid"] == dropuuid }
+            .select{|item| item["payload_1"]["type"] == "NxQuantumDrop" }
+            .select{|item| item["payload_1"]["drop"]["uuid"] == dropuuid }
             .first
     end
 
@@ -157,21 +141,21 @@ class NyxNodes
     # NyxNodes::access(item)
     def self.access(item)
         puts item["description"]
-        NxSt1::access(item["nxst1"])
+        Payload1::access(item["payload_1"])
     end
 
     # NyxNodes::edit(item) # item
     def self.edit(item)
-        nxst1v2 = NxSt1::edit(item["nxst1"])
-        return if nxst1v2.nil?
-        item["nxst1"] = nxst1v2
+        payload_1v2 = Payload1::edit(item["payload_1"])
+        return if payload_1v2.nil?
+        item["payload_1"] = payload_1v2
         NyxNodes::commitObject(item)
 
         # So now that the object has been sent to disk, we need to consider that 
         # a QuantumDrop could have been updated and propagate the changes to disk.
 
-        return if nxst1v2["type"] != "NxQuantumDrop"
-        QuantumDrops::propagateQuantumDrop(nxst1v2["drop"])
+        return if payload_1v2["type"] != "NxQuantumDrop"
+        QuantumDrops::propagateQuantumDrop(payload_1v2["drop"])
 
         item
     end
@@ -229,7 +213,7 @@ class NyxNodes
             end
 
             puts ""
-            puts "<n> | access | description | name | datetime | nxst1 | edit | network type | expose | destroy".yellow
+            puts "<n> | access | description | name | datetime | edit | network type | payload | expose | destroy".yellow
             puts "line | link | child | parent | upload".yellow
             puts "[link type update] parents>related | parents>children | related>children | related>parents | children>related".yellow
             puts "[network shape] select children; move to selected child | select children; move to uuid | acquire children by uuid".yellow
@@ -287,10 +271,10 @@ class NyxNodes
                 next
             end
 
-            if Interpreting::match("nxst1", input) then
-                nxst1 = NxSt1::interactivelyMakeNewOrNull()
-                next if nxst1.nil?
-                item["nxst1"] = nxst1
+            if Interpreting::match("payload", input) then
+                payload_1 = Payload1::interactivelyMakeNewOrNull()
+                next if payload_1.nil?
+                item["payload_1"] = payload_1
                 NyxNodes::commitObject(item)
                 next
             end
@@ -311,8 +295,8 @@ class NyxNodes
             end
 
             if input == "network type" then
-                networkType = NyxNodes::interactivelySelectNetworkType()
-                item["networkType"] = networkType
+                networkType = NyxNodes::interactivelySelectType1s()
+                item["type_1"] = networkType
                 NyxNodes::commitObject(item)
                 next
             end

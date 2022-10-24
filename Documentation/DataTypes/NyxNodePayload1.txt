@@ -1,0 +1,20 @@
+NyxNodePayload1 
+{
+    "mikuType" : "NyxNodePayload1"
+    "type"     : "null"
+}
+{
+    "mikuType" : "NyxNodePayload1"
+    "type"     : "Nx113"
+    "nx113"    : Nx113
+}
+{
+    "mikuType" : "NyxNodePayload1"
+    "type"     : "NxQuantumDrop"
+    "drop"     : NxQuantumDrop
+}
+{
+    "mikuType" : "NyxNodePayload1"
+    "type"     : "NxGridFiber"
+    "fiber"    : NxGridFiber
+}

@@ -396,29 +396,4 @@ class PolyActions
 
         NxBallsService::close(NxBallsService::itemToNxBallOpt(item), true)
     end
-
-    # PolyActions::transmute(item)
-    def self.transmute(item)
-        puts "PolyActions::transmute(#{JSON.pretty_generate(item)})"
-        interactivelyChooseMikuTypeOrNull = lambda{|mikuTypes|
-            LucilleCore::selectEntityFromListOfEntitiesOrNull("mikuType", mikuTypes)
-        }
-
-        if item["mikuType"] == "NxTodo" then
-            targetMikuType = interactivelyChooseMikuTypeOrNull.call(["NyxNode"])
-            return if targetMikuType.nil?
-            if targetMikuType == "NyxNode" then
-                networkType = NyxNodes::interactivelySelectNetworkType()
-                if item["nx113"] and networkType != "PureData" then
-                    puts "You are transmuting from a NxTodo with data, to a non data carrier NyxNode"
-                    puts "You are going to lose the data"
-                    return if !LucilleCore::askQuestionAnswerAsBoolean("confirm operation: ")
-                end
-                item["networkType"] = networkType
-                item["mikuType"] = "NyxNode"
-                PolyActions::commit(item)
-                NyxNodes::landing(item)
-            end
-        end
-    end
 end

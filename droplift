@@ -70,7 +70,7 @@ end
 
 puts "node: #{JSON.pretty_generate(node)}"
 
-node["nxst1"]["drop"] = drop
+node["payload_1"]["drop"] = drop
 
 NyxNodes::commitObject(node)
 
