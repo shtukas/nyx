@@ -200,9 +200,22 @@ class NxBallsService
     # --------------------------------------------------------------------
     # Information
 
-    # NxBallsService::activityStringOrEmptyString(leftSide, item, rightSide)
-    def self.activityStringOrEmptyString(leftSide, item, rightSide)
-        nxball = NxBallsService::getBallByOwnerOrNull(item["uuid"])
+    # NxBallsService::toString(nxball)
+    def self.toString(nxball)
+        if nxball["status"]["type"] == "paused" then
+            return "(nxball) #{nxball["description"]} (paused)"
+        end
+        currentSprintTimeInSecond = Time.new.to_i - nxball["status"]["thisSprintStartUnixtime"]
+        realisedTimeInSeconds     = nxball["status"]["bankedTimeInSeconds"]
+        referenceTimeForUnrealisedAccounting = nxball["status"]["lastMarginCallUnixtime"] ? nxball["status"]["lastMarginCallUnixtime"] : nxball["status"]["thisSprintStartUnixtime"]
+        unrealiseTimeInSeconds    = Time.new.to_i - referenceTimeForUnrealisedAccounting
+        currentTotalTimeInSeconds = realisedTimeInSeconds + unrealiseTimeInSeconds
+        "(nxball) #{nxball["description"]} (current sprint: #{(currentSprintTimeInSecond.to_f/3600).round(2)} h, nxball total #{(currentTotalTimeInSeconds.to_f/3600).round(2)} hours)"
+    end
+
+    # NxBallsService::activityStringOrEmptyString(leftSide, itemuuid, rightSide)
+    def self.activityStringOrEmptyString(leftSide, itemuuid, rightSide)
+        nxball = NxBallsService::getBallByOwnerOrNull(itemuuid)
         if nxball.nil? then
             return ""
         end

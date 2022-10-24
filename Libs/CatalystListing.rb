@@ -625,7 +625,7 @@ class CatalystListing
                 .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
                 .each{|nxball|
                     store.register(nxball, false)
-                    line = "#{store.prefixString()} [NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
+                    line = "#{store.prefixString()} #{NxBallsService::toString(nxball)}".green
                     puts line.green
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
