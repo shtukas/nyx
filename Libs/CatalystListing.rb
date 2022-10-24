@@ -98,7 +98,16 @@ class CatalystListing
         if Interpreting::match("contribution", input) then
             item = store.getDefault()
             return if item.nil?
-            Waves::interactivelySetANewContributionForItemOrNothing(item)
+            if item["mikuType"] == "Wave" then
+                Waves::interactivelySetANewContributionForItemOrNothing(item)
+                return
+            end
+            if item["mikuType"] == "NxTodo" then
+                Cx23::interactivelySetCx23ForItemOrNothing(item)
+                return
+            end
+            puts "Contributions apply only to Waves, OnDates and NxTodos"
+            LucilleCore::pressEnterToContinue()
             return
         end
 
@@ -106,7 +115,15 @@ class CatalystListing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            Waves::interactivelySetANewContributionForItemOrNothing(item)
+            if item["mikuType"] == "Wave" then
+                Waves::interactivelySetANewContributionForItemOrNothing(item)
+            end
+            if item["mikuType"] == "NxTodo" then
+                Cx23::interactivelySetCx23ForItemOrNothing(item)
+                return
+            end
+            puts "Contributions apply only to Waves, Ondates and NxTodos"
+            LucilleCore::pressEnterToContinue()
             return
         end
 
