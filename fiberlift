@@ -10,7 +10,7 @@ require_relative "Libs/loader.rb"
 
 fiberFilepath = ARGV[0]
 
-puts "fiberFilepath: '#{fiberFilepath}'"
+#puts "fiberFilepath: '#{fiberFilepath}'"
 
 if File.basename(fiberFilepath)[-12, 12] != ".NxGridFiber" then
     puts "We expect suffix .NxGridFiber for a fiber file".red
@@ -37,6 +37,8 @@ FileSystemCheck::fsck_NxFiberState(state, SecureRandom.hex, true)
 states = fiber["states"] + [state]
 fiber["states"] = states
 
+File.open(fiberFilepath, "w"){|f| f.puts(JSON.pretty_generate(fiber))}
+
 nyxnode = NxGridFiberFileSystemIntegration::getNyxNodeByFiberUUIDOrNull(fiber["uuid"])
 
 if nyxnode.nil? then
@@ -52,12 +54,12 @@ payload = {
 
 nyxnode["payload_1"] = payload
 
-puts "nyxnode: #{JSON.pretty_generate(nyxnode)}"
+#puts "nyxnode: #{JSON.pretty_generate(nyxnode)}"
 
-puts "NyxNodes::commitObject(#{JSON.pretty_generate(nyxnode)})"
+#puts "NyxNodes::commitObject(#{JSON.pretty_generate(nyxnode)})"
 
 NyxNodes::commitObject(nyxnode)
 
-puts "NxGridFiberFileSystemIntegration::propagateFiber(#{JSON.pretty_generate(fiber)})"
+#puts "NxGridFiberFileSystemIntegration::propagateFiber(#{JSON.pretty_generate(fiber)})"
 
 NxGridFiberFileSystemIntegration::propagateFiber(fiber)

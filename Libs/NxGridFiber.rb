@@ -136,12 +136,15 @@ class NxGridFiberFileSystemIntegration
             .first
     end
 
+    # NxGridFiberFileSystemIntegration::fibersAreEquivalent(fiber1, fiber2)
+    def self.fibersAreEquivalent(fiber1, fiber2)
+        return true if (fiber1["states"].empty? and fiber2["states"].empty?)
+        return false if (fiber1["states"].size != fiber2["states"].size)
+        fiber1["states"].last["uuid"] == fiber2["states"].last["uuid"]
+    end
+
     # NxGridFiberFileSystemIntegration::propagateFiberAtDropFile(fiber, fiberFilepath)
     def self.propagateFiberAtDropFile(fiber, fiberFilepath)
-
-        puts "Fiber propagation @ #{fiberFilepath}"
-        puts "fiber: #{JSON.pretty_generate(fiber)}"
-        puts "fiberFilepath: #{fiberFilepath}"
 
         if fiber["states"].empty? then
             puts "No state found"
@@ -149,18 +152,24 @@ class NxGridFiberFileSystemIntegration
         end
 
         fiberOnDisk = JSON.parse(IO.read(fiberFilepath))
-        
-        if (fiber.to_s == fiberOnDisk.to_s) then
-            puts "Identical fibers"
+
+        if NxGridFiberFileSystemIntegration::fibersAreEquivalent(fiber, fiberOnDisk) then
+            puts "Identical fibers @ #{fiberFilepath}"
             return
         end
+
+        puts "NxGridFiberFileSystemIntegration::fibersAreEquivalent(#{JSON.pretty_generate(fiber)}, #{JSON.pretty_generate(fiberOnDisk)})"
+
+        puts "Fiber propagation @ #{fiberFilepath}"
+        #puts "fiber: #{JSON.pretty_generate(fiber)}"
+        #puts "fiberFilepath: #{fiberFilepath}"
 
         targetfolder = fiberFilepath.gsub(".NxGridFiber", "")
         if !File.exists?(targetfolder) then
             raise "I cannot see expected folder: #{targetfolder}"
         end
 
-        puts "Cleaning before export"
+        #puts "Cleaning before export"
         LucilleCore::locationsAtFolder(targetfolder).each{|location|
             LucilleCore::removeFileSystemLocation(location)
         }
@@ -172,7 +181,7 @@ class NxGridFiberFileSystemIntegration
 
     # NxGridFiberFileSystemIntegration::propagateFiber(fiber)
     def self.propagateFiber(fiber)
-        puts "NxGridFiberFileSystemIntegration::propagateFiber(#{JSON.pretty_generate(fiber)})"
+        #puts "NxGridFiberFileSystemIntegration::propagateFiber(#{JSON.pretty_generate(fiber)})"
         NxGridFiberFileSystemIntegration::nxGridFiberFsFilesEnumeratorForFiber(fiber["uuid"])
             .each{|filepath|
                 NxGridFiberFileSystemIntegration::propagateFiberAtDropFile(fiber, filepath)
