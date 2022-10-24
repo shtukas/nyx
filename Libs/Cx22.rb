@@ -67,6 +67,7 @@ class Cx22
     end
 
     # ----------------------------------------------------------------
+    # Data
 
     # Cx22::toString1(item)
     def self.toString1(item)
