@@ -144,17 +144,17 @@ class NyxNodes
         Payload1::access(item["payload_1"])
     end
 
-    # NyxNodes::edit(item) # item
+    # NyxNodes::edit(item) # null or item
     def self.edit(item)
         payload_1v2 = Payload1::edit(item["payload_1"])
-        return if payload_1v2.nil?
+        return nil if payload_1v2.nil?
         item["payload_1"] = payload_1v2
         NyxNodes::commitObject(item)
 
         # So now that the object has been sent to disk, we need to consider that 
         # a QuantumDrop could have been updated and propagate the changes to disk.
 
-        return if payload_1v2["type"] != "NxQuantumDrop"
+        return item if payload_1v2["type"] != "NxQuantumDrop"
         QuantumDrops::propagateQuantumDrop(payload_1v2["drop"])
 
         item
