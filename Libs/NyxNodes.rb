@@ -165,6 +165,8 @@ class NyxNodes
             puts "uuid: #{item["uuid"]}".yellow
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
+            puts "payload: #{Payload1::toString(item["payload_1"])}".yellow
+
             store = ItemStore.new()
             # We register the item which is also the default element in the store
             store.register(item, true)

@@ -6,6 +6,8 @@ class NxGridFiber
         item = {
             "uuid"     => uuid,
             "mikuType" => "NxGridFiber",
+            "unixtime" => Time.new.to_f,
+            "datetime" => Time.new.utc.iso8601,
             "states"   => states
         }
         # We can file system check the fiber here
