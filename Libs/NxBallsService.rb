@@ -19,12 +19,22 @@ class NxBallsService
 
 =end
 
+    # --------------------------------------------------------------------
     # Basic IO
+
+    # NxBallsService::instanceSubFolder()
+    def self.instanceSubFolder()
+        subfolder = "#{Config::pathToDataCenter()}/NxBallsService/#{Config::thisInstanceId()}"
+        if !File.exists?(subfolder) then
+            FileUtils.mkdir(subfolder)
+        end
+        subfolder
+    end
 
     # NxBallsService::commit(item)
     def self.commit(item)
         FileSystemCheck::fsck_MikuTypedItem(item, SecureRandom.hex, false)
-        filepath = "#{Config::pathToDataCenter()}/NxBallsService/#{item["uuid"]}.json"
+        filepath = "#{NxBallsService::instanceSubFolder()}/#{item["uuid"]}.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
@@ -46,14 +56,14 @@ class NxBallsService
 
     # NxBallsService::getOrNull(uuid)
     def self.getOrNull(uuid)
-        filepath = "#{Config::pathToDataCenter()}/NxBallsService/#{uuid}.json"
+        filepath = "#{NxBallsService::instanceSubFolder()}/#{uuid}.json"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
     # NxBallsService::items()
     def self.items()
-        folderpath = "#{Config::pathToDataCenter()}/NxBallsService"
+        folderpath = NxBallsService::instanceSubFolder()
         LucilleCore::locationsAtFolder(folderpath)
             .select{|filepath| filepath[-5, 5] == ".json" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
@@ -61,11 +71,12 @@ class NxBallsService
 
     # NxBallsService::destroy(uuid)
     def self.destroy(uuid)
-        filepath = "#{Config::pathToDataCenter()}/NxBallsService/#{uuid}.json"
+        filepath = "#{NxBallsService::instanceSubFolder()}/#{uuid}.json"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
 
+    # --------------------------------------------------------------------
     # Statuses
 
     # NxBallsService::makeRunningStatus(lastMarginCallUnixtime, bankedTimeInSeconds)

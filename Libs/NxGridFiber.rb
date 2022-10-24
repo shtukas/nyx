@@ -158,8 +158,6 @@ class NxGridFiberFileSystemIntegration
             return
         end
 
-        puts "NxGridFiberFileSystemIntegration::fibersAreEquivalent(#{JSON.pretty_generate(fiber)}, #{JSON.pretty_generate(fiberOnDisk)})"
-
         puts "Fiber propagation @ #{fiberFilepath}"
         #puts "fiber: #{JSON.pretty_generate(fiber)}"
         #puts "fiberFilepath: #{fiberFilepath}"
