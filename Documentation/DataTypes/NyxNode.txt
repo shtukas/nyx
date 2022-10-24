@@ -7,3 +7,27 @@ NyxNode:
 
     "description" : description
     "nxst1"       : NxSt1 
+
+    "type_1"      : "Information" | "Entity" | "Concept" | "Event" | "Person" | "Collection" | "Timeline"
+    "payload_1"   : NyxNodePayload1
+
+NyxNodePayload1 
+{
+    "mikuType" : "NyxNodePayload1"
+    "type"     : "null"
+}
+{
+    "mikuType" : "NyxNodePayload1"
+    "type"     : "Nx113"
+    "nx113"    : Nx113
+}
+{
+    "mikuType" : "NyxNodePayload1"
+    "type"     : "NxQuantumDrop"
+    "drop"     : NxQuantumDrop
+}
+{
+    "mikuType" : "NyxNodePayload1"
+    "type"     : "NxGridFiber"
+    "fiber"    : NxGridFiber
+}

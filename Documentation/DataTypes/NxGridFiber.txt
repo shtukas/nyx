@@ -1,19 +1,18 @@
 
-NxGrid
+NxGridFiber
     "uuid"        : String
-    "mikuType"    : "NxGrid"
+    "mikuType"    : "NxGridFiber"
     "unixtime"    : Float
     "datetime"    : DateTime Iso 8601 UTC Zulu
-    "description" : String
     "states"      : Array[NxFiberState]
 
-NxGridState
+NxGridFiberState
     "uuid"     : String
     "mikuType" : "NxFiberState"
     "unixtime" : Float # This is what gives the ordering between states
     "content"  : Array[NxFiberStateItem]
 
-NxGridStateItem
+NxGridFiberStateItem
     "mikuType"  : "NxFiberStateItem"
     "rootnhash" : rootnhash,
     "database"  : operator.publish()

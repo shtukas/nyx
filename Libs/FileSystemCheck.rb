@@ -61,13 +61,15 @@ class FileSystemCheck
         raise "(error: 2a5f46bd-c5db-48e7-a20f-4dd079868948)"
     end
 
-    # FileSystemCheck::fsck_rootnhash_and_database(rootnhash, database)
-    def self.fsck_rootnhash_and_database(rootnhash, database)
+    # FileSystemCheck::fsck_rootnhash_and_database(rootnhash, database, verbose)
+    def self.fsck_rootnhash_and_database(rootnhash, database, verbose)
+        if verbose then
+            puts "FileSystemCheck::fsck_rootnhash_and_database(#{rootnhash}, #{database}, #{verbose})"
+        end
         databasefilepath = DataStore1::getNearestFilepathForReadingErrorIfNotAcquisable(database, false)
         operator         = DataStore2SQLiteBlobStoreElizabethReadOnly.new(databasefilepath)
         status = AionFsck::structureCheckAionHash(operator, rootnhash)
         if !status then
-            puts JSON.pretty_generate(item)
             raise "(error: 50daf867-0dab-47d9-ae79-d8e431650eab) aion structure fsck failed "
         end
     end
@@ -140,7 +142,7 @@ class FileSystemCheck
             end
             rootnhash = item["rootnhash"]
             database  = item["database"]
-            FileSystemCheck::fsck_rootnhash_and_database(rootnhash, database)
+            FileSystemCheck::fsck_rootnhash_and_database(rootnhash, database, verbose)
             XCache::setFlag(repeatKey, true)
             return
         end
@@ -267,19 +269,26 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsck_NxSt1(item, runhash, verbose)
-    def self.fsck_NxSt1(item, runhash, verbose)
+    # FileSystemCheck::fsck_NyxNodePayload1(item, runhash, verbose)
+    def self.fsck_NyxNodePayload1(item, runhash, verbose)
         repeatKey = "#{runhash}:#{JSON.generate(item)}"
         return if XCache::getFlag(repeatKey)
 
         if verbose then
-            puts "FileSystemCheck::fsck_NxSt1(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
+            puts "FileSystemCheck::fsck_NyxNodePayload1(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
+        end
+
+        if item["mikuType"].nil? then
+            raise "item has no Miku type"
+        end
+        if item["mikuType"] != "NyxNodePayload1" then
+            raise "Incorrect Miku type for function"
         end
 
         FileSystemCheck::ensureAttribute(item, "type", "String")
 
-        if !NxSt1::types().include?(item["type"]) then
-            raise "unsupported NxSt1 type: #{item["type"]}"
+        if !["null", "Nx113", "Nx113", "NxGrid"].include?(item["type"]) then
+            raise "unsupported NyxNodePayload1 type: #{item["type"]}"
         end
 
         type = item["type"]
@@ -293,23 +302,8 @@ class FileSystemCheck
         if type == "NxQuantumDrop" then
             FileSystemCheck::fsck_NxQuantumDrop(item["drop"], runhash, verbose)
         end
-        if type == "Entity" then
-
-        end
-        if type == "Concept" then
-
-        end
-        if type == "Event" then
-            FileSystemCheck::fsck_Nx113(item["nx113"], runhash, verbose)
-        end
-        if type == "Person" then
-
-        end
-        if type == "Collection" then
-
-        end
-        if type == "Timeline" then
-
+        if type == "NyxNodePayload1" then
+            FileSystemCheck::fsck_NxGridFiber(item["fiber"], runhash, verbose)
         end
 
         XCache::setFlag(repeatKey, true)
@@ -334,7 +328,7 @@ class FileSystemCheck
 
         rootnhash = item["rootnhash"]
         database  = item["database"]
-        FileSystemCheck::fsck_rootnhash_and_database(rootnhash, database)
+        FileSystemCheck::fsck_rootnhash_and_database(rootnhash, database, verbose)
 
         XCache::setFlag(repeatKey, true)
     end
@@ -468,8 +462,12 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
-            FileSystemCheck::ensureAttribute(item, "nxst1", "Hash")
-            FileSystemCheck::fsck_NxSt1(item["nxst1"], runhash, verbose)
+            FileSystemCheck::ensureAttribute(item, "type_1", "String")
+            if !["Information", "Entity", "Concept", "Event", "Person", "Collection", "Timeline"].include?(item["type_1"]) then
+                raise "type_1 is not valid. Given: #{item["type_1"]}"
+            end
+            FileSystemCheck::ensureAttribute(item, "payload_1", "Hash")
+            FileSystemCheck::fsck_NyxNodePayload1(item["payload_1"], runhash, verbose)
             XCache::setFlag(repeatKey, true)
             return
         end
