@@ -283,7 +283,7 @@ class PolyActions
         datetime = CommonUtils::editTextSynchronously(item["datetime"]).strip
         return if !CommonUtils::isDateTime_UTC_ISO8601(datetime)
         item["datetime"] = datetime
-        PolyAction::commit(item)
+        PolyActions::commit(item)
     end
 
     # PolyActions::editDescription(item)
@@ -291,7 +291,7 @@ class PolyActions
         description = CommonUtils::editTextSynchronously(item["description"]).strip
         return if description == ""
         item["description"] = description
-        PolyAction::commit(item)
+        PolyActions::commit(item)
     end
 
     # PolyActions::editStartDate(item)
@@ -305,7 +305,7 @@ class PolyActions
         startdate = CommonUtils::editTextSynchronously(item["startdate"])
         return if startdate == ""
         item["startdate"] = startdate
-        PolyAction::commit(item)
+        PolyActions::commit(item)
     end
 
     # PolyActions::garbageCollectionAfterItemDeletion(item)
@@ -371,7 +371,7 @@ class PolyActions
         end
         datetime = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
         item["nx11e"] = Nx11E::makeOndate(datetime)
-        PolyAction::commit(item)
+        PolyActions::commit(item)
     end
 
     # PolyActions::start(item)
