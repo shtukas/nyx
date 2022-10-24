@@ -184,7 +184,16 @@ class NxBallsService
             timespan = Time.new.to_f - referenceTimeForUnrealisedAccounting
             timespan = [timespan, 3600*2].min
             nxball["accounts"].each{|account|
-                puts "(#{Time.new.to_s}) putting #{timespan} seconds into account: #{account}" if verbose
+                if verbose then
+                    announce = "account number: #{account}"
+                    # Let's try and find a better announce
+                    # Often accounts are object uuids
+                    obj1 = PolyFunctions::getItemOrNull(account)
+                    if obj1 then
+                        announce = PolyFunctions::toString(obj1)
+                    end
+                    puts "(#{Time.new.to_s}) putting #{timespan} seconds into: #{announce}" 
+                end
                 Bank::put(account, timespan)
             }
         end

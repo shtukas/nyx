@@ -228,17 +228,17 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NxBall.v2" then
+            NxBallsService::close(item, true)
+            return
+        end
+
         PolyActions::stop(item)
 
         # order: alphabetical order
 
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::done(item["uuid"])
-            return
-        end
-
-        if item["mikuType"] == "NxBall.v2" then
-            NxBallsService::close(item, true)
             return
         end
 

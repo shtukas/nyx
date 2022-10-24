@@ -148,6 +148,9 @@ class PolyFunctions
         item = NxLines::getOrNull(uuid)
         return item if item
 
+        item = Cx22::getOrNull(uuid)
+        return item if item
+
         nil
     end
 
