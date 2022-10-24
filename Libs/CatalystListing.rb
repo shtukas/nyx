@@ -531,6 +531,10 @@ class CatalystListing
                 {
                     "name" => "NxLines::items()",
                     "lambda" => lambda { NxLines::items() }
+                },
+                {
+                    "name" => "Cx22::listingItems()",
+                    "lambda" => lambda { Cx22::listingItems() }
                 }
             ]
 
@@ -573,6 +577,7 @@ class CatalystListing
             Anniversaries::listingItems(),
             TxManualCountDowns::listingItems(),
             Waves::items(),
+            Cx22::listingItems(),
             NxTodos::listingItems()
         ]
             .flatten

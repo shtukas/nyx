@@ -125,6 +125,12 @@ class Cx22
         packets
     end
 
+    # Cx22::listingItems()
+    def self.listingItems()
+        Cx22::items()
+            .select{|cx22| NxTodos::itemsForCx22(cx22).empty? }
+    end
+
     # --------------------------------------------
     # Ops
 

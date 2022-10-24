@@ -158,9 +158,9 @@ class PolyFunctions
     # We return a null value when the item should not be displayed
     def self.listingPriorityOrNull(item) # Float between 0 and 1
 
-        if item["mikuType"] == "Cx22" then
-            return 2
-        end
+        shiftOnCompletionRatio = lambda {|ratio|
+            0.01*Math.atan(-ratio)
+        }
 
         shiftOnDateTime = lambda {|item, datetime|
             0.001*(Time.new.to_f - DateTime.parse(datetime).to_time.to_f)/86400
@@ -171,6 +171,13 @@ class PolyFunctions
         }
 
         # ordering: alphabetical order
+
+        if item["mikuType"] == "Cx22" then
+            return nil if !DoNotShowUntil::isVisible(item["uuid"])
+            completionRatio = Ax39::completionRatioCached(item["ax39"], item["uuid"])
+            return nil if completionRatio >= 1
+            return 0.60 + shiftOnCompletionRatio.call(completionRatio)
+        end
 
         if item["mikuType"] == "NxAnniversary" then
             return Anniversaries::isOpenToAcknowledgement(item) ? 0.95 : -1
@@ -235,7 +242,7 @@ class PolyFunctions
     # PolyFunctions::toStringForListing(item)
     def self.toStringForListing(item)
         if item["mikuType"] == "Cx22" then
-            return Cx22::toStringDiveStyleFormatted(item)
+            return Cx22::toStringWithDetails(item)
         end
         if item["mikuType"] == "NxTodo" then
             return NxTodos::toStringForListing(item)

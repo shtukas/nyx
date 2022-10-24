@@ -296,11 +296,16 @@ class NxTodos
         NxTodos::items().select{|item| item["listeable"] }
     end
 
-    # NxTodos::itemsInPositionOrderForGroup(cx22)
-    def self.itemsInPositionOrderForGroup(cx22)
+    # NxTodos::itemsForCx22(cx22)
+    def self.itemsForCx22(cx22)
         NxTodos::items()
             .select{|item| item["cx23"] }
             .select{|item| item["cx23"]["groupuuid"] == cx22["uuid"] }
+    end
+
+    # NxTodos::itemsInPositionOrderForGroup(cx22)
+    def self.itemsInPositionOrderForGroup(cx22)
+        NxTodos::itemsForCx22(cx22)
             .sort{|i1, i2| i1["cx23"]["position"] <=> i2["cx23"]["position"] }
     end
 
