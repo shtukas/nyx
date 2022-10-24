@@ -67,6 +67,11 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NyxNode" then
+            NyxNodes::commitObject(item)
+            return
+        end
+
         if item["mikuType"] == "Wave" then
             Waves::commit(item)
             return
