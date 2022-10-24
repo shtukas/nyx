@@ -109,6 +109,9 @@ class NxBallsService
 
     # NxBallsService::itemToNxBallOpt(item)
     def self.itemToNxBallOpt(item)
+        if item["mikuType"] == "NxBall.v2" then
+            return item
+        end
         NxBallsService::getBallByOwnerOrNull(item["uuid"])
     end
 
