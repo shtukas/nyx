@@ -5,7 +5,7 @@ class Payload1
 
     # Payload1::types()
     def self.types()
-        ["null", "Nx113", "NxQuantumDrop", "NxGridFiber"]
+        ["null", "Nx113", "NxGridFiber"]
     end
 
     # Payload1::interactivelySelectOneTypeOrNull()
@@ -62,16 +62,13 @@ class Payload1
                 "nx113"    => nx113
             }
         end
-        if type == "NxQuantumDrop" then
-            drop = QuantumDrops::issueNewDrop(SecureRandom.uuid, [])
+        if type == "NxGridFiber" then
+            fiber = NxGridFiber::issueNewNxGridFiber(SecureRandom.uuid, [])
             return {
                 "mikuType" => "NyxNodePayload1",
-                "type"     => "NxQuantumDrop",
-                "drop"     => drop
+                "type"     => "NxGridFiber",
+                "fiber"    => fiber
             }
-        end
-        if type == "NxGridFiber" then
-            raise "not ready yet"
         end
         raise "(error: eaac753f-4b91-4190-93f8-25140e6b18e0) unsupported type: #{type}"
     end
@@ -99,15 +96,11 @@ class Payload1
             Nx113Access::access(payload_1["nx113"])
             return
         end
-        if type == "NxQuantumDrop" then
-            drop = payload_1["drop"] # NxQuantumDrop
-            QuantumDrops::accessNxQuantumDrop(drop)
+        if type == "NxGridFiber" then
+            fiber = payload_1["fiber"] # NxGridFiber
+            NxGridFiber::accessFiber(fiber)
             return
         end
-        if type == "NxGridFiber" then
-            raise "not ready yet"
-        end
-
         raise "(error: 2dc30268-c7b8-489b-a07c-77ee3f276a2a) unsupported type #{type}"
     end
 
@@ -126,19 +119,15 @@ class Payload1
                 "nx113"    => nx113v2
             }
         end
-        if type == "NxQuantumDrop" then
-            drop = payload_1["drop"] # NxQuantumDrop
-            drop = QuantumDrops::editNxQuantumDrop(drop) # NxQuantumDrop
+        if type == "NxGridFiber" then
+            fiber = payload_1["fiber"] # NxGridFiber
+            fiber = NxGridFiber::editFiber(fiber) # NxGridFiber
             return {
                 "mikuType" => "NyxNodePayload1",
-                "type"     => "NxQuantumDrop",
-                "drop"     => drop
+                "type"     => "NxGridFiber",
+                "fiber"     => fiber
             }
         end
-        if type == "NxGridFiber" then
-            raise "not ready yet"
-        end
-
         raise "(error: 94a24ca8-2b47-41cb-aa1c-e01dd4580ffe) unsupported type #{type}"
     end
 end

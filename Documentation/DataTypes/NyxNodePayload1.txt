@@ -10,11 +10,6 @@ NyxNodePayload1
 }
 {
     "mikuType" : "NyxNodePayload1"
-    "type"     : "NxQuantumDrop"
-    "drop"     : NxQuantumDrop
-}
-{
-    "mikuType" : "NyxNodePayload1"
     "type"     : "NxGridFiber"
     "fiber"    : NxGridFiber
 }

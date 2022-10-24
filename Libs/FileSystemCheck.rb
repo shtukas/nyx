@@ -287,7 +287,7 @@ class FileSystemCheck
 
         FileSystemCheck::ensureAttribute(item, "type", "String")
 
-        if !["null", "Nx113", "Nx113", "NxGrid"].include?(item["type"]) then
+        if !["null", "Nx113", "Nx113", "NxGridFiber"].include?(item["type"]) then
             raise "unsupported NyxNodePayload1 type: #{item["type"]}"
         end
 
@@ -299,32 +299,28 @@ class FileSystemCheck
         if type == "Nx113" then
             FileSystemCheck::fsck_Nx113(item["nx113"], runhash, verbose)
         end
-        if type == "NxQuantumDrop" then
-            FileSystemCheck::fsck_NxQuantumDrop(item["drop"], runhash, verbose)
-        end
-        if type == "NyxNodePayload1" then
+        if type == "NxGridFiber" then
             FileSystemCheck::fsck_NxGridFiber(item["fiber"], runhash, verbose)
         end
 
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsck_NxQuantumState(item, runhash, verbose)
-    def self.fsck_NxQuantumState(item, runhash, verbose)
+    # FileSystemCheck::fsck_NxFiberStateItem(item, runhash, verbose)
+    def self.fsck_NxFiberStateItem(item, runhash, verbose)
         repeatKey = "#{runhash}:#{JSON.generate(item)}"
         return if XCache::getFlag(repeatKey)
 
         if verbose then
-            puts "FileSystemCheck::fsck_NxQuantumState(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
+            puts "FileSystemCheck::fsck_NxFiberStateItem(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
         end
 
-        FileSystemCheck::ensureAttribute(item, "mikuType", "String")
-
-        if item["mikuType"] != "NxQuantumState" then
+        if item["mikuType"].nil? then
+            raise "item has no Miku type"
+        end
+        if item["mikuType"] != "NxFiberStateItem" then
             raise "Incorrect Miku type for function"
         end
-
-        FileSystemCheck::ensureAttribute(item, "unixtime", "Float")
 
         rootnhash = item["rootnhash"]
         database  = item["database"]
@@ -333,25 +329,55 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsck_NxQuantumDrop(item, runhash, verbose)
-    def self.fsck_NxQuantumDrop(item, runhash, verbose)
+    # FileSystemCheck::fsck_NxFiberState(item, runhash, verbose)
+    def self.fsck_NxFiberState(item, runhash, verbose)
         repeatKey = "#{runhash}:#{JSON.generate(item)}"
         return if XCache::getFlag(repeatKey)
 
         if verbose then
-            puts "FileSystemCheck::fsck_NxQuantumDrop(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
+            puts "FileSystemCheck::fsck_NxFiberState(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
         end
 
-        FileSystemCheck::ensureAttribute(item, "mikuType", "String")
-
-        if item["mikuType"] != "NxQuantumDrop" then
+        if item["mikuType"].nil? then
+            raise "item has no Miku type"
+        end
+        if item["mikuType"] != "NxFiberState" then
             raise "Incorrect Miku type for function"
         end
 
-        FileSystemCheck::ensureAttribute(item, "quantumStates", "Array")
+        FileSystemCheck::ensureAttribute(item, "unixtime", "Float")
+        FileSystemCheck::ensureAttribute(item, "content", "Array")
 
-        item["quantumStates"].each{|quantumState|
-            FileSystemCheck::fsck_NxQuantumState(quantumState, runhash, verbose)
+        item["content"].each{|stateItem|
+            FileSystemCheck::fsck_NxFiberStateItem(stateItem, runhash, verbose)
+        }
+
+        XCache::setFlag(repeatKey, true)
+    end
+
+    # FileSystemCheck::fsck_NxGridFiber(item, runhash, verbose)
+    def self.fsck_NxGridFiber(item, runhash, verbose)
+        repeatKey = "#{runhash}:#{JSON.generate(item)}"
+        return if XCache::getFlag(repeatKey)
+
+        if verbose then
+            puts "FileSystemCheck::fsck_NxGridFiber(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
+        end
+
+        if item["mikuType"].nil? then
+            raise "item has no Miku type"
+        end
+        if item["mikuType"] != "NxGridFiber" then
+            raise "Incorrect Miku type for function"
+        end
+
+        FileSystemCheck::ensureAttribute(item, "uuid", "String")
+        FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+        FileSystemCheck::ensureAttribute(item, "datetime", "String")
+        FileSystemCheck::ensureAttribute(item, "states", "Array")
+
+        item["states"].each{|state|
+            FileSystemCheck::fsck_NxFiberState(state, runhash, verbose)
         }
 
         XCache::setFlag(repeatKey, true)
@@ -514,7 +540,7 @@ class FileSystemCheck
             return
         end
 
-        raise "Unsupported Miku Type: #{JSON.pretty_generate(item)}"
+        raise "Unsupported Miku Type '#{mikuType}' in #{JSON.pretty_generate(item)}"
     end
 
     # -----------------------------------------------------

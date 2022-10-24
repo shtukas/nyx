@@ -46,7 +46,6 @@ checkLocation = lambda{|location|
     end
 } 
 
-
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-Config.json")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-DataCenter/DataStore1")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub")
@@ -184,14 +183,13 @@ require_relative "NxTodos.rb"
 require_relative "NetworkShapeAroundNode.rb"
 require_relative "NxLines.rb"
 require_relative "NetworkLocalViews.rb"
+require_relative "NxGridFiber.rb"
 
 require_relative "Payload1.rb"
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"
 require_relative "PolyActions.rb"
 require_relative "PolyFunctions.rb"
-
-require_relative "QuantumDrops.rb"
 
 require_relative "SectionsType0141.rb"
 require_relative "Search.rb"

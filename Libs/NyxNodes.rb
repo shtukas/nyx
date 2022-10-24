@@ -127,14 +127,6 @@ class NyxNodes
         "(NyxNode) (#{Payload1::toString(item["payload_1"])}) #{item["description"]}#{parentsstr}"
     end
 
-    # NyxNodes::getNyxNodeByQuantumDropUUIDOrNull(dropuuid)
-    def self.getNyxNodeByQuantumDropUUIDOrNull(dropuuid)
-        NyxNodes::items()
-            .select{|item| item["payload_1"]["type"] == "NxQuantumDrop" }
-            .select{|item| item["payload_1"]["drop"]["uuid"] == dropuuid }
-            .first
-    end
-
     # ----------------------------------------------------------------------
     # Operations
 
@@ -154,8 +146,9 @@ class NyxNodes
         # So now that the object has been sent to disk, we need to consider that 
         # a QuantumDrop could have been updated and propagate the changes to disk.
 
-        return item if payload_1v2["type"] != "NxQuantumDrop"
-        QuantumDrops::propagateQuantumDrop(payload_1v2["drop"])
+        if payload_1v2["type"] == "NxGridFiber" then
+            NxGridFiberFileSystemIntegration::propagateFiber(payload_1v2["fiber"])
+        end
 
         item
     end
