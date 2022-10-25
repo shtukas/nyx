@@ -30,9 +30,14 @@ class Bank
 
     # Bank::valueAtDate(setuuid, date)
     def self.valueAtDate(setuuid, date)
-        cachekey = "256e3994-7469-46a8-abd2-238bb25d5977:#{setuuid}:#{date}"
+        prefix = Config::allInstanceIds()
+                    .map{|instanceId| Bank::databaseFilepath(instanceId) }
+                    .map{|filepath| Digest::SHA1.file(filepath).hexdigest }
+                    .join(":")
+
+        cachekey = "#{prefix}:#{setuuid}:#{date}"
         value = XCache::getOrNull(cachekey)
-        #return value.to_f if value
+        return value.to_f if value
 
         value = 0
 
