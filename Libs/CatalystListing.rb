@@ -623,14 +623,12 @@ class CatalystListing
         if Config::getOrNull("listing.showGroups") then
             puts ""
             vspaceleft = vspaceleft - 1
-            packets = Cx22::cx22WithCompletionRatiosOrdered()
-                        .select{|packet| packet["completionratio"] < 1 }
-            padding = packets.map{|packet| PolyFunctions::toStringForListing(packet["item"]).size }.max
-            packets
+            Cx22::cx22WithCompletionRatiosOrdered()
+                .select{|packet| packet["completionratio"] < 1 }
                 .each{|packet|
                     item = packet["item"]
                     store.register(item, false)
-                    line = "#{store.prefixString()} #{PolyFunctions::toStringForListing(item).ljust(padding)}".yellow
+                    line = "#{store.prefixString()} #{Cx22::toStringDiveStyleFormatted(item)}".yellow
                     if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(item)) then
                         line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                     end
