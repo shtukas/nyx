@@ -247,6 +247,9 @@ class PolyFunctions
         if item["mikuType"] == "NxTodo" then
             return NxTodos::toStringForListing(item)
         end
+        if item["mikuType"] == "NxLine" then
+            return "(line) #{item["line"]}"
+        end
         PolyFunctions::toString(item)
     end
 end

@@ -65,7 +65,7 @@ class Search
                                 .select{|nx20| mikuTypes.include?(nx20["item"]["mikuType"]) }
                                 .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
                                 .sort{|p1, p2| p1["unixtime"] <=> p2["unixtime"] }
-                nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", selected, lambda{|packet| NyxNodes::toStringForSearchResult(packet["item"]) })
+                nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", selected, lambda{|packet| PolyFunctions::toStringForListing(packet["item"]) })
                 break if nx20.nil?
                 PolyActions::landing(nx20["item"])
             }
@@ -94,7 +94,7 @@ class Search
                             .select{|nx20| mikuTypes.include?(nx20["item"]["mikuType"]) }
                             .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
                             .sort{|p1, p2| p1["unixtime"] <=> p2["unixtime"] }
-                nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", nx20, lambda{|packet| NyxNodes::toStringForSearchResult(packet["item"]) })
+                nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", nx20, lambda{|packet| PolyFunctions::toStringForListing(packet["item"]) })
                 break if nx20.nil?
                 system('clear')
                 itemOpt = PolyFunctions::foxTerrierAtItem(nx20["item"])

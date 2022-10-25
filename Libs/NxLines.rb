@@ -9,6 +9,13 @@ class NxLines
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
+    # NxLines::destroy(uuid)
+    def self.destroy(uuid)
+        filepath = "#{Config::pathToDataCenter()}/NxLine/#{item["uuid"]}.json"
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
+    end
+
     # NxLines::issue(line)
     def self.issue(line)
         uuid = SecureRandom.uuid

@@ -114,19 +114,6 @@ class NyxNodes
         "(NyxNode) (#{Payload1::toString(item["payload_1"])}) #{item["description"]}"
     end
 
-    # NyxNodes::toStringForSearchResult(item)
-    def self.toStringForSearchResult(item)
-        nwt = item["networkType"] ? ": #{item["networkType"]}" : ""
-        parents = NetworkLocalViews::parents(item["uuid"])
-        parentsstr = 
-            if parents.size > 0 then
-                " #{parents.map{|i| "(#{i["description"]})".green }.join(" ")}"
-            else
-                ""
-            end
-        "(NyxNode) (#{Payload1::toString(item["payload_1"])}) #{item["description"]}#{parentsstr}"
-    end
-
     # ----------------------------------------------------------------------
     # Operations
 

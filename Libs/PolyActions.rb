@@ -349,6 +349,19 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NxLine" then
+            puts "#{PolyFunctions::toString(item)}"
+            puts "uuid: #{item["uuid"]}".yellow
+            puts ""
+            puts "destroy".yellow
+            puts ""
+            input = LucilleCore::askQuestionAnswerAsString("> ")
+            if input == "destroy" then
+                NxLines::destroy(item["uuid"])
+            end
+            return
+        end
+
         if item["mikuType"] == "NxTodo" then
             NxTodos::landing(item)
             return
