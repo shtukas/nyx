@@ -32,7 +32,7 @@ class Bank
     def self.valueAtDate(setuuid, date)
         prefix = Config::allInstanceIds()
                     .map{|instanceId| Bank::databaseFilepath(instanceId) }
-                    .map{|filepath| Digest::SHA1.file(filepath).hexdigest }
+                    .map{|filepath| File.mtime(filepath).to_s }
                     .join(":")
 
         cachekey = "#{prefix}:#{setuuid}:#{date}"
