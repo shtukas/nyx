@@ -10,7 +10,7 @@ class CatalystListing
             "wave | anniversary | hot | today | ondate | todo",
             "anniversaries | ondates | waves | groups | todos | todos-latest-first",
             "require internet",
-            "search | nyx | speed | nxballs | streaming | commands",
+            "search | nyx | speed | nxballs | streaming | commands | system traces",
             "config listing show groups true",
             "config listing show groups false",
             "config listing show commands true",

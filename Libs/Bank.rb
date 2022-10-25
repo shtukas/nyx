@@ -2,45 +2,50 @@
 
 class Bank
 
+    # Bank::databaseFilepath(instanceId)
+    def self.databaseFilepath(instanceId)
+        filepath = "#{Config::pathToDataCenter()}/Bank/bank-#{instanceId}.sqlite"
+        if !File.exists?(filepath) then
+            db = SQLite3::Database.new(filepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute "create table _bank_ (_recorduuid_ text primary key, _setuuid_ text, _unixtime_ float, _date_ text, _weight_ float);", []
+            db.close
+        end
+        filepath
+    end
+
     # Bank::put(setuuid, weight: Float) # Used by regular activity. Emits events for the other computer,
     def self.put(setuuid, weight)
-        date = CommonUtils::today()
-        variant = {
-            "uuid"        => SecureRandom.uuid,
-            "mikuType"    => "TxBankEvent",
-            "unixtime"    => Time.new.to_i,
-            "datetime"    => Time.new.utc.iso8601,
-            "setuuid"     => setuuid,
-            "date"        => date,
-            "weight"      => weight
-        }
-
-        FileSystemCheck::fsck_MikuTypedItem(variant, SecureRandom.hex, false)
-
-        filepath = "#{Config::pathToDataCenter()}/Bank/#{variant["setuuid"]}/#{variant["uuid"]}.json"
-        if !File.exists?(File.dirname(filepath)) then
-            FileUtils.mkpath(File.dirname(filepath))
-        end
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(variant)) }
-
-        XCache::destroy("256e3994-7469-46a8-abd2-238bb25d5977:#{setuuid}:#{date}")
+        instanceId = Config::thisInstanceId()
+        filepath = Bank::databaseFilepath(instanceId)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "insert into _bank_ (_recorduuid_, _setuuid_, _unixtime_, _date_, _weight_) values (?, ?, ?, ?, ?)", [SecureRandom.uuid, setuuid, Time.new.to_i, CommonUtils::today(), weight]
+        db.close
     end
 
     # Bank::valueAtDate(setuuid, date)
     def self.valueAtDate(setuuid, date)
         cachekey = "256e3994-7469-46a8-abd2-238bb25d5977:#{setuuid}:#{date}"
         value = XCache::getOrNull(cachekey)
+        #return value.to_f if value
 
-        return value.to_f if value
-        folderpath = "#{Config::pathToDataCenter()}/Bank/#{setuuid}"
-        return 0 if !File.exists?(folderpath)
-        value = LucilleCore::locationsAtFolder(folderpath)
-                    .select{|filepath| filepath[-5, 5] == ".json" }
-                    .map{|filepath| JSON.parse(IO.read(filepath)) }
-                    .select{|item| item["setuuid"] == setuuid } # redundant
-                    .select{|item| item["date"] == date }
-                    .map{|item| item["weight"] }
-                    .inject(0, :+)
+        value = 0
+
+        Config::allInstanceIds().each{|instanceId|
+            filepath = Bank::databaseFilepath(instanceId)
+            db = SQLite3::Database.new(filepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("select * from _bank_ where _setuuid_=? and _date_=?", [setuuid, date]) do |row|
+                value = value + row["_weight_"]
+            end
+        }
 
         XCache::set(cachekey, value)
         value

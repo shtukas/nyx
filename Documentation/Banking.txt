@@ -1,12 +1,3 @@
 ### Banking
 
-bank.sqlite3
-create table _bank_ (_setuuid_ text, _unixtime_ float, _date_ text, _weight_ float);
-
-{
-    "mikuType"  => "TxBankEvent",
-    "setuuid"   => setuuid,
-    "unixtime"  => unixtime,
-    "date"      => date,
-    "weight"    => weight
-}
+create table _bank_ (_recorduuid_ text primary key, _setuuid_ text, _unixtime_ float, _date_ text, _weight_ float);

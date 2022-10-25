@@ -55,4 +55,19 @@ class Config
     def self.isAlexandra()
         Config::getOrFail("instanceId") == "Lucille20-pascal"
     end
+
+    # Config::isLucille20()
+    def self.isLucille20()
+        ENV["COMPUTERLUCILLENAME"] == "Lucille20"
+    end
+
+    # Config::allInstanceIds()
+    def self.allInstanceIds()
+        ["Lucille18-pascal", "Lucille20-pascal", "Lucille20-guardian"]
+    end
+
+    # Config::theOtherInstanceIds()
+    def self.theOtherInstanceIds()
+        Config::allInstanceIds() - [Config::getOrFail("instanceId")]
+    end
 end

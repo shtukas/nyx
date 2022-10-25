@@ -217,30 +217,6 @@ class FileSystemCheck
         FileSystemCheck::ensureAttribute(item, "unitId", "String")
     end
 
-    # FileSystemCheck::fsck_TxBankEvent(item, runhash, verbose)
-    def self.fsck_TxBankEvent(item, runhash, verbose)
-        repeatKey = "#{runhash}:#{JSON.generate(item)}"
-        return if XCache::getFlag(repeatKey)
-
-        if verbose then
-            puts "FileSystemCheck::fsck_TxBankEvent(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
-        end
-
-        if item["mikuType"] != "TxBankEvent" then
-            raise "Incorrect Miku type for function"
-        end
-        FileSystemCheck::ensureAttribute(item, "uuid", "String")
-        FileSystemCheck::ensureAttribute(item, "mikuType", "String")
-        FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-        FileSystemCheck::ensureAttribute(item, "datetime", "String")
-        FileSystemCheck::ensureAttribute(item, "setuuid", "String")
-        FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-        FileSystemCheck::ensureAttribute(item, "date", "String")
-        FileSystemCheck::ensureAttribute(item, "weight", "Number")
-
-        XCache::setFlag(repeatKey, true)
-    end
-
     # FileSystemCheck::fsck_NxGraphEdge1(item, runhash, verbose)
     def self.fsck_NxGraphEdge1(item, runhash, verbose)
         repeatKey = "#{runhash}:#{JSON.generate(item)}"
@@ -494,18 +470,6 @@ class FileSystemCheck
             end
             FileSystemCheck::ensureAttribute(item, "payload_1", "Hash")
             FileSystemCheck::fsck_NyxNodePayload1(item["payload_1"], runhash, verbose)
-            XCache::setFlag(repeatKey, true)
-            return
-        end
-
-        if mikuType == "TxBankEvent" then
-            FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
-            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-            FileSystemCheck::ensureAttribute(item, "datetime", "String")
-            FileSystemCheck::ensureAttribute(item, "setuuid", "String")
-            FileSystemCheck::ensureAttribute(item, "date", "String")
-            FileSystemCheck::ensureAttribute(item, "weight", "Number")
             XCache::setFlag(repeatKey, true)
             return
         end
