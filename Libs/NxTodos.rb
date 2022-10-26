@@ -174,13 +174,13 @@ class NxTodos
 
     # NxTodos::toString(item)
     def self.toString(item)
-        nx11estr = Nx11E::toString(item["nx11e"])
-        nx113str = Nx113Access::toStringOrNull("", item["nx113"], "")
+        nx11estr = " #{Nx11E::toString(item["nx11e"])}"
+        nx113str = Nx113Access::toStringOrNull(" ", item["nx113"], "")
         cx23 = item["cx23"]
         str1 = Cx23::toStringOrNull(cx23)
-        cx23str1 = cx23 ? " (#{"%6.2f" % cx23["position"]})" : " "
+        cx23str1 = cx23 ? " (#{"%6.2f" % cx23["position"]})" : ""
         cx23str2 = str1 ? " (#{str1})".green : ""
-        "(todo)#{cx23str1} #{nx11estr} #{nx113str}#{item["description"]}#{cx23str2}"
+        "(todo)#{cx23str1}#{nx11estr}#{nx113str} #{item["description"]}#{cx23str2}"
     end
 
     # NxTodos::toStringForSearch(item)
