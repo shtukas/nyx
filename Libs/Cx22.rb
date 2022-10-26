@@ -28,18 +28,28 @@ class Cx22
     # --------------------------------------------
     # Makers
 
+    # Cx22::interactivelySelectStyle()
+    def self.interactivelySelectStyle()
+        loop {
+            style = LucilleCore::selectEntityFromListOfEntitiesOrNull("Cx22 style", ["sequence", "managed-top-3"])
+            return style if style
+        }
+    end
+
     # Cx22::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         ax39 = Ax39::interactivelyCreateNewAx()
+        style = Cx22::interactivelySelectStyle()
         item = {
             "uuid"        => SecureRandom.uuid,
             "mikuType"    => "Cx22",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "ax39"        => ax39
+            "ax39"        => ax39,
+            "style"       => style
         }
         FileSystemCheck::fsck_Cx22(item, true)
         Cx22::commit(item)
@@ -152,18 +162,40 @@ class Cx22
             puts ""
             count1 = 0
             puts Cx22::toStringWithDetails(cx22)
-            NxBallsService::items()
-                .each{|nxball|
-                    puts "[NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})".green
-                    count1 = count1 + 1
-                }
+            puts "style: #{cx22["style"]}"
+            
+            nxballs = NxBallsService::items()
+            if nxballs.size > 0 then
+                puts ""
+                count1 = count1 + 1
+                nxballs
+                    .each{|nxball|
+                        puts "[NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})".green
+                        count1 = count1 + 1
+                    }
+            end
+
             puts ""
             elements = NxTodos::itemsInPositionOrderForGroup(cx22)
                             .select{|element| DoNotShowUntil::isVisible(element["uuid"]) }
                             .first(CommonUtils::screenHeight() - (10+count1))
+
+            if cx22["style"] == "managed-top-3" then
+                theRTWeDeserve = lambda {|element|
+                    rt = BankExtended::stdRecoveredDailyTimeInHours(element["uuid"])
+                    return 0.4 if (rt == 0)
+                    rt
+                }
+                es1s = elements
+                        .take(3)
+                        .sort{|element1, element2| theRTWeDeserve.call(element1) <=> theRTWeDeserve.call(element2) }
+                es2s = elements.drop(3)
+                elements = es1s + es2s
+            end
+
             store = ItemStore.new()
             elements
-                .each{|element|
+                .each_with_index{|element, indx|
                     store.register(element, false)
                     cx23str = 
                         if element["cx23"] then
@@ -171,13 +203,14 @@ class Cx22
                         else
                             ""
                         end
+                    rtstr = [0, 1, 2].include?(indx) ? " (rt: #{BankExtended::stdRecoveredDailyTimeInHours(element["uuid"])})" : ""
                     if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(element)) then
-                        puts "#{store.prefixString()}#{cx23str} #{PolyFunctions::toStringForListing(element)}#{NxBallsService::activityStringOrEmptyString(" (", element["uuid"], ")")}".green
+                        puts "#{store.prefixString()}#{cx23str}#{rtstr} #{PolyFunctions::toStringForListing(element)}#{NxBallsService::activityStringOrEmptyString(" (", element["uuid"], ")")}".green
                     else
                         if DoNotShowUntil::isVisible(element["uuid"])  then
-                            puts "#{store.prefixString()} #{PolyFunctions::toStringForListing(element)}"
+                            puts "#{store.prefixString()}#{rtstr} #{PolyFunctions::toStringForListing(element)}"
                         else
-                            puts "#{store.prefixString()} #{PolyFunctions::toStringForListing(element)}".yellow
+                            puts "#{store.prefixString()}#{rtstr} #{PolyFunctions::toStringForListing(element)}".yellow
                         end
                     end
                 }
@@ -311,6 +344,7 @@ class Cx22
             system("clear")
             puts Cx22::toStringWithDetails(cx22)
             puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(cx22["uuid"])}"
+            puts "style: #{cx22["style"]}"
             nxballs = NxBallsService::items()
             if nxballs.size > 0 then
                 nxballs
@@ -318,7 +352,7 @@ class Cx22
                         puts "[NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})".green
                     }
             end
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["elements (program)", "start NxBall", "update description", "push (do not display until)", "expose", "add time"])
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["elements (program)", "start NxBall", "update description", "push (do not display until)", "expose", "add time", "set style"])
             break if action.nil?
             if action == "elements (program)" then
                 Cx22::elementsDive(cx22)
@@ -352,6 +386,12 @@ class Cx22
                 time = timeInHours*3600
                 puts "Adding #{time} seconds to #{cx22["uuid"]}"
                 Bank::put(cx22["uuid"], time)
+                next
+            end
+            if action == "set style" then
+                style = Cx22::interactivelySelectStyle()
+                cx22["style"] = style
+                PolyActions::commit(cx22)
                 next
             end
         }

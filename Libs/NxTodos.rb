@@ -294,7 +294,7 @@ class NxTodos
 
         end
 
-        NxTodos::items().select{|item| item["listeable"] }
+        items = NxTodos::items().select{|item| item["listeable"] }
     end
 
     # NxTodos::itemsForCx22(cx22)

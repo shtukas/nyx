@@ -10,3 +10,5 @@ Cx22 {
     "description"  : String
     "ax39"         : Ax39
 }
+
+Cx22Style = "sequence" | "managed-top-3"
