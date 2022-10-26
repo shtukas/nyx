@@ -195,7 +195,7 @@ class PolyFunctions
             if item["onlyOnDays"] and !item["onlyOnDays"].include?(CommonUtils::todayAsLowercaseEnglishWeekDayName()) then
                 return nil
             end
-            return (Waves::isPriority(item) ? 0.9 : 0.4) + shiftOnDateTime.call(item, item["lastDoneDateTime"])
+            return (Waves::isPriority(item) ? 0.9 : 0.5) + shiftOnDateTime.call(item, item["lastDoneDateTime"])
         end
 
         raise "(error: 4302a0f5-91a0-4902-8b91-e409f123d305) no priority defined for item: #{item}"
