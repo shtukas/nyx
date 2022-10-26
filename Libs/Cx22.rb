@@ -4,9 +4,11 @@ class Cx22
     # Cx22::items()
     def self.items()
         folderpath = "#{Config::pathToDataCenter()}/Cx22"
-        LucilleCore::locationsAtFolder(folderpath)
-            .select{|filepath| filepath[-5, 5] == ".json" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
+        items = LucilleCore::locationsAtFolder(folderpath)
+                .select{|filepath| filepath[-5, 5] == ".json" }
+                .map{|filepath| JSON.parse(IO.read(filepath)) }
+        XCache::set("Cx22-Description-Padding-DDBBF46A-2D56-4931-BE11-AF66F97F738E", items.map{|item| item["description"].size}.max)
+        items
     end
 
     # Cx22::getOrNull(uuid)
@@ -101,13 +103,14 @@ class Cx22
 
     # Cx22::toStringDiveStyleFormatted(item)
     def self.toStringDiveStyleFormatted(item)
+        descriptionPadding = (XCache::getOrNull("Cx22-Description-Padding-DDBBF46A-2D56-4931-BE11-AF66F97F738E") || 28).to_i # the original value
         percentage = 100 * Ax39::completionRatio(item["ax39"], item["uuid"])
         percentageStr = ": #{percentage.to_i.to_s.rjust(3)} %"
 
         datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
         dnsustr  = datetimeOpt ? ": (do not show until: #{datetimeOpt})" : ""
 
-        "#{item["description"].ljust(28)} : #{Ax39::toString(item["ax39"]).ljust(18)}#{percentageStr}#{dnsustr}"
+        "#{item["description"].ljust(descriptionPadding)} : #{Ax39::toString(item["ax39"]).ljust(18)}#{percentageStr}#{dnsustr}"
     end
 
     # Cx22::cx22WithCompletionRatiosOrdered()
