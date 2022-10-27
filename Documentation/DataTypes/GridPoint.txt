@@ -1,0 +1,38 @@
+
+GridPointAbstract = 
+    - Array[GridEvent] (including external database names)
+    - self hosted datablobs
+
+GridPointFile (JSON encoded) = {
+    "uuid"     => String
+    "mikuType" => "GridPointFile"
+    "events"   => Array[GridEvent]
+}
+
+Named `GridPoint` or `something.GridPoint`
+
+GridPointN = {
+    "uuid"        => String
+    "mikuType"    => "GridPointN"
+    "unixtime"    => Float
+    "datetime"    => DateTime Iso 8601 UTC Zulu
+    "description" => String
+    "events"      => Array[GridEvent]
+}
+
+GridEvent {
+    "uuid"     => String
+    "mikuType" => "GridEvent"
+    "unixtime" => Float
+    "type"     => "state"
+    "state"    => NxGridFiberState
+}
+
+GridEvent {
+    "uuid"     => String
+    "mikuType" => "GridEvent"
+    "unixtime" => Float
+    "type"     => "databablob-database"
+    "name"     => String
+}
+
