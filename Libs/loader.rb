@@ -47,7 +47,6 @@ checkLocation = lambda{|location|
 } 
 
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-Config.json")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-DataCenter/DataStore1")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")
 checkLocation.call("#{ENV['HOME']}/Galaxy/LucilleOS/Libraries/Ruby-Libraries")
@@ -157,9 +156,6 @@ require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)
 # DoNotShowUntil::isVisible(uid)
 require_relative "Dx8UnitsUtils.rb"
-require_relative "DataStore1.rb"
-require_relative "DataStore2SQLiteBlobStore.rb"
-require_relative "DataStore3CAObjects.rb"
 require_relative "DataStore4.rb"
 
 require_relative "EnergyGrid.rb"

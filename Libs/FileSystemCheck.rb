@@ -61,17 +61,21 @@ class FileSystemCheck
         raise "(error: 2a5f46bd-c5db-48e7-a20f-4dd079868948)"
     end
 
-    # FileSystemCheck::fsck_rootnhash_and_database(rootnhash, database, verbose)
-    def self.fsck_rootnhash_and_database(rootnhash, database, verbose)
+    # FileSystemCheck::fsck_aion_point_rootnhash(rootnhash, runhash, verbose)
+    def self.fsck_aion_point_rootnhash(rootnhash, runhash, verbose)
+        repeatKey = "#{runhash}:#{rootnhash}"
+        return if XCache::getFlag(repeatKey)
+
         if verbose then
-            puts "FileSystemCheck::fsck_rootnhash_and_database(#{rootnhash}, #{database}, #{verbose})"
+            puts "FileSystemCheck::fsck_aion_point_rootnhash(#{rootnhash}, #{runhash}, #{verbose})"
         end
-        databasefilepath = DataStore1::getNearestFilepathForReadingErrorIfNotAcquisable(database, false)
-        operator         = DataStore2SQLiteBlobStoreElizabethReadOnly.new(databasefilepath)
+        operator = Elizabeth4.new()
         status = AionFsck::structureCheckAionHash(operator, rootnhash)
         if !status then
             raise "(error: 50daf867-0dab-47d9-ae79-d8e431650eab) aion structure fsck failed "
         end
+
+        XCache::setFlag(repeatKey, true)
     end
 
     # FileSystemCheck::fsck_Nx113(item, runhash, verbose)
@@ -115,15 +119,10 @@ class FileSystemCheck
             if item["parts"].nil? then
                  raise "parts is not defined on #{item}"
             end
-            if item["database"].nil? then
-                 raise "database is not defined on #{item}"
-            end
             dottedExtension  = item["dottedExtension"]
             nhash            = item["nhash"]
             parts            = item["parts"]
-            database         = item["database"]
-            databasefilepath = DataStore1::getNearestFilepathForReadingErrorIfNotAcquisable(database, false)
-            operator         = DataStore2SQLiteBlobStoreElizabethReadOnly.new(databasefilepath)
+            operator         = Elizabeth4.new()
             status = PrimitiveFiles::fsckPrimitiveFileDataRaiseAtFirstError(operator, dottedExtension, nhash, parts, verbose)
             if !status then
                 puts JSON.pretty_generate(item)
@@ -137,12 +136,8 @@ class FileSystemCheck
             if item["rootnhash"].nil? then
                  raise "rootnhash is not defined on #{item}"
             end
-            if item["database"].nil? then
-                 raise "database is not defined on #{item}"
-            end
             rootnhash = item["rootnhash"]
-            database  = item["database"]
-            FileSystemCheck::fsck_rootnhash_and_database(rootnhash, database, verbose)
+            FileSystemCheck::fsck_aion_point_rootnhash(rootnhash, runhash, verbose)
             XCache::setFlag(repeatKey, true)
             return
         end
@@ -299,8 +294,7 @@ class FileSystemCheck
         end
 
         rootnhash = item["rootnhash"]
-        database  = item["database"]
-        FileSystemCheck::fsck_rootnhash_and_database(rootnhash, database, verbose)
+        FileSystemCheck::fsck_aion_point_rootnhash(rootnhash, runhash, verbose)
 
         XCache::setFlag(repeatKey, true)
     end
@@ -399,13 +393,9 @@ class FileSystemCheck
             if item["parts"].nil? then
                  raise "parts is not defined on #{item}"
             end
-            if item["database"].nil? then
-                 raise "database is not defined on #{item}"
-            end
             dottedExtension  = item["dottedExtension"]
             nhash            = item["nhash"]
             parts            = item["parts"]
-            database         = item["database"]
             raise "not finished: 17052FB0-718B-451C-8F84-837ABB7B82A5"
         end
 

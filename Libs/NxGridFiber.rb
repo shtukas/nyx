@@ -33,8 +33,7 @@ class NxGridFiber
         end
         state["content"].each{|thing|
             rootnhash = thing["rootnhash"]
-            database  = thing["database"]
-            Nx113Access::accessAionPointAtExportDirectory(rootnhash, database, stateExportFolder)
+            Nx113Access::accessAionPointAtExportDirectory(rootnhash, stateExportFolder)
         }
     end
 
@@ -66,8 +65,7 @@ class NxGridFiber
                 nx113 = Nx113Make::aionpoint(location)
                 {
                     "mikuType"  => "NxFiberStateItem",
-                    "rootnhash" => nx113["rootnhash"],
-                    "database"  => nx113["database"]
+                    "rootnhash" => nx113["rootnhash"]
                 }
             }
     end
