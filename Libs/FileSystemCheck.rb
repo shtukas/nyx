@@ -448,6 +448,12 @@ class FileSystemCheck
             FileSystemCheck::fsck_GridState(event, runhash, verbose)
         }
 
+        FileSystemCheck::ensureAttribute(item, "comments", "Array")
+
+        item["comments"].each{|op|
+            # TODO:
+        }
+
         XCache::setFlag(repeatKey, true)
     end
 
@@ -469,6 +475,12 @@ class FileSystemCheck
 
         item["states"].each{|event|
             FileSystemCheck::fsck_GridState(event, runhash, verbose)
+        }
+
+        FileSystemCheck::ensureAttribute(item, "comments", "Array")
+
+        item["comments"].each{|op|
+            # TODO:
         }
 
         XCache::setFlag(repeatKey, true)
@@ -651,9 +663,7 @@ class FileSystemCheck
 
     # FileSystemCheck::fsckErrorAtFirstFailure(runhash)
     def self.fsckErrorAtFirstFailure(runhash)
-        puts "(error) we do not have an enumeration of objects and variants"
-        exit
-        [].each{|item|
+        (Waves::items() + NxTodos::items() + NyxNodes::items()).each{|item|
             FileSystemCheck::exitIfMissingCanary()
             FileSystemCheck::fsck_MikuTypedItem(item, runhash, true)
         }

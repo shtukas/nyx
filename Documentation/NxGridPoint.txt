@@ -1,61 +1,77 @@
 
 NxGridPointN = {
-    "uuid"        => String
-    "mikuType"    => "NxGridPointN"
-    "unixtime"    => Float
-    "datetime"    => DateTime Iso 8601 UTC Zulu
-    "description" => String
-    "states"      => Array[GridState]
+    "uuid"        : String
+    "mikuType"    : "NxGridPointN"
+    "unixtime"    : Float
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "description" : String
+    "states"      : Array[GridState]
+    "comments"    : Array[NxCommentOp]
+}
+
+NxCommentOp {
+    "uuid"      : String
+    "mikuType"  : "NxCommentOp"
+    "operation" : "add"
+    "line"      : String
+}
+
+NxCommentOp {
+    "uuid"       : String
+    "mikuType"   : "NxCommentOp"
+    "operation"  : "remove"
+    "targetuuid" : String
 }
 
 GridState {
-    "uuid"        => String
-    "mikuType"   => "GridState"
-    "type"       => "NxFire"
-    "nhashroots" => Array[Strings]
+    "uuid"       : String
+    "mikuType"   : "GridState"
+    "type"       : "NxFire"
+    "nhashroots" : Array[Strings]
 }
 
 GridState {
-    "uuid"        => String
-    "mikuType"   => "GridState"
-    "type"       => "text",
-    "text"       => String
+    "uuid"       : String
+    "mikuType"   : "GridState"
+    "type"       : "text",
+    "text"       : String
 }
 
 GridState {
-    "uuid"        => String
-    "mikuType"   => "GridState"
-    "type"       => "url",
-    "url"        => String, URL
+    "uuid"       : String
+    "mikuType"   : "GridState"
+    "type"       : "url",
+    "url"        : String, URL
 }
 
 GridState {
-    "uuid"        => String
-    "mikuType"        => "GridState"
-    "type"            => "file"
-    "dottedExtension" => String
-    "nhash"           => String
-    "parts"           => Array[String]
+    "uuid"            : String
+    "mikuType"        : "GridState"
+    "type"            : "file"
+    "dottedExtension" : String
+    "nhash"           : String
+    "parts"           : Array[String]
 }
 
 GridState {
-    "uuid"        => String
-    "mikuType" => "GridState"
-    "type"     => "Dx8Unit"
-    "unitId"   => String
+    "uuid"     : String
+    "mikuType" : "GridState"
+    "type"     : "Dx8Unit"
+    "unitId"   : String
 }
 
 GridState {
-    "uuid"        => String
-    "mikuType"     => "GridState"
-    "type"         => "unique-string"
-    "uniquestring" => String
+    "uuid"         : String
+    "mikuType"     : "GridState"
+    "type"         : "unique-string"
+    "uniquestring" : String
 }
 
 NxGridPointFile (JSON encoded) = {
-    "uuid"     => String
-    "mikuType" => "NxGridPointFile"
-    "states"   => Array[GridState]
+    "uuid"      : String
+    "mikuType"  : "NxGridPointFile"
+    "states"    : Array[GridState]
+    "comments"  : Array[NxCommentOp]
 }
 
 Named `NxGridPoint` or `something.NxGridPoint`
