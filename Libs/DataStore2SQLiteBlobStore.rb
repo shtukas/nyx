@@ -87,7 +87,12 @@ class DataStore2SQLiteBlobStoreElizabethReadOnly
     end
 
     def getBlobOrNull(nhash)
-        DataStore2SQLiteBlobStore::getBlobOrNull(@filepath, nhash)
+        blob = DataStore2SQLiteBlobStore::getBlobOrNull(@filepath, nhash)
+        if blob and DataStore4::getBlobOrNull(nhash).nil? then
+            puts "ensures: #{nhash}".green
+            DataStore4::putBlob(blob)
+        end
+        blob
     end
 
     def readBlobErrorIfNotFound(nhash)
