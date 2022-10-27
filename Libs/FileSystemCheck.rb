@@ -359,55 +359,82 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsck_GridEvent(item, runhash, verbose)
-    def self.fsck_GridEvent(item, runhash, verbose)
+    # FileSystemCheck::fsck_GridState(item, databases, runhash, verbose)
+    def self.fsck_GridState(item, databases, runhash, verbose)
         repeatKey = "#{runhash}:#{JSON.generate(item)}"
         return if XCache::getFlag(repeatKey)
 
         if verbose then
-            puts "FileSystemCheck::fsck_GridEvent(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
+            puts "FileSystemCheck::fsck_GridState(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
         end
 
         if item["mikuType"].nil? then
             raise "item has no Miku type"
         end
-        if item["mikuType"] != "GridEvent" then
+        if item["mikuType"] != "GridState" then
             raise "Incorrect Miku type for function"
         end
 
-        FileSystemCheck::ensureAttribute(item, "uuid", "String")
-        FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
         FileSystemCheck::ensureAttribute(item, "type", "String")
 
-        if !["state", "databablob-database"].include?(item["type"]) then
-            raise "Incorrect type in #{JSON.pretty_generate(item)}"
+        if item["type"] == "NxFire" then
+            raise "not finished: B978B332-FF6A-4C6D-9180-580E94462674"
         end
 
-        if item["type"] == "state" then
-            FileSystemCheck::ensureAttribute(item, "state", "String")
-            FileSystemCheck::fsck_NxFiberState(item["state"], runhash, verbose)
+        if item["type"] == "text" then
+            FileSystemCheck::ensureAttribute(item, "text", "String")
         end
 
-        if item["type"] == "databablob-database" then
-            FileSystemCheck::ensureAttribute(item, "name", "String")
+        if item["type"] == "url" then
+            FileSystemCheck::ensureAttribute(item, "url", "String")
+        end
+
+        if item["type"] == "file" then
+            if item["dottedExtension"].nil? then
+                 raise "dottedExtension is not defined on #{item}"
+            end
+            if item["nhash"].nil? then
+                 raise "nhash is not defined on #{item}"
+            end
+            if item["parts"].nil? then
+                 raise "parts is not defined on #{item}"
+            end
+            if item["database"].nil? then
+                 raise "database is not defined on #{item}"
+            end
+            dottedExtension  = item["dottedExtension"]
+            nhash            = item["nhash"]
+            parts            = item["parts"]
+            database         = item["database"]
+            raise "not finished: 17052FB0-718B-451C-8F84-837ABB7B82A5"
+        end
+
+        if item["type"] == "Dx8Unit" then
+            FileSystemCheck::ensureAttribute(item, "unitId", "String")
+            # TODO: Complete
+        end
+
+        if item["type"] == "unique-string" then
+            FileSystemCheck::ensureAttribute(item, "unique-string", "String")
+            # TODO: Complete
         end
 
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsck_GridPointN(item, runhash, verbose)
-    def self.fsck_GridPointN(item, runhash, verbose)
+    # FileSystemCheck::fsck_NxGridPointN(item, runhash, verbose)
+    def self.fsck_NxGridPointN(item, runhash, verbose)
         repeatKey = "#{runhash}:#{JSON.generate(item)}"
         return if XCache::getFlag(repeatKey)
 
         if verbose then
-            puts "FileSystemCheck::fsck_GridPointN(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
+            puts "FileSystemCheck::fsck_NxGridPointN(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
         end
 
         if item["mikuType"].nil? then
             raise "item has no Miku type"
         end
-        if item["mikuType"] != "GridPointN" then
+        if item["mikuType"] != "NxGridPointN" then
             raise "Incorrect Miku type for function"
         end
 
@@ -415,10 +442,10 @@ class FileSystemCheck
         FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
         FileSystemCheck::ensureAttribute(item, "datetime", "String")
         FileSystemCheck::ensureAttribute(item, "description", "String")
-        FileSystemCheck::ensureAttribute(item, "events", "Array")
+        FileSystemCheck::ensureAttribute(item, "states", "Array")
 
-        item["events"].each{|event|
-            FileSystemCheck::fsck_GridEvent(event, runhash, verbose)
+        item["states"].each{|event|
+            FileSystemCheck::fsck_GridState(event, runhash, verbose)
         }
 
         XCache::setFlag(repeatKey, true)
@@ -440,8 +467,8 @@ class FileSystemCheck
             raise "Incorrect Miku type for function"
         end
 
-        item["events"].each{|event|
-            FileSystemCheck::fsck_GridEvent(event, runhash, verbose)
+        item["states"].each{|event|
+            FileSystemCheck::fsck_GridState(event, runhash, verbose)
         }
 
         XCache::setFlag(repeatKey, true)
