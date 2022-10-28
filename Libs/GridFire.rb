@@ -58,6 +58,7 @@ class GridFire
 
     # GridFire::pickupFsChanges()
     def self.pickupFsChanges()
+        return
         Find.find("#{Config::userHomeDirectory()}/Galaxy/OpenCycles") do |path|
             if path[-12, 12] == "NxGridPointN" then
                 location1 =  path
@@ -83,44 +84,29 @@ class GridFire
         end
     end
 
-    # GridFire::syncOnce()
-    def self.syncOnce()
+    # GridFire::propagateChangesToDisk()
+    def self.propagateChangesToDisk()
         Find.find("#{Config::userHomeDirectory()}/Galaxy/OpenCycles") do |path|
             if path[-12, 12] == "NxGridPointN" then
                 location1 =  path
                 GridFire::log "probing #{location1}"
                 fsObject = JSON.parse(IO.read(location1))
                 uuid = fsObject["uuid"]
-                # The first thing we do is to sync with network
                 networkObject = NxGridPointN::getItemOrNull(uuid)
                 if networkObject.nil? then
                     GridFire::log "I could not find the network equivalent of location1: #{location1}"
                     GridFire::log "Exiting"
                     exit
                 end
-                combinedStates = GridFire::combineStates(fsObject["states"], networkObject["states"])
-                if combinedStates.size > networkObject["states"].size then
-                    GridFire::log "sending updated object to network".green
-                    networkObject["states"] = combinedStates
-                    NxGridPointN::commitObject(networkObject)
-                end
-                if combinedStates.size > fsObject["states"].size then
-                    GridFire::log "sending updated object to disk".green
-                    if combinedStates.last["type"] != "NxDirectoryContents" then
-                        GridFire::log "The updated last state of object here: #{location1}"
-                        GridFire::log "is not a NxDirectoryContents"
-                        GridFire::log "Exiting"
-                        exit
-                    end
-                    fsObject["states"] = combinedStates
-                    File.open(location1, "w"){|f| f.puts(JSON.pretty_generate(fsObject)) }
-                    location2 = GridFire::objectLocationToExportFolder(location1)
-                    if File.exists?(location2) then
-                        GridFire::log "exporting the last state to: #{location2}".green
-                        state = fsObject["states"].last
-                        GridState::exportNxDirectoryContentsRootsAtFolder(state["rootnhashes"], location2)
-                        GridFire::setTrace(location1, state["uuid"], CommonUtils::locationTrace(location2))
-                    end
+                next if networkObject["states"].last["uuid"] == fsObject["states"].last["uuid"]
+                GridFire::log "sending updated object to disk".green
+                File.open(location1, "w"){|f| f.puts(JSON.pretty_generate(networkObject)) }
+                location2 = GridFire::objectLocationToExportFolder(location1)
+                if File.exists?(location2) then
+                    GridFire::log "exporting the last state to: #{location2}".green
+                    state = networkObject["states"].last
+                    GridState::exportNxDirectoryContentsRootsAtFolder(state["rootnhashes"], location2)
+                    GridFire::setTrace(location1, state["uuid"], CommonUtils::locationTrace(location2))
                 end
             end
         end
@@ -128,8 +114,7 @@ class GridFire
 
     # GridFire::run()
     def self.run()
-        GridFire::pickupFsChanges()
-        GridFire::syncOnce()
-        GridFire::syncOnce()
+        #GridFire::pickupFsChanges()
+        GridFire::propagateChangesToDisk()
     end
 end

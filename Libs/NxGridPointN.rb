@@ -196,6 +196,7 @@ class NxGridPointN
             puts "line | link | child | parent | upload".yellow
             puts "[link type update] parents>related | parents>children | related>children | related>parents | children>related".yellow
             puts "[network shape] select children; move to selected child | select children; move to uuid | acquire children by uuid".yellow
+            puts "[grid points] dump object | dump children".yellow
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
             return if input == ""
@@ -215,6 +216,31 @@ class NxGridPointN
                 line = LucilleCore::askQuestionAnswerAsString("line: ")
                 i2 = NxLines::issue(line)
                 NetworkLocalViews::arrow(item["uuid"], i2["uuid"])
+                next
+            end
+
+            if input == "dump object" then
+                description = item["description"]
+                safedescription = CommonUtils::sanitiseStringForFilenaming(description)
+                filename = "#{safedescription}.NxGridPointN"
+                filepath = "#{Config::userHomeDirectory()}/Desktop/#{filename}"
+                File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item))}
+                next
+            end
+
+            if input == "dump children" then
+                NetworkLocalViews::children(item["uuid"]).each{|child|
+                    description = child["description"]
+                    safedescription = CommonUtils::sanitiseStringForFilenaming(description)
+                    filename = "#{safedescription}.NxGridPointN"
+                    filepath = "#{Config::userHomeDirectory()}/Desktop/#{filename}"
+                    if File.exists?(filepath) then
+                        puts "Duplicate children '(#{filepath}' already exists)"
+                        puts "Exiting"
+                        exit
+                    end
+                    File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(child))}
+                }
                 next
             end
 
