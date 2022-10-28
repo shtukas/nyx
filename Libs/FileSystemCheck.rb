@@ -61,17 +61,21 @@ class FileSystemCheck
         raise "(error: 2a5f46bd-c5db-48e7-a20f-4dd079868948)"
     end
 
-    # FileSystemCheck::fsck_rootnhash_and_database(rootnhash, database, verbose)
-    def self.fsck_rootnhash_and_database(rootnhash, database, verbose)
+    # FileSystemCheck::fsck_aion_point_rootnhash(rootnhash, runhash, verbose)
+    def self.fsck_aion_point_rootnhash(rootnhash, runhash, verbose)
+        repeatKey = "#{runhash}:#{rootnhash}"
+        return if XCache::getFlag(repeatKey)
+
         if verbose then
-            puts "FileSystemCheck::fsck_rootnhash_and_database(#{rootnhash}, #{database}, #{verbose})"
+            puts "FileSystemCheck::fsck_aion_point_rootnhash(#{rootnhash}, #{runhash}, #{verbose})"
         end
-        databasefilepath = DataStore1::getNearestFilepathForReadingErrorIfNotAcquisable(database, false)
-        operator         = DataStore2SQLiteBlobStoreElizabethReadOnly.new(databasefilepath)
+        operator = Elizabeth4.new()
         status = AionFsck::structureCheckAionHash(operator, rootnhash)
         if !status then
             raise "(error: 50daf867-0dab-47d9-ae79-d8e431650eab) aion structure fsck failed "
         end
+
+        XCache::setFlag(repeatKey, true)
     end
 
     # FileSystemCheck::fsck_Nx113(item, runhash, verbose)
@@ -115,15 +119,10 @@ class FileSystemCheck
             if item["parts"].nil? then
                  raise "parts is not defined on #{item}"
             end
-            if item["database"].nil? then
-                 raise "database is not defined on #{item}"
-            end
             dottedExtension  = item["dottedExtension"]
             nhash            = item["nhash"]
             parts            = item["parts"]
-            database         = item["database"]
-            databasefilepath = DataStore1::getNearestFilepathForReadingErrorIfNotAcquisable(database, false)
-            operator         = DataStore2SQLiteBlobStoreElizabethReadOnly.new(databasefilepath)
+            operator         = Elizabeth4.new()
             status = PrimitiveFiles::fsckPrimitiveFileDataRaiseAtFirstError(operator, dottedExtension, nhash, parts, verbose)
             if !status then
                 puts JSON.pretty_generate(item)
@@ -137,12 +136,8 @@ class FileSystemCheck
             if item["rootnhash"].nil? then
                  raise "rootnhash is not defined on #{item}"
             end
-            if item["database"].nil? then
-                 raise "database is not defined on #{item}"
-            end
             rootnhash = item["rootnhash"]
-            database  = item["database"]
-            FileSystemCheck::fsck_rootnhash_and_database(rootnhash, database, verbose)
+            FileSystemCheck::fsck_aion_point_rootnhash(rootnhash, runhash, verbose)
             XCache::setFlag(repeatKey, true)
             return
         end
@@ -299,8 +294,7 @@ class FileSystemCheck
         end
 
         rootnhash = item["rootnhash"]
-        database  = item["database"]
-        FileSystemCheck::fsck_rootnhash_and_database(rootnhash, database, verbose)
+        FileSystemCheck::fsck_aion_point_rootnhash(rootnhash, runhash, verbose)
 
         XCache::setFlag(repeatKey, true)
     end
@@ -358,6 +352,131 @@ class FileSystemCheck
 
         XCache::setFlag(repeatKey, true)
     end
+
+    # FileSystemCheck::fsck_GridState(item, databases, runhash, verbose)
+    def self.fsck_GridState(item, databases, runhash, verbose)
+        repeatKey = "#{runhash}:#{JSON.generate(item)}"
+        return if XCache::getFlag(repeatKey)
+
+        if verbose then
+            puts "FileSystemCheck::fsck_GridState(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
+        end
+
+        if item["mikuType"].nil? then
+            raise "item has no Miku type"
+        end
+        if item["mikuType"] != "GridState" then
+            raise "Incorrect Miku type for function"
+        end
+
+        FileSystemCheck::ensureAttribute(item, "type", "String")
+
+        if item["type"] == "NxFire" then
+            raise "not finished: B978B332-FF6A-4C6D-9180-580E94462674"
+        end
+
+        if item["type"] == "text" then
+            FileSystemCheck::ensureAttribute(item, "text", "String")
+        end
+
+        if item["type"] == "url" then
+            FileSystemCheck::ensureAttribute(item, "url", "String")
+        end
+
+        if item["type"] == "file" then
+            if item["dottedExtension"].nil? then
+                 raise "dottedExtension is not defined on #{item}"
+            end
+            if item["nhash"].nil? then
+                 raise "nhash is not defined on #{item}"
+            end
+            if item["parts"].nil? then
+                 raise "parts is not defined on #{item}"
+            end
+            dottedExtension  = item["dottedExtension"]
+            nhash            = item["nhash"]
+            parts            = item["parts"]
+            raise "not finished: 17052FB0-718B-451C-8F84-837ABB7B82A5"
+        end
+
+        if item["type"] == "Dx8Unit" then
+            FileSystemCheck::ensureAttribute(item, "unitId", "String")
+            # TODO: Complete
+        end
+
+        if item["type"] == "unique-string" then
+            FileSystemCheck::ensureAttribute(item, "unique-string", "String")
+            # TODO: Complete
+        end
+
+        XCache::setFlag(repeatKey, true)
+    end
+
+    # FileSystemCheck::fsck_NxGridPointN(item, runhash, verbose)
+    def self.fsck_NxGridPointN(item, runhash, verbose)
+        repeatKey = "#{runhash}:#{JSON.generate(item)}"
+        return if XCache::getFlag(repeatKey)
+
+        if verbose then
+            puts "FileSystemCheck::fsck_NxGridPointN(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
+        end
+
+        if item["mikuType"].nil? then
+            raise "item has no Miku type"
+        end
+        if item["mikuType"] != "NxGridPointN" then
+            raise "Incorrect Miku type for function"
+        end
+
+        FileSystemCheck::ensureAttribute(item, "uuid", "String")
+        FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+        FileSystemCheck::ensureAttribute(item, "datetime", "String")
+        FileSystemCheck::ensureAttribute(item, "description", "String")
+        FileSystemCheck::ensureAttribute(item, "states", "Array")
+
+        item["states"].each{|event|
+            FileSystemCheck::fsck_GridState(event, runhash, verbose)
+        }
+
+        FileSystemCheck::ensureAttribute(item, "comments", "Array")
+
+        item["comments"].each{|op|
+            # TODO:
+        }
+
+        XCache::setFlag(repeatKey, true)
+    end
+
+    # FileSystemCheck::fsck_GridPointFile(item, runhash, verbose)
+    def self.fsck_GridPointFile(item, runhash, verbose)
+        repeatKey = "#{runhash}:#{JSON.generate(item)}"
+        return if XCache::getFlag(repeatKey)
+
+        if verbose then
+            puts "FileSystemCheck::fsck_GridPointFile(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
+        end
+
+        if item["mikuType"].nil? then
+            raise "item has no Miku type"
+        end
+        if item["mikuType"] != "GridPointFile" then
+            raise "Incorrect Miku type for function"
+        end
+
+        item["states"].each{|event|
+            FileSystemCheck::fsck_GridState(event, runhash, verbose)
+        }
+
+        FileSystemCheck::ensureAttribute(item, "comments", "Array")
+
+        item["comments"].each{|op|
+            # TODO:
+        }
+
+        XCache::setFlag(repeatKey, true)
+    end
+
+    # -----------------------------------------------------
 
     # FileSystemCheck::fsck_MikuTypedItem(item, runhash, verbose)
     def self.fsck_MikuTypedItem(item, runhash, verbose)
@@ -534,9 +653,7 @@ class FileSystemCheck
 
     # FileSystemCheck::fsckErrorAtFirstFailure(runhash)
     def self.fsckErrorAtFirstFailure(runhash)
-        puts "(error) we do not have an enumeration of objects and variants"
-        exit
-        [].each{|item|
+        (Waves::items() + NxTodos::items() + NyxNodes::items()).each{|item|
             FileSystemCheck::exitIfMissingCanary()
             FileSystemCheck::fsck_MikuTypedItem(item, runhash, true)
         }

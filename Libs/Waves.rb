@@ -4,15 +4,15 @@ class Waves
     # --------------------------------------------------
     # IO
 
+    # Waves::items()
+    def self.items()
+        TheBook::getObjects("#{Config::pathToDataCenter()}/Wave")
+    end
+
     # Waves::commit(item)
     def self.commit(item)
         FileSystemCheck::fsck_MikuTypedItem(item, SecureRandom.hex, false)
         TheBook::commitObjectToDisk("#{Config::pathToDataCenter()}/Wave", item)
-    end
-
-    # Waves::items()
-    def self.items()
-        TheBook::getObjects("#{Config::pathToDataCenter()}/Wave")
     end
 
     # Waves::getOrNull(uuid)

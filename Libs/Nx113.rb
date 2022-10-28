@@ -25,7 +25,7 @@ class Nx113Make
     def self.file(filepath)
         raise "(error: d3539fc0-5615-46ff-809b-85ac34850070)" if !File.exists?(filepath)
 
-        operator = DataStore2SQLiteBlobStoreElizabethTheForge.new()
+        operator = Elizabeth4.new()
         dottedExtension, nhash, parts = PrimitiveFiles::commitFileReturnDataElements(filepath, operator) # [dottedExtension, nhash, parts]
 
         {
@@ -33,21 +33,19 @@ class Nx113Make
             "type"            => "file",
             "dottedExtension" => dottedExtension,
             "nhash"           => nhash,
-            "parts"           => parts,
-            "database"        => operator.publish()
+            "parts"           => parts
         }
     end
 
     # Nx113Make::aionpoint(location) # Nx113
     def self.aionpoint(location)
         raise "(error: 93590239-f8e0-4f35-af47-d7f1407e21f2)" if !File.exists?(location)
-        operator = DataStore2SQLiteBlobStoreElizabethTheForge.new()
+        operator = Elizabeth4.new()
         rootnhash = AionCore::commitLocationReturnHash(operator, location)
         {
             "mikuType"   => "Nx113",
             "type"       => "aion-point",
-            "rootnhash"  => rootnhash,
-            "database"   => operator.publish()
+            "rootnhash"  => rootnhash
         }
     end
 
@@ -136,20 +134,19 @@ end
 
 class Nx113Access
 
-    # Nx113Access::accessAionPointAtExportDirectory(rootnhash, database, parentLocation)
-    def self.accessAionPointAtExportDirectory(rootnhash, database, parentLocation)
-        databasefilepath = DataStore1::getNearestFilepathForReadingErrorIfNotAcquisable(database, true)
-        operator         = DataStore2SQLiteBlobStoreElizabethReadOnly.new(databasefilepath)
+    # Nx113Access::accessAionPointAtExportDirectory(rootnhash, parentLocation)
+    def self.accessAionPointAtExportDirectory(rootnhash, parentLocation)
+        operator = Elizabeth4.new()
         if !File.exists?(parentLocation) then
             FileUtils.mkdir(parentLocation)
         end
         AionCore::exportHashAtFolder(operator, rootnhash, parentLocation)
     end
 
-    # Nx113Access::accessAionPoint(rootnhash, database)
-    def self.accessAionPoint(rootnhash, database)
+    # Nx113Access::accessAionPoint(rootnhash)
+    def self.accessAionPoint(rootnhash)
         exportDirectory = "#{ENV['HOME']}/Desktop/aion-point-#{SecureRandom.hex(4)}"
-        Nx113Access::accessAionPointAtExportDirectory(rootnhash, database, exportDirectory)
+        Nx113Access::accessAionPointAtExportDirectory(rootnhash, exportDirectory)
         puts "Item exported at #{exportDirectory}"
         LucilleCore::pressEnterToContinue()
     end
@@ -171,8 +168,7 @@ class Nx113Access
             dottedExtension  = nx113["dottedExtension"]
             nhash            = nx113["nhash"]
             parts            = nx113["parts"]
-            databasefilepath = DataStore1::getNearestFilepathForReadingErrorIfNotAcquisable(nx113["database"], true)
-            operator         = DataStore2SQLiteBlobStoreElizabethReadOnly.new(databasefilepath)
+            operator         = Elizabeth4.new()
             filepath         = "#{ENV['HOME']}/Desktop/#{nhash}#{dottedExtension}"
             File.open(filepath, "w"){|f|
                 parts.each{|nhash|
@@ -187,7 +183,7 @@ class Nx113Access
         end
 
         if nx113["type"] == "aion-point" then
-            Nx113Access::accessAionPoint(nx113["rootnhash"], nx113["database"])
+            Nx113Access::accessAionPoint(nx113["rootnhash"])
         end
 
         if nx113["type"] == "Dx8Unit" then
@@ -233,11 +229,10 @@ end
 
 class Nx113Edit
 
-    # Nx113Edit::editAionPointComponents(rootnhash, database) # {rootnhash, database}
-    def self.editAionPointComponents(rootnhash, database) # {rootnhash, database}
-        databasefilepath = DataStore1::getNearestFilepathForReadingErrorIfNotAcquisable(database, true)
-        operator         = DataStore2SQLiteBlobStoreElizabethReadOnly.new(databasefilepath)
-        exportLocation   = "#{ENV['HOME']}/Desktop/aion-point-#{SecureRandom.hex(4)}"
+    # Nx113Edit::editAionPoint(rootnhash)
+    def self.editAionPoint(rootnhash)
+        operator       = Elizabeth4.new()
+        exportLocation = "#{ENV['HOME']}/Desktop/aion-point-#{SecureRandom.hex(4)}"
         FileUtils.mkdir(exportLocation)
         AionCore::exportHashAtFolder(operator, rootnhash, exportLocation)
         puts "Item exported at #{exportLocation} for edition"
@@ -260,14 +255,10 @@ class Nx113Edit
             end
         }
 
-        operator = DataStore2SQLiteBlobStoreElizabethTheForge.new()
+        operator = Elizabeth4.new()
         location = acquireLocationInsideExportFolder.call(exportLocation)
         puts "reading: #{location}"
-        rootnhash = AionCore::commitLocationReturnHash(operator, location)
-        return {
-            "rootnhash"  => rootnhash,
-            "database"   => operator.publish()
-        }
+        AionCore::commitLocationReturnHash(operator, location)
     end
 
     # Nx113Edit::editNx113(nx113) # Nx113 or null if no change
@@ -297,12 +288,11 @@ class Nx113Edit
         end
 
         if nx113["type"] == "aion-point" then
-            packet = Nx113Edit::editAionPointComponents(nx113["rootnhash"], nx113["database"])
+            rootnhash = Nx113Edit::editAionPoint(nx113["rootnhash"])
             nx113 = {
                 "mikuType"   => "Nx113",
                 "type"       => "aion-point",
-                "rootnhash"  => packet["rootnhash"],
-                "database"   => packet["database"]
+                "rootnhash"  => rootnhash
             }
             return nx113
         end
