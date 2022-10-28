@@ -5,7 +5,7 @@ class Nyx
 
     # Nyx::nyxNodes()
     def self.nyxNodes()
-        NyxNodes::items() + NxLines::items()
+        NxGridPointN::items() + NxLines::items()
     end
 
     # Nyx::selectExistingNetworkNodeOrNull()
@@ -21,10 +21,10 @@ class Nyx
         if operation == "existing || new" then
             entity = Nyx::selectExistingNetworkNodeOrNull()
             return entity if entity
-            return NyxNodes::interactivelyIssueNewOrNull()
+            return NxGridPointN::interactivelyIssueNewOrNull()
         end
         if operation == "new" then
-            return NyxNodes::interactivelyIssueNewOrNull()
+            return NxGridPointN::interactivelyIssueNewOrNull()
         end
     end
 
@@ -59,7 +59,7 @@ class Nyx
                 }
             end
             if operation == "make new nyx node" then
-                item = NyxNodes::interactivelyIssueNewOrNull()
+                item = NxGridPointN::interactivelyIssueNewOrNull()
                 next if item.nil?
                 puts JSON.pretty_generate(item)
                 PolyActions::landing(item)

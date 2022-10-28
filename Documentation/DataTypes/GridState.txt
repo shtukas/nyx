@@ -1,27 +1,8 @@
 
-NxGridPointN = {
-    "uuid"         : String
-    "mikuType"     : "NxGridPointN"
-    "unixtime"     : Float
-    "datetime"     : DateTime Iso 8601 UTC Zulu
-    "description"  : String
-    "networkType1" : "Information" | "Entity" | "Concept" | "Event" | "Person" | "Collection" | "Timeline" 
-    "states"       : Array[GridState]
-    "comments"     : Array[NxCommentOp]
-}
-
-NxCommentOp {
-    "uuid"      : String
-    "mikuType"  : "NxCommentOp"
-    "operation" : "add"
-    "line"      : String
-}
-
-NxCommentOp {
+GridState {
     "uuid"       : String
-    "mikuType"   : "NxCommentOp"
-    "operation"  : "remove"
-    "targetuuid" : String
+    "mikuType"   : "GridState"
+    "type"       : "null"
 }
 
 GridState {
@@ -67,12 +48,3 @@ GridState {
     "type"         : "unique-string"
     "uniquestring" : String
 }
-
-NxGridPointFile (JSON encoded) = {
-    "uuid"      : String
-    "mikuType"  : "NxGridPointFile"
-    "states"    : Array[GridState]
-    "comments"  : Array[NxCommentOp]
-}
-
-Named `NxGridPoint` or `something.NxGridPoint`

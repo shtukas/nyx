@@ -530,8 +530,8 @@ class CatalystListing
                     "lambda" => lambda { NxTodos::items() }
                 },
                 {
-                    "name" => "NyxNodes::items()",
-                    "lambda" => lambda { NyxNodes::items() }
+                    "name" => "NxGridPointN::items()",
+                    "lambda" => lambda { NxGridPointN::items() }
                 },
                 {
                     "name" => "NxLines::items()",

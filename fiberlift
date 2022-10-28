@@ -31,8 +31,8 @@ if !File.exists?(referenceFolder) then
     exit
 end
 
-state = NxGridFiber::locationToNxFiberState(referenceFolder)
-FileSystemCheck::fsck_NxFiberState(state, SecureRandom.hex, true)
+state = ::locationToNxFiberState(referenceFolder)
+#FileSystemCheck::fsck_NxFiberState(state, SecureRandom.hex, true)
 
 states = fiber["states"] + [state]
 fiber["states"] = states
@@ -56,9 +56,9 @@ nyxnode["payload_1"] = payload
 
 #puts "nyxnode: #{JSON.pretty_generate(nyxnode)}"
 
-#puts "NyxNodes::commitObject(#{JSON.pretty_generate(nyxnode)})"
+#puts "NxGridPointN::commitObject(#{JSON.pretty_generate(nyxnode)})"
 
-NyxNodes::commitObject(nyxnode)
+NxGridPointN::commitObject(nyxnode)
 
 #puts "NxGridFiberFileSystemIntegration::propagateFiber(#{JSON.pretty_generate(fiber)})"
 

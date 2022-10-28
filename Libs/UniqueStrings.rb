@@ -1,9 +1,9 @@
 
 # encoding: UTF-8
 
-class UniqueStringsFunctions
+class UniqueStrings
 
-    # UniqueStringsFunctions::uniqueStringIsInAionPointObject(operator, object, uniquestring)
+    # UniqueStrings::uniqueStringIsInAionPointObject(operator, object, uniquestring)
     def self.uniqueStringIsInAionPointObject(operator, object, uniquestring)
         if object["aionType"] == "indefinite" then
             return false
@@ -12,22 +12,22 @@ class UniqueStringsFunctions
             if object["name"].downcase.include?(uniquestring.downcase) then
                 return true
             end
-            return object["items"].any?{|nhash| UniqueStringsFunctions::uniqueStringIsInNhash(operator, nhash, uniquestring) }
+            return object["items"].any?{|nhash| UniqueStrings::uniqueStringIsInNhash(operator, nhash, uniquestring) }
         end
         if object["aionType"] == "file" then
             return object["name"].downcase.include?(uniquestring.downcase)
         end
     end
 
-    # UniqueStringsFunctions::uniqueStringIsInNhash(operator, nhash, uniquestring)
+    # UniqueStrings::uniqueStringIsInNhash(operator, nhash, uniquestring)
     def self.uniqueStringIsInNhash(operator, nhash, uniquestring)
         blob = operator.getBlobOrNull(nhash)
         return false if blob.nil?
         object = JSON.parse(blob)
-        UniqueStringsFunctions::uniqueStringIsInAionPointObject(operator, object, uniquestring)
+        UniqueStrings::uniqueStringIsInAionPointObject(operator, object, uniquestring)
     end
 
-    # PolyActions::dataPrefetchAttempt(uniquestring)
+    # UniqueStrings::findAndAccessUniqueString(uniquestring)
     def self.findAndAccessUniqueString(uniquestring)
 
         puts "unique string: #{uniquestring}"

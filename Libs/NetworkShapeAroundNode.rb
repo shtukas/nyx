@@ -3,7 +3,7 @@ class NetworkShapeAroundNode
 
     # NetworkShapeAroundNode::getGenericNyxNetworkObjectOrNull(uuid)
     def self.getGenericNyxNetworkObjectOrNull(uuid)
-        item = NyxNodes::getItemOrNull(uuid)
+        item = NxGridPointN::getItemOrNull(uuid)
         return item if item
         item = NxLines::getOrNull(uuid)
         return item if item
