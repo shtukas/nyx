@@ -353,8 +353,8 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsck_GridState(item, databases, runhash, verbose)
-    def self.fsck_GridState(item, databases, runhash, verbose)
+    # FileSystemCheck::fsck_GridState(item, runhash, verbose)
+    def self.fsck_GridState(item, runhash, verbose)
         repeatKey = "#{runhash}:#{JSON.generate(item)}"
         return if XCache::getFlag(repeatKey)
 
@@ -371,8 +371,8 @@ class FileSystemCheck
 
         FileSystemCheck::ensureAttribute(item, "type", "String")
 
-        if item["type"] == "NxFire" then
-            raise "not finished: B978B332-FF6A-4C6D-9180-580E94462674"
+        if !GridState::gridStateTypes().include?(item["type"]) then
+            raise "Incorrect type in #{JSON.pretty_generate(item)}"
         end
 
         if item["type"] == "text" then
@@ -396,7 +396,18 @@ class FileSystemCheck
             dottedExtension  = item["dottedExtension"]
             nhash            = item["nhash"]
             parts            = item["parts"]
-            raise "not finished: 17052FB0-718B-451C-8F84-837ABB7B82A5"
+            operator         = Elizabeth4.new()
+            status = PrimitiveFiles::fsckPrimitiveFileDataRaiseAtFirstError(operator, dottedExtension, nhash, parts, verbose)
+            if !status then
+                puts JSON.pretty_generate(item)
+                raise "(error: 3e428541-805b-455e-b6a2-c400a6519aef) primitive file fsck failed"
+            end
+        end
+
+        if item["type"] == "NxDirectoryContents" then
+            item["rootnhashes"].each{|rootnhash|
+                FileSystemCheck::fsck_aion_point_rootnhash(rootnhash, runhash, verbose)
+            }
         end
 
         if item["type"] == "Dx8Unit" then

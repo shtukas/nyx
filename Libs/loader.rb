@@ -161,6 +161,7 @@ require_relative "DataStore4.rb"
 require_relative "EnergyGrid.rb"
 
 require_relative "Galaxy.rb"
+require_relative "GridState.rb"
 
 require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"

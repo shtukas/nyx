@@ -26,13 +26,6 @@ NxCommentOp {
 GridState {
     "uuid"       : String
     "mikuType"   : "GridState"
-    "type"       : "NxFire"
-    "nhashroots" : Array[Strings]
-}
-
-GridState {
-    "uuid"       : String
-    "mikuType"   : "GridState"
     "type"       : "text",
     "text"       : String
 }
@@ -51,6 +44,13 @@ GridState {
     "dottedExtension" : String
     "nhash"           : String
     "parts"           : Array[String]
+}
+
+GridState {
+    "uuid"        : String
+    "mikuType"    : "GridState"
+    "type"        : "NxDirectoryContents"
+    "rootnhashes" : Array[Strings]
 }
 
 GridState {
