@@ -185,6 +185,14 @@ class GridState
         if !File.exists?(exportFolder) then
             raise "(error: d5574c5e-3ab0-458c-98e2-331278e4fb32) cannot see exportFolder: #{exportFolder}"
         end
+        if !File.directory?(exportFolder) then
+            raise "(error: 7AA14FAC-ECC1-4B1F-94FF-969B8261A2D8) exportFolder is not a directory: #{exportFolder}"
+        end
+        
+        # Cleaning 
+        LucilleCore::locationsAtFolder(exportFolder).each{|l| LucilleCore::removeFileSystemLocation(l) }
+
+        # Exporting
         rootnhashes.each{|rootnhash|
             Nx113Access::accessAionPointAtExportDirectory(rootnhash, exportFolder)
         }
