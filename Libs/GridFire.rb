@@ -65,6 +65,7 @@ class GridFire
                 fsObject = JSON.parse(IO.read(location1))
                 uuid = fsObject["uuid"]
                 location2 = GridFire::objectLocationToExportFolder(location1)
+                next if !File.exists?(location2)
                 #puts "location2: #{location2}"
                 currentTrace = CommonUtils::locationTrace(location2)
                 #puts "currentTrace: #{currentTrace}"
@@ -114,10 +115,12 @@ class GridFire
                     fsObject["states"] = combinedStates
                     File.open(location1, "w"){|f| f.puts(JSON.pretty_generate(fsObject)) }
                     location2 = GridFire::objectLocationToExportFolder(location1)
-                    GridFire::log "exporting the last state to: #{location2}".green
-                    state = fsObject["states"].last
-                    GridState::exportNxDirectoryContentsRootsAtFolder(state["rootnhashes"], location2)
-                    GridFire::setTrace(location1, state["uuid"], CommonUtils::locationTrace(location2))
+                    if File.exists?(location2) then
+                        GridFire::log "exporting the last state to: #{location2}".green
+                        state = fsObject["states"].last
+                        GridState::exportNxDirectoryContentsRootsAtFolder(state["rootnhashes"], location2)
+                        GridFire::setTrace(location1, state["uuid"], CommonUtils::locationTrace(location2))
+                    end
                 end
             end
         end
