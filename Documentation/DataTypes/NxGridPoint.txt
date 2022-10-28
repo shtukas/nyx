@@ -1,12 +1,13 @@
 
 NxGridPointN = {
-    "uuid"        : String
-    "mikuType"    : "NxGridPointN"
-    "unixtime"    : Float
-    "datetime"    : DateTime Iso 8601 UTC Zulu
-    "description" : String
-    "states"      : Array[GridState]
-    "comments"    : Array[NxCommentOp]
+    "uuid"         : String
+    "mikuType"     : "NxGridPointN"
+    "unixtime"     : Float
+    "datetime"     : DateTime Iso 8601 UTC Zulu
+    "description"  : String
+    "networkType1" : "Information" | "Entity" | "Concept" | "Event" | "Person" | "Collection" | "Timeline" 
+    "states"       : Array[GridState]
+    "comments"     : Array[NxCommentOp]
 }
 
 NxCommentOp {
