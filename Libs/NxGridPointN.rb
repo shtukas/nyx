@@ -47,7 +47,7 @@ class NxGridPointN
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         networkType1 = NxGridPointN::interactivelySelectNetworkType1()
-        state = GridState::interactivelyBuildGridStateOrNull() || GridState::makeNullState()
+        state = GridState::interactivelyBuildGridStateOrNull() || GridState::nullGridState()
         item = {
             "uuid"         => SecureRandom.uuid,
             "mikuType"     => "NxGridPointN",
@@ -69,7 +69,7 @@ class NxGridPointN
         datetime = Time.new.utc.iso8601
         description = File.basename(filepath)
         networkType1 = "Information"
-        states = [GridState::makeFile(filepath)]
+        states = [GridState::fileGridState(filepath)]
         item = {
             "uuid"         => uuid,
             "mikuType"     => "NyxNode",
@@ -93,7 +93,7 @@ class NxGridPointN
         datetime = Time.new.utc.iso8601
         description = File.basename(location)
         networkType1 = "Information"
-        states = [GridState::makeNxDirectoryContents(location)]
+        states = [GridState::directoryPathToNxDirectoryContentsGridState(location)]
         item = {
             "uuid"         => uuid,
             "mikuType"     => "NyxNode",

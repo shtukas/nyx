@@ -162,6 +162,7 @@ require_relative "EnergyGrid.rb"
 
 require_relative "Galaxy.rb"
 require_relative "GridState.rb"
+require_relative "GridFire.rb"
 
 require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"
@@ -230,6 +231,17 @@ if $RunNonEssentialThreads then
             }
         }
     end
+
+    if Config::isAlexandra() then
+        Thread.new {
+            loop {
+                sleep 60
+                GridFire::run()
+                sleep 600
+            }
+        }
+    end
+
 end
 
 # ------------------------------------------------------------

@@ -1,9 +1,0 @@
-
-NxGridPointFile (JSON encoded) = {
-    "uuid"      : String
-    "mikuType"  : "NxGridPointFile"
-    "states"    : Array[GridState]
-    "comments"  : Array[NxCommentOp]
-}
-
-Named `NxGridPoint` or `something.NxGridPoint`
