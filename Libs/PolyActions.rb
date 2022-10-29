@@ -125,7 +125,7 @@ class PolyActions
             if item["nx11e"]["type"] == "triage" then
                 loop {
                     puts PolyFunctions::toString(item).green
-                    actions = ["access >> ♻️", "access >> description >> ♻️", "standard >> contribution", "start >> access >> al.", "destroy"]
+                    actions = ["access >> ♻️", "access >> description >> ♻️", "standard >> contribution", "start >> access >> al.", "destroy", "exit"]
                     action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
                     next if action.nil?
                     if action == "access >> ♻️" then
@@ -168,6 +168,9 @@ class PolyActions
                         if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
                             NxTodos::destroy(item["uuid"])
                         end
+                        return
+                    end
+                    if action == "exit" then
                         return
                     end
                 }
