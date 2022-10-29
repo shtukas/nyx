@@ -27,7 +27,7 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NyxNode" then
+        if item["mikuType"] == "Nx7" then
             Nx7::access(item)
             return
         end

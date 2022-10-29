@@ -175,7 +175,7 @@ class GridState
 
     # GridState::toString(state)
     def self.toString(state)
-        "(#{state["type"]})"
+        "#{state["type"]}"
     end
 
     # Operations

@@ -72,7 +72,7 @@ class Nx7
         states = [GridState::fileGridState(filepath)]
         item = {
             "uuid"         => uuid,
-            "mikuType"     => "NyxNode",
+            "mikuType"     => "Nx7",
             "unixtime"     => Time.new.to_i,
             "datetime"     => Time.new.utc.iso8601,
             "description"  => description,
@@ -96,7 +96,7 @@ class Nx7
         states = [GridState::directoryPathToNxDirectoryContentsGridState(location)]
         item = {
             "uuid"         => uuid,
-            "mikuType"     => "NyxNode",
+            "mikuType"     => "Nx7",
             "unixtime"     => Time.new.to_i,
             "datetime"     => Time.new.utc.iso8601,
             "description"  => description,
@@ -113,7 +113,7 @@ class Nx7
     # Nx7::toString(item)
     def self.toString(item)
         state = item["states"].last
-        "(NyxNode) #{GridState::toString(item["states"].last)} #{item["description"]}"
+        "(Nx7) #{GridState::toString(item["states"].last)} #{item["description"]}"
     end
 
     # ------------------------------------------------

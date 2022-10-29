@@ -28,7 +28,7 @@ class PolyFunctions
 
         # order: by mikuType
 
-        if item["mikuType"] == "NyxNode" then
+        if item["mikuType"] == "Nx7" then
             return Nx7::edit(item)
         end
 
