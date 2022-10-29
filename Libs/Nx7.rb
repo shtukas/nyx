@@ -196,7 +196,7 @@ class Nx7
             puts "line | link | child | parent | upload".yellow
             puts "[link type update] parents>related | parents>children | related>children | related>parents | children>related".yellow
             puts "[network shape] select children; move to selected child | select children; move to uuid | acquire children by uuid".yellow
-            puts "[grid points] dump object | dump children".yellow
+            puts "[grid points] make nyx7".yellow
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
             return if input == ""
@@ -219,27 +219,12 @@ class Nx7
                 next
             end
 
-            if input == "dump object" then
+            if input == "make nyx7" then
                 description = item["description"]
                 safedescription = CommonUtils::sanitiseStringForFilenaming(description)
                 filename = "#{safedescription}.nyx7"
                 filepath = "#{Config::userHomeDirectory()}/Desktop/#{filename}"
                 File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item))}
-                next
-            end
-
-            if input == "dump children" then
-                NetworkLocalViews::children(item["uuid"]).each{|child|
-                    description = child["description"]
-                    safedescription = CommonUtils::sanitiseStringForFilenaming(description)
-                    filename = "#{safedescription}.nyx7"
-                    filepath = "#{Config::userHomeDirectory()}/Desktop/#{filename}"
-                    if File.exists?(filepath) then
-                        filename = "#{safedescription}-#{SecureRandom.hex(4)}.nyx7"
-                        filepath = "#{Config::userHomeDirectory()}/Desktop/#{filename}"
-                    end
-                    File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(child))}
-                }
                 next
             end
 
