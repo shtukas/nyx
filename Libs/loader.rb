@@ -178,7 +178,6 @@ require_relative "Nx11E.rb"
 require_relative "NxTodos.rb"
 require_relative "NetworkShapeAroundNode.rb"
 require_relative "NxLines.rb"
-require_relative "NetworkLocalViews.rb"
 require_relative "Nx7.rb"
 
 require_relative "PrimitiveFiles.rb"

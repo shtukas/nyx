@@ -10,7 +10,7 @@ class GridFire
 
     # GridFire::exportChildrenAtLocation(object, location)
     def self.exportChildrenAtLocation(object, location)
-        NetworkLocalViews::children(object["uuid"]).each{|child|
+        Nx7::children(object).each{|child|
             description = child["description"]
             safedescription = CommonUtils::sanitiseStringForFilenaming(description)
             filename = "#{safedescription}.nyx7"
@@ -30,16 +30,16 @@ class GridFire
             puts "Exiting"
             exit
         end
-        if object["states"].last["type"] == "null" and NetworkLocalViews::children(object["uuid"]).size == 0 then
+        if object["states"].last["type"] == "null" and Nx7::children(object).size == 0 then
 
         end
-        if object["states"].last["type"] != "null" and NetworkLocalViews::children(object["uuid"]).size == 0 then
+        if object["states"].last["type"] != "null" and Nx7::children(object).size == 0 then
             GridFire::exportObjectAtLocation(object, location2)
         end
-        if object["states"].last["type"] == "null" and NetworkLocalViews::children(object["uuid"]).size > 0 then
+        if object["states"].last["type"] == "null" and Nx7::children(object).size > 0 then
             GridFire::exportChildrenAtLocation(object, location2)
         end
-        if object["states"].last["type"] != "null" and NetworkLocalViews::children(object["uuid"]).size > 0 then
+        if object["states"].last["type"] != "null" and Nx7::children(object).size > 0 then
             location3 = "#{location2}-state"
             location4 = "#{location2}-children"
             if !File.exists?(location3) then

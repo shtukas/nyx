@@ -349,6 +349,10 @@ class FileSystemCheck
             # TODO:
         }
 
+        FileSystemCheck::ensureAttribute(item, "parentsuuids", "Array")
+        FileSystemCheck::ensureAttribute(item, "relatedsuuids", "Array")
+        FileSystemCheck::ensureAttribute(item, "childrenuuids", "Array")
+
         XCache::setFlag(repeatKey, true)
     end
 
