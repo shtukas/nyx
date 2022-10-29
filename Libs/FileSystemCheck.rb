@@ -317,19 +317,19 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsck_NxGridPointN(item, runhash, verbose)
-    def self.fsck_NxGridPointN(item, runhash, verbose)
+    # FileSystemCheck::fsck_Nx7(item, runhash, verbose)
+    def self.fsck_Nx7(item, runhash, verbose)
         repeatKey = "#{runhash}:#{JSON.generate(item)}"
         return if XCache::getFlag(repeatKey)
 
         if verbose then
-            puts "FileSystemCheck::fsck_NxGridPointN(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
+            puts "FileSystemCheck::fsck_Nx7(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
         end
 
         if item["mikuType"].nil? then
             raise "item has no Miku type"
         end
-        if item["mikuType"] != "NxGridPointN" then
+        if item["mikuType"] != "Nx7" then
             raise "Incorrect Miku type for function"
         end
 
@@ -446,7 +446,7 @@ class FileSystemCheck
             return
         end
 
-        if mikuType == "NxGridPointN" then
+        if mikuType == "Nx7" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
             FileSystemCheck::ensureAttribute(item, "mikuType", "String")
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
@@ -454,7 +454,7 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "description", "String")
             FileSystemCheck::ensureAttribute(item, "networkType1", "String")
 
-            if !NxGridPointN::networkType1().include?(item["networkType1"]) then
+            if !Nx7::networkType1().include?(item["networkType1"]) then
                 raise "incorrect networkType1 in #{JSON.pretty_generate(item)}"
             end
 
@@ -567,7 +567,7 @@ class FileSystemCheck
 
     # FileSystemCheck::fsckErrorAtFirstFailure(runhash)
     def self.fsckErrorAtFirstFailure(runhash)
-        (Waves::items() + NxTodos::items() + NxGridPointN::items()).each{|item|
+        (Waves::items() + NxTodos::items() + Nx7::items()).each{|item|
             FileSystemCheck::exitIfMissingCanary()
             FileSystemCheck::fsck_MikuTypedItem(item, runhash, true)
         }

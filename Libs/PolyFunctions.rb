@@ -29,7 +29,7 @@ class PolyFunctions
         # order: by mikuType
 
         if item["mikuType"] == "NyxNode" then
-            return NxGridPointN::edit(item)
+            return Nx7::edit(item)
         end
 
         if item["mikuType"] == "NxTodo" then
@@ -119,7 +119,7 @@ class PolyFunctions
         if item["mikuType"] == "NxTodo" then
             return item["description"]
         end
-        if item["mikuType"] == "NxGridPointN" then
+        if item["mikuType"] == "Nx7" then
             return item["description"]
         end
         if item["mikuType"] == "TxFloat" then
@@ -142,7 +142,7 @@ class PolyFunctions
         item = NxTodos::getItemOrNull(uuid)
         return item if item
 
-        item = NxGridPointN::getItemOrNull(uuid)
+        item = Nx7::getItemOrNull(uuid)
         return item if item
 
         item = NxLines::getOrNull(uuid)
@@ -226,8 +226,8 @@ class PolyFunctions
         if item["mikuType"] == "NxTodo" then
             return NxTodos::toString(item)
         end
-        if item["mikuType"] == "NxGridPointN" then
-            return NxGridPointN::toString(item)
+        if item["mikuType"] == "Nx7" then
+            return Nx7::toString(item)
         end
         if item["mikuType"] == "TxManualCountDown" then
             return "(countdown) #{item["description"]}: #{item["counter"]}"

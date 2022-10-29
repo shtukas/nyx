@@ -179,7 +179,7 @@ require_relative "NxTodos.rb"
 require_relative "NetworkShapeAroundNode.rb"
 require_relative "NxLines.rb"
 require_relative "NetworkLocalViews.rb"
-require_relative "NxGridPointN.rb"
+require_relative "Nx7.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"

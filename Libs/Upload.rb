@@ -15,7 +15,7 @@ class Upload
         end
         LucilleCore::locationsAtFolder(folder).each{|location|
             puts "processing: #{location}"
-            child = NxGridPointN::issueNewUsingLocation(location)
+            child = Nx7::issueNewUsingLocation(location)
             if overrideDatetime then
                 child["datetime"] = overrideDatetime
                 PolyActions::commit(child)
@@ -39,7 +39,7 @@ class Upload
         end
         LucilleCore::locationsAtFolder(folder).each{|filepath|
             puts "processing: #{filepath}"
-            child = NxGridPointN::issueNewUsingFile(filepath)
+            child = Nx7::issueNewUsingFile(filepath)
             if overrideDatetime then
                 child["datetime"] = overrideDatetime
                 PolyActions::commit(child)
@@ -61,7 +61,7 @@ class Upload
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return if location.nil?
             return if !File.file?(location)
-            child = NxGridPointN::issueNewUsingFile(location)
+            child = Nx7::issueNewUsingFile(location)
             if overrideDatetime then
                 child["datetime"] = overrideDatetime
                 PolyActions::commit(child)

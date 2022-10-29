@@ -2,119 +2,75 @@
 
 class GridFire
 
-    # GridFire::log(message)
-    def self.log(message)
-        month = Time.new.to_s[0, 7]
-        day   = Time.new.to_s[0, 10]
-        filepath = "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter/gridfire-log/#{month}/#{day}.txt"
-        if !File.exists?(File.dirname(filepath)) then
-            FileUtils.mkpath(File.dirname(filepath))
-        end
-        line = "GridFire @ #{Time.new.utc.iso8601}: #{message}"
-        File.open(filepath, "a"){|f| f.puts(line) }
+    # GridFire::exportObjectAtLocation(object, location)
+    def self.exportObjectAtLocation(object, location)
+        state = object["states"].last
+        GridState::exportStateAtFolder(object["states"].last, location)
     end
 
-    # GridFire::orderStates(states)
-    def self.orderStates(states)
-        states.sort{|s1, s2| s1["unixtime"] <=> s2["unixtime"] }
-    end
-
-    # GridFire::combineStates(states1, states2)
-    def self.combineStates(states1, states2)
-        states = (states1+states2).reduce([]){|sts, state|
-            if sts.any?{|s| s["uuid"] == state["uuid"] } then
-                sts
-            else
-                sts + [state]
-            end
+    # GridFire::exportChildrenAtLocation(object, location)
+    def self.exportChildrenAtLocation(object, location)
+        NetworkLocalViews::children(object["uuid"]).each{|child|
+            description = child["description"]
+            safedescription = CommonUtils::sanitiseStringForFilenaming(description)
+            filename = "#{safedescription}.nyx7"
+            filepath = "#{location}/#{filename}"
+            File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(child))}
         }
-        GridFire::orderStates(states)
     end
 
-    # GridFire::objectLocationToExportFolder(location1)
-    def self.objectLocationToExportFolder(location1)
-        location2 = 
-            if File.basename(location1) == "NxGridPointN" then
-                "#{File.dirname(location1)}/Contents"
-            else
-                location1.gsub(".NxGridPointN", "")
-            end
-        if !File.exists?(location2) then
-            GridFire::log "I am trying to get the export folder for object '#{location1}'"
-            GridFire::log "but I can't find it."
+    # GridFire::processNyx7(filepath1)
+    def self.processNyx7(filepath1)
+        location2 = filepath1.gsub(".nyx7", "")
+        return if !File.exists?(location2)
+        object = JSON.parse(IO.read(filepath1))
+        object = Nx7::getItemOrNull(object["uuid"])
+        if object.nil? then
+            puts "I could not find the network equivalent of location1: '#{location1}', uuid: '#{object}'"
+            puts "Exiting"
+            exit
         end
-        location2
-    end
+        if object["states"].last["type"] == "null" and NetworkLocalViews::children(object["uuid"]).size == 0 then
 
-    # GridFire::getCachedTraceOrNull(objectfilepath, stateuuid)
-    def self.getCachedTraceOrNull(objectfilepath, stateuuid)
-        XCache::getOrNull("CBF711E1-5052-458A-9AAC-91FE0C3C82B8:#{objectfilepath}:#{stateuuid}")
-    end
-
-    # GridFire::setTrace(objectfilepath, stateuuid, trace)
-    def self.setTrace(objectfilepath, stateuuid, trace)
-        XCache::set("CBF711E1-5052-458A-9AAC-91FE0C3C82B8:#{objectfilepath}:#{stateuuid}", trace)
-    end
-
-    # GridFire::pickupFsChanges()
-    def self.pickupFsChanges()
-        return
-        Find.find("#{Config::userHomeDirectory()}/Galaxy/OpenCycles") do |path|
-            if path[-12, 12] == "NxGridPointN" then
-                location1 =  path
-                GridFire::log "probing #{location1}"
-                fsObject = JSON.parse(IO.read(location1))
-                uuid = fsObject["uuid"]
-                location2 = GridFire::objectLocationToExportFolder(location1)
-                next if !File.exists?(location2)
-                #puts "location2: #{location2}"
-                currentTrace = CommonUtils::locationTrace(location2)
-                #puts "currentTrace: #{currentTrace}"
-                cachedTrace = GridFire::getCachedTraceOrNull(location1, fsObject["states"].last["uuid"])
-                shouldMakeNewState = (cachedTrace.nil? or (currentTrace != cachedTrace))
-                if shouldMakeNewState then
-                    GridFire::log "about to make new state from: #{location2}".green
-                    state = GridState::directoryPathToNxDirectoryContentsGridState(location2)
-                    #puts JSON.pretty_generate(state)
-                    fsObject["states"] << state
-                    File.open(location1, "w"){|f| f.puts(JSON.pretty_generate(fsObject)) }
-                    GridFire::setTrace(location1, state["uuid"], currentTrace)
-                end
+        end
+        if object["states"].last["type"] != "null" and NetworkLocalViews::children(object["uuid"]).size == 0 then
+            GridFire::exportObjectAtLocation(object, location2)
+        end
+        if object["states"].last["type"] == "null" and NetworkLocalViews::children(object["uuid"]).size > 0 then
+            GridFire::exportChildrenAtLocation(object, location2)
+        end
+        if object["states"].last["type"] != "null" and NetworkLocalViews::children(object["uuid"]).size > 0 then
+            location3 = "#{location2}-state"
+            location4 = "#{location2}-children"
+            if !File.exists?(location3) then
+                FileUtils.mkdir(location3)
             end
+            if !File.exists?(location4) then
+                FileUtils.mkdir(location4)
+            end
+            GridFire::exportObjectAtLocation(object, location3)
+            GridFire::exportChildrenAtLocation(object, location4)
         end
     end
 
-    # GridFire::propagateChangesToDisk()
-    def self.propagateChangesToDisk()
-        Find.find("#{Config::userHomeDirectory()}/Galaxy/OpenCycles") do |path|
-            if path[-12, 12] == "NxGridPointN" then
-                location1 =  path
-                GridFire::log "probing #{location1}"
-                fsObject = JSON.parse(IO.read(location1))
-                uuid = fsObject["uuid"]
-                networkObject = NxGridPointN::getItemOrNull(uuid)
-                if networkObject.nil? then
-                    GridFire::log "I could not find the network equivalent of location1: #{location1}"
-                    GridFire::log "Exiting"
-                    exit
-                end
-                next if networkObject["states"].last["uuid"] == fsObject["states"].last["uuid"]
-                GridFire::log "sending updated object to disk".green
-                File.open(location1, "w"){|f| f.puts(JSON.pretty_generate(networkObject)) }
-                location2 = GridFire::objectLocationToExportFolder(location1)
-                if File.exists?(location2) then
-                    GridFire::log "exporting the last state to: #{location2}".green
-                    state = networkObject["states"].last
-                    GridState::exportNxDirectoryContentsRootsAtFolder(state["rootnhashes"], location2)
-                    GridFire::setTrace(location1, state["uuid"], CommonUtils::locationTrace(location2))
-                end
+    # GridFire::propagateChangesToDiskScanRoot(root)
+    def self.propagateChangesToDiskScanRoot(root)
+        Find.find(root) do |path|
+            if path[-5, 5] == ".nyx7" then
+                filepath1 = path
+                puts "process: #{filepath1}"
+                GridFire::processNyx7(filepath1)
             end
         end
     end
 
     # GridFire::run()
     def self.run()
-        #GridFire::pickupFsChanges()
-        GridFire::propagateChangesToDisk()
+        [
+            "#{Config::userHomeDirectory()}/Galaxy/DataHub", 
+            "#{Config::userHomeDirectory()}/Galaxy/OpenCycles"
+        ].each{|root|
+            GridFire::propagateChangesToDiskScanRoot(root)
+        }
     end
 end

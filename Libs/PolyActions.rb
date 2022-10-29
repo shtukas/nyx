@@ -28,7 +28,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "NyxNode" then
-            NxGridPointN::access(item)
+            Nx7::access(item)
             return
         end
 
@@ -67,8 +67,8 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxGridPointN" then
-            NxGridPointN::commitObject(item)
+        if item["mikuType"] == "Nx7" then
+            Nx7::commitObject(item)
             return
         end
 
@@ -89,8 +89,8 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxGridPointN" then
-            NxGridPointN::destroy(item["uuid"])
+        if item["mikuType"] == "Nx7" then
+            Nx7::destroy(item["uuid"])
             return
         end
 
@@ -368,8 +368,8 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxGridPointN" then
-            NxGridPointN::landing(item)
+        if item["mikuType"] == "Nx7" then
+            Nx7::landing(item)
             return
         end
 

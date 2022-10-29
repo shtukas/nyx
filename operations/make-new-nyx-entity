@@ -4,6 +4,6 @@
 
 require_relative "../Libs/loader.rb"
 
-item = NxGridPointN::interactivelyIssueNewOrNull()
+item = Nx7::interactivelyIssueNewOrNull()
 exit if item.nil?
 PolyActions::landing(item)

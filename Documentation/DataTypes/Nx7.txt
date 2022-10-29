@@ -1,7 +1,7 @@
 
-NxGridPointN = {
+Nx7 = {
     "uuid"         : String
-    "mikuType"     : "NxGridPointN"
+    "mikuType"     : "Nx7"
     "unixtime"     : Float
     "datetime"     : DateTime Iso 8601 UTC Zulu
     "description"  : String

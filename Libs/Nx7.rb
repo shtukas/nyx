@@ -1,56 +1,56 @@
 
 # encoding: UTF-8
 
-class NxGridPointN
+class Nx7
 
     # ------------------------------------------------
     # Basic IO
 
-    # NxGridPointN::items()
+    # Nx7::items()
     def self.items()
-        TheBook::getObjects("#{Config::pathToDataCenter()}/NxGridPointN")
+        TheBook::getObjects("#{Config::pathToDataCenter()}/Nx7")
     end
 
-    # NxGridPointN::getItemOrNull(uuid)
+    # Nx7::getItemOrNull(uuid)
     def self.getItemOrNull(uuid)
-        TheBook::getObjectOrNull("#{Config::pathToDataCenter()}/NxGridPointN", uuid)
+        TheBook::getObjectOrNull("#{Config::pathToDataCenter()}/Nx7", uuid)
     end
 
-    # NxGridPointN::commitObject(object)
+    # Nx7::commitObject(object)
     def self.commitObject(object)
         FileSystemCheck::fsck_MikuTypedItem(object, SecureRandom.hex, false)
-        TheBook::commitObjectToDisk("#{Config::pathToDataCenter()}/NxGridPointN", object)
+        TheBook::commitObjectToDisk("#{Config::pathToDataCenter()}/Nx7", object)
     end
 
-    # NxGridPointN::destroy(uuid)
+    # Nx7::destroy(uuid)
     def self.destroy(uuid)
-        TheBook::destroy("#{Config::pathToDataCenter()}/NxGridPointN", uuid)
+        TheBook::destroy("#{Config::pathToDataCenter()}/Nx7", uuid)
     end
 
     # ------------------------------------------------
     # Makers
 
-    # NxGridPointN::networkType1()
+    # Nx7::networkType1()
     def self.networkType1()
         ["Information", "Entity", "Concept", "Event", "Person", "Collection", "Timeline"]
     end
 
-    # NxGridPointN::interactivelySelectNetworkType1()
+    # Nx7::interactivelySelectNetworkType1()
     def self.interactivelySelectNetworkType1()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("networkType", NxGridPointN::networkType1())
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("networkType", Nx7::networkType1())
         return type if type
-        NxGridPointN::interactivelySelectNetworkType1()
+        Nx7::interactivelySelectNetworkType1()
     end
 
-    # NxGridPointN::interactivelyIssueNewOrNull()
+    # Nx7::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-        networkType1 = NxGridPointN::interactivelySelectNetworkType1()
+        networkType1 = Nx7::interactivelySelectNetworkType1()
         state = GridState::interactivelyBuildGridStateOrNull() || GridState::nullGridState()
         item = {
             "uuid"         => SecureRandom.uuid,
-            "mikuType"     => "NxGridPointN",
+            "mikuType"     => "Nx7",
             "unixtime"     => Time.new.to_f,
             "datetime"     => Time.new.utc.iso8601,
             "description"  => description,
@@ -58,11 +58,11 @@ class NxGridPointN
             "states"       => [state],
             "comments"     => []
         }
-        FileSystemCheck::fsck_NxGridPointN(item, SecureRandom.hex, true)
+        FileSystemCheck::fsck_Nx7(item, SecureRandom.hex, true)
         item
     end
 
-    # NxGridPointN::issueNewUsingFile(filepath)
+    # Nx7::issueNewUsingFile(filepath)
     def self.issueNewUsingFile(filepath)
         uuid = SecureRandom.uuid
         unixtime = Time.new.to_i
@@ -79,14 +79,14 @@ class NxGridPointN
             "networkType1" => networkType1,
             "states"       => states
         }
-        NxGridPointN::commitObject(item)
+        Nx7::commitObject(item)
         item
     end
 
-    # NxGridPointN::issueNewUsingLocation(location)
+    # Nx7::issueNewUsingLocation(location)
     def self.issueNewUsingLocation(location)
         if File.file?(location) then
-            return NxGridPointN::issueNewUsingFile(location)
+            return Nx7::issueNewUsingFile(location)
         end
         uuid = SecureRandom.uuid
         unixtime = Time.new.to_i
@@ -103,14 +103,14 @@ class NxGridPointN
             "networkType1" => networkType1,
             "states"       => states
         }
-        NxGridPointN::commitObject(item)
+        Nx7::commitObject(item)
         item
     end
 
     # ------------------------------------------------
     # Data
 
-    # NxGridPointN::toString(item)
+    # Nx7::toString(item)
     def self.toString(item)
         state = item["states"].last
         "(NyxNode) #{GridState::toString(item["states"].last)} #{item["description"]}"
@@ -119,33 +119,33 @@ class NxGridPointN
     # ------------------------------------------------
     # Operations
 
-    # NxGridPointN::access(item)
+    # Nx7::access(item)
     def self.access(item)
         puts item["description"]
         GridState::access(item["states"].last)
     end
 
-    # NxGridPointN::edit(item) # null or item
+    # Nx7::edit(item) # null or item
     def self.edit(item)
         states = item["states"]
         state2 = GridState::edit(states.last)
         return nil if state2.nil?
         states << state2
         item["states"] = states
-        NxGridPointN::commitObject(item)
+        Nx7::commitObject(item)
         # Todo: We might need to propagate this to disk...
         item
     end
 
-    # NxGridPointN::landing(item)
+    # Nx7::landing(item)
     def self.landing(item)
         loop {
             return nil if item.nil?
             uuid = item["uuid"]
-            item = NxGridPointN::getItemOrNull(uuid)
+            item = Nx7::getItemOrNull(uuid)
             return nil if item.nil?
             system("clear")
-            puts NxGridPointN::toString(item)
+            puts Nx7::toString(item)
             puts "uuid: #{item["uuid"]}".yellow
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
@@ -209,7 +209,7 @@ class NxGridPointN
             end
 
             if Interpreting::match("access", input) then
-                NxGridPointN::access(item)
+                Nx7::access(item)
                 next
             end
             if input == "line" then
@@ -222,7 +222,7 @@ class NxGridPointN
             if input == "dump object" then
                 description = item["description"]
                 safedescription = CommonUtils::sanitiseStringForFilenaming(description)
-                filename = "#{safedescription}.NxGridPointN"
+                filename = "#{safedescription}.nyx7"
                 filepath = "#{Config::userHomeDirectory()}/Desktop/#{filename}"
                 File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item))}
                 next
@@ -232,12 +232,11 @@ class NxGridPointN
                 NetworkLocalViews::children(item["uuid"]).each{|child|
                     description = child["description"]
                     safedescription = CommonUtils::sanitiseStringForFilenaming(description)
-                    filename = "#{safedescription}.NxGridPointN"
+                    filename = "#{safedescription}.nyx7"
                     filepath = "#{Config::userHomeDirectory()}/Desktop/#{filename}"
                     if File.exists?(filepath) then
-                        puts "Duplicate children '(#{filepath}' already exists)"
-                        puts "Exiting"
-                        exit
+                        filename = "#{safedescription}-#{SecureRandom.hex(4)}.nyx7"
+                        filepath = "#{Config::userHomeDirectory()}/Desktop/#{filename}"
                     end
                     File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(child))}
                 }
@@ -265,7 +264,7 @@ class NxGridPointN
             end
 
             if Interpreting::match("edit", input) then
-                item = NxGridPointN::edit(item)
+                item = Nx7::edit(item)
                 next if item.nil?
                 puts JSON.pretty_generate(item)
                 next
@@ -281,7 +280,7 @@ class NxGridPointN
                 state = GridState::interactivelyBuildGridStateOrNull()
                 next if state.nil?
                 item["states"] << state
-                NxGridPointN::commitObject(item)
+                Nx7::commitObject(item)
                 next
             end
 
@@ -296,9 +295,9 @@ class NxGridPointN
             end
 
             if input == "network type" then
-                networkType1 = NxGridPointN::interactivelySelectNetworkType1()
+                networkType1 = Nx7::interactivelySelectNetworkType1()
                 item["networkType1"] = networkType1
-                NxGridPointN::commitObject(item)
+                Nx7::commitObject(item)
                 next
             end
 

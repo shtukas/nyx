@@ -198,6 +198,59 @@ class GridState
         }
     end
 
+    # GridState::exportStateAtFolder(state, folder)
+    def self.exportStateAtFolder(state, folder)
+
+        LucilleCore::locationsAtFolder(folder)
+            .each{|loc| LucilleCore::removeFileSystemLocation(loc) }
+
+        type = state["type"]
+
+        if type == "null" then
+            File.touch("#{folder}/null")
+            return
+        end
+
+        if type == "text" then
+            text = state["text"]
+            File.open("#{folder}/text.txt"){|f| f.puts(text) }
+        end
+
+        if type == "url" then
+            url = state["url"]
+            File.open("#{folder}/url.txt"){|f| f.puts(url) }
+        end
+
+        if type == "file" then
+            dottedExtension = state["dottedExtension"]
+            nhash           = state["nhash"]
+            parts           = state["parts"]
+            operator        = Elizabeth4.new()
+            filepath        = "#{folder}/#{nhash}#{dottedExtension}"
+            File.open(filepath, "w"){|f|
+                parts.each{|nhash|
+                    blob = operator.getBlobOrNull(nhash)
+                    raise "(error: 13709695-3dca-493b-be46-62d4ef6cf18f)" if blob.nil?
+                    f.write(blob)
+                }
+            }
+        end
+
+        if type == "NxDirectoryContents" then
+            GridState::exportNxDirectoryContentsRootsAtFolder(state["rootnhashes"], folder)
+        end
+
+        if type == "Dx8Unit" then
+            unitId = state["unitId"]
+            File.open("#{folder}/unitId.txt"){|f| f.puts(unitId) }
+        end
+
+        if type == "unique-string" then
+            uniquestring = state["uniquestring"]
+            File.open("#{folder}/uniquestring.txt"){|f| f.puts(uniquestring) }
+        end
+    end
+
     # GridState::access(state)
     def self.access(state)
 

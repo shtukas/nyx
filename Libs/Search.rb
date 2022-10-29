@@ -5,7 +5,7 @@ class Search
 
     # Search::nx20s() # Array[Nx20]
     def self.nx20s()
-        (NxTodos::items() + Waves::items() + NxGridPointN::items() + NxLines::items())
+        (NxTodos::items() + Waves::items() + Nx7::items() + NxLines::items())
             .map{|item|
                 {
                     "announce" => "(#{item["mikuType"]}) #{PolyFunctions::genericDescriptionOrNull(item)}",
@@ -46,7 +46,7 @@ class Search
 
     # Search::nyx()
     def self.nyx()
-        mikuTypes = ["NxGridPointN", "NxLine"]
+        mikuTypes = ["Nx7", "NxLine"]
         loop {
             system('clear')
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort) : ")
@@ -75,7 +75,7 @@ class Search
 
     # Search::foxTerrier() # nil or Item
     def self.foxTerrier()
-        mikuTypes = ["NxGridPointN"]
+        mikuTypes = ["Nx7"]
         loop {
             system('clear')
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort) : ")
