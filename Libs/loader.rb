@@ -232,16 +232,6 @@ if $RunNonEssentialThreads then
         }
     end
 
-    if Config::isAlexandra() then
-        Thread.new {
-            loop {
-                sleep 60
-                GridFire::run()
-                sleep 600
-            }
-        }
-    end
-
 end
 
 # ------------------------------------------------------------
