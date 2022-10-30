@@ -13,7 +13,7 @@ class GridFire
         Nx7::children(object).each{|child|
             description = child["description"]
             safedescription = CommonUtils::sanitiseStringForFilenaming(description)
-            filename = "#{safedescription}.Nx7"
+            filename = "#{safedescription}.Nx9"
             filepath = "#{location}/#{filename}"
             File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(child))}
         }
@@ -21,7 +21,7 @@ class GridFire
 
     # GridFire::processNx7(filepath1)
     def self.processNx7(filepath1)
-        location2 = filepath1.gsub(".Nx7", "")
+        location2 = filepath1.gsub(".Nx9", "")
         return if !File.exists?(location2)
         object = JSON.parse(IO.read(filepath1))
         object = Nx7::getItemOrNull(object["uuid"])
@@ -56,7 +56,7 @@ class GridFire
     # GridFire::propagateChangesToDiskScanRoot(root)
     def self.propagateChangesToDiskScanRoot(root)
         Find.find(root) do |path|
-            if path[-4, 4] == ".Nx7" then
+            if path[-4, 4] == ".Nx9" then
                 filepath1 = path
                 puts "process: #{filepath1}"
                 GridFire::processNx7(filepath1)

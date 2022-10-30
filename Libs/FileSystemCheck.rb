@@ -385,6 +385,31 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
+    # FileSystemCheck::fsck_Nx3(item, runhash, verbose)
+    def self.fsck_Nx3(item, runhash, verbose)
+        repeatKey = "#{runhash}:#{JSON.generate(item)}"
+        return if XCache::getFlag(repeatKey)
+
+        if verbose then
+            puts "FileSystemCheck::fsck_Nx3(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
+        end
+
+        if item["mikuType"].nil? then
+            raise "item has no Miku type"
+        end
+        if item["mikuType"] != "Nx3" then
+            raise "Incorrect Miku type for function"
+        end
+
+        FileSystemCheck::ensureAttribute(item, "eventuuid", "String")
+        FileSystemCheck::ensureAttribute(item, "eventTime", "Number")
+        FileSystemCheck::ensureAttribute(item, "eventType", "String")
+
+        #FileSystemCheck::ensureAttribute(item, "payload", nil) # We sometimes have null payload 
+
+        XCache::setFlag(repeatKey, true)
+    end
+
     # -----------------------------------------------------
 
     # FileSystemCheck::fsck_MikuTypedItem(item, runhash, verbose)

@@ -4,25 +4,53 @@ class Waves
     # --------------------------------------------------
     # IO
 
+    # Waves::filepathForUUID(uuid)
+    def self.filepathForUUID(uuid)
+        "#{Config::pathToDataCenter()}/Wave/#{uuid}.Nx5"
+    end
+
+    # Waves::nx5Filepaths()
+    def self.nx5Filepaths()
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Wave")
+            .select{|filepath| filepath[-4, 4] == ".Nx5" }
+    end
+
     # Waves::items()
     def self.items()
-        TheBook::getObjects("#{Config::pathToDataCenter()}/Wave")
+        Waves::nx5Filepaths()
+            .map{|filepath| Nx5Files::readFileAsAttributesOfObject(filepath) }
     end
 
     # Waves::commit(item)
     def self.commit(item)
         FileSystemCheck::fsck_MikuTypedItem(item, SecureRandom.hex, false)
-        TheBook::commitObjectToDisk("#{Config::pathToDataCenter()}/Wave", item)
+        filepath = Waves::filepathForUUID(uuid)
+
+        # This is a bit of a waste, but that will do for the moment
+        item.each{|key, value|
+            Nx5Files::emitEventToFile1(filepath, key, value)
+        }
+    end
+
+    # Waves::commitAttribute1(uuid, attname, attvalue)
+    def self.commitAttribute1(uuid, attname, attvalue)
+        filepath = Waves::filepathForUUID(uuid)
+        raise "(error: EDE283D3-0E7E-4D66-B055-160F43D127C5) uuid: '#{uuid}', attname: '#{attname}', attvalue: '#{attvalue}'" if !File.exists?(filepath)
+        Nx5Files::emitEventToFile1(filepath, attname, attvalue)
     end
 
     # Waves::getOrNull(uuid)
     def self.getOrNull(uuid)
-        TheBook::getObjectOrNull("#{Config::pathToDataCenter()}/Wave", uuid)
+        filepath = Waves::filepathForUUID(uuid)
+        return nil if !File.exists?(filepath)
+        Nx5Files::readFileAsAttributesOfObject(filepath)
     end
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        TheBook::destroy("#{Config::pathToDataCenter()}/Wave", uuid)
+        filepath = Waves::filepathForUUID(uuid)
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
     end
 
     # --------------------------------------------------
@@ -149,6 +177,7 @@ class Waves
             "nx113"            => nx113,
             "lastDoneDateTime" => "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         }
+        Nx5Files::issueNewAtFilepath(Waves::filepathForUUID(uuid))
         Waves::commit(item)
         item
     end

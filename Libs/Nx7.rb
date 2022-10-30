@@ -258,7 +258,7 @@ class Nx7
             puts "line | link | child | parent | upload".yellow
             puts "[link type update] parents>related | parents>children | related>children | related>parents | children>related".yellow
             puts "[network shape] select children; move to selected child | select children; move to uuid".yellow
-            puts "[grid points] make Nx7".yellow
+            puts "[grid points] make Nx9".yellow
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
             return if input == ""
@@ -281,10 +281,10 @@ class Nx7
                 next
             end
 
-            if input == "make Nx7" then
+            if input == "make Nx9" then
                 description = item["description"]
                 safedescription = CommonUtils::sanitiseStringForFilenaming(description)
-                filename = "#{safedescription}.Nx7"
+                filename = "#{safedescription}.Nx9"
                 filepath = "#{Config::userHomeDirectory()}/Desktop/#{filename}"
                 File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item))}
                 next
