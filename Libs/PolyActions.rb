@@ -27,8 +27,8 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NyxNode" then
-            NyxNodes::access(item)
+        if item["mikuType"] == "Nx7" then
+            Nx7::access(item)
             return
         end
 
@@ -67,13 +67,13 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NyxNode" then
-            NyxNodes::commitObject(item)
+        if item["mikuType"] == "Nx7" then
+            Nx7::commitObject(item)
             return
         end
 
         if item["mikuType"] == "Wave" then
-            Waves::commit(item)
+            Waves::commitItem(item)
             return
         end
 
@@ -89,8 +89,8 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NyxNode" then
-            NyxNodes::destroy(item["uuid"])
+        if item["mikuType"] == "Nx7" then
+            Nx7::destroy(item["uuid"])
             return
         end
 
@@ -125,7 +125,7 @@ class PolyActions
             if item["nx11e"]["type"] == "triage" then
                 loop {
                     puts PolyFunctions::toString(item).green
-                    actions = ["access >> ♻️", "access >> description >> ♻️", "standard >> contribution", "start >> access >> al.", "destroy"]
+                    actions = ["access >> ♻️", "access >> description >> ♻️", "standard >> contribution", "start >> access >> al.", "destroy", "exit"]
                     action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
                     next if action.nil?
                     if action == "access >> ♻️" then
@@ -168,6 +168,9 @@ class PolyActions
                         if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
                             NxTodos::destroy(item["uuid"])
                         end
+                        return
+                    end
+                    if action == "exit" then
                         return
                     end
                 }
@@ -368,8 +371,8 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NyxNode" then
-            NyxNodes::landing(item)
+        if item["mikuType"] == "Nx7" then
+            Nx7::landing(item)
             return
         end
 

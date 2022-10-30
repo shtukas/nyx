@@ -32,7 +32,7 @@ class Elizabeth4
     end
 
     def putBlob(datablob)
-        DataStore4::putBlob(blob)
+        DataStore4::putBlob(datablob)
     end
 
     def filepathToContentHash(filepath)

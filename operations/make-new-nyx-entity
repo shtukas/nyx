@@ -4,6 +4,6 @@
 
 require_relative "../Libs/loader.rb"
 
-item = NyxNodes::interactivelyIssueNewOrNull()
+item = Nx7::interactivelyIssueNewOrNull()
 exit if item.nil?
 PolyActions::landing(item)

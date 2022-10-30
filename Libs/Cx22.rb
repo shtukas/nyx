@@ -352,7 +352,7 @@ class Cx22
                         puts "[NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})".green
                     }
             end
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["elements (program)", "start NxBall", "update description", "push (do not display until)", "expose", "add time", "set style"])
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["elements (program)", "start NxBall", "update description", "push (do not display until)", "expose", "add time", "set style", "Destroy Cx22"])
             break if action.nil?
             if action == "elements (program)" then
                 Cx22::elementsDive(cx22)
@@ -393,6 +393,13 @@ class Cx22
                 cx22["style"] = style
                 PolyActions::commit(cx22)
                 next
+            end
+            if action == "Destroy Cx22" then
+                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy '#{Cx22::toString1(cx22).green}' ? ") then
+                    filepath = "#{Config::pathToDataCenter()}/Cx22/#{cx22["uuid"]}.json"
+                    FileUtils.rm(filepath)
+                end
+                return
             end
         }
     end

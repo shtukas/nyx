@@ -1,0 +1,14 @@
+
+NxCommentOp {
+    "uuid"      : String
+    "mikuType"  : "NxCommentOp"
+    "operation" : "add"
+    "line"      : String
+}
+
+NxCommentOp {
+    "uuid"       : String
+    "mikuType"   : "NxCommentOp"
+    "operation"  : "remove"
+    "targetuuid" : String
+}

@@ -240,121 +240,8 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsck_NyxNodePayload1(item, runhash, verbose)
-    def self.fsck_NyxNodePayload1(item, runhash, verbose)
-        repeatKey = "#{runhash}:#{JSON.generate(item)}"
-        return if XCache::getFlag(repeatKey)
-
-        if verbose then
-            puts "FileSystemCheck::fsck_NyxNodePayload1(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
-        end
-
-        if item["mikuType"].nil? then
-            raise "item has no Miku type"
-        end
-        if item["mikuType"] != "NyxNodePayload1" then
-            raise "Incorrect Miku type for function"
-        end
-
-        FileSystemCheck::ensureAttribute(item, "type", "String")
-
-        if !["null", "Nx113", "Nx113", "NxGridFiber"].include?(item["type"]) then
-            raise "unsupported NyxNodePayload1 type: #{item["type"]}"
-        end
-
-        type = item["type"]
-
-        if type == "null" then
-
-        end
-        if type == "Nx113" then
-            FileSystemCheck::fsck_Nx113(item["nx113"], runhash, verbose)
-        end
-        if type == "NxGridFiber" then
-            FileSystemCheck::fsck_NxGridFiber(item["fiber"], runhash, verbose)
-        end
-
-        XCache::setFlag(repeatKey, true)
-    end
-
-    # FileSystemCheck::fsck_NxFiberStateItem(item, runhash, verbose)
-    def self.fsck_NxFiberStateItem(item, runhash, verbose)
-        repeatKey = "#{runhash}:#{JSON.generate(item)}"
-        return if XCache::getFlag(repeatKey)
-
-        if verbose then
-            puts "FileSystemCheck::fsck_NxFiberStateItem(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
-        end
-
-        if item["mikuType"].nil? then
-            raise "item has no Miku type"
-        end
-        if item["mikuType"] != "NxFiberStateItem" then
-            raise "Incorrect Miku type for function"
-        end
-
-        rootnhash = item["rootnhash"]
-        FileSystemCheck::fsck_aion_point_rootnhash(rootnhash, runhash, verbose)
-
-        XCache::setFlag(repeatKey, true)
-    end
-
-    # FileSystemCheck::fsck_NxFiberState(item, runhash, verbose)
-    def self.fsck_NxFiberState(item, runhash, verbose)
-        repeatKey = "#{runhash}:#{JSON.generate(item)}"
-        return if XCache::getFlag(repeatKey)
-
-        if verbose then
-            puts "FileSystemCheck::fsck_NxFiberState(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
-        end
-
-        if item["mikuType"].nil? then
-            raise "item has no Miku type"
-        end
-        if item["mikuType"] != "NxFiberState" then
-            raise "Incorrect Miku type for function"
-        end
-
-        FileSystemCheck::ensureAttribute(item, "unixtime", "Float")
-        FileSystemCheck::ensureAttribute(item, "content", "Array")
-
-        item["content"].each{|stateItem|
-            FileSystemCheck::fsck_NxFiberStateItem(stateItem, runhash, verbose)
-        }
-
-        XCache::setFlag(repeatKey, true)
-    end
-
-    # FileSystemCheck::fsck_NxGridFiber(item, runhash, verbose)
-    def self.fsck_NxGridFiber(item, runhash, verbose)
-        repeatKey = "#{runhash}:#{JSON.generate(item)}"
-        return if XCache::getFlag(repeatKey)
-
-        if verbose then
-            puts "FileSystemCheck::fsck_NxGridFiber(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
-        end
-
-        if item["mikuType"].nil? then
-            raise "item has no Miku type"
-        end
-        if item["mikuType"] != "NxGridFiber" then
-            raise "Incorrect Miku type for function"
-        end
-
-        FileSystemCheck::ensureAttribute(item, "uuid", "String")
-        FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-        FileSystemCheck::ensureAttribute(item, "datetime", "String")
-        FileSystemCheck::ensureAttribute(item, "states", "Array")
-
-        item["states"].each{|state|
-            FileSystemCheck::fsck_NxFiberState(state, runhash, verbose)
-        }
-
-        XCache::setFlag(repeatKey, true)
-    end
-
-    # FileSystemCheck::fsck_GridState(item, databases, runhash, verbose)
-    def self.fsck_GridState(item, databases, runhash, verbose)
+    # FileSystemCheck::fsck_GridState(item, runhash, verbose)
+    def self.fsck_GridState(item, runhash, verbose)
         repeatKey = "#{runhash}:#{JSON.generate(item)}"
         return if XCache::getFlag(repeatKey)
 
@@ -371,8 +258,12 @@ class FileSystemCheck
 
         FileSystemCheck::ensureAttribute(item, "type", "String")
 
-        if item["type"] == "NxFire" then
-            raise "not finished: B978B332-FF6A-4C6D-9180-580E94462674"
+        if !GridState::gridStateTypes().include?(item["type"]) then
+            raise "Incorrect type in #{JSON.pretty_generate(item)}"
+        end
+
+        if item["type"] == "null" then
+
         end
 
         if item["type"] == "text" then
@@ -396,35 +287,49 @@ class FileSystemCheck
             dottedExtension  = item["dottedExtension"]
             nhash            = item["nhash"]
             parts            = item["parts"]
-            raise "not finished: 17052FB0-718B-451C-8F84-837ABB7B82A5"
+            operator         = Elizabeth4.new()
+            status = PrimitiveFiles::fsckPrimitiveFileDataRaiseAtFirstError(operator, dottedExtension, nhash, parts, verbose)
+            if !status then
+                puts JSON.pretty_generate(item)
+                raise "(error: 3e428541-805b-455e-b6a2-c400a6519aef) primitive file fsck failed"
+            end
+        end
+
+        if item["type"] == "NxDirectoryContents" then
+            item["rootnhashes"].each{|rootnhash|
+                FileSystemCheck::fsck_aion_point_rootnhash(rootnhash, runhash, verbose)
+            }
         end
 
         if item["type"] == "Dx8Unit" then
             FileSystemCheck::ensureAttribute(item, "unitId", "String")
-            # TODO: Complete
+            folder = Dx8Units::acquireUnitFolderPathOrNull(item["unitId"])
+            if folder.nil? then
+                raise "could not find Dx8Unit for state: #{JSON.pretty_generate(item)}"
+            end
         end
 
         if item["type"] == "unique-string" then
-            FileSystemCheck::ensureAttribute(item, "unique-string", "String")
+            FileSystemCheck::ensureAttribute(item, "uniquestring", "String")
             # TODO: Complete
         end
 
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsck_NxGridPointN(item, runhash, verbose)
-    def self.fsck_NxGridPointN(item, runhash, verbose)
+    # FileSystemCheck::fsck_Nx7(item, runhash, verbose)
+    def self.fsck_Nx7(item, runhash, verbose)
         repeatKey = "#{runhash}:#{JSON.generate(item)}"
         return if XCache::getFlag(repeatKey)
 
         if verbose then
-            puts "FileSystemCheck::fsck_NxGridPointN(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
+            puts "FileSystemCheck::fsck_Nx7(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
         end
 
         if item["mikuType"].nil? then
             raise "item has no Miku type"
         end
-        if item["mikuType"] != "NxGridPointN" then
+        if item["mikuType"] != "Nx7" then
             raise "Incorrect Miku type for function"
         end
 
@@ -434,8 +339,8 @@ class FileSystemCheck
         FileSystemCheck::ensureAttribute(item, "description", "String")
         FileSystemCheck::ensureAttribute(item, "states", "Array")
 
-        item["states"].each{|event|
-            FileSystemCheck::fsck_GridState(event, runhash, verbose)
+        item["states"].each{|state|
+            FileSystemCheck::fsck_GridState(state, runhash, verbose)
         }
 
         FileSystemCheck::ensureAttribute(item, "comments", "Array")
@@ -443,6 +348,10 @@ class FileSystemCheck
         item["comments"].each{|op|
             # TODO:
         }
+
+        FileSystemCheck::ensureAttribute(item, "parentsuuids", "Array")
+        FileSystemCheck::ensureAttribute(item, "relatedsuuids", "Array")
+        FileSystemCheck::ensureAttribute(item, "childrenuuids", "Array")
 
         XCache::setFlag(repeatKey, true)
     end
@@ -472,6 +381,31 @@ class FileSystemCheck
         item["comments"].each{|op|
             # TODO:
         }
+
+        XCache::setFlag(repeatKey, true)
+    end
+
+    # FileSystemCheck::fsck_Nx3(item, runhash, verbose)
+    def self.fsck_Nx3(item, runhash, verbose)
+        repeatKey = "#{runhash}:#{JSON.generate(item)}"
+        return if XCache::getFlag(repeatKey)
+
+        if verbose then
+            puts "FileSystemCheck::fsck_Nx3(#{JSON.pretty_generate(item)}, #{runhash}, #{verbose})"
+        end
+
+        if item["mikuType"].nil? then
+            raise "item has no Miku type"
+        end
+        if item["mikuType"] != "Nx3" then
+            raise "Incorrect Miku type for function"
+        end
+
+        FileSystemCheck::ensureAttribute(item, "eventuuid", "String")
+        FileSystemCheck::ensureAttribute(item, "eventTime", "Number")
+        FileSystemCheck::ensureAttribute(item, "eventType", "String")
+
+        #FileSystemCheck::ensureAttribute(item, "payload", nil) # We sometimes have null payload 
 
         XCache::setFlag(repeatKey, true)
     end
@@ -541,6 +475,31 @@ class FileSystemCheck
             return
         end
 
+        if mikuType == "Nx7" then
+            FileSystemCheck::ensureAttribute(item, "uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
+            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+            FileSystemCheck::ensureAttribute(item, "datetime", "String")
+            FileSystemCheck::ensureAttribute(item, "description", "String")
+            FileSystemCheck::ensureAttribute(item, "networkType1", "String")
+
+            if !Nx7::networkType1().include?(item["networkType1"]) then
+                raise "incorrect networkType1 in #{JSON.pretty_generate(item)}"
+            end
+
+            item["states"].each{|state|
+                FileSystemCheck::fsck_GridState(state, runhash, verbose)
+            }
+
+            item["comments"].each{|comment|
+                FileSystemCheck::fsck_NxCommentOp(comment, runhash, verbose)
+            }
+
+            XCache::setFlag(repeatKey, true)
+
+            return
+        end
+
         if mikuType == "NxLine" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
             FileSystemCheck::ensureAttribute(item, "mikuType", "String")
@@ -573,22 +532,6 @@ class FileSystemCheck
             if item["nx22"] then
                 raise "NxTodos should not carry a Nx22"
             end
-            XCache::setFlag(repeatKey, true)
-            return
-        end
-
-        if mikuType == "NyxNode" then
-            FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
-            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-            FileSystemCheck::ensureAttribute(item, "datetime", "String")
-            FileSystemCheck::ensureAttribute(item, "description", "String")
-            FileSystemCheck::ensureAttribute(item, "type_1", "String")
-            if !["Information", "Entity", "Concept", "Event", "Person", "Collection", "Timeline"].include?(item["type_1"]) then
-                raise "type_1 is not valid. Given: #{item["type_1"]}"
-            end
-            FileSystemCheck::ensureAttribute(item, "payload_1", "Hash")
-            FileSystemCheck::fsck_NyxNodePayload1(item["payload_1"], runhash, verbose)
             XCache::setFlag(repeatKey, true)
             return
         end
@@ -653,7 +596,7 @@ class FileSystemCheck
 
     # FileSystemCheck::fsckErrorAtFirstFailure(runhash)
     def self.fsckErrorAtFirstFailure(runhash)
-        (Waves::items() + NxTodos::items() + NyxNodes::items()).each{|item|
+        (Waves::items() + NxTodos::items() + Nx7::items()).each{|item|
             FileSystemCheck::exitIfMissingCanary()
             FileSystemCheck::fsck_MikuTypedItem(item, runhash, true)
         }

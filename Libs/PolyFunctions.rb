@@ -28,8 +28,8 @@ class PolyFunctions
 
         # order: by mikuType
 
-        if item["mikuType"] == "NyxNode" then
-            return NyxNodes::edit(item)
+        if item["mikuType"] == "Nx7" then
+            return Nx7::edit(item)
         end
 
         if item["mikuType"] == "NxTodo" then
@@ -64,22 +64,45 @@ class PolyFunctions
             puts "uuid: #{item["uuid"]}".yellow
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
+
             store = ItemStore.new()
             # We register the item which is also the default element in the store
             store.register(item, true)
-            entities = NetworkLocalViews::relateds(item["uuid"])
+
+            entities = Nx7::parents(item)
             if entities.size > 0 then
                 puts ""
-                if entities.size < 200 then
-                    entities
-                        .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                        .each{|entity|
-                            indx = store.register(entity, false)
-                            puts "[#{indx.to_s.ljust(3)}] #{PolyFunctions::toString(entity)}"
-                        }
-                else
-                    puts "(... many entities, use `navigation` ...)"
-                end
+                puts "parents:"
+                entities
+                    .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                    .each{|entity|
+                        indx = store.register(entity, false)
+                        puts "[#{indx.to_s.ljust(3)}] #{PolyFunctions::toString(entity)}"
+                    }
+            end
+
+            entities = Nx7::relateds(item)
+            if entities.size > 0 then
+                puts ""
+                puts "related:"
+                entities
+                    .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                    .each{|entity|
+                        indx = store.register(entity, false)
+                        puts "[#{indx.to_s.ljust(3)}] #{PolyFunctions::toString(entity)}"
+                    }
+            end
+
+            entities = Nx7::children(item)
+            if entities.size > 0 then
+                puts ""
+                puts "parents:"
+                entities
+                    .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                    .each{|entity|
+                        indx = store.register(entity, false)
+                        puts "[#{indx.to_s.ljust(3)}] #{PolyFunctions::toString(entity)}"
+                    }
             end
 
             puts ""
@@ -119,7 +142,7 @@ class PolyFunctions
         if item["mikuType"] == "NxTodo" then
             return item["description"]
         end
-        if item["mikuType"] == "NyxNode" then
+        if item["mikuType"] == "Nx7" then
             return item["description"]
         end
         if item["mikuType"] == "TxFloat" then
@@ -142,7 +165,7 @@ class PolyFunctions
         item = NxTodos::getItemOrNull(uuid)
         return item if item
 
-        item = NyxNodes::getItemOrNull(uuid)
+        item = Nx7::getItemOrNull(uuid)
         return item if item
 
         item = NxLines::getOrNull(uuid)
@@ -226,8 +249,8 @@ class PolyFunctions
         if item["mikuType"] == "NxTodo" then
             return NxTodos::toString(item)
         end
-        if item["mikuType"] == "NyxNode" then
-            return NyxNodes::toString(item)
+        if item["mikuType"] == "Nx7" then
+            return Nx7::toString(item)
         end
         if item["mikuType"] == "TxManualCountDown" then
             return "(countdown) #{item["description"]}: #{item["counter"]}"

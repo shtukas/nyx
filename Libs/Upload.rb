@@ -15,12 +15,12 @@ class Upload
         end
         LucilleCore::locationsAtFolder(folder).each{|location|
             puts "processing: #{location}"
-            child = NyxNodes::issueNewUsingLocation(location)
+            child = Nx7::issueNewUsingLocation(location)
             if overrideDatetime then
                 child["datetime"] = overrideDatetime
                 PolyActions::commit(child)
             end
-            NetworkLocalViews::arrow(item["uuid"], child["uuid"])
+            Nx7::arrow(item, child)
         }
     end
 
@@ -39,12 +39,12 @@ class Upload
         end
         LucilleCore::locationsAtFolder(folder).each{|filepath|
             puts "processing: #{filepath}"
-            child = NyxNodes::issueNewUsingFile(filepath)
+            child = Nx7::issueNewUsingFile(filepath)
             if overrideDatetime then
                 child["datetime"] = overrideDatetime
                 PolyActions::commit(child)
             end
-            NetworkLocalViews::arrow(item["uuid"], child["uuid"])
+            Nx7::arrow(item, child)
         }
     end
 
@@ -61,12 +61,12 @@ class Upload
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return if location.nil?
             return if !File.file?(location)
-            child = NyxNodes::issueNewUsingFile(location)
+            child = Nx7::issueNewUsingFile(location)
             if overrideDatetime then
                 child["datetime"] = overrideDatetime
                 PolyActions::commit(child)
             end
-            NetworkLocalViews::arrow(item["uuid"], child["uuid"])
+            Nx7::arrow(item, child)
         end
         if action == "aion-points" then
             Upload::uploadAllLocationsOfAFolderAsChildrenAionPoints(item, overrideDatetime)

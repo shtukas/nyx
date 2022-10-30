@@ -188,29 +188,12 @@ class Nx113Access
 
         if nx113["type"] == "Dx8Unit" then
             unitId = nx113["unitId"]
-            location = Dx8UnitsUtils::acquireUnitFolderPathOrNull(unitId)
-            if location.nil? then
-                puts "I could not acquire the Dx8Unit. Aborting operation."
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            puts "location: #{location}"
-            if LucilleCore::locationsAtFolder(location).size == 1 and LucilleCore::locationsAtFolder(location).first[-5, 5] == ".webm" then
-                location2 = LucilleCore::locationsAtFolder(location).first
-                if File.basename(location2).include?("'") then
-                    location3 = "#{File.dirname(location2)}/#{File.basename(location2).gsub("'", "-")}"
-                    FileUtils.mv(location2, location3)
-                    location2 = location3
-                end
-                location = location2
-            end
-            system("open '#{location}'")
-            LucilleCore::pressEnterToContinue()
+            Dx8Units::access(unitId)
         end
 
         if nx113["type"] == "unique-string" then
             uniquestring = item["uniquestring"]
-            UniqueStringsFunctions::findAndAccessUniqueString(uniquestring)
+            UniqueStrings::findAndAccessUniqueString(uniquestring)
         end
     end
 
@@ -366,7 +349,7 @@ class Nx113Transforms
         return nil if nx113["type"] != "Dx8Unit" # Not the right Nx113 type
         # We access the unit if we can, and then make a aion point, and then issue a Dx33
         unitId = nx113["unitId"]
-        location = Dx8UnitsUtils::acquireUnitFolderPathOrNull(unitId)
+        location = Dx8Units::acquireUnitFolderPathOrNull(unitId)
         return nil if !File.exists?(location) # Dx8Unit is not reachable
         nx113v2 = Nx113Make::aionpoint(location) # Nx113
         # We should not forget to issue the Dx33

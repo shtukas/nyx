@@ -4,25 +4,54 @@ class Waves
     # --------------------------------------------------
     # IO
 
-    # Waves::items()
-    def self.items()
-        TheBook::getObjects("#{Config::pathToDataCenter()}/Wave")
+    # Waves::filepathForUUID(uuid)
+    def self.filepathForUUID(uuid)
+        "#{Config::pathToDataCenter()}/Wave/#{uuid}.Nx5"
     end
 
-    # Waves::commit(item)
-    def self.commit(item)
+    # Waves::nx5Filepaths()
+    def self.nx5Filepaths()
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Wave")
+            .select{|filepath| filepath[-4, 4] == ".Nx5" }
+    end
+
+    # Waves::items()
+    def self.items()
+        Waves::nx5Filepaths()
+            .map{|filepath| Nx5Files::readFileAsAttributesOfObject(filepath) }
+    end
+
+    # Waves::commitItem(item)
+    def self.commitItem(item)
         FileSystemCheck::fsck_MikuTypedItem(item, SecureRandom.hex, false)
-        TheBook::commitObjectToDisk("#{Config::pathToDataCenter()}/Wave", item)
+        filepath = Waves::filepathForUUID(uuid)
+        if !File.exists?() then
+            Nx5Files::issueNewAtFilepath(filepath)
+        end
+        item.each{|key, value|
+            Nx5Files::emitEventToFile1(filepath, key, value)
+        }
+    end
+
+    # Waves::commitAttribute1(uuid, attname, attvalue)
+    def self.commitAttribute1(uuid, attname, attvalue)
+        filepath = Waves::filepathForUUID(uuid)
+        raise "(error: EDE283D3-0E7E-4D66-B055-160F43D127C5) uuid: '#{uuid}', attname: '#{attname}', attvalue: '#{attvalue}'" if !File.exists?(filepath)
+        Nx5Files::emitEventToFile1(filepath, attname, attvalue)
     end
 
     # Waves::getOrNull(uuid)
     def self.getOrNull(uuid)
-        TheBook::getObjectOrNull("#{Config::pathToDataCenter()}/Wave", uuid)
+        filepath = Waves::filepathForUUID(uuid)
+        return nil if !File.exists?(filepath)
+        Nx5Files::readFileAsAttributesOfObject(filepath)
     end
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        TheBook::destroy("#{Config::pathToDataCenter()}/Wave", uuid)
+        filepath = Waves::filepathForUUID(uuid)
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
     end
 
     # --------------------------------------------------
@@ -149,7 +178,7 @@ class Waves
             "nx113"            => nx113,
             "lastDoneDateTime" => "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         }
-        Waves::commit(item)
+        Waves::commitItem(item)
         item
     end
 
@@ -180,8 +209,7 @@ class Waves
         NxBallsService::close(NxBallsService::itemToNxBallOpt(item), true)
 
         puts "done-ing: #{Waves::toString(item)}"
-        item["lastDoneDateTime"] =  Time.now.utc.iso8601
-        Waves::commit(item)
+        Waves::commitAttribute1(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
 
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
         puts "not shown until: #{Time.at(unixtime).to_s}"
@@ -303,24 +331,21 @@ class Waves
             if Interpreting::match("nx46", input) then
                 nx46 = Waves::makeNx46InteractivelyOrNull()
                 next if nx46.nil?
-                item["nx46"] = nx46
-                Waves::commit(item)
+                Waves::commitAttribute1(item["uuid"], "nx46", nx46)
                 next
             end
 
             if input == "only on days" then
                 days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
                 selected, _ = LucilleCore::selectZeroOrMore("days", [], days)
-                item["onlyOnDays"] = selected
-                Waves::commit(item)
+                Waves::commitAttribute1(item["uuid"], "onlyOnDays", selected)
                 next
             end
 
             if Interpreting::match("nx113", input) then
                 nx113 = Nx113Make::interactivelyMakeNx113OrNull()
                 return if nx113.nil?
-                item["nx113"] = nx113
-                Waves::commit(item)
+                Waves::commitAttribute1(item["uuid"], "nx113", nx113)
                 next
             end
 

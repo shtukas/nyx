@@ -1,0 +1,14 @@
+
+Nx7 = {
+    "uuid"          : String
+    "mikuType"      : "Nx7"
+    "unixtime"      : Float
+    "datetime"      : DateTime Iso 8601 UTC Zulu
+    "description"   : String
+    "networkType1"  : "Information" | "Entity" | "Concept" | "Event" | "Person" | "Collection" | "Timeline" 
+    "states"        : Array[GridState]
+    "comments"      : Array[NxCommentOp]
+    "parentsuuids"  : Array[String]
+    "relatedsuuids" : Array[String]
+    "childrenuuids" : Array[String]
+}

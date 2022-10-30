@@ -1,38 +1,17 @@
 
-NxGridPointN = {
-    "uuid"        : String
-    "mikuType"    : "NxGridPointN"
-    "unixtime"    : Float
-    "datetime"    : DateTime Iso 8601 UTC Zulu
-    "description" : String
-    "states"      : Array[GridState]
-    "comments"    : Array[NxCommentOp]
-}
-
-NxCommentOp {
-    "uuid"      : String
-    "mikuType"  : "NxCommentOp"
-    "operation" : "add"
-    "line"      : String
-}
-
-NxCommentOp {
+GridState {
     "uuid"       : String
-    "mikuType"   : "NxCommentOp"
-    "operation"  : "remove"
-    "targetuuid" : String
+    "mikuType"   : "GridState"
+    "unixtime"   : Float
+    "datetime"   : DateTime Iso 8601 UTC Zulu
+    "type"       : "null"
 }
 
 GridState {
     "uuid"       : String
     "mikuType"   : "GridState"
-    "type"       : "NxFire"
-    "nhashroots" : Array[Strings]
-}
-
-GridState {
-    "uuid"       : String
-    "mikuType"   : "GridState"
+    "unixtime"   : Float
+    "datetime"   : DateTime Iso 8601 UTC Zulu
     "type"       : "text",
     "text"       : String
 }
@@ -40,6 +19,8 @@ GridState {
 GridState {
     "uuid"       : String
     "mikuType"   : "GridState"
+    "unixtime"   : Float
+    "datetime"   : DateTime Iso 8601 UTC Zulu
     "type"       : "url",
     "url"        : String, URL
 }
@@ -47,6 +28,8 @@ GridState {
 GridState {
     "uuid"            : String
     "mikuType"        : "GridState"
+    "unixtime"        : Float
+    "datetime"        : DateTime Iso 8601 UTC Zulu
     "type"            : "file"
     "dottedExtension" : String
     "nhash"           : String
@@ -54,8 +37,19 @@ GridState {
 }
 
 GridState {
+    "uuid"        : String
+    "mikuType"    : "GridState"
+    "unixtime"    : Float
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "type"        : "NxDirectoryContents"
+    "rootnhashes" : Array[Strings]
+}
+
+GridState {
     "uuid"     : String
     "mikuType" : "GridState"
+    "unixtime" : Float
+    "datetime" : DateTime Iso 8601 UTC Zulu
     "type"     : "Dx8Unit"
     "unitId"   : String
 }
@@ -63,15 +57,8 @@ GridState {
 GridState {
     "uuid"         : String
     "mikuType"     : "GridState"
+    "unixtime"     : Float
+    "datetime"     : DateTime Iso 8601 UTC Zulu
     "type"         : "unique-string"
     "uniquestring" : String
 }
-
-NxGridPointFile (JSON encoded) = {
-    "uuid"      : String
-    "mikuType"  : "NxGridPointFile"
-    "states"    : Array[GridState]
-    "comments"  : Array[NxCommentOp]
-}
-
-Named `NxGridPoint` or `something.NxGridPoint`
