@@ -73,7 +73,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "Wave" then
-            Waves::commit(item)
+            Waves::commitItem(item)
             return
         end
 

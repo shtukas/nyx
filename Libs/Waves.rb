@@ -21,12 +21,13 @@ class Waves
             .map{|filepath| Nx5Files::readFileAsAttributesOfObject(filepath) }
     end
 
-    # Waves::commit(item)
-    def self.commit(item)
+    # Waves::commitItem(item)
+    def self.commitItem(item)
         FileSystemCheck::fsck_MikuTypedItem(item, SecureRandom.hex, false)
         filepath = Waves::filepathForUUID(uuid)
-
-        # This is a bit of a waste, but that will do for the moment
+        if !File.exists?() then
+            Nx5Files::issueNewAtFilepath(filepath)
+        end
         item.each{|key, value|
             Nx5Files::emitEventToFile1(filepath, key, value)
         }
@@ -177,8 +178,7 @@ class Waves
             "nx113"            => nx113,
             "lastDoneDateTime" => "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         }
-        Nx5Files::issueNewAtFilepath(Waves::filepathForUUID(uuid))
-        Waves::commit(item)
+        Waves::commitItem(item)
         item
     end
 
@@ -209,8 +209,7 @@ class Waves
         NxBallsService::close(NxBallsService::itemToNxBallOpt(item), true)
 
         puts "done-ing: #{Waves::toString(item)}"
-        item["lastDoneDateTime"] =  Time.now.utc.iso8601
-        Waves::commit(item)
+        Waves::commitAttribute1(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
 
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
         puts "not shown until: #{Time.at(unixtime).to_s}"
@@ -332,24 +331,21 @@ class Waves
             if Interpreting::match("nx46", input) then
                 nx46 = Waves::makeNx46InteractivelyOrNull()
                 next if nx46.nil?
-                item["nx46"] = nx46
-                Waves::commit(item)
+                Waves::commitAttribute1(item["uuid"], "nx46", nx46)
                 next
             end
 
             if input == "only on days" then
                 days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
                 selected, _ = LucilleCore::selectZeroOrMore("days", [], days)
-                item["onlyOnDays"] = selected
-                Waves::commit(item)
+                Waves::commitAttribute1(item["uuid"], "onlyOnDays", selected)
                 next
             end
 
             if Interpreting::match("nx113", input) then
                 nx113 = Nx113Make::interactivelyMakeNx113OrNull()
                 return if nx113.nil?
-                item["nx113"] = nx113
-                Waves::commit(item)
+                Waves::commitAttribute1(item["uuid"], "nx113", nx113)
                 next
             end
 
