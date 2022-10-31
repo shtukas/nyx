@@ -14,6 +14,8 @@ class Nx5Files
         db.close
     end
 
+    # EVENTS
+
     # Nx5Files::emitEventToFile0(filepath, event)
     def self.emitEventToFile0(filepath, event)
         raise "(error: 613FDDA4-0F16-4122-8D64-4D3C11BF28E9) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
@@ -92,12 +94,76 @@ class Nx5Files
         events
     end
 
-    # Nx5Files::readFileAsAttributesOfObject(filepath)
+    # DATABLOBS
+
+    # Nx5Files::getDataBlobsNhashes(filepath)
+    def self.getDataBlobsNhashes(filepath)
+        raise "(error: 37854fc9-28e3-4c73-a4c2-76faac4a5186) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        nhashes = []
+        db.execute("select _nhash_ from _datablobs_", []) do |row|
+            nhashes << row["_nhash_"]
+        end
+        db.close
+        nhashes
+    end
+
+    # Nx5Files::getDatablobOrNull(filepath, nhash)
+    def self.getDatablobOrNull(filepath, nhash)
+        raise "(error: a27f23c4-31dd-478e-8236-a95a4fe37984) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        blob = nil
+        db.execute("select * from _datablobs_ where _nhash_=?", [nhash]) do |row|
+            blob = row["_datablob_"]
+        end
+        db.close
+        blob
+    end
+
+    # Nx5Files::putBlob(filepath, blob)
+    def self.putBlob(filepath, blob)
+        raise "(error: 4272141b-4bab-4a7b-ba0d-377291d27809) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "delete from _datablobs_ where _nhash_=?", [nhash]
+        db.execute "insert into _datablobs_ (_nhash_, _datablob_) values (?, ?)", [nhash, blob]
+        db.close
+        nhash
+    end
+end
+
+class Nx5FilesExt
+
+    # Nx5FilesExt::readFileAsAttributesOfObject(filepath)
     def self.readFileAsAttributesOfObject(filepath)
         raise "(error: 35519C87-740E-4D59-8CF2-15E7434E8024) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
         Nx5Files::getOrderedEvents(filepath).reduce({}){|item, event|
             item[event["eventType"]] = event["payload"]
             item
         }
+    end
+
+    # Nx5FilesExt::repairSyncthingConflictsBetweenTwoNx5sByMerging(redundantFilepath, remainerFilepath)
+    def self.repairSyncthingConflictsBetweenTwoNx5sByMerging(redundantFilepath, remainerFilepath)
+        Nx5Files::getDataBlobsNhashes(redundantFilepath)
+            .each{|nhash|
+                blob = Nx5Files::getDatablobOrNull(redundantFilepath, nhash)
+                raise "(error: 0a10fcee-064e-46d8-ae07-a4ddc6160197) redundantFilepath: '#{redundantFilepath}', nhash: '#{nhash}'" if blob.nil?
+                Nx5Files::putBlob(remainerFilepath, blob)
+            }
+        Nx5Files::getOrderedEvents(redundantFilepath)
+            .each{|event|
+                Nx5Files::emitEventToFile0(remainerFilepath, event)
+            }
+        FileUtils.rm(redundantFilepath)
     end
 end

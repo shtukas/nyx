@@ -9,8 +9,9 @@ class WaveSyncConflicts
     # WaveSyncConflicts::computePrimaryFilepath(syncconflictfilepath)
     def self.computePrimaryFilepath(syncconflictfilepath)
         fragments = syncconflictfilepath.split(".")
+        raise "(error: 64f81b39-8919-4248-927b-d502d0414e90) syncconflictfilepath: #{syncconflictfilepath}" if (fragments.size != 3)
         primaryfilepath = "#{fragments[0]}.#{fragments[2]}"
-        raise "(error: 50093182-5805-4d58-af34-e37d79c91f5a)" if !File.exists?(primaryfilepath)
+        raise "(error: 50093182-5805-4d58-af34-e37d79c91f5a) primaryfilepath: #{primaryfilepath}" if !File.exists?(primaryfilepath)
         primaryfilepath
     end
 
@@ -28,7 +29,7 @@ class WaveSyncConflicts
         return if !WaveSyncConflicts::isConflictFile(filepath)
         syncconflictfilepath = filepath
         primaryfilepath = WaveSyncConflicts::computePrimaryFilepath(syncconflictfilepath)
-        WaveSyncConflicts::resolveConflict(syncconflictfilepath, primaryfilepath)
+        Nx5FilesExt::repairSyncthingConflictsBetweenTwoNx5sByMerging(syncconflictfilepath, primaryfilepath)
     end
 end
 
@@ -57,7 +58,7 @@ class Waves
     # Waves::items()
     def self.items()
         Waves::nx5Filepaths()
-            .map{|filepath| Nx5Files::readFileAsAttributesOfObject(filepath) }
+            .map{|filepath| Nx5FilesExt::readFileAsAttributesOfObject(filepath) }
     end
 
     # Waves::commitItem(item)
@@ -83,7 +84,7 @@ class Waves
     def self.getOrNull(uuid)
         filepath = Waves::filepathForUUID(uuid)
         return nil if !File.exists?(filepath)
-        Nx5Files::readFileAsAttributesOfObject(filepath)
+        Nx5FilesExt::readFileAsAttributesOfObject(filepath)
     end
 
     # Waves::destroy(uuid)
