@@ -141,6 +141,45 @@ class Nx5Files
     end
 end
 
+class ElizabethNx5Files
+
+    def initialize(filepath)
+        @filepath = filepath
+    end
+
+    def putBlob(datablob)
+        Nx5Files::putBlob(@filepath, datablob)
+    end
+
+    def filepathToContentHash(filepath)
+        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
+    end
+
+    def getBlobOrNull(nhash)
+        Nx5Files::getDatablobOrNull(@filepath, nhash)
+    end
+
+    def readBlobErrorIfNotFound(nhash)
+        blob = getBlobOrNull(nhash)
+        return blob if blob
+        puts "(error: 59674f1a-d746-4544-951e-f2b3fa73b121) could not find blob, nhash: #{nhash}"
+        raise "(error: 133b9867-5d6d-429c-88c2-e1b87081489b, nhash: #{nhash})" if blob.nil?
+    end
+
+    def datablobCheck(nhash)
+        begin
+            blob = readBlobErrorIfNotFound(nhash)
+            status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
+            if !status then
+                puts "(error: e3981133-9909-4765-9f6b-b76324af0ae8) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
+            end
+            return status
+        rescue
+            false
+        end
+    end
+end
+
 class Nx5FilesExt
 
     # Nx5FilesExt::readFileAsAttributesOfObject(filepath)
