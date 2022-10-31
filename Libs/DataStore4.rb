@@ -6,7 +6,7 @@ class DataStore4
     def self.getBlobOrNull(nhash)
         filename = nhash
         fragment = "#{nhash[7, 2]}/#{nhash[9, 2]}"
-        filepath = "/Users/pascal/Galaxy/DataBank/Stargate-DataCenter/DataStore4/#{fragment}/#{filename}"
+        filepath = "#{Config::pathToDataCenter()}/DataStore4/#{fragment}/#{filename}"
         return nil if !File.exists?(filepath)
         IO.read(filepath)
     end
@@ -16,7 +16,7 @@ class DataStore4
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
         filename = nhash
         fragment = "#{nhash[7, 2]}/#{nhash[9, 2]}"
-        filepath = "/Users/pascal/Galaxy/DataBank/Stargate-DataCenter/DataStore4/#{fragment}/#{filename}"
+        filepath = "#{Config::pathToDataCenter()}/DataStore4/#{fragment}/#{filename}"
         if !File.exists?(File.dirname(filepath)) then
             FileUtils.mkpath(File.dirname(filepath))
         end
