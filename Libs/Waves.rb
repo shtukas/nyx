@@ -13,6 +13,16 @@ class Waves
     def self.nx5Filepaths()
         LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Wave")
             .select{|filepath| filepath[-4, 4] == ".Nx5" }
+            .map{|filepath|
+                # With Waves, we deal with Syncthing conflicts simply by deleting the conflict
+                if File.basename(filepath).include?("sync-conflict") then
+                    FileUtils.rm(filepath)
+                    nil
+                else
+                    filepath
+                end
+            }
+            .compact
     end
 
     # Waves::items()
