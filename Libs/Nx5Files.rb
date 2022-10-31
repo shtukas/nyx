@@ -22,6 +22,7 @@ class Nx5Files
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
+        db.execute "delete from _events_ where _eventuuid_=?", [event["eventuuid"]]
         db.execute "insert into _events_ (_eventuuid_, _eventTime_, _eventType_, _event_) values (?, ?, ?, ?)", [event["eventuuid"], event["eventTime"], event["eventType"], JSON.generate(event)]
         db.close
     end

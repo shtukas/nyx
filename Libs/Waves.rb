@@ -1,4 +1,37 @@
 
+class WaveSyncConflicts
+
+    # WaveSyncConflicts::isConflictFile(filepath)
+    def self.isConflictFile(filepath)
+        File.basename(filepath).include?("sync-conflict")
+    end
+
+    # WaveSyncConflicts::computePrimaryFilepath(syncconflictfilepath)
+    def self.computePrimaryFilepath(syncconflictfilepath)
+        fragments = syncconflictfilepath.split(".")
+        primaryfilepath = "#{fragments[0]}.#{fragments[2]}"
+        raise "(error: 50093182-5805-4d58-af34-e37d79c91f5a)" if !File.exists?(primaryfilepath)
+        primaryfilepath
+    end
+
+    # WaveSyncConflicts::resolveConflict(syncconflictfilepath, primaryfilepath)
+    def self.resolveConflict(syncconflictfilepath, primaryfilepath)
+        Nx5Files::getOrderedEvents(syncconflictfilepath)
+            .each{|event|
+                Nx5Files::emitEventToFile0(primaryfilepath, event)
+            }
+        FileUtils.rm(syncconflictfilepath)
+    end
+
+    # WaveSyncConflicts::probe(filepath)
+    def self.probe(filepath)
+        return if !WaveSyncConflicts::isConflictFile(filepath)
+        syncconflictfilepath = filepath
+        primaryfilepath = WaveSyncConflicts::computePrimaryFilepath(syncconflictfilepath)
+        WaveSyncConflicts::resolveConflict(syncconflictfilepath, primaryfilepath)
+    end
+end
+
 class Waves
 
     # --------------------------------------------------
@@ -13,16 +46,12 @@ class Waves
     def self.nx5Filepaths()
         LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Wave")
             .select{|filepath| filepath[-4, 4] == ".Nx5" }
-            .map{|filepath|
-                # With Waves, we deal with Syncthing conflicts simply by deleting the conflict
-                if File.basename(filepath).include?("sync-conflict") then
-                    FileUtils.rm(filepath)
-                    nil
-                else
-                    filepath
-                end
+            .each{|filepath|
+                WaveSyncConflicts::probe(filepath)
             }
-            .compact
+
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Wave")
+            .select{|filepath| filepath[-4, 4] == ".Nx5" }
     end
 
     # Waves::items()
