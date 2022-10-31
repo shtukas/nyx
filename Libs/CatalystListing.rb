@@ -7,8 +7,8 @@ class CatalystListing
         [
             ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | engine (<n>) | contribution (<n>) | cx23 (group position) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | time * * | expose (<n>) | destroy",
             "update start date (<n>)",
-            "wave | anniversary | hot | today | ondate | todo",
-            "anniversaries | ondates | waves | groups | todos | todos-latest-first | Cx22",
+            "wave | anniversary | hot | today | ondate | todo | Cx22",
+            "anniversaries | ondates | waves | groups | todos | todos-latest-first",
             "require internet",
             "search | nyx | speed | nxballs | streaming | commands",
             "config listing show groups true",
