@@ -134,19 +134,19 @@ end
 
 class Nx113Access
 
-    # Nx113Access::accessAionPointAtExportDirectory(rootnhash, parentLocation)
-    def self.accessAionPointAtExportDirectory(rootnhash, parentLocation)
-        operator = Elizabeth4.new()
+    # Nx113Access::accessAionPointAtExportDirectory(rootnhash, parentLocation, operatorOpt)
+    def self.accessAionPointAtExportDirectory(rootnhash, parentLocation, operatorOpt)
+        operator = operatorOpt ? operatorOpt : Elizabeth4.new()
         if !File.exists?(parentLocation) then
             FileUtils.mkdir(parentLocation)
         end
         AionCore::exportHashAtFolder(operator, rootnhash, parentLocation)
     end
 
-    # Nx113Access::accessAionPoint(rootnhash)
-    def self.accessAionPoint(rootnhash)
+    # Nx113Access::accessAionPoint(rootnhash, operatorOpt)
+    def self.accessAionPoint(rootnhash, operatorOpt)
         exportDirectory = "#{ENV['HOME']}/Desktop/aion-point-#{SecureRandom.hex(4)}"
-        Nx113Access::accessAionPointAtExportDirectory(rootnhash, exportDirectory)
+        Nx113Access::accessAionPointAtExportDirectory(rootnhash, exportDirectory, operatorOpt)
         puts "Item exported at #{exportDirectory}"
         LucilleCore::pressEnterToContinue()
     end
@@ -168,7 +168,7 @@ class Nx113Access
             dottedExtension  = nx113["dottedExtension"]
             nhash            = nx113["nhash"]
             parts            = nx113["parts"]
-            operator         = Elizabeth4.new()
+            operator         = operatorOpt ? operatorOpt : Elizabeth4.new()
             filepath         = "#{ENV['HOME']}/Desktop/#{nhash}#{dottedExtension}"
             File.open(filepath, "w"){|f|
                 parts.each{|nhash|
@@ -183,7 +183,7 @@ class Nx113Access
         end
 
         if nx113["type"] == "aion-point" then
-            Nx113Access::accessAionPoint(nx113["rootnhash"])
+            Nx113Access::accessAionPoint(nx113["rootnhash"], operatorOpt)
         end
 
         if nx113["type"] == "Dx8Unit" then

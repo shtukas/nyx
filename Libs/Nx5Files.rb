@@ -156,7 +156,16 @@ class ElizabethNx5Files
     end
 
     def getBlobOrNull(nhash)
-        Nx5Files::getDatablobOrNull(@filepath, nhash)
+        blob = Nx5Files::getDatablobOrNull(@filepath, nhash)
+        return blob if blob
+
+        blob = DataStore4::getBlobOrNull(nhash)
+        if blob then
+            putBlob(blob)
+            return blob
+        end
+
+        nil
     end
 
     def readBlobErrorIfNotFound(nhash)
