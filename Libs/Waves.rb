@@ -66,7 +66,7 @@ class Waves
         FileSystemCheck::fsck_MikuTypedItem(item, SecureRandom.hex, false)
         filepath = Waves::filepathForUUID(item["uuid"])
         if !File.exists?(filepath) then
-            Nx5Files::issueNewAtFilepath(filepath)
+            Nx5Files::issueNewFileAtFilepath(filepath)
         end
         item.each{|key, value|
             Nx5Files::emitEventToFile1(filepath, key, value)
@@ -281,7 +281,7 @@ class Waves
     def self.access(item)
         puts Waves::toString(item).green
         if item["nx113"] then
-            Nx113Access::access(item["nx113"])
+            Nx113Access::access(item["nx113"], nil)
         end
     end
 

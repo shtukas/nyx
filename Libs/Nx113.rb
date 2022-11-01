@@ -151,8 +151,8 @@ class Nx113Access
         LucilleCore::pressEnterToContinue()
     end
 
-    # Nx113Access::access(nx113)
-    def self.access(nx113)
+    # Nx113Access::access(nx113, operatorOpt)
+    def self.access(nx113, operatorOpt)
 
         if nx113["type"] == "text" then
             CommonUtils::accessText(nx113["text"])
@@ -244,8 +244,8 @@ class Nx113Edit
         AionCore::commitLocationReturnHash(operator, location)
     end
 
-    # Nx113Edit::editNx113(nx113) # Nx113 or null if no change
-    def self.editNx113(nx113)
+    # Nx113Edit::editNx113(nx113, operatorOpt) # Nx113 or null if no change
+    def self.editNx113(nx113, operatorOpt)
 
         if nx113["type"] == "text" then
             text1 = nx113["text"]
@@ -264,7 +264,7 @@ class Nx113Edit
         end
 
         if nx113["type"] == "file" then
-            Nx113Access::access(item["nx113"])
+            Nx113Access::access(item["nx113"], operatorOpt)
             filepath = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if filepath.nil?
             return Nx113Make::file(filepath)
@@ -297,7 +297,13 @@ class Nx113Edit
     def self.editNx113Carrier(item)
         return if item["nx113"].nil?
         nx113 = item["nx113"]
-        nx113v2 = Nx113Edit::editNx113(nx113)
+
+        operator = nil
+        if item["mikuType"] == "NxTodo" then
+            operator = NxTodos::getElizabethOperatorForItem(item)
+        end
+
+        nx113v2 = Nx113Edit::editNx113(nx113, operator)
         return if nx113v2.nil?
         item["nx113"] = nx113v2
         PolyActions::commit(item)

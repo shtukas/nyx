@@ -2,6 +2,11 @@
 
 class NxTodos
 
+    # NxTodos::uuidToNx5Filepath(uuid)
+    def self.uuidToNx5Filepath(uuid)
+        "#{Config::pathToDataCenter()}/NxTodoNextGen/#{uuid}.Nx5"
+    end
+
     # NxTodos::items()
     def self.items()
         TheBook::getObjects("#{Config::pathToDataCenter()}/NxTodo")
@@ -313,11 +318,21 @@ class NxTodos
     # --------------------------------------------------
     # Operations
 
+    # NxTodos::getElizabethOperatorForItem(item)
+    def self.getElizabethOperatorForItem(item)
+        raise "(error: c0581614-3ee5-4ed3-a192-537ed22c1dce)" if item["mikuType"] != "NxTodo"
+        filepath = NxTodos::uuidToNx5Filepath(item["uuid"])
+        if !File.exists?(filepath) then
+            Nx5Files::issueNewFileAtFilepath(filepath)
+        end
+        ElizabethNx5Files.new(filepath)
+    end
+
     # NxTodos::access(item)
     def self.access(item)
         puts NxTodos::toString(item).green
         if item["nx113"] then
-            Nx113Access::access(item["nx113"])
+            Nx113Access::access(item["nx113"], NxTodos::getElizabethOperatorForItem(item))
         end
     end
 

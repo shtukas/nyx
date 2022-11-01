@@ -2,8 +2,8 @@
 
 class Nx5Files
 
-    # Nx5Files::issueNewAtFilepath(filepath)
-    def self.issueNewAtFilepath(filepath)
+    # Nx5Files::issueNewFileAtFilepath(filepath)
+    def self.issueNewFileAtFilepath(filepath)
         raise "(error: B11E6590-A1D3-4BF4-9A6E-6FBC4CD06A4A)" if File.exists?(filepath)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
