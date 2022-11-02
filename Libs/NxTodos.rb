@@ -4,18 +4,18 @@ class NxTodos
 
     # NxTodos::uuidToNx5Filepath(uuid)
     def self.uuidToNx5Filepath(uuid)
-        "#{Config::pathToDataCenter()}/NxTodoNextGen/#{uuid}.Nx5"
+        "#{Config::pathToDataCenter()}/NxTodo/#{uuid}.Nx5"
     end
 
     # NxTodos::filepaths()
     def self.filepaths()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodoNextGen")
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodo")
             .select{|filepath| filepath[-4, 4] == ".Nx5" }
             .each{|filepath|
                 Nx5FilesSyncConflictsResolution::probeAndRepairIfRelevant(filepath)
             }
 
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodoNextGen")
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodo")
             .select{|filepath| filepath[-4, 4] == ".Nx5" }
     end
 
@@ -54,7 +54,7 @@ class NxTodos
     # NxTodos::moveToIce(uuid)
     #def self.moveToIce(uuid)
     #    filepath1 = NxTodos::uuidToNx5Filepath(uuid)
-    #    filepath2 = filepath1.gsub("NxTodoNextGen", "NxTodoIced")
+    #    filepath2 = filepath1.gsub("NxTodo", "NxTodo-Iced")
     #    FileUtils.mv(filepath1, filepath2)
     #end
 
