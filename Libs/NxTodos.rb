@@ -12,7 +12,7 @@ class NxTodos
         LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodo")
             .select{|filepath| filepath[-4, 4] == ".Nx5" }
             .each{|filepath|
-                Nx5FilesSyncConflictsResolution::probeAndRepairIfRelevant(filepath)
+                Nx5SyncConflictsResolution::probeAndRepairIfRelevant(filepath)
             }
 
         LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodo")
@@ -22,14 +22,14 @@ class NxTodos
     # NxTodos::items()
     def self.items()
         NxTodos::filepaths()
-            .map{|filepath| Nx5FilesExt::readFileAsAttributesOfObject(filepath) }
+            .map{|filepath| Nx5Ext::readFileAsAttributesOfObject(filepath) }
     end
 
     # NxTodos::getItemOrNull(uuid)
     def self.getItemOrNull(uuid)
         filepath = NxTodos::uuidToNx5Filepath(uuid)
         return nil if !File.exists?(filepath)
-        Nx5FilesExt::readFileAsAttributesOfObject(filepath)
+        Nx5Ext::readFileAsAttributesOfObject(filepath)
     end
 
     # NxTodos::commitObject(object)
@@ -37,10 +37,10 @@ class NxTodos
         FileSystemCheck::fsck_MikuTypedItem(object, SecureRandom.hex, false)
         filepath = NxTodos::uuidToNx5Filepath(object["uuid"])
         if !File.exists?(filepath) then
-            Nx5Files::issueNewFileAtFilepath(filepath)
+            Nx5::issueNewFileAtFilepath(filepath)
         end
         object.each{|key, value|
-            Nx5Files::emitEventToFile1(filepath, key, value)
+            Nx5::emitEventToFile1(filepath, key, value)
         }
     end
 
@@ -128,31 +128,12 @@ class NxTodos
         item
     end
 
-    # NxTodos::issueUsingLocation(location)
-    def self.issueUsingLocation(location)
-        description = File.basename(location)
-        uuid  = SecureRandom.uuid
-        nx113 = Nx113Make::aionpoint(location)
-        nx11e = Nx11E::makeStandard()
-        item = {
-            "uuid"        => uuid,
-            "mikuType"    => "NxTodo",
-            "unixtime"    => Time.new.to_i,
-            "datetime"    => Time.new.utc.iso8601,
-            "description" => description,
-            "nx113"       => nx113,
-            "nx11e"       => nx11e,
-            "listeable"   => true
-        }
-        NxTodos::commitObject(item)
-        item
-    end
-
     # NxTodos::bufferInImport(location)
     def self.bufferInImport(location)
         description = File.basename(location)
-        uuid  = SecureRandom.uuid
-        nx113 = Nx113Make::aionpoint(location)
+        uuid = SecureRandom.uuid
+        operator = NxTodos::getElizabethOperatorForUUID(uuid)
+        nx113 = Nx113Make::aionpoint(operator, location)
         nx11e = Nx11E::makeTriage()
         item = {
             "uuid"        => uuid,
@@ -352,9 +333,9 @@ class NxTodos
     def self.getElizabethOperatorForUUID(uuid)
         filepath = NxTodos::uuidToNx5Filepath(uuid)
         if !File.exists?(filepath) then
-            Nx5Files::issueNewFileAtFilepath(filepath)
+            Nx5::issueNewFileAtFilepath(filepath)
         end
-        ElizabethNx5Files.new(filepath)
+        ElizabethNx5.new(filepath)
     end
 
     # NxTodos::getElizabethOperatorForItem(item)
@@ -362,16 +343,16 @@ class NxTodos
         raise "(error: c0581614-3ee5-4ed3-a192-537ed22c1dce)" if item["mikuType"] != "NxTodo"
         filepath = NxTodos::uuidToNx5Filepath(item["uuid"])
         if !File.exists?(filepath) then
-            Nx5Files::issueNewFileAtFilepath(filepath)
+            Nx5::issueNewFileAtFilepath(filepath)
         end
-        ElizabethNx5Files.new(filepath)
+        ElizabethNx5.new(filepath)
     end
 
     # NxTodos::access(item)
     def self.access(item)
         puts NxTodos::toString(item).green
         if item["nx113"] then
-            Nx113Access::access(item["nx113"], NxTodos::getElizabethOperatorForItem(item))
+            Nx113Access::access(NxTodos::getElizabethOperatorForItem(item), item["nx113"])
         end
     end
 

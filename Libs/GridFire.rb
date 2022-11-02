@@ -5,7 +5,8 @@ class GridFire
     # GridFire::exportObjectAtLocation(object, location)
     def self.exportObjectAtLocation(object, location)
         state = object["states"].last
-        GridState::exportStateAtFolder(object["states"].last, location)
+        operator = Nx7::getElizabethOperatorForItem(object)
+        GridState::exportStateAtFolder(operator, object["states"].last, location)
     end
 
     # GridFire::exportChildrenAtLocation(object, location)
@@ -23,8 +24,8 @@ class GridFire
     def self.processNx7(filepath1)
         location2 = filepath1.gsub(".Nx9", "")
         return if !File.exists?(location2)
-        object = JSON.parse(IO.read(filepath1))
-        object = Nx7::getItemOrNull(object["uuid"])
+        objectuuid = IO.read(filepath1).strip
+        object = Nx7::getItemOrNull(objectuuid)
         if object.nil? then
             puts "I could not find the network equivalent of location1: '#{location1}', uuid: '#{object}'"
             puts "Exiting"

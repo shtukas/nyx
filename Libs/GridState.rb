@@ -13,8 +13,8 @@ class GridState
         LucilleCore::selectEntityFromListOfEntitiesOrNull("grid state type", GridState::gridStateTypes())
     end
 
-    # GridState::nullGridState() # GridState
-    def self.nullGridState()
+    # GridState::nullGridState(operator) # GridState
+    def self.nullGridState(operator)
         state = {
             "uuid"     => SecureRandom.uuid,
             "mikuType" => "GridState",
@@ -22,12 +22,12 @@ class GridState
             "datetime" => Time.new.utc.iso8601,
             "type"     => "null"
         }
-        FileSystemCheck::fsck_GridState(Elizabeth4.new(), state, SecureRandom.hex, true)
+        FileSystemCheck::fsck_GridState(operator, state, SecureRandom.hex, true)
         return state
     end
 
-    # GridState::textGridState(text) # GridState
-    def self.textGridState(text)
+    # GridState::textGridState(operator, text) # GridState
+    def self.textGridState(operator, text)
         state = {
             "uuid"     => SecureRandom.uuid,
             "mikuType" => "GridState",
@@ -36,12 +36,12 @@ class GridState
             "type"     => "text",
             "text"     => text
         }
-        FileSystemCheck::fsck_GridState(Elizabeth4.new(), state, SecureRandom.hex, true)
+        FileSystemCheck::fsck_GridState(operator, state, SecureRandom.hex, true)
         return state
     end
 
-    # GridState::urlGridState(url) # GridState
-    def self.urlGridState(url)
+    # GridState::urlGridState(operator, url) # GridState
+    def self.urlGridState(operator, url)
         state = {
             "uuid"     => SecureRandom.uuid,
             "mikuType" => "GridState",
@@ -50,17 +50,14 @@ class GridState
             "type"     => "url",
             "url"      => url
         }
-        FileSystemCheck::fsck_GridState(Elizabeth4.new(), state, SecureRandom.hex, true)
+        FileSystemCheck::fsck_GridState(operator, state, SecureRandom.hex, true)
         return state
     end
 
-    # GridState::fileGridState(filepath) # GridState
-    def self.fileGridState(filepath)
+    # GridState::fileGridState(operator, filepath) # GridState
+    def self.fileGridState(operator, filepath)
         raise "(error: EA566981-DC21-40FF-B6B0-382974852D4F)" if !File.exists?(filepath)
-
-        operator = Elizabeth4.new()
         dottedExtension, nhash, parts = PrimitiveFiles::commitFileReturnDataElements(filepath, operator) # [dottedExtension, nhash, parts]
-
         {
             "uuid"            => SecureRandom.uuid,
             "mikuType"        => "GridState",
@@ -73,8 +70,8 @@ class GridState
         }
     end
 
-    # GridState::locationToNxDirectoryContentsRootnhashes(location)
-    def self.locationToNxDirectoryContentsRootnhashes(location)
+    # GridState::locationToNxDirectoryContentsRootnhashes(operator, location)
+    def self.locationToNxDirectoryContentsRootnhashes(operator, location)
         if !File.exists?(location) then
             raise "(error: b10498fc-8b94-418b-a00d-a8ea7d922e17) #{location}"
         end
@@ -82,15 +79,15 @@ class GridState
             raise "(error: 1765ea10-524b-45af-a1a9-6ab6b5c664cf) #{location}"
         end
         LucilleCore::locationsAtFolder(location)
-            .map{|loc| AionCore::commitLocationReturnHash(Elizabeth4.new(), loc) }
+            .map{|loc| AionCore::commitLocationReturnHash(operator, loc) }
     end
 
-    # GridState::directoryPathToNxDirectoryContentsGridState(location) # GridState
-    def self.directoryPathToNxDirectoryContentsGridState(location)
+    # GridState::directoryPathToNxDirectoryContentsGridState(operator, location) # GridState
+    def self.directoryPathToNxDirectoryContentsGridState(operator, location)
         raise "(error: EA566981-DC21-40FF-B6B0-382974852D4F) location: #{location}" if !File.exists?(location)
         raise "(error: 20BD1C67-CD62-4F2C-BB10-7398206BE2E4) location: #{location}" if !File.directory?(location)
 
-        rootnhashes = GridState::locationToNxDirectoryContentsRootnhashes(location)
+        rootnhashes = GridState::locationToNxDirectoryContentsRootnhashes(operator, location)
         state = {
             "uuid"        => SecureRandom.uuid,
             "mikuType"    => "GridState",
@@ -99,30 +96,30 @@ class GridState
             "type"        => "NxDirectoryContents",
             "rootnhashes" => rootnhashes
         }
-        FileSystemCheck::fsck_GridState(Elizabeth4.new(), state, SecureRandom.hex, false)
+        FileSystemCheck::fsck_GridState(operator, state, SecureRandom.hex, false)
         return state
     end
 
-    # GridState::interactivelyBuildGridStateOrNull() # GridState
-    def self.interactivelyBuildGridStateOrNull()
+    # GridState::interactivelyBuildGridStateOrNull(operator) # GridState
+    def self.interactivelyBuildGridStateOrNull(operator)
         type = GridState::interactivelySelectGridStateTypeOrNull()
         return nil if type.nil?
 
         if type == "null" then
-            state = GridState::nullGridState()
-            FileSystemCheck::fsck_GridState(Elizabeth4.new(), state, SecureRandom.hex, true)
+            state = GridState::nullGridState(operator)
+            FileSystemCheck::fsck_GridState(operator, state, SecureRandom.hex, true)
             return state
         end
 
         if type == "text" then
             text = CommonUtils::editTextSynchronously("")
-            return GridState::textGridState(text)
+            return GridState::textGridState(operator, text)
         end
 
         if type == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
             return nil if url == ""
-            return GridState::urlGridState(url)
+            return GridState::urlGridState(operator, url)
         end
 
         if type == "file" then
@@ -130,14 +127,14 @@ class GridState
             return nil if location.nil?
             return nil if !File.file?(location)
             filepath = location
-            state = GridState::fileGridState(filepath)
-            FileSystemCheck::fsck_GridState(Elizabeth4.new(), state, SecureRandom.hex, true)
+            state = GridState::fileGridState(operator, filepath)
+            FileSystemCheck::fsck_GridState(operator, state, SecureRandom.hex, true)
             return state
         end
 
         if type == "NxDirectoryContents" then
             parentlocation = CommonUtils::interactivelySelectDesktopLocationOrNull()
-            return GridState::directoryPathToNxDirectoryContentsGridState(parentlocation)
+            return GridState::directoryPathToNxDirectoryContentsGridState(operator, parentlocation)
         end
 
         if type == "Dx8Unit" then
@@ -151,7 +148,7 @@ class GridState
                 "type"       => "Dx8Unit",
                 "unitId"     => unitId
             }
-            FileSystemCheck::fsck_GridState(Elizabeth4.new(), state, SecureRandom.hex, true)
+            FileSystemCheck::fsck_GridState(operator, state, SecureRandom.hex, true)
             return state
         end
 
@@ -166,7 +163,7 @@ class GridState
                 "type"         => "unique-string",
                 "uniquestring" => uniquestring
             }
-            FileSystemCheck::fsck_GridState(Elizabeth4.new(), state, SecureRandom.hex, true)
+            FileSystemCheck::fsck_GridState(operator, state, SecureRandom.hex, true)
             return state
         end
     end
@@ -180,8 +177,8 @@ class GridState
 
     # Operations
 
-    # GridState::exportNxDirectoryContentsRootsAtFolder(rootnhashes, exportFolder)
-    def self.exportNxDirectoryContentsRootsAtFolder(rootnhashes, exportFolder)
+    # GridState::exportNxDirectoryContentsRootsAtFolder(operator, rootnhashes, exportFolder)
+    def self.exportNxDirectoryContentsRootsAtFolder(operator, rootnhashes, exportFolder)
         if !File.exists?(exportFolder) then
             raise "(error: d5574c5e-3ab0-458c-98e2-331278e4fb32) cannot see exportFolder: #{exportFolder}"
         end
@@ -194,12 +191,12 @@ class GridState
 
         # Exporting
         rootnhashes.each{|rootnhash|
-            Nx113Access::accessAionPointAtExportDirectory(rootnhash, exportFolder)
+            Nx113Access::accessAionPointAtExportDirectory(operator, rootnhash, exportFolder)
         }
     end
 
-    # GridState::exportStateAtFolder(state, folder)
-    def self.exportStateAtFolder(state, folder)
+    # GridState::exportStateAtFolder(operator, state, folder)
+    def self.exportStateAtFolder(operator, state, folder)
 
         LucilleCore::locationsAtFolder(folder)
             .each{|loc| LucilleCore::removeFileSystemLocation(loc) }
@@ -225,7 +222,6 @@ class GridState
             dottedExtension = state["dottedExtension"]
             nhash           = state["nhash"]
             parts           = state["parts"]
-            operator        = Elizabeth4.new()
             filepath        = "#{folder}/#{nhash}#{dottedExtension}"
             File.open(filepath, "w"){|f|
                 parts.each{|nhash|
@@ -237,7 +233,7 @@ class GridState
         end
 
         if type == "NxDirectoryContents" then
-            GridState::exportNxDirectoryContentsRootsAtFolder(state["rootnhashes"], folder)
+            GridState::exportNxDirectoryContentsRootsAtFolder(operator, state["rootnhashes"], folder)
         end
 
         if type == "Dx8Unit" then
@@ -251,8 +247,8 @@ class GridState
         end
     end
 
-    # GridState::access(state)
-    def self.access(state)
+    # GridState::access(state, operator)
+    def self.access(state, operator)
 
         type = state["type"]
 
@@ -274,7 +270,6 @@ class GridState
             dottedExtension = state["dottedExtension"]
             nhash           = state["nhash"]
             parts           = state["parts"]
-            operator        = Elizabeth4.new()
             filepath        = "#{ENV['HOME']}/Desktop/#{nhash}#{dottedExtension}"
             File.open(filepath, "w"){|f|
                 parts.each{|nhash|
@@ -291,7 +286,7 @@ class GridState
         if type == "NxDirectoryContents" then
             exportFolder = "#{ENV['HOME']}/Desktop/NxDirectoryContents-#{SecureRandom.hex(4)}"
             FileUtils.mkdir(exportFolder)
-            GridState::exportNxDirectoryContentsRootsAtFolder(state["rootnhashes"], exportFolder)
+            GridState::exportNxDirectoryContentsRootsAtFolder(operator, state["rootnhashes"], exportFolder)
             puts "State exported at #{exportFolder}"
             LucilleCore::pressEnterToContinue()
         end
@@ -307,8 +302,8 @@ class GridState
         end
     end
 
-    # GridState::edit(state) # GridState or null
-    def self.edit(state)
+    # GridState::edit(operator, state) # GridState or null
+    def self.edit(operator, state)
 
         type = state["type"]
 
@@ -320,7 +315,7 @@ class GridState
             text1 = state["text"]
             text2 = CommonUtils::editTextSynchronously(text1)
             if text2 != text1 then
-                return GridState::textGridState(text2)
+                return GridState::textGridState(operator, text2)
             else
                 return nil
             end
@@ -329,13 +324,13 @@ class GridState
         if type == "url" then
             puts "current url: #{state["url"]}"
             url = LucilleCore::askQuestionAnswerAsString("new url: ")
-            return GridState::urlGridState(url)
+            return GridState::urlGridState(operator, url)
         end
 
         if type == "url" then
             puts "current url: #{state["url"]}"
             url = LucilleCore::askQuestionAnswerAsString("new url: ")
-            return GridState::urlGridState(url)
+            return GridState::urlGridState(operator, url)
         end
 
         if type == "file" then
@@ -343,19 +338,19 @@ class GridState
             return nil if location.nil?
             return nil if !File.file?(location)
             filepath = location
-            state = GridState::fileGridState(filepath)
-            FileSystemCheck::fsck_GridState(Elizabeth4.new(), state, SecureRandom.hex, true)
+            state = GridState::fileGridState(operator, filepath)
+            FileSystemCheck::fsck_GridState(operator, state, SecureRandom.hex, true)
             return state
         end
 
         if type == "NxDirectoryContents" then
             exportFolder = "#{ENV['HOME']}/Desktop/NxDirectoryContents-#{SecureRandom.hex(4)}"
             FileUtils.mkdir(exportFolder)
-            GridState::exportNxDirectoryContentsRootsAtFolder(state["rootnhashes"], exportFolder)
+            GridState::exportNxDirectoryContentsRootsAtFolder(operator, state["rootnhashes"], exportFolder)
             puts "State exported at #{exportFolder}"
             LucilleCore::pressEnterToContinue()
 
-            return GridState::directoryPathToNxDirectoryContentsGridState(exportFolder)
+            return GridState::directoryPathToNxDirectoryContentsGridState(operator, exportFolder)
         end
 
         if type == "Dx8Unit" then
@@ -367,7 +362,7 @@ class GridState
                 "type"       => "Dx8Unit",
                 "unitId"     => unitId
             }
-            FileSystemCheck::fsck_GridState(Elizabeth4.new(), state, SecureRandom.hex, true)
+            FileSystemCheck::fsck_GridState(operator, state, SecureRandom.hex, true)
             return state
         end
 
@@ -380,7 +375,7 @@ class GridState
                 "type"         => "unique-string",
                 "uniquestring" => uniquestring
             }
-            FileSystemCheck::fsck_GridState(Elizabeth4.new(), state, SecureRandom.hex, true)
+            FileSystemCheck::fsck_GridState(operator, state, SecureRandom.hex, true)
             return state
         end
     end

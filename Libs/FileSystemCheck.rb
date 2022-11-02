@@ -485,7 +485,7 @@ class FileSystemCheck
             end
 
             item["states"].each{|state|
-                FileSystemCheck::fsck_GridState(Elizabeth4.new(), state, runhash, verbose)
+                FileSystemCheck::fsck_GridState(Nx7::operatorForItem(item), state, runhash, verbose)
             }
 
             item["comments"].each{|comment|
@@ -542,7 +542,6 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "dailyTarget", "Number")
             FileSystemCheck::ensureAttribute(item, "date", "String")
             FileSystemCheck::ensureAttribute(item, "counter", "Number")
-            FileSystemCheck::fsck_Nx113(Elizabeth4.new(), item["nx113"], runhash, verbose)
             XCache::setFlag(repeatKey, true)
             return
         end
@@ -555,7 +554,7 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "description", "String")
             FileSystemCheck::ensureAttribute(item, "nx46", "Hash")
             FileSystemCheck::ensureAttribute(item, "lastDoneDateTime", "String")
-            FileSystemCheck::fsck_Nx113(Elizabeth4.new(), item["nx113"], runhash, verbose)
+            FileSystemCheck::fsck_Nx113(Waves::operatorForItem(item), item["nx113"], runhash, verbose)
             if item["nx23"] then
                 raise "Waves should not carry a Nx23"
             end

@@ -6,25 +6,66 @@ class Nx7
     # ------------------------------------------------
     # Basic IO
 
+    # Nx7::filepathForUUID(uuid)
+    def self.filepathForUUID(uuid)
+        "#{Config::pathToDataCenter()}/Nx7/#{uuid}.Nx5"
+    end
+
+    # Nx7::nx5Filepaths()
+    def self.nx5Filepaths()
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Nx7")
+            .select{|filepath| filepath[-4, 4] == ".Nx5" }
+            .each{|filepath|
+                Nx5SyncConflictsResolution::probeAndRepairIfRelevant(filepath)
+            }
+
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Nx7")
+            .select{|filepath| filepath[-4, 4] == ".Nx5" }
+    end
+
     # Nx7::items()
     def self.items()
-        TheBook::getObjects("#{Config::pathToDataCenter()}/Nx7")
+        Nx7::nx5Filepaths()
+            .map{|filepath| Nx5Ext::readFileAsAttributesOfObject(filepath) }
     end
 
     # Nx7::getItemOrNull(uuid)
     def self.getItemOrNull(uuid)
-        TheBook::getObjectOrNull("#{Config::pathToDataCenter()}/Nx7", uuid)
+        filepath = Nx7::filepathForUUID(uuid)
+        return nil if !File.exists?(filepath)
+        Nx5Ext::readFileAsAttributesOfObject(filepath)
     end
 
     # Nx7::commitObject(object)
     def self.commitObject(object)
         FileSystemCheck::fsck_MikuTypedItem(object, SecureRandom.hex, false)
-        TheBook::commitObjectToDisk("#{Config::pathToDataCenter()}/Nx7", object)
+        filepath = Nx7::filepathForUUID(object["uuid"])
+        if !File.exists?(filepath) then
+            Nx5::issueNewFileAtFilepath(filepath)
+        end
+        object.each{|key, value|
+            Nx5::emitEventToFile1(filepath, key, value)
+        }
     end
 
     # Nx7::destroy(uuid)
     def self.destroy(uuid)
-        TheBook::destroy("#{Config::pathToDataCenter()}/Nx7", uuid)
+        filepath = Nx7::filepathForUUID(uuid)
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
+    end
+
+    # ------------------------------------------------
+
+    # Nx7::operatorForUUID(uuid)
+    def self.operatorForUUID(uuid)
+        filepath = Nx7::filepathForUUID(uuid)
+        ElizabethNx5.new(filepath)
+    end
+
+    # Nx7::operatorForItem(item)
+    def self.operatorForItem(item)
+        Nx7::operatorForUUID(item["uuid"])
     end
 
     # ------------------------------------------------
@@ -47,9 +88,11 @@ class Nx7
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         networkType1 = Nx7::interactivelySelectNetworkType1()
-        state = GridState::interactivelyBuildGridStateOrNull() || GridState::nullGridState()
+        uuid = SecureRandom.uuid
+        operator = Nx7::operatorForUUID(uuid)
+        state = GridState::interactivelyBuildGridStateOrNull(operator) || GridState::nullGridState(operator)
         item = {
-            "uuid"          => SecureRandom.uuid,
+            "uuid"          => uuid,
             "mikuType"      => "Nx7",
             "unixtime"      => Time.new.to_f,
             "datetime"      => Time.new.utc.iso8601,
@@ -61,7 +104,8 @@ class Nx7
             "relatedsuuids" => [],
             "childrenuuids" => []
         }
-        FileSystemCheck::fsck_Nx7(Elizabeth4.new(), item, SecureRandom.hex, true)
+        FileSystemCheck::fsck_Nx7(operator, item, SecureRandom.hex, true)
+        Nx7::commitObject(item)
         item
     end
 
@@ -72,7 +116,8 @@ class Nx7
         datetime = Time.new.utc.iso8601
         description = File.basename(filepath)
         networkType1 = "Information"
-        states = [GridState::fileGridState(filepath)]
+        operator = Nx7::operatorForUUID(uuid)
+        states = [GridState::fileGridState(operator, filepath)]
         item = {
             "uuid"         => uuid,
             "mikuType"     => "Nx7",
@@ -95,11 +140,12 @@ class Nx7
             return Nx7::issueNewUsingFile(location)
         end
         uuid = SecureRandom.uuid
+        operator = Nx7::operatorForUUID(uuid)
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
         description = File.basename(location)
         networkType1 = "Information"
-        states = [GridState::directoryPathToNxDirectoryContentsGridState(location)]
+        states = [GridState::directoryPathToNxDirectoryContentsGridState(operator, location)]
         item = {
             "uuid"         => uuid,
             "mikuType"     => "Nx7",
@@ -181,16 +227,37 @@ class Nx7
     # ------------------------------------------------
     # Operations
 
+    # Nx7::getElizabethOperatorForUUID(uuid)
+    def self.getElizabethOperatorForUUID(uuid)
+        filepath = Nx7::filepathForUUID(uuid)
+        if !File.exists?(filepath) then
+            Nx5::issueNewFileAtFilepath(filepath)
+        end
+        ElizabethNx5.new(filepath)
+    end
+
+    # Nx7::getElizabethOperatorForItem(item)
+    def self.getElizabethOperatorForItem(item)
+        raise "(error: 520a0efa-48a1-4b81-82fb-f61760af7329)" if item["mikuType"] != "Nx7"
+        filepath = Nx7::filepathForUUID(item["uuid"])
+        if !File.exists?(filepath) then
+            Nx5::issueNewFileAtFilepath(filepath)
+        end
+        ElizabethNx5.new(filepath)
+    end
+
     # Nx7::access(item)
     def self.access(item)
         puts item["description"]
-        GridState::access(item["states"].last)
+        operator = Nx7::getElizabethOperatorForItem(item)
+        GridState::access(item["states"].last, operator)
     end
 
     # Nx7::edit(item) # null or item
     def self.edit(item)
+        operator = Nx7::getElizabethOperatorForItem(item)
         states = item["states"]
-        state2 = GridState::edit(states.last)
+        state2 = GridState::edit(operator, states.last)
         return nil if state2.nil?
         states << state2
         item["states"] = states
@@ -324,7 +391,8 @@ class Nx7
             end
 
             if Interpreting::match("set state", input) then
-                state = GridState::interactivelyBuildGridStateOrNull()
+                operator = Nx7::operatorForItem(item)
+                state = GridState::interactivelyBuildGridStateOrNull(operator)
                 next if state.nil?
                 item["states"] << state
                 Nx7::commitObject(item)

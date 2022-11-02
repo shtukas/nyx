@@ -156,7 +156,6 @@ require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)
 # DoNotShowUntil::isVisible(uid)
 require_relative "Dx8Units.rb"
-require_relative "DataStore4.rb"
 
 require_relative "EnergyGrid.rb"
 
@@ -179,7 +178,7 @@ require_relative "NxTodos.rb"
 require_relative "NetworkShapeAroundNode.rb"
 require_relative "NxLines.rb"
 require_relative "Nx7.rb"
-require_relative "Nx5Files.rb"
+require_relative "Nx5.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"
@@ -194,7 +193,6 @@ require_relative "Streaming.rb"
 require_relative "TxManualCountDowns.rb"
 require_relative "The99Percent.rb"
 require_relative "ThreadsX.rb"
-require_relative "TheBook.rb"
 
 require_relative "UniqueStrings.rb"
 require_relative "Upload.rb"

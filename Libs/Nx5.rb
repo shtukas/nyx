@@ -1,8 +1,8 @@
 # encoding: UTF-8
 
-class Nx5Files
+class Nx5
 
-    # Nx5Files::issueNewFileAtFilepath(filepath)
+    # Nx5::issueNewFileAtFilepath(filepath)
     def self.issueNewFileAtFilepath(filepath)
         raise "(error: B11E6590-A1D3-4BF4-9A6E-6FBC4CD06A4A)" if File.exists?(filepath)
         db = SQLite3::Database.new(filepath)
@@ -16,7 +16,7 @@ class Nx5Files
 
     # EVENTS
 
-    # Nx5Files::emitEventToFile0(filepath, event)
+    # Nx5::emitEventToFile0(filepath, event)
     def self.emitEventToFile0(filepath, event)
         raise "(error: 613FDDA4-0F16-4122-8D64-4D3C11BF28E9) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
         FileSystemCheck::fsck_Nx3(event, SecureRandom.hex, false)
@@ -29,7 +29,7 @@ class Nx5Files
         db.close
     end
 
-    # Nx5Files::emitEventToFile1(filepath, eventType, payload)
+    # Nx5::emitEventToFile1(filepath, eventType, payload)
     def self.emitEventToFile1(filepath, eventType, payload)
         raise "(error: 5A3EFB73-E303-49D8-9C56-980C84CFF59F) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
         event = {
@@ -39,10 +39,10 @@ class Nx5Files
             "eventType" => eventType,
             "payload"   => payload
         }
-        Nx5Files::emitEventToFile0(filepath, event)
+        Nx5::emitEventToFile0(filepath, event)
     end
 
-    # Nx5Files::getLatestPayloadOfEventTypeOrNull(filepath, eventType)
+    # Nx5::getLatestPayloadOfEventTypeOrNull(filepath, eventType)
     def self.getLatestPayloadOfEventTypeOrNull(filepath, eventType)
         raise "(error: 7722D133-DCF9-4D5E-9BD3-066DA01090F8) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
         db = SQLite3::Database.new(filepath)
@@ -57,7 +57,7 @@ class Nx5Files
         event ? JSON.parse(event)["payload"] : nil
     end
 
-    # Nx5Files::getOrderedEventsForEventType(filepath, eventType)
+    # Nx5::getOrderedEventsForEventType(filepath, eventType)
     def self.getOrderedEventsForEventType(filepath, eventType)
         raise "(error: 5B7BE0F3-47E3-4C61-8138-443FF6EB8851) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
         db = SQLite3::Database.new(filepath)
@@ -72,14 +72,14 @@ class Nx5Files
         events
     end
 
-    # Nx5Files::getOrderedPayloadsForEventType(filepath, eventType)
+    # Nx5::getOrderedPayloadsForEventType(filepath, eventType)
     def self.getOrderedPayloadsForEventType(filepath, eventType)
         raise "(error: D0D65C42-3A5E-4B84-B8AF-67455C3722EA) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
-        Nx5Files::getOrderedEventsForEventType(filepath, eventType)
+        Nx5::getOrderedEventsForEventType(filepath, eventType)
             .map{|event| event["payload"] }
     end
 
-    # Nx5Files::getOrderedEvents(filepath)
+    # Nx5::getOrderedEvents(filepath)
     def self.getOrderedEvents(filepath)
         raise "(error: 5B7BE0F3-47E3-4C61-8138-443FF6EB8851) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
         db = SQLite3::Database.new(filepath)
@@ -96,7 +96,7 @@ class Nx5Files
 
     # DATABLOBS
 
-    # Nx5Files::getDataBlobsNhashes(filepath)
+    # Nx5::getDataBlobsNhashes(filepath)
     def self.getDataBlobsNhashes(filepath)
         raise "(error: 37854fc9-28e3-4c73-a4c2-76faac4a5186) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
         db = SQLite3::Database.new(filepath)
@@ -111,7 +111,7 @@ class Nx5Files
         nhashes
     end
 
-    # Nx5Files::getDatablobOrNull(filepath, nhash)
+    # Nx5::getDatablobOrNull(filepath, nhash)
     def self.getDatablobOrNull(filepath, nhash)
         raise "(error: a27f23c4-31dd-478e-8236-a95a4fe37984) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
         db = SQLite3::Database.new(filepath)
@@ -126,7 +126,7 @@ class Nx5Files
         blob
     end
 
-    # Nx5Files::putBlob(filepath, blob)
+    # Nx5::putBlob(filepath, blob)
     def self.putBlob(filepath, blob)
         raise "(error: 4272141b-4bab-4a7b-ba0d-377291d27809) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
@@ -141,14 +141,14 @@ class Nx5Files
     end
 end
 
-class ElizabethNx5Files
+class ElizabethNx5
 
     def initialize(filepath)
         @filepath = filepath
     end
 
     def putBlob(datablob)
-        Nx5Files::putBlob(@filepath, datablob)
+        Nx5::putBlob(@filepath, datablob)
     end
 
     def filepathToContentHash(filepath)
@@ -156,16 +156,7 @@ class ElizabethNx5Files
     end
 
     def getBlobOrNull(nhash)
-        blob = Nx5Files::getDatablobOrNull(@filepath, nhash)
-        return blob if blob
-
-        blob = DataStore4::getBlobOrNull(nhash)
-        if blob then
-            putBlob(blob)
-            return blob
-        end
-
-        nil
+        Nx5::getDatablobOrNull(@filepath, nhash)
     end
 
     def readBlobErrorIfNotFound(nhash)
@@ -189,41 +180,41 @@ class ElizabethNx5Files
     end
 end
 
-class Nx5FilesExt
+class Nx5Ext
 
-    # Nx5FilesExt::readFileAsAttributesOfObject(filepath)
+    # Nx5Ext::readFileAsAttributesOfObject(filepath)
     def self.readFileAsAttributesOfObject(filepath)
         raise "(error: 35519C87-740E-4D59-8CF2-15E7434E8024) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
-        Nx5Files::getOrderedEvents(filepath).reduce({}){|item, event|
+        Nx5::getOrderedEvents(filepath).reduce({}){|item, event|
             item[event["eventType"]] = event["payload"]
             item
         }
     end
 
-    # Nx5FilesExt::repairSyncthingConflictsBetweenTwoNx5sByMerging(redundantFilepath, remainerFilepath)
+    # Nx5Ext::repairSyncthingConflictsBetweenTwoNx5sByMerging(redundantFilepath, remainerFilepath)
     def self.repairSyncthingConflictsBetweenTwoNx5sByMerging(redundantFilepath, remainerFilepath)
-        Nx5Files::getDataBlobsNhashes(redundantFilepath)
+        Nx5::getDataBlobsNhashes(redundantFilepath)
             .each{|nhash|
-                blob = Nx5Files::getDatablobOrNull(redundantFilepath, nhash)
+                blob = Nx5::getDatablobOrNull(redundantFilepath, nhash)
                 raise "(error: 0a10fcee-064e-46d8-ae07-a4ddc6160197) redundantFilepath: '#{redundantFilepath}', nhash: '#{nhash}'" if blob.nil?
-                Nx5Files::putBlob(remainerFilepath, blob)
+                Nx5::putBlob(remainerFilepath, blob)
             }
-        Nx5Files::getOrderedEvents(redundantFilepath)
+        Nx5::getOrderedEvents(redundantFilepath)
             .each{|event|
-                Nx5Files::emitEventToFile0(remainerFilepath, event)
+                Nx5::emitEventToFile0(remainerFilepath, event)
             }
         FileUtils.rm(redundantFilepath)
     end
 end
 
-class Nx5FilesSyncConflictsResolution
+class Nx5SyncConflictsResolution
 
-    # Nx5FilesSyncConflictsResolution::isConflictFile(filepath)
+    # Nx5SyncConflictsResolution::isConflictFile(filepath)
     def self.isConflictFile(filepath)
         File.basename(filepath).include?("sync-conflict")
     end
 
-    # Nx5FilesSyncConflictsResolution::acquirePrimaryFilepath(syncconflictfilepath)
+    # Nx5SyncConflictsResolution::acquirePrimaryFilepath(syncconflictfilepath)
     def self.acquirePrimaryFilepath(syncconflictfilepath)
         conflictfilename = File.basename(syncconflictfilepath)
         fragments = conflictfilename.split(".")
@@ -236,11 +227,11 @@ class Nx5FilesSyncConflictsResolution
         primaryfilepath
     end
 
-    # Nx5FilesSyncConflictsResolution::probeAndRepairIfRelevant(filepath)
+    # Nx5SyncConflictsResolution::probeAndRepairIfRelevant(filepath)
     def self.probeAndRepairIfRelevant(filepath)
-        return if !Nx5FilesSyncConflictsResolution::isConflictFile(filepath)
+        return if !Nx5SyncConflictsResolution::isConflictFile(filepath)
         syncconflictfilepath = filepath
-        primaryfilepath = Nx5FilesSyncConflictsResolution::acquirePrimaryFilepath(syncconflictfilepath)
-        Nx5FilesExt::repairSyncthingConflictsBetweenTwoNx5sByMerging(syncconflictfilepath, primaryfilepath)
+        primaryfilepath = Nx5SyncConflictsResolution::acquirePrimaryFilepath(syncconflictfilepath)
+        Nx5Ext::repairSyncthingConflictsBetweenTwoNx5sByMerging(syncconflictfilepath, primaryfilepath)
     end
 end

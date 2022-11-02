@@ -14,7 +14,7 @@ class Waves
         LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Wave")
             .select{|filepath| filepath[-4, 4] == ".Nx5" }
             .each{|filepath|
-                Nx5FilesSyncConflictsResolution::probeAndRepairIfRelevant(filepath)
+                Nx5SyncConflictsResolution::probeAndRepairIfRelevant(filepath)
             }
 
         LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Wave")
@@ -24,7 +24,7 @@ class Waves
     # Waves::items()
     def self.items()
         Waves::nx5Filepaths()
-            .map{|filepath| Nx5FilesExt::readFileAsAttributesOfObject(filepath) }
+            .map{|filepath| Nx5Ext::readFileAsAttributesOfObject(filepath) }
     end
 
     # Waves::commitItem(item)
@@ -32,10 +32,10 @@ class Waves
         FileSystemCheck::fsck_MikuTypedItem(item, SecureRandom.hex, false)
         filepath = Waves::filepathForUUID(item["uuid"])
         if !File.exists?(filepath) then
-            Nx5Files::issueNewFileAtFilepath(filepath)
+            Nx5::issueNewFileAtFilepath(filepath)
         end
         item.each{|key, value|
-            Nx5Files::emitEventToFile1(filepath, key, value)
+            Nx5::emitEventToFile1(filepath, key, value)
         }
     end
 
@@ -43,14 +43,14 @@ class Waves
     def self.commitAttribute1(uuid, attname, attvalue)
         filepath = Waves::filepathForUUID(uuid)
         raise "(error: EDE283D3-0E7E-4D66-B055-160F43D127C5) uuid: '#{uuid}', attname: '#{attname}', attvalue: '#{attvalue}'" if !File.exists?(filepath)
-        Nx5Files::emitEventToFile1(filepath, attname, attvalue)
+        Nx5::emitEventToFile1(filepath, attname, attvalue)
     end
 
     # Waves::getOrNull(uuid)
     def self.getOrNull(uuid)
         filepath = Waves::filepathForUUID(uuid)
         return nil if !File.exists?(filepath)
-        Nx5FilesExt::readFileAsAttributesOfObject(filepath)
+        Nx5Ext::readFileAsAttributesOfObject(filepath)
     end
 
     # Waves::destroy(uuid)
@@ -172,8 +172,8 @@ class Waves
         return nil if description == ""
         nx46 = Waves::makeNx46InteractivelyOrNull()
         return nil if nx46.nil?
-        nx113 = Nx113Make::interactivelyMakeNx113OrNull(Elizabeth4.new())
         uuid = SecureRandom.uuid
+        nx113 = Nx113Make::interactivelyMakeNx113OrNull(Waves::operatorForUUID(uuid))
         item = {
             "uuid"             => uuid,
             "mikuType"         => "Wave",
@@ -209,6 +209,17 @@ class Waves
     end
 
     # -------------------------------------------------------------------------
+
+    # Waves::operatorForUUID(uuid)
+    def self.operatorForUUID(uuid)
+        filepath = Waves::filepathForUUID(uuid)
+        ElizabethNx5.new(filepath)
+    end
+
+    # Waves::operatorForItem(item)
+    def self.operatorForItem(item)
+        Waves::operatorForUUID(item["uuid"])
+    end
 
     # Waves::performWaveNx46WaveDone(item)
     def self.performWaveNx46WaveDone(item)
@@ -247,7 +258,7 @@ class Waves
     def self.access(item)
         puts Waves::toString(item).green
         if item["nx113"] then
-            Nx113Access::access(item["nx113"], nil)
+            Nx113Access::access(Waves::operatorForItem(item), item["nx113"])
         end
     end
 
@@ -349,7 +360,7 @@ class Waves
             end
 
             if Interpreting::match("nx113", input) then
-                nx113 = Nx113Make::interactivelyMakeNx113OrNull(Elizabeth4.new())
+                nx113 = Nx113Make::interactivelyMakeNx113OrNull(Waves::operatorForItem(item))
                 return if nx113.nil?
                 Waves::commitAttribute1(item["uuid"], "nx113", nx113)
                 next
