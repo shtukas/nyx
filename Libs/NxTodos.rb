@@ -51,6 +51,13 @@ class NxTodos
         FileUtils.rm(filepath)
     end
 
+    # NxTodos::moveToIce(uuid)
+    #def self.moveToIce(uuid)
+    #    filepath1 = NxTodos::uuidToNx5Filepath(uuid)
+    #    filepath2 = filepath1.gsub("NxTodoNextGen", "NxTodoIced")
+    #    FileUtils.mv(filepath1, filepath2)
+    #end
+
     # --------------------------------------------------
     # Makers
 
