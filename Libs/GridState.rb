@@ -22,7 +22,7 @@ class GridState
             "datetime" => Time.new.utc.iso8601,
             "type"     => "null"
         }
-        FileSystemCheck::fsck_GridState(state, SecureRandom.hex, true)
+        FileSystemCheck::fsck_GridState(Elizabeth4.new(), state, SecureRandom.hex, true)
         return state
     end
 
@@ -36,7 +36,7 @@ class GridState
             "type"     => "text",
             "text"     => text
         }
-        FileSystemCheck::fsck_GridState(state, SecureRandom.hex, true)
+        FileSystemCheck::fsck_GridState(Elizabeth4.new(), state, SecureRandom.hex, true)
         return state
     end
 
@@ -50,7 +50,7 @@ class GridState
             "type"     => "url",
             "url"      => url
         }
-        FileSystemCheck::fsck_GridState(state, SecureRandom.hex, true)
+        FileSystemCheck::fsck_GridState(Elizabeth4.new(), state, SecureRandom.hex, true)
         return state
     end
 
@@ -99,7 +99,7 @@ class GridState
             "type"        => "NxDirectoryContents",
             "rootnhashes" => rootnhashes
         }
-        FileSystemCheck::fsck_GridState(state, SecureRandom.hex, false)
+        FileSystemCheck::fsck_GridState(Elizabeth4.new(), state, SecureRandom.hex, false)
         return state
     end
 
@@ -110,7 +110,7 @@ class GridState
 
         if type == "null" then
             state = GridState::nullGridState()
-            FileSystemCheck::fsck_GridState(state, SecureRandom.hex, true)
+            FileSystemCheck::fsck_GridState(Elizabeth4.new(), state, SecureRandom.hex, true)
             return state
         end
 
@@ -131,7 +131,7 @@ class GridState
             return nil if !File.file?(location)
             filepath = location
             state = GridState::fileGridState(filepath)
-            FileSystemCheck::fsck_GridState(state, SecureRandom.hex, true)
+            FileSystemCheck::fsck_GridState(Elizabeth4.new(), state, SecureRandom.hex, true)
             return state
         end
 
@@ -151,7 +151,7 @@ class GridState
                 "type"       => "Dx8Unit",
                 "unitId"     => unitId
             }
-            FileSystemCheck::fsck_GridState(state, SecureRandom.hex, true)
+            FileSystemCheck::fsck_GridState(Elizabeth4.new(), state, SecureRandom.hex, true)
             return state
         end
 
@@ -166,7 +166,7 @@ class GridState
                 "type"         => "unique-string",
                 "uniquestring" => uniquestring
             }
-            FileSystemCheck::fsck_GridState(state, SecureRandom.hex, true)
+            FileSystemCheck::fsck_GridState(Elizabeth4.new(), state, SecureRandom.hex, true)
             return state
         end
     end
@@ -344,7 +344,7 @@ class GridState
             return nil if !File.file?(location)
             filepath = location
             state = GridState::fileGridState(filepath)
-            FileSystemCheck::fsck_GridState(state, SecureRandom.hex, true)
+            FileSystemCheck::fsck_GridState(Elizabeth4.new(), state, SecureRandom.hex, true)
             return state
         end
 
@@ -367,7 +367,7 @@ class GridState
                 "type"       => "Dx8Unit",
                 "unitId"     => unitId
             }
-            FileSystemCheck::fsck_GridState(state, SecureRandom.hex, true)
+            FileSystemCheck::fsck_GridState(Elizabeth4.new(), state, SecureRandom.hex, true)
             return state
         end
 
@@ -380,7 +380,7 @@ class GridState
                 "type"         => "unique-string",
                 "uniquestring" => uniquestring
             }
-            FileSystemCheck::fsck_GridState(state, SecureRandom.hex, true)
+            FileSystemCheck::fsck_GridState(Elizabeth4.new(), state, SecureRandom.hex, true)
             return state
         end
     end

@@ -83,21 +83,21 @@ class Nx113Make
         LucilleCore::selectEntityFromListOfEntitiesOrNull("type", Nx113Make::types())
     end
 
-    # Nx113Make::interactivelyMakeNx113OrNull() # Nx113
-    def self.interactivelyMakeNx113OrNull()
+    # Nx113Make::interactivelyMakeNx113OrNull(operator) # Nx113
+    def self.interactivelyMakeNx113OrNull(operator)
         type = Nx113Make::interactivelySelectOneNx113TypeOrNull()
         return nil if type.nil?
         if type == "text" then
             text = CommonUtils::editTextSynchronously("")
             nx113 = Nx113Make::text(text)
-            FileSystemCheck::fsck_Nx113(nx113, SecureRandom.hex, true)
+            FileSystemCheck::fsck_Nx113(operator, nx113, SecureRandom.hex, true)
             return nx113
         end
         if type == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
             return nil if url == ""
             nx113 = Nx113Make::url(url)
-            FileSystemCheck::fsck_Nx113(nx113, SecureRandom.hex, true)
+            FileSystemCheck::fsck_Nx113(operator, nx113, SecureRandom.hex, true)
             return nx113
         end
         if type == "file" then
@@ -106,26 +106,26 @@ class Nx113Make
             return nil if !File.file?(location)
             filepath = location
             nx113 = Nx113Make::file(filepath)
-            FileSystemCheck::fsck_Nx113(nx113, SecureRandom.hex, true)
+            FileSystemCheck::fsck_Nx113(operator, nx113, SecureRandom.hex, true)
             return nx113
         end
         if type == "aion-point" then
             nx113 = Nx113Make::interactivelyMakeNx113AionPoint()
-            FileSystemCheck::fsck_Nx113(nx113, SecureRandom.hex, true)
+            FileSystemCheck::fsck_Nx113(operator, nx113, SecureRandom.hex, true)
             return nx113
         end
         if type == "Dx8Unit" then
             unitId = LucilleCore::askQuestionAnswerAsString("unitId (empty to abort): ")
             return nil if  unitId == ""
             nx113 = Nx113Make::dx8Unit(unitId)
-            FileSystemCheck::fsck_Nx113(nx113, SecureRandom.hex, true)
+            FileSystemCheck::fsck_Nx113(operator, nx113, SecureRandom.hex, true)
             return nx113
         end
         if type == "unique-string" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
             return nil if uniquestring.nil?
             nx113 = Nx113Make::uniqueString(uniquestring)
-            FileSystemCheck::fsck_Nx113(nx113, SecureRandom.hex, true)
+            FileSystemCheck::fsck_Nx113(operator, nx113, SecureRandom.hex, true)
             return nx113
         end
         raise "(error: 0d26fe42-8669-4f33-9a09-aeecbd52c77c)"
@@ -361,25 +361,5 @@ class Nx113Transforms
         # We should not forget to issue the Dx33
         Nx113Dx33s::issue(unitId)
         nx113v2
-    end
-
-    # Nx113Transforms::mutateItemIfCarryingDx8UnitToCarryAionPoint(item)
-    def self.mutateItemIfCarryingDx8UnitToCarryAionPoint(item)
-        return if item["nx113"].nil?
-        nx113v2 = Nx113Transforms::transformDx8UnitToAionPointOrNull(item["nx113"])
-        return if nx113v2.nil?
-        FileSystemCheck::fsck_Nx113(nx113v2, SecureRandom.hex, true)
-        puts "Nx113Transforms::mutateItemIfCarryingDx8UnitToCarryAionPoint: #{PolyFunctions::toString(item).green}, #{JSON.pretty_generate(item["nx113"])}, #{JSON.pretty_generate(nx113v2)}"
-        puts JSON.pretty_generate(item)
-        item["nx113"] = nx113v2
-        puts JSON.pretty_generate(item)
-        PolyActions::commit(item)
-    end
-
-    # Nx113Transforms::transformDx8UnitToAionPointsDuringEnergyGridUpdate()
-    def self.transformDx8UnitToAionPointsDuringEnergyGridUpdate()
-        NxTodos::listingItems().each{|item|
-            Nx113Transforms::mutateItemIfCarryingDx8UnitToCarryAionPoint(item)
-        }
     end
 end

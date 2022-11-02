@@ -1,38 +1,4 @@
 
-class WaveSyncConflicts
-
-    # WaveSyncConflicts::isConflictFile(filepath)
-    def self.isConflictFile(filepath)
-        File.basename(filepath).include?("sync-conflict")
-    end
-
-    # WaveSyncConflicts::computePrimaryFilepath(syncconflictfilepath)
-    def self.computePrimaryFilepath(syncconflictfilepath)
-        fragments = syncconflictfilepath.split(".")
-        raise "(error: 64f81b39-8919-4248-927b-d502d0414e90) syncconflictfilepath: #{syncconflictfilepath}" if (fragments.size != 3)
-        primaryfilepath = "#{fragments[0]}.#{fragments[2]}"
-        raise "(error: 50093182-5805-4d58-af34-e37d79c91f5a) primaryfilepath: #{primaryfilepath}" if !File.exists?(primaryfilepath)
-        primaryfilepath
-    end
-
-    # WaveSyncConflicts::resolveConflict(syncconflictfilepath, primaryfilepath)
-    def self.resolveConflict(syncconflictfilepath, primaryfilepath)
-        Nx5Files::getOrderedEvents(syncconflictfilepath)
-            .each{|event|
-                Nx5Files::emitEventToFile0(primaryfilepath, event)
-            }
-        FileUtils.rm(syncconflictfilepath)
-    end
-
-    # WaveSyncConflicts::probe(filepath)
-    def self.probe(filepath)
-        return if !WaveSyncConflicts::isConflictFile(filepath)
-        syncconflictfilepath = filepath
-        primaryfilepath = WaveSyncConflicts::computePrimaryFilepath(syncconflictfilepath)
-        Nx5FilesExt::repairSyncthingConflictsBetweenTwoNx5sByMerging(syncconflictfilepath, primaryfilepath)
-    end
-end
-
 class Waves
 
     # --------------------------------------------------
@@ -48,7 +14,7 @@ class Waves
         LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Wave")
             .select{|filepath| filepath[-4, 4] == ".Nx5" }
             .each{|filepath|
-                WaveSyncConflicts::probe(filepath)
+                Nx5FilesSyncConflictsResolution::probeAndRepairIfRelevant(filepath)
             }
 
         LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Wave")
@@ -206,7 +172,7 @@ class Waves
         return nil if description == ""
         nx46 = Waves::makeNx46InteractivelyOrNull()
         return nil if nx46.nil?
-        nx113 = Nx113Make::interactivelyMakeNx113OrNull()
+        nx113 = Nx113Make::interactivelyMakeNx113OrNull(Elizabeth4.new())
         uuid = SecureRandom.uuid
         item = {
             "uuid"             => uuid,
@@ -383,7 +349,7 @@ class Waves
             end
 
             if Interpreting::match("nx113", input) then
-                nx113 = Nx113Make::interactivelyMakeNx113OrNull()
+                nx113 = Nx113Make::interactivelyMakeNx113OrNull(Elizabeth4.new())
                 return if nx113.nil?
                 Waves::commitAttribute1(item["uuid"], "nx113", nx113)
                 next

@@ -215,3 +215,32 @@ class Nx5FilesExt
         FileUtils.rm(redundantFilepath)
     end
 end
+
+class Nx5FilesSyncConflictsResolution
+
+    # Nx5FilesSyncConflictsResolution::isConflictFile(filepath)
+    def self.isConflictFile(filepath)
+        File.basename(filepath).include?("sync-conflict")
+    end
+
+    # Nx5FilesSyncConflictsResolution::acquirePrimaryFilepath(syncconflictfilepath)
+    def self.acquirePrimaryFilepath(syncconflictfilepath)
+        conflictfilename = File.basename(syncconflictfilepath)
+        fragments = conflictfilename.split(".")
+        if (fragments.size != 3) then
+            raise "(error: 64f81b39-8919-4248-927b-d502d0414e90) syncconflictfilepath: #{syncconflictfilepath}"
+        end
+        primaryfilename = "#{fragments[0]}.#{fragments[2]}"
+        primaryfilepath = "#{File.dirname(syncconflictfilepath)}/#{primaryfilename}"
+        raise "(error: 50093182-5805-4d58-af34-e37d79c91f5a) primaryfilepath: #{primaryfilepath}" if !File.exists?(primaryfilepath)
+        primaryfilepath
+    end
+
+    # Nx5FilesSyncConflictsResolution::probeAndRepairIfRelevant(filepath)
+    def self.probeAndRepairIfRelevant(filepath)
+        return if !Nx5FilesSyncConflictsResolution::isConflictFile(filepath)
+        syncconflictfilepath = filepath
+        primaryfilepath = Nx5FilesSyncConflictsResolution::acquirePrimaryFilepath(syncconflictfilepath)
+        Nx5FilesExt::repairSyncthingConflictsBetweenTwoNx5sByMerging(syncconflictfilepath, primaryfilepath)
+    end
+end

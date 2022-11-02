@@ -61,7 +61,7 @@ class Nx7
             "relatedsuuids" => [],
             "childrenuuids" => []
         }
-        FileSystemCheck::fsck_Nx7(item, SecureRandom.hex, true)
+        FileSystemCheck::fsck_Nx7(Elizabeth4.new(), item, SecureRandom.hex, true)
         item
     end
 

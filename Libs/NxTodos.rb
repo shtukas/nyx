@@ -7,25 +7,48 @@ class NxTodos
         "#{Config::pathToDataCenter()}/NxTodoNextGen/#{uuid}.Nx5"
     end
 
+    # NxTodos::filepaths()
+    def self.filepaths()
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodoNextGen")
+            .select{|filepath| filepath[-4, 4] == ".Nx5" }
+            .each{|filepath|
+                Nx5FilesSyncConflictsResolution::probeAndRepairIfRelevant(filepath)
+            }
+
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodoNextGen")
+            .select{|filepath| filepath[-4, 4] == ".Nx5" }
+    end
+
     # NxTodos::items()
     def self.items()
-        TheBook::getObjects("#{Config::pathToDataCenter()}/NxTodo")
+        NxTodos::filepaths()
+            .map{|filepath| Nx5FilesExt::readFileAsAttributesOfObject(filepath) }
     end
 
     # NxTodos::getItemOrNull(uuid)
     def self.getItemOrNull(uuid)
-        TheBook::getObjectOrNull("#{Config::pathToDataCenter()}/NxTodo", uuid)
+        filepath = NxTodos::uuidToNx5Filepath(uuid)
+        return nil if !File.exists?(filepath)
+        Nx5FilesExt::readFileAsAttributesOfObject(filepath)
     end
 
     # NxTodos::commitObject(object)
     def self.commitObject(object)
         FileSystemCheck::fsck_MikuTypedItem(object, SecureRandom.hex, false)
-        TheBook::commitObjectToDisk("#{Config::pathToDataCenter()}/NxTodo", object)
+        filepath = NxTodos::uuidToNx5Filepath(object["uuid"])
+        if !File.exists?(filepath) then
+            Nx5Files::issueNewFileAtFilepath(filepath)
+        end
+        object.each{|key, value|
+            Nx5Files::emitEventToFile1(filepath, key, value)
+        }
     end
 
     # NxTodos::destroy(uuid)
     def self.destroy(uuid)
-        TheBook::destroy("#{Config::pathToDataCenter()}/NxTodo", uuid)
+        filepath = NxTodos::uuidToNx5Filepath(uuid)
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
     end
 
     # --------------------------------------------------
@@ -37,7 +60,7 @@ class NxTodos
         return nil if description == ""
         uuid  = SecureRandom.uuid
         nx11e = Nx11E::interactivelyCreateNewNx11E()
-        nx113 = Nx113Make::interactivelyMakeNx113OrNull()
+        nx113 = Nx113Make::interactivelyMakeNx113OrNull(NxTodos::getElizabethOperatorForUUID(uuid))
         cx23  = (nx11e["type"] == "standard") ? Cx23::interactivelyMakeNewOrNull() : nil
         item = {
             "uuid"        => uuid,
@@ -61,7 +84,7 @@ class NxTodos
         uuid     = SecureRandom.uuid
         datetime = datetime || CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
         nx11e    = Nx11E::makeOndate(datetime)
-        nx113    = Nx113Make::interactivelyMakeNx113OrNull()
+        nx113    = Nx113Make::interactivelyMakeNx113OrNull(NxTodos::getElizabethOperatorForUUID(uuid))
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
@@ -158,10 +181,10 @@ class NxTodos
         item
     end
 
-    # NxTodos::issueFromElements(description, nx113, nx11e, cx23)
-    def self.issueFromElements(description, nx113, nx11e, cx23)
+    # NxTodos::issueFromElements(uuid, description, nx113, nx11e, cx23)
+    def self.issueFromElements(uuid, description, nx113, nx11e, cx23)
         item = {
-            "uuid"        => SecureRandom.uuid,
+            "uuid"        => uuid,
             "mikuType"    => "NxTodo",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
@@ -317,6 +340,15 @@ class NxTodos
 
     # --------------------------------------------------
     # Operations
+
+    # NxTodos::getElizabethOperatorForUUID(uuid)
+    def self.getElizabethOperatorForUUID(uuid)
+        filepath = NxTodos::uuidToNx5Filepath(uuid)
+        if !File.exists?(filepath) then
+            Nx5Files::issueNewFileAtFilepath(filepath)
+        end
+        ElizabethNx5Files.new(filepath)
+    end
 
     # NxTodos::getElizabethOperatorForItem(item)
     def self.getElizabethOperatorForItem(item)

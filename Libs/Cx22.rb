@@ -239,9 +239,9 @@ class Cx22
                 next if description == ""
                 uuid   = SecureRandom.uuid
                 nx11e  = Nx11E::makeStandard()
-                nx113  = Nx113Make::interactivelyMakeNx113OrNull()
+                nx113  = Nx113Make::interactivelyMakeNx113OrNull(NxTodos::getElizabethOperatorForUUID(uuid))
                 cx23   = Cx23::interactivelyMakeNewGivenCx22OrNull(cx22)
-                NxTodos::issueFromElements(description, nx113, nx11e, cx23)
+                NxTodos::issueFromElements(uuid, description, nx113, nx11e, cx23)
                 next
             end
 
