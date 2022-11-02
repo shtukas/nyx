@@ -299,37 +299,37 @@ class NxTodos
     def self.listingItems()
 
         # We update the list of listable every day
-        if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("e38d89ee-0e4e-4b71-adcd-bfdcb7891e72", 86400) then
-            Cx22::items().each{|cx22|
-                NxTodos::items()
-                    .select{|item| item["cx23"] and item["cx23"]["groupuuid"] == cx22["uuid"] }
-                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-                    .reduce([]){|selected, item|
-                        (lambda {
-                            if item["nx11e"]["type"] != "standard" then
-                                return selected + [item]
-                            end
-                            if item["nx11e"]["type"] == "standard" then
-                                count = selected.select{|i| i["nx11e"]["type"] == "standard" }.count
-                                if count < 50 then
-                                    return selected + [item]
-                                else
-                                    selected
-                                end
-                            end
-                        }).call()
-                    }
-                    .each{|item|
-                        next if item["listeable"]
-                        puts "set to listeable: #{NxTodos::toString(item)}"
-                        item["listeable"] =  true
-                        NxTodos::commitObject(item)
-                    }
-            }
+        # TODO: when we moved to Nx5 files and NxTodo vs NxTodo-Iced, then this stopped working a s intended
+        #if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("e38d89ee-0e4e-4b71-adcd-bfdcb7891e72", 86400) then
+        #    Cx22::items().each{|cx22|
+        #        NxTodos::items()
+        #            .select{|item| item["cx23"] and item["cx23"]["groupuuid"] == cx22["uuid"] }
+        #            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+        #            .reduce([]){|selected, item|
+        #                (lambda {
+        #                    if item["nx11e"]["type"] != "standard" then
+        #                        return selected + [item]
+        #                    end
+        #                    if item["nx11e"]["type"] == "standard" then
+        #                        count = selected.select{|i| i["nx11e"]["type"] == "standard" }.count
+        #                        if count < 50 then
+        #                            return selected + [item]
+        #                        else
+        #                            selected
+        #                        end
+        #                    end
+        #                }).call()
+        #            }
+        #            .each{|item|
+        #                next if item["listeable"]
+        #                puts "set to listeable: #{NxTodos::toString(item)}"
+        #                item["listeable"] =  true
+        #                NxTodos::commitObject(item)
+        #            }
+        #    }
+        #end
 
-        end
-
-        items = NxTodos::items().select{|item| item["listeable"] }
+        NxTodos::items()
     end
 
     # NxTodos::itemsForCx22(cx22)
