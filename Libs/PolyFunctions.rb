@@ -28,10 +28,6 @@ class PolyFunctions
 
         # order: by mikuType
 
-        if item["mikuType"] == "Nx7" then
-            return Nx7::edit(item)
-        end
-
         if item["mikuType"] == "NxTodo" then
             return NxTodos::edit(item)
         end
@@ -128,6 +124,9 @@ class PolyFunctions
         # ordering: alphabetical order
 
         if item["mikuType"] == "InboxItem" then
+            return item["description"]
+        end
+        if item["mikuType"] == "Nx8" then
             return item["description"]
         end
         if item["mikuType"] == "NxAnniversary" then
@@ -240,6 +239,12 @@ class PolyFunctions
         if item["mikuType"] == "Cx22" then
             return Cx22::toString1(item)
         end
+        if item["mikuType"] == "Nx7" then
+            return Nx7::toString(item)
+        end
+        if item["mikuType"] == "Nx8" then
+            return Nx8::toString(item)
+        end
         if item["mikuType"] == "NxAnniversary" then
             return Anniversaries::toString(item)
         end
@@ -252,9 +257,7 @@ class PolyFunctions
         if item["mikuType"] == "NxTodo" then
             return NxTodos::toString(item)
         end
-        if item["mikuType"] == "Nx7" then
-            return Nx7::toString(item)
-        end
+
         if item["mikuType"] == "TxManualCountDown" then
             return "(countdown) #{item["description"]}: #{item["counter"]}"
         end

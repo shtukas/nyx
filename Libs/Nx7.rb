@@ -6,32 +6,76 @@ class Nx7
     # ------------------------------------------------
     # Basic IO
 
-    # Nx7::filepathForUUID(uuid)
-    def self.filepathForUUID(uuid)
-        "#{Config::pathToDataCenter()}/Nx7/#{uuid}.Nx5"
-    end
-
-    # Nx7::nx5Filepaths()
-    def self.nx5Filepaths()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Nx7")
-            .select{|filepath| filepath[-4, 4] == ".Nx5" }
-            .each{|filepath|
-                Nx5SyncConflictsResolution::probeAndRepairIfRelevant(filepath)
-            }
-
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Nx7")
-            .select{|filepath| filepath[-4, 4] == ".Nx5" }
+    # Nx7::filepathsEnumerator()
+    def self.filepathsEnumerator()
+        Enumerator.new do |filepaths|
+            Find.find(Config::pathToGalaxy()) do |path|
+                if path[-4, 4] == ".Nx7" then
+                    filepaths << path
+                end
+            end
+        end
     end
 
     # Nx7::items()
     def self.items()
-        Nx7::nx5Filepaths()
+        Nx7::filepathsEnumerator()
             .map{|filepath| Nx5Ext::readFileAsAttributesOfObject(filepath) }
+    end
+
+    # Nx7::allGalaxyInstanceFilpaths(uuid)
+    def self.allGalaxyInstanceFilpaths(uuid)
+        filepaths = []
+        Find.find(Config::pathToGalaxy()) do |path|
+            if path[-4, 4] == ".Nx7" then
+                filepath1 = path
+                nx7 = Nx5Ext::readFileAsAttributesOfObject(filepath1)
+                if nx7["uuid"] == uuid then
+                    filepaths << filepath1
+                end
+            end
+        end
+        filepaths
+    end
+
+    # Nx7::getFilepathOrNull(uuid)
+    def self.getFilepathOrNull(uuid)
+
+        nx8 = Nx8::getItemOrNull(uuid)
+        if nx8 then
+            nx8["locations"].each{|filepath|
+                if File.exists?(filepath) then
+                    return filepath
+                end
+            }
+        end
+
+        filepaths = []
+
+        getFilepathOrNullUseTheForce = lambda {|uuid|
+            Find.find(Config::pathToGalaxy()) do |path|
+                if path[-4, 4] == ".Nx7" then
+                    filepath1 = path
+                    nx7 = Nx5Ext::readFileAsAttributesOfObject(filepath1)
+                    if nx7["uuid"] == uuid then
+                        filepaths << filepath1
+                    end
+                end
+            end
+            nil
+        }
+
+        if filepaths.size > 0 then
+            Nx8::updateNx8WithLocations(uuid, filepaths)
+            return filepaths.first
+        end
+
+        nil
     end
 
     # Nx7::getItemOrNull(uuid)
     def self.getItemOrNull(uuid)
-        filepath = Nx7::filepathForUUID(uuid)
+        filepath = Nx7::getFilepathOrNull(uuid)
         return nil if !File.exists?(filepath)
         Nx5Ext::readFileAsAttributesOfObject(filepath)
     end
@@ -39,7 +83,7 @@ class Nx7
     # Nx7::commitObject(object)
     def self.commitObject(object)
         FileSystemCheck::fsck_MikuTypedItem(object, SecureRandom.hex, false)
-        filepath = Nx7::filepathForUUID(object["uuid"])
+        filepath = Nx7::getFilepathOrNull(object["uuid"])
         if !File.exists?(filepath) then
             Nx5::issueNewFileAtFilepath(filepath)
         end
@@ -50,7 +94,7 @@ class Nx7
 
     # Nx7::destroy(uuid)
     def self.destroy(uuid)
-        filepath = Nx7::filepathForUUID(uuid)
+        filepath = Nx7::getFilepathOrNull(uuid)
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
@@ -59,7 +103,7 @@ class Nx7
 
     # Nx7::operatorForUUID(uuid)
     def self.operatorForUUID(uuid)
-        filepath = Nx7::filepathForUUID(uuid)
+        filepath = Nx7::getFilepathOrNull(uuid)
         ElizabethNx5.new(filepath)
     end
 
@@ -229,7 +273,7 @@ class Nx7
 
     # Nx7::getElizabethOperatorForUUID(uuid)
     def self.getElizabethOperatorForUUID(uuid)
-        filepath = Nx7::filepathForUUID(uuid)
+        filepath = Nx7::getFilepathOrNull(uuid)
         if !File.exists?(filepath) then
             Nx5::issueNewFileAtFilepath(filepath)
         end
@@ -239,7 +283,7 @@ class Nx7
     # Nx7::getElizabethOperatorForItem(item)
     def self.getElizabethOperatorForItem(item)
         raise "(error: 520a0efa-48a1-4b81-82fb-f61760af7329)" if item["mikuType"] != "Nx7"
-        filepath = Nx7::filepathForUUID(item["uuid"])
+        filepath = Nx7::getFilepathOrNull(item["uuid"])
         if !File.exists?(filepath) then
             Nx5::issueNewFileAtFilepath(filepath)
         end
@@ -253,17 +297,22 @@ class Nx7
         GridState::access(item["states"].last, operator)
     end
 
-    # Nx7::edit(item) # null or item
+    # Nx7::edit(item)
     def self.edit(item)
-        operator = Nx7::getElizabethOperatorForItem(item)
-        states = item["states"]
-        state2 = GridState::edit(operator, states.last)
-        return nil if state2.nil?
-        states << state2
-        item["states"] = states
-        Nx7::commitObject(item)
-        # Todo: We might need to propagate this to disk...
-        item
+        filepath = Nx7::getFilepathOrNull(uuid)
+        if filepath.nil? then
+            puts "I could not find an instance filepath for this item"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        folderpath = Nx7::getCompanionFolderpathForContentsOrNull_WithPolicyFeatures(filepath)
+        if folderpath.nil? then
+            puts "I can see an instance item for this Nx7 item, but I could not recover a companion folder"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        object = Nx5Ext::readFileAsAttributesOfObject(filepath1)
+        Nx7::exportNx7AtLocation(object, folderpath)
     end
 
     # Nx7::landing(item)
@@ -321,7 +370,7 @@ class Nx7
             end
 
             puts ""
-            puts "<n> | access | description | datetime | edit | network type | set state | expose | destroy".yellow
+            puts "<n> | access | description | datetime | network type | set state | expose | destroy".yellow
             puts "line | link | child | parent | upload".yellow
             puts "[link type update] parents>related | parents>children | related>children | related>parents | children>related".yellow
             puts "[network shape] select children; move to selected child | select children; move to uuid".yellow
@@ -374,13 +423,6 @@ class Nx7
 
             if Interpreting::match("description", input) then
                 PolyActions::editDescription(item)
-                next
-            end
-
-            if Interpreting::match("edit", input) then
-                item = Nx7::edit(item)
-                next if item.nil?
-                puts JSON.pretty_generate(item)
                 next
             end
 
@@ -462,5 +504,57 @@ class Nx7
             end
 
         }
+    end
+
+    # ------------------------------------------------
+    # Openess Manager
+
+    # Nx7::nx7InstanceIsOpen(filepath)
+    def self.nx7InstanceIsOpen(filepath)
+        exportFolderpath = filepath.gsub(".Nx7", "")
+        File.exists?(exportFolderpath)
+    end
+
+    # Nx7::getOpenLocations(uuid)
+    def self.getOpenLocations(uuid)
+        Nx7::allGalaxyInstanceFilpaths(uuid)
+            .select{|filepath| Nx7::nx7InstanceIsOpen(filepath) }
+            .map{|filepath|
+                filepath.gsub(".Nx7", "")
+            }
+    end
+
+    # Nx7::nx7IsOpenAnywhere(uuid)
+    def self.nx7IsOpenAnywhere(uuid)
+        Nx7::getOpenLocations(uuid).size > 0
+    end
+
+    # Nx7::exportNx7AtLocation(object, location)
+    def self.exportNx7AtLocation(object, location)
+        state = object["states"].last
+        operator = Nx7::getElizabethOperatorForItem(object)
+        GridState::exportStateAtFolder(operator, object["states"].last, location)
+    end
+
+    # Nx7::getCompanionFolderpathForContentsOrNull_WithPolicyFeatures(filepath1)
+    def self.getCompanionFolderpathForContentsOrNull_WithPolicyFeatures(filepath1)
+        location2 = filepath1.gsub(".Nx7", "")
+        if File.exists?(location2) then
+            return location2
+        end
+
+        nx7 = Nx5Ext::readFileAsAttributesOfObject(filepath1)
+        locs = (Nx7::getOpenLocations(nx7["uuid"]) - [location2])
+        if locs.size > 0 then
+            puts "You are trying to open instance '#{filepath1}', but the following instances are already open:"
+            locs.each{|loc|
+                puts "    - #{loc}"
+            }
+            LucilleCore::pressEnterToContinue()
+            return nil
+        end
+
+        FileUtils.mkdir(location2)
+        location2
     end
 end

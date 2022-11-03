@@ -191,30 +191,41 @@ class Nx5Ext
         }
     end
 
+    # Nx5Ext::contentsPropagation(sourcefilepath, targetfilepath)
+    def self.contentsPropagation(sourcefilepath, targetfilepath)
+        Nx5::getDataBlobsNhashes(sourcefilepath)
+            .each{|nhash|
+                blob = Nx5::getDatablobOrNull(sourcefilepath, nhash)
+                raise "(error: 0a10fcee-064e-46d8-ae07-a4ddc6160197) sourcefilepath: '#{sourcefilepath}', nhash: '#{nhash}'" if blob.nil?
+                Nx5::putBlob(targetfilepath, blob)
+            }
+        Nx5::getOrderedEvents(sourcefilepath)
+            .each{|event|
+                Nx5::emitEventToFile0(targetfilepath, event)
+            }
+    end
+
+    # Nx5Ext::contentsMirroring(file1, file2)
+    def self.contentsMirroring(file1, file2)
+        Nx5Ext::contentsPropagation(file1, file2)
+        Nx5Ext::contentsPropagation(file2, file1)
+    end
+
     # Nx5Ext::repairSyncthingConflictsBetweenTwoNx5sByMerging(redundantFilepath, remainerFilepath)
     def self.repairSyncthingConflictsBetweenTwoNx5sByMerging(redundantFilepath, remainerFilepath)
-        Nx5::getDataBlobsNhashes(redundantFilepath)
-            .each{|nhash|
-                blob = Nx5::getDatablobOrNull(redundantFilepath, nhash)
-                raise "(error: 0a10fcee-064e-46d8-ae07-a4ddc6160197) redundantFilepath: '#{redundantFilepath}', nhash: '#{nhash}'" if blob.nil?
-                Nx5::putBlob(remainerFilepath, blob)
-            }
-        Nx5::getOrderedEvents(redundantFilepath)
-            .each{|event|
-                Nx5::emitEventToFile0(remainerFilepath, event)
-            }
+        Nx5Ext::contentsPropagation(redundantFilepath, remainerFilepath)
         FileUtils.rm(redundantFilepath)
     end
 end
 
-class Nx5SyncConflictsResolution
+class Nx5SyncthingConflictResolution
 
-    # Nx5SyncConflictsResolution::isConflictFile(filepath)
+    # Nx5SyncthingConflictResolution::isConflictFile(filepath)
     def self.isConflictFile(filepath)
         File.basename(filepath).include?("sync-conflict")
     end
 
-    # Nx5SyncConflictsResolution::acquirePrimaryFilepath(syncconflictfilepath)
+    # Nx5SyncthingConflictResolution::acquirePrimaryFilepath(syncconflictfilepath)
     def self.acquirePrimaryFilepath(syncconflictfilepath)
         conflictfilename = File.basename(syncconflictfilepath)
         fragments = conflictfilename.split(".")
@@ -227,11 +238,11 @@ class Nx5SyncConflictsResolution
         primaryfilepath
     end
 
-    # Nx5SyncConflictsResolution::probeAndRepairIfRelevant(filepath)
+    # Nx5SyncthingConflictResolution::probeAndRepairIfRelevant(filepath)
     def self.probeAndRepairIfRelevant(filepath)
-        return if !Nx5SyncConflictsResolution::isConflictFile(filepath)
+        return if !Nx5SyncthingConflictResolution::isConflictFile(filepath)
         syncconflictfilepath = filepath
-        primaryfilepath = Nx5SyncConflictsResolution::acquirePrimaryFilepath(syncconflictfilepath)
+        primaryfilepath = Nx5SyncthingConflictResolution::acquirePrimaryFilepath(syncconflictfilepath)
         Nx5Ext::repairSyncthingConflictsBetweenTwoNx5sByMerging(syncconflictfilepath, primaryfilepath)
     end
 end

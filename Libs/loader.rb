@@ -161,7 +161,6 @@ require_relative "EnergyGrid.rb"
 
 require_relative "Galaxy.rb"
 require_relative "GridState.rb"
-require_relative "GridFire.rb"
 
 require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"
@@ -177,8 +176,9 @@ require_relative "Nx11E.rb"
 require_relative "NxTodos.rb"
 require_relative "NetworkShapeAroundNode.rb"
 require_relative "NxLines.rb"
-require_relative "Nx7.rb"
 require_relative "Nx5.rb"
+require_relative "Nx7.rb"
+require_relative "Nx8.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"

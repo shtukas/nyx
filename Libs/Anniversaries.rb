@@ -100,7 +100,7 @@ class Anniversaries
     # Anniversaries::anniversaries()
     def self.anniversaries()
         folderpath = "#{Config::pathToDataCenter()}/Anniversaries"
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Anniversaries")
+        LucilleCore::locationsAtFolder(folderpath)
             .select{|filepath| filepath[-5, 5] == ".json" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
     end

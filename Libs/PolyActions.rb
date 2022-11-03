@@ -376,6 +376,11 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "Nx8" then
+            Nx8::landing(item)
+            return
+        end
+
         raise "(error: D9DD0C7C-ECC4-46D0-A1ED-CD73591CC87B): item: #{item}"
     end
 

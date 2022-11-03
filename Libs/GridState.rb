@@ -204,7 +204,7 @@ class GridState
         type = state["type"]
 
         if type == "null" then
-            File.touch("#{folder}/null")
+            FileUtils.touch("#{folder}/null")
             return
         end
 
