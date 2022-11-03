@@ -218,7 +218,13 @@ class Nx7
     # Nx7::toString(item)
     def self.toString(item)
         state = item["states"].last
-        "(Nx7) #{GridState::toString(item["states"].last)} #{item["description"]}"
+        "(Nx7) (#{GridState::toString(item["states"].last)}) #{item["description"]}"
+    end
+
+    # Nx7::toStringForNx7Landing(item)
+    def self.toStringForNx7Landing(item)
+        state = item["states"].last
+        "(node) #{item["description"]}"
     end
 
     # Nx7::parents(item)
@@ -354,7 +360,7 @@ class Nx7
                     .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                     .each{|entity|
                         store.register(entity, false)
-                        puts "    #{store.prefixString()} #{PolyFunctions::toString(entity)}"
+                        puts "    #{store.prefixString()} #{Nx7::toStringForNx7Landing(entity)}"
                     }
             end
 
@@ -366,7 +372,7 @@ class Nx7
                     .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                     .each{|entity|
                         store.register(entity, false)
-                        puts "    #{store.prefixString()} #{PolyFunctions::toString(entity)}"
+                        puts "    #{store.prefixString()} #{Nx7::toStringForNx7Landing(entity)}"
                     }
             end
 
@@ -378,7 +384,7 @@ class Nx7
                     .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                     .each{|entity|
                         store.register(entity, false)
-                        puts "    #{store.prefixString()} #{PolyFunctions::toString(entity)}"
+                        puts "    #{store.prefixString()} #{Nx7::toStringForNx7Landing(entity)}"
                     }
             end
 
