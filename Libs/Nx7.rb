@@ -292,14 +292,7 @@ class Nx7
 
     # Nx7::access(item)
     def self.access(item)
-        puts item["description"]
-        operator = Nx7::getElizabethOperatorForItem(item)
-        GridState::access(item["states"].last, operator)
-    end
-
-    # Nx7::edit(item)
-    def self.edit(item)
-        filepath = Nx7::getFilepathOrNull(uuid)
+        filepath = Nx7::getFilepathOrNull(item["uuid"])
         if filepath.nil? then
             puts "I could not find an instance filepath for this item"
             LucilleCore::pressEnterToContinue()
@@ -311,8 +304,15 @@ class Nx7
             LucilleCore::pressEnterToContinue()
             return
         end
-        object = Nx5Ext::readFileAsAttributesOfObject(filepath1)
+        if LucilleCore::locationsAtFolder(folderpath).size > 0 then
+            puts "I am sending to an already open instance"
+            LucilleCore::pressEnterToContinue()
+            system("open '#{folderpath}'")
+            return
+        end
+        object = Nx5Ext::readFileAsAttributesOfObject(filepath)
         Nx7::exportNx7AtLocation(object, folderpath)
+        system("open '#{folderpath}'")
     end
 
     # Nx7::landing(item)
@@ -328,6 +328,13 @@ class Nx7
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
             puts "payload: #{GridState::toString(item["states"].last)}".yellow
+
+            nx8 = Nx8::getItemOrNull(uuid)
+            if nx8 then
+                nx8["locations"].each{|filepath|
+                    puts "instance: #{filepath}".yellow
+                }
+            end
 
             store = ItemStore.new()
             # We register the item which is also the default element in the store
@@ -538,23 +545,27 @@ class Nx7
 
     # Nx7::getCompanionFolderpathForContentsOrNull_WithPolicyFeatures(filepath1)
     def self.getCompanionFolderpathForContentsOrNull_WithPolicyFeatures(filepath1)
-        location2 = filepath1.gsub(".Nx7", "")
-        if File.exists?(location2) then
-            return location2
-        end
 
         nx7 = Nx5Ext::readFileAsAttributesOfObject(filepath1)
-        locs = (Nx7::getOpenLocations(nx7["uuid"]) - [location2])
-        if locs.size > 0 then
-            puts "You are trying to open instance '#{filepath1}', but the following instances are already open:"
-            locs.each{|loc|
-                puts "    - #{loc}"
-            }
-            LucilleCore::pressEnterToContinue()
-            return nil
+        folderpaths = Nx7::getOpenLocations(nx7["uuid"])
+
+        if folderpaths.size == 0 then
+            folderpath = filepath1.gsub(".Nx7", "")
+            FileUtils.mkdir(folderpath)
+            return folderpath
         end
 
-        FileUtils.mkdir(location2)
-        location2
+        if folderpaths.size == 1 then
+            return folderpaths.first
+        end
+
+        puts "You are trying to open instance '#{filepath1}', but the following instances are all open:"
+        folderpaths.each{|folderpath|
+            puts "    - #{folderpath}"
+        }
+        puts "Please sort that out..."
+        LucilleCore::pressEnterToContinue()
+
+        return nil
     end
 end
