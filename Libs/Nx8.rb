@@ -138,8 +138,8 @@ class Nx8
 
     # Nx8::updateNx8WithLocations(uuid, locations)
     def self.updateNx8WithLocations(uuid, locations)
-        item = Nx8::getItemOrNull(uuid)
-        return if item.nil?
+        nx8 = Nx8::getItemOrNull(uuid)
+        return if nx8.nil?
         nx8["locations"] = (nx8["locations"] + locations).uniq
         Nx8::commit(nx8)
         Nx8::syncLocations(nx8)
