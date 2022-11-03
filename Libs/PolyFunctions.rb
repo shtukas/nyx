@@ -36,11 +36,6 @@ class PolyFunctions
             return Waves::edit(item)
         end
 
-        if item["mikuType"] == "NxLine" then
-            puts "NxLines are not editable (they _could_, they are just not)"
-            return item
-        end
-
         if item["mikuType"] == "NxTodo" then
             return NxTodos::edit(item)
         end
@@ -135,9 +130,6 @@ class PolyFunctions
         if item["mikuType"] == "NxIced" then
             return item["description"]
         end
-        if item["mikuType"] == "NxLine" then
-            return item["line"]
-        end
         if item["mikuType"] == "NxTodo" then
             return item["description"]
         end
@@ -165,9 +157,6 @@ class PolyFunctions
         return item if item
 
         item = Nx7::getItemOrNull(uuid)
-        return item if item
-
-        item = NxLines::getOrNull(uuid)
         return item if item
 
         item = Cx22::getOrNull(uuid)
@@ -251,9 +240,6 @@ class PolyFunctions
         if item["mikuType"] == "NxBall.v2" then
             return item["description"]
         end
-        if item["mikuType"] == "NxLine" then
-            return "(line) #{item["line"]}"
-        end
         if item["mikuType"] == "NxTodo" then
             return NxTodos::toString(item)
         end
@@ -275,9 +261,6 @@ class PolyFunctions
         end
         if item["mikuType"] == "NxTodo" then
             return NxTodos::toStringForListing(item)
-        end
-        if item["mikuType"] == "NxLine" then
-            return "(line) #{item["line"]}"
         end
         PolyFunctions::toString(item)
     end

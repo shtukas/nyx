@@ -3,11 +3,6 @@
 
 class Nyx
 
-    # Nyx::nyxNodes()
-    def self.nyxNodes()
-        Nx7::items() + NxLines::items()
-    end
-
     # Nyx::selectExistingNetworkNodeOrNull()
     def self.selectExistingNetworkNodeOrNull()
         item = Search::nyxFoxTerrier()
@@ -51,7 +46,7 @@ class Nyx
             if operation == "last [n] nodes dive" then
                 cardinal = LucilleCore::askQuestionAnswerAsString("cardinal : ").to_i
 
-                nodes = Nyx::nyxNodes()
+                nodes = Nx7::items()
                             .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
                             .reverse
                             .first(cardinal)

@@ -489,21 +489,11 @@ class FileSystemCheck
             }
 
             item["comments"].each{|comment|
-                FileSystemCheck::fsck_NxCommentOp(comment, runhash, verbose)
+
             }
 
             XCache::setFlag(repeatKey, true)
 
-            return
-        end
-
-        if mikuType == "NxLine" then
-            FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
-            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-            FileSystemCheck::ensureAttribute(item, "datetime", "String")
-            FileSystemCheck::ensureAttribute(item, "line", "String")
-            XCache::setFlag(repeatKey, true)
             return
         end
 

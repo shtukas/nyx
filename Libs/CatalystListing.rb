@@ -534,10 +534,6 @@ class CatalystListing
                     "lambda" => lambda { Nx7::items() }
                 },
                 {
-                    "name" => "NxLines::items()",
-                    "lambda" => lambda { NxLines::items() }
-                },
-                {
                     "name" => "Cx22::listingItems()",
                     "lambda" => lambda { Cx22::listingItems() }
                 }

@@ -64,6 +64,7 @@ class Nx7
     # Nx7::getItemOrNull(uuid)
     def self.getItemOrNull(uuid)
         filepath = Nx7::getFilepathOrNull(uuid)
+        return nil if filepath.nil?
         return nil if !File.exists?(filepath)
         Nx5Ext::readFileAsAttributesOfObject(filepath)
     end
@@ -348,6 +349,10 @@ class Nx7
                 }
             end
 
+            item["comments"].each{|comment|
+                puts "[comment] #{comment}"
+            }
+
             store = ItemStore.new()
             # We register the item which is also the default element in the store
             store.register(item, true)
@@ -390,7 +395,7 @@ class Nx7
 
             puts ""
             puts "<n> | access | description | datetime | network type | set state | expose | destroy".yellow
-            puts "line | related | child | parent | upload".yellow
+            puts "comment | related | child | parent | upload".yellow
             puts "[link type update] parents>related | parents>children | related>children | related>parents | children>related".yellow
             puts "[network shape] select children; move to selected child | select children; move to uuid".yellow
             puts "[grid points] make Nx9".yellow
@@ -409,10 +414,10 @@ class Nx7
                 Nx7::access(item)
                 next
             end
-            if input == "line" then
-                line = LucilleCore::askQuestionAnswerAsString("line: ")
-                i2 = NxLines::issue(line)
-                Nx7::arrow(item, i2)
+            if input == "comment" then
+                comment = LucilleCore::askQuestionAnswerAsString("comment: ")
+                item["comments"] << comment
+                Nx7::commitObject(item)
                 next
             end
 

@@ -1,15 +1,6 @@
 
 class NetworkShapeAroundNode
 
-    # NetworkShapeAroundNode::getGenericNyxNetworkObjectOrNull(uuid)
-    def self.getGenericNyxNetworkObjectOrNull(uuid)
-        item = Nx7::getItemOrNull(uuid)
-        return item if item
-        item = NxLines::getOrNull(uuid)
-        return item if item
-        nil
-    end
-
     # Selection
 
     # NetworkShapeAroundNode::interactivelySelectChildOrNull(item)
@@ -135,7 +126,7 @@ class NetworkShapeAroundNode
         children = NetworkShapeAroundNode::interactivelySelectChildren(item)
         targetuuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
         return if targetuuid == item["uuid"]
-        targetitem = NetworkShapeAroundNode::getGenericNyxNetworkObjectOrNull(targetuuid)
+        targetitem = Nx7::getItemOrNull(targetuuid)
         return if targetitem.nil?
         children.each{|childX|
             Nx7::detach(item, childX)

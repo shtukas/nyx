@@ -17,7 +17,7 @@ class Search
 
     # Search::nyxNx20s() # Array[Nx20]
     def self.nyxNx20s()
-        (Nx8::items() + NxLines::items())
+        Nx8::items()
             .map{|item|
                 {
                     "announce" => "(#{item["mikuType"]}) #{PolyFunctions::genericDescriptionOrNull(item)}",

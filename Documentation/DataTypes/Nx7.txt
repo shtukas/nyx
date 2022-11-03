@@ -7,7 +7,7 @@ Nx7 = {
     "description"   : String
     "networkType1"  : "Information" | "Entity" | "Concept" | "Event" | "Person" | "Collection" | "Timeline" 
     "states"        : Array[GridState]
-    "comments"      : Array[NxCommentOp]
+    "comments"      : Array[String]
     "parentsuuids"  : Array[String]
     "relatedsuuids" : Array[String]
     "childrenuuids" : Array[String]
