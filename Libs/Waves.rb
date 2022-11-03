@@ -32,7 +32,7 @@ class Waves
         FileSystemCheck::fsck_MikuTypedItem(item, SecureRandom.hex, false)
         filepath = Waves::filepathForUUID(item["uuid"])
         if !File.exists?(filepath) then
-            Nx5::issueNewFileAtFilepath(filepath)
+            Nx5::issueNewFileAtFilepath(filepath, item["uuid"])
         end
         item.each{|key, value|
             Nx5::emitEventToFile1(filepath, key, value)

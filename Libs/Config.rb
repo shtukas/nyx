@@ -8,6 +8,11 @@ class Config
         ENV['HOME']
     end
 
+    # Config::pathToDesktop()
+    def self.pathToDesktop()
+        "#{Config::userHomeDirectory()}/Desktop"
+    end
+
     # Config::pathToGalaxy()
     def self.pathToGalaxy()
         "#{Config::userHomeDirectory()}/Galaxy"

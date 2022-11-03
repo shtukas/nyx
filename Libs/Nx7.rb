@@ -6,9 +6,14 @@ class Nx7
     # ------------------------------------------------
     # Basic IO
 
-    # Nx7::filepathsEnumerator()
-    def self.filepathsEnumerator()
+    # Nx7::allNx7FilepathsEnumerator()
+    def self.allNx7FilepathsEnumerator()
         Enumerator.new do |filepaths|
+            Find.find(Config::pathToDesktop()) do |path|
+                if path[-4, 4] == ".Nx7" then
+                    filepaths << path
+                end
+            end
             Find.find(Config::pathToGalaxy()) do |path|
                 if path[-4, 4] == ".Nx7" then
                     filepaths << path
@@ -19,23 +24,19 @@ class Nx7
 
     # Nx7::items()
     def self.items()
-        Nx7::filepathsEnumerator()
+        Nx7::allNx7FilepathsEnumerator()
             .map{|filepath| Nx5Ext::readFileAsAttributesOfObject(filepath) }
     end
 
-    # Nx7::allGalaxyInstanceFilpaths(uuid)
-    def self.allGalaxyInstanceFilpaths(uuid)
-        filepaths = []
-        Find.find(Config::pathToGalaxy()) do |path|
-            if path[-4, 4] == ".Nx7" then
-                filepath1 = path
-                nx7 = Nx5Ext::readFileAsAttributesOfObject(filepath1)
-                if nx7["uuid"] == uuid then
-                    filepaths << filepath1
+    # Nx7::allInstanceFilpathsEnumerator(uuid)
+    def self.allInstanceFilpathsEnumerator(uuid)
+        Enumerator.new do |filepaths|
+            Nx7::allNx7FilepathsEnumerator().each{|filepath|
+                if Nx5Ext::readFileAsAttributesOfObject(filepath)["uuid"] == uuid then
+                    filepaths << filepath
                 end
-            end
+            }
         end
-        filepaths
     end
 
     # Nx7::getFilepathOrNull(uuid)
@@ -50,20 +51,7 @@ class Nx7
             }
         end
 
-        filepaths = []
-
-        getFilepathOrNullUseTheForce = lambda {|uuid|
-            Find.find(Config::pathToGalaxy()) do |path|
-                if path[-4, 4] == ".Nx7" then
-                    filepath1 = path
-                    nx7 = Nx5Ext::readFileAsAttributesOfObject(filepath1)
-                    if nx7["uuid"] == uuid then
-                        filepaths << filepath1
-                    end
-                end
-            end
-            nil
-        }
+        filepaths = Nx7::allInstanceFilpathsEnumerator(uuid).to_a
 
         if filepaths.size > 0 then
             Nx8::updateNx8WithLocations(uuid, filepaths)
@@ -84,26 +72,44 @@ class Nx7
     def self.commitObject(object)
         FileSystemCheck::fsck_MikuTypedItem(object, SecureRandom.hex, false)
         filepath = Nx7::getFilepathOrNull(object["uuid"])
+        if filepath.nil? then
+            filepath = "#{Config::pathToGalaxy()}/DataHub/Misc-Nx7s/#{object["uuid"]}.Nx7"
+            Nx5::issueNewFileAtFilepath(filepath, object["uuid"])
+        end
         if !File.exists?(filepath) then
-            Nx5::issueNewFileAtFilepath(filepath)
+            Nx5::issueNewFileAtFilepath(filepath, object["uuid"])
         end
         object.each{|key, value|
             Nx5::emitEventToFile1(filepath, key, value)
         }
+        Nx8::updateNx8FromNx7(filepath)
     end
 
     # Nx7::destroy(uuid)
     def self.destroy(uuid)
-        filepath = Nx7::getFilepathOrNull(uuid)
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
+        Nx7::allInstanceFilpathsEnumerator(uuid).each{|filepath|
+            FileUtils.rm(filepath)
+        }
     end
 
     # ------------------------------------------------
 
+    # Nx7::interactivelySelectFilepathForNewNx7File(uuid)
+    def self.interactivelySelectFilepathForNewNx7File(uuid)
+        choice = LucilleCore::selectEntityFromListOfEntitiesOrNull("location", ["misc folder (default)", "desktop (for manual positioning)"])
+        if choice.nil? or choice == "misc folder (default)" then
+            return "#{Config::pathToGalaxy()}/DataHub/Misc-Nx7s/#{uuid}.Nx7"
+        end
+        "#{Config::pathToDesktop()}/#{uuid}.Nx7"
+    end
+
     # Nx7::operatorForUUID(uuid)
     def self.operatorForUUID(uuid)
         filepath = Nx7::getFilepathOrNull(uuid)
+        if filepath.nil? then
+            filepath = Nx7::interactivelySelectFilepathForNewNx7File(uuid)
+            Nx5::issueNewFileAtFilepath(filepath, uuid)
+        end
         ElizabethNx5.new(filepath)
     end
 
@@ -275,7 +281,7 @@ class Nx7
     def self.getElizabethOperatorForUUID(uuid)
         filepath = Nx7::getFilepathOrNull(uuid)
         if !File.exists?(filepath) then
-            Nx5::issueNewFileAtFilepath(filepath)
+            Nx5::issueNewFileAtFilepath(filepath, uuid)
         end
         ElizabethNx5.new(filepath)
     end
@@ -285,7 +291,7 @@ class Nx7
         raise "(error: 520a0efa-48a1-4b81-82fb-f61760af7329)" if item["mikuType"] != "Nx7"
         filepath = Nx7::getFilepathOrNull(item["uuid"])
         if !File.exists?(filepath) then
-            Nx5::issueNewFileAtFilepath(filepath)
+            Nx5::issueNewFileAtFilepath(filepath, item["uuid"])
         end
         ElizabethNx5.new(filepath)
     end
@@ -378,7 +384,7 @@ class Nx7
 
             puts ""
             puts "<n> | access | description | datetime | network type | set state | expose | destroy".yellow
-            puts "line | link | child | parent | upload".yellow
+            puts "line | related | child | parent | upload".yellow
             puts "[link type update] parents>related | parents>children | related>children | related>parents | children>related".yellow
             puts "[network shape] select children; move to selected child | select children; move to uuid".yellow
             puts "[grid points] make Nx9".yellow
@@ -448,7 +454,7 @@ class Nx7
                 next
             end
 
-            if input == "link" then
+            if input == "related" then
                 NetworkShapeAroundNode::architectureAndRelate(item)
                 next
             end
@@ -524,7 +530,7 @@ class Nx7
 
     # Nx7::getOpenLocations(uuid)
     def self.getOpenLocations(uuid)
-        Nx7::allGalaxyInstanceFilpaths(uuid)
+        Nx7::allInstanceFilpathsEnumerator(uuid)
             .select{|filepath| Nx7::nx7InstanceIsOpen(filepath) }
             .map{|filepath|
                 filepath.gsub(".Nx7", "")

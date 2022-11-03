@@ -10,7 +10,12 @@ class Nyx
 
     # Nyx::selectExistingNetworkNodeOrNull()
     def self.selectExistingNetworkNodeOrNull()
-        Search::foxTerrier()
+        item = Search::nyxFoxTerrier()
+        return nil if item.nil?
+        if item["mikuType"] == "Nx8" then
+            return Nx7::getItemOrNull(item["uuid"])
+        end
+        item
     end
 
     # Nyx::architectOneOrNull() # item or null

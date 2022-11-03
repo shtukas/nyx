@@ -2,8 +2,8 @@
 
 class Nx5
 
-    # Nx5::issueNewFileAtFilepath(filepath)
-    def self.issueNewFileAtFilepath(filepath)
+    # Nx5::issueNewFileAtFilepath(filepath, uuid)
+    def self.issueNewFileAtFilepath(filepath, uuid)
         raise "(error: B11E6590-A1D3-4BF4-9A6E-6FBC4CD06A4A)" if File.exists?(filepath)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -11,6 +11,15 @@ class Nx5
         db.results_as_hash = true
         db.execute "create table _events_ (_eventuuid_ text, _eventTime_ float, _eventType_ text, _event_ text)"
         db.execute "create table _datablobs_ (_nhash_ text, _datablob_ blob)"
+
+        event = {
+            "mikuType"  => "Nx3",
+            "eventuuid" => SecureRandom.uuid,
+            "eventTime" => Time.new.to_f,
+            "eventType" => "uuid",
+            "payload"   => uuid
+        }
+        db.execute "insert into _events_ (_eventuuid_, _eventTime_, _eventType_, _event_) values (?, ?, ?, ?)", [event["eventuuid"], event["eventTime"], event["eventType"], JSON.generate(event)]
         db.close
     end
 

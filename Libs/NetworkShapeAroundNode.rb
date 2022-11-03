@@ -169,7 +169,7 @@ class NetworkShapeAroundNode
     def self.architectureAndRelate(item)
         item2 = Nyx::architectOneOrNull()
         return if item2.nil?
-        Nx7::relate(item item2)
+        Nx7::relate(item, item2)
     end
 
     # NetworkShapeAroundNode::interactivelySelectRelatedEntities(item)

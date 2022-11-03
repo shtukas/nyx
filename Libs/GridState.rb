@@ -57,7 +57,7 @@ class GridState
     # GridState::fileGridState(operator, filepath) # GridState
     def self.fileGridState(operator, filepath)
         raise "(error: EA566981-DC21-40FF-B6B0-382974852D4F)" if !File.exists?(filepath)
-        dottedExtension, nhash, parts = PrimitiveFiles::commitFileReturnDataElements(filepath, operator) # [dottedExtension, nhash, parts]
+        dottedExtension, nhash, parts = PrimitiveFiles::commitFileReturnDataElements(operator, filepath) # [dottedExtension, nhash, parts]
         {
             "uuid"            => SecureRandom.uuid,
             "mikuType"        => "GridState",

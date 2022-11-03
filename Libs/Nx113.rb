@@ -24,7 +24,7 @@ class Nx113Make
     # Nx113Make::file(operator, filepath) # Nx113
     def self.file(operator, filepath)
         raise "(error: d3539fc0-5615-46ff-809b-85ac34850070)" if !File.exists?(filepath)
-        dottedExtension, nhash, parts = PrimitiveFiles::commitFileReturnDataElements(filepath, operator) # [dottedExtension, nhash, parts]
+        dottedExtension, nhash, parts = PrimitiveFiles::commitFileReturnDataElements(operator, filepath) # [dottedExtension, nhash, parts]
 
         {
             "mikuType"        => "Nx113",

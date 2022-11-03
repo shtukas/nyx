@@ -37,7 +37,7 @@ class NxTodos
         FileSystemCheck::fsck_MikuTypedItem(object, SecureRandom.hex, false)
         filepath = NxTodos::uuidToNx5Filepath(object["uuid"])
         if !File.exists?(filepath) then
-            Nx5::issueNewFileAtFilepath(filepath)
+            Nx5::issueNewFileAtFilepath(filepath, object["uuid"])
         end
         object.each{|key, value|
             Nx5::emitEventToFile1(filepath, key, value)
@@ -333,7 +333,7 @@ class NxTodos
     def self.getElizabethOperatorForUUID(uuid)
         filepath = NxTodos::uuidToNx5Filepath(uuid)
         if !File.exists?(filepath) then
-            Nx5::issueNewFileAtFilepath(filepath)
+            Nx5::issueNewFileAtFilepath(filepath, uuid)
         end
         ElizabethNx5.new(filepath)
     end
@@ -343,7 +343,7 @@ class NxTodos
         raise "(error: c0581614-3ee5-4ed3-a192-537ed22c1dce)" if item["mikuType"] != "NxTodo"
         filepath = NxTodos::uuidToNx5Filepath(item["uuid"])
         if !File.exists?(filepath) then
-            Nx5::issueNewFileAtFilepath(filepath)
+            Nx5::issueNewFileAtFilepath(filepath, item["uuid"])
         end
         ElizabethNx5.new(filepath)
     end
