@@ -80,7 +80,7 @@ class NxTodos
         uuid  = SecureRandom.uuid
         nx11e = Nx11E::interactivelyCreateNewNx11E()
         nx113 = Nx113Make::interactivelyMakeNx113OrNull(NxTodos::getElizabethOperatorForUUID(uuid))
-        cx23  = (nx11e["type"] == "standard") ? Cx23::interactivelyMakeNewOrNull() : nil
+        cx23  = (nx11e["type"] == "standard") ? Cx23::interactivelyMakeNewOrNull(uuid) : nil
         Cx22::commitCx23(cx23)
         item = {
             "uuid"        => uuid,

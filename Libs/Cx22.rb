@@ -246,10 +246,10 @@ class Cx22
             if Interpreting::match("insert", input) then
                 description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
                 next if description == ""
-                uuid   = SecureRandom.uuid
-                nx11e  = Nx11E::makeStandard()
-                nx113  = Nx113Make::interactivelyMakeNx113OrNull(NxTodos::getElizabethOperatorForUUID(uuid))
-                cx23   = Cx23::interactivelyMakeNewGivenCx22OrNull(cx22)
+                uuid  = SecureRandom.uuid
+                nx11e = Nx11E::makeStandard()
+                nx113 = Nx113Make::interactivelyMakeNx113OrNull(NxTodos::getElizabethOperatorForUUID(uuid))
+                cx23  = Cx23::interactivelyMakeNewGivenCx22OrNull(cx22, uuid)
                 NxTodos::issueFromElements(uuid, description, nx113, nx11e, cx23)
                 next
             end
@@ -320,7 +320,7 @@ class Cx22
                 position = position.to_f
                 entity = store.get(indx)
                 next if entity.nil?
-                cx23 = Cx23::makeCx23(cx22, position)
+                cx23 = Cx23::makeCx23(cx22, entity["uuid"], position)
                 Cx22::commitCx23(cx23)
                 next
             end
@@ -338,7 +338,7 @@ class Cx22
             if input == "reissue positions sequence" then
                 Cx22::itemsForCx22InPositionOrder(cx22).each_with_index{|element, indx|
                     puts JSON.pretty_generate(element)
-                    cx23 = Cx23::makeCx23(cx22, indx)
+                    cx23 = Cx23::makeCx23(cx22, element["uuid"], indx)
                     puts JSON.pretty_generate(cx23)
                     Cx22::commitCx23(cx23)
                 }
