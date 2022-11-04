@@ -19,6 +19,18 @@ class NxTodos
             .select{|filepath| filepath[-4, 4] == ".Nx5" }
     end
 
+    # NxTodos::filepaths_iced()
+    def self.filepaths_iced()
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodo-Iced")
+            .select{|filepath| filepath[-4, 4] == ".Nx5" }
+            .each{|filepath|
+                Nx5SyncthingConflictResolution::probeAndRepairIfRelevant(filepath)
+            }
+
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodo-Iced")
+            .select{|filepath| filepath[-4, 4] == ".Nx5" }
+    end
+
     # NxTodos::items()
     def self.items()
         NxTodos::filepaths()
@@ -69,6 +81,7 @@ class NxTodos
         nx11e = Nx11E::interactivelyCreateNewNx11E()
         nx113 = Nx113Make::interactivelyMakeNx113OrNull(NxTodos::getElizabethOperatorForUUID(uuid))
         cx23  = (nx11e["type"] == "standard") ? Cx23::interactivelyMakeNewOrNull() : nil
+        Cx22::commitCx23(cx23)
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
@@ -77,7 +90,6 @@ class NxTodos
             "description" => description,
             "nx113"       => nx113,
             "nx11e"       => nx11e,
-            "cx23"        => cx23,
             "listeable"   => true
         }
         NxTodos::commitObject(item)
@@ -171,6 +183,7 @@ class NxTodos
 
     # NxTodos::issueFromElements(uuid, description, nx113, nx11e, cx23)
     def self.issueFromElements(uuid, description, nx113, nx11e, cx23)
+        Cx22::commitCx23(cx23)
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
@@ -179,7 +192,6 @@ class NxTodos
             "description" => description,
             "nx113"       => nx113,
             "nx11e"       => nx11e,
-            "cx23"        => cx23,
             "listeable"   => true
         }
         NxTodos::commitObject(item)
@@ -192,7 +204,7 @@ class NxTodos
     def self.toString(item)
         nx11estr = " #{Nx11E::toString(item["nx11e"])}"
         nx113str = Nx113Access::toStringOrNull(" ", item["nx113"], "")
-        cx23 = item["cx23"]
+        cx23 = Cx22::getCx23ForItemuuidOrNull(item["uuid"])
         str1 = Cx23::toStringOrNull(cx23)
         cx23str1 = cx23 ? " (#{"%6.2f" % cx23["position"]})" : ""
         cx23str2 = str1 ? " (#{str1})".green : ""
@@ -259,13 +271,14 @@ class NxTodos
             return 0.70 + shiftOnDateTime.call(item["nx11e"]["datetime"])
         end
 
-        if item["nx11e"]["type"] == "standard" and item["cx23"] then
-            cx22 = Cx22::getOrNull(item["cx23"]["groupuuid"])
+        cx23 = Cx22::getCx23ForItemuuidOrNull(item["uuid"])
+        if item["nx11e"]["type"] == "standard" and cx23 then
+            cx22 = Cx22::getOrNull(cx23["groupuuid"])
             if cx22 then
                 return nil if !DoNotShowUntil::isVisible(cx22["uuid"])
                 completionRatio = Ax39::completionRatioCached(cx22["ax39"], cx22["uuid"])
                 return nil if completionRatio >= 1
-                return 0.60 + shiftOnCompletionRatio.call(completionRatio) + shiftOnPosition.call(item["cx23"]["position"]).to_f/100
+                return 0.60 + shiftOnCompletionRatio.call(completionRatio) + shiftOnPosition.call(cx23["position"]).to_f/100
             end
         end
 
@@ -278,52 +291,37 @@ class NxTodos
 
     # NxTodos::listingItems()
     def self.listingItems()
+        cx22 = Cx22::cx22WithCompletionRatiosOrdered()
+                    .select{|packet| packet["completionRatio"] < 1 }
+                    .map{|packet| packet["item"] }
+                    .first
 
-        # We update the list of listable every day
-        # TODO: when we moved to Nx5 files and NxTodo vs NxTodo-Iced, then this stopped working a s intended
-        #if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("e38d89ee-0e4e-4b71-adcd-bfdcb7891e72", 86400) then
-        #    Cx22::items().each{|cx22|
-        #        NxTodos::items()
-        #            .select{|item| item["cx23"] and item["cx23"]["groupuuid"] == cx22["uuid"] }
-        #            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-        #            .reduce([]){|selected, item|
-        #                (lambda {
-        #                    if item["nx11e"]["type"] != "standard" then
-        #                        return selected + [item]
-        #                    end
-        #                    if item["nx11e"]["type"] == "standard" then
-        #                        count = selected.select{|i| i["nx11e"]["type"] == "standard" }.count
-        #                        if count < 50 then
-        #                            return selected + [item]
-        #                        else
-        #                            selected
-        #                        end
-        #                    end
-        #                }).call()
-        #            }
-        #            .each{|item|
-        #                next if item["listeable"]
-        #                puts "set to listeable: #{NxTodos::toString(item)}"
-        #                item["listeable"] =  true
-        #                NxTodos::commitObject(item)
-        #            }
-        #    }
-        #end
+        if cx22 then
+            return Cx22::firstNItemsForCx22InPositionOrder(cx22, 10)
+        end
 
-        NxTodos::items()
-    end
+        getCachedFilepathsOrNull = lambda {
+            filepaths = XCache::getOrNull("bf8228f9-9f76-4b09-a233-c744fb77c000")
+            return nil if filepaths.nil?
+            filepaths = JSON.parse(filepaths)
+        }
 
-    # NxTodos::itemsForCx22(cx22)
-    def self.itemsForCx22(cx22)
-        NxTodos::items()
-            .select{|item| item["cx23"] }
-            .select{|item| item["cx23"]["groupuuid"] == cx22["uuid"] }
-    end
+        issueNewBatch = lambda {
+            filepaths = NxTodos::filepaths().shuffle.take(10)
+            XCache::set("bf8228f9-9f76-4b09-a233-c744fb77c000", JSON.generate(filepaths))
+            filepaths
+        }
 
-    # NxTodos::itemsInPositionOrderForGroup(cx22)
-    def self.itemsInPositionOrderForGroup(cx22)
-        NxTodos::itemsForCx22(cx22)
-            .sort{|i1, i2| i1["cx23"]["position"] <=> i2["cx23"]["position"] }
+        cachedFilepaths = getCachedFilepathsOrNull.call()
+        aliveFilepaths = cachedFilepaths.select{|filepath| File.exists?(filepath) }
+        if aliveFilepaths.size < 5 then
+            filepaths = issueNewBatch.call()
+        else
+            filepaths = aliveFilepaths
+        end
+
+        filepaths
+            .map{|filepath| Nx5Ext::readFileAsAttributesOfObject(filepath) }
     end
 
     # --------------------------------------------------
@@ -390,7 +388,7 @@ class NxTodos
             puts "datetime: #{item["datetime"]}".yellow
             puts "Nx11E (engine): #{JSON.generate(item["nx11e"])}".yellow
             puts "Nx113 (payload): #{Nx113Access::toStringOrNull("", item["nx113"], "")}".yellow
-            puts "Cx23 (Contribution Group & Position): #{JSON.generate(item["cx23"])}".yellow
+            puts "Cx23 (Contribution Group & Position): #{JSON.generate(Cx22::getCx23ForItemuuidOrNull(item["uuid"]))}".yellow
 
             puts ""
             puts "description | access | start | stop | engine | edit | nx113 | cx22 | done | do not show until | expose | destroy | nyx".yellow

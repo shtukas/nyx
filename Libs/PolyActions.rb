@@ -153,14 +153,16 @@ class PolyActions
                         end
                         if action == "keep as standard and return to listing" then
                             item["nx11e"] = Nx11E::makeStandard()
-                            item["cx23"] = Cx23::interactivelyMakeNewOrNull()
+                            cx23 = Cx23::interactivelyMakeNewOrNull()
+                            Cx22::commitCx23(cx23)
                             PolyActions::commit(item)
                             return
                         end
                     end
                     if action == "standard >> contribution" then
                         item["nx11e"] = Nx11E::makeStandard()
-                        item["cx23"] = Cx23::interactivelyMakeNewOrNull()
+                        cx23 = Cx23::interactivelyMakeNewOrNull()
+                        Cx22::commitCx23(cx23)
                         PolyActions::commit(item)
                         return
                     end

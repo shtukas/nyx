@@ -447,12 +447,10 @@ class CatalystListing
                     Bank::put(cx22["uuid"], timeInHours.to_f*3600)
                 end
             end
-            if item["cx23"] then
-                cx22 = Cx22::getOrNull(item["cx23"]["groupuuid"])
-                if cx22 then
-                    puts "Adding #{timeInHours.to_f} hours to #{Cx22::toString1(cx22)}"
-                    Bank::put(cx22["uuid"], timeInHours.to_f*3600)
-                end
+            cx22 = Cx22::getCx22ForItemUUIDOrNull(item["uuid"])
+            if cx22 then
+                puts "Adding #{timeInHours.to_f} hours to #{Cx22::toString1(cx22)}"
+                Bank::put(cx22["uuid"], timeInHours.to_f*3600)
             end
             return
         end
@@ -530,14 +528,26 @@ class CatalystListing
                     "lambda" => lambda { NxTodos::items() }
                 },
                 {
-                    "name" => "Nx7::items()",
-                    "lambda" => lambda { Nx7::items() }
-                },
-                {
                     "name" => "Cx22::listingItems()",
                     "lambda" => lambda { Cx22::listingItems() }
-                }
+                },
             ]
+
+            runTest = lambda {|test|
+               t1 = Time.new.to_f
+                (1..3).each{ test["lambda"].call() }
+                t2 = Time.new.to_f
+                {
+                    "name" => test["name"],
+                    "runtime" => (t2 - t1).to_f/3
+                }
+            }
+
+            printTestResults = lambda{|result, padding|
+                puts "- #{result["name"].ljust(padding)} : #{"%6.3f" % result["runtime"]}"
+            }
+
+            padding = tests.map{|test| test["name"].size }.max
 
             # dry run to initialise things
             tests
@@ -545,18 +555,10 @@ class CatalystListing
                     test["lambda"].call()
                 }
 
-            padding = tests.map{|test| test["name"].size }.max
-
             results = tests
                         .map{|test|
                             puts "running: #{test["name"]}"
-                            t1 = Time.new.to_f
-                            (1..3).each{ test["lambda"].call() }
-                            t2 = Time.new.to_f
-                            {
-                                "name" => test["name"],
-                                "runtime" => (t2 - t1).to_f/3
-                            }
+                            runTest.call(test)
                         }
                         .sort{|r1, r2| r1["runtime"] <=> r2["runtime"] }
                         .reverse
@@ -564,8 +566,14 @@ class CatalystListing
             puts ""
             results
                 .each{|result|
-                    puts "- #{result["name"].ljust(padding)} : #{"%6.3f" % result["runtime"]}"
+                    printTestResults.call(result, padding)
                 }
+
+            puts ""
+            printTestResults.call(runTest.call({
+                "name" => "CatalystListing::listingItemsInPriorityOrderDesc()",
+                "lambda" => lambda { CatalystListing::listingItemsInPriorityOrderDesc() }
+            }), padding)
 
             LucilleCore::pressEnterToContinue()
             return
@@ -625,7 +633,7 @@ class CatalystListing
             puts ""
             vspaceleft = vspaceleft - 1
             Cx22::cx22WithCompletionRatiosOrdered()
-                .select{|packet| packet["completionratio"] < 1 }
+                .select{|packet| packet["completionRatio"] < 1 }
                 .each{|packet|
                     item = packet["item"]
                     store.register(item, false)

@@ -187,6 +187,7 @@ class FileSystemCheck
         end
 
         FileSystemCheck::ensureAttribute(item, "groupuuid", "String")
+        FileSystemCheck::ensureAttribute(item, "itemuuid", "String")
         FileSystemCheck::ensureAttribute(item, "position", "Number")
     end
 
@@ -515,7 +516,6 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "nx11e", "Hash")
             FileSystemCheck::fsck_Nx11E(item["nx11e"], verbose)
             FileSystemCheck::fsck_Nx113(NxTodos::getElizabethOperatorForItem(item), item["nx113"], runhash, verbose)
-            FileSystemCheck::fsck_Cx23(item["cx23"], verbose)
             if item["nx22"] then
                 raise "NxTodos should not carry a Nx22"
             end

@@ -9,5 +9,4 @@ NxTodo:
     "description"  : String
     "nx11e"        : Nx11E   # The engine
     "nx113"        : Nx113
-    "cx23"         : Cx23    # optional; Cx22's uuid and Position
     "listeable"    : Boolean # optional (for backward compatibility), if set to true, item is considered for listing

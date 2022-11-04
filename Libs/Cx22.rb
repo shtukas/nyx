@@ -131,17 +131,17 @@ class Cx22
                         {
                             "mikuType"        => "Cx22WithCompletionRatio",
                             "item"            => item,
-                            "completionratio" => Ax39::completionRatio(item["ax39"], item["uuid"])
+                            "completionRatio" => Ax39::completionRatio(item["ax39"], item["uuid"])
                         }
                     }
-                    .sort{|p1, p2| p1["completionratio"] <=> p2["completionratio"] }
+                    .sort{|p1, p2| p1["completionRatio"] <=> p2["completionRatio"] }
         packets
     end
 
     # Cx22::listingItems()
     def self.listingItems()
         Cx22::items()
-            .select{|cx22| NxTodos::itemsForCx22(cx22).empty? }
+            .select{|cx22| Cx22::getCx23sInOrderForCx22(cx22).empty? }
     end
 
     # --------------------------------------------
@@ -149,10 +149,23 @@ class Cx22
 
     # Cx22::nextPositionForCx22(cx22)
     def self.nextPositionForCx22(cx22)
-        (NxTodos::items()
-            .select{|item| item["cx23"] }
-            .select{|item| item["cx23"]["groupuuid"] == cx22["uuid"] }
-            .map{|item| item["cx23"]["position"] } + [0]).max + 1
+
+        folderpath = "#{Config::pathToDataCenter()}/Cx22/#{cx22["uuid"]}"
+
+        if !File.exists?(folderpath) then
+            FileUtils.mkdir(folderpath)
+        end
+
+        positions = []
+        Find.find(folderpath) do |path|
+            next if File.directory?(path)
+            next if File.basename(path)[0, 1] == "."
+            next if File.basename(path)[-5, 5] == ".json"
+            cx23 = JSON.parse(IO.read(path))
+            positions << cx23["position"]
+        end
+
+        (positions + [0]).max + 1
     end
 
     # Cx22::elementsDive(cx22)
@@ -176,7 +189,7 @@ class Cx22
             end
 
             puts ""
-            elements = NxTodos::itemsInPositionOrderForGroup(cx22)
+            elements = Cx22::itemsForCx22InPositionOrder(cx22)
                             .select{|element| DoNotShowUntil::isVisible(element["uuid"]) }
                             .first(CommonUtils::screenHeight() - (10+count1))
 
@@ -197,13 +210,9 @@ class Cx22
             elements
                 .each_with_index{|element, indx|
                     store.register(element, false)
-                    cx23str = 
-                        if element["cx23"] then
-                            " #{"%6.2f" % element["cx23"]["position"]}"
-                        else
-                            ""
-                        end
-                    rtstr = [0, 1, 2].include?(indx) ? " (rt: #{BankExtended::stdRecoveredDailyTimeInHours(element["uuid"])})" : ""
+                    cx23    = Cx22::getCx23ForItemuuidOrNull(element["uuid"])
+                    cx23str = " #{"%6.2f" % cx23["position"]}"
+                    rtstr   = [0, 1, 2].include?(indx) ? " (rt: #{BankExtended::stdRecoveredDailyTimeInHours(element["uuid"])})" : ""
                     if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(element)) then
                         puts "#{store.prefixString()}#{cx23str}#{rtstr} #{PolyFunctions::toStringForListing(element)}#{NxBallsService::activityStringOrEmptyString(" (", element["uuid"], ")")}".green
                     else
@@ -312,8 +321,7 @@ class Cx22
                 entity = store.get(indx)
                 next if entity.nil?
                 cx23 = Cx23::makeCx23(cx22, position)
-                entity["cx23"] = cx23
-                PolyActions::commit(entity)
+                Cx22::commitCx23(cx23)
                 next
             end
 
@@ -328,11 +336,11 @@ class Cx22
             end
 
             if input == "reissue positions sequence" then
-                NxTodos::itemsInPositionOrderForGroup(cx22).each_with_index{|element, indx|
-                    next if element["cx23"].nil?
+                Cx22::itemsForCx22InPositionOrder(cx22).each_with_index{|element, indx|
                     puts JSON.pretty_generate(element)
-                    element["cx23"]["position"] = indx
-                    PolyActions::commit(element)
+                    cx23 = Cx23::makeCx23(cx22, indx)
+                    puts JSON.pretty_generate(cx23)
+                    Cx22::commitCx23(cx23)
                 }
             end
         }
@@ -423,4 +431,95 @@ class Cx22
             Cx22::dive(cx22)
         }
     end
+
+    # --------------------------------------------
+    # Cx23
+
+    # Cx22::itemuuidFilepathAtCx22(cx22, itemuuid)
+    def self.itemuuidFilepathAtCx22(cx22, itemuuid)
+        folderpath = "#{Config::pathToDataCenter()}/Cx22/#{cx22["uuid"]}"
+        # Make sure that the folder exists
+        if !File.exists?(folderpath) then
+            FileUtils.mkdir(folderpath)
+        end
+        filename = "#{itemuuid}"
+        filepath = "#{folderpath}/#{filename}"
+    end
+
+    # Cx22::commitCx23(cx23)
+    def self.commitCx23(cx23)
+        FileSystemCheck::fsck_Cx23(cx23, false)
+        cx22 = Cx22::getOrNull(cx23["groupuuid"])
+        return if cx22.nil?
+        Cx22::eliminateAnyCx23WithItemuuidInCx22s(cx23["itemuuid"])
+        filepath = Cx22::itemuuidFilepathAtCx22(cx22, cx23["itemuuid"])
+        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(cx23)) }
+    end
+
+    # Cx22::eliminateAnyCx23WithItemuuidInCx22s(itemuuid)
+    def self.eliminateAnyCx23WithItemuuidInCx22s(itemuuid)
+        Cx22::items().each{|cx22|
+            filepath = Cx22::itemuuidFilepathAtCx22(cx22, itemuuid)
+            next if !File.exists?(filepath)
+            FileUtils.rm(filepath)
+        }
+    end
+
+    # Cx22::getCx22ForItemUUIDOrNull(itemuuid)
+    def self.getCx22ForItemUUIDOrNull(itemuuid)
+        Cx22::items().each{|cx22|
+            filepath = Cx22::itemuuidFilepathAtCx22(cx22, itemuuid)
+            if File.exists?(filepath) then
+                return cx22
+            end
+        }
+        nil
+    end
+
+    # Cx22::getCx23ForItemAtCx22OrNull(cx22, itemuuid)
+    def self.getCx23ForItemAtCx22OrNull(cx22, itemuuid)
+        filepath = Cx22::itemuuidFilepathAtCx22(cx22, itemuuid)
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
+    end
+
+    # Cx22::getCx23ForItemuuidOrNull(itemuuid)
+    def self.getCx23ForItemuuidOrNull(itemuuid)
+        Cx22::items().each{|cx22|
+            cx23 = Cx22::getCx23ForItemAtCx22OrNull(cx22, itemuuid)
+            return cx23 if cx23
+        }
+        nil
+    end
+
+    # Cx22::getCx23sInOrderForCx22(cx22)
+    def self.getCx23sInOrderForCx22(cx22)
+        folderpath = "#{Config::pathToDataCenter()}/Cx22/#{cx22["uuid"]}"
+        if !File.exists?(folderpath) then
+            return []
+        end
+        LucilleCore::locationsAtFolder(folderpath)
+            .select{|filepath| File.basename(filepath)[0, 1] != "." }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
+            .sort{|cx1, cx2| cx1["position"] <=> cx2["position"]}
+    end
+
+    # --------------------------------------------
+    # Items
+
+    # Cx22::itemsForCx22InPositionOrder(cx22)
+    def self.itemsForCx22InPositionOrder(cx22)
+        Cx22::getCx23sInOrderForCx22(cx22)
+            .map{|cx23| NxTodos::getItemOrNull(cx23["itemuuid"]) }
+            .compact
+    end
+
+    # Cx22::firstNItemsForCx22InPositionOrder(cx22, n)
+    def self.firstNItemsForCx22InPositionOrder(cx22, n)
+        Cx22::getCx23sInOrderForCx22(cx22)
+            .take(n)
+            .map{|cx23| NxTodos::getItemOrNull(cx23["itemuuid"]) }
+            .compact
+    end
+
 end

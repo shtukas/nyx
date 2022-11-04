@@ -20,14 +20,14 @@ class Cx23
 
     # Cx23::interactivelyMakeNewGivenCx22OrNull(cx22)
     def self.interactivelyMakeNewGivenCx22OrNull(cx22)
-        data = NxTodos::itemsInPositionOrderForGroup(cx22)
-            .select{|item| item["cx23"] }
-            .map{|item|
-                {
-                    "position"    => item["cx23"]["position"],
-                    "description" => item["description"]
+        data = Cx22::itemsForCx22InPositionOrder(cx22)
+                .map{|item|
+                    cx23 = Cx22::getCx23ForItemAtCx22OrNull(cx22, item["uuid"])
+                    {
+                        "position"    => cx23["position"],
+                        "description" => item["description"]
+                    }
                 }
-            }
         data.take(CommonUtils::screenHeight()-4)
              .each{|i|
                 puts "#{"%6.2f" % i["position"]} : #{i["description"]}"
@@ -59,7 +59,7 @@ class Cx23
         return if cx22.nil?
         cx23 = Cx23::interactivelyMakeNewGivenCx22OrNull(cx22)
         return if cx23.nil?
-        item["cx23"] = cx23
-        PolyActions::commit(item)
+        Cx22::commitCx23(cx23)
     end
+
 end
