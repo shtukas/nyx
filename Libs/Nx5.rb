@@ -25,32 +25,6 @@ class Nx5
 
     # EVENTS
 
-    # Nx5::emitEventToFile0(filepath, event)
-    def self.emitEventToFile0(filepath, event)
-        raise "(error: 613FDDA4-0F16-4122-8D64-4D3C11BF28E9) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
-        FileSystemCheck::fsck_Nx3(event, SecureRandom.hex, false)
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute "delete from _events_ where _eventuuid_=?", [event["eventuuid"]]
-        db.execute "insert into _events_ (_eventuuid_, _eventTime_, _eventType_, _event_) values (?, ?, ?, ?)", [event["eventuuid"], event["eventTime"], event["eventType"], JSON.generate(event)]
-        db.close
-    end
-
-    # Nx5::emitEventToFile1(filepath, eventType, payload)
-    def self.emitEventToFile1(filepath, eventType, payload)
-        raise "(error: 5A3EFB73-E303-49D8-9C56-980C84CFF59F) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
-        event = {
-            "mikuType"  => "Nx3",
-            "eventuuid" => SecureRandom.uuid,
-            "eventTime" => Time.new.to_f,
-            "eventType" => eventType,
-            "payload"   => payload
-        }
-        Nx5::emitEventToFile0(filepath, event)
-    end
-
     # Nx5::getLatestPayloadOfEventTypeOrNull(filepath, eventType)
     def self.getLatestPayloadOfEventTypeOrNull(filepath, eventType)
         raise "(error: 7722D133-DCF9-4D5E-9BD3-066DA01090F8) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
@@ -103,6 +77,47 @@ class Nx5
         events
     end
 
+    # Nx5::trueIfFileHasEvent(filepath, eventuuid)
+    def self.trueIfFileHasEvent(filepath, eventuuid)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        flag = false
+        db.execute("select _eventuuid_ from _events_ where _eventuuid_=?", [eventuuid]) do |row|
+            flag = true
+        end
+        db.close
+        flag
+    end
+
+    # Nx5::emitEventToFile0(filepath, event)
+    def self.emitEventToFile0(filepath, event)
+        raise "(error: 613FDDA4-0F16-4122-8D64-4D3C11BF28E9) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
+        FileSystemCheck::fsck_Nx3(event, SecureRandom.hex, false)
+        return if Nx5::trueIfFileHasEvent(filepath, event["eventuuid"])
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "delete from _events_ where _eventuuid_=?", [event["eventuuid"]]
+        db.execute "insert into _events_ (_eventuuid_, _eventTime_, _eventType_, _event_) values (?, ?, ?, ?)", [event["eventuuid"], event["eventTime"], event["eventType"], JSON.generate(event)]
+        db.close
+    end
+
+    # Nx5::emitEventToFile1(filepath, eventType, payload)
+    def self.emitEventToFile1(filepath, eventType, payload)
+        raise "(error: 5A3EFB73-E303-49D8-9C56-980C84CFF59F) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
+        event = {
+            "mikuType"  => "Nx3",
+            "eventuuid" => SecureRandom.uuid,
+            "eventTime" => Time.new.to_f,
+            "eventType" => eventType,
+            "payload"   => payload
+        }
+        Nx5::emitEventToFile0(filepath, event)
+    end
+
     # DATABLOBS
 
     # Nx5::getDataBlobsNhashes(filepath)
@@ -135,10 +150,25 @@ class Nx5
         blob
     end
 
+    # Nx5::trueIfFileHasBlob(filepath, nhash)
+    def self.trueIfFileHasBlob(filepath, nhash)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        flag = false
+        db.execute("select _nhash_ from _datablobs_ where _nhash_=?", [nhash]) do |row|
+            flag = true
+        end
+        db.close
+        flag
+    end
+
     # Nx5::putBlob(filepath, blob)
     def self.putBlob(filepath, blob)
         raise "(error: 4272141b-4bab-4a7b-ba0d-377291d27809) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        return if Nx5::trueIfFileHasBlob(filepath, nhash)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
