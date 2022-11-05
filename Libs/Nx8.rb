@@ -49,7 +49,7 @@ class Nx8
     def self.commit(item)
         item["locations"] = item["locations"]
                                 .select{|filepath| File.exists?(Nx8::addGalaxyPrefixToLocation(filepath)) }
-        puts "item: #{JSON.pretty_generate(item)}"
+        #puts "item: #{JSON.pretty_generate(item)}"
         Nx8::fsck(item)
         filepath = "#{Config::pathToDataCenter()}/Nx8/#{item["uuid"]}.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }

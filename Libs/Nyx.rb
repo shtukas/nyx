@@ -36,7 +36,8 @@ class Nyx
             operations = [
                 "search",
                 "last [n] nodes dive",
-                "make new nyx node"
+                "make new nyx node",
+                "Nx8 scan"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
@@ -63,6 +64,9 @@ class Nyx
                 next if item.nil?
                 puts JSON.pretty_generate(item)
                 PolyActions::landing(item)
+            end
+            if operation == "Nx8 scan" then
+                Nx8::scanGalaxyAndUpdate(true)
             end
         }
     end
