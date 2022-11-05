@@ -1,19 +1,6 @@
 
 # encoding: UTF-8
 
-# Nx8 is the indexing of Nx7 files in Galaxy
-
-=begin
-Nx8 = {
-    "uuid"        : String
-    "mikuType"    : "Nx8"
-    "unixtime"    : Float
-    "datetime"    : DateTime Iso 8601 UTC Zulu
-    "description" : String
-    "locations"   : Array[String]
-}
-=end
-
 class Nx8
 
     # Nx8::fsck(item)
@@ -25,6 +12,7 @@ class Nx8
             raise "Could not find the `locations` attribute" 
         end
         item["locations"].each{|filepath|
+            filepath = Nx8::addGalaxyPrefixToLocation(filepath)
             if !File.exists?(filepath) then
                 raise "Location '#{filepath}' not found in #{JSON.pretty_generate(item)}"
             end
@@ -35,10 +23,15 @@ class Nx8
         }
     end
 
-    # Nx8::removeObsoleteLocations(item)
-    def self.removeObsoleteLocations(item)
-        item["locations"] = item["locations"].select{|filepath| File.exists?(filepath) }
-        item
+    # Nx8::removeGalaxyPrefixFromLocation(location)
+    def self.removeGalaxyPrefixFromLocation(location)
+        location
+            .gsub(Config::pathToGalaxy(), "")
+    end
+
+    # Nx8::addGalaxyPrefixToLocation(location)
+    def self.addGalaxyPrefixToLocation(location)
+        "#{Config::pathToGalaxy()}/#{location}"
     end
 
     # -----------------------------------------------------------------
@@ -54,7 +47,9 @@ class Nx8
 
     # Nx8::commit(item)
     def self.commit(item)
-        item = Nx8::removeObsoleteLocations(item)
+        item["locations"] = item["locations"]
+                                .select{|filepath| File.exists?(Nx8::addGalaxyPrefixToLocation(filepath)) }
+        puts "item: #{JSON.pretty_generate(item)}"
         Nx8::fsck(item)
         filepath = "#{Config::pathToDataCenter()}/Nx8/#{item["uuid"]}.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
@@ -92,6 +87,7 @@ class Nx8
     # Nx8::syncLocations(nx8)
     def self.syncLocations(nx8)
         nx8["locations"]
+            .map{|location| Nx8::addGalaxyPrefixToLocation(location) }
             .combination(2)
             .to_a
             .each{|filepath1, filepath2|
@@ -104,6 +100,7 @@ class Nx8
             }
 
         nx8["locations"]
+            .map{|location| Nx8::addGalaxyPrefixToLocation(location) }
             .combination(2)
             .to_a
             .each{|filepath1, filepath2|
@@ -113,6 +110,7 @@ class Nx8
             }
 
         nx8["locations"]
+            .map{|location| Nx8::addGalaxyPrefixToLocation(location) }
             .combination(2)
             .to_a
             .each{|filepath1, filepath2|
@@ -120,18 +118,27 @@ class Nx8
             }
     end
 
-    # Nx8::updateNx8FromNx7(nx7Filepath)
-    def self.updateNx8FromNx7(nx7Filepath)
+    # Nx8::updateNx8FromNx7(nx7Filepath, verbose)
+    def self.updateNx8FromNx7(nx7Filepath, verbose)
         nx7 = Nx5Ext::readFileAsAttributesOfObject(nx7Filepath)
         nx8 = Nx8::getItemOrNull(nx7["uuid"])
         if nx8.nil? then
             nx8 = nx7
             nx8["mikuType"] = "Nx8"
-            nx8["locations"] = [nx7Filepath]
+            nx8["locations"] = [Nx8::removeGalaxyPrefixFromLocation(nx7Filepath)]
+            if verbose then
+                puts "nx7Filepath: #{nx7Filepath}"
+                puts "Creating a new Nx8"
+                puts JSON.pretty_generate(nx8)
+            end
             Nx8::commit(nx8)
             return
         end
-        nx8["locations"] = (nx8["locations"] + [nx7Filepath]).uniq
+        nx8["locations"] = (nx8["locations"] + [Nx8::removeGalaxyPrefixFromLocation(nx7Filepath)]).uniq
+        if verbose then
+            puts "nx7Filepath: #{nx7Filepath}"
+            puts "locations: #{JSON.pretty_generate(nx8["locations"])}"
+        end
         Nx8::commit(nx8)
         Nx8::syncLocations(nx8)
     end
@@ -140,18 +147,20 @@ class Nx8
     def self.updateNx8WithLocations(uuid, locations)
         nx8 = Nx8::getItemOrNull(uuid)
         return if nx8.nil?
-        nx8["locations"] = (nx8["locations"] + locations).uniq
+        nx8["locations"] = (nx8["locations"] + locations.map{|location| Nx8::removeGalaxyPrefixFromLocation(location) }).uniq
         Nx8::commit(nx8)
         Nx8::syncLocations(nx8)
     end
 
-    # Nx8::scanGalaxyAndUpdate()
-    def self.scanGalaxyAndUpdate()
+    # Nx8::scanGalaxyAndUpdate(verbose)
+    def self.scanGalaxyAndUpdate(verbose)
         Find.find(Config::pathToGalaxy()) do |path|
             if path[-4, 4] == ".Nx7" then
                 filepath1 = path
-                puts filepath1
-                Nx8::updateNx8FromNx7(filepath1)
+                if verbose then
+                    puts "Nx8::scanGalaxyAndUpdate(#{verbose}), filepath1: #{filepath1}"
+                end
+                Nx8::updateNx8FromNx7(filepath1, verbose)
             end
         end
     end

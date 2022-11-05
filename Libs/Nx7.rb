@@ -39,31 +39,33 @@ class Nx7
         end
     end
 
-    # Nx7::getFilepathOrNull(uuid)
-    def self.getFilepathOrNull(uuid)
+    # Nx7::getFilepathOrNull(uuid, useScanIfNotNx8s)
+    def self.getFilepathOrNull(uuid, useScanIfNotNx8s = true)
 
         nx8 = Nx8::getItemOrNull(uuid)
         if nx8 then
             nx8["locations"].each{|filepath|
+                filepath = Nx8::addGalaxyPrefixToLocation(filepath)
                 if File.exists?(filepath) then
                     return filepath
                 end
             }
         end
 
-        filepaths = Nx7::allInstanceFilpathsEnumerator(uuid).to_a
-
-        if filepaths.size > 0 then
-            Nx8::updateNx8WithLocations(uuid, filepaths)
-            return filepaths.first
+        if useScanIfNotNx8s then
+            filepaths = Nx7::allInstanceFilpathsEnumerator(uuid).to_a
+            if filepaths.size > 0 then
+                Nx8::updateNx8WithLocations(uuid, filepaths)
+                return filepaths.first
+            end
         end
 
         nil
     end
 
-    # Nx7::getItemOrNull(uuid)
-    def self.getItemOrNull(uuid)
-        filepath = Nx7::getFilepathOrNull(uuid)
+    # Nx7::getItemOrNull(uuid, useScanIfNotNx8s = true)
+    def self.getItemOrNull(uuid, useScanIfNotNx8s = true)
+        filepath = Nx7::getFilepathOrNull(uuid, useScanIfNotNx8s)
         return nil if filepath.nil?
         return nil if !File.exists?(filepath)
         Nx5Ext::readFileAsAttributesOfObject(filepath)
@@ -83,7 +85,7 @@ class Nx7
         object.each{|key, value|
             Nx5::emitEventToFile1(filepath, key, value)
         }
-        Nx8::updateNx8FromNx7(filepath)
+        Nx8::updateNx8FromNx7(filepath, true)
     end
 
     # Nx7::destroy(uuid)
@@ -228,24 +230,24 @@ class Nx7
         "(node) #{item["description"]}"
     end
 
-    # Nx7::parents(item)
-    def self.parents(item)
+    # Nx7::parents(item, useScanIfNotNx8s = true)
+    def self.parents(item, useScanIfNotNx8s = true)
         item["parentsuuids"]
-            .map{|objectuuid| PolyFunctions::getItemOrNull(objectuuid) }
+            .map{|objectuuid| Nx7::getItemOrNull(objectuuid, useScanIfNotNx8s) }
             .compact
     end
 
-    # Nx7::relateds(item)
-    def self.relateds(item)
+    # Nx7::relateds(item, useScanIfNotNx8s = true)
+    def self.relateds(item, useScanIfNotNx8s = true)
         item["relatedsuuids"]
-            .map{|objectuuid| PolyFunctions::getItemOrNull(objectuuid) }
+            .map{|objectuuid| Nx7::getItemOrNull(objectuuid, useScanIfNotNx8s) }
             .compact
     end
 
-    # Nx7::children(item)
-    def self.children(item)
+    # Nx7::children(item, useScanIfNotNx8s = true)
+    def self.children(item, useScanIfNotNx8s = true)
         item["childrenuuids"]
-            .map{|objectuuid| PolyFunctions::getItemOrNull(objectuuid) }
+            .map{|objectuuid| Nx7::getItemOrNull(objectuuid, useScanIfNotNx8s) }
             .compact
     end
 
@@ -357,7 +359,7 @@ class Nx7
             # We register the item which is also the default element in the store
             store.register(item, true)
 
-            parents = Nx7::parents(item)
+            parents = Nx7::parents(item, false)
             if parents.size > 0 then
                 puts ""
                 puts "parents: "
@@ -369,7 +371,7 @@ class Nx7
                     }
             end
 
-            entities = Nx7::relateds(item)
+            entities = Nx7::relateds(item, false)
             if entities.size > 0 then
                 puts ""
                 puts "related: "
@@ -381,7 +383,7 @@ class Nx7
                     }
             end
 
-            children = Nx7::children(item)
+            children = Nx7::children(item, false)
             if children.size > 0 then
                 puts ""
                 puts "children: "
