@@ -23,10 +23,11 @@ class Nx8
         }
     end
 
-    # Nx8::removeGalaxyPrefixFromLocation(location)
-    def self.removeGalaxyPrefixFromLocation(location)
+    # Nx8::locationToStandardNx8Representation(location)
+    def self.locationToStandardNx8Representation(location)
+        location = location.gsub(Config::pathToGalaxy(), "")
+        location = location.gsub("//", "/")
         location
-            .gsub(Config::pathToGalaxy(), "")
     end
 
     # Nx8::addGalaxyPrefixToLocation(location)
@@ -125,7 +126,7 @@ class Nx8
         if nx8.nil? then
             nx8 = nx7
             nx8["mikuType"] = "Nx8"
-            nx8["locations"] = [Nx8::removeGalaxyPrefixFromLocation(nx7Filepath)]
+            nx8["locations"] = [Nx8::locationToStandardNx8Representation(nx7Filepath)]
             if verbose then
                 puts "nx7Filepath: #{nx7Filepath}"
                 puts "Creating a new Nx8"
@@ -134,7 +135,7 @@ class Nx8
             Nx8::commit(nx8)
             return
         end
-        nx8["locations"] = (nx8["locations"] + [Nx8::removeGalaxyPrefixFromLocation(nx7Filepath)]).uniq
+        nx8["locations"] = (nx8["locations"] + [Nx8::locationToStandardNx8Representation(nx7Filepath)]).uniq
         if verbose then
             puts "nx7Filepath: #{nx7Filepath}"
             puts "locations: #{JSON.pretty_generate(nx8["locations"])}"
@@ -147,7 +148,7 @@ class Nx8
     def self.updateNx8WithLocations(uuid, locations)
         nx8 = Nx8::getItemOrNull(uuid)
         return if nx8.nil?
-        nx8["locations"] = (nx8["locations"] + locations.map{|location| Nx8::removeGalaxyPrefixFromLocation(location) }).uniq
+        nx8["locations"] = (nx8["locations"] + locations.map{|location| Nx8::locationToStandardNx8Representation(location) }).uniq
         Nx8::commit(nx8)
         Nx8::syncLocations(nx8)
     end
