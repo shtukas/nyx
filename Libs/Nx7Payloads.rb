@@ -40,8 +40,9 @@ class Nx7Payloads
 
         if ["Entity", "Concept", "Event", "Person", "Collection", "Timeline"].include?(type) then
             return {
-                "mikuType" => "Nx7Payload",
-                "type"     => type
+                "mikuType"      => "Nx7Payload",
+                "type"          => type,
+                "childrenuuids" => []
             }
         end
 

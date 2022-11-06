@@ -154,7 +154,6 @@ class Nx7
             "comments"      => [],
             "parentsuuids"  => [],
             "relatedsuuids" => [],
-            "childrenuuids" => []
         }
         FileSystemCheck::fsck_Nx7(operator, item, true)
         Nx7::commit(item)
@@ -177,8 +176,7 @@ class Nx7
             "description"   => description,
             "nx7Payload"    => nx7Payload,
             "parentsuuids"  => [],
-            "relatedsuuids" => [],
-            "childrenuuids" => []
+            "relatedsuuids" => []
         }
         Nx7::commit(item)
         item
@@ -203,8 +201,7 @@ class Nx7
             "description"   => description,
             "nx7Payload"    => nx7Payload,
             "parentsuuids"  => [],
-            "relatedsuuids" => [],
-            "childrenuuids" => []
+            "relatedsuuids" => []
         }
         Nx7::commit(item)
         item
@@ -239,7 +236,8 @@ class Nx7
 
     # Nx7::children(item)
     def self.children(item)
-        item["childrenuuids"]
+        return [] if item["nx7Payload"]["type"] == "Data"
+        item["nx7Payload"]["childrenuuids"]
             .map{|objectuuid| Nx7::itemOrNull(objectuuid) }
             .compact
     end
@@ -257,7 +255,11 @@ class Nx7
 
     # Nx7::arrow(item1, item2)
     def self.arrow(item1, item2)
-        item1["childrenuuids"] = (item1["childrenuuids"] + [item2["uuid"]]).uniq
+        # Type Data doesn't get children
+        if item1["nx7Payload"]["type"] == "Data" then
+            raise "(error: 716f4ec6-c50f-48b9-bf23-3a6d4de05aa5)" 
+        end
+        item1["nx7Payload"]["childrenuuids"] = (item1["nx7Payload"]["childrenuuids"] + [item2["uuid"]]).uniq
         Nx7::commit(item1)
         item2["parentsuuids"] = (item2["parentsuuids"] + [item1["uuid"]]).uniq
         Nx7::commit(item2)
@@ -267,12 +269,20 @@ class Nx7
     def self.detach(item1, item2)
         item1["parentsuuids"].delete(item2["uuid"])
         item1["relatedsuuids"].delete(item2["uuid"])
-        item1["childrenuuids"].delete(item2["uuid"])
+        if item1["nx7Payload"]["type"] == "Data" then
+            item1["nx7Payload"]["childrenuuids"].delete(item2["uuid"])
+        else
+            item1["childrenuuids"].delete(item2["uuid"])
+        end
         Nx7::commit(item1)
 
         item2["parentsuuids"].delete(item1["uuid"])
         item2["relatedsuuids"].delete(item1["uuid"])
-        item2["childrenuuids"].delete(item1["uuid"])
+        if item2["nx7Payload"]["type"] == "Data" then
+            item2["nx7Payload"]["childrenuuids"].delete(item1["uuid"])
+        else
+            item2["childrenuuids"].delete(item1["uuid"])
+        end
         Nx7::commit(item2)
     end
 

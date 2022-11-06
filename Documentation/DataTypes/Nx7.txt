@@ -9,7 +9,6 @@ Nx7 = {
     "comments"      : Array[String]
     "parentsuuids"  : Array[String]
     "relatedsuuids" : Array[String]
-    "childrenuuids" : Array[String]
 }
 
 nx7Payload {
@@ -19,6 +18,7 @@ nx7Payload {
 }
 
 nx7Payload {
-    "mikuType" => "Nx7Payload"
-    "type"     => "Entity" | "Concept" | "Event" | "Person" | "Collection" | "Timeline"
+    "mikuType"      : "Nx7Payload"
+    "type"          : "Entity" | "Concept" | "Event" | "Person" | "Collection" | "Timeline"
+    "childrenuuids" : Array[String]
 }

@@ -324,7 +324,6 @@ class FileSystemCheck
 
         FileSystemCheck::ensureAttribute(item, "parentsuuids", "Array")
         FileSystemCheck::ensureAttribute(item, "relatedsuuids", "Array")
-        FileSystemCheck::ensureAttribute(item, "childrenuuids", "Array")
     end
 
     # FileSystemCheck::fsck_Nx3(item, verbose)
@@ -372,6 +371,11 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "state", "Hash")
             FileSystemCheck::fsck_GridState(operator, item["state"], verbose)
         end
+
+        if Nx7Payloads::navigationTypes().include?(item["type"]) then
+            FileSystemCheck::ensureAttribute(item, "childrenuuids", "Array")
+        end
+
     end
 
     # -----------------------------------------------------
