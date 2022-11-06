@@ -6,8 +6,8 @@ class Nx7
     # ------------------------------------------------
     # Basic IO
 
-    # Nx7::filepathForNewItemAtLocalDirectory(uuid)
-    def self.filepathForNewItemAtLocalDirectory(uuid)
+    # Nx7::interactivelyBuildFilepathForNewItemAtLocalDirectory(uuid)
+    def self.interactivelyBuildFilepathForNewItemAtLocalDirectory(uuid)
         "#{Dir.pwd}/#{uuid}.Nx7"
     end
 
@@ -39,10 +39,21 @@ class Nx7
 
         filepath = lookupUseTheForce.call(uuid)
 
-        if filepath then
-            XCache::set("d127eb96-6327-46fa-9489-ff403c7fa355:#{uuid}", filepath)
+        if filepath.nil? then
+            return nil
         end
 
+        XCache::set("d127eb96-6327-46fa-9489-ff403c7fa355:#{uuid}", filepath)
+
+        filepath
+    end
+
+    # Nx7::filepathForExistingItemOrError(uuid)
+    def self.filepathForExistingItemOrError(uuid)
+        filepath = Nx7::filepathForExistingItemOrNull(uuid)
+        if filepath.nil? then
+            raise "(error: 0b09f017-0423-4eb8-ac46-4a8966ad4ca6) could not determine presumably existing filepath for uuid: #{uuid}"
+        end
         filepath
     end
 
@@ -80,19 +91,13 @@ class Nx7
     # Nx7::itemOrNull(uuid)
     def self.itemOrNull(uuid)
         filepath = Nx7::filepathForExistingItemOrNull(uuid)
-        return nil if filepath.nil?
-        return nil if !File.exists?(filepath)
         Nx5Ext::readFileAsAttributesOfObject(filepath)
     end
 
     # Nx7::commit(object)
     def self.commit(object)
         FileSystemCheck::fsck_MikuTypedItem(object, false)
-        # Here we assume that the object is not new, so we expect to be able to find the file
-        filepath = Nx7::filepathForExistingItemOrNull(object["uuid"])
-        if filepath.nil? then
-            raise "(error: 207f9fa6-04c0-4aff-9fcc-7114c877f116) could not find assumed existing file path for object: #{JSON.pretty_generate(object)}"
-        end
+        filepath = Nx7::filepathForExistingItemOrError(object["uuid"])
         object.each{|key, value|
             Nx5::emitEventToFile1(filepath, key, value)
         }
@@ -110,7 +115,7 @@ class Nx7
 
     # Nx7::operatorForUUID(uuid)
     def self.operatorForUUID(uuid)
-        filepath = (Nx7::filepathForExistingItemOrNull(uuid) || Nx7::filepathForNewItemAtLocalDirectory(uuid))
+        filepath = (Nx7::filepathForExistingItemOrError(uuid) || Nx7::interactivelyBuildFilepathForNewItemAtLocalDirectory(uuid))
         ElizabethNx5.new(filepath)
     end
 
@@ -127,7 +132,7 @@ class Nx7
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid
-        filepath = Nx7::filepathForNewItemAtLocalDirectory(uuid)
+        filepath = Nx7::interactivelyBuildFilepathForNewItemAtLocalDirectory(uuid)
         operator = ElizabethNx5.new(filepath)
         nx7Payload = Nx7Payloads::interactivelyMakePayload(operator)
         item = {
@@ -278,7 +283,7 @@ class Nx7
 
     # Nx7::getElizabethOperatorForUUID(uuid)
     def self.getElizabethOperatorForUUID(uuid)
-        filepath = (Nx7::filepathForExistingItemOrNull(uuid) || Nx7::filepathForNewItemAtLocalDirectory(uuid))
+        filepath = Nx7::filepathForExistingItemOrError(uuid)
         ElizabethNx5.new(filepath)
     end
 
@@ -343,7 +348,7 @@ class Nx7
             puts "datetime: #{item["datetime"]}".yellow
             puts "payload: #{item["nx7Payload"]["type"]}".yellow
 
-            filepath = Nx7::filepathForExistingItemOrNull(uuid)
+            filepath = Nx7::filepathForExistingItemOrError(uuid)
             puts "filepath: #{filepath}".yellow
 
             item["comments"].each{|comment|
