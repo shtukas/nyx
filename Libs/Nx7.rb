@@ -18,7 +18,7 @@ class Nx7
     def self.filepathForExistingItemOrNull(uuid)
 
         filepath = XCache::getOrNull("d127eb96-6327-46fa-9489-ff403c7fa355:#{uuid}")
-        if filepath then
+        if filepath and File.exists?(filepath) then
             item = Nx5Ext::readFileAsAttributesOfObject(filepath)
             if item["uuid"] == uuid then
                 return filepath
