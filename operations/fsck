@@ -4,15 +4,4 @@
 
 require_relative "../Libs/loader.rb"
 
-runhash = 
-    if LucilleCore::askQuestionAnswerAsBoolean("Use current runhash ? (the alternative is to issue a new one) ", true) then
-        FileSystemCheck::getExistingRunHash()
-    else
-        r = SecureRandom.hex
-        puts "Issuing new fsck runhash: #{r}".green
-        sleep 1
-        FileSystemCheck::setRunHash(r)
-        FileSystemCheck::getExistingRunHash()
-    end
-
-FileSystemCheck::fsckErrorAtFirstFailure(runhash)
+FileSystemCheck::fsckErrorAtFirstFailure()

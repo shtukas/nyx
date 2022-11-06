@@ -20,7 +20,7 @@ class Cx22
 
     # Cx22::commit(item)
     def self.commit(item)
-        FileSystemCheck::fsck_MikuTypedItem(item, SecureRandom.hex, false)
+        FileSystemCheck::fsck_MikuTypedItem(item, false)
         filepath = "#{Config::pathToDataCenter()}/Cx22/#{item["uuid"]}.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end

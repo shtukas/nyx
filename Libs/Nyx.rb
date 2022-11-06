@@ -3,23 +3,13 @@
 
 class Nyx
 
-    # Nyx::selectExistingNetworkNodeOrNull()
-    def self.selectExistingNetworkNodeOrNull()
-        item = Search::nyxFoxTerrier()
-        return nil if item.nil?
-        if item["mikuType"] == "Nx8" then
-            return Nx7::getItemOrNull(item["uuid"])
-        end
-        item
-    end
-
     # Nyx::architectOneOrNull() # item or null
     def self.architectOneOrNull()
         operations = ["existing || new", "new"]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
         return nil if operation.nil?
         if operation == "existing || new" then
-            entity = Nyx::selectExistingNetworkNodeOrNull()
+            entity = Search::nyxFoxTerrier()
             return entity if entity
             return Nx7::interactivelyIssueNewOrNull()
         end
@@ -36,8 +26,7 @@ class Nyx
             operations = [
                 "search",
                 "last [n] nodes dive",
-                "make new nyx node",
-                "Nx8 scan"
+                "make new nyx node"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
@@ -64,9 +53,6 @@ class Nyx
                 next if item.nil?
                 puts JSON.pretty_generate(item)
                 PolyActions::landing(item)
-            end
-            if operation == "Nx8 scan" then
-                Nx8::scanGalaxyAndUpdate(true)
             end
         }
     end

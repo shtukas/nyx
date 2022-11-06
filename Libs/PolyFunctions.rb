@@ -121,9 +121,6 @@ class PolyFunctions
         if item["mikuType"] == "InboxItem" then
             return item["description"]
         end
-        if item["mikuType"] == "Nx8" then
-            return item["description"]
-        end
         if item["mikuType"] == "NxAnniversary" then
             return item["description"]
         end
@@ -156,7 +153,7 @@ class PolyFunctions
         item = NxTodos::getItemOrNull(uuid)
         return item if item
 
-        item = Nx7::getItemOrNull(uuid)
+        item = Nx7::itemOrNull(uuid)
         return item if item
 
         item = Cx22::getOrNull(uuid)
@@ -230,9 +227,6 @@ class PolyFunctions
         end
         if item["mikuType"] == "Nx7" then
             return Nx7::toString(item)
-        end
-        if item["mikuType"] == "Nx8" then
-            return Nx8::toString(item)
         end
         if item["mikuType"] == "NxAnniversary" then
             return Anniversaries::toString(item)

@@ -87,14 +87,14 @@ class Nx113Make
         if type == "text" then
             text = CommonUtils::editTextSynchronously("")
             nx113 = Nx113Make::text(text)
-            FileSystemCheck::fsck_Nx113(operator, nx113, SecureRandom.hex, true)
+            FileSystemCheck::fsck_Nx113(operator, nx113, true)
             return nx113
         end
         if type == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
             return nil if url == ""
             nx113 = Nx113Make::url(url)
-            FileSystemCheck::fsck_Nx113(operator, nx113, SecureRandom.hex, true)
+            FileSystemCheck::fsck_Nx113(operator, nx113, true)
             return nx113
         end
         if type == "file" then
@@ -103,26 +103,26 @@ class Nx113Make
             return nil if !File.file?(location)
             filepath = location
             nx113 = Nx113Make::file(operator, filepath)
-            FileSystemCheck::fsck_Nx113(operator, nx113, SecureRandom.hex, true)
+            FileSystemCheck::fsck_Nx113(operator, nx113, true)
             return nx113
         end
         if type == "aion-point" then
             nx113 = Nx113Make::interactivelyMakeNx113AionPoint(operation)
-            FileSystemCheck::fsck_Nx113(operator, nx113, SecureRandom.hex, true)
+            FileSystemCheck::fsck_Nx113(operator, nx113, true)
             return nx113
         end
         if type == "Dx8Unit" then
             unitId = LucilleCore::askQuestionAnswerAsString("unitId (empty to abort): ")
             return nil if  unitId == ""
             nx113 = Nx113Make::dx8Unit(unitId)
-            FileSystemCheck::fsck_Nx113(operator, nx113, SecureRandom.hex, true)
+            FileSystemCheck::fsck_Nx113(operator, nx113, true)
             return nx113
         end
         if type == "unique-string" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
             return nil if uniquestring.nil?
             nx113 = Nx113Make::uniqueString(uniquestring)
-            FileSystemCheck::fsck_Nx113(operator, nx113, SecureRandom.hex, true)
+            FileSystemCheck::fsck_Nx113(operator, nx113, true)
             return nx113
         end
         raise "(error: 0d26fe42-8669-4f33-9a09-aeecbd52c77c)"
@@ -307,7 +307,7 @@ class Nx113Dx33s
 
     # Nx113Dx33s::commit(item)
     def self.commit(item)
-        FileSystemCheck::fsck_MikuTypedItem(item, SecureRandom.hex, false)
+        FileSystemCheck::fsck_MikuTypedItem(item, false)
         filepath = "#{Config::pathToDataCenter()}/Dx33/#{item["uuid"]}.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end

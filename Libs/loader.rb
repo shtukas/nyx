@@ -177,7 +177,7 @@ require_relative "NxTodos.rb"
 require_relative "NetworkShapeAroundNode.rb"
 require_relative "Nx5.rb"
 require_relative "Nx7.rb"
-require_relative "Nx8.rb"
+require_relative "Nx7Payloads.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"

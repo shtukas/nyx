@@ -94,7 +94,7 @@ class Nx5
     # Nx5::emitEventToFile0(filepath, event)
     def self.emitEventToFile0(filepath, event)
         raise "(error: 613FDDA4-0F16-4122-8D64-4D3C11BF28E9) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
-        FileSystemCheck::fsck_Nx3(event, SecureRandom.hex, false)
+        FileSystemCheck::fsck_Nx3(event, false)
         return if Nx5::trueIfFileHasEvent(filepath, event["eventuuid"])
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117

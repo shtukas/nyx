@@ -29,7 +29,7 @@ class Waves
 
     # Waves::commitItem(item)
     def self.commitItem(item)
-        FileSystemCheck::fsck_MikuTypedItem(item, SecureRandom.hex, false)
+        FileSystemCheck::fsck_MikuTypedItem(item, false)
         filepath = Waves::filepathForUUID(item["uuid"])
         if !File.exists?(filepath) then
             Nx5::issueNewFileAtFilepath(filepath, item["uuid"])

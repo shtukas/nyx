@@ -126,7 +126,7 @@ class NetworkShapeAroundNode
         children = NetworkShapeAroundNode::interactivelySelectChildren(item)
         targetuuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
         return if targetuuid == item["uuid"]
-        targetitem = Nx7::getItemOrNull(targetuuid)
+        targetitem = Nx7::itemOrNull(targetuuid)
         return if targetitem.nil?
         children.each{|childX|
             Nx7::detach(item, childX)

@@ -33,7 +33,7 @@ class NxBallsService
 
     # NxBallsService::commit(item)
     def self.commit(item)
-        FileSystemCheck::fsck_MikuTypedItem(item, SecureRandom.hex, false)
+        FileSystemCheck::fsck_MikuTypedItem(item, false)
         filepath = "#{NxBallsService::instanceSubFolder()}/#{item["uuid"]}.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end

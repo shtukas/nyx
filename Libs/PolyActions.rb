@@ -68,7 +68,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "Nx7" then
-            Nx7::commitObject(item)
+            Nx7::commit(item)
             return
         end
 
@@ -362,11 +362,6 @@ class PolyActions
 
         if item["mikuType"] == "Nx7" then
             Nx7::landing(item)
-            return
-        end
-
-        if item["mikuType"] == "Nx8" then
-            Nx8::landing(item)
             return
         end
 

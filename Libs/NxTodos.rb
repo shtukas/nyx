@@ -46,7 +46,7 @@ class NxTodos
 
     # NxTodos::commitObject(object)
     def self.commitObject(object)
-        FileSystemCheck::fsck_MikuTypedItem(object, SecureRandom.hex, false)
+        FileSystemCheck::fsck_MikuTypedItem(object, false)
         filepath = NxTodos::uuidToNx5Filepath(object["uuid"])
         if !File.exists?(filepath) then
             Nx5::issueNewFileAtFilepath(filepath, object["uuid"])

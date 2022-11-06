@@ -10,5 +10,5 @@ if item.nil? then
     puts "no item with this uuid"
     exit
 end
-FileSystemCheck::fsck_MikuTypedItem(item, SecureRandom.hex, true)
+FileSystemCheck::fsck_MikuTypedItem(item, true)
 puts "fsck completed successfully".green
