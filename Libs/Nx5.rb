@@ -235,7 +235,9 @@ class Nx5Ext
         Nx5::getDataBlobsNhashes(sourcefilepath)
             .each{|nhash|
                 blob = Nx5::getDatablobOrNull(sourcefilepath, nhash)
-                raise "(error: 0a10fcee-064e-46d8-ae07-a4ddc6160197) sourcefilepath: '#{sourcefilepath}', nhash: '#{nhash}'" if blob.nil?
+                if blob.nil? then
+                    raise "(error: 0a10fcee-064e-46d8-ae07-a4ddc6160197) sourcefilepath: '#{sourcefilepath}', nhash: '#{nhash}'"
+                end
                 Nx5::putBlob(targetfilepath, blob)
             }
         Nx5::getOrderedEvents(sourcefilepath)

@@ -16,13 +16,18 @@ class Nx7
         end
     end
 
-    # Nx7::itemsFromFsRootEnumerator(rootlocation)
-    def self.itemsFromFsRootEnumerator(rootlocation)
+    # Nx7::itemsFromFsRootEnumerator(fsroot)
+    def self.itemsFromFsRootEnumerator(fsroot)
         Enumerator.new do |items|
             Nx7::allNx70FilepathsFromFsRootEnumerator(fsroot).each{|filepath|
                 items << Nx5Ext::readFileAsAttributesOfObject(filepath)
             }
         end
+    end
+
+    # Nx7::galaxyFilepathsEnumerator()
+    def self.galaxyFilepathsEnumerator()
+        Nx7::allNx70FilepathsFromFsRootEnumerator(Config::pathToGalaxy())
     end
 
     # Nx7::galaxyItemsEnumerator()
@@ -108,7 +113,7 @@ class Nx7
     end
 
     # ------------------------------------------------
-    # Operators
+    # Elizabeth
 
     # Nx7::operatorForUUID(uuid)
     def self.operatorForUUID(uuid)
@@ -281,9 +286,59 @@ class Nx7
 
     # Nx7::access(item)
     def self.access(item)
-        folderpath = "#{Config::pathToDesktop()}/#{CommonUtils::sanitiseStringForFilenaming(Nx7::toString(item))}-#{SecureRandom.hex(2)}"
-        FileUtils.mkdir(folderpath)
-        Nx7::exportItemAtFolder(object, folderpath, 1)
+
+        puts "running peer to peer sync..."
+        item = Nx7::syncWithPeers(item)
+
+        nx7Payload = item["nx7Payload"]
+
+        if nx7Payload["type"] == "Data" then
+            state = nx7Payload["state"]
+            operator = Nx7::getElizabethOperatorForItem(item)
+            GridState::access(operator, state)
+        end
+
+        if Nx7Payloads::navigationTypes().include?(nx7Payload["type"]) then
+            puts "This is a navigation node, there isn't an access per se. I could send you to the .Nx7 in galaxy if you want."
+            if LucilleCore::askQuestionAnswerAsBoolean("Go to fs ? : ") then
+                filepaths = Nx7::galaxyFilepathsForUUIDEnumerator(item["uuid"]).to_a
+                if filepaths.size == 1 then
+                    filepath = filepaths.first
+                    system("open '#{filepath}'")
+                else
+                    filepath = LucilleCore::selectEntityFromListOfEntitiesOrNull("filepath", filepaths)
+                    if filepath then
+                        system("open '#{filepath}'")
+                    end
+                end
+            end
+        end
+    end
+
+    # Nx7::edit(item)
+    def self.edit(item)
+        puts "running peer to peer sync..."
+        item = Nx7::syncWithPeers(item)
+
+        nx7Payload = item["nx7Payload"]
+
+        if nx7Payload["type"] == "Data" then
+            state = nx7Payload["state"]
+            operator = Nx7::getElizabethOperatorForItem(item)
+            state2 = GridState::edit(operator, state)
+            if state2 then
+                nx7Payload["state"] = state2
+                item["nx7Payload"] = nx7Payload
+                Nx7::commit(item)
+                item = Nx7::syncWithPeers(item)
+                Nx7::reExportAtAllCurrentlyExportedLocations(item)
+            end
+        end
+
+        if Nx7Payloads::navigationTypes().include?(nx7Payload["type"]) then
+            puts "This is a navigation node, there isn't an edit per se."
+            LucilleCore::pressEnterToContinue()
+        end
     end
 
     # Nx7::landing(item)
@@ -345,7 +400,7 @@ class Nx7
             end
 
             puts ""
-            puts "<n> | access | description | datetime | payload | expose | destroy".yellow
+            puts "<n> | access | edit | description | datetime | payload | expose | destroy".yellow
             puts "comment | related | child | parent | upload".yellow
             puts "[link type update] parents>related | parents>children | related>children | related>parents | children>related".yellow
             puts "[network shape] select children; move to selected child | select children; move to uuid".yellow
@@ -366,6 +421,12 @@ class Nx7
                 Nx7::access(item)
                 next
             end
+
+            if Interpreting::match("edit", input) then
+                Nx7::edit(item)
+                next
+            end
+
             if input == "comment" then
                 comment = LucilleCore::askQuestionAnswerAsString("comment: ")
                 item["comments"] << comment
@@ -472,7 +533,7 @@ class Nx7
     end
 
     # ------------------------------------------------
-    # Openess Manager
+    # Export Manager
 
     # Nx7::exportItemAtFolder(item, location, depth)
     def self.exportItemAtFolder(item, location, depth)
@@ -482,6 +543,8 @@ class Nx7
         if !File.directory?(location) then
             raise "(error: 24b89a73-4033-4184-b12d-ddee240e3020) location exists but is not a directory: #{location}"
         end
+
+        item = Nx7::syncWithPeers(item)
 
         nx7Payload = item["nx7Payload"]
 
@@ -510,11 +573,23 @@ class Nx7
         raise "(error: 54c37521-1b07-4e34-bc5a-ec3d7c46f1e8) type: #{nx7Payload["type"]}"
     end
 
+    # Nx7::currentExportLocations(item)
+    def self.currentExportLocations(item)
+        Nx7::galaxyFilepathsForUUIDEnumerator(item["uuid"])
+            .map{|filepath| filepath.gsub(".Nx7", "") }
+            .select{|location| File.exists?(location) }
+    end
+
+    # Nx7::reExportAtAllCurrentlyExportedLocations(item)
+    def self.reExportAtAllCurrentlyExportedLocations(item)
+        Nx7::currentExportLocations(item).each{|location|
+            Nx7::exportItemAtFolder(item, location, 1)
+        }
+    end
+
     # Nx7::getPopulatedExportLocationForItemAndMakeSureItIsUniqueOrNull(item, preferenceInstanceFilepath)
     def self.getPopulatedExportLocationForItemAndMakeSureItIsUniqueOrNull(item, preferenceInstanceFilepath)
-        currentExportLocations = Nx7::galaxyFilepathsForUUIDEnumerator(item["uuid"])
-                                    .map{|filepath| filepath.gsub(".Nx7", "") }
-                                    .select{|location| File.exists?(location) }
+        currentExportLocations = Nx7::currentExportLocations(item)
         if currentExportLocations.size == 0 then
             location = preferenceInstanceFilepath.gsub(".Nx7", "")
             FileUtils.mkdir(location)
@@ -544,5 +619,42 @@ class Nx7
             LucilleCore::pressEnterToContinue()
             return Nx7::getPopulatedExportLocationForItemAndMakeSureItIsUniqueOrNull(item, preferenceInstanceFilepath)
         end
+    end
+
+    # ------------------------------------------------
+    # Multi Instance Sync
+
+    # Nx7::peerToPeerSync(uuid)
+    def self.peerToPeerSync(uuid)
+        Nx7::galaxyFilepathsForUUIDEnumerator(uuid)
+            .to_a
+            .combination(2)
+            .each{|filepath1, filepath2|
+                Nx5Ext::contentsMirroring(filepath1, filepath2)
+            }
+    end
+
+    # Nx7::syncWithPeers(item)
+    def self.syncWithPeers(item)
+        Nx7::peerToPeerSync(item["uuid"])
+        Nx7::itemOrNull(item["uuid"])
+    end
+
+    # Nx7::globalSync()
+    def self.globalSync()
+        mapping = {}
+        Nx7::galaxyFilepathsEnumerator()
+            .each{|filepath|
+                item = Nx5Ext::readFileAsAttributesOfObject(filepath)
+                uuid = item["uuid"]
+                if mapping[uuid].nil? then
+                    mapping[uuid] = filepath
+                else
+                    puts "Global Sync:"
+                    puts "    - #{mapping[uuid]}"
+                    puts "    - #{filepath}"
+                    Nx5Ext::contentsMirroring(mapping[uuid], filepath)
+                end
+            }
     end
 end

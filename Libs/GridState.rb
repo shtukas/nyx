@@ -247,8 +247,8 @@ class GridState
         end
     end
 
-    # GridState::access(state, operator)
-    def self.access(state, operator)
+    # GridState::access(operator, state)
+    def self.access(operator, state)
 
         type = state["type"]
 
@@ -271,6 +271,7 @@ class GridState
             nhash           = state["nhash"]
             parts           = state["parts"]
             filepath        = "#{ENV['HOME']}/Desktop/#{nhash}#{dottedExtension}"
+            puts "Exporting file at #{filepath}"
             File.open(filepath, "w"){|f|
                 parts.each{|nhash|
                     blob = operator.getBlobOrNull(nhash)
@@ -334,6 +335,20 @@ class GridState
         end
 
         if type == "file" then
+            dottedExtension = state["dottedExtension"]
+            nhash           = state["nhash"]
+            parts           = state["parts"]
+            filepath        = "#{ENV['HOME']}/Desktop/#{nhash}#{dottedExtension}"
+            puts "Exporting file at #{filepath}"
+            File.open(filepath, "w"){|f|
+                parts.each{|nhash|
+                    blob = operator.getBlobOrNull(nhash)
+                    raise "(error: 13709695-3dca-493b-be46-62d4ef6cf18f)" if blob.nil?
+                    f.write(blob)
+                }
+            }
+            puts "Edit the file and..."
+            LucilleCore::pressEnterToContinue()
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
             return nil if !File.file?(location)
