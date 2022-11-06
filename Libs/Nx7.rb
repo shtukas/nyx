@@ -25,6 +25,8 @@ class Nx7
             end
         end
 
+        puts "Looking for item: #{uuid}"
+
         lookupUseTheForce = lambda {|uuid|
             Find.find(Config::pathToGalaxy()) do |path|
                 next if File.basename(path)[-4, 4] != ".Nx7"
