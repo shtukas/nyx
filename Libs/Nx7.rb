@@ -6,14 +6,59 @@ class Nx7
     # ------------------------------------------------
     # Basic IO
 
-    # Nx7::filepath(uuid)
-    def self.filepath(uuid)
-        "#{Config::pathToDataCenter()}/Nx7s/#{uuid}.Nx7"
+    # Nx7::pathToNyxHub()
+    def self.pathToNyxHub()
+        "#{Config::pathToGalaxy()}/Encyclopedia/NyxHub"
+    end
+
+    # Nx7::filepathForNewItem(uuid)
+    def self.filepathForNewItem(uuid)
+        "#{Nx7::pathToNyxHub()}/New-Files-BirthZone/#{uuid}.Nx7"
+    end
+
+    # Nx7::filepathForExistingItemOrNull(uuid)
+    def self.filepathForExistingItemOrNull(uuid)
+
+        filepath = XCache::getOrNull("d127eb96-6327-46fa-9489-ff403c7fa355:#{uuid}")
+        if filepath then
+            item = Nx5Ext::readFileAsAttributesOfObject(filepath)
+            if item["uuid"] == uuid then
+                return filepath
+            end
+        end
+
+        lookupUseTheForce = lambda {|uuid|
+            Find.find(Nx7::pathToNyxHub()) do |path|
+                next if File.basename(path)[-4, 4] != ".Nx7"
+                filepath = path
+                item = Nx5Ext::readFileAsAttributesOfObject(filepath)
+                if item["uuid"] == uuid then
+                    return filepath
+                else
+                    # While we know this
+                    XCache::set("d127eb96-6327-46fa-9489-ff403c7fa355:#{item["uuid"]}", filepath)
+                end
+            end
+            nil
+        }
+
+        filepath = lookupUseTheForce.call(uuid)
+
+        if filepath then
+            XCache::set("d127eb96-6327-46fa-9489-ff403c7fa355:#{uuid}", filepath)
+        end
+
+        filepath
     end
 
     # Nx7::filepaths()
     def self.filepaths()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Nx7s")
+        Enumerator.new do |filepaths|
+            Find.find(Nx7::pathToNyxHub()) do |path|
+                next if File.basename(path)[-4, 4] != ".Nx7"
+                filepaths << path
+            end
+        end
     end
 
     # Nx7::itemsEnumerator()
@@ -39,7 +84,8 @@ class Nx7
 
     # Nx7::itemOrNull(uuid)
     def self.itemOrNull(uuid)
-        filepath = Nx7::filepath(uuid)
+        filepath = Nx7::filepathForExistingItemOrNull(uuid)
+        return nil if filepath.nil?
         return nil if !File.exists?(filepath)
         Nx5Ext::readFileAsAttributesOfObject(filepath)
     end
@@ -47,9 +93,10 @@ class Nx7
     # Nx7::commit(object)
     def self.commit(object)
         FileSystemCheck::fsck_MikuTypedItem(object, false)
-        filepath = Nx7::filepath(object["uuid"])
-        if !File.exists?(filepath) then
-            Nx5::issueNewFileAtFilepath(filepath, object["uuid"])
+        # Here we assume that the object is not new, so we expect to be able to find the file
+        filepath = Nx7::filepathForExistingItemOrNull(object["uuid"])
+        if filepath.nil? then
+            raise "(error: 207f9fa6-04c0-4aff-9fcc-7114c877f116) could not find assumed existing file path for object: #{JSON.pretty_generate(object)}"
         end
         object.each{|key, value|
             Nx5::emitEventToFile1(filepath, key, value)
@@ -58,8 +105,8 @@ class Nx7
 
     # Nx7::destroy(uuid)
     def self.destroy(uuid)
-        filepath = Nx7::filepath(object["uuid"])
-        return if !File.exists?(filepath)
+        filepath = Nx7::filepathForExistingItemOrNull(object["uuid"])
+        return if filepath.nil?
         FileUtils.rm(filepath)
     end
 
@@ -68,7 +115,7 @@ class Nx7
 
     # Nx7::operatorForUUID(uuid)
     def self.operatorForUUID(uuid)
-        filepath = Nx7::filepath(uuid)
+        filepath = (Nx7::filepathForExistingItemOrNull(uuid) || Nx7::filepathForNewItem(uuid))
         ElizabethNx5.new(filepath)
     end
 
@@ -234,15 +281,14 @@ class Nx7
 
     # Nx7::getElizabethOperatorForUUID(uuid)
     def self.getElizabethOperatorForUUID(uuid)
-        filepath = Nx7::filepath(uuid)
+        filepath = (Nx7::filepathForExistingItemOrNull(uuid) || Nx7::filepathForNewItem(uuid))
         ElizabethNx5.new(filepath)
     end
 
     # Nx7::getElizabethOperatorForItem(item)
     def self.getElizabethOperatorForItem(item)
         raise "(error: 520a0efa-48a1-4b81-82fb-f61760af7329)" if item["mikuType"] != "Nx7"
-        filepath = Nx7::filepath(item["uuid"])
-        ElizabethNx5.new(filepath)
+        Nx7::getElizabethOperatorForUUID(item["uuid"])
     end
 
     # Nx7::access(item)
@@ -294,10 +340,14 @@ class Nx7
             return nil if item.nil?
             system("clear")
             puts Nx7::toString(item)
+
             puts "uuid: #{item["uuid"]}".yellow
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
             puts "payload: #{item["nx7Payload"]["type"]}".yellow
+
+            filepath = Nx7::filepathForExistingItemOrNull(uuid)
+            puts "filepath: #{filepath}".yellow
 
             item["comments"].each{|comment|
                 puts "[comment] #{comment}"

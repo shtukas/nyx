@@ -17,14 +17,25 @@ class Search
 
     # Search::nyxNx20s() # Array[Nx20]
     def self.nyxNx20s()
-        Nx7::itemsEnumerator()
-            .map{|item|
-                {
-                    "announce" => "(#{item["mikuType"]}) #{PolyFunctions::genericDescriptionOrNull(item)}",
-                    "unixtime" => item["unixtime"],
-                    "item"     => item
+
+        useTheForce = lambda {
+            Nx7::itemsEnumerator()
+                .map{|item|
+                    {
+                        "announce" => "(#{item["mikuType"]}) #{PolyFunctions::genericDescriptionOrNull(item)}",
+                        "unixtime" => item["unixtime"],
+                        "item"     => item
+                    }
                 }
-            }
+        }
+
+        nx20s = XCache::getOrNull("1f9d878c-33a7-49b5-a730-cfeedf20131b:#{CommonUtils::today()}")
+        if nx20s then
+            return JSON.parse(nx20s)
+        end
+        nx20s = useTheForce.call()
+        XCache::set("1f9d878c-33a7-49b5-a730-cfeedf20131b:#{CommonUtils::today()}", JSON.generate(nx20s))
+        nx20s
     end
 
     # Search::catalyst()
