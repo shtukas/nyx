@@ -6,14 +6,9 @@ class Nx7
     # ------------------------------------------------
     # Basic IO
 
-    # Nx7::pathToNyxHub()
-    def self.pathToNyxHub()
-        "#{Config::pathToGalaxy()}/Encyclopedia/NyxHub"
-    end
-
-    # Nx7::filepathForNewItem(uuid)
-    def self.filepathForNewItem(uuid)
-        "#{Nx7::pathToNyxHub()}/New-Files-BirthZone/#{uuid}.Nx7"
+    # Nx7::filepathForNewItemAtLocalDirectory(uuid)
+    def self.filepathForNewItemAtLocalDirectory(uuid)
+        "#{Dir.pwd}/#{uuid}.Nx7"
     end
 
     # Nx7::filepathForExistingItemOrNull(uuid)
@@ -28,7 +23,7 @@ class Nx7
         end
 
         lookupUseTheForce = lambda {|uuid|
-            Find.find(Nx7::pathToNyxHub()) do |path|
+            Find.find(Config::pathToGalaxy()) do |path|
                 next if File.basename(path)[-4, 4] != ".Nx7"
                 filepath = path
                 item = Nx5Ext::readFileAsAttributesOfObject(filepath)
@@ -54,7 +49,7 @@ class Nx7
     # Nx7::filepaths()
     def self.filepaths()
         Enumerator.new do |filepaths|
-            Find.find(Nx7::pathToNyxHub()) do |path|
+            Find.find(Config::pathToGalaxy()) do |path|
                 next if File.basename(path)[-4, 4] != ".Nx7"
                 filepaths << path
             end
@@ -115,7 +110,7 @@ class Nx7
 
     # Nx7::operatorForUUID(uuid)
     def self.operatorForUUID(uuid)
-        filepath = (Nx7::filepathForExistingItemOrNull(uuid) || Nx7::filepathForNewItem(uuid))
+        filepath = (Nx7::filepathForExistingItemOrNull(uuid) || Nx7::filepathForNewItemAtLocalDirectory(uuid))
         ElizabethNx5.new(filepath)
     end
 
@@ -132,7 +127,8 @@ class Nx7
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid
-        operator = Nx7::operatorForUUID(uuid)
+        filepath = Nx7::filepathForNewItemAtLocalDirectory(uuid)
+        operator = ElizabethNx5.new(filepath)
         nx7Payload = Nx7Payloads::interactivelyMakePayload(operator)
         item = {
             "uuid"          => uuid,
@@ -147,6 +143,7 @@ class Nx7
         }
         FileSystemCheck::fsck_Nx7(operator, item, true)
         Nx7::commit(item)
+        Search::nyxNx20sComputeAndCacheUpdate()
         item
     end
 
@@ -281,7 +278,7 @@ class Nx7
 
     # Nx7::getElizabethOperatorForUUID(uuid)
     def self.getElizabethOperatorForUUID(uuid)
-        filepath = (Nx7::filepathForExistingItemOrNull(uuid) || Nx7::filepathForNewItem(uuid))
+        filepath = (Nx7::filepathForExistingItemOrNull(uuid) || Nx7::filepathForNewItemAtLocalDirectory(uuid))
         ElizabethNx5.new(filepath)
     end
 
