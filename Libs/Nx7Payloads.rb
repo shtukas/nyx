@@ -32,14 +32,16 @@ class Nx7Payloads
         if type == "Data" then
             state = GridState::interactivelyBuildGridStateOrNull(operator)
             return {
-                "type"  => "Data",
-                "state" => state
+                "mikuType" => "Nx7Payload",
+                "type"     => "Data",
+                "state"    => state
             }
         end
 
         if ["Entity", "Concept", "Event", "Person", "Collection", "Timeline"].include?(type) then
             return {
-                "type"   => type
+                "mikuType" => "Nx7Payload",
+                "type"     => type
             }
         end
 
