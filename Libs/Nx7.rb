@@ -8,14 +8,33 @@ class Nx7
 
     # Nx7::items()
     def self.items()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Nx7")
-            .select{|filepath| filepath[-4, 4] == ".Nx7" }
-            .map{|filepath| Nx5Ext::readFileAsAttributesOfObject(filepath) }
+        items = []
+        Find.find("/Users/pascal/Galaxy") do |path|
+            next if File.basename(path)[-4, 4] != ".Nx7"
+            filepath1 = path
+            items << Nx5Ext::readFileAsAttributesOfObject(filepath1)
+        end
+        items
     end
 
     # Nx7::filepath(uuid)
     def self.filepath(uuid)
-        "#{Config::pathToDataCenter()}/Nx7/#{uuid}.Nx7"
+        Find.find("/Users/pascal/Galaxy") do |path|
+            next if File.basename(path)[-4, 4] != ".Nx7"
+            filepath1 = path
+            item = Nx5Ext::readFileAsAttributesOfObject(filepath1)
+            next if item["uuid"] != uuid
+            return filepath1
+        end
+
+        if filepath.nil? then
+            puts "Cannot find a Nx7 path for uuid: #{uuid}. Building a filepath:"
+            folder = LucilleCore::askQuestionAnswerAsString("parent folder: ")
+            fileDescription = LucilleCore::askQuestionAnswerAsString("file description: ")
+            filepath = "#{folder}/#{fileDescription}.Nx7"
+        end
+
+        filepath
     end
 
     # Nx7::itemOrNull(uuid)
@@ -50,7 +69,7 @@ class Nx7
     # Nx7::operatorForUUID(uuid)
     def self.operatorForUUID(uuid)
         filepath = Nx7::filepath(uuid)
-        if filepath.nil? then
+        if !File.exists?(filepath) then
             Nx5::issueNewFileAtFilepath(filepath, uuid)
         end
         ElizabethNx5.new(filepath)
@@ -439,8 +458,9 @@ class Nx7
 
         if Nx7Payloads::navigationTypes().include?(nx7Payload["type"]) then
             Nx7::children(item).each{|child|
-                location1 = "#{location}/#{CommonUtils::sanitiseStringForFilenaming(item["description"])}.Nx8"
-                File.open(location1, "w"){|f| f.puts(child["uuid"]) }
+                filepath1 = Nx7::filepath(child["uuid"])
+                location1 = "#{location}/#{CommonUtils::sanitiseStringForFilenaming(item["description"])}.Nx7"
+                FileUtils.cp(filepath1, location1)
                 if depth > 0 then
                     location2 = "#{location}/#{CommonUtils::sanitiseStringForFilenaming(item["description"])}"
                     FileUtils.mkdir(location2)
@@ -455,8 +475,9 @@ class Nx7
 
     # Nx7::exportItemOnDesktop(item)
     def self.exportItemOnDesktop(item)
-        location1 = "#{Config::pathToDesktop()}/#{CommonUtils::sanitiseStringForFilenaming(item["description"])}.Nx8"
-        File.open(location1, "w"){|f| f.puts(item["uuid"]) }
+        filepath1 = Nx7::filepath(item["uuid"])
+        location1 = "#{Config::pathToDesktop()}/#{CommonUtils::sanitiseStringForFilenaming(item["description"])}.Nx7"
+        FileUtils.cp(filepath1, location1)
         location2 = "#{Config::pathToDesktop()}/#{CommonUtils::sanitiseStringForFilenaming(item["description"])}"
         FileUtils.mkdir(location2)
         Nx7::projectItemAtFolder(item, location2, 1)
