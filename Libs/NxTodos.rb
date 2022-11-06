@@ -19,18 +19,6 @@ class NxTodos
             .select{|filepath| filepath[-4, 4] == ".Nx5" }
     end
 
-    # NxTodos::filepaths_iced()
-    def self.filepaths_iced()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodo-Iced")
-            .select{|filepath| filepath[-4, 4] == ".Nx5" }
-            .each{|filepath|
-                Nx5SyncthingConflictResolution::probeAndRepairIfRelevant(filepath)
-            }
-
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodo-Iced")
-            .select{|filepath| filepath[-4, 4] == ".Nx5" }
-    end
-
     # NxTodos::items()
     def self.items()
         NxTodos::filepaths()
@@ -62,13 +50,6 @@ class NxTodos
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
-
-    # NxTodos::moveToIce(uuid)
-    #def self.moveToIce(uuid)
-    #    filepath1 = NxTodos::uuidToNx5Filepath(uuid)
-    #    filepath2 = filepath1.gsub("NxTodo", "NxTodo-Iced")
-    #    FileUtils.mv(filepath1, filepath2)
-    #end
 
     # --------------------------------------------------
     # Makers

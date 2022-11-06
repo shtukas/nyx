@@ -32,7 +32,7 @@ class The99Percent
 
     # The99Percent::getCurrentCount()
     def self.getCurrentCount()
-        NxTodos::items().size + LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodo-Iced").size
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodo").size
     end
 
     # The99Percent::ratio()
