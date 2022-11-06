@@ -6,45 +6,80 @@ class Nx7
     # ------------------------------------------------
     # Basic IO
 
-    # Nx7::itemsFromFsRoot(rootlocation)
-    def self.itemsFromFsRoot(rootlocation)
-        items = []
-        Find.find(rootlocation) do |path|
-            next if File.basename(path)[-4, 4] != ".Nx7"
-            filepath1 = path
-            items << Nx5Ext::readFileAsAttributesOfObject(filepath1)
+    # Nx7::allNx70FilepathsFromFsRootEnumerator(fsroot)
+    def self.allNx70FilepathsFromFsRootEnumerator(fsroot)
+        Enumerator.new do |filepaths|
+            Find.find(fsroot) do |path|
+                next if File.basename(path)[-4, 4] != ".Nx7"
+                filepaths << path
+            end
         end
-        items
     end
 
-    # Nx7::galaxyItems()
-    def self.galaxyItems()
-        Nx7::itemsFromFsRoot("/Users/pascal/Galaxy")
+    # Nx7::itemsFromFsRootEnumerator(rootlocation)
+    def self.itemsFromFsRootEnumerator(rootlocation)
+        Enumerator.new do |items|
+            Nx7::allNx70FilepathsFromFsRootEnumerator(fsroot).each{|filepath|
+                items << Nx5Ext::readFileAsAttributesOfObject(filepath)
+            }
+        end
     end
 
-    # Nx7::filepath(uuid)
-    def self.filepath(uuid)
-        Find.find("/Users/pascal/Galaxy") do |path|
-            next if File.basename(path)[-4, 4] != ".Nx7"
-            filepath1 = path
-            item = Nx5Ext::readFileAsAttributesOfObject(filepath1)
-            next if item["uuid"] != uuid
-            return filepath1
+    # Nx7::galaxyItemsEnumerator()
+    def self.galaxyItemsEnumerator()
+        Nx7::itemsFromFsRootEnumerator(Config::pathToGalaxy())
+    end
+
+    # Nx7::galaxyFilepathsForUUIDEnumerator(uuid)
+    def self.galaxyFilepathsForUUIDEnumerator(uuid)
+        Enumerator.new do |filepaths|
+            Nx7::allNx70FilepathsFromFsRootEnumerator(Config::pathToGalaxy()).each{|filepath|
+                item = Nx5Ext::readFileAsAttributesOfObject(filepath)
+                if item["uuid"] == uuid then
+                    filepaths << filepath
+                end
+            }
+        end
+    end
+
+    # Nx7::oneFilepathToNx7OrNull(uuid, shouldCreateOneNx7IfMissing)
+    def self.oneFilepathToNx7OrNull(uuid, shouldCreateOneNx7IfMissing)
+        Nx7::galaxyFilepathsForUUIDEnumerator(uuid).each{|filepath|
+            return filepath # we return the first one
+        }
+
+        if shouldCreateOneNx7IfMissing then
+            filepath = nil
+
+            loop {
+                puts "Cannot find a Nx7 path for uuid: #{uuid}. Building a filepath:"
+                folder = LucilleCore::askQuestionAnswerAsString("parent folder: ")
+                if !File.exists?(folder) then
+                    puts "The folder you provided doesn't exists"
+                    LucilleCore::pressEnterToContinue()
+                    next
+                end
+                if !File.directory?(folder) then
+                    puts "The path you provided is not a directory"
+                    LucilleCore::pressEnterToContinue()
+                    next
+                end
+                fileDescription = LucilleCore::askQuestionAnswerAsString("file description: ")
+                filepath = "#{folder}/#{fileDescription}.Nx7"
+                Nx5::issueNewFileAtFilepath(filepath, uuid)
+                break
+            }
+
+            return filepath
         end
 
-        if filepath.nil? then
-            puts "Cannot find a Nx7 path for uuid: #{uuid}. Building a filepath:"
-            folder = LucilleCore::askQuestionAnswerAsString("parent folder: ")
-            fileDescription = LucilleCore::askQuestionAnswerAsString("file description: ")
-            filepath = "#{folder}/#{fileDescription}.Nx7"
-        end
-
-        filepath
+        nil
     end
 
     # Nx7::itemOrNull(uuid)
     def self.itemOrNull(uuid)
-        filepath = Nx7::filepath(uuid)
+        filepath = Nx7::oneFilepathToNx7OrNull(uuid, false)
+        return nil if filepath.nil?
         return nil if !File.exists?(filepath)
         Nx5Ext::readFileAsAttributesOfObject(filepath)
     end
@@ -52,7 +87,10 @@ class Nx7
     # Nx7::commit(object)
     def self.commit(object)
         FileSystemCheck::fsck_MikuTypedItem(object, false)
-        filepath = Nx7::filepath(object["uuid"])
+        filepath = Nx7::oneFilepathToNx7OrNull(object["uuid"], true)
+        if filepath.nil? then
+            raise "Could not commit item #{JSON.pretty_generate(object)} due to missing filepath to commit to"
+        end
         if !File.exists?(filepath) then
             Nx5::issueNewFileAtFilepath(filepath, object["uuid"])
         end
@@ -63,7 +101,8 @@ class Nx7
 
     # Nx7::destroy(uuid)
     def self.destroy(uuid)
-        filepath = Nx7::filepath(object["uuid"])
+        filepath = Nx7::oneFilepathToNx7OrNull(object["uuid"], false)
+        return if filepath.nil?
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
@@ -73,10 +112,7 @@ class Nx7
 
     # Nx7::operatorForUUID(uuid)
     def self.operatorForUUID(uuid)
-        filepath = Nx7::filepath(uuid)
-        if !File.exists?(filepath) then
-            Nx5::issueNewFileAtFilepath(filepath, uuid)
-        end
+        filepath = Nx7::oneFilepathToNx7OrNull(uuid, true)
         ElizabethNx5.new(filepath)
     end
 
@@ -232,20 +268,14 @@ class Nx7
 
     # Nx7::getElizabethOperatorForUUID(uuid)
     def self.getElizabethOperatorForUUID(uuid)
-        filepath = Nx7::filepath(uuid)
-        if !File.exists?(filepath) then
-            Nx5::issueNewFileAtFilepath(filepath, uuid)
-        end
+        filepath = Nx7::oneFilepathToNx7OrNull(uuid, true)
         ElizabethNx5.new(filepath)
     end
 
     # Nx7::getElizabethOperatorForItem(item)
     def self.getElizabethOperatorForItem(item)
         raise "(error: 520a0efa-48a1-4b81-82fb-f61760af7329)" if item["mikuType"] != "Nx7"
-        filepath = Nx7::filepath(item["uuid"])
-        if !File.exists?(filepath) then
-            Nx5::issueNewFileAtFilepath(filepath, item["uuid"])
-        end
+        filepath = Nx7::oneFilepathToNx7OrNull(item["uuid"], true)
         ElizabethNx5.new(filepath)
     end
 
@@ -464,7 +494,8 @@ class Nx7
 
         if Nx7Payloads::navigationTypes().include?(nx7Payload["type"]) then
             Nx7::children(item).each{|child|
-                filepath1 = Nx7::filepath(child["uuid"])
+                filepath1 = Nx7::oneFilepathToNx7OrNull(child["uuid"], false)
+                next if filepath1.nil?
                 location1 = "#{location}/#{CommonUtils::sanitiseStringForFilenaming(item["description"])}.Nx7"
                 FileUtils.cp(filepath1, location1)
                 if depth > 0 then
@@ -477,5 +508,41 @@ class Nx7
         end
 
         raise "(error: 54c37521-1b07-4e34-bc5a-ec3d7c46f1e8) type: #{nx7Payload["type"]}"
+    end
+
+    # Nx7::getPopulatedExportLocationForItemAndMakeSureItIsUniqueOrNull(item, preferenceInstanceFilepath)
+    def self.getPopulatedExportLocationForItemAndMakeSureItIsUniqueOrNull(item, preferenceInstanceFilepath)
+        currentExportLocations = Nx7::galaxyFilepathsForUUIDEnumerator(item["uuid"])
+                                    .map{|filepath| filepath.gsub(".Nx7", "") }
+                                    .select{|location| File.exists?(location) }
+        if currentExportLocations.size == 0 then
+            location = preferenceInstanceFilepath.gsub(".Nx7", "")
+            FileUtils.mkdir(location)
+            Nx7::exportItemAtFolder(item, location, 1)
+            return location
+        end
+
+        if currentExportLocations.size == 1 then
+            location1 = currentExportLocations.first
+            location2 = preferenceInstanceFilepath.gsub(".Nx7", "")
+            if location1 != location2 then
+                puts "You are targetting this instance: #{preferenceInstanceFilepath}"
+                puts "There is an export folder here: #{location1}"
+                puts "I am sending you there"
+                LucilleCore::pressEnterToContinue()
+            end
+            return location1
+        end
+
+        if currentExportLocations.size > 1 then
+            puts "You are targetting this instance: #{preferenceInstanceFilepath}"
+            puts "I can see more than one export folders:"
+            currentExportLocations.each{|location|
+                puts "    - #{location}"
+            }
+            puts "Please reduce to one and continue"
+            LucilleCore::pressEnterToContinue()
+            return Nx7::getPopulatedExportLocationForItemAndMakeSureItIsUniqueOrNull(item, preferenceInstanceFilepath)
+        end
     end
 end

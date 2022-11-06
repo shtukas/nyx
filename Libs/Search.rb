@@ -17,7 +17,7 @@ class Search
 
     # Search::nyxNx20s(fsroot) # Array[Nx20]
     def self.nyxNx20s(fsroot)
-        Nx7::itemsFromFsRoot(fsroot)
+        Nx7::itemsFromFsRootEnumerator(fsroot)
             .map{|item|
                 {
                     "announce" => "(#{item["mikuType"]}) #{PolyFunctions::genericDescriptionOrNull(item)}",
@@ -83,7 +83,7 @@ class Search
     # Search::nyxFoxTerrier()
     def self.nyxFoxTerrier()
         loop {
-            fsroot = Nx7::galaxyItems()
+            fsroot = "/Users/pascal/Galaxy"
             system('clear')
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort) : ")
             return nil if fragment == ""
