@@ -8,7 +8,10 @@ class Nx7
 
     # Nx7::interactivelyBuildFilepathForNewItemAtLocalDirectory(uuid)
     def self.interactivelyBuildFilepathForNewItemAtLocalDirectory(uuid)
-        "#{Dir.pwd}/#{uuid}.Nx7"
+        filenameprefix = LucilleCore::askQuestionAnswerAsString("file name prefix: ")
+        filepath = "#{Dir.pwd}/#{CommonUtils::sanitiseStringForFilenaming(filenameprefix)}.Nx7"
+        Nx5::issueNewFileAtFilepath(filepath, uuid)
+        filepath
     end
 
     # Nx7::filepathForExistingItemOrNull(uuid)
@@ -115,7 +118,7 @@ class Nx7
 
     # Nx7::operatorForUUID(uuid)
     def self.operatorForUUID(uuid)
-        filepath = (Nx7::filepathForExistingItemOrError(uuid) || Nx7::interactivelyBuildFilepathForNewItemAtLocalDirectory(uuid))
+        filepath = Nx7::filepathForExistingItemOrError(uuid)
         ElizabethNx5.new(filepath)
     end
 
@@ -135,6 +138,8 @@ class Nx7
         filepath = Nx7::interactivelyBuildFilepathForNewItemAtLocalDirectory(uuid)
         operator = ElizabethNx5.new(filepath)
         nx7Payload = Nx7Payloads::interactivelyMakePayload(operator)
+        puts JSON.pretty_generate(nx7Payload)
+        FileSystemCheck::fsck_Nx7Payload(operator, nx7Payload, true)
         item = {
             "uuid"          => uuid,
             "mikuType"      => "Nx7",

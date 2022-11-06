@@ -168,7 +168,7 @@ class Nx5
     def self.putBlob(filepath, blob)
         raise "(error: 4272141b-4bab-4a7b-ba0d-377291d27809) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        return if Nx5::trueIfFileHasBlob(filepath, nhash)
+        return nhash if Nx5::trueIfFileHasBlob(filepath, nhash)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }

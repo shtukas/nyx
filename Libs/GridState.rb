@@ -88,6 +88,7 @@ class GridState
         raise "(error: 20BD1C67-CD62-4F2C-BB10-7398206BE2E4) location: #{location}" if !File.directory?(location)
 
         rootnhashes = GridState::locationToNxDirectoryContentsRootnhashes(operator, location)
+        puts "rootnhashes: #{JSON.pretty_generate(rootnhashes)}"
         state = {
             "uuid"        => SecureRandom.uuid,
             "mikuType"    => "GridState",
@@ -96,7 +97,8 @@ class GridState
             "type"        => "NxDirectoryContents",
             "rootnhashes" => rootnhashes
         }
-        FileSystemCheck::fsck_GridState(operator, state, false)
+        puts "state: #{JSON.pretty_generate(state)}"
+        FileSystemCheck::fsck_GridState(operator, state, true)
         return state
     end
 
@@ -123,7 +125,7 @@ class GridState
         end
 
         if type == "file" then
-            location = CommonUtils::interactivelySelectDesktopLocationOrNull()
+            location = CommonUtils::interactivelySelectLocationAtSpecifiedDirectoryOrNull(Dir.pwd)
             return nil if location.nil?
             return nil if !File.file?(location)
             filepath = location
@@ -133,7 +135,7 @@ class GridState
         end
 
         if type == "NxDirectoryContents" then
-            parentlocation = CommonUtils::interactivelySelectDesktopLocationOrNull()
+            parentlocation = CommonUtils::interactivelySelectLocationAtSpecifiedDirectoryOrNull(Dir.pwd)
             return GridState::directoryPathToNxDirectoryContentsGridState(operator, parentlocation)
         end
 

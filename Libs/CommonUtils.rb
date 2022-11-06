@@ -485,12 +485,17 @@ class CommonUtils
         (location != "") ? location : nil
     end
 
-    # CommonUtils::interactivelySelectDesktopLocationOrNull() 
-    def self.interactivelySelectDesktopLocationOrNull()
-        entries = Dir.entries("#{Config::userHomeDirectory()}/Desktop").select{|filename| !filename.start_with?(".") }.sort
+    # CommonUtils::interactivelySelectLocationAtSpecifiedDirectoryOrNull(folder)
+    def self.interactivelySelectLocationAtSpecifiedDirectoryOrNull(folder)
+        entries = Dir.entries(folder).select{|filename| !filename.start_with?(".") }.sort
         locationNameOnDesktop = LucilleCore::selectEntityFromListOfEntitiesOrNull("locationname", entries)
         return nil if locationNameOnDesktop.nil?
-        "#{Config::userHomeDirectory()}/Desktop/#{locationNameOnDesktop}"
+        "#{folder}/#{locationNameOnDesktop}"
+    end
+
+    # CommonUtils::interactivelySelectDesktopLocationOrNull() 
+    def self.interactivelySelectDesktopLocationOrNull()
+        CommonUtils::interactivelySelectLocationAtSpecifiedDirectoryOrNull(Config::pathToDesktop())
     end
 
     # CommonUtils::interactivelySelectDesktopLocation()
