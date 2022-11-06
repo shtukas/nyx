@@ -248,7 +248,7 @@ class Nx7
     def self.access(item)
         folderpath = "#{Config::pathToDesktop()}/#{CommonUtils::sanitiseStringForFilenaming(Nx7::toString(item))}-#{SecureRandom.hex(2)}"
         FileUtils.mkdir(folderpath)
-        Nx7::projectItemAtFolder(object, folderpath, 1)
+        Nx7::exportItemAtFolder(object, folderpath, 1)
     end
 
     # Nx7::landing(item)
@@ -285,7 +285,7 @@ class Nx7
                     }
             end
 
-            entities = Nx7::relateds(item, false)
+            entities = Nx7::relateds(item)
             if entities.size > 0 then
                 puts ""
                 puts "related: "
@@ -314,7 +314,7 @@ class Nx7
             puts "comment | related | child | parent | upload".yellow
             puts "[link type update] parents>related | parents>children | related>children | related>parents | children>related".yellow
             puts "[network shape] select children; move to selected child | select children; move to uuid".yellow
-            puts "[grid points] make Nx8".yellow
+            puts "[grid points] export at folder".yellow
             puts ""
 
             input = LucilleCore::askQuestionAnswerAsString("> ")
@@ -338,8 +338,9 @@ class Nx7
                 next
             end
 
-            if input == "make Nx8" then
-                Nx7::exportItemOnDesktop(item)
+            if input == "export at folder" then
+                folder = LucilleCore::askQuestionAnswerAsString("export folder: ")
+                Nx7::exportItemAtFolder(item, folder, 1)
                 next
             end
 
@@ -438,8 +439,8 @@ class Nx7
     # ------------------------------------------------
     # Openess Manager
 
-    # Nx7::projectItemAtFolder(item, location, depth)
-    def self.projectItemAtFolder(item, location, depth)
+    # Nx7::exportItemAtFolder(item, location, depth)
+    def self.exportItemAtFolder(item, location, depth)
         if !File.exists?(location) then
             raise "(error: e0398a01-83d7-418d-ac63-bdf1b600d269) location doesn't exist: #{location}"
         end
@@ -464,22 +465,12 @@ class Nx7
                 if depth > 0 then
                     location2 = "#{location}/#{CommonUtils::sanitiseStringForFilenaming(item["description"])}"
                     FileUtils.mkdir(location2)
-                    Nx7::projectItemAtFolder(child, location2, depth-1)
+                    Nx7::exportItemAtFolder(child, location2, depth-1)
                 end
             }
             return
         end
 
         raise "(error: 54c37521-1b07-4e34-bc5a-ec3d7c46f1e8) type: #{nx7Payload["type"]}"
-    end
-
-    # Nx7::exportItemOnDesktop(item)
-    def self.exportItemOnDesktop(item)
-        filepath1 = Nx7::filepath(item["uuid"])
-        location1 = "#{Config::pathToDesktop()}/#{CommonUtils::sanitiseStringForFilenaming(item["description"])}.Nx7"
-        FileUtils.cp(filepath1, location1)
-        location2 = "#{Config::pathToDesktop()}/#{CommonUtils::sanitiseStringForFilenaming(item["description"])}"
-        FileUtils.mkdir(location2)
-        Nx7::projectItemAtFolder(item, location2, 1)
     end
 end
