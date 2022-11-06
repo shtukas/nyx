@@ -15,9 +15,9 @@ class Search
             }
     end
 
-    # Search::nyxNx20s(fsroot) # Array[Nx20]
-    def self.nyxNx20s(fsroot)
-        Nx7::itemsFromFsRootEnumerator(fsroot)
+    # Search::nyxNx20s() # Array[Nx20]
+    def self.nyxNx20s()
+        Nx7::itemsEnumerator()
             .map{|item|
                 {
                     "announce" => "(#{item["mikuType"]}) #{PolyFunctions::genericDescriptionOrNull(item)}",
@@ -53,14 +53,13 @@ class Search
         nil
     end
 
-    # Search::nyx(fsroot)
-    def self.nyx(fsroot)
+    # Search::nyx()
+    def self.nyx()
         loop {
             system('clear')
-            puts "fsroot: #{fsroot}"
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort) : ")
             break if fragment == ""
-            selected = Search::nyxNx20s(fsroot)
+            selected = Search::nyxNx20s()
                             .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
             if selected.empty? then
                 puts "Could not find a matching element for '#{fragment}'"
@@ -69,7 +68,7 @@ class Search
             end
             loop {
                 system('clear')
-                selected = Search::nyxNx20s(fsroot)
+                selected = Search::nyxNx20s()
                                 .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
                                 .sort{|p1, p2| p1["unixtime"] <=> p2["unixtime"] }
                 nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", selected, lambda{|packet| PolyFunctions::toStringForListing(packet["item"]) })
@@ -87,7 +86,7 @@ class Search
             system('clear')
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort) : ")
             return nil if fragment == ""
-            nx20 = Search::nyxNx20s(fsroot)
+            nx20 = Search::nyxNx20s()
                         .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
             if nx20.empty? then
                 puts "Could not find a matching element for '#{fragment}'"
@@ -96,7 +95,7 @@ class Search
             end
             loop {
                 system('clear')
-                nx20 = Search::nyxNx20s(fsroot)
+                nx20 = Search::nyxNx20s()
                             .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
                             .sort{|p1, p2| p1["unixtime"] <=> p2["unixtime"] }
                 nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", nx20, lambda{|packet| PolyFunctions::toStringForListing(packet["item"]) })

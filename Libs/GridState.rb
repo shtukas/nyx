@@ -210,12 +210,12 @@ class GridState
 
         if type == "text" then
             text = state["text"]
-            File.open("#{folder}/text.txt"){|f| f.puts(text) }
+            File.open("#{folder}/text.txt", "w"){|f| f.puts(text) }
         end
 
         if type == "url" then
             url = state["url"]
-            File.open("#{folder}/url.txt"){|f| f.puts(url) }
+            File.open("#{folder}/url.txt", "w"){|f| f.puts(url) }
         end
 
         if type == "file" then
@@ -238,12 +238,12 @@ class GridState
 
         if type == "Dx8Unit" then
             unitId = state["unitId"]
-            File.open("#{folder}/unitId.txt"){|f| f.puts(unitId) }
+            File.open("#{folder}/unitId.txt", "w"){|f| f.puts(unitId) }
         end
 
         if type == "unique-string" then
             uniquestring = state["uniquestring"]
-            File.open("#{folder}/uniquestring.txt"){|f| f.puts(uniquestring) }
+            File.open("#{folder}/uniquestring.txt", "w"){|f| f.puts(uniquestring) }
         end
     end
 

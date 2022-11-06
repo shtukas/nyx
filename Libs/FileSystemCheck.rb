@@ -505,7 +505,7 @@ class FileSystemCheck
 
     # FileSystemCheck::fsckErrorAtFirstFailure()
     def self.fsckErrorAtFirstFailure()
-        (Waves::items() + NxTodos::items() + Nx7::galaxyItemsEnumerator().to_a)
+        (Waves::items() + NxTodos::items() + Nx7::itemsEnumerator().to_a)
             .each{|item|
                 FileSystemCheck::exitIfMissingCanary()
                 FileSystemCheck::fsck_MikuTypedItem(item, true)

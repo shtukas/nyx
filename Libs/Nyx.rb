@@ -18,58 +18,21 @@ class Nyx
         end
     end
 
-    # Nyx::fsNavigation(folder1)
-    def self.fsNavigation(folder1)
-        loop {
-            system("clear")
-            puts "navigtion @ #{folder1}"
-            nx7Filepaths = LucilleCore::locationsAtFolder(folder1)
-                            .select{|location| location[-4, 4] == ".Nx7" }
-            filepath = LucilleCore::selectEntityFromListOfEntitiesOrNull("Nx7", nx7Filepaths)
-            break if filepath.nil?
-            loop {
-                operations = [
-                    "access",
-                    "landing"
-                ]
-                operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
-                break if operation.nil?
-                if operation == "access" then
-                    item = Nx5Ext::readFileAsAttributesOfObject(filepath)
-                    exportLocation = Nx7::getPopulatedExportLocationForItemAndMakeSureItIsUniqueOrNull(item, filepath)
-                    if exportLocation then
-                        system("open '#{exportLocation}'")
-                    end
-                end
-                if operation == "landing" then
-                    item = Nx5Ext::readFileAsAttributesOfObject(filepath)
-                    Nx7::landing(item)
-                end
-            }
-        }
-    end
-
     # Nyx::program()
     def self.program()
         loop {
-            fsroot = Dir.pwd
+
             system("clear")
-            puts "fsroot: #{fsroot}"
             operations = [
-                "search (Galaxy)",
-                "search (from here)",
-                "fs navigation",
+                "search",
                 "uuid landing",
                 "list last [n] nodes dive",
                 "make new nyx node",
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
-            if operation == "search (Galaxy)" then
-                Search::nyx(Config::pathToGalaxy())
-            end
-            if operation == "search (from here)" then
-                Search::nyx(fsroot)
+            if operation == "search" then
+                Search::nyx()
             end
             if operation == "uuid landing" then
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
@@ -83,7 +46,7 @@ class Nyx
             if operation == "list last [n] nodes dive" then
                 cardinal = LucilleCore::askQuestionAnswerAsString("cardinal : ").to_i
 
-                nodes = Nx7::galaxyItemsEnumerator()
+                nodes = Nx7::itemsEnumerator()
                             .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
                             .reverse
                             .first(cardinal)
@@ -100,9 +63,6 @@ class Nyx
                 next if item.nil?
                 puts JSON.pretty_generate(item)
                 PolyActions::landing(item)
-            end
-            if operation == "fs navigation" then
-                Nyx::fsNavigation(Dir.pwd)
             end
         }
     end
