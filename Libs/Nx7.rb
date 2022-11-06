@@ -47,6 +47,14 @@ class Nx7
         end
     end
 
+    # Nx7::interactivelySelectOneInstanceFilepathOrNullOrUniqueIfSizeOne(uuid)
+    def self.interactivelySelectOneInstanceFilepathOrNullOrUniqueIfSizeOne(uuid)
+        filepaths = Nx7::galaxyFilepathsForUUIDEnumerator(uuid).to_a
+        return nil if filepaths.empty?
+        return filepaths.first if filepaths.size == 1
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("filepath", filepaths)
+    end
+
     # Nx7::oneFilepathToNx7OrNull(uuid, shouldCreateOneNx7IfMissing)
     def self.oneFilepathToNx7OrNull(uuid, shouldCreateOneNx7IfMissing)
         Nx7::galaxyFilepathsForUUIDEnumerator(uuid).each{|filepath|
@@ -400,11 +408,11 @@ class Nx7
             end
 
             puts ""
-            puts "<n> | access | edit | description | datetime | payload | expose | destroy".yellow
+            puts "<n> | access | edit | export | description | datetime | payload | expose | destroy".yellow
             puts "comment | related | child | parent | upload".yellow
             puts "[link type update] parents>related | parents>children | related>children | related>parents | children>related".yellow
             puts "[network shape] select children; move to selected child | select children; move to uuid".yellow
-            puts "[grid points] export at folder".yellow
+            puts "[grid points] export at existing instance | export at folder".yellow
             puts ""
 
             input = LucilleCore::askQuestionAnswerAsString("> ")
@@ -431,6 +439,22 @@ class Nx7
                 comment = LucilleCore::askQuestionAnswerAsString("comment: ")
                 item["comments"] << comment
                 Nx7::commit(item)
+                next
+            end
+
+            if Interpreting::match("export at existing instance", input) then
+                filepath = Nx7::interactivelySelectOneInstanceFilepathOrNullOrUniqueIfSizeOne(item["uuid"])
+                next if filepath.nil?
+                exportlocation = filepath.gsub(".Nx7", "")
+                if File.exists?(exportlocation) then 
+                    puts "Looks like the export location #{exportlocation} already exists"
+                    puts "I a going to batch reexport"
+                    Nx7::reExportAtAllCurrentlyExportedLocations(item)
+                    next
+                else
+                    FileUtils.mkdir(exportlocation)
+                    Nx7::exportItemAtFolder(item, exportlocation, 1)
+                end
                 next
             end
 
