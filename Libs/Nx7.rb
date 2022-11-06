@@ -6,15 +6,20 @@ class Nx7
     # ------------------------------------------------
     # Basic IO
 
-    # Nx7::items()
-    def self.items()
+    # Nx7::itemsFromFsRoot(rootlocation)
+    def self.itemsFromFsRoot(rootlocation)
         items = []
-        Find.find("/Users/pascal/Galaxy") do |path|
+        Find.find(rootlocation) do |path|
             next if File.basename(path)[-4, 4] != ".Nx7"
             filepath1 = path
             items << Nx5Ext::readFileAsAttributesOfObject(filepath1)
         end
         items
+    end
+
+    # Nx7::galaxyItems()
+    def self.galaxyItems()
+        Nx7::itemsFromFsRoot("/Users/pascal/Galaxy")
     end
 
     # Nx7::filepath(uuid)

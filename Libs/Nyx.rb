@@ -21,8 +21,9 @@ class Nyx
     # Nyx::program()
     def self.program()
         loop {
+            fsroot = Dir.pwd
             system("clear")
-
+            puts "fsroot: #{fsroot}"
             operations = [
                 "search",
                 "last [n] nodes dive",
@@ -31,12 +32,12 @@ class Nyx
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
             if operation == "search" then
-                Search::nyx()
+                Search::nyx(fsroot)
             end
             if operation == "last [n] nodes dive" then
                 cardinal = LucilleCore::askQuestionAnswerAsString("cardinal : ").to_i
 
-                nodes = Nx7::items()
+                nodes = Nx7::galaxyItems()
                             .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
                             .reverse
                             .first(cardinal)
