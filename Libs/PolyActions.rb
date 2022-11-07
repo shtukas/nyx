@@ -113,9 +113,10 @@ class PolyActions
     # PolyActions::doubleDot(item)
     def self.doubleDot(item)
 
-        #puts "PolyActions::doubleDot(#{JSON.pretty_generate(item)})"
+        puts "PolyActions::doubleDot(#{JSON.pretty_generate(item)})"
 
         if item["mikuType"] == "Cx22" then
+            Cx22::dive(item)
             return
         end
 

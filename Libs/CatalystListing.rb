@@ -456,7 +456,9 @@ class CatalystListing
         end
 
         if Interpreting::match("today", input) then
-            NxTodos::interactivelyIssueNewTodayOrNull()
+            item = NxTodos::interactivelyIssueNewTodayOrNull()
+            return if item.nil?
+            puts JSON.pretty_generate(item)
             return
         end
 
