@@ -395,6 +395,12 @@ class NxTodos
                 next
             end
 
+            if Interpreting::match("nx113", input) then
+                operator = NxTodos::getElizabethOperatorForUUID(item["uuid"])
+                Nx113Make::interactivelyMakeNx113OrNull(operator)
+                return
+            end
+
             if Interpreting::match("done", input) then
                 PolyActions::done(item)
                 return

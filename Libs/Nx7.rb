@@ -26,6 +26,7 @@ class Nx7
         end
 
         puts "Looking for item: #{uuid}"
+        raise "Project 001"
 
         lookupUseTheForce = lambda {|uuid|
             Find.find(Config::pathToGalaxy()) do |path|
@@ -55,6 +56,7 @@ class Nx7
 
     # Nx7::filepathForExistingItemOrError(uuid)
     def self.filepathForExistingItemOrError(uuid)
+        puts "Nx7::filepathForExistingItemOrError(#{uuid})"
         filepath = Nx7::filepathForExistingItemOrNull(uuid)
         if filepath.nil? then
             raise "(error: 0b09f017-0423-4eb8-ac46-4a8966ad4ca6) could not determine presumably existing filepath for uuid: #{uuid}"

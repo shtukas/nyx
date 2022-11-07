@@ -63,6 +63,20 @@ class Waves
     # --------------------------------------------------
     # Making
 
+    # Waves::interactivelySelectImportanceOrNull()
+    def self.interactivelySelectImportanceOrNull()
+        importances = ["time-critical", "time-aware", "non-important"]
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("importance:", importances)
+    end
+
+    # Waves::interactivelySelectImportance()
+    def self.interactivelySelectImportance()
+        loop {
+            importance = Waves::interactivelySelectImportanceOrNull()
+            return importance if importance
+        }
+    end
+
     # Waves::makeNx46InteractivelyOrNull()
     def self.makeNx46InteractivelyOrNull()
 
@@ -174,6 +188,7 @@ class Waves
         return nil if nx46.nil?
         uuid = SecureRandom.uuid
         nx113 = Nx113Make::interactivelyMakeNx113OrNull(Waves::operatorForUUID(uuid))
+        importance = Waves::interactivelySelectImportance()
         item = {
             "uuid"             => uuid,
             "mikuType"         => "Wave",
@@ -181,6 +196,7 @@ class Waves
             "datetime"         => Time.new.utc.iso8601,
             "description"      => description,
             "nx46"             => nx46,
+            "importance"       => importance,
             "nx113"            => nx113,
             "lastDoneDateTime" => "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         }
@@ -196,16 +212,7 @@ class Waves
         lastDoneDateTime = item["lastDoneDateTime"]
         ago = "#{((Time.new.to_i - DateTime.parse(lastDoneDateTime).to_time.to_i).to_f/86400).round(2)} days ago"
         cx22str = item["cx22"] ? " #{Cx22::toString2(item["cx22"]).green}" : ""
-        "(wave) #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")} (#{Waves::nx46ToString(item["nx46"])}) (#{ago}) 🌊 #{cx22str}"
-    end
-
-    # Waves::isPriority(item)
-    def self.isPriority(item)
-        nx46 = item["nx46"]
-        return true if nx46["type"] == "sticky"
-        return true if nx46["type"] == "every-this-day-of-the-week"
-        return true if nx46["type"] == "every-this-day-of-the-month"
-        false
+        "(wave) #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")} (#{Waves::nx46ToString(item["nx46"])}) (#{ago}) 🌊 #{cx22str}[#{item["priority"]}]"
     end
 
     # -------------------------------------------------------------------------
@@ -390,7 +397,7 @@ class Waves
             LucilleCore::pressEnterToContinue()
             return
         end
-        cx22 = Cx22::architectOrNull()
+        cx22 = Cx22::interactivelySelectCx22OrNull()
         return if cx22.nil?
         item["cx22"] = cx22["uuid"]
         PolyActions::commit(item)

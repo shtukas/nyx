@@ -166,6 +166,15 @@ class PolyFunctions
     # We return a null value when the item should not be displayed
     def self.listingPriorityOrNull(item) # Float between 0 and 1
 
+        # NxAnniversary                 0.95
+        # Wave "time-critical"          0.90
+        # Cx22 "isPriority" = true      0.80
+        # TxManualCountDown             0.75
+        # Wave "time-aware"             0.70
+        # Cx22 "isPriority" = false     0.60
+        # Wave "non-important"          0.50
+        # NxTodo                        0.40
+
         shiftOnCompletionRatio = lambda {|ratio|
             0.01*Math.atan(-ratio)
         }
@@ -184,11 +193,12 @@ class PolyFunctions
             return nil if !DoNotShowUntil::isVisible(item["uuid"])
             completionRatio = Ax39::completionRatioCached(item["ax39"], item["uuid"])
             return nil if completionRatio >= 1
-            return 0.60 + shiftOnCompletionRatio.call(completionRatio)
+            base = item["isPriority"] ? 0.80 : 0.60
+            return base + shiftOnCompletionRatio.call(completionRatio)
         end
 
         if item["mikuType"] == "NxAnniversary" then
-            return Anniversaries::isOpenToAcknowledgement(item) ? 0.95 : -1
+            return Anniversaries::isOpenToAcknowledgement(item) ? 0.95 : nil
         end
 
         if item["mikuType"] == "NxTodo" then
@@ -203,10 +213,13 @@ class PolyFunctions
             if item["onlyOnDays"] and !item["onlyOnDays"].include?(CommonUtils::todayAsLowercaseEnglishWeekDayName()) then
                 return nil
             end
-            isRushHour = (Time.new.hour >= 8 or Time.new.hour < 18)
-            lowPriorityBaseMetric = isRushHour ? 0.5 : 0.88
-            baseMetric = Waves::isPriority(item) ? 0.9 : lowPriorityBaseMetric
-            return baseMetric + shiftOnDateTime.call(item, item["lastDoneDateTime"])
+            mapping = {
+                "time-critical" => 0.90,
+                "time-aware"    => 0.70,
+                "non-important" => 0.50
+            }
+            base = mapping[item["priority"]]
+            return base + shiftOnDateTime.call(item, item["lastDoneDateTime"])
         end
 
         raise "(error: 4302a0f5-91a0-4902-8b91-e409f123d305) no priority defined for item: #{item}"

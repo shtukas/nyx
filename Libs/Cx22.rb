@@ -42,6 +42,7 @@ class Cx22
         return nil if description == ""
         ax39 = Ax39::interactivelyCreateNewAx()
         style = Cx22::interactivelySelectStyle()
+        isPriority = LucilleCore::askQuestionAnswerAsBoolean("is priority (work-like commitment) ? : ")
         item = {
             "uuid"        => SecureRandom.uuid,
             "mikuType"    => "Cx22",
@@ -49,7 +50,8 @@ class Cx22
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
             "ax39"        => ax39,
-            "style"       => style
+            "style"       => style,
+            "isPriority"  => isPriority
         }
         FileSystemCheck::fsck_Cx22(item, true)
         Cx22::commit(item)
@@ -66,16 +68,6 @@ class Cx22
     def self.interactivelySelectCx22OrNullDiveStyle()
         cx22s = Cx22::cx22WithCompletionRatiosOrdered().map{|packet| packet["item"] }
         LucilleCore::selectEntityFromListOfEntitiesOrNull("cx22", cx22s, lambda{|cx22| Cx22::toStringDiveStyleFormatted(cx22)})
-    end
-
-    # Cx22::architectOrNull()
-    def self.architectOrNull()
-        cx22 = Cx22::interactivelySelectCx22OrNull()
-        return cx22 if cx22
-        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to create a new Cx22 ? ", true) then
-            return Cx22::interactivelyIssueNewOrNull()
-        end
-        nil
     end
 
     # ----------------------------------------------------------------

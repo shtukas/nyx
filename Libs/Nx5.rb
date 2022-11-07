@@ -221,6 +221,11 @@ end
 
 class Nx5Ext
 
+    # Nx5Ext::setAttribute(filepath, attname, attvalue)
+    def self.setAttribute(filepath, attname, attvalue)
+        Nx5::emitEventToFile1(filepath, attname, attvalue)
+    end
+
     # Nx5Ext::readFileAsAttributesOfObject(filepath)
     def self.readFileAsAttributesOfObject(filepath)
         raise "(error: 35519C87-740E-4D59-8CF2-15E7434E8024) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
