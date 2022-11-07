@@ -96,6 +96,7 @@ class Nx7
     # Nx7::itemOrNull(uuid)
     def self.itemOrNull(uuid)
         filepath = Nx7::filepathForExistingItemOrNull(uuid)
+        return nil if filepath.nil?
         Nx5Ext::readFileAsAttributesOfObject(filepath)
     end
 
