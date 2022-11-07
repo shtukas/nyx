@@ -18,14 +18,14 @@ class Config
         "#{Config::userHomeDirectory()}/Galaxy"
     end
 
-    # Config::pathToDataCenter()
-    def self.pathToDataCenter()
-        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-DataCenter"
-    end
-
     # Config::configFilepath()
     def self.configFilepath()
-        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-Config.json"
+        "#{Config::userHomeDirectory()}/Galaxy/DataHub/Stargate-Config.json"
+    end
+
+    # Config::pathToDataCenter()
+    def self.pathToDataCenter()
+        "#{Config::userHomeDirectory()}/Galaxy/DataHub/Stargate-DataCenter"
     end
 
     # Config::getOrNull(key)
