@@ -26,7 +26,6 @@ class Nx7
         end
 
         puts "Looking for item: #{uuid}"
-        raise "Project 001"
 
         lookupUseTheForce = lambda {|uuid|
             Find.find(Config::pathToGalaxy()) do |path|
