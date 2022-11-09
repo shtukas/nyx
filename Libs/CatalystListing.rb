@@ -738,7 +738,7 @@ class CatalystListing
                     item = packet["item"]
                     ordinal = packet["ordinal"]
                     pointersuuids << item["uuid"]
-                    store.register(item, false)
+                    store.register(item, true)
                     loanReceiptStr = pointer["loanReceipt"] ? " (#{pointer["loanReceipt"]["accountName"].green}, #{pointer["loanReceipt"]["amount"].to_f/60} minutes)" : ""
                     line = "#{store.prefixString()} (#{"%7.3f" % ordinal}) #{PolyFunctions::toStringForListing(item)}#{loanReceiptStr}"
                     if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(item)) then
