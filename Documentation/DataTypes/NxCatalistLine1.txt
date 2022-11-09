@@ -1,0 +1,6 @@
+
+NxCatalistLine1 {
+    "uuid"     : String
+    "mikuType" : "NxCatalistLine1"
+    "line"     : String
+}

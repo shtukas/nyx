@@ -483,7 +483,7 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
             FileSystemCheck::ensureAttribute(item, "nx46", "Hash")
-            FileSystemCheck::ensureAttribute(item, "importance", "String")
+            FileSystemCheck::ensureAttribute(item, "priority", "String")
             FileSystemCheck::ensureAttribute(item, "lastDoneDateTime", "String")
             FileSystemCheck::fsck_Nx113(Waves::operatorForItem(item), item["nx113"], verbose)
             if item["nx23"] then

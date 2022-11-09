@@ -1,0 +1,7 @@
+
+BankLoan1 {
+    "uuid"     : String
+    "mikuType" : "BankLoan1"
+    "account"  : String
+    "borrowed" : Float # How much money we still owe
+}

@@ -6,7 +6,7 @@ Wave:
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : description
     "nx46"        : Nx46 # Wave pattern
-    "importance"  : "time-critical" | "time-aware" | "non-important"
+    "priority"  : "time-critical" | "time-aware" | "non-important"
     "lastDoneDateTime" : DateTime Iso 8601 UTC Zulu
     "nx113"       : Nx113
     "cx22"        : UUID of Cx22 # optional

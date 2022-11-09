@@ -145,6 +145,7 @@ require_relative "AionTransforms.rb"
 require_relative "Ax39.rb"
 
 require_relative "Bank.rb"
+require_relative "BankLoan1.rb"
 
 require_relative "Catalyst.rb"
 require_relative "CatalystListing.rb"
@@ -180,6 +181,7 @@ require_relative "Nx5.rb"
 require_relative "Nx7.rb"
 require_relative "Nx7Payloads.rb"
 require_relative "NxItemResolver1.rb"
+require_relative "NxCatalistLine1.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"

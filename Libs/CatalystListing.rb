@@ -7,7 +7,8 @@ class CatalystListing
         [
             ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | engine (<n>) | contribution (<n>) | cx23 (group position) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | time * * | expose (<n>) | destroy",
             "update start date (<n>)",
-            "wave | anniversary | hot | today | ondate | todo | Cx22 | pointer",
+            "wave | anniversary | hot | today | ondate | todo | Cx22 | pointer-line",
+            "pointer (<n>) | ordinal (<n>) | staging (<n>) | reordinal <n>",
             "anniversaries | ondates | waves | groups | todos | todos-latest-first",
             "require internet",
             "search | nyx | speed | nxballs | streaming | commands",
@@ -341,6 +342,23 @@ class CatalystListing
             return
         end
 
+        if Interpreting::match("ordinal", input) then
+            item = store.getDefault()
+            return if item.nil?
+            puts "setting ordinal for #{PolyFunctions::toString(item)}"
+            TxListingPointer::interactivelyIssueNewOrdinal(item)
+            return
+        end
+
+        if Interpreting::match("ordinal *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            puts "setting ordinal for #{PolyFunctions::toString(item)}"
+            TxListingPointer::interactivelyIssueNewOrdinal(item)
+            return
+        end
+
         if Interpreting::match("pause", input) then
             item = store.getDefault()
             return if item.nil?
@@ -360,7 +378,7 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             puts "setting pointer for #{JSON.pretty_generate(item)}"
-            TxListingPointer::interactivelyIssueNewTxListingPointer(item)
+            TxListingPointer::interactivelyIssueNewTxListingPointerToItem(item)
             return
         end
 
@@ -369,10 +387,16 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             puts "setting pointer for #{JSON.pretty_generate(item)}"
-            TxListingPointer::interactivelyIssueNewTxListingPointer(item)
+            TxListingPointer::interactivelyIssueNewTxListingPointerToItem(item)
             return
         end
 
+
+        if Interpreting::match("pointer-line", input) then
+            item = NxCatalistLine1::interactivelyIssueNewOrNull()
+            TxListingPointer::interactivelyIssueNewTxListingPointerToItem(item)
+            return
+        end
         if Interpreting::match("pursue", input) then
             item = store.getDefault()
             return if item.nil?
@@ -413,6 +437,23 @@ class CatalystListing
 
         if Interpreting::match("search", input) then
             Search::catalyst()
+            return
+        end
+
+        if Interpreting::match("staging", input) then
+            item = store.getDefault()
+            return if item.nil?
+            puts "setting stagingfor #{PolyFunctions::toString(item)}"
+            TxListingPointer::interactivelyIssueNewStaging(item)
+            return
+        end
+
+        if Interpreting::match("staging *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            puts "setting staging for #{PolyFunctions::toString(item)}"
+            TxListingPointer::interactivelyIssueNewStaging(item)
             return
         end
 
@@ -606,7 +647,8 @@ class CatalystListing
             TxManualCountDowns::listingItems(),
             Waves::items(),
             Cx22::listingItems(),
-            NxTodos::listingItems()
+            NxTodos::listingItems(),
+            NxCatalistLine1::items()
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isActive(NxBallsService::itemToNxBallOpt(item)) }
@@ -646,23 +688,6 @@ class CatalystListing
             puts ""
             puts "INTERNET IS OFF".green
             vspaceleft = vspaceleft - 2
-        end
-
-        if Config::getOrNull("listing.showGroups") then
-            puts ""
-            vspaceleft = vspaceleft - 1
-            Cx22::cx22WithCompletionRatiosOrdered()
-                .select{|packet| packet["completionRatio"] < 1 }
-                .each{|packet|
-                    item = packet["item"]
-                    store.register(item, false)
-                    line = "#{store.prefixString()} #{Cx22::toStringDiveStyleFormatted(item)}".yellow
-                    if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(item)) then
-                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
-                    end
-                    puts line
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                }
         end
 
         nxballs = NxBallsService::items()
@@ -711,6 +736,23 @@ class CatalystListing
                     pointersuuids << item["uuid"]
                     store.register(item, false)
                     line = "#{store.prefixString()} (#{"%7.3f" % ordinal}) #{PolyFunctions::toStringForListing(item)}"
+                    if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(item)) then
+                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                    end
+                    puts line
+                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                }
+        end
+
+        if Config::getOrNull("listing.showGroups") then
+            puts ""
+            vspaceleft = vspaceleft - 1
+            Cx22::cx22WithCompletionRatiosOrdered()
+                .select{|packet| packet["completionRatio"] < 1 }
+                .each{|packet|
+                    item = packet["item"]
+                    store.register(item, false)
+                    line = "#{store.prefixString()} #{Cx22::toStringDiveStyleFormatted(item)}".yellow
                     if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(item)) then
                         line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                     end

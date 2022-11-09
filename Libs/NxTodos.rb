@@ -391,13 +391,19 @@ class NxTodos
             end
 
             if Interpreting::match("description", input) then
-                PolyActions::editDescription(item)
+                description = CommonUtils::editTextSynchronously(item["description"]).strip
+                return if description == ""
+                filepath = NxTodos::uuidToNx5Filepath(item["uuid"])
+                Nx5Ext::setAttribute(filepath, "description", description)
                 next
             end
 
             if Interpreting::match("nx113", input) then
                 operator = NxTodos::getElizabethOperatorForUUID(item["uuid"])
-                Nx113Make::interactivelyMakeNx113OrNull(operator)
+                nx113 = Nx113Make::interactivelyMakeNx113OrNull(operator)
+                next if nx113.nil?
+                filepath = NxTodos::uuidToNx5Filepath(item["uuid"])
+                Nx5Ext::setAttribute(filepath, "nx113", nx113)
                 return
             end
 
@@ -424,8 +430,8 @@ class NxTodos
             if Interpreting::match("engine", input) then
                 engine = Nx11E::interactivelyCreateNewNx11EOrNull()
                 next if engine.nil?
-                item["nx11e"] =  engine
-                NxTodos::commitObject(item)
+                filepath = NxTodos::uuidToNx5Filepath(item["uuid"])
+                Nx5Ext::setAttribute(filepath, "nx11e", nx11e)
                 next
             end
 

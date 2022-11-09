@@ -3,10 +3,12 @@
 
 class PolyActions
 
-    # function name alphabetical order
+    # function names in alphabetical order
 
     # PolyActions::access(item)
     def self.access(item)
+
+        # types in alphabetical order
 
         if item["mikuType"] == "Cx22" then
             Cx22::dive(item)
@@ -24,6 +26,12 @@ class PolyActions
                     NxBallsService::close(NxBallsService::itemToNxBallOpt(item), true)
                 end
             end
+            return
+        end
+
+        if item["mikuType"] == "NxCatalistLine1" then
+            puts item["line"]
+            LucilleCore::pressEnterToContinue()
             return
         end
 
@@ -83,6 +91,11 @@ class PolyActions
     # PolyActions::destroy(item)
     def self.destroy(item)
         PolyActions::stop(item)
+
+        if item["mikuType"] == "NxCatalistLine1" then
+            NxCatalistLine1::destroy(item["uuid"])
+            return
+        end
 
         if item["mikuType"] == "NxTodo" then
             NxTodos::destroy(item["uuid"])
@@ -248,6 +261,11 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NxCatalistLine1" then
+            NxCatalistLine1::destroy(item["uuid"])
+            return
+        end
+
         if item["mikuType"] == "NxTodo" then
             puts PolyFunctions::toString(item)
             if item["nx113"] then
@@ -353,6 +371,12 @@ class PolyActions
 
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::landing(item)
+            return
+        end
+
+        if item["mikuType"] == "NxCatalistLine1" then
+            puts "NxCatalistLine1 doesn't implement landing"
+            LucilleCore::pressEnterToContinue()
             return
         end
 

@@ -63,17 +63,17 @@ class Waves
     # --------------------------------------------------
     # Making
 
-    # Waves::interactivelySelectImportanceOrNull()
-    def self.interactivelySelectImportanceOrNull()
-        importances = ["time-critical", "time-aware", "non-important"]
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("importance:", importances)
+    # Waves::interactivelySelectPriorityOrNull()
+    def self.interactivelySelectPriorityOrNull()
+        prioritys = ["time-critical", "time-aware", "non-important"]
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("priority:", prioritys)
     end
 
-    # Waves::interactivelySelectImportance()
-    def self.interactivelySelectImportance()
+    # Waves::interactivelySelectPriority()
+    def self.interactivelySelectPriority()
         loop {
-            importance = Waves::interactivelySelectImportanceOrNull()
-            return importance if importance
+            priority = Waves::interactivelySelectPriorityOrNull()
+            return priority if priority
         }
     end
 
@@ -188,7 +188,7 @@ class Waves
         return nil if nx46.nil?
         uuid = SecureRandom.uuid
         nx113 = Nx113Make::interactivelyMakeNx113OrNull(Waves::operatorForUUID(uuid))
-        importance = Waves::interactivelySelectImportance()
+        priority = Waves::interactivelySelectPriority()
         item = {
             "uuid"             => uuid,
             "mikuType"         => "Wave",
@@ -196,7 +196,7 @@ class Waves
             "datetime"         => Time.new.utc.iso8601,
             "description"      => description,
             "nx46"             => nx46,
-            "importance"       => importance,
+            "priority"       => priority,
             "nx113"            => nx113,
             "lastDoneDateTime" => "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         }
@@ -212,7 +212,7 @@ class Waves
         lastDoneDateTime = item["lastDoneDateTime"]
         ago = "#{((Time.new.to_i - DateTime.parse(lastDoneDateTime).to_time.to_i).to_f/86400).round(2)} days ago"
         cx22str = item["cx22"] ? " #{Cx22::toString2(item["cx22"]).green}" : ""
-        "(wave) #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")} (#{Waves::nx46ToString(item["nx46"])}) (#{ago}) 🌊 #{cx22str}[#{item["priority"]}]"
+        "(wave) #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")} (#{Waves::nx46ToString(item["nx46"])}) (#{ago}) 🌊 #{cx22str} [#{item["priority"]}]"
     end
 
     # -------------------------------------------------------------------------
@@ -324,7 +324,10 @@ class Waves
             end
 
             if Interpreting::match("description", input) then
-                PolyActions::editDescription(item)
+                description = CommonUtils::editTextSynchronously(item["description"]).strip
+                return if description == ""
+                filepath = Waves::filepathForUUID(item["uuid"])
+                Nx5Ext::setAttribute(filepath, "description", description)
                 next
             end
 

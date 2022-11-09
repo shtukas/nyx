@@ -64,12 +64,6 @@ class Cx22
         LucilleCore::selectEntityFromListOfEntitiesOrNull("cx22", cx22s, lambda{|cx22| Cx22::toStringDiveStyleFormatted(cx22)})
     end
 
-    # Cx22::interactivelySelectCx22OrNullDiveStyle()
-    def self.interactivelySelectCx22OrNullDiveStyle()
-        cx22s = Cx22::cx22WithCompletionRatiosOrdered().map{|packet| packet["item"] }
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("cx22", cx22s, lambda{|cx22| Cx22::toStringDiveStyleFormatted(cx22)})
-    end
-
     # ----------------------------------------------------------------
     # Data
 
