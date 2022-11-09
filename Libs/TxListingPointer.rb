@@ -27,19 +27,23 @@ class TxListingPointer
             "type"     => "staged",
             "unixtime" => Time.new.to_f
         }
-        item = {
-            "uuid"     => SecureRandom.uuid,
-            "mikuType" => "TxListingPointer",
-            "resolver" => resolver,
+        pointer = {
+            "uuid"               => SecureRandom.uuid,
+            "mikuType"           => "TxListingPointer",
+            "resolver"           => resolver,
             "listingCoordinates" => coordinates
         }
-        filepath = "#{Config::pathToDataCenter()}/TxListingPointer/#{item["uuid"]}.json"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
-        item
+        filepath = "#{Config::pathToDataCenter()}/TxListingPointer/#{pointer["uuid"]}.json"
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(pointer)) }
+        pointer
     end
 
     # TxListingPointer::interactivelyIssueNewOrdinal(item)
     def self.interactivelyIssueNewOrdinal(item)
+
+        # ------------------------------------------
+        # Item creation
+
         TxListingPointer::deleteAnyExistingPointerToItemUUID(item["uuid"])
         resolver = NxItemResolver1::make(item["uuid"], item["mikuType"])
         ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
@@ -48,17 +52,35 @@ class TxListingPointer
             "type"     => "ordinal",
             "ordinal"  => ordinal
         }
-        loanReceipt = BankLoan1::interactiveLoanOfferReturnLoanReceiptOrNull(Cx22::getCx22ForItemUUIDOrNull(item["uuid"]))
-        item = {
-            "uuid"     => SecureRandom.uuid,
-            "mikuType" => "TxListingPointer",
-            "resolver" => resolver,
+        pointer = {
+            "uuid"               => SecureRandom.uuid,
+            "mikuType"           => "TxListingPointer",
+            "resolver"           => resolver,
             "listingCoordinates" => coordinates,
-            "loanReceipt" => loanReceipt
+            "loanReceipt"        => nil
         }
-        filepath = "#{Config::pathToDataCenter()}/TxListingPointer/#{item["uuid"]}.json"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
-        item
+        filepath = "#{Config::pathToDataCenter()}/TxListingPointer/#{pointer["uuid"]}.json"
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(pointer)) }
+
+        # ------------------------------------------
+        # Contribution
+
+        cx23 = Cx23::interactivelyIssueCx23ForItemOrNull(item)
+        return pointer if cx23.nil?
+
+        cx22 = Cx22::getOrNull(cx23["groupuuid"])
+        if cx22.nil? then
+            raise "(error: 6B5B89A5-86D9-4B70-BF7B-FDD879F10F60) This should not have happened 🤔"
+        end
+
+        loanReceipt = BankLoan1::interactiveLoanOfferReturnLoanReceiptOrNull(cx22)
+        return pointer if loanReceipt.nil?
+
+        pointer["loanReceipt"] = loanReceipt
+        filepath = "#{Config::pathToDataCenter()}/TxListingPointer/#{pointer["uuid"]}.json"
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(pointer)) }
+
+        pointer
     end
 
     # TxListingPointer::items()

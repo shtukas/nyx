@@ -104,7 +104,7 @@ class CatalystListing
                 return
             end
             if item["mikuType"] == "NxTodo" then
-                Cx23::interactivelySetCx23ForItemOrNothing(item)
+                Cx23::interactivelyIssueCx23ForItemOrNull(item)
                 return
             end
             puts "Contributions apply only to Waves, OnDates and NxTodos"
@@ -121,7 +121,7 @@ class CatalystListing
                 return
             end
             if item["mikuType"] == "NxTodo" then
-                Cx23::interactivelySetCx23ForItemOrNothing(item)
+                Cx23::interactivelyIssueCx23ForItemOrNull(item)
                 return
             end
             puts "Contributions apply only to Waves, Ondates and NxTodos"
@@ -137,7 +137,7 @@ class CatalystListing
         if Interpreting::match("cx23", input) then
             item = store.getDefault()
             return if item.nil?
-            Cx23::interactivelySetCx23ForItemOrNothing(item)
+            Cx23::interactivelyIssueCx23ForItemOrNull(item)
             return
         end
 
@@ -145,7 +145,7 @@ class CatalystListing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            Cx23::interactivelySetCx23ForItemOrNothing(item)
+            Cx23::interactivelyIssueCx23ForItemOrNull(item)
             return
         end
 
@@ -241,7 +241,7 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             item = Nx11E::interactivelySetANewEngineForItemOrNothing(item)
-            Cx23::interactivelySetCx23ForItemOrNothing(item)
+            Cx23::interactivelyIssueCx23ForItemOrNull(item)
             return
         end
 
@@ -250,7 +250,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             item = Nx11E::interactivelySetANewEngineForItemOrNothing(item)
-            Cx23::interactivelySetCx23ForItemOrNothing(item)
+            Cx23::interactivelyIssueCx23ForItemOrNull(item)
             return
         end
 

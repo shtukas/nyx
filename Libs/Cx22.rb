@@ -176,6 +176,7 @@ class Cx22
 
             puts ""
             elements = Cx22::itemsForCx22InPositionOrder(cx22)
+                            .select{|element| element["mikuType"] == "NxTodo" }
                             .select{|element| DoNotShowUntil::isVisible(element["uuid"]) }
                             .first(CommonUtils::screenHeight() - (10+count1))
 

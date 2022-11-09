@@ -49,17 +49,13 @@ class Cx23
         Cx23::interactivelyMakeNewGivenCx22OrNull(cx22, itemuuid)
     end
 
-    # Cx23::interactivelySetCx23ForItemOrNothing(item)
-    def self.interactivelySetCx23ForItemOrNothing(item)
-        if item["mikuType"] != "NxTodo" then
-            puts "At the moment we only set Cx23 for NxTodos"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
+    # Cx23::interactivelyIssueCx23ForItemOrNull(item)
+    def self.interactivelyIssueCx23ForItemOrNull(item)
         cx22 = Cx22::interactivelySelectCx22OrNull()
-        return if cx22.nil?
+        return nil if cx22.nil?
         cx23 = Cx23::interactivelyMakeNewGivenCx22OrNull(cx22, item["uuid"])
-        return if cx23.nil?
+        return nil if cx23.nil?
         Cx22::commitCx23(cx23)
+        cx23
     end
 end
