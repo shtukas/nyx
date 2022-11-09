@@ -118,6 +118,7 @@ class CatalystListing
             return if item.nil?
             if item["mikuType"] == "Wave" then
                 Waves::interactivelySetANewContributionForItemOrNothing(item)
+                return
             end
             if item["mikuType"] == "NxTodo" then
                 Cx23::interactivelySetCx23ForItemOrNothing(item)
