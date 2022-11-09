@@ -288,7 +288,7 @@ class NxTodos
         }
 
         issueNewBatch = lambda {
-            filepaths = NxTodos::filepaths().shuffle.take(10)
+            filepaths = NxTodos::filepaths().shuffle.take(10) # Note that this can return items on Cx22s
             XCache::set("bf8228f9-9f76-4b09-a233-c744fb77c000", JSON.generate(filepaths))
             filepaths
         }

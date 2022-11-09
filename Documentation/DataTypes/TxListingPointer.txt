@@ -1,7 +1,8 @@
 
 TxListingPointer {
-    "uuid"        : String
-    "mikuType"    : "TxListingPointer"
-    "resolver"    : NxItemResolver1
+    "uuid"               : String
+    "mikuType"           : "TxListingPointer"
+    "resolver"           : NxItemResolver1
     "listingCoordinates" : TxListingCoordinates
+    "loanReceipt"        : null or LoanReceipt1
 }

@@ -62,5 +62,4 @@ class Cx23
         return if cx23.nil?
         Cx22::commitCx23(cx23)
     end
-
 end

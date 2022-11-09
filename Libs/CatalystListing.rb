@@ -444,7 +444,7 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             puts "setting stagingfor #{PolyFunctions::toString(item)}"
-            TxListingPointer::interactivelyIssueNewStaging(item)
+            TxListingPointer::interactivelyIssueNewStaged(item)
             return
         end
 
@@ -453,7 +453,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             puts "setting staging for #{PolyFunctions::toString(item)}"
-            TxListingPointer::interactivelyIssueNewStaging(item)
+            TxListingPointer::interactivelyIssueNewStaged(item)
             return
         end
 
@@ -706,13 +706,16 @@ class CatalystListing
 
         pointersuuids = []
 
-        items = TxListingPointer::stagedItemsOrdered()
-        if items.size > 0 then
+        packets = TxListingPointer::stagedPackets()
+        if packets.size > 0 then
             puts ""
             puts "staged:"
             vspaceleft = vspaceleft - 2
-            items
-                .each{|item|
+            packets
+                .each{|packet|
+                    pointer = packet["pointer"]
+                    item = packet["item"]
+                    ordinal = packet["ordinal"]
                     pointersuuids << item["uuid"]
                     store.register(item, false)
                     line = "#{store.prefixString()} #{PolyFunctions::toStringForListing(item)}"
@@ -731,11 +734,13 @@ class CatalystListing
             vspaceleft = vspaceleft - 2
             packets
                 .each{|packet|
+                    pointer = packet["pointer"]
                     item = packet["item"]
                     ordinal = packet["ordinal"]
                     pointersuuids << item["uuid"]
                     store.register(item, false)
-                    line = "#{store.prefixString()} (#{"%7.3f" % ordinal}) #{PolyFunctions::toStringForListing(item)}"
+                    loanReceiptStr = pointer["loanReceipt"] ? " (#{pointer["loanReceipt"]["accountName"].green}, #{pointer["loanReceipt"]["amount"].to_f/60} minutes)" : ""
+                    line = "#{store.prefixString()} (#{"%7.3f" % ordinal}) #{PolyFunctions::toStringForListing(item)}#{loanReceiptStr}"
                     if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(item)) then
                         line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                     end

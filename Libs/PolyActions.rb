@@ -262,7 +262,10 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxCatalistLine1" then
-            NxCatalistLine1::destroy(item["uuid"])
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy line: '#{item["line"].green}' ? ", true) then
+                NxCatalistLine1::destroy(item["uuid"])
+                TxListingPointer::done(item["uuid"])
+            end
             return
         end
 

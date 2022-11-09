@@ -8,44 +8,18 @@ class TxListingPointer
 
     # TxListingPointer::interactivelyIssueNewTxListingPointerToItem(item)
     def self.interactivelyIssueNewTxListingPointerToItem(item)
-        TxListingPointer::deleteAnyExistingPointerToItemUUID(item["uuid"])
-        resolver = NxItemResolver1::make(item["uuid"], item["mikuType"])
-        coordinates = TxListingCoordinates::interactivelyMakeNewTxListingCoordinates()
-        item = {
-            "uuid"     => SecureRandom.uuid,
-            "mikuType" => "TxListingPointer",
-            "resolver" => resolver,
-            "listingCoordinates" => coordinates
-        }
-        TxListingPointer::commit(item)
-        BankLoan1::interactiveLoanOffer()
-        item
+        type = TxListingCoordinates::interactivelySelectTxListingCoordinatesType()
+        if type == "staged" then
+            return TxListingPointer::interactivelyIssueNewStaged(item)
+        end
+        if type == "ordinal" then
+            return TxListingPointer::interactivelyIssueNewOrdinal(item)
+        end
+        raise "(error: 75148aa8-4689-45a3-8695-70422d36ca1b) unkonwn type: #{type}"
     end
 
-    # TxListingPointer::interactivelyIssueNewOrdinal(item)
-    def self.interactivelyIssueNewOrdinal(item)
-        TxListingPointer::deleteAnyExistingPointerToItemUUID(item["uuid"])
-        resolver = NxItemResolver1::make(item["uuid"], item["mikuType"])
-        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-        coordinates = {
-            "mikuType" => "TxListingCoordinates",
-            "type"     => "ordinal",
-            "ordinal"  => ordinal
-        }
-        item = {
-            "uuid"     => SecureRandom.uuid,
-            "mikuType" => "TxListingPointer",
-            "resolver" => resolver,
-            "listingCoordinates" => coordinates
-        }
-        filepath = "#{Config::pathToDataCenter()}/TxListingPointer/#{item["uuid"]}.json"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
-        BankLoan1::interactiveLoanOffer()
-        item
-    end
-
-    # TxListingPointer::interactivelyIssueNewStaging(item)
-    def self.interactivelyIssueNewStaging(item)
+    # TxListingPointer::interactivelyIssueNewStaged(item)
+    def self.interactivelyIssueNewStaged(item)
         TxListingPointer::deleteAnyExistingPointerToItemUUID(item["uuid"])
         resolver = NxItemResolver1::make(item["uuid"], item["mikuType"])
         coordinates = {
@@ -61,7 +35,29 @@ class TxListingPointer
         }
         filepath = "#{Config::pathToDataCenter()}/TxListingPointer/#{item["uuid"]}.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
-        BankLoan1::interactiveLoanOffer()
+        item
+    end
+
+    # TxListingPointer::interactivelyIssueNewOrdinal(item)
+    def self.interactivelyIssueNewOrdinal(item)
+        TxListingPointer::deleteAnyExistingPointerToItemUUID(item["uuid"])
+        resolver = NxItemResolver1::make(item["uuid"], item["mikuType"])
+        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+        coordinates = {
+            "mikuType" => "TxListingCoordinates",
+            "type"     => "ordinal",
+            "ordinal"  => ordinal
+        }
+        loanReceipt = BankLoan1::interactiveLoanOfferReturnLoanReceiptOrNull()
+        item = {
+            "uuid"     => SecureRandom.uuid,
+            "mikuType" => "TxListingPointer",
+            "resolver" => resolver,
+            "listingCoordinates" => coordinates,
+            "loanReceipt" => loanReceipt
+        }
+        filepath = "#{Config::pathToDataCenter()}/TxListingPointer/#{item["uuid"]}.json"
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
         item
     end
 
@@ -73,13 +69,18 @@ class TxListingPointer
             .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
 
-    # TxListingPointer::stagedItemsOrdered()
-    def self.stagedItemsOrdered()
+    # TxListingPointer::stagedPackets()
+    def self.stagedPackets()
         TxListingPointer::items()
             .select{|item| item["listingCoordinates"]["type"] == "staged" }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            .map{|item| NxItemResolver1::getItemOrNull(item["resolver"]) }
-            .compact
+            .map{|item| 
+                {
+                    "pointer" => item,
+                    "item"    => NxItemResolver1::getItemOrNull(item["resolver"]),
+                }
+            }
+            .select{|packet| packet["item"] }
     end
 
     # TxListingPointer::ordinalPacketOrdered()
@@ -89,6 +90,7 @@ class TxListingPointer
             .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
             .map{|item|
                 {
+                    "pointer" => item,
                     "item"    => NxItemResolver1::getItemOrNull(item["resolver"]),
                     "ordinal" => item["listingCoordinates"]["ordinal"]
                 }
