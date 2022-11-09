@@ -1,0 +1,7 @@
+
+TxListingPointer {
+    "uuid"        : String
+    "mikuType"    : "TxListingPointer"
+    "resolver"    : NxItemResolver1
+    "listingCoordinates" : TxListingCoordinates
+}

@@ -1,0 +1,11 @@
+TxListingCoordinates {
+    "mikuType" : "TxListingCoordinates"
+    "type"     : "staged"
+    "unixtime" : Integer
+}
+
+TxListingCoordinates {
+    "mikuType" : "TxListingCoordinates"
+    "type"     : "ordinal"
+    "ordinal"  : Float
+}

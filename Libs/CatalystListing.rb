@@ -7,7 +7,7 @@ class CatalystListing
         [
             ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | engine (<n>) | contribution (<n>) | cx23 (group position) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | time * * | expose (<n>) | destroy",
             "update start date (<n>)",
-            "wave | anniversary | hot | today | ondate | todo | Cx22",
+            "wave | anniversary | hot | today | ondate | todo | Cx22 | pointer",
             "anniversaries | ondates | waves | groups | todos | todos-latest-first",
             "require internet",
             "search | nyx | speed | nxballs | streaming | commands",
@@ -356,6 +356,23 @@ class CatalystListing
             return
         end
 
+        if Interpreting::match("pointer", input) then
+            item = store.getDefault()
+            return if item.nil?
+            puts "setting pointer for #{JSON.pretty_generate(item)}"
+            TxListingPointer::interactivelyIssueNewTxListingPointer(item)
+            return
+        end
+
+        if Interpreting::match("pointer *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            puts "setting pointer for #{JSON.pretty_generate(item)}"
+            TxListingPointer::interactivelyIssueNewTxListingPointer(item)
+            return
+        end
+
         if Interpreting::match("pursue", input) then
             item = store.getDefault()
             return if item.nil?
@@ -656,8 +673,48 @@ class CatalystListing
                 .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
                 .each{|nxball|
                     store.register(nxball, false)
-                    line = "#{store.prefixString()} #{NxBallsService::toString(nxball)}".green
+                    line = "#{store.prefixString()} #{NxBallsService::toString(nxball)}"
                     puts line.green
+                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                }
+        end
+
+        pointersuuids = []
+
+        items = TxListingPointer::stagedItemsOrdered()
+        if items.size > 0 then
+            puts ""
+            puts "staged:"
+            vspaceleft = vspaceleft - 2
+            items
+                .each{|item|
+                    pointersuuids << item["uuid"]
+                    store.register(item, false)
+                    line = "#{store.prefixString()} #{PolyFunctions::toStringForListing(item)}"
+                    if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(item)) then
+                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                    end
+                    puts line
+                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                }
+        end
+
+        packets = TxListingPointer::ordinalPacketOrdered()
+        if packets.size > 0 then
+            puts ""
+            puts "ordinal:"
+            vspaceleft = vspaceleft - 2
+            packets
+                .each{|packet|
+                    item = packet["item"]
+                    ordinal = packet["ordinal"]
+                    pointersuuids << item["uuid"]
+                    store.register(item, false)
+                    line = "#{store.prefixString()} (#{"%7.3f" % ordinal}) #{PolyFunctions::toStringForListing(item)}"
+                    if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(item)) then
+                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                    end
+                    puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
         end
@@ -667,11 +724,14 @@ class CatalystListing
 
         CatalystListing::listingItemsInPriorityOrderDesc()
             .each{|item|
+                next if pointersuuids.include?(item["uuid"])
                 break if vspaceleft <= 0
                 store.register(item, true)
                 line = "#{store.prefixString()} #{PolyFunctions::toStringForListing(item)}"
                 if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(item)) then
                     line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                else
+                    line = line.yellow
                 end
                 puts line
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)

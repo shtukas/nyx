@@ -259,6 +259,7 @@ class PolyActions
                 end
                 if option == "Luke, use the Force (destroy)" then
                     NxTodos::destroy(item["uuid"])
+                    TxListingPointer::done(item["uuid"])
                 end
                 if option == "exit" then
                     return
@@ -268,9 +269,11 @@ class PolyActions
             if useConfirmationIfRelevant then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
                     NxTodos::destroy(item["uuid"])
+                    TxListingPointer::done(item["uuid"])
                 end
             else
                 NxTodos::destroy(item["uuid"])
+                TxListingPointer::done(item["uuid"])
             end
             return
         end
@@ -279,9 +282,11 @@ class PolyActions
             if useConfirmationIfRelevant then
                 if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
                     Waves::performWaveNx46WaveDone(item)
+                    TxListingPointer::done(item["uuid"])
                 end
             else
                 Waves::performWaveNx46WaveDone(item)
+                TxListingPointer::done(item["uuid"])
             end
             return
         end
@@ -407,5 +412,6 @@ class PolyActions
         end
 
         NxBallsService::close(NxBallsService::itemToNxBallOpt(item), true)
+        TxListingPointer::done(item["uuid"])
     end
 end

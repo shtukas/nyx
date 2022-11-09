@@ -1,0 +1,7 @@
+
+NxItemResolver1 {
+    "mikuType" => "NxItemResolver1"
+    "uuid"     => String
+    "type"     => MikuType
+}
+
