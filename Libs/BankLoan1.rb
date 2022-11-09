@@ -56,13 +56,13 @@ class BankLoan1
         BankLoan1::commit(item)
     end
 
-    # BankLoan1::interactiveLoanOfferReturnLoanReceiptOrNull() # null or {accountId, value}
-    def self.interactiveLoanOfferReturnLoanReceiptOrNull()
+    # BankLoan1::interactiveLoanOfferReturnLoanReceiptOrNull(cx22Opt) # null or {accountId, value}
+    def self.interactiveLoanOfferReturnLoanReceiptOrNull(cx22Opt)
         input = LucilleCore::askQuestionAnswerAsString("Time loan ? (Enter value in minutes if yes, empty if not) : ")
         return if input == ""
         value = input.to_f
         value = value * 60 # converting to seconds
-        cx22 = Cx22::interactivelySelectCx22OrNull()
+        cx22 = cx22Opt ? cx22Opt : Cx22::interactivelySelectCx22OrNull()
         return nil if cx22.nil?
         BankLoan1::borrowThisAmount(cx22["uuid"], value)
         Bank::put_direct_no_loan_accountancy(cx22["uuid"], value)

@@ -48,7 +48,7 @@ class TxListingPointer
             "type"     => "ordinal",
             "ordinal"  => ordinal
         }
-        loanReceipt = BankLoan1::interactiveLoanOfferReturnLoanReceiptOrNull()
+        loanReceipt = BankLoan1::interactiveLoanOfferReturnLoanReceiptOrNull(Cx22::getCx22ForItemUUIDOrNull(item["uuid"]))
         item = {
             "uuid"     => SecureRandom.uuid,
             "mikuType" => "TxListingPointer",
@@ -124,5 +124,4 @@ class TxListingPointer
                 end
             }
     end
-
 end
