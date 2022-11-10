@@ -99,16 +99,7 @@ class CatalystListing
         if Interpreting::match("contribution", input) then
             item = store.getDefault()
             return if item.nil?
-            if item["mikuType"] == "Wave" then
-                Waves::interactivelySetANewContributionForItemOrNothing(item)
-                return
-            end
-            if item["mikuType"] == "NxTodo" then
-                Cx23::interactivelyIssueCx23ForItemOrNull(item)
-                return
-            end
-            puts "Contributions apply only to Waves, OnDates and NxTodos"
-            LucilleCore::pressEnterToContinue()
+            Cx23::interactivelyIssueCx23ForItemOrNull(item)
             return
         end
 
@@ -116,16 +107,7 @@ class CatalystListing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            if item["mikuType"] == "Wave" then
-                Waves::interactivelySetANewContributionForItemOrNothing(item)
-                return
-            end
-            if item["mikuType"] == "NxTodo" then
-                Cx23::interactivelyIssueCx23ForItemOrNull(item)
-                return
-            end
-            puts "Contributions apply only to Waves, Ondates and NxTodos"
-            LucilleCore::pressEnterToContinue()
+            Cx23::interactivelyIssueCx23ForItemOrNull(item)
             return
         end
 
@@ -740,7 +722,7 @@ class CatalystListing
                     ordinal = packet["ordinal"]
                     pointersuuids << item["uuid"]
                     store.register(item, true)
-                    loanReceiptStr = pointer["loanReceipt"] ? " (#{pointer["loanReceipt"]["accountName"].green}, #{pointer["loanReceipt"]["amount"].to_f/60} minutes)" : ""
+                    loanReceiptStr = pointer["loanReceipt"] ? " (#{pointer["loanReceipt"]["accountName"]}, #{"#{(pointer["loanReceipt"]["amount"].to_f/60)} minutes".green})" : ""
                     line = "#{store.prefixString()} (#{"%7.3f" % ordinal}) #{PolyFunctions::toStringForListing(item)}#{loanReceiptStr}"
                     if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(item)) then
                         line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green

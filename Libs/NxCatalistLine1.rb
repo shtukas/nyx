@@ -35,4 +35,11 @@ class NxCatalistLine1
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
+
+    # Data
+
+    # NxCatalistLine1::toString(item)
+    def self.toString(item)
+        "(line) #{item["line"]}#{Cx22::contributionStringWithPrefixForCatalystItemOrEmptyString(item).green}"
+    end
 end

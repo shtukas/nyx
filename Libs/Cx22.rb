@@ -69,21 +69,7 @@ class Cx22
 
     # Cx22::toString1(item)
     def self.toString1(item)
-        "(group) #{item["description"]}"
-    end
-
-    # Cx22::toString2(uuid)
-    def self.toString2(uuid)
-        item = Cx22::getOrNull(uuid)
-        return "(Cx22 not found for uuid: #{uuid})" if item.nil?
-        Cx22::toString1(item)
-    end
-
-    # Cx22::toString3(uuid)
-    def self.toString3(uuid)
-        item = Cx22::getOrNull(uuid)
-        return "(Cx22 not found for uuid: #{uuid})" if item.nil?
-        "(group: #{item["description"]})"
+        "#{item["description"]}"
     end
 
     # Cx22::toStringWithDetails(item)
@@ -107,6 +93,13 @@ class Cx22
         dnsustr  = datetimeOpt ? ": (do not show until: #{datetimeOpt})" : ""
 
         "#{item["description"].ljust(descriptionPadding)} : #{Ax39::toString(item["ax39"]).ljust(18)}#{percentageStr}#{dnsustr}"
+    end
+
+    # Cx22::contributionStringWithPrefixForCatalystItemOrEmptyString(item)
+    def self.contributionStringWithPrefixForCatalystItemOrEmptyString(item)
+        cx22 = Cx22::getCx22ForItemUUIDOrNull(item["uuid"])
+        return "" if cx22.nil?
+        " (#{Cx22::toString1(cx22)})"
     end
 
     # Cx22::cx22WithCompletionRatiosOrdered()
