@@ -474,8 +474,13 @@ class Nx7
             end
 
             if Interpreting::match("payload", input) then
+                puts "Your current payload is:"
+                puts JSON.pretty_generate(item["nx7Payload"])
+                next if !LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to override it ? : ")
                 operator = Nx7::operatorForItem(item)
                 nx7Payload = Nx7Payloads::interactivelyMakePayload(operator)
+                puts "New payload:"
+                next if !LucilleCore::askQuestionAnswerAsBoolean("Confirm : ")
                 item["nx7Payload"] = nx7Payload
                 Nx7::commit(item)
                 next

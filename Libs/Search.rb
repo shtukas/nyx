@@ -87,7 +87,9 @@ class Search
                                 .sort{|p1, p2| p1["unixtime"] <=> p2["unixtime"] }
                 nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", selected, lambda{|packet| PolyFunctions::toStringForListing(packet["item"]) })
                 break if nx20.nil?
-                PolyActions::landing(nx20["item"])
+                item = nx20["item"]
+                item = Nx7::itemOrNull(item["uuid"])
+                PolyActions::landing(item)
             }
         }
         nil
@@ -115,7 +117,9 @@ class Search
                 nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", nx20, lambda{|packet| PolyFunctions::toStringForListing(packet["item"]) })
                 break if nx20.nil?
                 system('clear')
-                itemOpt = PolyFunctions::foxTerrierAtItem(nx20["item"])
+                item = nx20["item"]
+                item = Nx7::itemOrNull(item["uuid"])
+                itemOpt = PolyFunctions::foxTerrierAtItem(item)
                 return itemOpt if itemOpt
             }
         }

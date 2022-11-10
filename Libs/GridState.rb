@@ -255,6 +255,8 @@ class GridState
         type = state["type"]
 
         if type == "null" then
+            puts "GridState::access(operator, state): state is null"
+            LucilleCore::pressEnterToContinue()
             return nil
         end
 
