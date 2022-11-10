@@ -55,7 +55,7 @@ class Nx7
 
     # Nx7::filepathForExistingItemOrError(uuid)
     def self.filepathForExistingItemOrError(uuid)
-        puts "Nx7::filepathForExistingItemOrError(#{uuid})"
+        # puts "Nx7::filepathForExistingItemOrError(#{uuid})"
         filepath = Nx7::filepathForExistingItemOrNull(uuid)
         if filepath.nil? then
             raise "(error: 0b09f017-0423-4eb8-ac46-4a8966ad4ca6) could not determine presumably existing filepath for uuid: #{uuid}"
@@ -258,7 +258,9 @@ class Nx7
     def self.arrow(item1, item2)
         # Type Data doesn't get children
         if item1["nx7Payload"]["type"] == "Data" then
-            raise "(error: 716f4ec6-c50f-48b9-bf23-3a6d4de05aa5)" 
+            puts "We have a policy not to set a data carrier as parent"
+            LucilleCore::pressEnterToContinue()
+            return
         end
         item1["nx7Payload"]["childrenuuids"] = (item1["nx7Payload"]["childrenuuids"] + [item2["uuid"]]).uniq
         Nx7::commit(item1)
