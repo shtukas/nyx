@@ -202,7 +202,7 @@ class NxBallsService
                     announce = "account number: #{account}"
                     # Let's try and find a better announce
                     # Often accounts are object uuids
-                    obj1 = PolyFunctions::getItemOrNull(account)
+                    obj1 = PolyFunctions::getCatalystItemOrNull(account)
                     if obj1 then
                         announce = PolyFunctions::toString(obj1)
                     end
