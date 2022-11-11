@@ -3,22 +3,6 @@
 
 class NxBallsService
 
-=begin
-
-    status {
-        "type"                    => "running",
-        "thisSprintStartUnixtime" => Float,
-        "lastMarginCallUnixtime"  => nil or Float,
-        "bankedTimeInSeconds"     => Float
-    }
-
-    {
-        "type"                    => "paused",
-        "bankedTimeInSeconds"     => Float
-    }
-
-=end
-
     # --------------------------------------------------------------------
     # Basic IO
 
@@ -51,6 +35,7 @@ class NxBallsService
             "unixtime"     => Time.new.to_f,
             "datetime"     => Time.new.utc.iso8601,
             "description"  => description,
+            "start"        => Time.new.to_f,
             "accounts"     => accounts
         }
         NxBallsService::commit(nxball)
