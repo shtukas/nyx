@@ -770,11 +770,18 @@ class CatalystListing
 
         initialCodeTrace = CommonUtils::generalCodeTrace()
 
+        $SyncConflictInterruptionFilepath = nil
+
         loop {
 
             if CommonUtils::generalCodeTrace() != initialCodeTrace then
                 puts "Code change detected"
                 break
+            end
+
+            if $SyncConflictInterruptionFilepath then
+                puts "$SyncConflictInterruptionFilepath: #{$SyncConflictInterruptionFilepath}"
+                exit
             end
 
             LucilleCore::locationsAtFolder("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")

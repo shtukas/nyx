@@ -192,6 +192,7 @@ require_relative "SectionsType0141.rb"
 require_relative "Search.rb"
 require_relative "Stargate.rb"
 require_relative "Streaming.rb"
+require_relative "SyncConflicts.rb"
 
 require_relative "TxManualCountDowns.rb"
 require_relative "The99Percent.rb"
@@ -234,6 +235,16 @@ if $RunNonEssentialThreads then
             }
         }
     end
+
+    Thread.new {
+        loop {
+            filepath = SyncConflicts::getConflictFileOrNull()
+            if filepath then
+                $SyncConflictInterruptionFilepath = filepath
+            end
+            sleep 600
+        }
+    }
 
 end
 
