@@ -674,6 +674,7 @@ class CatalystListing
         end
 
         packets = TxListingPointer::ordinalPacketOrdered()
+        hasOrdinals = packets.size > 0
         if packets.size > 0 then
             puts ""
             puts "ordinal:"
@@ -722,7 +723,9 @@ class CatalystListing
                 if NxBallsService::itemToNxBallOpt(item) then
                     line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                 else
-                    line = line.yellow
+                    if hasOrdinals then
+                        line = line.yellow
+                    end
                 end
                 puts line
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
