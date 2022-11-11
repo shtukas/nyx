@@ -27,7 +27,8 @@ class Nyx
                 "search",
                 "uuid landing",
                 "list last [n] nodes dive",
-                "make new nyx node (at local directory)",
+                "make new nyx node",
+                "export all"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
@@ -58,11 +59,14 @@ class Nyx
                     PolyActions::landing(node)
                 }
             end
-            if operation == "make new nyx node (at local directory)" then
+            if operation == "make new nyx node" then
                 item = Nx7::interactivelyIssueNewOrNull()
                 next if item.nil?
                 puts JSON.pretty_generate(item)
                 PolyActions::landing(item)
+            end
+            if operation == "export all" then
+                Nx7Export::exportAll()
             end
         }
     end
