@@ -186,8 +186,8 @@ class NxTodos
         nx11estr = " #{Nx11E::toString(item["nx11e"])}"
         nx113str = Nx113Access::toStringOrNull(" ", item["nx113"], "")
 
-        cx23str1 = cx23 ? " (#{"%6.2f" % cx23["position"]})" : ""
-        cx23str2 = str1 ? " (#{str1})".green : ""
+        cx23str1 = ""
+        cx23str2 = ""
 
         cx23 = Cx22::getCx23ForItemuuidOrNull(item["uuid"])
         if cx23 then
