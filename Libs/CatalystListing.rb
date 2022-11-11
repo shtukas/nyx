@@ -12,10 +12,6 @@ class CatalystListing
             "anniversaries | ondates | waves | groups | todos | todos-latest-first",
             "require internet",
             "search | nyx | speed | nxballs | streaming | commands",
-            "config listing show groups true",
-            "config listing show groups false",
-            "config listing show commands true",
-            "config listing show commands false"
         ].join("\n")
     end
 
@@ -67,26 +63,6 @@ class CatalystListing
 
         if Interpreting::match("anniversaries", input) then
             Anniversaries::anniversariesDive()
-            return
-        end
-
-        if Interpreting::match("config listing show commands true", input) then
-            Config::set("listing.showCommands", true)
-            return
-        end
-
-        if Interpreting::match("config listing show commands false", input) then
-            Config::set("listing.showCommands", false)
-            return
-        end
-
-        if Interpreting::match("config listing show groups true", input) then
-            Config::set("listing.showGroups", true)
-            return
-        end
-
-        if Interpreting::match("config listing show groups false", input) then
-            Config::set("listing.showGroups", false)
             return
         end
 
@@ -418,6 +394,28 @@ class CatalystListing
             return
         end
 
+        if Interpreting::match("re-ordinal *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            pointer = TxListingPointer::items()
+                        .select{|pointer| pointer["listingCoordinates"]["type"] == "ordinal" }
+                        .select{|pointer| pointer["resolver"]["uuid"] == item["uuid"] }
+                        .first
+
+            if pointer.nil? then
+                puts "I could not find a pointer to re-ordinal for this item 🤔"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+
+            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+            pointer["listingCoordinates"]["ordinal"] = ordinal
+            TxListingPointer::commit(pointer)
+
+            return
+        end
+
         if Interpreting::match("search", input) then
             Search::catalyst()
             return
@@ -654,10 +652,6 @@ class CatalystListing
 
         vspaceleft = CommonUtils::screenHeight() - 4
 
-        if Config::getOrNull("listing.showCommands") then
-            vspaceleft =  vspaceleft - CommonUtils::verticalSize(CatalystListing::listingCommands())
-        end
-
         if Config::isAlexandra() then
             line = The99Percent::displayLineFromCache()
             puts ""
@@ -732,22 +726,20 @@ class CatalystListing
                 }
         end
 
-        if Config::getOrNull("listing.showGroups") then
-            puts ""
-            vspaceleft = vspaceleft - 1
-            Cx22::cx22WithCompletionRatiosOrdered()
-                .select{|packet| packet["completionRatio"] < 1 }
-                .each{|packet|
-                    item = packet["item"]
-                    store.register(item, false)
-                    line = "#{store.prefixString()} #{Cx22::toStringDiveStyleFormatted(item)}".yellow
-                    if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(item)) then
-                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
-                    end
-                    puts line
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                }
-        end
+        puts ""
+        vspaceleft = vspaceleft - 1
+        Cx22::cx22WithCompletionRatiosOrdered()
+            .select{|packet| packet["completionRatio"] < 1 }
+            .each{|packet|
+                item = packet["item"]
+                store.register(item, false)
+                line = "#{store.prefixString()} #{Cx22::toStringDiveStyleFormatted(item)}".yellow
+                if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(item)) then
+                    line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                end
+                puts line
+                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+            }
 
         puts ""
         vspaceleft = vspaceleft - 1
@@ -766,11 +758,6 @@ class CatalystListing
                 puts line
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }
-
-        if Config::getOrNull("listing.showCommands") then
-            puts ""
-            puts CatalystListing::listingCommands().yellow
-        end
 
         puts ""
         input = LucilleCore::askQuestionAnswerAsString("> ")

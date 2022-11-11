@@ -44,7 +44,7 @@ class Nx7
     # Nx7::itemOrNull(uuid)
     def self.itemOrNull(uuid)
         filepath = Nx7::filepath(uuid)
-        return nil if filepath.nil?
+        return nil if !File.exists?(filepath)
         Nx5Ext::readFileAsAttributesOfObject(filepath)
     end
 
@@ -495,26 +495,78 @@ end
 
 class Nx7Export
 
+    # Nx7Export::itemRecursiveTrace(item)
+    def self.itemRecursiveTrace(item)
+        t1 = JSON.generate(item)
+        t2 = Nx7::children(item).map{|child| Nx7Export::itemRecursiveTrace(child)}.join(":")
+        Digest::SHA1.hexdigest("#{t1}:#{t2}")
+    end
+
+    # Nx7Export::itemToFoldername(item)
+    def self.itemToFoldername(item)
+        "(#{item["datetime"][0, 10]}) #{CommonUtils::sanitiseStringForFilenaming(item["description"])}"
+    end
+
     # Nx7Export::recursivelyExportItemAtLocation(item, parentlocation)
     def self.recursivelyExportItemAtLocation(item, parentlocation)
-        description = item["description"]
-        foldername = CommonUtils::sanitiseStringForFilenaming(description)
-        folderpath = "#{parentlocation}/#{foldername}"
-        if !File.exists?(folderpath) then
-            FileUtils.mkdir(folderpath)
+        key1 = Digest::SHA1.hexdigest("#{Nx7Export::itemRecursiveTrace(item)}:#{parentlocation}")
+        return if XCache::getFlag(key1)
+
+        puts "exporting '#{parentlocation}' > '#{Nx7::toString(item)}'"
+
+        itemFoldername = Nx7Export::itemToFoldername(item)
+        itemfolderpath = "#{parentlocation}/#{itemFoldername}"
+        if !File.exists?(itemfolderpath) then
+            puts "creating: #{itemfolderpath}"
+            FileUtils.mkdir(itemfolderpath)
         end
-        payload = object["nx7Payload"]
+        payload = item["nx7Payload"]
         if payload["type"] == "Data" then
             operator = Nx7::operatorForItem(item)
             state = payload["state"]
-            GridState::exportStateAtFolder(operator, state, folderpath)
+            GridState::exportStateAtFolder(operator, state, itemfolderpath)
         else
-            payload["childrenuuids"].each{|childuuid|
-                child = Nx7::itemOrNull(childuuid)
-                next if child.nil?
-                Nx7Export::recursivelyExportItemAtLocation(child, folderpath)
+            Nx7::children(item).each{|child|
+                Nx7Export::recursivelyExportItemAtLocation(child, itemfolderpath)
             }
-            # Todo: Remove the location that are no longer relevant
+
+            itemChildrenNamesWeHave = LucilleCore::locationsAtFolder(itemfolderpath).map{|fpath| File.basename(fpath) }
+            itemChildrenNamesWeNeed = Nx7::children(item).map{|child| Nx7Export::itemToFoldername(child) }
+
+            (itemChildrenNamesWeHave - itemChildrenNamesWeNeed).each{|childname|
+                itemChildFolderpath = "#{itemfolderpath}/#{childname}"
+                puts "removing: #{itemChildFolderpath}"
+                LucilleCore::removeFileSystemLocation(itemChildFolderpath)
+            }
         end
+
+        XCache::setFlag(key1, true)
     end
+
+    # Nx7Export::exportAll()
+    def self.exportAll()
+        foldernamesWeHave = LucilleCore::locationsAtFolder("#{Config::pathToGalaxy()}/Nyx-Projection-Read-Only").map{|fpath| File.basename(fpath) }
+        foldernamesWeNeed = Nx7::itemsEnumerator()
+                        .map{|item|
+                            (lambda {|item|
+                                return nil if Nx7::parents(item).size > 0
+                                Nx7Export::itemToFoldername(item)
+                            }).call(item)
+                        }
+                        .compact
+
+        (foldernamesWeHave - foldernamesWeNeed).each{|foldername|
+            folderpath = "#{Config::pathToGalaxy()}/Nyx-Projection-Read-Only/#{foldername}"
+            puts "removing: #{folderpath}"
+            LucilleCore::removeFileSystemLocation(folderpath)
+        }
+
+        Nx7::itemsEnumerator()
+            .each{|item|
+                next if Nx7::parents(item).size > 0
+                #puts "exporting: #{Nx7::toString(item)}"
+                Nx7Export::recursivelyExportItemAtLocation(item, "#{Config::pathToGalaxy()}/Nyx-Projection-Read-Only")
+            }
+    end
+
 end
