@@ -379,7 +379,7 @@ class NxTodos
             puts "Cx23 (Contribution Group & Position): #{JSON.generate(Cx22::getCx23ForItemuuidOrNull(item["uuid"]))}".yellow
 
             puts ""
-            puts "description | access | start | stop | engine | edit | nx113 | cx22 | done | do not show until | expose | destroy | nyx".yellow
+            puts "description | access | engine | edit | nx113 | cx22 | done | do not show until | expose | destroy | nyx".yellow
             puts ""
 
             input = LucilleCore::askQuestionAnswerAsString("> ")
@@ -424,7 +424,6 @@ class NxTodos
                 return if datecode == ""
                 unixtime = CommonUtils::codeToUnixtimeOrNull(datecode.gsub(" ", ""))
                 return if unixtime.nil?
-                PolyActions::stop(item)
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
                 return
             end
@@ -450,16 +449,6 @@ class NxTodos
 
             if Interpreting::match("nyx", input) then
                 Nyx::program()
-                next
-            end
-
-            if Interpreting::match("start", input) then
-                PolyActions::start(item)
-                next
-            end
-
-            if Interpreting::match("stop", input) then
-                PolyActions::stop(item)
                 next
             end
         }

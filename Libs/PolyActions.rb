@@ -20,13 +20,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxBall.v2" then
-            if LucilleCore::askQuestionAnswerAsBoolean("close '#{PolyFunctions::toString(item).green}' ? ") then
-                NxBallsService::close(NxBallsService::itemToNxBallOpt(item), true)
-            end
-            return
-        end
-
         if item["mikuType"] == "NxCatalistLine1" then
             puts item["line"]
             LucilleCore::pressEnterToContinue()
@@ -88,7 +81,6 @@ class PolyActions
 
     # PolyActions::destroy(item)
     def self.destroy(item)
-        PolyActions::stop(item)
 
         if item["mikuType"] == "NxCatalistLine1" then
             NxCatalistLine1::destroy(item["uuid"])
@@ -115,7 +107,6 @@ class PolyActions
 
     # PolyActions::destroyWithPrompt(item)
     def self.destroyWithPrompt(item)
-        PolyActions::stop(item)
         if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{PolyFunctions::toString(item).green}' ") then
             PolyActions::destroy(item)
         end
@@ -150,10 +141,8 @@ class PolyActions
                         next
                     end
                     if action == "start >> access >> al." then
-                        PolyActions::start(item)
                         PolyActions::access(item)
                         LucilleCore::pressEnterToContinue("Press enter to move to stop and continue")
-                        PolyActions::stop(item)
                         actions = ["destroy", "keep as standard and return to listing"]
                         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
                         return if action.nil?
@@ -191,7 +180,6 @@ class PolyActions
                 return
             end
 
-            PolyActions::start(item)
             PolyActions::access(item)
 
             loop {
@@ -201,12 +189,10 @@ class PolyActions
                 if action == "keep running and back to listing" then
                     return
                 end
-                if action == "stop and back to listing" then
-                    PolyActions::stop(item)
+                if action == "back to listing" then
                     return
                 end
-                if action == "stop and destroy" then
-                    PolyActions::stop(item)
+                if action == "destroy" then
                     PolyActions::destroyWithPrompt(item)
                     return
                 end
@@ -215,17 +201,9 @@ class PolyActions
         end
 
         if item["mikuType"] == "Wave" then
-            PolyActions::start(item)
             PolyActions::access(item)
             if LucilleCore::askQuestionAnswerAsBoolean("done '#{PolyFunctions::toString(item).green}' ? ") then
                 Waves::performWaveNx46WaveDone(item)
-                PolyActions::stop(item)
-            else
-                if LucilleCore::askQuestionAnswerAsBoolean("continue ? ") then
-                    return
-                else
-                    PolyActions::stop(item)
-                end
             end
             return
         end
@@ -244,13 +222,6 @@ class PolyActions
         if item["mikuType"] == "Cx22" then
             return
         end
-
-        if item["mikuType"] == "NxBall.v2" then
-            NxBallsService::close(item, true)
-            return
-        end
-
-        PolyActions::stop(item)
 
         # order: alphabetical order
 
@@ -414,28 +385,5 @@ class PolyActions
         datetime = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
         item["nx11e"] = Nx11E::makeOndate(datetime)
         PolyActions::commit(item)
-    end
-
-    # PolyActions::start(item)
-    def self.start(item)
-        #puts "PolyActions::start(#{JSON.pretty_generate(item)})"
-        return if NxBallsService::itemToNxBallOpt(item)
-        NxBallsService::issue(
-            item["uuid"], 
-            PolyFunctions::toString(item), 
-            PolyFunctions::bankAccountsForItem(item)
-        )
-    end
-
-    # PolyActions::stop(item)
-    def self.stop(item)
-        #puts "PolyActions::stop(#{JSON.pretty_generate(item)})"
-        if item["mikuType"] == "NxBall.v2" then
-            NxBallsService::close(item, true)
-            return
-        end
-
-        NxBallsService::close(NxBallsService::itemToNxBallOpt(item), true)
-        TxListingPointer::done(item["uuid"])
     end
 end

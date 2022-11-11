@@ -20,7 +20,6 @@ class CatalystListing
 
         if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
             if (item = store.getDefault()) then
-                PolyActions::stop(item)
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
                 return
             end
@@ -175,7 +174,6 @@ class CatalystListing
             return if datecode == ""
             unixtime = CommonUtils::codeToUnixtimeOrNull(datecode.gsub(" ", ""))
             return if unixtime.nil?
-            PolyActions::stop(item)
             DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
             return
         end
@@ -280,12 +278,6 @@ class CatalystListing
 
         if Interpreting::match("nyx", input) then
             Nyx::program()
-            return
-        end
-
-        if Interpreting::match("nxballs", input) then
-            puts JSON.pretty_generate(NxBallsService::items())
-            LucilleCore::pressEnterToContinue()
             return
         end
 
@@ -404,36 +396,6 @@ class CatalystListing
             return if item.nil?
             puts "setting staging for #{PolyFunctions::toString(item)}"
             TxListingPointer::interactivelyIssueNewStaged(item)
-            return
-        end
-
-        if Interpreting::match("start", input) then
-            item = store.getDefault()
-            return if item.nil?
-            PolyActions::start(item)
-            return
-        end
-
-        if Interpreting::match("start *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            PolyActions::start(item)
-            return
-        end
-
-        if Interpreting::match("stop", input) then
-            item = store.getDefault()
-            return if item.nil?
-            PolyActions::stop(item)
-            return
-        end
-
-        if Interpreting::match("stop *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            PolyActions::stop(item)
             return
         end
 
@@ -601,8 +563,8 @@ class CatalystListing
             NxCatalistLine1::items()
         ]
             .flatten
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::itemToNxBallOpt(item) }
-            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::itemToNxBallOpt(item) }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
             .map{|item|
                 {
                     "item"     => item,
@@ -636,20 +598,6 @@ class CatalystListing
             vspaceleft = vspaceleft - 2
         end
 
-        nxballs = NxBallsService::items()
-        if nxballs.size > 0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-            nxballs
-                .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
-                .each{|nxball|
-                    store.register(nxball, false)
-                    line = "#{store.prefixString()} #{NxBallsService::toString(nxball)}"
-                    puts line.green
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                }
-        end
-
         pointersuuids = []
 
         packets = TxListingPointer::stagedPackets()
@@ -665,9 +613,6 @@ class CatalystListing
                     pointersuuids << item["uuid"]
                     store.register(item, false)
                     line = "#{store.prefixString()} #{PolyFunctions::toStringForListing(item)}"
-                    if NxBallsService::itemToNxBallOpt(item) then
-                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
-                    end
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
@@ -688,9 +633,6 @@ class CatalystListing
                     store.register(item, true)
                     loanReceiptStr = pointer["loanReceipt"] ? " (#{pointer["loanReceipt"]["accountName"]}, #{"#{(pointer["loanReceipt"]["amount"].to_f/60)} minutes".green})" : ""
                     line = "#{store.prefixString()} (#{"%7.3f" % ordinal}) #{PolyFunctions::toStringForListing(item)}#{loanReceiptStr}"
-                    if NxBallsService::itemToNxBallOpt(item) then
-                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
-                    end
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
@@ -704,9 +646,6 @@ class CatalystListing
                 item = packet["item"]
                 store.register(item, false)
                 line = "#{store.prefixString()} #{Cx22::toStringDiveStyleFormatted(item)}".yellow
-                if NxBallsService::itemToNxBallOpt(item) then
-                    line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
-                end
                 puts line
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }
@@ -720,12 +659,8 @@ class CatalystListing
                 break if vspaceleft <= 0
                 store.register(item, true)
                 line = "#{store.prefixString()} #{PolyFunctions::toStringForListing(item)}"
-                if NxBallsService::itemToNxBallOpt(item) then
-                    line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
-                else
-                    if hasOrdinals then
-                        line = line.yellow
-                    end
+                if hasOrdinals then
+                    line = line.yellow
                 end
                 puts line
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)

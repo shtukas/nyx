@@ -172,7 +172,6 @@ require_relative "InMemoryStore.rb"
 require_relative "FileSystemCheck.rb"
 
 require_relative "Nyx.rb"
-require_relative "NxBallsService.rb"
 require_relative "Nx113.rb"
 require_relative "Nx11E.rb"
 require_relative "NxTodos.rb"
@@ -219,8 +218,6 @@ $arrows_database_semaphore = Mutex.new
 # ------------------------------------------------------------
 
 if $RunNonEssentialThreads then
-
-    ThreadsX::nxBallsMonitoringAndNotification()
 
     if Config::isAlexandra() then 
         ThreadsX::startViennaImport()

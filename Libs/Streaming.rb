@@ -29,7 +29,6 @@ class Streaming
             end
 
             if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
-                PolyActions::stop(item)
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
                 return
             end
@@ -38,7 +37,6 @@ class Streaming
                 PolyActions::doubleDot(item)
             end
             if input == "start" then
-                PolyActions::start(item)
                 Streaming::runItem(item, "running")
             end
             if input == "done" then
@@ -82,11 +80,9 @@ class Streaming
                 PolyActions::done(item, false)
             end
             if input == "stop" then
-                PolyActions::stop(item)
                 Streaming::runItem(item, "stopped")
             end
             if input == "skip" then
-                PolyActions::stop(item)
                 DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_f + 3600*2)
             end
            if input == "landing" then
@@ -109,7 +105,6 @@ class Streaming
             end
 
             if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
-                PolyActions::stop(item)
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
                 return
             end
@@ -119,7 +114,6 @@ class Streaming
                 Streaming::runItem(item, "running")
             end
             if input == "start" then
-                PolyActions::start(item)
                 Streaming::runItem(item, "running")
             end
             if input == "done" then
@@ -161,11 +155,6 @@ class Streaming
                     puts "Picked up from NxTodos-BufferIn: #{JSON.pretty_generate(item)}"
                     LucilleCore::removeFileSystemLocation(location)
                 }
-
-            if NxBallsService::items().size > 0 then
-                CatalystListing::displayListing()
-                next
-            end
 
             system("clear")
 

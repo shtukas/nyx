@@ -155,17 +155,6 @@ class Cx22
             count1 = 0
             puts Cx22::toStringWithDetails(cx22)
             puts "style: #{cx22["style"]}"
-            
-            nxballs = NxBallsService::items()
-            if nxballs.size > 0 then
-                puts ""
-                count1 = count1 + 1
-                nxballs
-                    .each{|nxball|
-                        puts "[NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})".green
-                        count1 = count1 + 1
-                    }
-            end
 
             puts ""
             elements = Cx22::itemsForCx22InPositionOrder(cx22)
@@ -193,18 +182,14 @@ class Cx22
                     cx23    = Cx22::getCx23ForItemuuidOrNull(element["uuid"])
                     cx23str = " #{"%6.2f" % cx23["position"]}"
                     rtstr   = [0, 1, 2].include?(indx) ? " (rt: #{BankExtended::stdRecoveredDailyTimeInHours(element["uuid"])})" : ""
-                    if NxBallsService::itemToNxBallOpt(element) then
-                        puts "#{store.prefixString()}#{cx23str}#{rtstr} #{PolyFunctions::toStringForListing(element)}#{NxBallsService::activityStringOrEmptyString(" (", element["uuid"], ")")}".green
+                    if DoNotShowUntil::isVisible(element["uuid"])  then
+                        puts "#{store.prefixString()}#{rtstr} #{PolyFunctions::toStringForListing(element)}"
                     else
-                        if DoNotShowUntil::isVisible(element["uuid"])  then
-                            puts "#{store.prefixString()}#{rtstr} #{PolyFunctions::toStringForListing(element)}"
-                        else
-                            puts "#{store.prefixString()}#{rtstr} #{PolyFunctions::toStringForListing(element)}".yellow
-                        end
+                        puts "#{store.prefixString()}#{rtstr} #{PolyFunctions::toStringForListing(element)}".yellow
                     end
                 }
             puts ""
-            puts "+(datecode) for index 0 | <n> | insert | position <n> <position> | start <n> | access <n> | stop <n> | pause <n> | pursue <n> | done <n> | expose <n>  | start group | stop group | reissue positions sequence | exit".yellow
+            puts "+(datecode) for index 0 | <n> | insert | position <n> <position> | access <n> | done <n> | expose <n> | reissue positions sequence | exit".yellow
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
             return if input == "exit"
@@ -212,7 +197,6 @@ class Cx22
             if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
                 entity = store.get(0)
                 next if entity.nil?
-                PolyActions::stop(entity)
                 DoNotShowUntil::setUnixtime(entity["uuid"], unixtime)
             end
 
@@ -234,27 +218,11 @@ class Cx22
                 next
             end
 
-            if input.start_with?("start") and input != "start group" then
-                indx = input[5, 99].strip.to_i
-                entity = store.get(indx)
-                next if entity.nil?
-                PolyActions::start(entity)
-                next
-            end
-
             if input.start_with?("access") then
                 indx = input[6, 99].strip.to_i
                 entity = store.get(indx)
                 next if entity.nil?
                 PolyActions::access(entity)
-                next
-            end
-
-            if input.start_with?("stop") then
-                indx = input[4, 99].strip.to_i
-                entity = store.get(indx)
-                next if entity.nil?
-                PolyActions::stop(entity)
                 next
             end
 
@@ -289,16 +257,6 @@ class Cx22
                 next
             end
 
-            if input == "start group" then
-                PolyActions::start(cx22)
-                next
-            end
-
-            if input == "stop group" then
-                PolyActions::stop(cx22)
-                next
-            end
-
             if input == "reissue positions sequence" then
                 Cx22::itemsForCx22InPositionOrder(cx22).each_with_index{|element, indx|
                     puts JSON.pretty_generate(element)
@@ -317,21 +275,10 @@ class Cx22
             puts Cx22::toStringWithDetails(cx22)
             puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(cx22["uuid"])}"
             puts "style: #{cx22["style"]}"
-            nxballs = NxBallsService::items()
-            if nxballs.size > 0 then
-                nxballs
-                    .each{|nxball|
-                        puts "[NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})".green
-                    }
-            end
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["elements (program)", "start NxBall", "update description", "push (do not display until)", "expose", "add time", "set style", "Destroy Cx22"])
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["elements (program)", "update description", "push (do not display until)", "expose", "add time", "set style", "Destroy Cx22"])
             break if action.nil?
             if action == "elements (program)" then
                 Cx22::elementsDive(cx22)
-            end
-            if action == "start NxBall" then
-                NxBallsService::issue(SecureRandom.uuid, "cx22: #{cx22["description"]}", [cx22["uuid"]])
-                next
             end
             if action == "update description" then
                 description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
@@ -345,7 +292,6 @@ class Cx22
                 next if datecode == ""
                 unixtime = CommonUtils::codeToUnixtimeOrNull(datecode.gsub(" ", ""))
                 next if unixtime.nil?
-                PolyActions::stop(cx22)
                 DoNotShowUntil::setUnixtime(cx22["uuid"], unixtime)
             end
             if action == "expose" then
@@ -380,16 +326,6 @@ class Cx22
     def self.maindive()
         loop {
             system("clear")
-            nxballs = NxBallsService::items()
-            if nxballs.size > 0 then
-                puts ""
-                nxballs
-                    .each{|nxball|
-                        line = "[NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
-                        puts line.green
-                    }
-                puts ""
-            end
             cx22 = Cx22::interactivelySelectCx22OrNull()
             return if cx22.nil?
             Cx22::dive(cx22)

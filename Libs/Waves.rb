@@ -229,8 +229,6 @@ class Waves
 
     # Waves::performWaveNx46WaveDone(item)
     def self.performWaveNx46WaveDone(item)
-        NxBallsService::close(NxBallsService::itemToNxBallOpt(item), true)
-
         puts "done-ing: #{Waves::toString(item)}"
         Waves::commitAttribute1(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
 
@@ -340,7 +338,6 @@ class Waves
                 return if datecode == ""
                 unixtime = CommonUtils::codeToUnixtimeOrNull(datecode.gsub(" ", ""))
                 return if unixtime.nil?
-                PolyActions::stop(item)
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
                 return
             end
@@ -379,16 +376,6 @@ class Waves
 
             if Interpreting::match("nyx", input) then
                 Nyx::program()
-                next
-            end
-
-            if Interpreting::match("start", input) then
-                PolyActions::start(item)
-                next
-            end
-
-            if Interpreting::match("stop", input) then
-                PolyActions::stop(item)
                 next
             end
         }
