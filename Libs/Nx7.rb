@@ -6,18 +6,47 @@ class Nx7
     # ------------------------------------------------
     # Basic IO
 
+    # Nx7::twoFilepaths(uuid)
+    def self.twoFilepaths(uuid)
+        {
+            "standard" => "#{Config::pathToDataCenter()}/Nx7/#{uuid}.Nx5",
+            "desktop"  => "#{Config::pathToDesktop()}/#{uuid}.Nx5"
+        }
+    end
+
     # Nx7::filepath(uuid)
     def self.filepath(uuid)
-        "#{Config::pathToDataCenter()}/Nx7/#{uuid}.Nx5"
+        filepaths = Nx7::twoFilepaths(uuid)
+        filepaths.values.each{|filepath|
+            if File.exists?(filepath) then
+                return filepath
+            end
+        }
+        filepaths["standard"]
+    end
+
+    # Nx7::newFilepathOnDesktop(uuid)
+    def self.newFilepathOnDesktop(uuid)
+        filepath = Nx7::twoFilepaths(uuid)["desktop"]
+        Nx5::issueNewFileAtFilepath(filepath, uuid)
+        filepath
+    end
+
+    # Nx7::archiveFileFromDesktopToDataCenter(uuid)
+    def self.archiveFileFromDesktopToDataCenter(uuid)
+        filepaths = Nx7::twoFilepaths(uuid)
+        if File.exists?(filepaths["desktop"]) then
+            FileUtils.mv(filepaths["desktop"], filepaths["standard"])
+        end
     end
 
     # Nx7::filepathForExistingItemOrError(uuid)
     def self.filepathForExistingItemOrError(uuid)
         filepath = Nx7::filepath(uuid)
-        if filepath.nil? then
-            raise "(error: 0b09f017-0423-4eb8-ac46-4a8966ad4ca6) could not determine presumably existing filepath for uuid: #{uuid}"
+        if File.exists?(filepath) then
+            return filepath
         end
-        filepath
+        raise "(error: 0b09f017-0423-4eb8-ac46-4a8966ad4ca6) could not determine presumably existing filepath for uuid: #{uuid}"
     end
 
     # Nx7::filepaths()
@@ -60,7 +89,7 @@ class Nx7
     # Nx7::destroy(uuid)
     def self.destroy(uuid)
         filepath = Nx7::filepath(uuid)
-        return if filepath.nil?
+        return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
 
@@ -86,8 +115,8 @@ class Nx7
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid
-        filepath = Nx7::filepath(uuid)
-        operator = ElizabethNx5.new(filepath)
+        nx7filepath = Nx7::newFilepathOnDesktop(uuid)
+        operator = ElizabethNx5.new(nx7filepath)
         nx7Payload = Nx7Payloads::interactivelyMakePayload(operator)
         puts JSON.pretty_generate(nx7Payload)
         FileSystemCheck::fsck_Nx7Payload(operator, nx7Payload, true)
@@ -104,6 +133,7 @@ class Nx7
         }
         FileSystemCheck::fsck_Nx7(operator, item, true)
         Nx7::commit(item)
+        Nx7::archiveFileFromDesktopToDataCenter(uuid)
         Search::nyxNx20sComputeAndCacheUpdate()
         item
     end
@@ -114,7 +144,8 @@ class Nx7
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
         description = File.basename(filepath)
-        operator = Nx7::operatorForUUID(uuid)
+        nx7filepath = Nx7::newFilepathOnDesktop(uuid)
+        operator = ElizabethNx5.new(nx7filepath)
         nx7Payload = Nx7Payloads::makeDataFile(operator, filepath)
         item = {
             "uuid"          => uuid,
@@ -127,6 +158,7 @@ class Nx7
             "relatedsuuids" => []
         }
         Nx7::commit(item)
+        Nx7::archiveFileFromDesktopToDataCenter(uuid)
         item
     end
 
@@ -139,7 +171,8 @@ class Nx7
         operator = Nx7::operatorForUUID(uuid)
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
-        description = File.basename(location)
+        nx7filepath = Nx7::newFilepathOnDesktop(uuid)
+        operator = ElizabethNx5.new(nx7filepath)
         nx7Payload = Nx7Payloads::makeDataNxDirectoryContents(operator, location)
         item = {
             "uuid"          => uuid,
@@ -152,6 +185,7 @@ class Nx7
             "relatedsuuids" => []
         }
         Nx7::commit(item)
+        Nx7::archiveFileFromDesktopToDataCenter(uuid)
         item
     end
 
@@ -524,7 +558,7 @@ class Nx7Export
         key1 = Digest::SHA1.hexdigest("#{Nx7Export::itemRecursiveTrace(item)}:#{parentlocation}")
         return if XCache::getFlag(key1)
 
-        puts "exporting '#{parentlocation}' > '#{Nx7::toString(item)}'"
+        puts "exporting: #{parentlocation}/#{Nx7::toString(item)}"
 
         itemFoldername = Nx7Export::itemToFoldername(item)
         itemfolderpath = "#{parentlocation}/#{itemFoldername}"
@@ -547,7 +581,7 @@ class Nx7Export
 
             (itemChildrenNamesWeHave - itemChildrenNamesWeNeed).each{|childname|
                 itemChildFolderpath = "#{itemfolderpath}/#{childname}"
-                puts "removing: #{itemChildFolderpath}"
+                puts "removing : #{itemChildFolderpath}"
                 LucilleCore::removeFileSystemLocation(itemChildFolderpath)
             }
         end
@@ -569,12 +603,12 @@ class Nx7Export
 
         (foldernamesWeHave - foldernamesWeNeed).each{|foldername|
             folderpath = "#{Config::pathToGalaxy()}/Nyx-Projection-Read-Only/Projection/#{foldername}"
-            puts "removing: #{folderpath}"
+            puts "removing : #{folderpath}"
             LucilleCore::removeFileSystemLocation(folderpath)
         }
 
         Nx7::itemsEnumerator()
-            .first(10)
+            .first(500)
             .each{|item|
                 next if Nx7::parents(item).size > 0
                 #puts "exporting: #{Nx7::toString(item)}"
