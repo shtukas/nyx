@@ -608,7 +608,6 @@ class Nx7Export
         }
 
         Nx7::itemsEnumerator()
-            .first(500)
             .each{|item|
                 next if Nx7::parents(item).size > 0
                 #puts "exporting: #{Nx7::toString(item)}"
