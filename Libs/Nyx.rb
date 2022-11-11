@@ -28,7 +28,8 @@ class Nyx
                 "uuid landing",
                 "list last [n] nodes dive",
                 "make new nyx node",
-                "export all"
+                "export all",
+                "fsck Nx7s"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
@@ -67,6 +68,9 @@ class Nyx
             end
             if operation == "export all" then
                 Nx7Export::exportAll()
+            end
+            if operation == "fsck Nx7s" then
+                Nx7Xp::fsck()
             end
         }
     end

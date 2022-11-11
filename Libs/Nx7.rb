@@ -492,6 +492,18 @@ class Nx7
     end
 end
 
+class Nx7Xp
+
+    # Nx7Xp::fsck()
+    def self.fsck()
+        Nx7::itemsEnumerator()
+            .each{|item|
+                FileSystemCheck::exitIfMissingCanary()
+                FileSystemCheck::fsck_MikuTypedItem(item, true)
+            }
+        puts "fsck completed successfully".green
+    end
+end
 
 class Nx7Export
 
@@ -568,5 +580,4 @@ class Nx7Export
                 Nx7Export::recursivelyExportItemAtLocation(item, "#{Config::pathToGalaxy()}/Nyx-Projection-Read-Only")
             }
     end
-
 end

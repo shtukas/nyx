@@ -125,7 +125,7 @@ class GridState
         end
 
         if type == "file" then
-            location = CommonUtils::interactivelySelectLocationAtSpecifiedDirectoryOrNull(Dir.pwd)
+            location = CommonUtils::interactivelySelectLocationAtSpecifiedDirectoryOrNull(Config::pathToDesktop())
             return nil if location.nil?
             return nil if !File.file?(location)
             filepath = location
@@ -135,7 +135,7 @@ class GridState
         end
 
         if type == "NxDirectoryContents" then
-            parentlocation = CommonUtils::interactivelySelectLocationAtSpecifiedDirectoryOrNull(Dir.pwd)
+            parentlocation = CommonUtils::interactivelySelectLocationAtSpecifiedDirectoryOrNull(Config::pathToDesktop())
             return GridState::directoryPathToNxDirectoryContentsGridState(operator, parentlocation)
         end
 
