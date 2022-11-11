@@ -82,14 +82,4 @@ class Ax39
             ].max
         end
     end
-
-    # Ax39::completionRatioCached(ax39, bankaccount)
-    def self.completionRatioCached(ax39, bankaccount)
-        key = "#{ax39}:#{bankaccount}"
-        value = XCacheValuesWithExpiry::getOrNull(key)
-        return value if value
-        value = Ax39::completionRatio(ax39, bankaccount)
-        XCacheValuesWithExpiry::set(key, value, 300)
-        value
-    end
 end

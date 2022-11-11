@@ -234,6 +234,7 @@ class PolyActions
             if LucilleCore::askQuestionAnswerAsBoolean("destroy line: '#{item["line"].green}' ? ", true) then
                 NxCatalistLine1::destroy(item["uuid"])
                 TxListingPointer::done(item["uuid"])
+                Cx22::interactivelyAddSomeTime()
             end
             return
         end
@@ -246,10 +247,12 @@ class PolyActions
                 return if option == ""
                 if option == "landing" then
                     PolyActions::landing(item)
+                    Cx22::interactivelyAddSomeTime()
                 end
                 if option == "Luke, use the Force (destroy)" then
                     NxTodos::destroy(item["uuid"])
                     TxListingPointer::done(item["uuid"])
+                    Cx22::interactivelyAddSomeTime()
                 end
                 if option == "exit" then
                     return
@@ -260,6 +263,7 @@ class PolyActions
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
                     NxTodos::destroy(item["uuid"])
                     TxListingPointer::done(item["uuid"])
+                    Cx22::interactivelyAddSomeTime()
                 end
             else
                 NxTodos::destroy(item["uuid"])
@@ -273,10 +277,12 @@ class PolyActions
                 if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
                     Waves::performWaveNx46WaveDone(item)
                     TxListingPointer::done(item["uuid"])
+                    Cx22::interactivelyAddSomeTime()
                 end
             else
                 Waves::performWaveNx46WaveDone(item)
                 TxListingPointer::done(item["uuid"])
+                Cx22::interactivelyAddSomeTime()
             end
             return
         end
@@ -324,14 +330,6 @@ class PolyActions
                 Nx113Dx33s::issue(nx113["unitId"])
             end
         end
-    end
-
-    # PolyActions::giveTime(item, timeInSeconds)
-    def self.giveTime(item, timeInSeconds)
-        PolyFunctions::bankAccountsForItem(item).each{|account|
-            puts "(#{Time.new.to_s}) putting #{timeInSeconds} seconds into account: #{account}"
-            Bank::put(account, timeInSeconds)
-        }
     end
 
     # PolyActions::landing(item)

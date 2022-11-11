@@ -5,13 +5,13 @@ class CatalystListing
     # CatalystListing::listingCommands()
     def self.listingCommands()
         [
-            ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | engine (<n>) | contribution (<n>) | cx23 (group position) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | time * * | expose (<n>) | destroy",
+            ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | engine (<n>) | contribution (<n>) | cx23 (group position) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | add time | expose (<n>) | destroy",
             "update start date (<n>)",
             "wave | anniversary | hot | today | ondate | todo | Cx22 | pointer-line",
             "pointer (<n>) | ordinal (<n>) | staging (<n>) | reordinal <n>",
             "anniversaries | ondates | waves | groups | todos | todos-latest-first",
             "require internet",
-            "search | nyx | speed | nxballs | streaming | commands",
+            "search | nyx | speed | nxballs | commands",
         ].join("\n")
     end
 
@@ -399,29 +399,8 @@ class CatalystListing
             return
         end
 
-        if input == "streaming" then
-            Streaming::streaming()
-            return
-        end
-
-        if Interpreting::match("time * *", input) then
-            _, ordinal, timeInHours = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            puts "Adding #{timeInHours.to_f} hours to #{PolyFunctions::toString(item).green}"
-            Bank::put(item["uuid"], timeInHours.to_f*3600)
-            if item["cx22"] then
-                cx22 = Cx22::getOrNull(item["cx22"])
-                if cx22 then
-                    puts "Adding #{timeInHours.to_f} hours to #{Cx22::toString1(cx22)}"
-                    Bank::put(cx22["uuid"], timeInHours.to_f*3600)
-                end
-            end
-            cx22 = Cx22::getCx22ForItemUUIDOrNull(item["uuid"])
-            if cx22 then
-                puts "Adding #{timeInHours.to_f} hours to #{Cx22::toString1(cx22)}"
-                Bank::put(cx22["uuid"], timeInHours.to_f*3600)
-            end
+        if Interpreting::match("add time", input) then
+            Cx22::interactivelyAddSomeTime()
             return
         end
 

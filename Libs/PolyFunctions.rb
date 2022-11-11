@@ -2,25 +2,6 @@ class PolyFunctions
 
     # ordering: alphabetical
 
-    # PolyFunctions::bankAccountsForItem(item)
-    def self.bankAccountsForItem(item)
-        accounts = []
-        accounts << item["uuid"]
-        if item["cx22"] then
-            cx22 = Cx22::getOrNull(item["cx22"])
-            if cx22 then
-                accounts << cx22["uuid"]
-            end
-        end
-        if cx23 = Cx22::getCx23ForItemuuidOrNull(item["uuid"]) then
-            cx22 = Cx22::getOrNull(cx23["groupuuid"])
-            if cx22 then
-                accounts << cx22["uuid"]
-            end
-        end
-        accounts.uniq
-    end
-
     # PolyFunctions::edit(item) # item
     def self.edit(item)
 
@@ -200,7 +181,7 @@ class PolyFunctions
 
         if item["mikuType"] == "Cx22" then
             return nil if !DoNotShowUntil::isVisible(item["uuid"])
-            completionRatio = Ax39::completionRatioCached(item["ax39"], item["uuid"])
+            completionRatio = Ax39::completionRatio(item["ax39"], item["uuid"])
             return nil if completionRatio >= 1
             base = item["isPriority"] ? 0.80 : 0.60
             return base + shiftOnCompletionRatio.call(completionRatio)
