@@ -318,21 +318,6 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("pause", input) then
-            item = store.getDefault()
-            return if item.nil?
-            NxBallsService::pause(NxBallsService::itemToNxBallOpt(item))
-            return
-        end
-
-        if Interpreting::match("pause *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            NxBallsService::pause(NxBallsService::itemToNxBallOpt(item))
-            return
-        end
-
         if Interpreting::match("pointer", input) then
             item = store.getDefault()
             return if item.nil?
@@ -350,25 +335,9 @@ class CatalystListing
             return
         end
 
-
         if Interpreting::match("pointer-line", input) then
             item = NxCatalistLine1::interactivelyIssueNewOrNull()
             TxListingPointer::interactivelyIssueNewTxListingPointerToItem(item)
-            return
-        end
-        if Interpreting::match("pursue", input) then
-            item = store.getDefault()
-            return if item.nil?
-            NxBallsService::pursue(NxBallsService::itemToNxBallOpt(item))
-            return
-        end
-
-        if Interpreting::match("pursue *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            puts "pursuing: #{JSON.pretty_generate(item)}"
-            NxBallsService::pursue(NxBallsService::itemToNxBallOpt(item))
             return
         end
 
@@ -632,8 +601,8 @@ class CatalystListing
             NxCatalistLine1::items()
         ]
             .flatten
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isActive(NxBallsService::itemToNxBallOpt(item)) }
-            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isActive(NxBallsService::itemToNxBallOpt(item)) }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::itemToNxBallOpt(item) }
+            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::itemToNxBallOpt(item) }
             .map{|item|
                 {
                     "item"     => item,
@@ -696,7 +665,7 @@ class CatalystListing
                     pointersuuids << item["uuid"]
                     store.register(item, false)
                     line = "#{store.prefixString()} #{PolyFunctions::toStringForListing(item)}"
-                    if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(item)) then
+                    if NxBallsService::itemToNxBallOpt(item) then
                         line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                     end
                     puts line
@@ -718,7 +687,7 @@ class CatalystListing
                     store.register(item, true)
                     loanReceiptStr = pointer["loanReceipt"] ? " (#{pointer["loanReceipt"]["accountName"]}, #{"#{(pointer["loanReceipt"]["amount"].to_f/60)} minutes".green})" : ""
                     line = "#{store.prefixString()} (#{"%7.3f" % ordinal}) #{PolyFunctions::toStringForListing(item)}#{loanReceiptStr}"
-                    if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(item)) then
+                    if NxBallsService::itemToNxBallOpt(item) then
                         line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                     end
                     puts line
@@ -734,7 +703,7 @@ class CatalystListing
                 item = packet["item"]
                 store.register(item, false)
                 line = "#{store.prefixString()} #{Cx22::toStringDiveStyleFormatted(item)}".yellow
-                if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(item)) then
+                if NxBallsService::itemToNxBallOpt(item) then
                     line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                 end
                 puts line
@@ -750,7 +719,7 @@ class CatalystListing
                 break if vspaceleft <= 0
                 store.register(item, true)
                 line = "#{store.prefixString()} #{PolyFunctions::toStringForListing(item)}"
-                if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(item)) then
+                if NxBallsService::itemToNxBallOpt(item) then
                     line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                 else
                     line = line.yellow

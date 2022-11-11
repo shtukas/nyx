@@ -21,10 +21,8 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxBall.v2" then
-            if NxBallsService::isRunning(item) then
-                if LucilleCore::askQuestionAnswerAsBoolean("complete '#{PolyFunctions::toString(item).green}' ? ") then
-                    NxBallsService::close(NxBallsService::itemToNxBallOpt(item), true)
-                end
+            if LucilleCore::askQuestionAnswerAsBoolean("close '#{PolyFunctions::toString(item).green}' ? ") then
+                NxBallsService::close(NxBallsService::itemToNxBallOpt(item), true)
             end
             return
         end
@@ -421,12 +419,11 @@ class PolyActions
     # PolyActions::start(item)
     def self.start(item)
         #puts "PolyActions::start(#{JSON.pretty_generate(item)})"
-        return if NxBallsService::isRunning(NxBallsService::itemToNxBallOpt(item))
+        return if NxBallsService::itemToNxBallOpt(item)
         NxBallsService::issue(
             item["uuid"], 
             PolyFunctions::toString(item), 
-            PolyFunctions::bankAccountsForItem(item), 
-            PolyFunctions::timeBeforeNotificationsInHours(item)*3600
+            PolyFunctions::bankAccountsForItem(item)
         )
     end
 

@@ -193,7 +193,7 @@ class Cx22
                     cx23    = Cx22::getCx23ForItemuuidOrNull(element["uuid"])
                     cx23str = " #{"%6.2f" % cx23["position"]}"
                     rtstr   = [0, 1, 2].include?(indx) ? " (rt: #{BankExtended::stdRecoveredDailyTimeInHours(element["uuid"])})" : ""
-                    if NxBallsService::isActive(NxBallsService::itemToNxBallOpt(element)) then
+                    if NxBallsService::itemToNxBallOpt(element) then
                         puts "#{store.prefixString()}#{cx23str}#{rtstr} #{PolyFunctions::toStringForListing(element)}#{NxBallsService::activityStringOrEmptyString(" (", element["uuid"], ")")}".green
                     else
                         if DoNotShowUntil::isVisible(element["uuid"])  then
@@ -255,22 +255,6 @@ class Cx22
                 entity = store.get(indx)
                 next if entity.nil?
                 PolyActions::stop(entity)
-                next
-            end
-
-            if input.start_with?("pause") then
-                indx = input[5, 99].strip.to_i
-                entity = store.get(indx)
-                next if entity.nil?
-                NxBallsService::pause(NxBallsService::itemToNxBallOpt(entity))
-                next
-            end
-
-            if input.start_with?("pursue") then
-                indx = input[6, 99].strip.to_i
-                entity = store.get(indx)
-                next if entity.nil?
-                NxBallsService::pursue(NxBallsService::itemToNxBallOpt(entity))
                 next
             end
 
@@ -346,7 +330,7 @@ class Cx22
                 Cx22::elementsDive(cx22)
             end
             if action == "start NxBall" then
-                NxBallsService::issue(SecureRandom.uuid, "cx22: #{cx22["description"]}", [cx22["uuid"]], 3600)
+                NxBallsService::issue(SecureRandom.uuid, "cx22: #{cx22["description"]}", [cx22["uuid"]])
                 next
             end
             if action == "update description" then

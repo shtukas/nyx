@@ -418,8 +418,7 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
-            FileSystemCheck::ensureAttribute(item, "desiredBankedTimeInSeconds", "Number")
-            FileSystemCheck::ensureAttribute(item, "status", "Hash")
+            FileSystemCheck::ensureAttribute(item, "start", "Number")
             FileSystemCheck::ensureAttribute(item, "accounts", "Array")
             return
         end

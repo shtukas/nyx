@@ -9,21 +9,7 @@ NxBall {
     "unixtime"    : Float
     "datetime"    : DateTime Iso 8601 UTC Zulu
 
-    "description"                 : description,
-    "desiredBankedTimeInSeconds " : null or Float # Indicate how long
-                                                  # we should ideally run, for the notification.
-    "status"                      : NxBallStatus
+    "description"                 : description
+    "start"                       : unixtime
     "accounts"                    : accounts
 }
-
-NxBallStatus
-    {
-        "type"                    : "running"
-        "thisSprintStartUnixtime" : Float # Unixtime at start or since restart
-        "lastMarginCallUnixtime"  : Float # Unixtime of the last margin call
-        "bankedTimeInSeconds"     : Float # Time already banked (during margin calls)
-    }
-    {
-        "type"                    : "paused"
-        "bankedTimeInSeconds"     : Float
-    }
