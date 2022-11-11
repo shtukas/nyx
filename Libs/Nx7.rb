@@ -6,57 +6,14 @@ class Nx7
     # ------------------------------------------------
     # Basic IO
 
-    # Nx7::interactivelyBuildFilepathForNewItemAtLocalDirectory(uuid)
-    def self.interactivelyBuildFilepathForNewItemAtLocalDirectory(uuid)
-        filenameprefix = LucilleCore::askQuestionAnswerAsString("file name prefix: ")
-        filepath = "#{Dir.pwd}/#{CommonUtils::sanitiseStringForFilenaming(filenameprefix)}.Nx7"
-        Nx5::issueNewFileAtFilepath(filepath, uuid)
-        filepath
-    end
-
-    # Nx7::filepathForExistingItemOrNull(uuid)
-    def self.filepathForExistingItemOrNull(uuid)
-
-        filepath = XCache::getOrNull("d127eb96-6327-46fa-9489-ff403c7fa355:#{uuid}")
-        if filepath and File.exists?(filepath) then
-            item = Nx5Ext::readFileAsAttributesOfObject(filepath)
-            if item["uuid"] == uuid then
-                return filepath
-            end
-        end
-
-        puts "Looking for item: #{uuid}"
-
-        lookupUseTheForce = lambda {|uuid|
-            Find.find(Config::pathToGalaxy()) do |path|
-                next if File.basename(path)[-4, 4] != ".Nx7"
-                filepath = path
-                item = Nx5Ext::readFileAsAttributesOfObject(filepath)
-                if item["uuid"] == uuid then
-                    return filepath
-                else
-                    # While we know this
-                    XCache::set("d127eb96-6327-46fa-9489-ff403c7fa355:#{item["uuid"]}", filepath)
-                end
-            end
-            nil
-        }
-
-        filepath = lookupUseTheForce.call(uuid)
-
-        if filepath.nil? then
-            return nil
-        end
-
-        XCache::set("d127eb96-6327-46fa-9489-ff403c7fa355:#{uuid}", filepath)
-
-        filepath
+    # Nx7::filepath(uuid)
+    def self.filepath(uuid)
+        "#{Config::pathToDataCenter()}/Nx7/#{uuid}.Nx5"
     end
 
     # Nx7::filepathForExistingItemOrError(uuid)
     def self.filepathForExistingItemOrError(uuid)
-        puts "Nx7::filepathForExistingItemOrError(#{uuid})"
-        filepath = Nx7::filepathForExistingItemOrNull(uuid)
+        filepath = Nx7::filepath(uuid)
         if filepath.nil? then
             raise "(error: 0b09f017-0423-4eb8-ac46-4a8966ad4ca6) could not determine presumably existing filepath for uuid: #{uuid}"
         end
@@ -65,12 +22,14 @@ class Nx7
 
     # Nx7::filepaths()
     def self.filepaths()
-        Enumerator.new do |filepaths|
-            Find.find(Config::pathToGalaxy()) do |path|
-                next if File.basename(path)[-4, 4] != ".Nx7"
-                filepaths << path
-            end
-        end
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Nx7")
+            .select{|filepath| filepath[-4, 4] == ".Nx5" }
+            .each{|filepath|
+                Nx5SyncthingConflictResolution::probeAndRepairIfRelevant(filepath)
+            }
+
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Nx7")
+            .select{|filepath| filepath[-4, 4] == ".Nx5" }
     end
 
     # Nx7::itemsEnumerator()
@@ -82,21 +41,9 @@ class Nx7
         end
     end
 
-    # Nx7::galaxyAndDesktopFilepathsForUUIDEnumerator(uuid)
-    def self.galaxyAndDesktopFilepathsForUUIDEnumerator(uuid)
-        Enumerator.new do |filepaths|
-            Nx7::filepaths(Nx7::standardFsRoots()).each{|filepath|
-                item = Nx5Ext::readFileAsAttributesOfObject(filepath)
-                if item["uuid"] == uuid then
-                    filepaths << filepath
-                end
-            }
-        end
-    end
-
     # Nx7::itemOrNull(uuid)
     def self.itemOrNull(uuid)
-        filepath = Nx7::filepathForExistingItemOrNull(uuid)
+        filepath = Nx7::filepath(uuid)
         return nil if filepath.nil?
         Nx5Ext::readFileAsAttributesOfObject(filepath)
     end
@@ -112,7 +59,7 @@ class Nx7
 
     # Nx7::destroy(uuid)
     def self.destroy(uuid)
-        filepath = Nx7::filepathForExistingItemOrNull(object["uuid"])
+        filepath = Nx7::filepath(uuid)
         return if filepath.nil?
         FileUtils.rm(filepath)
     end
@@ -139,7 +86,7 @@ class Nx7
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid
-        filepath = Nx7::interactivelyBuildFilepathForNewItemAtLocalDirectory(uuid)
+        filepath = Nx7::filepath(uuid)
         operator = ElizabethNx5.new(filepath)
         nx7Payload = Nx7Payloads::interactivelyMakePayload(operator)
         puts JSON.pretty_generate(nx7Payload)
@@ -536,52 +483,31 @@ class Nx7
 
         }
     end
+end
 
-    # ------------------------------------------------
-    # Export Manager
 
-    # Nx7::openNx8(filepath)
-    def self.openNx8(filepath)
-        if filepath[-4, 4] != ".Nx8" then
-            raise "(error: 9839e571-461c-4f3f-b3e9-ffaf01a5dfbc) We are expecting that Nx8 files end with .Nx8"
+class Nx7Export
+
+    # Nx7Export::recursivelyExportItemAtLocation(item, parentlocation)
+    def self.recursivelyExportItemAtLocation(item, parentlocation)
+        description = item["description"]
+        foldername = CommonUtils::sanitiseStringForFilenaming(description)
+        folderpath = "#{parentlocation}/#{foldername}"
+        if !File.exists?(folderpath) then
+            FileUtils.mkdir(folderpath)
         end
-        if !File.exists?(filepath) then
-            raise "(error: e0398a01-83d7-418d-ac63-bdf1b600d269) filepath doesn't exist: #{filepath}"
-        end
-
-        uuid = IO.read(filepath).strip
-
-        item = Nx7::itemOrNull(uuid)
-
-        if item.nil? then
-            puts "There is no item corresponding to uuid: '#{uuid}' at #{filepath}"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        nx7Payload = item["nx7Payload"]
-
-        folder = filepath.gsub(".Nx8", "")
-
-        if !File.exist?(folder) then
-            FileUtils.mkdir(folder)
-        end
-
-        if nx7Payload["type"] == "Data" then
-            operator = Nx7::getElizabethOperatorForItem(item)
-            state = nx7Payload["state"]
-            GridState::exportStateAtFolder(operator, state, folder)
-            return
-        end
-
-        if Nx7Payloads::navigationTypes().include?(nx7Payload["type"]) then
-            Nx7::children(item).each{|child|
-                filepathc = "#{folder}/#{CommonUtils::sanitiseStringForFilenaming(item["description"])}.Nx8"
-                File.open(filepathc, "w"){|f| f.puts(child["uuid"]) }
+        payload = object["nx7Payload"]
+        if payload["type"] == "Data" then
+            operator = Nx7::operatorForItem(item)
+            state = payload["state"]
+            GridState::exportStateAtFolder(operator, state, folderpath)
+        else
+            payload["childrenuuids"].each{|childuuid|
+                child = Nx7::itemOrNull(childuuid)
+                next if child.nil?
+                Nx7Export::recursivelyExportItemAtLocation(child, folderpath)
             }
-            return
+            # Todo: Remove the location that are no longer relevant
         end
-
-        raise "(error: 54c37521-1b07-4e34-bc5a-ec3d7c46f1e8) type: #{nx7Payload["type"]}"
     end
 end
