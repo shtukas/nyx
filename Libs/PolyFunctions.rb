@@ -154,8 +154,8 @@ class PolyFunctions
         return nil
     end
 
-    # PolyFunctions::getItemOrNull(uuid)
-    def self.getItemOrNull(uuid)
+    # PolyFunctions::getCatalystItemOrNull(uuid)
+    def self.getCatalystItemOrNull(uuid)
         item = Waves::getOrNull(uuid)
         return item if item
 
@@ -166,10 +166,6 @@ class PolyFunctions
         return item if item
 
         item = Cx22::getOrNull(uuid)
-        return item if item
-
-        # We keep this one for last, because it's slow
-        item = Nx7::itemOrNull(uuid)
         return item if item
 
         nil
@@ -262,7 +258,7 @@ class PolyFunctions
             return Anniversaries::toString(item)
         end
         if item["mikuType"] == "NxCatalistLine1" then
-            return "(line) #{item["line"]}"
+            return NxCatalistLine1::toString(item)
         end
         if item["mikuType"] == "NxBall.v2" then
             return item["description"]
@@ -270,7 +266,6 @@ class PolyFunctions
         if item["mikuType"] == "NxTodo" then
             return NxTodos::toString(item)
         end
-
         if item["mikuType"] == "TxManualCountDown" then
             return "(countdown) #{item["description"]}: #{item["counter"]}"
         end

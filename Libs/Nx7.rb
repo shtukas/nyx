@@ -205,7 +205,9 @@ class Nx7
     def self.arrow(item1, item2)
         # Type Data doesn't get children
         if item1["nx7Payload"]["type"] == "Data" then
-            raise "(error: 716f4ec6-c50f-48b9-bf23-3a6d4de05aa5)" 
+            puts "We have a policy not to set a data carrier as parent"
+            LucilleCore::pressEnterToContinue()
+            return
         end
         item1["nx7Payload"]["childrenuuids"] = (item1["nx7Payload"]["childrenuuids"] + [item2["uuid"]]).uniq
         Nx7::commit(item1)
@@ -419,8 +421,13 @@ class Nx7
             end
 
             if Interpreting::match("payload", input) then
+                puts "Your current payload is:"
+                puts JSON.pretty_generate(item["nx7Payload"])
+                next if !LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to override it ? : ")
                 operator = Nx7::operatorForItem(item)
                 nx7Payload = Nx7Payloads::interactivelyMakePayload(operator)
+                puts "New payload:"
+                next if !LucilleCore::askQuestionAnswerAsBoolean("Confirm : ")
                 item["nx7Payload"] = nx7Payload
                 Nx7::commit(item)
                 next

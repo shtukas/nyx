@@ -211,8 +211,7 @@ class Waves
     def self.toString(item)
         lastDoneDateTime = item["lastDoneDateTime"]
         ago = "#{((Time.new.to_i - DateTime.parse(lastDoneDateTime).to_time.to_i).to_f/86400).round(2)} days ago"
-        cx22str = item["cx22"] ? " #{Cx22::toString2(item["cx22"]).green}" : ""
-        "(wave) #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")} (#{Waves::nx46ToString(item["nx46"])}) (#{ago}) 🌊 #{cx22str} [#{item["priority"]}]"
+        "(wave) #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")} (#{Waves::nx46ToString(item["nx46"])}) (#{ago}) 🌊 #{Cx22::contributionStringWithPrefixForCatalystItemOrEmptyString(item).green} [#{item["priority"]}]"
     end
 
     # -------------------------------------------------------------------------
@@ -393,19 +392,5 @@ class Waves
                 next
             end
         }
-    end
-
-    # Waves::interactivelySetANewContributionForItemOrNothing(item) # item
-    def self.interactivelySetANewContributionForItemOrNothing(item)
-        if item["mikuType"] != "Wave" then
-            puts "You can set a Cx22 only for Waves. (For NxTodos set a Cx23.)"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        cx22 = Cx22::interactivelySelectCx22OrNull()
-        return if cx22.nil?
-        item["cx22"] = cx22["uuid"]
-        PolyActions::commit(item)
-        item
     end
 end

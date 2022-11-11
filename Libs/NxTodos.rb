@@ -185,10 +185,17 @@ class NxTodos
     def self.toString(item)
         nx11estr = " #{Nx11E::toString(item["nx11e"])}"
         nx113str = Nx113Access::toStringOrNull(" ", item["nx113"], "")
-        cx23 = Cx22::getCx23ForItemuuidOrNull(item["uuid"])
-        str1 = Cx23::toStringOrNull(cx23)
+
         cx23str1 = cx23 ? " (#{"%6.2f" % cx23["position"]})" : ""
         cx23str2 = str1 ? " (#{str1})".green : ""
+
+        cx23 = Cx22::getCx23ForItemuuidOrNull(item["uuid"])
+        if cx23 then
+            str1 = Cx23::toStringOrNull(cx23)
+            cx23str1 = cx23 ? " (#{"%6.2f" % cx23["position"]})" : ""
+            cx23str2 = str1 ? " (#{str1})".green : ""
+        end
+
         "(todo)#{cx23str1}#{nx11estr}#{nx113str} #{item["description"]}#{cx23str2}"
     end
 

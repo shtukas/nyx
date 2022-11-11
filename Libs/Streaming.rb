@@ -20,7 +20,7 @@ class Streaming
     # Streaming::runItem(item, state)
     def self.runItem(item, state)
 
-        return if PolyFunctions::getItemOrNull(item["uuid"]).nil?
+        return if PolyFunctions::getCatalystItemOrNull(item["uuid"]).nil?
 
         if state == "awaiting start" then
             input = LucilleCore::askQuestionAnswerAsString("[#{Streaming::stateToString(state)}] #{PolyFunctions::toString(item).green} (.. | start | done | time | skip | +(datecode) | landing | exit | commands) : ")
