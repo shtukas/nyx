@@ -511,7 +511,7 @@ class Nx7Export
     def self.itemRecursiveTrace(item)
         t1 = JSON.generate(item)
         t2 = Nx7::children(item).map{|child| Nx7Export::itemRecursiveTrace(child)}.join(":")
-        Digest::SHA1.hexdigest("#{t1}:#{t2}")
+        Digest::SHA1.hexdigest("8b4ab1b6-71a5-42c3-872b-b98390c147bb:#{t1}:#{t2}")
     end
 
     # Nx7Export::itemToFoldername(item)
@@ -557,7 +557,7 @@ class Nx7Export
 
     # Nx7Export::exportAll()
     def self.exportAll()
-        foldernamesWeHave = LucilleCore::locationsAtFolder("#{Config::pathToGalaxy()}/Nyx-Projection-Read-Only").map{|fpath| File.basename(fpath) }
+        foldernamesWeHave = LucilleCore::locationsAtFolder("#{Config::pathToGalaxy()}/Nyx-Projection-Read-Only/Projection").map{|fpath| File.basename(fpath) }
         foldernamesWeNeed = Nx7::itemsEnumerator()
                         .map{|item|
                             (lambda {|item|
@@ -568,16 +568,17 @@ class Nx7Export
                         .compact
 
         (foldernamesWeHave - foldernamesWeNeed).each{|foldername|
-            folderpath = "#{Config::pathToGalaxy()}/Nyx-Projection-Read-Only/#{foldername}"
+            folderpath = "#{Config::pathToGalaxy()}/Nyx-Projection-Read-Only/Projection/#{foldername}"
             puts "removing: #{folderpath}"
             LucilleCore::removeFileSystemLocation(folderpath)
         }
 
         Nx7::itemsEnumerator()
+            .first(10)
             .each{|item|
                 next if Nx7::parents(item).size > 0
                 #puts "exporting: #{Nx7::toString(item)}"
-                Nx7Export::recursivelyExportItemAtLocation(item, "#{Config::pathToGalaxy()}/Nyx-Projection-Read-Only")
+                Nx7Export::recursivelyExportItemAtLocation(item, "#{Config::pathToGalaxy()}/Nyx-Projection-Read-Only/Projection")
             }
     end
 end
