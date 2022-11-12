@@ -425,14 +425,14 @@ class Cx22
     # --------------------------------------------
     # Items
 
-    # Cx22::interactivelyAddSomeTime()
-    def self.interactivelyAddSomeTime()
+    # Cx22::interactivelyAddSomeTime(item)
+    def self.interactivelyAddSomeTime(item)
         input = LucilleCore::askQuestionAnswerAsString("Add some time ? (if yes, enter the amount in hours, otherwise leave empty) : ")
         if input == "" then
             return
         end
         timeInHours = input.to_f
-        cx22 = Cx22::interactivelySelectCx22OrNull()
+        cx22 = Cx22::getCx22ForItemUUIDOrNull(item["uuid"]) || Cx22::interactivelySelectCx22OrNull()
         return if cx22.nil?
         Bank::put(cx22["uuid"], timeInHours*3600)
     end

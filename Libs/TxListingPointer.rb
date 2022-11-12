@@ -1,8 +1,13 @@
 class TxListingPointer
 
+    # TxListingPointer::repositorypath()
+    def self.repositorypath()
+        "#{Config::pathToDataCenter()}/TxListingPointer"
+    end
+
     # TxListingPointer::commit(item)
     def self.commit(item)
-        filepath = "#{Config::pathToDataCenter()}/TxListingPointer/#{item["uuid"]}.json"
+        filepath = "#{TxListingPointer::repositorypath()}/#{item["uuid"]}.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
@@ -30,20 +35,17 @@ class TxListingPointer
         pointer = {
             "uuid"               => SecureRandom.uuid,
             "mikuType"           => "TxListingPointer",
+            "unixtime"           => Time.new.to_f,
+            "datetime"           => Time.new.utc.iso8601,
             "resolver"           => resolver,
             "listingCoordinates" => coordinates
         }
-        filepath = "#{Config::pathToDataCenter()}/TxListingPointer/#{pointer["uuid"]}.json"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(pointer)) }
+        TxListingPointer::commit(pointer)
         pointer
     end
 
     # TxListingPointer::interactivelyIssueNewOrdinal(item)
     def self.interactivelyIssueNewOrdinal(item)
-
-        # ------------------------------------------
-        # Item creation
-
         TxListingPointer::deleteAnyExistingPointerToItemUUID(item["uuid"])
         resolver = NxItemResolver1::make(item["uuid"], item["mikuType"])
         ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
@@ -55,38 +57,26 @@ class TxListingPointer
         pointer = {
             "uuid"               => SecureRandom.uuid,
             "mikuType"           => "TxListingPointer",
+            "unixtime"           => Time.new.to_f,
+            "datetime"           => Time.new.utc.iso8601,
             "resolver"           => resolver,
-            "listingCoordinates" => coordinates,
-            "loanReceipt"        => nil
+            "listingCoordinates" => coordinates
         }
-        filepath = "#{Config::pathToDataCenter()}/TxListingPointer/#{pointer["uuid"]}.json"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(pointer)) }
-
-        # ------------------------------------------
-        # Contribution
-
-        cx23 = Cx23::interactivelyIssueCx23ForItemOrNull(item)
-        return pointer if cx23.nil?
-
-        cx22 = Cx22::getOrNull(cx23["groupuuid"])
-        if cx22.nil? then
-            raise "(error: 6B5B89A5-86D9-4B70-BF7B-FDD879F10F60) This should not have happened 🤔"
-        end
-
-        loanReceipt = BankLoan1::interactiveLoanOfferReturnLoanReceiptOrNull(cx22)
-        return pointer if loanReceipt.nil?
-
-        pointer["loanReceipt"] = loanReceipt
-        filepath = "#{Config::pathToDataCenter()}/TxListingPointer/#{pointer["uuid"]}.json"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(pointer)) }
-
+        TxListingPointer::commit(pointer)
         pointer
     end
 
     # TxListingPointer::items()
     def self.items()
-        folderpath = "#{Config::pathToDataCenter()}/TxListingPointer"
-        LucilleCore::locationsAtFolder(folderpath)
+        LucilleCore::locationsAtFolder(TxListingPointer::repositorypath())
+            .select{|filepath| filepath[-5, 5] == ".json" }
+            .each{|filepath| 
+                item = JSON.parse(IO.read(filepath))
+                if item["listingCoordinates"]["ordinal"] and item["datetime"][0, 10] != CommonUtils::today() then
+                    FileUtils.rm(filepath)
+                end
+            }
+        LucilleCore::locationsAtFolder(TxListingPointer::repositorypath())
             .select{|filepath| filepath[-5, 5] == ".json" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
     end

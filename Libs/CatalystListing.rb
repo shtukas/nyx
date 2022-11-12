@@ -25,10 +25,12 @@ class CatalystListing
             end
         end
 
-        if input == ".." then
+        if Interpreting::match("..", input) then
             item = store.getDefault()
             return if item.nil?
-            PolyActions::doubleDot(item)
+            PolyActions::access(item)
+            PolyActions::done(item, true)
+            Cx22::interactivelyAddSomeTime(item)
             return
         end
 
@@ -36,7 +38,9 @@ class CatalystListing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyActions::doubleDot(item)
+            PolyActions::access(item)
+            PolyActions::done(item, true)
+            Cx22::interactivelyAddSomeTime(item)
             return
         end
 
@@ -610,8 +614,7 @@ class CatalystListing
                     ordinal = packet["ordinal"]
                     pointersuuids << item["uuid"]
                     store.register(item, true)
-                    loanReceiptStr = pointer["loanReceipt"] ? " (#{pointer["loanReceipt"]["accountName"]}, #{"#{(pointer["loanReceipt"]["amount"].to_f/60)} minutes".green})" : ""
-                    line = "#{store.prefixString()} (#{"%7.3f" % ordinal}) #{PolyFunctions::toStringForListing(item)}#{loanReceiptStr}"
+                    line = "#{store.prefixString()} (#{"%7.3f" % ordinal}) #{PolyFunctions::toStringForListing(item)}"
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }

@@ -30,10 +30,6 @@ class Bank
 
     # Bank::put(setuuid, weight: Float) # Used by regular activity. Emits events for the other computer,
     def self.put(setuuid, weight)
-        if BankLoan1::currentlyOwesMoney?(setuuid) then
-            BankLoan1::reinburseThisAmount(setuuid, weight)
-            return
-        end
         Bank::put_direct_no_loan_accountancy(setuuid, weight)
     end
 

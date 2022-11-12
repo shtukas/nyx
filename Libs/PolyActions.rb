@@ -112,110 +112,6 @@ class PolyActions
         end
     end
 
-    # PolyActions::doubleDot(item)
-    def self.doubleDot(item)
-
-        puts "PolyActions::doubleDot(#{JSON.pretty_generate(item)})"
-
-        if item["mikuType"] == "Cx22" then
-            Cx22::dive(item)
-            return
-        end
-
-        if item["mikuType"] == "NxTodo" then
-
-            # We havea a special processing of triage items
-            if item["nx11e"]["type"] == "triage" then
-                loop {
-                    puts PolyFunctions::toString(item).green
-                    actions = ["access >> ♻️", "access >> description >> ♻️", "standard >> contribution", "start >> access >> al.", "destroy", "exit"]
-                    action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
-                    next if action.nil?
-                    if action == "access >> ♻️" then
-                        PolyActions::access(item)
-                        next
-                    end
-                    if action == "access >> description >> ♻️" then
-                        PolyActions::access(item)
-                        PolyActions::editDescription(item)
-                        next
-                    end
-                    if action == "start >> access >> al." then
-                        PolyActions::access(item)
-                        LucilleCore::pressEnterToContinue("Press enter to move to stop and continue")
-                        actions = ["destroy", "keep as standard and return to listing"]
-                        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
-                        return if action.nil?
-                        if action == "destroy" then
-                            if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
-                                NxTodos::destroy(item["uuid"])
-                            end
-                            return
-                        end
-                        if action == "keep as standard and return to listing" then
-                            item["nx11e"] = Nx11E::makeStandard()
-                            cx23 = Cx23::interactivelyMakeNewOrNull(item["uuid"])
-                            Cx22::commitCx23(cx23)
-                            PolyActions::commit(item)
-                            return
-                        end
-                    end
-                    if action == "standard >> contribution" then
-                        item["nx11e"] = Nx11E::makeStandard()
-                        cx23 = Cx23::interactivelyMakeNewOrNull(item["uuid"])
-                        Cx22::commitCx23(cx23)
-                        PolyActions::commit(item)
-                        return
-                    end
-                    if action == "destroy" then
-                        if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
-                            NxTodos::destroy(item["uuid"])
-                        end
-                        return
-                    end
-                    if action == "exit" then
-                        return
-                    end
-                }
-                return
-            end
-
-            PolyActions::access(item)
-
-            loop {
-                actions = ["keep running and back to listing", "stop and back to listing", "stop and destroy"]
-                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
-                next if action.nil?
-                if action == "keep running and back to listing" then
-                    return
-                end
-                if action == "back to listing" then
-                    return
-                end
-                if action == "destroy" then
-                    PolyActions::destroyWithPrompt(item)
-                    return
-                end
-            }
-            return
-        end
-
-        if item["mikuType"] == "Wave" then
-            PolyActions::access(item)
-            if LucilleCore::askQuestionAnswerAsBoolean("done '#{PolyFunctions::toString(item).green}' ? ") then
-                Waves::performWaveNx46WaveDone(item)
-            end
-            return
-        end
-
-        if item["mikuType"] == "TxManualCountDown" then
-            PolyActions::access(item)
-            return
-        end
-
-        raise "(error: 2b6aab43-6a93-4c0e-99b0-0cf882e66bde) I do not know how to PolyActions::doubleDot(#{JSON.pretty_generate(item)})"
-    end
-
     # PolyActions::done(item, useConfirmationIfRelevant = true)
     def self.done(item, useConfirmationIfRelevant = true)
 
@@ -234,7 +130,6 @@ class PolyActions
             if LucilleCore::askQuestionAnswerAsBoolean("destroy line: '#{item["line"].green}' ? ", true) then
                 NxCatalistLine1::destroy(item["uuid"])
                 TxListingPointer::done(item["uuid"])
-                Cx22::interactivelyAddSomeTime()
             end
             return
         end
@@ -247,12 +142,10 @@ class PolyActions
                 return if option == ""
                 if option == "landing" then
                     PolyActions::landing(item)
-                    Cx22::interactivelyAddSomeTime()
                 end
                 if option == "Luke, use the Force (destroy)" then
                     NxTodos::destroy(item["uuid"])
                     TxListingPointer::done(item["uuid"])
-                    Cx22::interactivelyAddSomeTime()
                 end
                 if option == "exit" then
                     return
@@ -263,7 +156,6 @@ class PolyActions
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
                     NxTodos::destroy(item["uuid"])
                     TxListingPointer::done(item["uuid"])
-                    Cx22::interactivelyAddSomeTime()
                 end
             else
                 NxTodos::destroy(item["uuid"])
@@ -277,12 +169,10 @@ class PolyActions
                 if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
                     Waves::performWaveNx46WaveDone(item)
                     TxListingPointer::done(item["uuid"])
-                    Cx22::interactivelyAddSomeTime()
                 end
             else
                 Waves::performWaveNx46WaveDone(item)
                 TxListingPointer::done(item["uuid"])
-                Cx22::interactivelyAddSomeTime()
             end
             return
         end

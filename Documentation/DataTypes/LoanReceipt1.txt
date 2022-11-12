@@ -1,7 +1,0 @@
-
-LoanReceipt1 {
-    "mikuType"    => "LoanReceipt1"
-    "accountId"   => String
-    "accountName" => String
-    "amount"      => Float 
-}
