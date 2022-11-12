@@ -15,30 +15,48 @@ class Search
             }
     end
 
-    # Search::nyxNx20sComputeAndCacheUpdate() # Array[Nx20]
-    def self.nyxNx20sComputeAndCacheUpdate()
-        useTheForce = lambda {
-            Nx7::itemsEnumerator()
-                .map{|item|
-                    {
-                        "announce" => "(#{item["mikuType"]}) #{PolyFunctions::genericDescriptionOrNull(item)}",
-                        "unixtime" => item["unixtime"],
-                        "item"     => item
-                    }
-                }
+    # Search::nx7ToNx20(item)
+    def self.nx7ToNx20(item)
+        {
+            "announce" => "(#{item["mikuType"]}) #{PolyFunctions::genericDescriptionOrNull(item)}",
+            "unixtime" => item["unixtime"],
+            "item"     => item
         }
-        nx20s = useTheForce.call()
-        XCache::set("1f9d878c-33a7-49b5-a730-cfeedf20131b:#{CommonUtils::today()}", JSON.generate(nx20s))
-        nx20s
+    end
+
+    # Search::nx20sCacheKey()
+    def self.nx20sCacheKey()
+        "c91404d2-1d28-431d-bfc4-17c5a06b2433:#{CommonUtils::today()}"
     end
 
     # Search::nyxNx20s() # Array[Nx20]
     def self.nyxNx20s()
-        nx20s = XCache::getOrNull("1f9d878c-33a7-49b5-a730-cfeedf20131b:#{CommonUtils::today()}")
-        if nx20s then
-            return JSON.parse(nx20s)
+        structure = XCache::getOrNull(Search::nx20sCacheKey())
+        if structure then
+            return JSON.parse(structure).values
         end
-        Search::nyxNx20sComputeAndCacheUpdate()
+
+        useTheForce = lambda {
+            Nx7::itemsEnumerator()
+                .map{|item| Search::nx7ToNx20(item) }
+        }
+
+        puts "Search::nyxNx20s(): use the Force"
+        array = useTheForce.call()
+        structure = {}
+        array.each{|nx20| structure[nx20["item"]["uuid"]] = nx20 }
+        XCache::set(Search::nx20sCacheKey(), JSON.generate(structure))
+        structure.values
+    end
+
+    # Search::commitNx7ToNx20Cache(item)
+    def self.commitNx7ToNx20Cache(item)
+        structure = XCache::getOrNull(Search::nx20sCacheKey())
+        return if structure.nil?
+        structure = JSON.parse(structure)
+        nx20 = Search::nx7ToNx20(item)
+        structure[item["uuid"]] = nx20
+        XCache::set(Search::nx20sCacheKey(), JSON.generate(structure))
     end
 
     # Search::catalyst()

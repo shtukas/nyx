@@ -77,13 +77,14 @@ class Nx7
         Nx5Ext::readFileAsAttributesOfObject(filepath)
     end
 
-    # Nx7::commit(object)
-    def self.commit(object)
-        FileSystemCheck::fsck_MikuTypedItem(object, false)
-        filepath = Nx7::filepathForExistingItemOrError(object["uuid"])
-        object.each{|key, value|
+    # Nx7::commit(item)
+    def self.commit(item)
+        FileSystemCheck::fsck_MikuTypedItem(item, false)
+        filepath = Nx7::filepathForExistingItemOrError(item["uuid"])
+        item.each{|key, value|
             Nx5::emitEventToFile1(filepath, key, value)
         }
+        Search::commitNx7ToNx20Cache(item)
     end
 
     # Nx7::destroy(uuid)
@@ -134,7 +135,6 @@ class Nx7
         FileSystemCheck::fsck_Nx7(operator, item, true)
         Nx7::commit(item)
         Nx7::archiveFileFromDesktopToDataCenter(uuid)
-        Search::nyxNx20sComputeAndCacheUpdate()
         item
     end
 
