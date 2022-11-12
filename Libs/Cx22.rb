@@ -427,7 +427,7 @@ class Cx22
 
     # Cx22::interactivelyAddSomeTime()
     def self.interactivelyAddSomeTime()
-        input = LucilleCore::askQuestionAnswerAsString("Add som time ? (if yes, enter the amount in hours, otherwise leave empty) : ")
+        input = LucilleCore::askQuestionAnswerAsString("Add some time ? (if yes, enter the amount in hours, otherwise leave empty) : ")
         if input == "" then
             return
         end
