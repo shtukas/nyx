@@ -76,8 +76,10 @@ class Nx7
     # Nx7::destroy(uuid)
     def self.destroy(uuid)
         filepath = Nx7::existingItemFilepathOrNull(uuid)
-        return if filepath.nil?
-        FileUtils.rm(filepath)
+        if filepath then
+            FileUtils.rm(filepath)
+        end
+        Nx7EventDispatch::itemDeleted(uuid)
     end
 
     # ------------------------------------------------
