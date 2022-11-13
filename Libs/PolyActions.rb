@@ -25,6 +25,11 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NxBall" then
+            NxBall::access(item)
+            return
+        end
+
         if item["mikuType"] == "NxCatalistLine1" then
             puts item["line"]
             LucilleCore::pressEnterToContinue()
@@ -132,6 +137,10 @@ class PolyActions
 
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::done(item["uuid"])
+            return
+        end
+
+        if item["mikuType"] == "NxBall" then
             return
         end
 

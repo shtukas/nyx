@@ -16,8 +16,8 @@ class Bank
         filepath
     end
 
-    # Bank::put_direct_no_loan_accountancy(setuuid, weight: Float)
-    def self.put_direct_no_loan_accountancy(setuuid, weight)
+    # Bank::put(setuuid, weight: Float) # Used by regular activity. Emits events for the other computer,
+    def self.put(setuuid, weight)
         instanceId = Config::thisInstanceId()
         filepath = Bank::databaseFilepath(instanceId)
         db = SQLite3::Database.new(filepath)
@@ -26,11 +26,6 @@ class Bank
         db.results_as_hash = true
         db.execute "insert into _bank_ (_recorduuid_, _setuuid_, _unixtime_, _date_, _weight_) values (?, ?, ?, ?, ?)", [SecureRandom.uuid, setuuid, Time.new.to_i, CommonUtils::today(), weight]
         db.close
-    end
-
-    # Bank::put(setuuid, weight: Float) # Used by regular activity. Emits events for the other computer,
-    def self.put(setuuid, weight)
-        Bank::put_direct_no_loan_accountancy(setuuid, weight)
     end
 
     # Bank::valueAtDate(setuuid, date)

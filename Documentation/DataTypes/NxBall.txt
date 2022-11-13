@@ -1,0 +1,8 @@
+
+NxBall {
+    "uuid"            : String
+    "mikuType"        : "NxBall"
+    "unixtime"        : Float
+    "cx22uuid"        : String
+    "cx22Description" : String
+}

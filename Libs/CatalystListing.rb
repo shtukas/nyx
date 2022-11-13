@@ -7,7 +7,7 @@ class CatalystListing
         [
             ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | engine (<n>) | contribution (<n>) | cx23 (group position) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | add time | expose (<n>) | destroy",
             "update start date (<n>)",
-            "wave | anniversary | hot | today | ondate | todo | Cx22 | pointer-line",
+            "wave | anniversary | hot | today | ondate | todo | Cx22 | pointer-line | nxball",
             "pointer (<n>) | ordinal (<n>) | staging (<n>) | reordinal <n>",
             "anniversaries | ondates | waves | groups | todos | todos-latest-first",
             "require internet",
@@ -282,6 +282,11 @@ class CatalystListing
 
         if Interpreting::match("nyx", input) then
             Nyx::program()
+            return
+        end
+
+        if Interpreting::match("nxball", input) then
+            NxBall::interactivelyIssueNewNxBallOrNothing()
             return
         end
 
@@ -580,6 +585,17 @@ class CatalystListing
             puts ""
             puts "INTERNET IS OFF".green
             vspaceleft = vspaceleft - 2
+        end
+
+        nxballs = NxBall::items()
+        if nxballs.size > 0 then
+            puts ""
+            puts "nxballs:"
+            vspaceleft = vspaceleft - 2
+            nxballs.each{|nxball|
+                store.register(nxball, false)
+                puts "#{store.prefixString()} #{nxball["announce"]}".green
+            }
         end
 
         pointersuuids = []
