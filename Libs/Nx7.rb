@@ -6,59 +6,20 @@ class Nx7
     # ------------------------------------------------
     # Basic IO
 
-    # Nx7::twoFilepaths(uuid)
-    def self.twoFilepaths(uuid)
-        {
-            "standard" => "#{Config::pathToDataCenter()}/Nx7/#{uuid}.Nx5",
-            "desktop"  => "#{Config::pathToDesktop()}/#{uuid}.Nx5"
-        }
-    end
-
-    # Nx7::filepath(uuid)
-    def self.filepath(uuid)
-        filepaths = Nx7::twoFilepaths(uuid)
-        filepaths.values.each{|filepath|
-            if File.exists?(filepath) then
-                return filepath
-            end
-        }
-        filepaths["standard"]
-    end
-
-    # Nx7::newFilepathOnDesktop(uuid)
-    def self.newFilepathOnDesktop(uuid)
-        filepath = Nx7::twoFilepaths(uuid)["desktop"]
-        Nx5::issueNewFileAtFilepath(filepath, uuid)
-        filepath
-    end
-
-    # Nx7::archiveFileFromDesktopToDataCenter(uuid)
-    def self.archiveFileFromDesktopToDataCenter(uuid)
-        filepaths = Nx7::twoFilepaths(uuid)
-        if File.exists?(filepaths["desktop"]) then
-            FileUtils.mv(filepaths["desktop"], filepaths["standard"])
-        end
-    end
-
-    # Nx7::filepathForExistingItemOrError(uuid)
-    def self.filepathForExistingItemOrError(uuid)
-        filepath = Nx7::filepath(uuid)
-        if File.exists?(filepath) then
-            return filepath
-        end
-        raise "(error: 0b09f017-0423-4eb8-ac46-4a8966ad4ca6) could not determine presumably existing filepath for uuid: #{uuid}"
-    end
-
     # Nx7::filepaths()
     def self.filepaths()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Nx7")
-            .select{|filepath| filepath[-4, 4] == ".Nx5" }
-            .each{|filepath|
-                Nx5SyncthingConflictResolution::probeAndRepairIfRelevant(filepath)
-            }
-
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Nx7")
-            .select{|filepath| filepath[-4, 4] == ".Nx5" }
+        Enumerator.new do |filepaths|
+            Find.find(Config::pathToDesktop()) do |path|
+                if File.basename(path)[-4, 4] == ".Nx7" then
+                    filepaths << path
+                end
+            end
+            Find.find(Config::pathToGalaxy()) do |path|
+                if File.basename(path)[-4, 4] == ".Nx7" then
+                    filepaths << path
+                end
+            end
+        end
     end
 
     # Nx7::itemsEnumerator()
@@ -70,27 +31,52 @@ class Nx7
         end
     end
 
+    # Nx7::newFilepathOnDesktop(uuid)
+    def self.newFilepathOnDesktop(uuid)
+        filepath = "#{Config::pathToDesktop()}/#{uuid}.Nx5"
+        Nx5::issueNewFileAtFilepath(filepath, uuid)
+        filepath
+    end
+
+    # Nx7::existingItemFilepathOrNull(uuid)
+    def self.existingItemFilepathOrNull(uuid)
+        Nx7::filepaths().each{|filepath|
+            item = Nx5Ext::readFileAsAttributesOfObject(filepath)
+            if item["uuid"] == uuid then
+                return filepath
+            end
+        }
+        nil
+    end
+
+    # Nx7::existingItemFilepathOrError(uuid)
+    def self.existingItemFilepathOrError(uuid)
+        filepath = Nx7::existingItemFilepathOrNull(uuid)
+        return filepath if filepath
+        raise "(error: 0b09f017-0423-4eb8-ac46-4a8966ad4ca6) could not determine presumably existing filepath for uuid: #{uuid}"
+    end
+
     # Nx7::itemOrNull(uuid)
     def self.itemOrNull(uuid)
-        filepath = Nx7::filepath(uuid)
-        return nil if !File.exists?(filepath)
+        filepath = Nx7::existingItemFilepathOrNull(uuid)
+        return nil if filepath.nil?
         Nx5Ext::readFileAsAttributesOfObject(filepath)
     end
 
     # Nx7::commit(item)
     def self.commit(item)
         FileSystemCheck::fsck_MikuTypedItem(item, false)
-        filepath = Nx7::filepathForExistingItemOrError(item["uuid"])
+        filepath = Nx7::existingItemFilepathOrError(item["uuid"])
         item.each{|key, value|
             Nx5::emitEventToFile1(filepath, key, value)
         }
-        Search::commitNx7ToNx20Cache(item)
+        Nx7EventDispatch::itemCreatedOrUpdated(item)
     end
 
     # Nx7::destroy(uuid)
     def self.destroy(uuid)
-        filepath = Nx7::filepath(uuid)
-        return if !File.exists?(filepath)
+        filepath = Nx7::existingItemFilepathOrNull(uuid)
+        return if filepath.nil?
         FileUtils.rm(filepath)
     end
 
@@ -99,7 +85,7 @@ class Nx7
 
     # Nx7::operatorForUUID(uuid)
     def self.operatorForUUID(uuid)
-        filepath = Nx7::filepathForExistingItemOrError(uuid)
+        filepath = Nx7::existingItemFilepathOrError(uuid)
         ElizabethNx5.new(filepath)
     end
 
@@ -134,7 +120,6 @@ class Nx7
         }
         FileSystemCheck::fsck_Nx7(operator, item, true)
         Nx7::commit(item)
-        Nx7::archiveFileFromDesktopToDataCenter(uuid)
         item
     end
 
@@ -158,7 +143,6 @@ class Nx7
             "relatedsuuids" => []
         }
         Nx7::commit(item)
-        Nx7::archiveFileFromDesktopToDataCenter(uuid)
         item
     end
 
@@ -185,7 +169,6 @@ class Nx7
             "relatedsuuids" => []
         }
         Nx7::commit(item)
-        Nx7::archiveFileFromDesktopToDataCenter(uuid)
         item
     end
 
@@ -275,7 +258,7 @@ class Nx7
 
     # Nx7::getElizabethOperatorForUUID(uuid)
     def self.getElizabethOperatorForUUID(uuid)
-        filepath = Nx7::filepathForExistingItemOrError(uuid)
+        filepath = Nx7::existingItemFilepathOrError(uuid)
         ElizabethNx5.new(filepath)
     end
 
@@ -340,7 +323,7 @@ class Nx7
             puts "datetime: #{item["datetime"]}".yellow
             puts "payload: #{item["nx7Payload"]["type"]}".yellow
 
-            filepath = Nx7::filepathForExistingItemOrError(uuid)
+            filepath = Nx7::existingItemFilepathOrError(uuid)
             puts "filepath: #{filepath}".yellow
 
             item["comments"].each{|comment|
@@ -526,92 +509,16 @@ class Nx7
     end
 end
 
-class Nx7Xp
+class Nx7EventDispatch
 
-    # Nx7Xp::fsck()
-    def self.fsck()
-        Nx7::itemsEnumerator()
-            .each{|item|
-                FileSystemCheck::exitIfMissingCanary()
-                FileSystemCheck::fsck_MikuTypedItem(item, true)
-            }
-        puts "fsck completed successfully".green
-    end
-end
-
-class Nx7Export
-
-    # Nx7Export::itemRecursiveTrace(item)
-    def self.itemRecursiveTrace(item)
-        t1 = JSON.generate(item)
-        t2 = Nx7::children(item).map{|child| Nx7Export::itemRecursiveTrace(child)}.join(":")
-        Digest::SHA1.hexdigest("8b4ab1b6-71a5-42c3-872b-b98390c147bb:#{t1}:#{t2}")
+    # Nx7EventDispatch::itemCreatedOrUpdated(item)
+    def self.itemCreatedOrUpdated(item)
+        SearchNyx::commitNx7ToNx20Cache(item)
     end
 
-    # Nx7Export::itemToFoldername(item)
-    def self.itemToFoldername(item)
-        "(#{item["datetime"][0, 10]}) #{CommonUtils::sanitiseStringForFilenaming(item["description"])}"
+    # Nx7EventDispatch::itemDeleted(item)
+    def self.itemDeleted(item)
+
     end
 
-    # Nx7Export::recursivelyExportItemAtLocation(item, parentlocation)
-    def self.recursivelyExportItemAtLocation(item, parentlocation)
-        key1 = Digest::SHA1.hexdigest("#{Nx7Export::itemRecursiveTrace(item)}:#{parentlocation}")
-        return if XCache::getFlag(key1)
-
-        puts "exporting: #{parentlocation}/#{Nx7::toString(item)}"
-
-        itemFoldername = Nx7Export::itemToFoldername(item)
-        itemfolderpath = "#{parentlocation}/#{itemFoldername}"
-        if !File.exists?(itemfolderpath) then
-            puts "creating: #{itemfolderpath}"
-            FileUtils.mkdir(itemfolderpath)
-        end
-        payload = item["nx7Payload"]
-        if payload["type"] == "Data" then
-            operator = Nx7::operatorForItem(item)
-            state = payload["state"]
-            GridState::exportStateAtFolder(operator, state, itemfolderpath)
-        else
-            Nx7::children(item).each{|child|
-                Nx7Export::recursivelyExportItemAtLocation(child, itemfolderpath)
-            }
-
-            itemChildrenNamesWeHave = LucilleCore::locationsAtFolder(itemfolderpath).map{|fpath| File.basename(fpath) }
-            itemChildrenNamesWeNeed = Nx7::children(item).map{|child| Nx7Export::itemToFoldername(child) }
-
-            (itemChildrenNamesWeHave - itemChildrenNamesWeNeed).each{|childname|
-                itemChildFolderpath = "#{itemfolderpath}/#{childname}"
-                puts "removing : #{itemChildFolderpath}"
-                LucilleCore::removeFileSystemLocation(itemChildFolderpath)
-            }
-        end
-
-        XCache::setFlag(key1, true)
-    end
-
-    # Nx7Export::exportAll()
-    def self.exportAll()
-        foldernamesWeHave = LucilleCore::locationsAtFolder("#{Config::pathToGalaxy()}/Nyx-Projection-Read-Only/Projection").map{|fpath| File.basename(fpath) }
-        foldernamesWeNeed = Nx7::itemsEnumerator()
-                        .map{|item|
-                            (lambda {|item|
-                                return nil if Nx7::parents(item).size > 0
-                                Nx7Export::itemToFoldername(item)
-                            }).call(item)
-                        }
-                        .compact
-
-        (foldernamesWeHave - foldernamesWeNeed).each{|foldername|
-            folderpath = "#{Config::pathToGalaxy()}/Nyx-Projection-Read-Only/Projection/#{foldername}"
-            puts "removing : #{folderpath}"
-            LucilleCore::removeFileSystemLocation(folderpath)
-        }
-
-        Nx7::itemsEnumerator()
-            .each{|item|
-                next if Nx7::parents(item).size > 0
-                #puts "exporting: #{Nx7::toString(item)}"
-                Nx7Export::recursivelyExportItemAtLocation(item, "#{Config::pathToGalaxy()}/Nyx-Projection-Read-Only/Projection")
-            }
-    end
 end

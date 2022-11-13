@@ -55,6 +55,7 @@ class Bank
             db.execute("select * from _bank_ where _setuuid_=? and _date_=?", [setuuid, date]) do |row|
                 value = value + row["_weight_"]
             end
+            db.close
         }
 
         XCache::set(cachekey, value)

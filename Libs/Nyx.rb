@@ -9,7 +9,7 @@ class Nyx
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
         return nil if operation.nil?
         if operation == "existing || new" then
-            entity = Search::nyxFoxTerrier()
+            entity = SearchNyx::nyxFoxTerrier()
             return entity if entity
             return Nx7::interactivelyIssueNewOrNull()
         end
@@ -27,14 +27,12 @@ class Nyx
                 "search",
                 "uuid landing",
                 "list last [n] nodes dive",
-                "make new nyx node",
-                "export all",
-                "fsck Nx7s"
+                "make new nyx node"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
             if operation == "search" then
-                Search::nyx()
+                SearchNyx::nyx()
             end
             if operation == "uuid landing" then
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
@@ -65,12 +63,6 @@ class Nyx
                 next if item.nil?
                 puts JSON.pretty_generate(item)
                 PolyActions::landing(item)
-            end
-            if operation == "export all" then
-                Nx7Export::exportAll()
-            end
-            if operation == "fsck Nx7s" then
-                Nx7Xp::fsck()
             end
         }
     end
