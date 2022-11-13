@@ -33,7 +33,7 @@ class Nx7
 
     # Nx7::newFilepathOnDesktop(uuid)
     def self.newFilepathOnDesktop(uuid)
-        filepath = "#{Config::pathToDesktop()}/#{uuid}.Nx5"
+        filepath = "#{Config::pathToDesktop()}/#{uuid}.Nx7"
         Nx5::issueNewFileAtFilepath(filepath, uuid)
         filepath
     end
