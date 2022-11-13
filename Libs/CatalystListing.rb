@@ -5,7 +5,7 @@ class CatalystListing
     # CatalystListing::listingCommands()
     def self.listingCommands()
         [
-            ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | engine (<n>) | contribution (<n>) | cx23 (group position) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | add time | expose (<n>) | destroy",
+            ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | engine (<n>) | contribution (<n>) | cx23 (group position) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | expose (<n>) | destroy",
             "update start date (<n>)",
             "wave | anniversary | hot | today | ondate | todo | Cx22 | pointer-line | nxball",
             "pointer (<n>) | ordinal (<n>) | staging (<n>) | reordinal <n>",
@@ -30,7 +30,6 @@ class CatalystListing
             return if item.nil?
             PolyActions::access(item)
             PolyActions::done(item, true)
-            Cx22::interactivelyAddSomeTime(item)
             return
         end
 
@@ -40,7 +39,6 @@ class CatalystListing
             return if item.nil?
             PolyActions::access(item)
             PolyActions::done(item, true)
-            Cx22::interactivelyAddSomeTime(item)
             return
         end
 
@@ -405,11 +403,6 @@ class CatalystListing
             return if item.nil?
             puts "setting staging for #{PolyFunctions::toString(item)}"
             TxListingPointer::interactivelyIssueNewStaged(item)
-            return
-        end
-
-        if Interpreting::match("add time", input) then
-            Cx22::interactivelyAddSomeTime()
             return
         end
 
