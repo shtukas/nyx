@@ -521,3 +521,173 @@ class Nx7EventDispatch
         SearchNyx::deleteNx7FromNx20Cache(uuid)
     end
 end
+
+class Nx7Locations
+
+    # Nx7Locations::getNx7Locations(uuid)
+    def self.getNx7Locations(uuid)
+        key = "2a01c6ab-aa94-499b-919f-afdf9af5ec3c:#{uuid}"
+        item = XCache::getOrNull(key)
+        if item.nil? then
+            return {
+                "itemuuid"  => uuid,
+                "mikuType"  => "Nx7Locations",
+                "locations" => []
+            }
+        end
+        JSON.parse(item)
+    end
+
+    # Nx7Locations::commitNx7Locations(item)
+    def self.commitNx7Locations(item)
+        puts "Nx7Locations::commitNx7Locations(#{JSON.pretty_generate(item)})"
+        key = "2a01c6ab-aa94-499b-919f-afdf9af5ec3c:#{item["itemuuid"]}"
+        XCache::set(key, JSON.generate(item))
+    end
+
+    # Nx7Locations::registerFilepathForItem(uuid, filepath)
+    def self.registerFilepathForItem(uuid, filepath)
+        item1 = Nx7Locations::getNx7Locations(uuid)
+        item2 = JSON.parse(JSON.generate(item1))
+        item2["locations"] << filepath
+        item2["locations"] = item2["locations"]
+                                .select{|filepath| File.exists?(filepath) }
+                                .sort
+                                .uniq
+        if item1.to_s != item2.to_s then
+            Nx7Locations::commitNx7Locations(item2)
+        end
+    end
+
+    # Nx7Locations::scanAndUpdate()
+    def self.scanAndUpdate()
+        Nx7::filepaths().each{|filepath|
+            item = Nx5Ext::readFileAsAttributesOfObject(filepath)
+            Nx7Locations::registerFilepathForItem(item["uuid"], filepath)
+        }
+    end
+end
+
+class Nx7InstanceTraces
+
+    # Nx7InstanceTraces::getNx7InstanceTracesOrNull(filepath)
+    def self.getNx7InstanceTracesOrNull(filepath)
+        key = "bc8c2901-17de-490c-b429-94308ba221b5:#{filepath}"
+        item = XCache::getOrNull(key)
+        return nil if item.nil?
+        JSON.parse(item)
+    end
+
+    # Nx7InstanceTraces::commitItem(item)
+    def self.commitItem(item)
+        key = "bc8c2901-17de-490c-b429-94308ba221b5:#{filepath}"
+        XCache::set(key, JSON.generate(item))
+    end
+
+    # Nx7InstanceTraces::issueNewNx7InstanceTracesForFilepath(filepath)
+    def self.issueNewNx7InstanceTracesForFilepath(filepath)
+        eventsTrace = Digest::SHA1.hexdigest(Nx5::getOrderedEvents(filepath).map{|event| JSON.generate(event) }.join(":"))
+        exportTrace = nil
+        exportFolder = filepath.gsub(".Nx7", "")
+        if File.exists?(exportFolder) then
+            exportTrace = CommonUtils::locationTraceWithoutTopName(exportFolder)
+        end
+        item = {
+            "filepath"    => filepath,
+            "eventsTrace" => eventsTrace,
+            "exportTrace" => exportTrace
+        }
+        Nx7InstanceTraces::commitItem(item)
+    end
+end
+
+
+class AutomaticNx7NetworkMainteance
+
+    # AutomaticNx7NetworkMainteance::alertFilepath()
+    def self.alertFilepath()
+        "#{Config::pathToDesktop()}/AutomaticNx7NetworkMainteance-Alert.txt"
+    end
+
+    # AutomaticNx7NetworkMainteance::writeDifferenceToDesktop(message)
+    def self.writeDifferenceToDesktop(message)
+        File.open(AutomaticNx7NetworkMainteance::alertFilepath(), "w"){|f| f.puts(message) }
+    end
+
+    # AutomaticNx7NetworkMainteance::instanceAnalysis(filepath, verbose)
+    def self.instanceAnalysis(filepath, verbose)
+        item = Nx5Ext::readFileAsAttributesOfObject(filepath)
+        exportFolder = filepath.gsub(".Nx7", "")
+        if File.exists?(exportFolder) then
+            if item["nx7Payload"]["type"] == "Data" then
+                state = item["nx7Payload"]["state"]
+                operator = ElizabethNx5.new(filepath)
+                folderCheck = "#{exportFolder}-Check"
+                FileUtils.mkdir(folderCheck)
+                GridState::exportStateAtFolder(operator, state, folderCheck)
+                message = CommonUtils::firstDifferenceBetweenTwoLocations(exportFolder, folderCheck)
+                if message then
+                    AutomaticNx7NetworkMainteance::writeDifferenceToDesktop(message)
+                    if verbose then
+                        puts "AutomaticNx7NetworkMainteance::instanceAnalysis(#{filepath})"
+                        puts "message: #{message}".red
+                    end
+                    exit
+                end
+                LucilleCore::removeFileSystemLocation(folderCheck)
+            end
+        else
+            # Nothing to do.
+        end
+    end
+
+    # AutomaticNx7NetworkMainteance::pairAnalysis(filepath1, filepath2, verbose)
+    def self.pairAnalysis(filepath1, filepath2, verbose)
+        item1 = Nx5Ext::readFileAsAttributesOfObject(filepath1)
+        item2 = Nx5Ext::readFileAsAttributesOfObject(filepath2)
+        exportFolder1 = filepath1.gsub(".Nx7", "")
+        exportFolder2 = filepath2.gsub(".Nx7", "")
+        if File.exists?(exportFolder1) and File.exists?(exportFolder2) then
+            message = CommonUtils::firstDifferenceBetweenTwoLocations(exportFolder1, exportFolder2)
+            if message then
+                AutomaticNx7NetworkMainteance::writeDifferenceToDesktop(message)
+                if verbose then
+                    puts "AutomaticNx7NetworkMainteance::instanceAnalysis(#{filepath})"
+                    puts "message: #{message}".red
+                end
+                exit
+            end
+        else
+            Nx5Ext::contentsMirroring(filepath1, filepath2)
+        end
+    end
+
+    # AutomaticNx7NetworkMainteance::run(verbose = true)
+    def self.run(verbose = true)
+        puts "> Nx7Locations scan and update"
+        Nx7Locations::scanAndUpdate()
+
+        puts "> Instance analysis, batch"
+        Nx7::filepaths().each{|filepath|
+            AutomaticNx7NetworkMainteance::instanceAnalysis(filepath, verbose)
+        }
+
+        puts "> Pairs analysis, batch"
+        Nx7::filepaths().each{|filepath|
+            item = Nx5Ext::readFileAsAttributesOfObject(filepath)
+            uuid = item["uuid"]
+            nx7locations = Nx7Locations::getNx7Locations(uuid)
+            nx7locations["locations"]
+                .combination(2)
+                .each{|filepath1, filepath2|
+                    hash1 = Digest::SHA256.file(filepath1).hexdigest
+                    hash2 = Digest::SHA256.file(filepath2).hexdigest
+                    next if XCache::getFlag("#{hash1}:#{hash2}")
+                    AutomaticNx7NetworkMainteance::pairAnalysis(filepath1, filepath2, verbose)
+                    XCache::setFlag("#{hash1}:#{hash2}", true)
+                }
+        }
+
+        puts "AutomaticNx7NetworkMainteance::run() completed successfully".green
+    end
+end

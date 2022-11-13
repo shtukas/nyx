@@ -13,12 +13,6 @@ class Waves
     def self.nx5Filepaths()
         LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Wave")
             .select{|filepath| filepath[-4, 4] == ".Nx5" }
-            .each{|filepath|
-                Nx5SyncthingConflictResolution::probeAndRepairIfRelevant(filepath)
-            }
-
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Wave")
-            .select{|filepath| filepath[-4, 4] == ".Nx5" }
     end
 
     # Waves::items()

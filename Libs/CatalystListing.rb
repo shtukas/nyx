@@ -456,7 +456,7 @@ class CatalystListing
             tests = [
                 {
                     "name" => "source code trace generation",
-                    "lambda" => lambda { CommonUtils::generalCodeTrace() }
+                    "lambda" => lambda { CommonUtils::stargateTraceCode() }
                 },
                 {
                     "name" => "Anniversaries::listingItems()",
@@ -657,19 +657,24 @@ class CatalystListing
     # CatalystListing::mainListingProgram()
     def self.mainListingProgram()
 
-        initialCodeTrace = CommonUtils::generalCodeTrace()
+        initialCodeTrace = CommonUtils::stargateTraceCode()
 
         $SyncConflictInterruptionFilepath = nil
 
         loop {
 
-            if CommonUtils::generalCodeTrace() != initialCodeTrace then
+            if CommonUtils::stargateTraceCode() != initialCodeTrace then
                 puts "Code change detected"
                 break
             end
 
             if $SyncConflictInterruptionFilepath then
                 puts "$SyncConflictInterruptionFilepath: #{$SyncConflictInterruptionFilepath}"
+                exit
+            end
+
+            if File.exists?(AutomaticNx7NetworkMainteance::alertFilepath()) then
+                puts IO.read(AutomaticNx7NetworkMainteance::alertFilepath())
                 exit
             end
 

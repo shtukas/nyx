@@ -11,12 +11,6 @@ class NxTodos
     def self.filepaths()
         LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodo")
             .select{|filepath| filepath[-4, 4] == ".Nx5" }
-            .each{|filepath|
-                Nx5SyncthingConflictResolution::probeAndRepairIfRelevant(filepath)
-            }
-
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodo")
-            .select{|filepath| filepath[-4, 4] == ".Nx5" }
     end
 
     # NxTodos::items()

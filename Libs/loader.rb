@@ -193,7 +193,6 @@ require_relative "SyncConflicts.rb"
 
 require_relative "TxManualCountDowns.rb"
 require_relative "The99Percent.rb"
-require_relative "ThreadsX.rb"
 require_relative "TxListingCoordinates.rb"
 require_relative "TxListingPointer.rb"
 
@@ -201,9 +200,6 @@ require_relative "UniqueStrings.rb"
 require_relative "Upload.rb"
 
 require_relative "Waves.rb"
-
-require_relative "XCacheDatablobs.rb"
-require_relative "XCacheValuesWithExpiry.rb"
 
 # ------------------------------------------------------------
 
@@ -218,7 +214,12 @@ $arrows_database_semaphore = Mutex.new
 if $RunNonEssentialThreads then
 
     if Config::isAlexandra() then 
-        ThreadsX::startViennaImport()
+        Thread.new {
+            loop {
+                sleep 600
+                system("#{File.dirname(__FILE__)}/operations/vienna-import")
+            }
+        }
     end
 
     if Config::isAlexandra() then
@@ -238,6 +239,14 @@ if $RunNonEssentialThreads then
                 $SyncConflictInterruptionFilepath = filepath
             end
             sleep 600
+        }
+    }
+
+    Thread.new {
+        loop {
+            sleep 300
+            AutomaticNx7NetworkMainteance::run(verbose = true)
+            sleep 3600 + rand*3600
         }
     }
 

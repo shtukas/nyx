@@ -1,181 +1,76 @@
 
 # encoding: UTF-8
 
-# -----------------------------------------------------------------------
-
 class CommonUtils
 
     # ----------------------------------------------------
-    # Misc
+    # String Utilities
 
-    # CommonUtils::editTextSynchronously(text)
-    def self.editTextSynchronously(text)
-        filename = SecureRandom.uuid
-        filepath = "/tmp/#{filename}.txt"
-        File.open(filepath, 'w') {|f| f.write(text)}
-        system("open '#{filepath}'")
-        print "> press enter when done: "
-        input = STDIN.gets
-        IO.read(filepath)
+    # CommonUtils::sanitiseStringForFilenaming(str)
+    def self.sanitiseStringForFilenaming(str)
+        str
+            .gsub(":", "-")
+            .gsub("/", "-")
+            .gsub("'", "")
+            .strip
     end
 
-    # CommonUtils::accessText(text)
-    def self.accessText(text)
-        filename = SecureRandom.uuid
-        filepath = "/tmp/#{filename}.txt"
-        File.open(filepath, 'w') {|f| f.write(text)}
-        system("open '#{filepath}'")
+    # CommonUtils::ends_with?(str, ending)
+    def self.ends_with?(str, ending)
+        str[-ending.size, ending.size] == ending
     end
 
-    # CommonUtils::isInteger(str)
-    def self.isInteger(str)
-        str == str.to_i.to_s
-    end
+    # CommonUtils::levenshteinDistance(s, t)
+    def self.levenshteinDistance(s, t)
+      # https://stackoverflow.com/questions/16323571/measure-the-distance-between-two-strings-with-ruby
+      m = s.length
+      n = t.length
+      return m if n == 0
+      return n if m == 0
+      d = Array.new(m+1) {Array.new(n+1)}
 
-    # CommonUtils::getNewValueEveryNSeconds(uuid, n)
-    def self.getNewValueEveryNSeconds(uuid, n)
-      Digest::SHA1.hexdigest("6bb2e4cf-f627-43b3-812d-57ff93012588:#{uuid}:#{(Time.new.to_f/n).to_i.to_s}")
-    end
-
-    # CommonUtils::openFilepath(filepath)
-    def self.openFilepath(filepath)
-        system("open '#{filepath}'")
-    end
-
-    # CommonUtils::openFilepathWithInvite(filepath)
-    def self.openFilepathWithInvite(filepath)
-        system("open '#{filepath}'")
-        LucilleCore::pressEnterToContinue()
-    end
-
-    # CommonUtils::openUrlUsingSafari(url)
-    def self.openUrlUsingSafari(url)
-        system("open -a Safari '#{url}'")
-    end
-
-    # CommonUtils::onScreenNotification(title, message)
-    def self.onScreenNotification(title, message)
-        title = title.gsub("'","")
-        message = message.gsub("'","")
-        message = message.gsub("[","|")
-        message = message.gsub("]","|")
-        command = "terminal-notifier -title '#{title}' -message '#{message}'"
-        system(command)
-    end
-
-    # CommonUtils::selectDateOfNextNonTodayWeekDay(weekday) #2
-    def self.selectDateOfNextNonTodayWeekDay(weekday)
-        weekDayIndexToStringRepresentation = lambda {|indx|
-            weekdayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
-            weekdayNames[indx]
-        }
-        (1..7).each{|indx|
-            if weekDayIndexToStringRepresentation.call((Time.new+indx*86400).wday) == weekday then
-                return (Time.new+indx*86400).to_s[0,10]
-            end
-        }
-    end
-
-    # CommonUtils::screenHeight()
-    def self.screenHeight()
-        `/usr/bin/env tput lines`.to_i
-    end
-
-    # CommonUtils::screenWidth()
-    def self.screenWidth()
-        `/usr/bin/env tput cols`.to_i
-    end
-
-    # CommonUtils::verticalSize(displayStr)
-    def self.verticalSize(displayStr)
-        displayStr.lines.map{|line| line.size/CommonUtils::screenWidth() + 1 }.inject(0, :+)
-    end
-
-    # CommonUtils::fileByFilenameIsSafelyOpenable(filename)
-    def self.fileByFilenameIsSafelyOpenable(filename)
-        safelyOpeneableExtensions = [".txt", ".jpg", ".jpeg", ".png", ".eml", ".webloc", ".pdf"]
-        safelyOpeneableExtensions.any?{|extension| filename.downcase[-extension.size, extension.size] == extension }
-    end
-
-    # CommonUtils::putsOnPreviousLine(str)
-    def self.putsOnPreviousLine(str)
-        # \r move to the beginning \033[1A move up \033[0K erase to the end
-        print "\r"
-        print "\033[1A"
-        print "\033[0K"
-        puts str
-    end
-
-    # CommonUtils::nx45()
-    def self.nx45()
-        str1 = Time.new.strftime("%Y%m%d%H%M%S%6N")
-        str2 = str1[0, 6]
-        str3 = str1[6, 4]
-        str4 = str1[10, 4]
-        str5 = str1[14, 4]
-        str6 = str1[18, 2]
-        str7 = SecureRandom.hex[0, 10]
-        "10#{str2}-#{str3}-#{str4}-#{str5}-#{str6}#{str7}"
-    end
-
-    # CommonUtils::base64_encode(str)
-    def self.base64_encode(str)
-        return nil if str.nil?
-        [str].pack("m")
-    end
-
-    # CommonUtils::base64_decode(encoded)
-    def self.base64_decode(encoded)
-        return nil if encoded.nil?
-        encoded.unpack("m").first
-    end
-
-    # ----------------------------------------------------
-    # File System Routines
-
-    # CommonUtils::locationTrace(location)
-    def self.locationTrace(location)
-        raise "(error: 4d172723-3748-4f0b-a309-3944e4f352d9)" if !File.exists?(location)
-        if File.file?(location) then
-            Digest::SHA256.hexdigest("#{File.basename(location)}:#{Digest::SHA256.file(location).hexdigest}")
-        else
-            t1 = File.basename(location)
-            t2 = LucilleCore::locationsAtFolder(location)
-                    .map{|loc| CommonUtils::locationTrace(loc) }
-                    .join(":")
-            Digest::SHA1.hexdigest([t1, t2].join(":"))
+      (0..m).each {|i| d[i][0] = i}
+      (0..n).each {|j| d[0][j] = j}
+      (1..n).each do |j|
+        (1..m).each do |i|
+          d[i][j] = if s[i-1] == t[j-1] # adjust index into string
+                      d[i-1][j-1]       # no operation required
+                    else
+                      [ d[i-1][j]+1,    # deletion
+                        d[i][j-1]+1,    # insertion
+                        d[i-1][j-1]+1,  # substitution
+                      ].min
+                    end
         end
+      end
+      d[m][n]
     end
 
-    # CommonUtils::locationTraceCode(location)
-    def self.locationTraceCode(location)
-        raise "(error: 4d172723-3748-4f0b-a309-3944e4f352d9)" if !File.exists?(location)
-        if File.file?(location) then
-            Digest::SHA1.hexdigest("#{File.basename(location)}:#{Digest::SHA1.file(location).hexdigest}")
-        else
-            t1 = File.basename(location)
-            t2 = LucilleCore::locationsAtFolder(location)
-                    .select{|loc| File.basename(loc)[0, 1] != "." }
-                    .select{|loc| File.directory?(loc) or File.basename(loc)[-3, 3] == ".rb" }
-                    .map{|loc| CommonUtils::locationTraceCode(loc) }
-                    .join(":")
-            Digest::SHA1.hexdigest([t1, t2].join(":"))
+    # CommonUtils::stringDistance1(str1, str2)
+    def self.stringDistance1(str1, str2)
+        # This metric takes values between 0 and 1
+        return 1 if str1.size == 0
+        return 1 if str2.size == 0
+        CommonUtils::levenshteinDistance(str1, str2).to_f/[str1.size, str2.size].max
+    end
+
+    # CommonUtils::stringDistance2(str1, str2)
+    def self.stringDistance2(str1, str2)
+        # We need the smallest string to come first
+        if str1.size > str2.size then
+            str1, str2 = str2, str1
         end
-    end
-
-    # CommonUtils::codeTraceWithMultipleRoots(roots)
-    def self.codeTraceWithMultipleRoots(roots)
-        rtraces = roots.map{|root| CommonUtils::locationTraceCode(root) }
-        Digest::SHA1.hexdigest(rtraces.join(":"))
-    end
-
-    # CommonUtils::generalCodeTrace()
-    def self.generalCodeTrace()
-        CommonUtils::locationTraceCode("#{File.dirname(__FILE__)}/..")
+        diff = str2.size - str1.size
+        (0..diff).map{|i| CommonUtils::levenshteinDistance(str1, str2[i, str1.size]) }.min
     end
 
     # ----------------------------------------------------
     # Date Routines
+
+    # CommonUtils::timeStringL22()
+    def self.timeStringL22()
+        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
+    end
 
     # CommonUtils::isWeekday()
     def self.isWeekday()
@@ -390,83 +285,121 @@ class CommonUtils
     end
 
     # ----------------------------------------------------
-    # String Utilities
+    # File System Routines (Desktop selection)
 
-    # CommonUtils::sanitiseStringForFilenaming(str)
-    def self.sanitiseStringForFilenaming(str)
-        str
-            .gsub(":", "-")
-            .gsub("/", "-")
-            .gsub("'", "")
-            .strip
+    # CommonUtils::interactivelySelectDesktopLocationOrNull() 
+    def self.interactivelySelectDesktopLocationOrNull()
+        CommonUtils::interactivelySelectLocationAtSpecifiedDirectoryOrNull(Config::pathToDesktop())
     end
 
-    # CommonUtils::ends_with?(str, ending)
-    def self.ends_with?(str, ending)
-        str[-ending.size, ending.size] == ending
-    end
-
-    # CommonUtils::levenshteinDistance(s, t)
-    def self.levenshteinDistance(s, t)
-      # https://stackoverflow.com/questions/16323571/measure-the-distance-between-two-strings-with-ruby
-      m = s.length
-      n = t.length
-      return m if n == 0
-      return n if m == 0
-      d = Array.new(m+1) {Array.new(n+1)}
-
-      (0..m).each {|i| d[i][0] = i}
-      (0..n).each {|j| d[0][j] = j}
-      (1..n).each do |j|
-        (1..m).each do |i|
-          d[i][j] = if s[i-1] == t[j-1] # adjust index into string
-                      d[i-1][j-1]       # no operation required
-                    else
-                      [ d[i-1][j]+1,    # deletion
-                        d[i][j-1]+1,    # insertion
-                        d[i-1][j-1]+1,  # substitution
-                      ].min
-                    end
-        end
-      end
-      d[m][n]
-    end
-
-    # CommonUtils::stringDistance1(str1, str2)
-    def self.stringDistance1(str1, str2)
-        # This metric takes values between 0 and 1
-        return 1 if str1.size == 0
-        return 1 if str2.size == 0
-        CommonUtils::levenshteinDistance(str1, str2).to_f/[str1.size, str2.size].max
-    end
-
-    # CommonUtils::stringDistance2(str1, str2)
-    def self.stringDistance2(str1, str2)
-        # We need the smallest string to come first
-        if str1.size > str2.size then
-            str1, str2 = str2, str1
-        end
-        diff = str2.size - str1.size
-        (0..diff).map{|i| CommonUtils::levenshteinDistance(str1, str2[i, str1.size]) }.min
+    # CommonUtils::interactivelySelectDesktopLocation()
+    def self.interactivelySelectDesktopLocation()
+        location = CommonUtils::interactivelySelectDesktopLocationOrNull()
+        return location if location
+        CommonUtils::interactivelySelectDesktopLocation()
     end
 
     # ----------------------------------------------------
-    # Inherited from the old Librarian
+    # File System Routines (traces)
 
-    # CommonUtils::filepathToContentHash(filepath) # nhash
-    def self.filepathToContentHash(filepath)
-        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
+    # CommonUtils::locationTrace(location)
+    def self.locationTrace(location)
+        raise "(error: 4d172723-3748-4f0b-a309-3944e4f352d9)" if !File.exists?(location)
+        if File.file?(location) then
+            Digest::SHA256.hexdigest("#{File.basename(location)}:#{Digest::SHA256.file(location).hexdigest}")
+        else
+            t1 = File.basename(location)
+            t2 = LucilleCore::locationsAtFolder(location)
+                    .map{|loc| CommonUtils::locationTrace(loc) }
+                    .join(":")
+            Digest::SHA1.hexdigest([t1, t2].join(":"))
+        end
     end
 
-    # CommonUtils::openUrlUsingSafari(url)
-    def self.openUrlUsingSafari(url)
-        system("open -a Safari '#{url}'")
+    # CommonUtils::locationTraceWithoutTopName(location)
+    def self.locationTraceWithoutTopName(location)
+        t1 = LucilleCore::locationsAtFolder(location)
+                .map{|loc1| CommonUtils::locationTrace(loc1) }
+                .join()
+        Digest::SHA256.hexdigest(t1)
     end
+
+    # CommonUtils::locationTraceCode(location)
+    def self.locationTraceCode(location)
+        raise "(error: 4d172723-3748-4f0b-a309-3944e4f352d9)" if !File.exists?(location)
+        if File.file?(location) then
+            Digest::SHA1.hexdigest("#{File.basename(location)}:#{Digest::SHA1.file(location).hexdigest}")
+        else
+            t1 = File.basename(location)
+            t2 = LucilleCore::locationsAtFolder(location)
+                    .select{|loc| File.basename(loc)[0, 1] != "." }
+                    .select{|loc| File.directory?(loc) or File.basename(loc)[-3, 3] == ".rb" }
+                    .map{|loc| CommonUtils::locationTraceCode(loc) }
+                    .join(":")
+            Digest::SHA1.hexdigest([t1, t2].join(":"))
+        end
+    end
+
+    # CommonUtils::locationTraceCodeWithMultipleRoots(roots)
+    def self.locationTraceCodeWithMultipleRoots(roots)
+        rtraces = roots.map{|root| CommonUtils::locationTraceCode(root) }
+        Digest::SHA1.hexdigest(rtraces.join(":"))
+    end
+
+    # CommonUtils::stargateTraceCode()
+    def self.stargateTraceCode()
+        CommonUtils::locationTraceCode("#{File.dirname(__FILE__)}/..")
+    end
+
+    # ----------------------------------------------------
+    # File System Routines (misc)
+
+    # CommonUtils::firstDifferenceBetweenTwoLocations(location1, location2) nil or String (message)
+    def self.firstDifferenceBetweenTwoLocations(location1, location2)
+        if File.file?(location1) and !File.file?(location2) then
+            return "difference: location1 is a file while location2 is a directory; location1: '#{location1}'; location2: '#{location2}'"
+        end
+        if !File.file?(location1) and File.file?(location2) then
+            return "difference: location1 is a directory while location1 is a file; location1: '#{location1}'; location2: '#{location2}'"
+        end
+        if File.file?(location1) and File.file?(location2) then
+            if Digest::SHA1.file(location1).hexdigest == Digest::SHA1.file(location2).hexdigest then
+                return nil
+            else
+                return "difference: both files do not have the same content; file1: '#{location1}'; file2: '#{location2}'"
+            end
+        end
+        # By this point both should be directories
+        content1 = Dir.entries(location1) - [".", "..", ".DS_Store"]
+        content2 = Dir.entries(location2) - [".", "..", ".DS_Store"]
+        difference = content1 - content2
+        if difference.size > 0 then
+            return "difference: here is an element in directory1, but not in directory2: '#{difference.first}'; directory1: '#{location1}'; directory2: '#{location2}'"
+        end
+        difference = content2 - content1
+        if difference.size > 0 then
+            return "difference: here is an element in directory2, but not in directory1: '#{difference.first}'; directory1: '#{location1}'; directory2: '#{location2}'"
+        end
+        # By now, both directories have the same element names
+        content1
+            .each{|filename|
+                locx1 = "#{location1}/#{filename}"
+                locx2 = "#{location2}/#{filename}"
+                status = CommonUtils::firstDifferenceBetweenTwoLocations(locx1, locx2)
+                if status then
+                    return status
+                end
+            }
+        nil
+    end
+
+    # ----------------------------------------------------
+    # Misc
 
     # CommonUtils::editTextSynchronously(text)
     def self.editTextSynchronously(text)
-        filename = "#{SecureRandom.uuid}.txt"
-        filepath = "/tmp/#{filename}"
+        filename = SecureRandom.uuid
+        filepath = "/tmp/#{filename}.txt"
         File.open(filepath, 'w') {|f| f.write(text)}
         system("open '#{filepath}'")
         print "> press enter when done: "
@@ -474,9 +407,120 @@ class CommonUtils
         IO.read(filepath)
     end
 
-    # CommonUtils::timeStringL22()
-    def self.timeStringL22()
-        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
+    # CommonUtils::accessText(text)
+    def self.accessText(text)
+        filename = SecureRandom.uuid
+        filepath = "/tmp/#{filename}.txt"
+        File.open(filepath, 'w') {|f| f.write(text)}
+        system("open '#{filepath}'")
+    end
+
+    # CommonUtils::isInteger(str)
+    def self.isInteger(str)
+        str == str.to_i.to_s
+    end
+
+    # CommonUtils::getNewValueEveryNSeconds(uuid, n)
+    def self.getNewValueEveryNSeconds(uuid, n)
+      Digest::SHA1.hexdigest("6bb2e4cf-f627-43b3-812d-57ff93012588:#{uuid}:#{(Time.new.to_f/n).to_i.to_s}")
+    end
+
+    # CommonUtils::openFilepath(filepath)
+    def self.openFilepath(filepath)
+        system("open '#{filepath}'")
+    end
+
+    # CommonUtils::openFilepathWithInvite(filepath)
+    def self.openFilepathWithInvite(filepath)
+        system("open '#{filepath}'")
+        LucilleCore::pressEnterToContinue()
+    end
+
+    # CommonUtils::openUrlUsingSafari(url)
+    def self.openUrlUsingSafari(url)
+        system("open -a Safari '#{url}'")
+    end
+
+    # CommonUtils::onScreenNotification(title, message)
+    def self.onScreenNotification(title, message)
+        title = title.gsub("'","")
+        message = message.gsub("'","")
+        message = message.gsub("[","|")
+        message = message.gsub("]","|")
+        command = "terminal-notifier -title '#{title}' -message '#{message}'"
+        system(command)
+    end
+
+    # CommonUtils::selectDateOfNextNonTodayWeekDay(weekday) #2
+    def self.selectDateOfNextNonTodayWeekDay(weekday)
+        weekDayIndexToStringRepresentation = lambda {|indx|
+            weekdayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
+            weekdayNames[indx]
+        }
+        (1..7).each{|indx|
+            if weekDayIndexToStringRepresentation.call((Time.new+indx*86400).wday) == weekday then
+                return (Time.new+indx*86400).to_s[0,10]
+            end
+        }
+    end
+
+    # CommonUtils::screenHeight()
+    def self.screenHeight()
+        `/usr/bin/env tput lines`.to_i
+    end
+
+    # CommonUtils::screenWidth()
+    def self.screenWidth()
+        `/usr/bin/env tput cols`.to_i
+    end
+
+    # CommonUtils::verticalSize(displayStr)
+    def self.verticalSize(displayStr)
+        displayStr.lines.map{|line| line.size/CommonUtils::screenWidth() + 1 }.inject(0, :+)
+    end
+
+    # CommonUtils::fileByFilenameIsSafelyOpenable(filename)
+    def self.fileByFilenameIsSafelyOpenable(filename)
+        safelyOpeneableExtensions = [".txt", ".jpg", ".jpeg", ".png", ".eml", ".webloc", ".pdf"]
+        safelyOpeneableExtensions.any?{|extension| filename.downcase[-extension.size, extension.size] == extension }
+    end
+
+    # CommonUtils::putsOnPreviousLine(str)
+    def self.putsOnPreviousLine(str)
+        # \r move to the beginning \033[1A move up \033[0K erase to the end
+        print "\r"
+        print "\033[1A"
+        print "\033[0K"
+        puts str
+    end
+
+    # CommonUtils::nx45()
+    def self.nx45()
+        str1 = Time.new.strftime("%Y%m%d%H%M%S%6N")
+        str2 = str1[0, 6]
+        str3 = str1[6, 4]
+        str4 = str1[10, 4]
+        str5 = str1[14, 4]
+        str6 = str1[18, 2]
+        str7 = SecureRandom.hex[0, 10]
+        "10#{str2}-#{str3}-#{str4}-#{str5}-#{str6}#{str7}"
+    end
+
+    # CommonUtils::base64_encode(str)
+    def self.base64_encode(str)
+        return nil if str.nil?
+        [str].pack("m")
+    end
+
+    # CommonUtils::base64_decode(encoded)
+    def self.base64_decode(encoded)
+        return nil if encoded.nil?
+        encoded.unpack("m").first
+    end
+
+    # CommonUtils::filepathToContentHash(filepath) # nhash
+    def self.filepathToContentHash(filepath)
+        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
     end
 
     # CommonUtils::atlas(pattern)
@@ -491,18 +535,6 @@ class CommonUtils
         locationNameOnDesktop = LucilleCore::selectEntityFromListOfEntitiesOrNull("locationname", entries)
         return nil if locationNameOnDesktop.nil?
         "#{folder}/#{locationNameOnDesktop}"
-    end
-
-    # CommonUtils::interactivelySelectDesktopLocationOrNull() 
-    def self.interactivelySelectDesktopLocationOrNull()
-        CommonUtils::interactivelySelectLocationAtSpecifiedDirectoryOrNull(Config::pathToDesktop())
-    end
-
-    # CommonUtils::interactivelySelectDesktopLocation()
-    def self.interactivelySelectDesktopLocation()
-        location = CommonUtils::interactivelySelectDesktopLocationOrNull()
-        return location if location
-        CommonUtils::interactivelySelectDesktopLocation()
     end
 
     # CommonUtils::moveFileToBinTimeline(location)
