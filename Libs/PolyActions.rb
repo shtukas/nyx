@@ -15,6 +15,11 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "Lx01" then
+            item["lambda"].call()
+            return
+        end
+
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::access(item)
             return

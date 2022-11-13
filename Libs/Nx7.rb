@@ -38,11 +38,24 @@ class Nx7
         filepath
     end
 
+    # Nx7::trueIfFilepathIsInstanceOfGivenUUID(filepath, uuid)
+    def self.trueIfFilepathIsInstanceOfGivenUUID(filepath, uuid)
+        return false if !File.exists?(filepath)
+        item = Nx5Ext::readFileAsAttributesOfObject(filepath)
+        return false if item["uuid"].nil?
+        item["uuid"] == uuid
+    end
+
     # Nx7::existingItemFilepathOrNull(uuid)
     def self.existingItemFilepathOrNull(uuid)
+        nx7Locations = Nx7Locations::getNx7Locations(uuid)
+        nx7Locations["locations"].each{|filepath|
+            if Nx7::trueIfFilepathIsInstanceOfGivenUUID(filepath, uuid) then
+                return filepath
+            end
+        }
         Nx7::filepaths().each{|filepath|
-            item = Nx5Ext::readFileAsAttributesOfObject(filepath)
-            if item["uuid"] == uuid then
+            if Nx7::trueIfFilepathIsInstanceOfGivenUUID(filepath, uuid) then
                 return filepath
             end
         }
@@ -580,116 +593,242 @@ class Nx7InstanceTraces
         JSON.parse(item)
     end
 
-    # Nx7InstanceTraces::commitItem(item)
-    def self.commitItem(item)
+    # Nx7InstanceTraces::commitInstanceItem(filepath, item)
+    def self.commitInstanceItem(filepath, item)
         key = "bc8c2901-17de-490c-b429-94308ba221b5:#{filepath}"
         XCache::set(key, JSON.generate(item))
     end
 
-    # Nx7InstanceTraces::issueNewNx7InstanceTracesForFilepath(filepath)
-    def self.issueNewNx7InstanceTracesForFilepath(filepath)
+    # Nx7InstanceTraces::computeForFilepath(filepath)
+    def self.computeForFilepath(filepath)
         eventsTrace = Digest::SHA1.hexdigest(Nx5::getOrderedEvents(filepath).map{|event| JSON.generate(event) }.join(":"))
         exportTrace = nil
         exportFolder = filepath.gsub(".Nx7", "")
         if File.exists?(exportFolder) then
             exportTrace = CommonUtils::locationTraceWithoutTopName(exportFolder)
         end
-        item = {
+        {
             "filepath"    => filepath,
             "eventsTrace" => eventsTrace,
             "exportTrace" => exportTrace
         }
-        Nx7InstanceTraces::commitItem(item)
+    end
+
+    # Nx7InstanceTraces::issueNewNx7InstanceTracesForFilepath(filepath)
+    def self.issueNewNx7InstanceTracesForFilepath(filepath)
+        item = Nx7InstanceTraces::computeForFilepath(filepath)
+        Nx7InstanceTraces::commitInstanceItem(filepath, item)
     end
 end
 
-
 class AutomaticNx7NetworkMainteance
 
-    # AutomaticNx7NetworkMainteance::alertFilepath()
-    def self.alertFilepath()
-        "#{Config::pathToDesktop()}/AutomaticNx7NetworkMainteance-Alert.txt"
-    end
-
-    # AutomaticNx7NetworkMainteance::writeDifferenceToDesktop(message)
-    def self.writeDifferenceToDesktop(message)
-        File.open(AutomaticNx7NetworkMainteance::alertFilepath(), "w"){|f| f.puts(message) }
-    end
-
-    # AutomaticNx7NetworkMainteance::instanceAnalysis(filepath, verbose)
-    def self.instanceAnalysis(filepath, verbose)
+    # AutomaticNx7NetworkMainteance::trueIfFilepathIsInstanceDataCarrier(filepath)
+    def self.trueIfFilepathIsInstanceDataCarrier(filepath)
         item = Nx5Ext::readFileAsAttributesOfObject(filepath)
+        item["nx7Payload"]["type"] == "Data"
+    end
+
+    # AutomaticNx7NetworkMainteance::instanceAnalysis_ifDataCarrier_ensureThatInstanceAndExportFolderAreTheSame(filepath)
+    def self.instanceAnalysis_ifDataCarrier_ensureThatInstanceAndExportFolderAreTheSame(filepath)
         exportFolder = filepath.gsub(".Nx7", "")
-        if File.exists?(exportFolder) then
-            if item["nx7Payload"]["type"] == "Data" then
-                state = item["nx7Payload"]["state"]
-                operator = ElizabethNx5.new(filepath)
-                folderCheck = "#{exportFolder}-Check"
+        return if !File.exists?(exportFolder)
+        item = Nx5Ext::readFileAsAttributesOfObject(filepath)
+        if item["nx7Payload"]["type"] == "Data" then
+            state = item["nx7Payload"]["state"]
+            operator = ElizabethNx5.new(filepath)
+            folderCheck = "#{exportFolder}-Check"
+            if !File.exists?(folderCheck) then
                 FileUtils.mkdir(folderCheck)
-                GridState::exportStateAtFolder(operator, state, folderCheck)
-                message = CommonUtils::firstDifferenceBetweenTwoLocations(exportFolder, folderCheck)
-                if message then
-                    AutomaticNx7NetworkMainteance::writeDifferenceToDesktop(message)
-                    if verbose then
-                        puts "AutomaticNx7NetworkMainteance::instanceAnalysis(#{filepath})"
-                        puts "message: #{message}".red
-                    end
-                    exit
-                end
-                LucilleCore::removeFileSystemLocation(folderCheck)
             end
-        else
-            # Nothing to do.
+            GridState::exportStateAtFolder(operator, state, folderCheck)
+            loop {
+                message = CommonUtils::firstDifferenceBetweenTwoLocations(exportFolder, folderCheck)
+                if message.nil? then
+                    break
+                end
+                if message then
+                    system("open '#{exportFolder}'")
+                    puts "AutomaticNx7NetworkMainteance::instanceAnalysis(#{filepath})"
+                    puts "message: #{message}"
+                    puts "Ensure that both are the same and..."
+                    LucilleCore::pressEnterToContinue()
+                
+                end
+            }
+            LucilleCore::removeFileSystemLocation(folderCheck)
         end
     end
 
-    # AutomaticNx7NetworkMainteance::pairAnalysis(filepath1, filepath2, verbose)
-    def self.pairAnalysis(filepath1, filepath2, verbose)
-        item1 = Nx5Ext::readFileAsAttributesOfObject(filepath1)
-        item2 = Nx5Ext::readFileAsAttributesOfObject(filepath2)
+    # AutomaticNx7NetworkMainteance::ifDataCarrier_exportInstanceAtFolder(filepath, exportFolder)
+    def self.ifDataCarrier_exportInstanceAtFolder(filepath, exportFolder)
+        return if !AutomaticNx7NetworkMainteance::trueIfFilepathIsInstanceDataCarrier(filepath)
+        item = Nx5Ext::readFileAsAttributesOfObject(filepath)
+        if item["nx7Payload"]["type"] == "Data" then
+            puts "AutomaticNx7NetworkMainteance::ifDataCarrier_exportInstanceAtFolder(#{filepath}, exportFolder)"
+            state = item["nx7Payload"]["state"]
+            operator = ElizabethNx5.new(filepath)
+            GridState::exportStateAtFolder(operator, state, exportFolder)
+        end
+    end
+
+    # AutomaticNx7NetworkMainteance::ifDataCarrier_importToInstanceFromExportFolder(filepath, exportFolder)
+    def self.ifDataCarrier_importToInstanceFromExportFolder(filepath, exportFolder)
+        return if !AutomaticNx7NetworkMainteance::trueIfFilepathIsInstanceDataCarrier(filepath)
+        item = Nx5Ext::readFileAsAttributesOfObject(filepath)
+        nx7Payload = item["nx7Payload"]
+        if nx7Payload["type"] == "Data" then
+            puts "AutomaticNx7NetworkMainteance::ifDataCarrier_importToInstanceFromExportFolder(#{filepath}, exportFolder)"
+            operator = ElizabethNx5.new(filepath)
+            state2 = GridState::directoryPathToNxDirectoryContentsGridState(operator, exportFolder)
+            nx7Payload["state"] = state2
+            # Then, instance of calling the main commit function, we do it manually like this to ensure that we are talking to the correct instance
+            Nx5::emitEventToFile1(filepath, "nx7Payload", nx7Payload)
+            # Technically we should also call this, but we don't: Nx7EventDispatch::itemCreatedOrUpdated(item)
+        end
+    end
+
+    # AutomaticNx7NetworkMainteance::instanceAnalysis(filepath)
+    def self.instanceAnalysis(filepath)
+
+        return if !AutomaticNx7NetworkMainteance::trueIfFilepathIsInstanceDataCarrier(filepath)
+
+        # If there is not export folder, then there is nothing for us to do here
+
+        exportFolder = filepath.gsub(".Nx7", "")
+        return if !File.exists?(exportFolder)
+
+        # Nothing to do if the item is not data carrier
+
+        item = Nx5Ext::readFileAsAttributesOfObject(filepath)
+        return if item["nx7Payload"]["type"] != "Data"
+
+        # Getting the Instance Traces
+
+        instanceTracesXisting = Nx7InstanceTraces::getNx7InstanceTracesOrNull(filepath)
+
+        # If there is no Nx7InstanceTraces, then we compare the folder and the instance and make a decision
+
+        if instanceTracesXisting.nil? then
+            AutomaticNx7NetworkMainteance::instanceAnalysis_ifDataCarrier_ensureThatInstanceAndExportFolderAreTheSame(filepath)
+            # So by now, the two are identical
+            # Let's issue the Nx7InstanceTraces
+            Nx7InstanceTraces::issueNewNx7InstanceTracesForFilepath(filepath)
+            return
+        end
+
+        # So we have instanceTraces
+
+        # If the instance trace and the export folder traces are the same, then there has not been any evolution since the last time
+        # If the instance trace is different, but the export folder is the same, then we export
+        # If the instance trace if the same, but the export folder trace is different, then we import
+        # If both traces have moved, then we have a problem.
+
+        instanceTracesLive = Nx7InstanceTraces::computeForFilepath(filepath)
+
+        #Nx7InstanceTraces { # stored in xcache against the instance filepath
+        #    "filepath"    : String
+        #    "eventsTrace" : String
+        #    "exportTrace" : StringOrNull # null if 
+        #}
+
+        if instanceTracesXisting["eventsTrace"] == instanceTracesLive["eventsTrace"] and instanceTracesXisting["exportTrace"] == instanceTracesLive["exportTrace"] then
+            return
+        end
+
+        if instanceTracesXisting["eventsTrace"] != instanceTracesLive["eventsTrace"] and instanceTracesXisting["exportTrace"] == instanceTracesLive["exportTrace"] then
+            AutomaticNx7NetworkMainteance::ifDataCarrier_exportInstanceAtFolder(filepath, exportFolder)
+            Nx7InstanceTraces::issueNewNx7InstanceTracesForFilepath(filepath)
+            return
+        end
+
+        if instanceTracesXisting["eventsTrace"] == instanceTracesLive["eventsTrace"] and instanceTracesXisting["exportTrace"] != instanceTracesLive["exportTrace"] then
+            AutomaticNx7NetworkMainteance::ifDataCarrier_importToInstanceFromExportFolder(filepath, exportFolder)
+            Nx7InstanceTraces::issueNewNx7InstanceTracesForFilepath(filepath)
+            return
+        end
+        
+        if instanceTracesXisting["eventsTrace"] != instanceTracesLive["eventsTrace"] and instanceTracesXisting["exportTrace"] != instanceTracesLive["exportTrace"] then
+            puts "Houston, we have a problem!"
+            AutomaticNx7NetworkMainteance::instanceAnalysis_ifDataCarrier_ensureThatInstanceAndExportFolderAreTheSame(filepath)
+            Nx7InstanceTraces::issueNewNx7InstanceTracesForFilepath(filepath)
+            return
+        end
+    end
+
+    # AutomaticNx7NetworkMainteance::pairAnalysisExportFoldersResolution(filepath1, filepath2)
+    def self.pairAnalysisExportFoldersResolution(filepath1, filepath2)
+        return if !AutomaticNx7NetworkMainteance::trueIfFilepathIsInstanceDataCarrier(filepath1)
+        return if !AutomaticNx7NetworkMainteance::trueIfFilepathIsInstanceDataCarrier(filepath2)
         exportFolder1 = filepath1.gsub(".Nx7", "")
         exportFolder2 = filepath2.gsub(".Nx7", "")
         if File.exists?(exportFolder1) and File.exists?(exportFolder2) then
             message = CommonUtils::firstDifferenceBetweenTwoLocations(exportFolder1, exportFolder2)
             if message then
-                AutomaticNx7NetworkMainteance::writeDifferenceToDesktop(message)
-                if verbose then
-                    puts "AutomaticNx7NetworkMainteance::instanceAnalysis(#{filepath})"
-                    puts "message: #{message}".red
-                end
+                puts "AutomaticNx7NetworkMainteance::pairAnalysisExportFoldersResolution(#{filepath1}, #{filepath2})"
+                puts "message: #{message}"
                 exit
             end
-        else
-            Nx5Ext::contentsMirroring(filepath1, filepath2)
         end
     end
 
-    # AutomaticNx7NetworkMainteance::run(verbose = true)
-    def self.run(verbose = true)
+    # AutomaticNx7NetworkMainteance::run()
+    def self.run()
+
+        time1 = Time.new.to_i
+
+        puts "> AutomaticNx7NetworkMainteance::run()"
+
+        # First let us make sure that we have the right filepaths
+
         puts "> Nx7Locations scan and update"
         Nx7Locations::scanAndUpdate()
 
-        puts "> Instance analysis, batch"
-        Nx7::filepaths().each{|filepath|
-            AutomaticNx7NetworkMainteance::instanceAnalysis(filepath, verbose)
-        }
+        # The priority is then to detect if two export folders have diverged or not
 
-        puts "> Pairs analysis, batch"
+        puts "> Pairs analysis, export folders resolution"
         Nx7::filepaths().each{|filepath|
+            next if !AutomaticNx7NetworkMainteance::trueIfFilepathIsInstanceDataCarrier(filepath)
             item = Nx5Ext::readFileAsAttributesOfObject(filepath)
             uuid = item["uuid"]
             nx7locations = Nx7Locations::getNx7Locations(uuid)
             nx7locations["locations"]
                 .combination(2)
                 .each{|filepath1, filepath2|
-                    hash1 = Digest::SHA256.file(filepath1).hexdigest
-                    hash2 = Digest::SHA256.file(filepath2).hexdigest
-                    next if XCache::getFlag("#{hash1}:#{hash2}")
-                    AutomaticNx7NetworkMainteance::pairAnalysis(filepath1, filepath2, verbose)
-                    XCache::setFlag("#{hash1}:#{hash2}", true)
+                    AutomaticNx7NetworkMainteance::pairAnalysisExportFoldersResolution(filepath1, filepath2)
                 }
         }
 
-        puts "AutomaticNx7NetworkMainteance::run() completed successfully".green
+        # Then we want to make sure that changes in an export folder are reported into the instance
+
+        puts "> Instance analysis, batch"
+        Nx7::filepaths().each{|filepath|
+            next if !AutomaticNx7NetworkMainteance::trueIfFilepathIsInstanceDataCarrier(filepath)
+            AutomaticNx7NetworkMainteance::instanceAnalysis(filepath)
+        }
+
+        # Then we mirror pairs of instances
+
+        puts "> Pairs analysis: contents mirroring "
+        Nx7::filepaths().each{|filepath|
+            next if !AutomaticNx7NetworkMainteance::trueIfFilepathIsInstanceDataCarrier(filepath)
+            item = Nx5Ext::readFileAsAttributesOfObject(filepath)
+            uuid = item["uuid"]
+            nx7locations = Nx7Locations::getNx7Locations(uuid)
+            nx7locations["locations"]
+                .combination(2)
+                .each{|filepath1, filepath2|
+                    hash1 = File.mtime(filepath1).to_s
+                    hash2 = File.mtime(filepath2).to_s
+                    key = "4694f05c-a071-40dc-9c62-3b42c25ca9e6:#{hash1}:#{hash2}"
+                    next if XCache::getFlag(key)
+                    Nx5Ext::contentsMirroring(filepath1, filepath2)
+                    XCache::setFlag(key, true)
+                }
+        }
+
+        time2 = Time.new.to_i
+
+        puts "AutomaticNx7NetworkMainteance::run() completed successfully in #{(time2 - time1)} seconds".green
     end
 end

@@ -8,18 +8,36 @@ require_relative "Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
-filepaths = LucilleCore::locationsAtFolder(Dir.pwd)
-                .select{|filepath| filepath[-4, 4] == ".Nx7" }
 
-filepath = LucilleCore::selectEntityFromListOfEntitiesOrNull("Nx7", filepaths, lambda{|filepath| File.basename(filepath) })
+def selectAndOpenNx7AtThisDirectory()
+    filepaths = LucilleCore::locationsAtFolder(Dir.pwd)
+                    .select{|filepath| filepath[-4, 4] == ".Nx7" }
 
-exportFolder = filepath.gsub(".Nx7", "")
-if File.exists?(exportFolder) then
-    puts "There already is an export folder for: #{File.basename(filepath)}"
-    exit
+    filepath = LucilleCore::selectEntityFromListOfEntitiesOrNull("Nx7", filepaths, lambda{|filepath| File.basename(filepath) })
+
+    exportFolder = filepath.gsub(".Nx7", "")
+    if File.exists?(exportFolder) then
+        puts "There already is an export folder for: #{File.basename(filepath)}"
+        exit
+    end
+    item = Nx5Ext::readFileAsAttributesOfObject(filepath)
+    operator = ElizabethNx5.new(filepath)
+    state = item["nx7Payload"]["state"]
+    FileUtils.mkdir(exportFolder)
+    GridState::exportStateAtFolder(operator, state, exportFolder)
 end
-item = Nx5Ext::readFileAsAttributesOfObject(filepath)
-operator = ElizabethNx5.new(filepath)
-state = item["nx7Payload"]["state"]
-FileUtils.mkdir(exportFolder)
-GridState::exportStateAtFolder(operator, state, exportFolder)
+
+
+actions = [
+    "select and open Nx7 at this directory",
+    "Nx7 network maintenance",
+]
+action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
+
+if action == "select and open Nx7 at this directory" then
+    selectAndOpenNx7AtThisDirectory()
+end
+
+if action == "Nx7 network maintenance" then
+    AutomaticNx7NetworkMainteance::run()
+end

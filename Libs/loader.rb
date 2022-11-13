@@ -170,6 +170,8 @@ require_relative "InMemoryStore.rb"
 
 require_relative "FileSystemCheck.rb"
 
+require_relative "Lx01s.rb"
+
 require_relative "Nyx.rb"
 require_relative "Nx113.rb"
 require_relative "Nx11E.rb"
@@ -226,14 +228,6 @@ if $RunNonEssentialThreads then
                 sleep 12
                 The99Percent::displayLineFromScratchWithCacheUpdate()
                 sleep 600
-            }
-        }
-
-        Thread.new {
-            loop {
-                sleep 300
-                AutomaticNx7NetworkMainteance::run(verbose = true)
-                sleep 3600 + rand*3600
             }
         }
     end

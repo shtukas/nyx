@@ -237,8 +237,31 @@ class Nx5Ext
         }
     end
 
+    # Nx5Ext::ensureSetAndIdenticalUUIDsOrError(file1, file2)
+    def self.ensureSetAndIdenticalUUIDsOrError(file1, file2)
+        payloads1 = Nx5::getOrderedPayloadsForEventType(file1, "uuid")
+        if payloads1.empty? then
+            raise "(error: 47021527-13f3-4d8a-95f7-e130760b9ed5) file: '#{file1.green}' doesn't have a uuid attribute"
+        end
+        uuid1 = payloads1.last
+
+        payloads2 = Nx5::getOrderedPayloadsForEventType(file2, "uuid")
+        if payloads2.empty? then
+            raise "(error: 4b56c0f6-edd0-4c70-bc0b-8543f902d4b9) file: '#{file2.green}' doesn't have a uuid attribute"
+        end
+        uuid2 = payloads2.last
+
+        if uuid1 != uuid2 then
+            raise "attepting mirroring onto two files with distinct uuids; file1: #{file1}; uuid: #{uuid1}; file2: #{file2}; uuid: #{uuid2} "
+        end
+    end
+
     # Nx5Ext::contentsPropagation(sourcefilepath, targetfilepath)
     def self.contentsPropagation(sourcefilepath, targetfilepath)
+
+        # We need to fail if either of the two files doesn't have a uuid or if they are not identical
+        Nx5Ext::ensureSetAndIdenticalUUIDsOrError(sourcefilepath, targetfilepath)
+
         Nx5::getDataBlobsNhashes(sourcefilepath)
             .each{|nhash|
                 blob = Nx5::getDatablobOrNull(sourcefilepath, nhash)
@@ -247,6 +270,7 @@ class Nx5Ext
                 end
                 Nx5::putBlob(targetfilepath, blob)
             }
+
         Nx5::getOrderedEvents(sourcefilepath)
             .each{|event|
                 Nx5::emitEventToFile0(targetfilepath, event)

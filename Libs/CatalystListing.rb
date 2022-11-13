@@ -543,7 +543,8 @@ class CatalystListing
             Waves::items(),
             Cx22::listingItems(),
             NxTodos::listingItems(),
-            NxCatalistLine1::items()
+            NxCatalistLine1::items(),
+            Lx01s::listingItems()
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -670,11 +671,6 @@ class CatalystListing
 
             if $SyncConflictInterruptionFilepath then
                 puts "$SyncConflictInterruptionFilepath: #{$SyncConflictInterruptionFilepath}"
-                exit
-            end
-
-            if File.exists?(AutomaticNx7NetworkMainteance::alertFilepath()) then
-                puts IO.read(AutomaticNx7NetworkMainteance::alertFilepath())
                 exit
             end
 

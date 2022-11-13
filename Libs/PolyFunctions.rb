@@ -187,6 +187,10 @@ class PolyFunctions
             return base + shiftOnCompletionRatio.call(completionRatio)
         end
 
+        if item["mikuType"] == "Lx01" then
+            return 1
+        end
+
         if item["mikuType"] == "NxAnniversary" then
             return Anniversaries::isOpenToAcknowledgement(item) ? 0.95 : nil
         end
@@ -231,6 +235,9 @@ class PolyFunctions
 
         if item["mikuType"] == "Cx22" then
             return Cx22::toString1(item)
+        end
+        if item["mikuType"] == "Lx01" then
+            return "(lambda) #{item["announce"]}"
         end
         if item["mikuType"] == "Nx7" then
             return Nx7::toString(item)
