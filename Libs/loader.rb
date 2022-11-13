@@ -220,14 +220,20 @@ if $RunNonEssentialThreads then
                 system("#{File.dirname(__FILE__)}/operations/vienna-import")
             }
         }
-    end
 
-    if Config::isAlexandra() then
         Thread.new {
             loop {
                 sleep 12
                 The99Percent::displayLineFromScratchWithCacheUpdate()
                 sleep 600
+            }
+        }
+
+        Thread.new {
+            loop {
+                sleep 300
+                AutomaticNx7NetworkMainteance::run(verbose = true)
+                sleep 3600 + rand*3600
             }
         }
     end
@@ -239,14 +245,6 @@ if $RunNonEssentialThreads then
                 $SyncConflictInterruptionFilepath = filepath
             end
             sleep 600
-        }
-    }
-
-    Thread.new {
-        loop {
-            sleep 300
-            AutomaticNx7NetworkMainteance::run(verbose = true)
-            sleep 3600 + rand*3600
         }
     }
 
