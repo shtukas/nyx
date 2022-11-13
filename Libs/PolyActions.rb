@@ -120,11 +120,15 @@ class PolyActions
     # PolyActions::done(item, useConfirmationIfRelevant = true)
     def self.done(item, useConfirmationIfRelevant = true)
 
+        # order: alphabetical order
+
         if item["mikuType"] == "Cx22" then
             return
         end
 
-        # order: alphabetical order
+        if item["mikuType"] == "Lx01" then
+            return
+        end
 
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::done(item["uuid"])
