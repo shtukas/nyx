@@ -88,6 +88,15 @@ class SearchNyx
         XCache::set(SearchNyx::nx20sCacheKey(), JSON.generate(structure))
     end
 
+    # SearchNyx::deleteNx7FromNx20Cache(uuid)
+    def self.deleteNx7FromNx20Cache(uuid)
+        structure = XCache::getOrNull(SearchNyx::nx20sCacheKey())
+        return if structure.nil?
+        structure = JSON.parse(structure)
+        structure.delete(uuid)
+        XCache::set(SearchNyx::nx20sCacheKey(), JSON.generate(structure))
+    end
+
     # SearchNyx::nyx()
     def self.nyx()
         loop {

@@ -516,9 +516,8 @@ class Nx7EventDispatch
         SearchNyx::commitNx7ToNx20Cache(item)
     end
 
-    # Nx7EventDispatch::itemDeleted(item)
-    def self.itemDeleted(item)
-
+    # Nx7EventDispatch::itemDeleted(uuid)
+    def self.itemDeleted(uuid)
+        SearchNyx::deleteNx7FromNx20Cache(uuid)
     end
-
 end
