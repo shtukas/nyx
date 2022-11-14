@@ -5,7 +5,7 @@ class CatalystListing
     # CatalystListing::listingCommands()
     def self.listingCommands()
         [
-            ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | engine (<n>) | contribution (<n>) | cx23 (group position) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | expose (<n>) | destroy",
+            ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | engine (<n>) | group (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | expose (<n>) | destroy",
             "update start date (<n>)",
             "wave | anniversary | hot | today | ondate | todo | Cx22 | pointer-line | nxball",
             "pointer (<n>) | ordinal (<n>) | staging (<n>) | reordinal <n>",
@@ -73,14 +73,14 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("contribution", input) then
+        if Interpreting::match("group", input) then
             item = store.getDefault()
             return if item.nil?
             Cx23::interactivelyIssueCx23ForItemOrNull(item)
             return
         end
 
-        if Interpreting::match("contribution *", input) then
+        if Interpreting::match("group *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
@@ -90,21 +90,6 @@ class CatalystListing
 
         if Interpreting::match("Cx22", input) then
             Cx22::interactivelyIssueNewOrNull()
-            return
-        end
-
-        if Interpreting::match("cx23", input) then
-            item = store.getDefault()
-            return if item.nil?
-            Cx23::interactivelyIssueCx23ForItemOrNull(item)
-            return
-        end
-
-        if Interpreting::match("cx23 *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            Cx23::interactivelyIssueCx23ForItemOrNull(item)
             return
         end
 
