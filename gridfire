@@ -22,9 +22,29 @@ def selectAndOpenNx7AtThisDirectory()
     end
     item = Nx5Ext::readFileAsAttributesOfObject(filepath)
     operator = ElizabethNx5.new(filepath)
-    state = item["nx7Payload"]["state"]
-    FileUtils.mkdir(exportFolder)
-    GridState::exportStateAtFolder(operator, state, exportFolder)
+    if item["nx7Payload"]["type"] == "Data" then
+        state = item["nx7Payload"]["state"]
+        FileUtils.mkdir(exportFolder) # creation of the data export folder
+        GridState::exportStateAtFolder(operator, state, exportFolder)
+    else
+        puts "This is not a data carrier. Payload type: #{item["nx7Payload"]["type"]}."
+        LucilleCore::pressEnterToContinue()
+        children = Nx7::children(item)
+        if children.size > 0 then
+            if LucilleCore::askQuestionAnswerAsBoolean("I can see that it has children, would you like me to export them for you ? ") then
+                FileUtils.mkdir(exportFolder) # creation of the children presentation folder
+                children.each{|child|
+                    childfilepath1 = Nx7::existingItemFilepathOrNull(child["uuid"])
+                    next if childfilepath1.nil? # that should not happen, should it ? 🤔
+                    childfilepath2 = "#{exportFolder}/#{CommonUtils::sanitiseStringForFilenaming(child["description"])}.Nx7"
+                    FileUtils.cp(childfilepath1, childfilepath2)
+                }
+            end
+        else
+            puts "I can also see that it has no children."
+            LucilleCore::pressEnterToContinue()
+        end
+    end
 end
 
 
@@ -40,4 +60,5 @@ end
 
 if action == "Nx7 network maintenance" then
     AutomaticNx7NetworkMainteance::run()
+    XCache::set("network-maintenance-time-aa34c002-96b1-43b4-a7fd-275af066150f", Time.new.to_i)
 end
