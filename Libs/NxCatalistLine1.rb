@@ -7,6 +7,7 @@ class NxCatalistLine1
         item = {
             "uuid"     => SecureRandom.uuid,
             "mikuType" => "NxCatalistLine1",
+            "unixtime" => Time.new.to_f,
             "line"     => line,
         }
         filepath = "#{Config::pathToDataCenter()}/NxCatalistLine1/#{item["uuid"]}.json"

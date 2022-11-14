@@ -196,7 +196,7 @@ class PolyFunctions
         end
 
         if item["mikuType"] == "NxCatalistLine1" then
-            return 1
+            return 1 + shiftOnUnixtime.call(item, item["unixtime"])
         end
 
         if item["mikuType"] == "NxTodo" then
