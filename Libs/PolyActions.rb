@@ -46,6 +46,19 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "TxListingPointer" then
+            puts "Accessing pointer: #{item["uuid"]}"
+            resolver = item["resolver"]
+            item = NxItemResolver1::getItemOrNull(resolver)
+            if item.nil? then
+                puts "I could not access an item for resolver: #{resolver}"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            PolyActions::access(item)
+            return
+        end
+
         if item["mikuType"] == "TxManualCountDown" then
             puts item["description"]
             count = LucilleCore::askQuestionAnswerAsString("done count: ").to_i
@@ -104,6 +117,13 @@ class PolyActions
 
         if item["mikuType"] == "Nx7" then
             Nx7::destroy(item["uuid"])
+            return
+        end
+
+        if item["mikuType"] == "TxListingPointer" then
+            puts "You have requested to destroy a TxListingPointer. This will only remove the pointer and the underlying item will not be touched."
+            LucilleCore::pressEnterToContinue()
+            TxListingPointer::destroy(item["uuid"])
             return
         end
 
@@ -179,6 +199,26 @@ class PolyActions
                 NxTodos::destroy(item["uuid"])
                 TxListingPointer::done(item["uuid"])
             end
+            return
+        end
+
+        if item["mikuType"] == "TxListingPointer" then
+            resolver   = item["resolver"]
+            underlying = NxItemResolver1::getItemOrNull(resolver)
+            if underlying.nil? then
+                puts "I could not find an underlying item for pointer: #{item["uuid"]} (you might want to destroy it)"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            if item["timePromiseOpt"] then
+                promise = item["timePromiseOpt"]
+                puts "We have a promise: #{TxTimePromise::toString(promise)}"
+                if LucilleCore::askQuestionAnswerAsBoolean("Commit promise ? ") then
+                    puts "Adding #{promise["amount"]} seconds to #{promise["cx22"]["description"]}"
+                    Bank::put(promise["cx22"]["description"], promise["amount"])
+                end
+            end
+            PolyActions::done(underlying, useConfirmationIfRelevant)
             return
         end
 

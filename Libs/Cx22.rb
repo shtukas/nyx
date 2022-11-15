@@ -58,12 +58,6 @@ class Cx22
         item
     end
 
-    # Cx22::interactivelySelectCx22OrNull()
-    def self.interactivelySelectCx22OrNull()
-        cx22s = Cx22::cx22WithCompletionRatiosOrdered().map{|packet| packet["item"] }
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("cx22", cx22s, lambda{|cx22| Cx22::toStringDiveStyleFormatted(cx22)})
-    end
-
     # ----------------------------------------------------------------
     # Data
 
@@ -125,6 +119,12 @@ class Cx22
 
     # --------------------------------------------
     # Ops
+
+    # Cx22::interactivelySelectCx22OrNull()
+    def self.interactivelySelectCx22OrNull()
+        cx22s = Cx22::cx22WithCompletionRatiosOrdered().map{|packet| packet["item"] }
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("cx22", cx22s, lambda{|cx22| Cx22::toStringDiveStyleFormatted(cx22)})
+    end
 
     # Cx22::nextPositionForCx22(cx22)
     def self.nextPositionForCx22(cx22)

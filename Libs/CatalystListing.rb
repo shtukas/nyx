@@ -576,7 +576,7 @@ class CatalystListing
             }
         end
 
-        pointersuuids = []
+        pointersItemsUuids = []
 
         packets = TxListingPointer::stagedPackets()
         if packets.size > 0 then
@@ -586,9 +586,8 @@ class CatalystListing
             packets
                 .each{|packet|
                     pointer = packet["pointer"]
-                    item = packet["item"]
-                    ordinal = packet["ordinal"]
-                    pointersuuids << item["uuid"]
+                    item    = packet["item"]
+                    pointersItemsUuids << item["uuid"]
                     store.register(item, false)
                     line = "#{store.prefixString()} #{PolyFunctions::toStringForListing(item)}"
                     puts line
@@ -605,11 +604,11 @@ class CatalystListing
             packets
                 .each{|packet|
                     pointer = packet["pointer"]
-                    item = packet["item"]
+                    item    = packet["item"]
                     ordinal = packet["ordinal"]
-                    pointersuuids << item["uuid"]
-                    store.register(item, true)
-                    line = "#{store.prefixString()} (#{"%7.3f" % ordinal}) #{PolyFunctions::toStringForListing(item)}"
+                    pointersItemsUuids << item["uuid"]
+                    store.register(pointer, true)
+                    line = "#{store.prefixString()} (#{"%7.3f" % ordinal}) #{PolyFunctions::toStringForListing(pointer)}"
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
@@ -632,7 +631,7 @@ class CatalystListing
 
         CatalystListing::listingItemsInPriorityOrderDesc()
             .each{|item|
-                next if pointersuuids.include?(item["uuid"])
+                next if pointersItemsUuids.include?(item["uuid"])
                 break if vspaceleft <= 0
                 store.register(item, true)
                 line = "#{store.prefixString()} #{PolyFunctions::toStringForListing(item)}"

@@ -198,6 +198,7 @@ require_relative "TxManualCountDowns.rb"
 require_relative "The99Percent.rb"
 require_relative "TxListingCoordinates.rb"
 require_relative "TxListingPointer.rb"
+require_relative "TxTimePromise.rb"
 
 require_relative "UniqueStrings.rb"
 require_relative "Upload.rb"

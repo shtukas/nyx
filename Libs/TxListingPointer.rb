@@ -54,13 +54,15 @@ class TxListingPointer
             "type"     => "ordinal",
             "ordinal"  => ordinal
         }
+        timePromiseOpt = TxTimePromise::interactivelyMakeNewOrNull()
         pointer = {
             "uuid"               => SecureRandom.uuid,
             "mikuType"           => "TxListingPointer",
             "unixtime"           => Time.new.to_f,
             "datetime"           => Time.new.utc.iso8601,
             "resolver"           => resolver,
-            "listingCoordinates" => coordinates
+            "listingCoordinates" => coordinates,
+            "timePromiseOpt"     => timePromiseOpt
         }
         TxListingPointer::commit(pointer)
         pointer
@@ -98,13 +100,13 @@ class TxListingPointer
     # TxListingPointer::ordinalPacketOrdered()
     def self.ordinalPacketOrdered()
         TxListingPointer::items()
-            .select{|item| item["listingCoordinates"]["type"] == "ordinal" }
+            .select{|pointer| pointer["listingCoordinates"]["type"] == "ordinal" }
             .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
-            .map{|item|
+            .map{|pointer|
                 {
-                    "pointer" => item,
-                    "item"    => NxItemResolver1::getItemOrNull(item["resolver"]),
-                    "ordinal" => item["listingCoordinates"]["ordinal"]
+                    "pointer" => pointer,
+                    "item"    => NxItemResolver1::getItemOrNull(pointer["resolver"]),
+                    "ordinal" => pointer["listingCoordinates"]["ordinal"]
                 }
             }
             .select{|packet| packet["item"] }
@@ -135,5 +137,21 @@ class TxListingPointer
                     FileUtils.rm(filepath)
                 end
             }
+    end
+
+    # TxListingPointer::toString(pointer)
+    def self.toString(pointer)
+        resolver = pointer["resolver"]
+        item     = NxItemResolver1::getItemOrNull(resolver)
+        itemStr  = item ? PolyFunctions::toStringForListing(item) : "(item not found for resolver: #{resolver})"
+        promiseStr = pointer["timePromiseOpt"] ? " #{TxTimePromise::toString(pointer["timePromiseOpt"]).green}" : ""
+        "(pointer) #{itemStr}#{promiseStr}"
+    end
+
+    # TxListingPointer::destroy(uuid)
+    def self.destroy(uuid)
+        filepath = "#{TxListingPointer::repositorypath()}/#{item["uuid"]}.json"
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
     end
 end

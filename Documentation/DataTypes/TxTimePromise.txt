@@ -1,0 +1,11 @@
+
+TxTimePromise:
+
+    "uuid"        : String
+    "mikuType"    : "TxTimePromise"
+    "unixtime"    : Float
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+
+    "cx22"        : Cx22
+    "amount"      : Float
+

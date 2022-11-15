@@ -257,6 +257,9 @@ class PolyFunctions
         if item["mikuType"] == "TxManualCountDown" then
             return "(countdown) #{item["description"]}: #{item["counter"]}"
         end
+        if item["mikuType"] == "TxListingPointer" then
+            return TxListingPointer::toString(item)
+        end
         if item["mikuType"] == "Wave" then
             return Waves::toString(item)
         end
