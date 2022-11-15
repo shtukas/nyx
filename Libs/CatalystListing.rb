@@ -5,9 +5,10 @@ class CatalystListing
     # CatalystListing::listingCommands()
     def self.listingCommands()
         [
-            ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | engine (<n>) | group (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | expose (<n>) | destroy",
+            ".. | <datecode> | <n> | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | engine (<n>) | group (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | expose (<n>) | destroy",
             "update start date (<n>)",
-            "wave | anniversary | hot | today | ondate | todo | Cx22 | pointer-line | nxball",
+            "start | stop",
+            "wave | anniversary | hot | today | ondate | todo | Cx22 | pointer-line",
             "pointer (<n>) | ordinal (<n>) | staging (<n>) | reordinal <n>",
             "anniversaries | ondates | waves | groups | todos | todos-latest-first",
             "require internet",
@@ -268,11 +269,6 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("nxball", input) then
-            NxBall::interactivelyIssueNewNxBallOrNothing()
-            return
-        end
-
         if Interpreting::match("ondate", input) then
             item = NxTodos::interactivelyIssueNewOndateOrNull()
             return if item.nil?
@@ -388,6 +384,29 @@ class CatalystListing
             return if item.nil?
             puts "setting staging for #{PolyFunctions::toString(item)}"
             TxListingPointer::interactivelyIssueNewStaged(item)
+            return
+        end
+
+        if Interpreting::match("start", input) then
+            NxBall::interactivelyIssueNewNxBallOrNothing()
+            return
+        end
+
+
+        if Interpreting::match("stop", input) then
+            nxballs = NxBall::items()
+            if nxballs.size == 0 then
+                return
+            end
+            if nxballs.size == 1 then
+                nxball = nxballs.first
+                NxBall::commitTimeAndDestroy(nxball)
+            end
+            if nxballs.size > 1 then
+                nxball = LucilleCore::selectEntityFromListOfEntitiesOrNull("nxball", nxballs, lambda{|nxball| nxball["cx22Description"] })
+                return if nxball.nil?
+                NxBall::commitTimeAndDestroy(nxball)
+            end
             return
         end
 

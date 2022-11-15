@@ -161,6 +161,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxBall" then
+            NxBall::commitTimeAndDestroy(item)
             return
         end
 

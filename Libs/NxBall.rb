@@ -43,12 +43,23 @@ class NxBall
         item
     end
 
+    # NxBall::commitTime(item)
+    def self.commitTime(item)
+        timespan = Time.new.to_i - item["unixtime"]
+        puts "Adding #{(timespan.to_f/3600).round(2)} hours to #{item["announce"]}"
+        Bank::put(item["cx22uuid"], timespan)
+    end
+
+    # NxBall::commitTimeAndDestroy(item)
+    def self.commitTimeAndDestroy(item)
+        NxBall::commitTime(item)
+        NxBall::destroy(item["uuid"])
+    end
+
     # NxBall::access(item)
     def self.access(item)
         if LucilleCore::askQuestionAnswerAsBoolean("stop NxBall '#{item["announce"]}' ? ") then
-            timespan = Time.new.to_i - item["unixtime"]
-            puts "Adding #{(timespan.to_f/3600).round(2)} hours to #{item["announce"]}"
-            Bank::put(item["cx22uuid"], timespan)
+            NxBall::commitTime(item)
             NxBall::destroy(item["uuid"])
         end
     end
