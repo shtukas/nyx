@@ -215,8 +215,7 @@ class PolyActions
                 promise = item["timePromiseOpt"]
                 puts "We have a promise: #{TxTimePromise::toString(promise)}"
                 if LucilleCore::askQuestionAnswerAsBoolean("Commit promise ? ") then
-                    puts "Adding #{promise["amount"]} seconds to #{promise["cx22"]["description"]}"
-                    Bank::put(promise["cx22"]["description"], promise["amount"])
+                    TxTimePromise::closePromise(promise)
                 end
             end
             PolyActions::done(underlying, useConfirmationIfRelevant)

@@ -9,7 +9,7 @@ class CatalystListing
             "update start date (<n>)",
             "start | stop",
             "wave | anniversary | hot | today | ondate | todo | Cx22 | pointer-line",
-            "pointer (<n>) | ordinal (<n>) | staging (<n>) | reordinal <n>",
+            "pointer (<n>) | ordinal (<n>) | staging (<n>) | re-ordinal <n>",
             "anniversaries | ondates | waves | groups | todos | todos-latest-first",
             "require internet",
             "search | nyx | speed | nxballs | commands",
@@ -347,17 +347,12 @@ class CatalystListing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            pointer = TxListingPointer::items()
-                        .select{|pointer| pointer["listingCoordinates"]["type"] == "ordinal" }
-                        .select{|pointer| pointer["resolver"]["uuid"] == item["uuid"] }
-                        .first
-
-            if pointer.nil? then
-                puts "I could not find a pointer to re-ordinal for this item 🤔"
+            if item["mikuType"] != "TxListingPointer" then
+                puts "You can only send the re-ordinal command to TxListingPointers. Given #{item["mikuType"]}."
                 LucilleCore::pressEnterToContinue()
                 return
             end
-
+            pointer = item
             ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
             pointer["listingCoordinates"]["ordinal"] = ordinal
             TxListingPointer::commit(pointer)
