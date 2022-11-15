@@ -324,7 +324,7 @@ class Waves
 
             if Interpreting::match("done", input) then
                 PolyActions::done(item)
-                return
+                next
             end
 
             if Interpreting::match("do not show until", input) then
