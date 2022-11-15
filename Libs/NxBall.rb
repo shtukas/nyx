@@ -47,7 +47,7 @@ class NxBall
     def self.commitTime(item)
         timespan = Time.new.to_i - item["unixtime"]
         puts "Adding #{(timespan.to_f/3600).round(2)} hours to #{item["announce"]}"
-        Bank::put(item["cx22uuid"], timespan)
+        Bank::put(item["cx22"], timespan)
     end
 
     # NxBall::commitTimeAndDestroy(item)

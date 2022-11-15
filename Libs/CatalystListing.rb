@@ -398,7 +398,7 @@ class CatalystListing
                 NxBall::commitTimeAndDestroy(nxball)
             end
             if nxballs.size > 1 then
-                nxball = LucilleCore::selectEntityFromListOfEntitiesOrNull("nxball", nxballs, lambda{|nxball| nxball["cx22Description"] })
+                nxball = LucilleCore::selectEntityFromListOfEntitiesOrNull("nxball", nxballs, lambda{|nxball| nxball["announce"] })
                 return if nxball.nil?
                 NxBall::commitTimeAndDestroy(nxball)
             end
