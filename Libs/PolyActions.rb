@@ -204,21 +204,23 @@ class PolyActions
         end
 
         if item["mikuType"] == "TxListingPointer" then
-            resolver   = item["resolver"]
-            underlying = NxItemResolver1::getItemOrNull(resolver)
-            if underlying.nil? then
-                puts "I could not find an underlying item for pointer: #{item["uuid"]} (you might want to destroy it)"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            if item["timePromiseOpt"] then
-                promise = item["timePromiseOpt"]
-                puts "We have a promise: #{TxTimePromise::toString(promise)}"
-                if LucilleCore::askQuestionAnswerAsBoolean("Commit promise ? ") then
-                    TxTimePromise::closePromise(promise)
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy pointer: '#{PolyFunctions::toString(item).green}' ? ", true) then
+                resolver   = item["resolver"]
+                underlying = NxItemResolver1::getItemOrNull(resolver)
+                if underlying.nil? then
+                    puts "I could not find an underlying item for pointer: #{item["uuid"]} (you might want to destroy it)"
+                    LucilleCore::pressEnterToContinue()
+                    return
                 end
+                if item["timePromiseOpt"] then
+                    promise = item["timePromiseOpt"]
+                    puts "We have a promise: #{TxTimePromise::toString(promise)}"
+                    if LucilleCore::askQuestionAnswerAsBoolean("Commit promise ? ") then
+                        TxTimePromise::closePromise(promise)
+                    end
+                end
+                PolyActions::done(underlying, useConfirmationIfRelevant)
             end
-            PolyActions::done(underlying, useConfirmationIfRelevant)
             return
         end
 
