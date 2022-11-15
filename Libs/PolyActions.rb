@@ -213,10 +213,8 @@ class PolyActions
                     return
                 end
                 if item["timePromiseOpt"] then
-                    promise = item["timePromiseOpt"]
-                    puts "We have a promise: #{TxTimePromise::toString(promise)}"
-                    if LucilleCore::askQuestionAnswerAsBoolean("Commit promise ? ") then
-                        TxTimePromise::closePromise(promise)
+                    if item["timePromiseOpt"] then
+                        TxTimePromise::closePromise(item["timePromiseOpt"])
                     end
                 end
                 PolyActions::done(underlying, useConfirmationIfRelevant)
