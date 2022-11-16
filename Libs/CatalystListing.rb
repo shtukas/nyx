@@ -5,7 +5,7 @@ class CatalystListing
     # CatalystListing::listingCommands()
     def self.listingCommands()
         [
-            ".. | <datecode> | <n> | access (<n>) | description (<n>) | datetime (<n>) | engine (<n>) | group (<n>) | landing (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | expose (<n>) | staging (<n>) | destroy",
+            ".. | <datecode> | <n> | access (<n>) | description (<n>) | datetime (<n>) | engine (<n>) | set group (<n>) | landing (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | expose (<n>) | staging (<n>) | destroy",
             "wave | anniversary | hot | today | ondate | todo | Cx22",
             "start | stop",
             "anniversaries | ondates | waves | groups | todos",
@@ -72,14 +72,14 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("group", input) then
+        if Interpreting::match("set group", input) then
             item = store.getDefault()
             return if item.nil?
             Cx23::interactivelyIssueCx23ForItemOrNull(item)
             return
         end
 
-        if Interpreting::match("group *", input) then
+        if Interpreting::match("set group *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?

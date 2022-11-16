@@ -390,7 +390,6 @@ class Nx7
             puts "comment | related | child | parent | upload".yellow
             puts "[link type update] parents>related | parents>children | related>children | related>parents | children>related".yellow
             puts "[network shape] select children; move to selected child | select children; move to uuid".yellow
-            puts "[grid points] Nx8".yellow
             puts ""
 
             input = LucilleCore::askQuestionAnswerAsString("> ")
@@ -417,12 +416,6 @@ class Nx7
                 comment = LucilleCore::askQuestionAnswerAsString("comment: ")
                 item["comments"] << comment
                 Nx7::commit(item)
-                next
-            end
-
-            if input == "Nx8" then
-                filepath = "#{Config::pathToDesktop()}/#{CommonUtils::sanitiseStringForFilenaming(item["description"])}.Nx8"
-                File.open(filepath, "w"){|f| f.puts(item["uuid"]) }
                 next
             end
 
