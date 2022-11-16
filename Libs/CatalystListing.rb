@@ -537,7 +537,7 @@ class CatalystListing
         [
             Anniversaries::listingItems(),
             TxManualCountDowns::listingItems(),
-            Waves::items(),
+            #Waves::items(),
             Cx22::listingItems(),
             NxTodos::listingItems(),
             NxCatalistLine1::items(),
@@ -627,18 +627,6 @@ class CatalystListing
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
         end
-
-        puts ""
-        vspaceleft = vspaceleft - 1
-        Cx22::cx22WithCompletionRatiosOrdered()
-            .select{|packet| packet["completionRatio"] < 1 }
-            .each{|packet|
-                item = packet["item"]
-                store.register(item, false)
-                line = "#{store.prefixString()} #{Cx22::toStringDiveStyleFormatted(item)}".yellow
-                puts line
-                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-            }
 
         puts ""
         vspaceleft = vspaceleft - 1

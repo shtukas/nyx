@@ -86,7 +86,7 @@ class Cx22
         datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
         dnsustr  = datetimeOpt ? ": (do not show until: #{datetimeOpt})" : ""
 
-        "#{item["description"].ljust(descriptionPadding)} : #{Ax39::toString(item["ax39"]).ljust(18)}#{percentageStr}#{dnsustr}"
+        "(group) #{item["description"].ljust(descriptionPadding)} : #{Ax39::toString(item["ax39"]).ljust(18)}#{percentageStr}#{dnsustr}"
     end
 
     # Cx22::contributionStringWithPrefixForCatalystItemOrEmptyString(item)
@@ -114,7 +114,6 @@ class Cx22
     # Cx22::listingItems()
     def self.listingItems()
         Cx22::items()
-            .select{|cx22| Cx22::getCx23sInOrderForCx22(cx22).empty? }
     end
 
     # --------------------------------------------
