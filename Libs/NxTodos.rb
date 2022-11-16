@@ -484,13 +484,4 @@ class NxTodos
             end
         }
     end
-
-    # NxTodos::todosLatestFirst()
-    def self.todosLatestFirst()
-        items = NxTodos::items()
-                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-                    .reverse
-                    .first(50)
-        NxTodos::elementsDive(items)
-    end
 end

@@ -212,11 +212,6 @@ class PolyActions
                     LucilleCore::pressEnterToContinue()
                     return
                 end
-                if item["timePromiseOpt"] then
-                    if item["timePromiseOpt"] then
-                        TxTimePromise::closePromise(item["timePromiseOpt"])
-                    end
-                end
                 PolyActions::done(underlying, useConfirmationIfRelevant)
             end
             return

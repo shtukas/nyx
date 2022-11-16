@@ -5,12 +5,10 @@ class CatalystListing
     # CatalystListing::listingCommands()
     def self.listingCommands()
         [
-            ".. | <datecode> | <n> | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | engine (<n>) | group (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | expose (<n>) | destroy",
-            "update start date (<n>)",
+            ".. | <datecode> | <n> | access (<n>) | description (<n>) | datetime (<n>) | engine (<n>) | group (<n>) | landing (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | expose (<n>) | staging (<n>) | destroy",
+            "wave | anniversary | hot | today | ondate | todo | Cx22 | line",
             "start | stop",
-            "wave | anniversary | hot | today | ondate | todo | Cx22 | pointer-line",
-            "pointer (<n>) | ordinal (<n>) | staging (<n>) | re-ordinal <n>",
-            "anniversaries | ondates | waves | groups | todos | todos-latest-first",
+            "anniversaries | ondates | waves | groups | todos",
             "require internet",
             "search | nyx | speed | nxballs | commands",
         ].join("\n")
@@ -281,43 +279,8 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("ordinal", input) then
-            item = store.getDefault()
-            return if item.nil?
-            puts "setting ordinal for #{PolyFunctions::toString(item)}"
-            TxListingPointer::interactivelyIssueNewOrdinal(item)
-            return
-        end
-
-        if Interpreting::match("ordinal *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            puts "setting ordinal for #{PolyFunctions::toString(item)}"
-            TxListingPointer::interactivelyIssueNewOrdinal(item)
-            return
-        end
-
-        if Interpreting::match("pointer", input) then
-            item = store.getDefault()
-            return if item.nil?
-            puts "setting pointer for #{JSON.pretty_generate(item)}"
-            TxListingPointer::interactivelyIssueNewTxListingPointerToItem(item)
-            return
-        end
-
-        if Interpreting::match("pointer *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            puts "setting pointer for #{JSON.pretty_generate(item)}"
-            TxListingPointer::interactivelyIssueNewTxListingPointerToItem(item)
-            return
-        end
-
-        if Interpreting::match("pointer-line", input) then
-            item = NxCatalistLine1::interactivelyIssueNewOrNull()
-            TxListingPointer::interactivelyIssueNewTxListingPointerToItem(item)
+        if Interpreting::match("line", input) then
+            NxCatalistLine1::interactivelyIssueNewOrNull()
             return
         end
 
@@ -340,23 +303,6 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::redate(item)
-            return
-        end
-
-        if Interpreting::match("re-ordinal *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            if item["mikuType"] != "TxListingPointer" then
-                puts "You can only send the re-ordinal command to TxListingPointers. Given #{item["mikuType"]}."
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            pointer = item
-            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-            pointer["listingCoordinates"]["ordinal"] = ordinal
-            TxListingPointer::commit(pointer)
-
             return
         end
 
@@ -416,25 +362,6 @@ class CatalystListing
             item = NxTodos::interactivelyIssueNewOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
-            return
-        end
-
-        if Interpreting::match("todos-latest-first", input) then
-            NxTodos::todosLatestFirst()
-            return
-        end
-
-        if Interpreting::match("update start date", input) then
-            item = store.getDefault()
-            return if item.nil?
-            PolyActions::editStartDate(item)
-        end
-
-        if Interpreting::match("update start date *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            PolyActions::editStartDate(item)
             return
         end
 
@@ -592,7 +519,7 @@ class CatalystListing
 
         pointersItemsUuids = []
 
-        packets = TxListingPointer::stagedPackets()
+        packets = TxListingPointer::packets()
         if packets.size > 0 then
             puts ""
             puts "staged:"
@@ -609,25 +536,6 @@ class CatalystListing
                 }
         end
 
-        packets = TxListingPointer::ordinalPacketOrdered()
-        hasOrdinals = packets.size > 0
-        if packets.size > 0 then
-            puts ""
-            puts "ordinal:"
-            vspaceleft = vspaceleft - 2
-            packets
-                .each{|packet|
-                    pointer = packet["pointer"]
-                    item    = packet["item"]
-                    ordinal = packet["ordinal"]
-                    pointersItemsUuids << item["uuid"]
-                    store.register(pointer, true)
-                    line = "#{store.prefixString()} (#{"%7.3f" % ordinal}) #{PolyFunctions::toStringForListing(pointer)}"
-                    puts line
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                }
-        end
-
         puts ""
         vspaceleft = vspaceleft - 1
 
@@ -637,9 +545,6 @@ class CatalystListing
                 break if vspaceleft <= 0
                 store.register(item, true)
                 line = "#{store.prefixString()} #{PolyFunctions::toStringForListing(item)}"
-                if hasOrdinals then
-                    line = line.yellow
-                end
                 puts line
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }

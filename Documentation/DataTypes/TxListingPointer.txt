@@ -5,6 +5,4 @@ TxListingPointer {
     "unixtime"           : Float
     "datetime"           : DateTime Iso 8601 UTC Zulu
     "resolver"           : NxItemResolver1
-    "listingCoordinates" : TxListingCoordinates
-    "timePromiseOpt"     : null or TxTimePromise
 }
