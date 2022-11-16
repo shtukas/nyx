@@ -6,7 +6,7 @@ class CatalystListing
     def self.listingCommands()
         [
             ".. | <datecode> | <n> | access (<n>) | description (<n>) | datetime (<n>) | engine (<n>) | group (<n>) | landing (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | expose (<n>) | staging (<n>) | destroy",
-            "wave | anniversary | hot | today | ondate | todo | Cx22 | line",
+            "wave | anniversary | hot | today | ondate | todo | Cx22",
             "start | stop",
             "anniversaries | ondates | waves | groups | todos",
             "require internet",
@@ -279,11 +279,6 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("line", input) then
-            NxCatalistLine1::interactivelyIssueNewOrNull()
-            return
-        end
-
         if Interpreting::match("require internet", input) then
             item = store.getDefault()
             return if item.nil?
@@ -467,7 +462,6 @@ class CatalystListing
             Waves::items(),
             Cx22::listingItems(),
             NxTodos::listingItems(),
-            NxCatalistLine1::items(),
             Lx01s::listingItems()
         ]
             .flatten

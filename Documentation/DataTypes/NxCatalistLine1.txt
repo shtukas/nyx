@@ -1,7 +1,0 @@
-
-NxCatalistLine1 {
-    "uuid"     : String
-    "mikuType" : "NxCatalistLine1"
-    "unixtime" : Float
-    "line"     : String
-}
