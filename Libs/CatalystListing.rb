@@ -537,7 +537,7 @@ class CatalystListing
         [
             Anniversaries::listingItems(),
             TxManualCountDowns::listingItems(),
-            #Waves::items(),
+            Waves::items(),
             Cx22::listingItems(),
             NxTodos::listingItems(),
             NxCatalistLine1::items(),
