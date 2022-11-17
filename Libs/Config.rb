@@ -68,7 +68,7 @@ class Config
 
     # Config::allInstanceIds()
     def self.allInstanceIds()
-        ["Lucille18-pascal", "Lucille20-pascal", "Lucille20-guardian"]
+        ["Lucille18-pascal", "Lucille20-pascal", "Lucille20-guardian", "Lucille23"]
     end
 
     # Config::theOtherInstanceIds()
