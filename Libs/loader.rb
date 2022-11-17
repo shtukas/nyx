@@ -214,22 +214,22 @@ $arrows_database_semaphore = Mutex.new
 
 if $RunNonEssentialThreads then
 
-    if Config::isAlexandra() then 
+    if Config::thisInstanceId() == "Lucille20-pascal" then 
         Thread.new {
             loop {
                 sleep 600
                 system("#{File.dirname(__FILE__)}/operations/vienna-import")
             }
         }
-
-        Thread.new {
-            loop {
-                sleep 12
-                The99Percent::displayLineFromScratchWithCacheUpdate()
-                sleep 600
-            }
-        }
     end
+
+    Thread.new {
+        loop {
+            sleep 12
+            The99Percent::displayLineFromScratchWithCacheUpdate()
+            sleep 600
+        }
+    }
 
     Thread.new {
         loop {

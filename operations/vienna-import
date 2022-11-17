@@ -4,7 +4,7 @@
 
 require_relative "../Libs/loader.rb"
 
-exit if !Config::isLucille20()
+exit if (Config::thisInstanceId() != "Lucille20-pascal")
 
 VIENNA_PATH_TO_DATA = "#{Config::userHomeDirectory()}/Library/Application Support/Vienna/messages.db"
 
