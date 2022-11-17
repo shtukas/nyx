@@ -181,7 +181,6 @@ require_relative "Nx5.rb"
 require_relative "Nx7.rb"
 require_relative "Nx7Payloads.rb"
 require_relative "NxItemResolver1.rb"
-require_relative "NxCatalistLine1.rb"
 require_relative "NxBall.rb"
 
 require_relative "PrimitiveFiles.rb"

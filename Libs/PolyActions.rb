@@ -30,12 +30,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxCatalistLine1" then
-            puts item["line"]
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
         if item["mikuType"] == "Nx7" then
             Nx7::access(item)
             return
@@ -104,12 +98,6 @@ class PolyActions
 
     # PolyActions::destroy(item)
     def self.destroy(item)
-
-        if item["mikuType"] == "NxCatalistLine1" then
-            NxCatalistLine1::destroy(item["uuid"])
-            return
-        end
-
         if item["mikuType"] == "NxTodo" then
             NxTodos::destroy(item["uuid"])
             return
@@ -162,14 +150,6 @@ class PolyActions
 
         if item["mikuType"] == "NxBall" then
             NxBall::commitTimeAndDestroy(item)
-            return
-        end
-
-        if item["mikuType"] == "NxCatalistLine1" then
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy line: '#{item["line"].green}' ? ", true) then
-                NxCatalistLine1::destroy(item["uuid"])
-                TxListingPointer::done(item["uuid"])
-            end
             return
         end
 
@@ -284,12 +264,6 @@ class PolyActions
 
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::landing(item)
-            return
-        end
-
-        if item["mikuType"] == "NxCatalistLine1" then
-            puts "NxCatalistLine1 doesn't implement landing"
-            LucilleCore::pressEnterToContinue()
             return
         end
 

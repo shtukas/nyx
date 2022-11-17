@@ -9,12 +9,6 @@ class PolyFunctions
 
         # order: by mikuType
 
-        if item["mikuType"] == "NxCatalistLine1" then
-            puts "NxCatalistLine1 doesn't implement edit"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
         if item["mikuType"] == "NxTodo" then
             return NxTodos::edit(item)
         end
@@ -111,9 +105,6 @@ class PolyFunctions
         if item["mikuType"] == "NxAnniversary" then
             return item["description"]
         end
-        if item["mikuType"] == "NxCatalistLine1" then
-            return item["line"]
-        end
         if item["mikuType"] == "NxIced" then
             return item["description"]
         end
@@ -138,9 +129,6 @@ class PolyFunctions
     # PolyFunctions::getCatalystItemOrNull(uuid)
     def self.getCatalystItemOrNull(uuid)
         item = Waves::getOrNull(uuid)
-        return item if item
-
-        item = NxCatalistLine1::getItemOrNull(uuid)
         return item if item
 
         item = NxTodos::getItemOrNull(uuid)
@@ -199,10 +187,6 @@ class PolyFunctions
             return Anniversaries::isOpenToAcknowledgement(item) ? 0.95 : nil
         end
 
-        if item["mikuType"] == "NxCatalistLine1" then
-            return 1 + shiftOnUnixtime.call(item, item["unixtime"])
-        end
-
         if item["mikuType"] == "NxTodo" then
             return NxTodos::listingPriorityOrNull(item)
         end
@@ -248,9 +232,6 @@ class PolyFunctions
         end
         if item["mikuType"] == "NxAnniversary" then
             return Anniversaries::toString(item)
-        end
-        if item["mikuType"] == "NxCatalistLine1" then
-            return NxCatalistLine1::toString(item)
         end
         if item["mikuType"] == "NxBall.v2" then
             return item["description"]

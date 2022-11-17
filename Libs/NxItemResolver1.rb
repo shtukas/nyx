@@ -16,10 +16,6 @@ class NxItemResolver1
             return NxTodos::getItemOrNull(resolver["uuid"])
         end
 
-        if resolver["type"] == "NxCatalistLine1" then
-            return NxCatalistLine1::getItemOrNull(resolver["uuid"])
-        end
-
         if resolver["type"] == "Wave" then
             return Waves::getOrNull(resolver["uuid"])
         end
