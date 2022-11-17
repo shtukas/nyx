@@ -485,12 +485,10 @@ class CatalystListing
 
         vspaceleft = CommonUtils::screenHeight() - 4
 
-        if Config::isAlexandra() then
-            line = The99Percent::displayLineFromCache()
-            puts ""
-            puts line
-            vspaceleft = vspaceleft - 2
-        end
+        line = The99Percent::displayLineFromCache()
+        puts ""
+        puts line
+        vspaceleft = vspaceleft - 2
 
         store = ItemStore.new()
 
