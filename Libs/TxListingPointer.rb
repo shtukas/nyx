@@ -11,16 +11,29 @@ class TxListingPointer
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
-    # TxListingPointer::interactivelyIssueNewStaged(item)
-    def self.interactivelyIssueNewStaged(item)
+    # TxListingPointer::issueNewWithItem(item)
+    def self.issueNewWithItem(item)
         resolver = NxItemResolver1::make(item["uuid"], item["mikuType"])
         pointer = {
-            "uuid"               => SecureRandom.uuid,
-            "mikuType"           => "TxListingPointer",
-            "unixtime"           => Time.new.to_f,
-            "datetime"           => Time.new.utc.iso8601,
-            "resolver"           => resolver,
-            "listingCoordinates" => coordinates
+            "uuid"     => SecureRandom.uuid,
+            "mikuType" => "TxListingPointer",
+            "unixtime" => Time.new.to_f,
+            "datetime" => Time.new.utc.iso8601,
+            "resolver" => resolver,
+        }
+        TxListingPointer::commit(pointer)
+        pointer
+    end
+
+    # TxListingPointer::issueNewWithAnnounce(announce)
+    def self.issueNewWithAnnounce(announce)
+        resolver = NxItemResolver2::make(announce)
+        pointer = {
+            "uuid"     => SecureRandom.uuid,
+            "mikuType" => "TxListingPointer",
+            "unixtime" => Time.new.to_f,
+            "datetime" => Time.new.utc.iso8601,
+            "resolver" => resolver,
         }
         TxListingPointer::commit(pointer)
         pointer
@@ -36,7 +49,6 @@ class TxListingPointer
     # TxListingPointer::packets()
     def self.packets()
         TxListingPointer::items()
-            .select{|item| item["listingCoordinates"]["type"] == "staged" }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .map{|item| 
                 {

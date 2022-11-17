@@ -9,13 +9,14 @@ class The99Percent
 
     # The99Percent::issueNewReferenceOrNull()
     def self.issueNewReferenceOrNull()
+        system("clear")
         count = The99Percent::getCurrentCount()
         reference = {
             "count"    => count,
             "datetime" => Time.new.utc.iso8601
         }
         puts JSON.pretty_generate(reference).green
-        return if !LucilleCore::askQuestionAnswerAsBoolean("Issue this new reference ? ")
+        return nil if !LucilleCore::askQuestionAnswerAsBoolean("Issue this new reference ? ")
         XCache::set("002c358b-e6ee-41bd-9bee-105396a6349a", JSON.generate(reference))
         reference
     end
@@ -35,29 +36,30 @@ class The99Percent
         LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodo").size
     end
 
-    # The99Percent::ratio()
-    def self.ratio()
+    # The99Percent::ratioOrNull()
+    def self.ratioOrNull()
         reference = The99Percent::getReferenceOrNull()
+        return nil if reference.nil?
         current   = The99Percent::getCurrentCount()
         current.to_f/reference["count"]
     end
 
-    # The99Percent::displayLineFromScratchWithCacheUpdate()
-    def self.displayLineFromScratchWithCacheUpdate()
+    # The99Percent::recomputeFromStratch()
+    def self.recomputeFromStratch()
         reference = The99Percent::getReferenceOrNull()
-        current   = The99Percent::getCurrentCount()
-        ratio     = current.to_f/reference["count"]
-        line      = "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
+        return nil if reference.nil?
+        current = The99Percent::getCurrentCount()
+        ratio   = current.to_f/reference["count"]
         if ratio < 0.99 then
             The99Percent::issueNewReferenceOrNull()
-            return "Just issued a new reference"
+            return
         end
+        line = "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
         XCache::set("8c07eb2c-d7d0-489a-a6d1-7e66ecac5a69", line)
-        line
     end
 
-    # The99Percent::displayLineFromCache()
-    def self.displayLineFromCache()
+    # The99Percent::displayLineFromCacheOrNull()
+    def self.displayLineFromCacheOrNull()
         XCache::getOrNull("8c07eb2c-d7d0-489a-a6d1-7e66ecac5a69")
     end
 end

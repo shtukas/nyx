@@ -181,6 +181,7 @@ require_relative "Nx5.rb"
 require_relative "Nx7.rb"
 require_relative "Nx7Payloads.rb"
 require_relative "NxItemResolver1.rb"
+require_relative "NxItemResolver2.rb"
 require_relative "NxBall.rb"
 
 require_relative "PrimitiveFiles.rb"
@@ -226,7 +227,7 @@ if $RunNonEssentialThreads then
     Thread.new {
         loop {
             sleep 12
-            The99Percent::displayLineFromScratchWithCacheUpdate()
+            The99Percent::recomputeFromStratch()
             sleep 600
         }
     }
