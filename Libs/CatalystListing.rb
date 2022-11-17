@@ -516,18 +516,16 @@ class CatalystListing
 
         pointersItemsUuids = []
 
-        packets = TxListingPointer::packets()
-        if packets.size > 0 then
+        items = TxListingPointer::items()
+        if items.size > 0 then
             puts ""
             puts "staged:"
             vspaceleft = vspaceleft - 2
-            packets
-                .each{|packet|
-                    pointer = packet["pointer"]
-                    item    = packet["item"]
-                    pointersItemsUuids << item["uuid"]
-                    store.register(item, false)
-                    line = "#{store.prefixString()} #{PolyFunctions::toStringForListing(item)}"
+            items
+                .each{|pointer|
+                    pointersItemsUuids << TxListingPointer::pointerToItemUUIDOrNull(pointer)
+                    store.register(pointer, false)
+                    line = "#{store.prefixString()} #{PolyFunctions::toStringForListing(pointer)}"
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
