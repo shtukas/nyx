@@ -4,5 +4,5 @@ TxListingPointer {
     "mikuType"           : "TxListingPointer"
     "unixtime"           : Float
     "datetime"           : DateTime Iso 8601 UTC Zulu
-    "resolver"           : NxItemResolver1
+    "resolver"           : NxItemResolver1 || NxItemResolver2
 }

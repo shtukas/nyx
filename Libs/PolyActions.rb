@@ -164,7 +164,6 @@ class PolyActions
                 end
                 if option == "Luke, use the Force (destroy)" then
                     NxTodos::destroy(item["uuid"])
-                    TxListingPointer::done(item["uuid"])
                 end
                 if option == "exit" then
                     return
@@ -174,25 +173,16 @@ class PolyActions
             if useConfirmationIfRelevant then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
                     NxTodos::destroy(item["uuid"])
-                    TxListingPointer::done(item["uuid"])
                 end
             else
                 NxTodos::destroy(item["uuid"])
-                TxListingPointer::done(item["uuid"])
             end
             return
         end
 
         if item["mikuType"] == "TxListingPointer" then
             if LucilleCore::askQuestionAnswerAsBoolean("destroy pointer: '#{PolyFunctions::toString(item).green}' ? ", true) then
-                resolver   = item["resolver"]
-                underlying = NxItemResolver1::getItemOrNull(resolver)
-                if underlying.nil? then
-                    puts "I could not find an underlying item for pointer: #{item["uuid"]} (you might want to destroy it)"
-                    LucilleCore::pressEnterToContinue()
-                    return
-                end
-                PolyActions::done(underlying, useConfirmationIfRelevant)
+                TxListingPointer::done(item)
             end
             return
         end
@@ -201,11 +191,9 @@ class PolyActions
             if useConfirmationIfRelevant then
                 if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
                     Waves::performWaveNx46WaveDone(item)
-                    TxListingPointer::done(item["uuid"])
                 end
             else
                 Waves::performWaveNx46WaveDone(item)
-                TxListingPointer::done(item["uuid"])
             end
             return
         end

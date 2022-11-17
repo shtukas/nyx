@@ -229,8 +229,6 @@ class Waves
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
         puts "not shown until: #{Time.at(unixtime).to_s}"
         DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-
-        TxListingPointer::done(item["uuid"])
     end
 
     # Waves::dive()

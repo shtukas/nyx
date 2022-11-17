@@ -7,57 +7,53 @@ class The99Percent
     #     "datetime" =>
     # }
 
-    # The99Percent::issueNewReferenceOrNull()
-    def self.issueNewReferenceOrNull()
+    # The99Percent::getCurrentCount()
+    def self.getCurrentCount()
+        [ LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodo").size, 1 ].max # It should not be 0, because we divide by it.
+    end
+
+    # The99Percent::issueNewReference()
+    def self.issueNewReference()
         count = The99Percent::getCurrentCount()
         reference = {
             "count"    => count,
             "datetime" => Time.new.utc.iso8601
         }
-        puts JSON.pretty_generate(reference).green
-        return if !LucilleCore::askQuestionAnswerAsBoolean("Issue this new reference ? ")
         XCache::set("002c358b-e6ee-41bd-9bee-105396a6349a", JSON.generate(reference))
         reference
     end
 
-    # The99Percent::getReferenceOrNull()
-    def self.getReferenceOrNull()
+    # The99Percent::getReference()
+    def self.getReference()
         reference = XCache::getOrNull("002c358b-e6ee-41bd-9bee-105396a6349a")
         if reference then
-            JSON.parse(reference)
-        else
-            The99Percent::issueNewReferenceOrNull()
+            return JSON.parse(reference)
         end
-    end
-
-    # The99Percent::getCurrentCount()
-    def self.getCurrentCount()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodo").size
+        The99Percent::issueNewReference()
     end
 
     # The99Percent::ratio()
     def self.ratio()
-        reference = The99Percent::getReferenceOrNull()
+        reference = The99Percent::getReference()
         current   = The99Percent::getCurrentCount()
-        current.to_f/reference["count"]
-    end
-
-    # The99Percent::displayLineFromScratchWithCacheUpdate()
-    def self.displayLineFromScratchWithCacheUpdate()
-        reference = The99Percent::getReferenceOrNull()
-        current   = The99Percent::getCurrentCount()
-        ratio     = current.to_f/reference["count"]
-        line      = "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
+        ratio = current.to_f/reference["count"]
         if ratio < 0.99 then
-            The99Percent::issueNewReferenceOrNull()
-            return "Just issued a new reference"
+            reference = The99Percent::issueNewReference()
+            ratio = current.to_f/reference["count"]
         end
-        XCache::set("8c07eb2c-d7d0-489a-a6d1-7e66ecac5a69", line)
-        line
+        if ratio > 1.01 then
+            reference = The99Percent::issueNewReference()
+            ratio = current.to_f/reference["count"]
+        end
+        ratio
     end
 
-    # The99Percent::displayLineFromCache()
-    def self.displayLineFromCache()
-        XCache::getOrNull("8c07eb2c-d7d0-489a-a6d1-7e66ecac5a69")
+    # The99Percent::line()
+    def self.line()
+        reference = The99Percent::getReference()
+        return nil if reference.nil?
+        current = The99Percent::getCurrentCount()
+        ratio   = current.to_f/reference["count"]
+        "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
     end
 end

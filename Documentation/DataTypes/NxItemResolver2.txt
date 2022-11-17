@@ -1,0 +1,5 @@
+
+NxItemResolver2 {
+    "mikuType" => "NxItemResolver2",
+    "announce" => announce
+}

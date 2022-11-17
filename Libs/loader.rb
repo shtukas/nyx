@@ -181,6 +181,7 @@ require_relative "Nx5.rb"
 require_relative "Nx7.rb"
 require_relative "Nx7Payloads.rb"
 require_relative "NxItemResolver1.rb"
+require_relative "NxItemResolver2.rb"
 require_relative "NxBall.rb"
 
 require_relative "PrimitiveFiles.rb"
@@ -214,22 +215,22 @@ $arrows_database_semaphore = Mutex.new
 
 if $RunNonEssentialThreads then
 
-    if Config::isAlexandra() then 
+    if Config::thisInstanceId() == "Lucille20-pascal" then 
         Thread.new {
             loop {
                 sleep 600
                 system("#{File.dirname(__FILE__)}/operations/vienna-import")
             }
         }
-
-        Thread.new {
-            loop {
-                sleep 12
-                The99Percent::displayLineFromScratchWithCacheUpdate()
-                sleep 600
-            }
-        }
     end
+
+    Thread.new {
+        loop {
+            sleep 12
+            The99Percent::line()
+            sleep 600
+        }
+    }
 
     Thread.new {
         loop {

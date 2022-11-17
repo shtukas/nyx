@@ -167,6 +167,10 @@ class PolyFunctions
 
         # ordering: alphabetical order
 
+        if item["mikuType"] == "NxBall" then
+            return nil
+        end
+
         if item["mikuType"] == "Cx22" then
             return nil if !DoNotShowUntil::isVisible(item["uuid"])
             completionRatio = Ax39::completionRatio(item["ax39"], item["uuid"])

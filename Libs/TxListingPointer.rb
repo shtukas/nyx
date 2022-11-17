@@ -11,21 +11,6 @@ class TxListingPointer
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
-    # TxListingPointer::interactivelyIssueNewStaged(item)
-    def self.interactivelyIssueNewStaged(item)
-        resolver = NxItemResolver1::make(item["uuid"], item["mikuType"])
-        pointer = {
-            "uuid"               => SecureRandom.uuid,
-            "mikuType"           => "TxListingPointer",
-            "unixtime"           => Time.new.to_f,
-            "datetime"           => Time.new.utc.iso8601,
-            "resolver"           => resolver,
-            "listingCoordinates" => coordinates
-        }
-        TxListingPointer::commit(pointer)
-        pointer
-    end
-
     # TxListingPointer::items()
     def self.items()
         LucilleCore::locationsAtFolder(TxListingPointer::repositorypath())
@@ -33,45 +18,84 @@ class TxListingPointer
             .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
 
-    # TxListingPointer::packets()
-    def self.packets()
-        TxListingPointer::items()
-            .select{|item| item["listingCoordinates"]["type"] == "staged" }
-            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            .map{|item| 
-                {
-                    "pointer" => item,
-                    "item"    => NxItemResolver1::getItemOrNull(item["resolver"]),
-                }
-            }
-            .select{|packet| packet["item"] }
-    end
-
-    # TxListingPointer::done(targetItemUUID)
-    def self.done(targetItemUUID)
-        folderpath = "#{Config::pathToDataCenter()}/TxListingPointer"
-        LucilleCore::locationsAtFolder(folderpath)
+    # TxListingPointer::itemOrNull(uuid)
+    def self.itemOrNull(uuid)
+        LucilleCore::locationsAtFolder(TxListingPointer::repositorypath())
             .select{|filepath| filepath[-5, 5] == ".json" }
             .each{|filepath| 
                 item = JSON.parse(IO.read(filepath))
-                if item["resolver"]["uuid"] == targetItemUUID then
-                    FileUtils.rm(filepath)
-                end
+                return if item["uuid"] == uuid
             }
+    end
+
+    # TxListingPointer::done(pointer)
+    def self.done(pointer)
+        if pointer["resolver"]["mikuType"] == "NxItemResolver1" then
+            resolver = pointer["resolver"]
+            item = NxItemResolver1::getItemOrNull(resolver)
+            if item then
+                PolyActions::done(item, true)
+            end
+        end
+
+        filepath = "#{TxListingPointer::repositorypath()}/#{pointer["uuid"]}.json"
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
+    end
+
+    # -------------------------------------------------
+
+    # TxListingPointer::issueNewWithItem(item)
+    def self.issueNewWithItem(item)
+        resolver = NxItemResolver1::make(item["uuid"], item["mikuType"])
+        pointer = {
+            "uuid"     => SecureRandom.uuid,
+            "mikuType" => "TxListingPointer",
+            "unixtime" => Time.new.to_f,
+            "datetime" => Time.new.utc.iso8601,
+            "resolver" => resolver,
+        }
+        TxListingPointer::commit(pointer)
+        pointer
+    end
+
+    # TxListingPointer::issueNewWithAnnounce(announce)
+    def self.issueNewWithAnnounce(announce)
+        resolver = NxItemResolver2::make(announce)
+        pointer = {
+            "uuid"     => SecureRandom.uuid,
+            "mikuType" => "TxListingPointer",
+            "unixtime" => Time.new.to_f,
+            "datetime" => Time.new.utc.iso8601,
+            "resolver" => resolver,
+        }
+        TxListingPointer::commit(pointer)
+        pointer
     end
 
     # TxListingPointer::toString(pointer)
     def self.toString(pointer)
+
         resolver = pointer["resolver"]
-        item     = NxItemResolver1::getItemOrNull(resolver)
-        itemStr  = item ? PolyFunctions::toStringForListing(item) : "(item not found for resolver: #{resolver})"
-        "(pointer) #{itemStr}"
+
+        if resolver["mikuType"] == "NxItemResolver1" then
+            item     = NxItemResolver1::getItemOrNull(resolver)
+            itemStr  = item ? PolyFunctions::toStringForListing(item) : "(item not found for resolver: #{resolver})"
+            return "(pointer) #{itemStr}"
+        end
+
+        if resolver["mikuType"] == "NxItemResolver2" then
+            return "(line) #{resolver["announce"]}"
+        end
     end
 
-    # TxListingPointer::destroy(uuid)
-    def self.destroy(uuid)
-        filepath = "#{TxListingPointer::repositorypath()}/#{item["uuid"]}.json"
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
+    def self.pointerToItemUUIDOrNull(pointer)
+        if pointer["resolver"]["mikuType"] == "NxItemResolver1" then
+            item = NxItemResolver1::getItemOrNull(pointer["resolver"])
+            if item then
+                item["uuid"]
+            end
+        end
+        nil
     end
 end

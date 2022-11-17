@@ -5,7 +5,7 @@ class CatalystListing
     # CatalystListing::listingCommands()
     def self.listingCommands()
         [
-            ".. | <datecode> | <n> | access (<n>) | description (<n>) | datetime (<n>) | engine (<n>) | set group (<n>) | landing (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | expose (<n>) | staging (<n>) | destroy",
+            ".. | <datecode> | <n> | access (<n>) | description (<n>) | datetime (<n>) | engine (<n>) | set group (<n>) | landing (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | expose (<n>) | float | destroy",
             "wave | anniversary | hot | today | ondate | todo | Cx22",
             "start | stop",
             "anniversaries | ondates | waves | groups | todos",
@@ -306,20 +306,23 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("staging", input) then
-            item = store.getDefault()
-            return if item.nil?
-            puts "setting stagingfor #{PolyFunctions::toString(item)}"
-            TxListingPointer::interactivelyIssueNewStaged(item)
-            return
-        end
+        if Interpreting::match("float", input) then
 
-        if Interpreting::match("staging *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            puts "setting staging for #{PolyFunctions::toString(item)}"
-            TxListingPointer::interactivelyIssueNewStaged(item)
+            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["item", "line"])
+            return if type.nil?
+            if type == "item" then
+                ordinal = LucilleCore::askQuestionAnswerAsString("item (ordinal): ").to_i
+                item = store.get(ordinal.to_i)
+                return if item.nil?
+                if LucilleCore::askQuestionAnswerAsBoolean("Set floating: '#{PolyFunctions::toString(item).green}' ") then
+                    TxListingPointer::issueNewWithItem(item)
+                end
+            end
+            if type == "line" then
+                announce = LucilleCore::askQuestionAnswerAsString("announce (empty to abort): ")
+                return if announce == ""
+                TxListingPointer::issueNewWithAnnounce(announce)
+            end
             return
         end
 
@@ -485,12 +488,9 @@ class CatalystListing
 
         vspaceleft = CommonUtils::screenHeight() - 4
 
-        if Config::isAlexandra() then
-            line = The99Percent::displayLineFromCache()
-            puts ""
-            puts line
-            vspaceleft = vspaceleft - 2
-        end
+        puts ""
+        puts The99Percent::line()
+        vspaceleft = vspaceleft - 2
 
         store = ItemStore.new()
 
@@ -513,18 +513,16 @@ class CatalystListing
 
         pointersItemsUuids = []
 
-        packets = TxListingPointer::packets()
-        if packets.size > 0 then
+        items = TxListingPointer::items()
+        if items.size > 0 then
             puts ""
             puts "staged:"
             vspaceleft = vspaceleft - 2
-            packets
-                .each{|packet|
-                    pointer = packet["pointer"]
-                    item    = packet["item"]
-                    pointersItemsUuids << item["uuid"]
-                    store.register(item, false)
-                    line = "#{store.prefixString()} #{PolyFunctions::toStringForListing(item)}"
+            items
+                .each{|pointer|
+                    pointersItemsUuids << TxListingPointer::pointerToItemUUIDOrNull(pointer)
+                    store.register(pointer, false)
+                    line = "#{store.prefixString()} #{PolyFunctions::toStringForListing(pointer)}"
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
