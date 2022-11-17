@@ -227,7 +227,7 @@ if $RunNonEssentialThreads then
     Thread.new {
         loop {
             sleep 12
-            The99Percent::recomputeFromStratch()
+            The99Percent::line()
             sleep 600
         }
     }

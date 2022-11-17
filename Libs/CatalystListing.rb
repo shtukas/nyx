@@ -488,12 +488,9 @@ class CatalystListing
 
         vspaceleft = CommonUtils::screenHeight() - 4
 
-        line = The99Percent::displayLineFromCacheOrNull()
-        if line then
-            puts ""
-            puts line
-            vspaceleft = vspaceleft - 2
-        end
+        puts ""
+        puts The99Percent::line()
+        vspaceleft = vspaceleft - 2
 
         store = ItemStore.new()
 
