@@ -145,13 +145,18 @@ class PolyFunctions
     def self.listingPriorityOrNull(item) # Float between 0 and 1
 
         # NxAnniversary                 0.95
-        # Wave "time-critical"          0.90
+        # Wave "orchestration"          0.90
         # Cx22 "isPriority" = true      0.80
+        # Wave "ns:mandatory-today"     0.77
+        # NxTodo (today)                0.76
         # TxManualCountDown             0.75
-        # Wave "time-aware"             0.70
+        # Wave "ns:time-important"      0.70
         # Cx22 "isPriority" = false     0.60
-        # Wave "non-important"          0.50
-        # NxTodo                        0.40
+        # ----------------------------- 0.50
+        # NxTodo (asap-not-nec-today)   0.50
+        # ----------------------------- 0.50
+        # Wave "ns:beach"               0.40
+        # NxTodo (standard)             0.30
 
         shiftOnCompletionRatio = lambda {|ratio|
             0.01*Math.atan(-ratio)
@@ -200,9 +205,9 @@ class PolyFunctions
                 return nil
             end
             mapping = {
-                "time-critical" => 0.90,
-                "time-aware"    => 0.70,
-                "non-important" => 0.50
+                "ns:mandatory-today" => 0.90,
+                "ns:time-important"  => 0.70,
+                "ns:beach"           => 0.50
             }
             base = mapping[item["priority"]]
             return base + shiftOnDateTime.call(item, item["lastDoneDateTime"])

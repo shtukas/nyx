@@ -59,7 +59,7 @@ class Waves
 
     # Waves::interactivelySelectPriorityOrNull()
     def self.interactivelySelectPriorityOrNull()
-        prioritys = ["time-critical", "time-aware", "non-important"]
+        prioritys = ["ns:mandatory-today", "ns:time-important", "ns:beach"]
         LucilleCore::selectEntityFromListOfEntitiesOrNull("priority:", prioritys)
     end
 
@@ -190,7 +190,7 @@ class Waves
             "datetime"         => Time.new.utc.iso8601,
             "description"      => description,
             "nx46"             => nx46,
-            "priority"       => priority,
+            "priority"         => priority,
             "nx113"            => nx113,
             "lastDoneDateTime" => "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         }

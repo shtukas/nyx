@@ -6,7 +6,7 @@ Wave:
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : description
     "nx46"        : Nx46 # Wave pattern
-    "priority"  : "time-critical" | "time-aware" | "non-important"
+    "priority"    : "ns:mandatory-today" | "ns:time-important" | "ns:beach"
     "lastDoneDateTime" : DateTime Iso 8601 UTC Zulu
     "nx113"       : Nx113
     "onlyOnDays"  : null or Array[week days names lowercase english] # Indicates on which days the wave can show up
