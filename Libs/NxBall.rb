@@ -32,6 +32,7 @@ class NxBall
     # NxBall::interactivelyIssueNewNxBallOrNothing()
     def self.interactivelyIssueNewNxBallOrNothing()
         cx22 = Cx22::interactivelySelectCx22OrNull()
+        return if cx22.nil?
         item = {
             "uuid"     => SecureRandom.uuid,
             "mikuType" => "NxBall",

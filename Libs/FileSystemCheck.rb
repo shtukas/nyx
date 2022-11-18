@@ -371,7 +371,6 @@ class FileSystemCheck
         if Nx7Payloads::navigationTypes().include?(item["type"]) then
             FileSystemCheck::ensureAttribute(item, "childrenuuids", "Array")
         end
-
     end
 
     # -----------------------------------------------------
