@@ -448,8 +448,8 @@ class CatalystListing
 
             puts ""
             printTestResults.call(runTest.call({
-                "name" => "CatalystListing::listingItemsInPriorityOrderDesc()",
-                "lambda" => lambda { CatalystListing::listingItemsInPriorityOrderDesc() }
+                "name" => "CatalystListing::txListingItemsInPriorityOrderDesc()",
+                "lambda" => lambda { CatalystListing::txListingItemsInPriorityOrderDesc() }
             }), padding)
 
             LucilleCore::pressEnterToContinue()
@@ -457,8 +457,12 @@ class CatalystListing
         end
     end
 
-    # CatalystListing::listingItemsInPriorityOrderDesc()
-    def self.listingItemsInPriorityOrderDesc()
+    # CatalystListing::txListingItemsInPriorityOrderDesc()
+    def self.txListingItemsInPriorityOrderDesc()
+        # TxListingItem {
+        #     "item"     => item,
+        #     "priority" => PolyFunctions::listingPriorityOrNull(item) || -1,
+        # }
         [
             Anniversaries::listingItems(),
             TxManualCountDowns::listingItems(),
@@ -476,8 +480,8 @@ class CatalystListing
                     "priority" => PolyFunctions::listingPriorityOrNull(item) || -1,
                 }
             }
+            .select{|packet| packet["priority"] > 0 }
             .sort{|p1, p2| p1["priority"] <=> p2["priority"] }
-            .map{|packet| packet["item"] }
             .reverse
     end
 
@@ -531,12 +535,17 @@ class CatalystListing
         puts ""
         vspaceleft = vspaceleft - 1
 
-        CatalystListing::listingItemsInPriorityOrderDesc()
-            .each{|item|
+        CatalystListing::txListingItemsInPriorityOrderDesc()
+            .each{|packet|
+                item = packet["item"]
+                priority = packet["priority"]
                 next if pointersItemsUuids.include?(item["uuid"])
                 break if vspaceleft <= 0
                 store.register(item, true)
                 line = "#{store.prefixString()} #{PolyFunctions::toStringForListing(item)}"
+                if priority < 0.5 then
+                    line = line.yellow
+                end
                 puts line
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }
