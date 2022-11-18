@@ -10,7 +10,7 @@ class CatalystListing
             "start | stop",
             "anniversaries | ondates | waves | groups | todos",
             "require internet",
-            "search | nyx | speed | nxballs | commands",
+            "search | nyx | speed | commands",
         ].join("\n")
     end
 
