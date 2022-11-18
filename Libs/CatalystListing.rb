@@ -456,7 +456,7 @@ class CatalystListing
         #     "item"     => item,
         #     "priority" => PolyFunctions::listingPriorityOrNull(item) || -1,
         # }
-        [
+        packets = [
             Anniversaries::listingItems(),
             TxManualCountDowns::listingItems(),
             Waves::items(),
@@ -474,6 +474,10 @@ class CatalystListing
                 }
             }
             .select{|packet| packet["priority"] > 0 }
+        if packets.any?{|packet| packet["priority"] > 0.5 } then
+            packets = packets.select{|packet| packet["priority"] > 0.5 }
+        end
+        packets
             .sort{|p1, p2| p1["priority"] <=> p2["priority"] }
             .reverse
     end
