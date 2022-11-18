@@ -205,9 +205,9 @@ class PolyFunctions
                 return nil
             end
             mapping = {
-                "ns:mandatory-today" => 0.90,
+                "ns:mandatory-today" => 0.77,
                 "ns:time-important"  => 0.70,
-                "ns:beach"           => 0.50
+                "ns:beach"           => 0.40
             }
             base = mapping[item["priority"]]
             return base + shiftOnDateTime.call(item, item["lastDoneDateTime"])
