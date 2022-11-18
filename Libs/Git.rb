@@ -19,7 +19,7 @@ class Git
 
     # Git::updateFromRemoteIfNeeded()
     def self.updateFromRemoteIfNeeded()
-        remoteHash = Git::localHash()
+        remoteHash = Git::remoteHash()
         return if remoteHash == ""
         if remoteHash != Git::localHash() then
             Git::updateFromRemote()
