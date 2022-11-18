@@ -162,6 +162,7 @@ require_relative "EnergyGrid.rb"
 
 require_relative "Galaxy.rb"
 require_relative "GridState.rb"
+require_relative "Git.rb"
 
 require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"
@@ -238,6 +239,14 @@ if $RunNonEssentialThreads then
             if filepath then
                 $SyncConflictInterruptionFilepath = filepath
             end
+            sleep 600
+        }
+    }
+
+    Thread.new {
+        loop {
+            sleep 32
+            Git::updateFromRemoteIfNeeded()
             sleep 600
         }
     }
