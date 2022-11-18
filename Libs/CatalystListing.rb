@@ -6,7 +6,7 @@ class CatalystListing
     def self.listingCommands()
         [
             ".. | <datecode> | <n> | access (<n>) | description (<n>) | datetime (<n>) | engine (<n>) | set group (<n>) | landing (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | expose (<n>) | float | destroy",
-            "wave | anniversary | hot | today | ondate | todo | Cx22",
+            "wave | anniversary | today | ondate | todo | Cx22",
             "start | stop",
             "anniversaries | ondates | waves | groups | todos",
             "require internet",
@@ -229,13 +229,6 @@ class CatalystListing
 
         if Interpreting::match("groups", input) then
             Cx22::maindive()
-            return
-        end
-
-        if Interpreting::match("hot", input) then
-            description = LucilleCore::askQuestionAnswerAsString("hot: ")
-            item = NxTodos::interactivelyIssueNewHot(description)
-            puts JSON.pretty_generate(item)
             return
         end
 

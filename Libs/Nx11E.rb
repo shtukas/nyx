@@ -4,7 +4,7 @@ class Nx11E
 
     # Nx11E::types()
     def self.types()
-        ["hot", "triage", "ordinal", "ondate", "standard"]
+        ["triage", "ondate", "ns:asap-not-nec-today", "standard"]
     end
 
     # Makers
@@ -44,12 +44,12 @@ class Nx11E
         }
     end
 
-    # Nx11E::makeHot()
-    def self.makeHot()
+    # Nx11E::makeAsapNotNecToday()
+    def self.makeAsapNotNecToday()
         {
             "uuid"     => SecureRandom.uuid,
             "mikuType" => "Nx11E",
-            "type"     => "hot",
+            "type"     => "ns:asap-not-nec-today",
             "unixtime" => Time.new.to_f
         }
     end
@@ -58,21 +58,11 @@ class Nx11E
     def self.interactivelyCreateNewNx11EOrNull()
         type = Nx11E::interactivelySelectTypeOrNull()
         return nil if type.nil?
-        if type == "hot" then
-            return Nx11E::makeHot()
+        if type == "ns:asap-not-nec-today" then
+            return Nx11E::makeAsapNotNecToday()
         end
         if type == "triage" then
             return Nx11E::makeTriage()
-        end
-        if type == "ordinal" then
-            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (empty to abort): ")
-            return nil if ordinal == ""
-            return {
-                "uuid"     => SecureRandom.uuid,
-                "mikuType" => "Nx11E",
-                "type"     => "ordinal",
-                "ordinal"  => ordinal
-            }
         end
         if type == "ondate" then
             datetime = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
@@ -108,16 +98,12 @@ class Nx11E
             raise "(error: a06d321f-d66c-4909-bfb9-00a6787c0311) This function only takes Nx11Es, nx11e: #{nx11e}"
         end
 
-        if nx11e["type"] == "hot" then
+        if nx11e["type"] == "ns:asap-not-nec-today" then
             return "(hot)"
         end
 
         if nx11e["type"] == "triage" then
             return "(triage)"
-        end
-
-        if nx11e["type"] == "ordinal" then
-            return "(ordinal: #{"%.2f" % nx11e["ordinal"]})"
         end
 
         if nx11e["type"] == "ondate" then

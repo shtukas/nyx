@@ -101,7 +101,7 @@ class NxTodos
     # NxTodos::interactivelyIssueNewHot(description)
     def self.interactivelyIssueNewHot(description)
         uuid  = SecureRandom.uuid
-        nx11e = Nx11E::makeHot()
+        nx11e = Nx11E::makeAsapNotNecToday()
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
@@ -214,6 +214,13 @@ class NxTodos
     # NxTodos::listingPriorityOrNull(item)
     def self.listingPriorityOrNull(item) # Float between 0 and 1
 
+        # This is a subset of the primary definition
+
+        # NxTodo (triage)               0.92
+        # NxTodo (ondate:today)         0.76
+        # NxTodo (asap-not-nec-today)   0.50
+        # NxTodo (standard)             0.30
+
         shiftOnDateTime = lambda {|datetime|
             0.01*(Time.new.to_f - DateTime.parse(datetime).to_time.to_f)/86400
         }
@@ -236,36 +243,25 @@ class NxTodos
 
         # First we take account of the engine
 
-        if item["nx11e"]["type"] == "hot" then
-            return 0.95 + shiftOnUnixtime.call(item["nx11e"]["unixtime"])
-        end
-
         if item["nx11e"]["type"] == "triage" then
-            return 0.90 + shiftOnUnixtime.call(item["nx11e"]["unixtime"])
-        end
-
-        if item["nx11e"]["type"] == "ordinal" then
-            return 0.85 + shiftOnOrdinal.call(item["nx11e"]["ordinal"])
+            return 0.92 + shiftOnUnixtime.call(item["nx11e"]["unixtime"])
         end
 
         if item["nx11e"]["type"] == "ondate" then
             return nil if (CommonUtils::today() < item["nx11e"]["datetime"][0, 10])
-            return 0.70 + shiftOnDateTime.call(item["nx11e"]["datetime"])
+            return 0.76 + shiftOnDateTime.call(item["nx11e"]["datetime"])
         end
 
-        cx23 = Cx22::getCx23ForItemuuidOrNull(item["uuid"])
-        if item["nx11e"]["type"] == "standard" and cx23 then
-            cx22 = Cx22::getOrNull(cx23["groupuuid"])
-            if cx22 then
-                return nil if !DoNotShowUntil::isVisible(cx22["uuid"])
-                completionRatio = Ax39::completionRatio(cx22["ax39"], cx22["uuid"])
-                return nil if completionRatio >= 1
-                return 0.60 + shiftOnCompletionRatio.call(completionRatio) + shiftOnPosition.call(cx23["position"]).to_f/100
-            end
+        if item["nx11e"]["type"] == "ns:asap-not-nec-today" then
+            return 0.50 + shiftOnUnixtime.call(item["nx11e"]["unixtime"])
+        end
+
+        if item["nx11e"]["type"] == "standard" and Cx22::getCx22ForItemUUIDOrNull(item["uuid"]) then
+            return nil
         end
 
         if item["nx11e"]["type"] == "standard" then
-            return 0.40 + shiftOnUnixtime.call(item["unixtime"])
+            return 0.30 + shiftOnUnixtime.call(item["unixtime"])
         end
 
         raise "(error: a3c6797b-e063-44ca-8dab-4c5540688776) I do not know how to prioritise item: #{item}"

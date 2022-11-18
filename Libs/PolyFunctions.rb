@@ -144,11 +144,14 @@ class PolyFunctions
     # We return a null value when the item should not be displayed
     def self.listingPriorityOrNull(item) # Float between 0 and 1
 
+        # This is the primary definition
+
         # NxAnniversary                 0.95
+        # NxTodo (triage)               0.92
         # Wave "orchestration"          0.90
         # Cx22 "isPriority" = true      0.80
         # Wave "ns:mandatory-today"     0.77
-        # NxTodo (today)                0.76
+        # NxTodo (ondate:today)         0.76
         # TxManualCountDown             0.75
         # Wave "ns:time-important"      0.70
         # Cx22 "isPriority" = false     0.60

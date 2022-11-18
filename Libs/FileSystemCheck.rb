@@ -33,18 +33,13 @@ class FileSystemCheck
 
         FileSystemCheck::ensureAttribute(item, "uuid", "String")
 
-        if item["type"] == "hot" then
+        if item["type"] == "ns:asap-not-nec-today" then
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             return
         end
 
         if item["type"] == "triage" then
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-            return
-        end
-
-        if item["type"] == "ordinal" then
-            FileSystemCheck::ensureAttribute(item, "ordinal", "Number")
             return
         end
 
