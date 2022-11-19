@@ -318,10 +318,14 @@ class CatalystListing
         end
 
         if Interpreting::match("start", input) then
+            item = store.getDefault()
+            if item and item["mikuType"] == "Cx22" then
+                NxBall::issue(item)
+                return
+            end
             NxBall::interactivelyIssueNewNxBallOrNothing()
             return
         end
-
 
         if Interpreting::match("stop", input) then
             nxballs = NxBall::items()

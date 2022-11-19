@@ -29,10 +29,8 @@ class NxBall
         FileUtils.rm(filepath)
     end
 
-    # NxBall::interactivelyIssueNewNxBallOrNothing()
-    def self.interactivelyIssueNewNxBallOrNothing()
-        cx22 = Cx22::interactivelySelectCx22OrNull()
-        return if cx22.nil?
+    # NxBall::issue(cx22)
+    def self.issue(cx22)
         item = {
             "uuid"     => SecureRandom.uuid,
             "mikuType" => "NxBall",
@@ -44,24 +42,25 @@ class NxBall
         item
     end
 
-    # NxBall::commitTime(item)
-    def self.commitTime(item)
-        timespan = Time.new.to_i - item["unixtime"]
-        puts "Adding #{(timespan.to_f/3600).round(2)} hours to #{item["announce"]}"
-        Bank::put(item["cx22"], timespan)
+    # NxBall::interactivelyIssueNewNxBallOrNothing()
+    def self.interactivelyIssueNewNxBallOrNothing()
+        cx22 = Cx22::interactivelySelectCx22OrNull()
+        return if cx22.nil?
+        NxBall::issue(cx22)
     end
 
     # NxBall::commitTimeAndDestroy(item)
     def self.commitTimeAndDestroy(item)
-        NxBall::commitTime(item)
+        timespan = Time.new.to_i - item["unixtime"]
+        puts "Adding #{(timespan.to_f/3600).round(2)} hours to #{item["announce"]}"
+        Bank::put(item["cx22"], timespan)
         NxBall::destroy(item["uuid"])
     end
 
     # NxBall::access(item)
     def self.access(item)
         if LucilleCore::askQuestionAnswerAsBoolean("stop NxBall '#{item["announce"]}' ? ") then
-            NxBall::commitTime(item)
-            NxBall::destroy(item["uuid"])
+            NxBall::commitTimeAndDestroy(item)
         end
     end
 end
