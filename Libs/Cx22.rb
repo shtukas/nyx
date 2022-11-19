@@ -59,67 +59,6 @@ class Cx22
     end
 
     # ----------------------------------------------------------------
-    # Elements
-
-    # Cx22::addItemToCx22(cx22uuid, itemuuid)
-    def self.addItemToCx22(cx22uuid, itemuuid)
-        folderpath = "#{Config::pathToDataCenter()}/Cx22/#{cx22uuid}"
-        if !File.exists?(folderpath) then
-            FileUtils.mkdir(folderpath)
-        end
-        filepath = "#{folderpath}/#{itemuuid}"
-        FileUtils.touch(filepath)
-    end
-
-    # Cx22::getItemsUUIDsForCx22(cx22uuid)
-    def self.getItemsUUIDsForCx22(cx22uuid)
-        folderpath = "#{Config::pathToDataCenter()}/Cx22/#{cx22uuid}"
-        return [] if !File.exists?(folderpath)
-        LucilleCore::locationsAtFolder(folderpath)
-            .select{|filepath| filepath[0, 1] != "." }
-            .map{|filepath| File.basename(filepath) }
-    end
-
-    # Cx22::getItemsForCx22(cx22uuid)
-    def self.getItemsForCx22(cx22uuid)
-        Cx22::getItemsUUIDsForCx22(cx22uuid)
-            .map{|itemuuid| Catalyst::getCatalystItemOrNull(itemuuid) }
-            .compact
-    end
-
-    # Cx22::getFirstNItemsForCx22(cx22uuid, n)
-    def self.getFirstNItemsForCx22(cx22uuid, n)
-        Cx22::getItemsUUIDsForCx22(cx22uuid)
-            .first(n)
-            .map{|itemuuid| Catalyst::getCatalystItemOrNull(itemuuid) }
-            .compact
-    end
-
-    # Cx22::getCx22ForItemUUIDOrNull(itemuuid)
-    def self.getCx22ForItemUUIDOrNull(itemuuid)
-        Cx22::items().each{|cx22|
-            if Cx22::getItemsUUIDsForCx22(cx22["uuid"]).include?(itemuuid) then
-                return cx22
-            end
-        }
-        nil
-    end
-
-    # Cx22::itemuuidFilepathAtCx22(cx22uuid, itemuuid)
-    def self.itemuuidFilepathAtCx22(cx22uuid, itemuuid)
-        "#{Config::pathToDataCenter()}/Cx22/#{cx22uuid}/#{itemuuid}"
-    end
-
-    # Cx22::garbageCollection(itemuuid)
-    def self.garbageCollection(itemuuid)
-        Cx22::items().each{|cx22|
-            filepath = Cx22::itemuuidFilepathAtCx22(cx22["uuid"], itemuuid)
-            next if !File.exists?(filepath)
-            FileUtils.rm(filepath)
-        }
-    end
-
-    # ----------------------------------------------------------------
     # Data
 
     # Cx22::toString1(item)
@@ -168,6 +107,59 @@ class Cx22
     # Cx22::listingItems()
     def self.listingItems()
         Cx22::items()
+    end
+
+    # ----------------------------------------------------------------
+    # Elements
+
+    # Cx22::addItemToCx22(cx22uuid, itemuuid)
+    def self.addItemToCx22(cx22uuid, itemuuid)
+        folderpath = "#{Config::pathToDataCenter()}/Cx22/#{cx22uuid}"
+        if !File.exists?(folderpath) then
+            FileUtils.mkdir(folderpath)
+        end
+        filepath = "#{folderpath}/#{itemuuid}"
+        FileUtils.touch(filepath)
+    end
+
+    # Cx22::getItemsUUIDsForCx22(cx22uuid)
+    def self.getItemsUUIDsForCx22(cx22uuid)
+        folderpath = "#{Config::pathToDataCenter()}/Cx22/#{cx22uuid}"
+        return [] if !File.exists?(folderpath)
+        LucilleCore::locationsAtFolder(folderpath)
+            .select{|filepath| filepath[0, 1] != "." }
+            .map{|filepath| File.basename(filepath) }
+    end
+
+    # Cx22::getItemsForCx22(cx22uuid)
+    def self.getItemsForCx22(cx22uuid)
+        Cx22::getItemsUUIDsForCx22(cx22uuid)
+            .map{|itemuuid| Catalyst::getCatalystItemOrNull(itemuuid) }
+            .compact
+    end
+
+    # Cx22::getCx22ForItemUUIDOrNull(itemuuid)
+    def self.getCx22ForItemUUIDOrNull(itemuuid)
+        Cx22::items().each{|cx22|
+            if Cx22::getItemsUUIDsForCx22(cx22["uuid"]).include?(itemuuid) then
+                return cx22
+            end
+        }
+        nil
+    end
+
+    # Cx22::itemuuidFilepathAtCx22(cx22uuid, itemuuid)
+    def self.itemuuidFilepathAtCx22(cx22uuid, itemuuid)
+        "#{Config::pathToDataCenter()}/Cx22/#{cx22uuid}/#{itemuuid}"
+    end
+
+    # Cx22::garbageCollection(itemuuid)
+    def self.garbageCollection(itemuuid)
+        Cx22::items().each{|cx22|
+            filepath = Cx22::itemuuidFilepathAtCx22(cx22["uuid"], itemuuid)
+            next if !File.exists?(filepath)
+            FileUtils.rm(filepath)
+        }
     end
 
     # --------------------------------------------

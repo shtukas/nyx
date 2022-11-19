@@ -269,9 +269,12 @@ class NxTodos
             if selected.size >= 10 then
                 selected
             else
-                item = NxTodos::getItemAtFilepathOrNull(itemfilepath)
-                if item then
-                    selected + [item]
+                if (item = NxTodos::getItemAtFilepathOrNull(itemfilepath)) then
+                    if Cx22::getCx22ForItemUUIDOrNull(item["uuid"]) then
+                        selected
+                    else
+                        selected + [item]
+                    end
                 else
                     selected
                 end
