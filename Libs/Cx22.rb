@@ -196,16 +196,20 @@ class Cx22
     def self.elementsDive(cx22)
         loop {
             system("clear")
+
             puts ""
-            count1 = 0
+
+            NxBall::items().each{|nxball|
+                store.register(nxball, false)
+                puts "#{store.prefixString()} running: #{nxball["announce"]}".green
+            }
             puts Cx22::toStringWithDetails(cx22)
             puts "style: #{cx22["style"]}"
 
-            puts ""
             elements = Cx22::getItemsForCx22(cx22["uuid"])
                             .select{|element| element["mikuType"] == "NxTodo" }
                             .select{|element| DoNotShowUntil::isVisible(element["uuid"]) }
-                            .first(CommonUtils::screenHeight() - (10+count1))
+                            .first(10)
 
             if cx22["style"] == "managed-top-3" then
                 theRTWeDeserve = lambda {|element|
@@ -292,6 +296,7 @@ class Cx22
     def self.dive(cx22)
         loop {
             system("clear")
+            puts ""
             puts Cx22::toStringWithDetails(cx22)
             puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(cx22["uuid"])}"
             puts "style: #{cx22["style"]}"
