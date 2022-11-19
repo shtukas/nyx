@@ -23,6 +23,7 @@ class Git
         return if remoteHash == ""
         if remoteHash != Git::localHash() then
             Git::updateFromRemote()
+            exit
         end
     end
 end
