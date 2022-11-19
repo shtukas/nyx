@@ -1,7 +1,0 @@
-
-Cx23 {
-    "mikuType"  : "Cx23"
-    "groupuuid" : String
-    "itemuuid"  : String
-    "position"  : Float
-}

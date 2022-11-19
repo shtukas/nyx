@@ -205,7 +205,7 @@ class Waves
     def self.toString(item)
         lastDoneDateTime = item["lastDoneDateTime"]
         ago = "#{((Time.new.to_i - DateTime.parse(lastDoneDateTime).to_time.to_i).to_f/86400).round(2)} days ago"
-        "(wave) #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")} (#{Waves::nx46ToString(item["nx46"])}) (#{ago}) 🌊 #{Cx22::contributionStringWithPrefixForCatalystItemOrEmptyString(item).green} [#{item["priority"]}]"
+        "(wave) #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")} (#{Waves::nx46ToString(item["nx46"])}) (#{ago}) 🌊 [#{item["priority"]}]"
     end
 
     # -------------------------------------------------------------------------

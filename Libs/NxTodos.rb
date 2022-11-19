@@ -19,6 +19,12 @@ class NxTodos
             .map{|filepath| Nx5Ext::readFileAsAttributesOfObject(filepath) }
     end
 
+    # NxTodos::getItemAtFilepathOrNull(filepath)
+    def self.getItemAtFilepathOrNull(filepath)
+        return nil if !File.exists?(filepath)
+        Nx5Ext::readFileAsAttributesOfObject(filepath)
+    end
+
     # NxTodos::getItemOrNull(uuid)
     def self.getItemOrNull(uuid)
         filepath = NxTodos::uuidToNx5Filepath(uuid)
@@ -43,6 +49,7 @@ class NxTodos
         filepath = NxTodos::uuidToNx5Filepath(uuid)
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
+        Cx22::garbageCollection(uuid)
     end
 
     # --------------------------------------------------
@@ -56,10 +63,7 @@ class NxTodos
         nx11e = Nx11E::interactivelyCreateNewNx11E()
         nx113 = Nx113Make::interactivelyMakeNx113OrNull(NxTodos::getElizabethOperatorForUUID(uuid))
         if nx11e["type"] == "standard" then
-            cx23 = Cx23::interactivelyMakeNewOrNull(uuid)
-            if cx23 then
-                Cx22::commitCx23(cx23)
-            end
+            Cx22::addItemToInteractivelySelectedCx22(uuid)
         end
         item = {
             "uuid"        => uuid,
@@ -160,9 +164,8 @@ class NxTodos
         item
     end
 
-    # NxTodos::issueFromElements(uuid, description, nx113, nx11e, cx23)
-    def self.issueFromElements(uuid, description, nx113, nx11e, cx23)
-        Cx22::commitCx23(cx23)
+    # NxTodos::issueFromElements(uuid, description, nx113, nx11e)
+    def self.issueFromElements(uuid, description, nx113, nx11e)
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
@@ -183,18 +186,7 @@ class NxTodos
     def self.toString(item)
         nx11estr = " #{Nx11E::toString(item["nx11e"])}"
         nx113str = Nx113Access::toStringOrNull(" ", item["nx113"], "")
-
-        cx23str1 = ""
-        cx23str2 = ""
-
-        cx23 = Cx22::getCx23ForItemuuidOrNull(item["uuid"])
-        if cx23 then
-            str1 = Cx23::toStringOrNull(cx23)
-            cx23str1 = cx23 ? " (#{"%6.2f" % cx23["position"]})" : ""
-            cx23str2 = str1 ? " (#{str1})".green : ""
-        end
-
-        "(todo)#{cx23str1}#{nx11estr}#{nx113str} #{item["description"]}#{cx23str2}"
+        "(todo)#{nx11estr}#{nx113str} #{item["description"]}"
     end
 
     # NxTodos::toStringForSearch(item)
@@ -273,37 +265,18 @@ class NxTodos
 
     # NxTodos::listingItems()
     def self.listingItems()
-        cx22 = Cx22::cx22WithCompletionRatiosOrdered()
-                    .select{|packet| packet["completionRatio"] < 1 }
-                    .map{|packet| packet["item"] }
-                    .first
-
-        if cx22 then
-            return Cx22::firstNItemsForCx22InPositionOrder(cx22, 10)
-        end
-
-        getCachedFilepathsOrNull = lambda {
-            filepaths = XCache::getOrNull("bf8228f9-9f76-4b09-a233-c744fb77c000")
-            return nil if filepaths.nil?
-            filepaths = JSON.parse(filepaths)
+        NxTodos::filepaths().reduce([]){|selected, itemfilepath|
+            if selected.size >= 10 then
+                selected
+            else
+                item = NxTodos::getItemAtFilepathOrNull(itemfilepath)
+                if item then
+                    selected + [item]
+                else
+                    selected
+                end
+            end
         }
-
-        issueNewBatch = lambda {
-            filepaths = NxTodos::filepaths().shuffle.take(10) # Note that this can return items on Cx22s
-            XCache::set("bf8228f9-9f76-4b09-a233-c744fb77c000", JSON.generate(filepaths))
-            filepaths
-        }
-
-        cachedFilepaths = getCachedFilepathsOrNull.call()
-        aliveFilepaths = cachedFilepaths.select{|filepath| File.exists?(filepath) }
-        if aliveFilepaths.size < 5 then
-            filepaths = issueNewBatch.call()
-        else
-            filepaths = aliveFilepaths
-        end
-
-        filepaths
-            .map{|filepath| Nx5Ext::readFileAsAttributesOfObject(filepath) }
     end
 
     # --------------------------------------------------
@@ -370,7 +343,7 @@ class NxTodos
             puts "datetime: #{item["datetime"]}".yellow
             puts "Nx11E (engine): #{JSON.generate(item["nx11e"])}".yellow
             puts "Nx113 (payload): #{Nx113Access::toStringOrNull("", item["nx113"], "")}".yellow
-            puts "Cx23 (Contribution Group & Position): #{JSON.generate(Cx22::getCx23ForItemuuidOrNull(item["uuid"]))}".yellow
+            puts "Cx22: #{JSON.generate(Cx22::getCx22ForItemUUIDOrNull(item["uuid"]))}".yellow
 
             puts ""
             puts "description | access | engine | edit | nx113 | cx22 | done | do not show until | expose | destroy | nyx".yellow

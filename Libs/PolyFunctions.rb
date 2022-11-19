@@ -126,20 +126,6 @@ class PolyFunctions
         return nil
     end
 
-    # PolyFunctions::getCatalystItemOrNull(uuid)
-    def self.getCatalystItemOrNull(uuid)
-        item = Waves::getOrNull(uuid)
-        return item if item
-
-        item = NxTodos::getItemOrNull(uuid)
-        return item if item
-
-        item = Cx22::getOrNull(uuid)
-        return item if item
-
-        nil
-    end
-
     # PolyFunctions::listingPriorityOrNull(item)
     # We return a null value when the item should not be displayed
     def self.listingPriorityOrNull(item) # Float between 0 and 1

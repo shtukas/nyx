@@ -75,7 +75,7 @@ class CatalystListing
         if Interpreting::match("set group", input) then
             item = store.getDefault()
             return if item.nil?
-            Cx23::interactivelyIssueCx23ForItemOrNull(item)
+            Cx22::addItemToInteractivelySelectedCx22(item["uuid"])
             return
         end
 
@@ -83,7 +83,7 @@ class CatalystListing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            Cx23::interactivelyIssueCx23ForItemOrNull(item)
+            Cx22::addItemToInteractivelySelectedCx22(item["uuid"])
             return
         end
 
@@ -182,8 +182,7 @@ class CatalystListing
         if Interpreting::match("engine", input) then
             item = store.getDefault()
             return if item.nil?
-            item = Nx11E::interactivelySetANewEngineForItemOrNothing(item)
-            Cx23::interactivelyIssueCx23ForItemOrNull(item)
+            Nx11E::interactivelySetANewEngineForItemOrNothing(item)
             return
         end
 
@@ -191,8 +190,7 @@ class CatalystListing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            item = Nx11E::interactivelySetANewEngineForItemOrNothing(item)
-            Cx23::interactivelyIssueCx23ForItemOrNull(item)
+            Nx11E::interactivelySetANewEngineForItemOrNothing(item)
             return
         end
 

@@ -156,23 +156,6 @@ class FileSystemCheck
         FileSystemCheck::ensureAttribute(item, "isPriority", nil)
     end
 
-    # FileSystemCheck::fsck_Cx23(item, verbose)
-    def self.fsck_Cx23(item, verbose)
-        return if item.nil?
-
-        if verbose then
-            puts "FileSystemCheck::fsck_Cx23(#{JSON.pretty_generate(item)}, #{verbose})"
-        end
-
-        if item["mikuType"] != "Cx23" then
-            raise "Incorrect Miku type for function"
-        end
-
-        FileSystemCheck::ensureAttribute(item, "groupuuid", "String")
-        FileSystemCheck::ensureAttribute(item, "itemuuid", "String")
-        FileSystemCheck::ensureAttribute(item, "position", "Number")
-    end
-
     # FileSystemCheck::fsck_Dx33(item, verbose)
     def self.fsck_Dx33(item, verbose)
         return if item.nil?

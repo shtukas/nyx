@@ -5,7 +5,7 @@ class SearchCatalyst
 
     # SearchCatalyst::catalystNx20s() # Array[Nx20]
     def self.catalystNx20s()
-        (NxTodos::items() + Waves::items())
+        Catalyst::catalystItems()
             .map{|item|
                 {
                     "announce" => "(#{item["mikuType"]}) #{PolyFunctions::genericDescriptionOrNull(item)}",
