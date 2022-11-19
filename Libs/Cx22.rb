@@ -106,7 +106,21 @@ class Cx22
 
     # Cx22::listingItems()
     def self.listingItems()
-        Cx22::items()
+        packets = Cx22::items()
+                    .map{|cx22|
+                        {
+                            "item"     => cx22,
+                            "priority" => PolyFunctions::listingPriorityOrNull(cx22)
+                        }
+                    }
+                    .select{|packet| !packet["priority"].nil? }
+        hasPriorityItems = packets.any?{|packet| packet["item"]["isPriority"] }
+        if hasPriorityItems then
+            packets = packets.select{|packet| packet["item"]["isPriority"] }
+        else
+            packets = packets.select{|packet| !packet["item"]["isPriority"] }
+        end
+        packets.map{|packet| packet["item"] }
     end
 
     # ----------------------------------------------------------------
