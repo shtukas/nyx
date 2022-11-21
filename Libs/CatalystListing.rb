@@ -7,7 +7,7 @@ class CatalystListing
         [
             ".. | <datecode> | <n> | access (<n>) | description (<n>) | datetime (<n>) | engine (<n>) | set group (<n>) | landing (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | expose (<n>) | float | destroy",
             "wave | anniversary | today | ondate | todo | Cx22",
-            "start | stop",
+            "start or start * | stop",
             "anniversaries | ondates | waves | groups | todos",
             "require internet",
             "search | nyx | speed | commands",
@@ -324,6 +324,16 @@ class CatalystListing
                 return
             end
             NxBall::interactivelyIssueNewNxBallOrNothing()
+            return
+        end
+
+        if Interpreting::match("start *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            if item["mikuType"] == "Cx22" then
+                NxBall::issue(item)
+            end
             return
         end
 
