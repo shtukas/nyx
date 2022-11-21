@@ -461,7 +461,7 @@ class CatalystListing
         packets = [
             Anniversaries::listingItems(),
             TxManualCountDowns::listingItems(),
-            Waves::items(),
+            #Waves::items(),
             Cx22::listingItems(),
             NxTodos::listingItems(),
             Lx01s::listingItems()

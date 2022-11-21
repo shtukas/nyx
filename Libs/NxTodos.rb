@@ -32,24 +32,42 @@ class NxTodos
         Nx5Ext::readFileAsAttributesOfObject(filepath)
     end
 
-    # NxTodos::commitObject(object)
-    def self.commitObject(object)
-        FileSystemCheck::fsck_MikuTypedItem(object, false)
-        filepath = NxTodos::uuidToNx5Filepath(object["uuid"])
+    # NxTodos::commitObject(item)
+    def self.commitObject(item)
+        FileSystemCheck::fsck_MikuTypedItem(item, false)
+        filepath = NxTodos::uuidToNx5Filepath(item["uuid"])
         if !File.exists?(filepath) then
-            Nx5::issueNewFileAtFilepath(filepath, object["uuid"])
+            Nx5::issueNewFileAtFilepath(filepath, item["uuid"])
         end
-        object.each{|key, value|
+        item.each{|key, value|
             Nx5::emitEventToFile1(filepath, key, value)
         }
+        if NxTodos::isListingPriorityItem(item) then
+            # We need to mark that item in the priority listing
+            filepath = "#{Config::pathToDataCenter()}/NxTodoPriorityItemsIds/#{item["uuid"]}"
+            if !File.exists?(filepath) then
+                FileUtils.touch(filepath)
+            end
+        end
     end
 
     # NxTodos::destroy(uuid)
     def self.destroy(uuid)
         filepath = NxTodos::uuidToNx5Filepath(uuid)
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
+        if File.exists?(filepath) then
+            FileUtils.rm(filepath)
+        end
+        filepath = "#{Config::pathToDataCenter()}/NxTodoPriorityItemsIds/#{uuid}"
+        if File.exists?(filepath) then
+            FileUtils.rm(filepath)
+        end
         Cx22::garbageCollection(uuid)
+    end
+
+    # NxTodos::isListingPriorityItem(item)
+    def self.isListingPriorityItem(item)
+        puts JSON.pretty_generate(item)
+        ["triage", "ondate", "ns:asap-not-nec-today"].include?(item["nx11e"]["type"])
     end
 
     # --------------------------------------------------
@@ -265,7 +283,11 @@ class NxTodos
 
     # NxTodos::listingItems()
     def self.listingItems()
-        NxTodos::filepaths().reduce([]){|selected, itemfilepath|
+
+        items1 = LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodoPriorityItemsIds")
+                    .map{|filepath| NxTodos::getItemAtFilepathOrNull(filepath) }
+
+        items2 = NxTodos::filepaths().reduce([]){|selected, itemfilepath|
             if selected.size >= 10 then
                 selected
             else
@@ -280,6 +302,8 @@ class NxTodos
                 end
             end
         }
+
+        items1 + items2
     end
 
     # --------------------------------------------------
