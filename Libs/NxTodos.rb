@@ -285,7 +285,8 @@ class NxTodos
     def self.listingItems()
 
         items1 = LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodoPriorityItemsIds")
-                    .map{|filepath| NxTodos::getItemAtFilepathOrNull(filepath) }
+                    .map{|filepath| File.basename(filepath) }
+                    .map{|uuid| NxTodos::getItemOrNull(uuid) }
 
         items2 = NxTodos::filepaths().reduce([]){|selected, itemfilepath|
             if selected.size >= 10 then
