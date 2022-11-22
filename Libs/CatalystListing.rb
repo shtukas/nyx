@@ -520,7 +520,7 @@ class CatalystListing
             vspaceleft = vspaceleft - 2
             nxballs.each{|nxball|
                 store.register(nxball, false)
-                puts "#{store.prefixString()} running: #{nxball["announce"]}".green
+                puts "#{store.prefixString()} #{NxBall::toString(nxball)}".green
             }
         end
 
