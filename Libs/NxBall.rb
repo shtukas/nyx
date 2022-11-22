@@ -63,4 +63,10 @@ class NxBall
             NxBall::commitTimeAndDestroy(item)
         end
     end
+
+    # NxBall::toString(item)
+    def self.toString(item)
+        timespan = Time.new.to_f - item["unixtime"]
+        "(nxball) #{item["announce"]} (running for #{(timespan.to_f/3600).round(2)} hours)"
+    end
 end

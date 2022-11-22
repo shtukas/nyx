@@ -228,7 +228,7 @@ class PolyFunctions
             return Anniversaries::toString(item)
         end
         if item["mikuType"] == "NxBall.v2" then
-            return item["description"]
+            return NxBall::toString(item)
         end
         if item["mikuType"] == "NxTodo" then
             return NxTodos::toString(item)
