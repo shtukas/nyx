@@ -1,0 +1,9 @@
+
+NxOndate:
+
+    "uuid"         : String
+    "mikuType"     : "NxOndate"
+    "unixtime"     : Float
+    "datetime"     : DateTime Iso 8601 UTC Zulu
+    "description"  : String
+    "nx113"        : Nx113

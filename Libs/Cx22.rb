@@ -185,166 +185,11 @@ class Cx22
         LucilleCore::selectEntityFromListOfEntitiesOrNull("cx22", cx22s, lambda{|cx22| Cx22::toStringDiveStyleFormatted(cx22)})
     end
 
-    # Cx22::addItemToInteractivelySelectedCx22(itemuuid)
-    def self.addItemToInteractivelySelectedCx22(itemuuid)
+    # Cx22::addItemToInteractivelySelectedCx22OrNothing(itemuuid)
+    def self.addItemToInteractivelySelectedCx22OrNothing(itemuuid)
         cx22 = Cx22::interactivelySelectCx22OrNull()
-        return if  cx22.nil?
+        return if cx22.nil?
         Cx22::addItemToCx22(cx22["uuid"], itemuuid)
-    end
-
-    # Cx22::elementsDive(cx22)
-    def self.elementsDive(cx22)
-        loop {
-            system("clear")
-
-            puts ""
-
-            NxBall::items().each{|nxball|
-                store.register(nxball, false)
-                puts "#{store.prefixString()} running: #{nxball["announce"]}".green
-            }
-            puts Cx22::toStringWithDetails(cx22)
-            puts "style: #{cx22["style"]}"
-
-            elements = Cx22::getItemsForCx22(cx22["uuid"])
-                            .select{|element| element["mikuType"] == "NxTodo" }
-                            .select{|element| DoNotShowUntil::isVisible(element["uuid"]) }
-                            .first(10)
-
-            if cx22["style"] == "managed-top-3" then
-                theRTWeDeserve = lambda {|element|
-                    rt = BankExtended::stdRecoveredDailyTimeInHours(element["uuid"])
-                    return 0.4 if (rt == 0)
-                    rt
-                }
-                es1s = elements
-                        .take(3)
-                        .sort{|element1, element2| theRTWeDeserve.call(element1) <=> theRTWeDeserve.call(element2) }
-                es2s = elements.drop(3)
-                elements = es1s + es2s
-            end
-
-            store = ItemStore.new()
-            elements
-                .each_with_index{|element, indx|
-                    store.register(element, false)
-                    rtstr   = [0, 1, 2].include?(indx) ? " (rt: #{BankExtended::stdRecoveredDailyTimeInHours(element["uuid"])})" : ""
-                    if DoNotShowUntil::isVisible(element["uuid"])  then
-                        puts "#{store.prefixString()}#{rtstr} #{PolyFunctions::toStringForListing(element)}"
-                    else
-                        puts "#{store.prefixString()}#{rtstr} #{PolyFunctions::toStringForListing(element)}".yellow
-                    end
-                }
-            puts ""
-            puts "+(datecode) for index 0 | <n> | insert | access <n> | done <n> | expose <n> | exit".yellow
-            puts ""
-            input = LucilleCore::askQuestionAnswerAsString("> ")
-            return if input == "exit"
-
-            if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
-                entity = store.get(0)
-                next if entity.nil?
-                DoNotShowUntil::setUnixtime(entity["uuid"], unixtime)
-            end
-
-            if (indx = Interpreting::readAsIntegerOrNull(input)) then
-                entity = store.get(indx)
-                next if entity.nil?
-                PolyActions::landing(entity)
-                next
-            end
-
-            if Interpreting::match("insert", input) then
-                description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-                next if description == ""
-                uuid  = SecureRandom.uuid
-                nx11e = Nx11E::makeStandard()
-                nx113 = Nx113Make::interactivelyMakeNx113OrNull(NxTodos::getElizabethOperatorForUUID(uuid))
-                Cx22::addItemToCx22(cx22["uuid"], uuid)
-                NxTodos::issueFromElements(uuid, description, nx113, nx11e)
-                next
-            end
-
-            if input.start_with?("access") then
-                indx = input[6, 99].strip.to_i
-                entity = store.get(indx)
-                next if entity.nil?
-                PolyActions::access(entity)
-                next
-            end
-
-            if input.start_with?("done") then
-                indx = input[4, 99].strip.to_i
-                entity = store.get(indx)
-                next if entity.nil?
-                PolyActions::done(entity)
-                next
-            end
-
-            if input.start_with?("expose") then
-                indx = input[6, 99].strip.to_i
-                entity = store.get(indx)
-                next if entity.nil?
-                puts JSON.pretty_generate(entity)
-                LucilleCore::pressEnterToContinue()
-                next
-            end
-        }
-    end
-
-    # Cx22::dive(cx22)
-    def self.dive(cx22)
-        loop {
-            system("clear")
-            puts ""
-            puts Cx22::toStringWithDetails(cx22)
-            puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(cx22["uuid"])}"
-            puts "style: #{cx22["style"]}"
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["elements (program)", "update description", "push (do not display until)", "expose", "add time", "set style", "Destroy Cx22"])
-            break if action.nil?
-            if action == "elements (program)" then
-                Cx22::elementsDive(cx22)
-            end
-            if action == "update description" then
-                description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-                next if description == ""
-                cx22["description"] = description
-                PolyActions::commit(cx22)
-                next
-            end
-            if action == "push (do not display until)" then
-                datecode = LucilleCore::askQuestionAnswerAsString("datecode: ")
-                next if datecode == ""
-                unixtime = CommonUtils::codeToUnixtimeOrNull(datecode.gsub(" ", ""))
-                next if unixtime.nil?
-                DoNotShowUntil::setUnixtime(cx22["uuid"], unixtime)
-            end
-            if action == "expose" then
-                puts JSON.pretty_generate(cx22)
-                LucilleCore::pressEnterToContinue()
-                next
-            end
-            if action == "add time" then
-                timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
-                time = timeInHours*3600
-                puts "Adding #{time} seconds to #{cx22["uuid"]}"
-                Bank::put(cx22["uuid"], time)
-                next
-            end
-            if action == "set style" then
-                style = Cx22::interactivelySelectStyle()
-                cx22["style"] = style
-                PolyActions::commit(cx22)
-                next
-            end
-            if action == "Destroy Cx22" then
-                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy '#{Cx22::toString1(cx22).green}' ? ") then
-                    filepath = "#{Config::pathToDataCenter()}/Cx22/#{cx22["uuid"]}.json"
-                    FileUtils.rm(filepath)
-                end
-                return
-            end
-        }
     end
 
     # Cx22::maindive()
@@ -353,7 +198,7 @@ class Cx22
             system("clear")
             cx22 = Cx22::interactivelySelectCx22OrNull()
             return if cx22.nil?
-            Cx22::dive(cx22)
+ 
         }
     end
 end

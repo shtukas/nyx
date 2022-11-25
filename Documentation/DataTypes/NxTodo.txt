@@ -1,12 +1,10 @@
 
 NxTodo:
 
-    "uuid"         : String
-    "mikuType"     : "NxTodo"
-    "unixtime"     : Float
-    "datetime"     : DateTime Iso 8601 UTC Zulu
-
-    "description"  : String
-    "nx11e"        : Nx11E   # The engine
-    "nx113"        : Nx113
-    "listeable"    : Boolean # optional (for backward compatibility), if set to true, item is considered for listing
+    "uuid"        : String
+    "mikuType"    : "NxTodo"
+    "unixtime"    : Float
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "description" : String
+    "nx113"       : Nx113
+    "lightspeed"  : LightSpeed

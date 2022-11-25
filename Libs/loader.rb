@@ -171,10 +171,10 @@ require_relative "InMemoryStore.rb"
 require_relative "FileSystemCheck.rb"
 
 require_relative "Lx01s.rb"
+require_relative "LightSpeed.rb"
 
 require_relative "Nyx.rb"
 require_relative "Nx113.rb"
-require_relative "Nx11E.rb"
 require_relative "NxTodos.rb"
 require_relative "NetworkShapeAroundNode.rb"
 require_relative "Nx5.rb"
@@ -183,6 +183,8 @@ require_relative "Nx7Payloads.rb"
 require_relative "NxItemResolver1.rb"
 require_relative "NxItemResolver2.rb"
 require_relative "NxBall.rb"
+require_relative "NxTriages.rb"
+require_relative "NxOndates.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"
@@ -196,7 +198,6 @@ require_relative "SyncConflicts.rb"
 
 require_relative "TxManualCountDowns.rb"
 require_relative "The99Percent.rb"
-require_relative "TxListingPointer.rb"
 
 require_relative "UniqueStrings.rb"
 require_relative "Upload.rb"

@@ -9,7 +9,7 @@ Nyx Networks:
     NxNode           (Nx113)
 
 Misc:
-    Ax39      # Timing data for some Nx11Es
+    Ax39      # Timing data
     Nx01      # Unique string convention
     Nx45      # UUID naming convention 
     Nx20      # Search Item

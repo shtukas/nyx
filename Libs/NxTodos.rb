@@ -42,13 +42,6 @@ class NxTodos
         item.each{|key, value|
             Nx5::emitEventToFile1(filepath, key, value)
         }
-        if NxTodos::isListingPriorityItem(item) then
-            # We need to mark that item in the priority listing
-            filepath = "#{Config::pathToDataCenter()}/NxTodoPriorityItemsIds/#{item["uuid"]}"
-            if !File.exists?(filepath) then
-                FileUtils.touch(filepath)
-            end
-        end
     end
 
     # NxTodos::destroy(uuid)
@@ -57,17 +50,7 @@ class NxTodos
         if File.exists?(filepath) then
             FileUtils.rm(filepath)
         end
-        filepath = "#{Config::pathToDataCenter()}/NxTodoPriorityItemsIds/#{uuid}"
-        if File.exists?(filepath) then
-            FileUtils.rm(filepath)
-        end
         Cx22::garbageCollection(uuid)
-    end
-
-    # NxTodos::isListingPriorityItem(item)
-    def self.isListingPriorityItem(item)
-        puts JSON.pretty_generate(item)
-        ["triage", "ondate", "ns:asap-not-nec-today"].include?(item["nx11e"]["type"])
     end
 
     # --------------------------------------------------
@@ -78,11 +61,8 @@ class NxTodos
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid  = SecureRandom.uuid
-        nx11e = Nx11E::interactivelyCreateNewNx11E()
         nx113 = Nx113Make::interactivelyMakeNx113OrNull(NxTodos::getElizabethOperatorForUUID(uuid))
-        if nx11e["type"] == "standard" then
-            Cx22::addItemToInteractivelySelectedCx22(uuid)
-        end
+        lightspeed = LightSpeed::interactivelyCreateNewLightSpeed()
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
@@ -90,52 +70,7 @@ class NxTodos
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
             "nx113"       => nx113,
-            "nx11e"       => nx11e,
-            "listeable"   => true
-        }
-        NxTodos::commitObject(item)
-        item
-    end
-
-    # NxTodos::interactivelyIssueNewOndateOrNull(datetime = nil)
-    def self.interactivelyIssueNewOndateOrNull(datetime = nil)
-        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-        return nil if description == ""
-        uuid     = SecureRandom.uuid
-        datetime = datetime || CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
-        nx11e    = Nx11E::makeOndate(datetime)
-        nx113    = Nx113Make::interactivelyMakeNx113OrNull(NxTodos::getElizabethOperatorForUUID(uuid))
-        item = {
-            "uuid"        => uuid,
-            "mikuType"    => "NxTodo",
-            "unixtime"    => Time.new.to_i,
-            "datetime"    => Time.new.utc.iso8601,
-            "description" => description,
-            "nx113"       => nx113,
-            "nx11e"       => nx11e,
-            "listeable"   => true
-        }
-        NxTodos::commitObject(item)
-        item
-    end
-
-    # NxTodos::interactivelyIssueNewTodayOrNull()
-    def self.interactivelyIssueNewTodayOrNull()
-        NxTodos::interactivelyIssueNewOndateOrNull(Time.new.utc.iso8601)
-    end
-
-    # NxTodos::interactivelyIssueNewHot(description)
-    def self.interactivelyIssueNewHot(description)
-        uuid  = SecureRandom.uuid
-        nx11e = Nx11E::makeAsapNotNecToday()
-        item = {
-            "uuid"        => uuid,
-            "mikuType"    => "NxTodo",
-            "unixtime"    => Time.new.to_i,
-            "datetime"    => Time.new.utc.iso8601,
-            "description" => description,
-            "nx11e"       => nx11e,
-            "listeable"   => true
+            "lightspeed"  => lightspeed
         }
         NxTodos::commitObject(item)
         item
@@ -147,7 +82,6 @@ class NxTodos
         uuid = SecureRandom.uuid
         operator = NxTodos::getElizabethOperatorForUUID(uuid)
         nx113 = Nx113Make::aionpoint(operator, location)
-        nx11e = Nx11E::makeTriage()
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
@@ -155,8 +89,7 @@ class NxTodos
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
             "nx113"       => nx113,
-            "nx11e"       => nx11e,
-            "listeable"   => true
+            "lightspeed"  => LightSpeed::fromComponents(Time.new.to_i, "hours")
         }
         NxTodos::commitObject(item)
         item
@@ -167,7 +100,6 @@ class NxTodos
         description = File.basename(location)
         uuid  = SecureRandom.uuid
         nx113 = Nx113Make::url(url)
-        nx11e = Nx11E::makeStandard()
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
@@ -175,15 +107,14 @@ class NxTodos
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
             "nx113"       => nx113,
-            "nx11e"       => nx11e,
-            "listeable"   => true
+            "lightspeed"  => LightSpeed::fromComponents(Time.new.to_i, "days")
         }
         NxTodos::commitObject(item)
         item
     end
 
-    # NxTodos::issueFromElements(uuid, description, nx113, nx11e)
-    def self.issueFromElements(uuid, description, nx113, nx11e)
+    # NxTodos::issueFromElements(uuid, description, nx113, lightspeed)
+    def self.issueFromElements(uuid, description, nx113, lightspeed)
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
@@ -191,8 +122,7 @@ class NxTodos
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
             "nx113"       => nx113,
-            "nx11e"       => nx11e,
-            "listeable"   => true
+            "lightspeed"  => lightspeed
         }
         NxTodos::commitObject(item)
     end
@@ -202,9 +132,8 @@ class NxTodos
 
     # NxTodos::toString(item)
     def self.toString(item)
-        nx11estr = " #{Nx11E::toString(item["nx11e"])}"
         nx113str = Nx113Access::toStringOrNull(" ", item["nx113"], "")
-        "(todo)#{nx11estr}#{nx113str} #{item["description"]}"
+        "(todo)#{nx113str} #{item["description"]}"
     end
 
     # NxTodos::toStringForSearch(item)
@@ -219,92 +148,22 @@ class NxTodos
         "#{NxTodos::toString(item)}#{dnsustr}"
     end
 
-    # NxTodos::itemsOndates()
-    def self.itemsOndates()
-        NxTodos::items()
-            .select{|item| item["nx11e"]["type"] == "ondate" }
-    end
-
     # NxTodos::listingPriorityOrNull(item)
     def self.listingPriorityOrNull(item) # Float between 0 and 1
-
-        # This is a subset of the primary definition
-
-        # NxTodo (triage)               0.92
-        # NxTodo (ondate:today)         0.76
-        # NxTodo (asap-not-nec-today)   0.50
-        # NxTodo (standard)             0.30
-
-        shiftOnDateTime = lambda {|datetime|
-            0.01*(Time.new.to_f - DateTime.parse(datetime).to_time.to_f)/86400
-        }
-
-        shiftOnUnixtime = lambda {|unixtime|
-            0.01*Math.log(Time.new.to_f - unixtime)
-        }
-
-        shiftOnPosition = lambda {|position|
-            0.01*Math.atan(-position)
-        }
-
-        shiftOnOrdinal = lambda {|ordinal|
-            0.01*Math.atan(-ordinal)
-        }
-
-        shiftOnCompletionRatio = lambda {|ratio|
-            0.01*Math.atan(-ratio)
-        }
-
-        # First we take account of the engine
-
-        if item["nx11e"]["type"] == "triage" then
-            return 0.92 + shiftOnUnixtime.call(item["nx11e"]["unixtime"])
-        end
-
-        if item["nx11e"]["type"] == "ondate" then
-            return nil if (CommonUtils::today() < item["nx11e"]["datetime"][0, 10])
-            return 0.76 + shiftOnDateTime.call(item["nx11e"]["datetime"])
-        end
-
-        if item["nx11e"]["type"] == "ns:asap-not-nec-today" then
-            return 0.50 + shiftOnUnixtime.call(item["nx11e"]["unixtime"])
-        end
-
-        if item["nx11e"]["type"] == "standard" and Cx22::getCx22ForItemUUIDOrNull(item["uuid"]) then
-            return nil
-        end
-
-        if item["nx11e"]["type"] == "standard" then
-            return 0.30 + shiftOnUnixtime.call(item["unixtime"])
-        end
-
-        raise "(error: a3c6797b-e063-44ca-8dab-4c5540688776) I do not know how to prioritise item: #{item}"
+        0.5
     end
 
     # NxTodos::listingItems()
     def self.listingItems()
-
-        items1 = LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodoPriorityItemsIds")
-                    .map{|filepath| File.basename(filepath) }
-                    .map{|uuid| NxTodos::getItemOrNull(uuid) }
-
-        items2 = NxTodos::filepaths().reduce([]){|selected, itemfilepath|
-            if selected.size >= 10 then
-                selected
-            else
-                if (item = NxTodos::getItemAtFilepathOrNull(itemfilepath)) then
-                    if Cx22::getCx22ForItemUUIDOrNull(item["uuid"]) then
-                        selected
-                    else
-                        selected + [item]
-                    end
-                else
+        NxTodos::filepaths()
+            .reduce([]){|selected, itemfilepath|
+                if selected.size >= 10 then
                     selected
+                else
+                    item = Nx5Ext::readFileAsAttributesOfObject(itemfilepath)
+                    selected + [item]
                 end
-            end
-        }
-
-        items1 + items2
+            }
     end
 
     # --------------------------------------------------
@@ -351,138 +210,5 @@ class NxTodos
         end
         Nx113Edit::editNx113Carrier(item)
         NxTodos::getItemOrNull(item["uuid"])
-    end
-
-    # NxTodos::landing(item)
-    def self.landing(item)
-        loop {
-
-            return nil if item.nil?
-
-            uuid = item["uuid"]
-            item = NxTodos::getItemOrNull(uuid)
-            return nil if item.nil?
-
-            system("clear")
-
-            puts PolyFunctions::toString(item)
-            puts "uuid: #{item["uuid"]}".yellow
-            puts "unixtime: #{item["unixtime"]}".yellow
-            puts "datetime: #{item["datetime"]}".yellow
-            puts "Nx11E (engine): #{JSON.generate(item["nx11e"])}".yellow
-            puts "Nx113 (payload): #{Nx113Access::toStringOrNull("", item["nx113"], "")}".yellow
-            puts "Cx22: #{JSON.generate(Cx22::getCx22ForItemUUIDOrNull(item["uuid"]))}".yellow
-
-            puts ""
-            puts "description | access | engine | edit | nx113 | cx22 | done | do not show until | expose | destroy | nyx".yellow
-            puts ""
-
-            input = LucilleCore::askQuestionAnswerAsString("> ")
-            return if input == ""
-
-            # ordering: alphabetical
-
-            if Interpreting::match("access", input) then
-                PolyActions::access(item)
-                next
-            end
-
-            if Interpreting::match("destroy", input) then
-                PolyActions::destroyWithPrompt(item)
-                return
-            end
-
-            if Interpreting::match("description", input) then
-                description = CommonUtils::editTextSynchronously(item["description"]).strip
-                return if description == ""
-                filepath = NxTodos::uuidToNx5Filepath(item["uuid"])
-                Nx5Ext::setAttribute(filepath, "description", description)
-                next
-            end
-
-            if Interpreting::match("nx113", input) then
-                operator = NxTodos::getElizabethOperatorForUUID(item["uuid"])
-                nx113 = Nx113Make::interactivelyMakeNx113OrNull(operator)
-                next if nx113.nil?
-                filepath = NxTodos::uuidToNx5Filepath(item["uuid"])
-                Nx5Ext::setAttribute(filepath, "nx113", nx113)
-                return
-            end
-
-            if Interpreting::match("done", input) then
-                PolyActions::done(item)
-                return
-            end
-
-            if Interpreting::match("do not show until", input) then
-                datecode = LucilleCore::askQuestionAnswerAsString("datecode: ")
-                return if datecode == ""
-                unixtime = CommonUtils::codeToUnixtimeOrNull(datecode.gsub(" ", ""))
-                return if unixtime.nil?
-                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-                return
-            end
-
-            if Interpreting::match("edit", input) then
-                item = PolyFunctions::edit(item)
-                next
-            end
-
-            if Interpreting::match("engine", input) then
-                engine = Nx11E::interactivelyCreateNewNx11EOrNull()
-                next if engine.nil?
-                filepath = NxTodos::uuidToNx5Filepath(item["uuid"])
-                Nx5Ext::setAttribute(filepath, "nx11e", nx11e)
-                next
-            end
-
-            if Interpreting::match("expose", input) then
-                puts JSON.pretty_generate(item)
-                LucilleCore::pressEnterToContinue()
-                next
-            end
-
-            if Interpreting::match("nyx", input) then
-                Nyx::program()
-                next
-            end
-        }
-    end
-
-    # NxTodos::diveOndates()
-    def self.diveOndates()
-        loop {
-            system("clear")
-            items = NxTodos::itemsOndates().sort{|i1, i2| i1["nx11e"]["datetime"] <=> i2["nx11e"]["datetime"] }
-            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("dated", items, lambda{|item| NxTodos::toString(item) })
-            break if item.nil?
-            PolyActions::landing(item)
-        }
-    end
-
-    # NxTodos::elementsDive(elements)
-    def self.elementsDive(elements)
-        loop {
-            system("clear")
-            store = ItemStore.new()
-            elements
-                .each{|element|
-                    store.register(element, false)
-                    puts "#{store.prefixString()} #{PolyFunctions::toString(element)}"
-                }
-
-            puts ""
-            puts "<n>".yellow
-            puts ""
-            input = LucilleCore::askQuestionAnswerAsString("> ")
-            return if input == ""
-
-            if (indx = Interpreting::readAsIntegerOrNull(input)) then
-                entity = store.get(indx)
-                next if entity.nil?
-                PolyActions::landing(entity)
-                next
-            end
-        }
     end
 end

@@ -165,48 +165,6 @@ class Anniversaries
 
     # Anniversaries::access(anniversary)
     def self.access(anniversary)
-        puts Anniversaries::toString(anniversary).green
-        if LucilleCore::askQuestionAnswerAsBoolean("done ? : ") then
-            Anniversaries::done(anniversary["uuid"])
-        end
-    end
-
-    # Anniversaries::isOpenToAcknowledgement(anniversary)
-    def self.isOpenToAcknowledgement(anniversary)
-        Anniversaries::nextDateOrdinal(anniversary)[0] <= CommonUtils::today() 
-    end
-
-    # Anniversaries::listingItems()
-    def self.listingItems()
-        Anniversaries::anniversaries()
-            .select{|anniversary| Anniversaries::isOpenToAcknowledgement(anniversary) }
-    end
-
-    # Anniversaries::dailyBriefing()
-    def self.dailyBriefing()
-        puts "Anniversaries daily briefing:"
-        Anniversaries::anniversaries()
-            .sort{|i1, i2| Anniversaries::nextDateOrdinal(i1)[0] <=> Anniversaries::nextDateOrdinal(i2)[0] }
-            .each{|anniversary|
-                puts Anniversaries::toString(anniversary)
-            }
-        LucilleCore::pressEnterToContinue()
-    end
-
-    # Anniversaries::anniversariesDive()
-    def self.anniversariesDive()
-        loop {
-            anniversaries = Anniversaries::anniversaries()
-                        .sort{|i1, i2| Anniversaries::nextDateOrdinal(i1)[0] <=> Anniversaries::nextDateOrdinal(i2)[0] }
-            anniversary = LucilleCore::selectEntityFromListOfEntitiesOrNull("anniversary", anniversaries, lambda{|item| Anniversaries::toString(item) })
-            return if anniversary.nil?
-            PolyActions::landing(anniversary)
-        }
-    end
-
-    # Anniversaries::landing(item)
-    def self.landing(item)
-
         loop {
 
             return nil if item.nil?
@@ -263,4 +221,38 @@ class Anniversaries
             end
         }
     end
+
+    # Anniversaries::isOpenToAcknowledgement(anniversary)
+    def self.isOpenToAcknowledgement(anniversary)
+        Anniversaries::nextDateOrdinal(anniversary)[0] <= CommonUtils::today() 
+    end
+
+    # Anniversaries::listingItems()
+    def self.listingItems()
+        Anniversaries::anniversaries()
+            .select{|anniversary| Anniversaries::isOpenToAcknowledgement(anniversary) }
+    end
+
+    # Anniversaries::dailyBriefing()
+    def self.dailyBriefing()
+        puts "Anniversaries daily briefing:"
+        Anniversaries::anniversaries()
+            .sort{|i1, i2| Anniversaries::nextDateOrdinal(i1)[0] <=> Anniversaries::nextDateOrdinal(i2)[0] }
+            .each{|anniversary|
+                puts Anniversaries::toString(anniversary)
+            }
+        LucilleCore::pressEnterToContinue()
+    end
+
+    # Anniversaries::dive()
+    def self.dive()
+        loop {
+            anniversaries = Anniversaries::anniversaries()
+                        .sort{|i1, i2| Anniversaries::nextDateOrdinal(i1)[0] <=> Anniversaries::nextDateOrdinal(i2)[0] }
+            anniversary = LucilleCore::selectEntityFromListOfEntitiesOrNull("anniversary", anniversaries, lambda{|item| Anniversaries::toString(item) })
+            return if anniversary.nil?
+            Anniversaries::access(anniversary)
+        }
+    end
+
 end

@@ -35,7 +35,8 @@ class SearchCatalyst
                                 .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
                 nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", selected, lambda{|i| i["announce"] })
                 break if nx20.nil?
-                PolyActions::landing(nx20["item"])
+                puts "code to be written"
+                exit
             }
         }
         nil
@@ -119,7 +120,8 @@ class SearchNyx
                 break if nx20.nil?
                 item = nx20["item"]
                 item = Nx7::itemOrNull(item["uuid"])
-                PolyActions::landing(item)
+                puts "code to be written"
+                exit
             }
         }
         nil

@@ -5,12 +5,13 @@ class CatalystListing
     # CatalystListing::listingCommands()
     def self.listingCommands()
         [
-            ".. | <datecode> | <n> | access (<n>) | description (<n>) | datetime (<n>) | engine (<n>) | set group (<n>) | landing (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | expose (<n>) | float | destroy",
-            "wave | anniversary | today | ondate | todo | Cx22",
-            "start or start * | stop",
-            "anniversaries | ondates | waves | groups | todos",
-            "require internet",
-            "search | nyx | speed | commands",
+            "[listing interaction] .. | <datecode> | <n> | access (<n>) | description (<n>) | datetime (<n>) | set group (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | expose (<n>) | float | destroy",
+            "[makers] wave | anniversary | today | ondate | todo | Cx22",
+            "[nxballs] start or start * | stop",
+            "[divings] anniversaries | ondates | waves | groups | todos",
+            "[transmutations] >todo",
+            "[misc] require internet",
+            "[misc] search | nyx | speed | commands",
         ].join("\n")
     end
 
@@ -28,7 +29,7 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             PolyActions::access(item)
-            PolyActions::done(item, true)
+            PolyActions::postDoubleAccess(item)
             return
         end
 
@@ -38,6 +39,13 @@ class CatalystListing
             return if item.nil?
             PolyActions::access(item)
             PolyActions::done(item, true)
+            return
+        end
+
+        if Interpreting::match(">todo", input) then
+            item = store.getDefault()
+            return if item.nil?
+            Catalyst::transmuteTo(item, "NxTodo")
             return
         end
 
@@ -62,7 +70,7 @@ class CatalystListing
         end
 
         if Interpreting::match("anniversaries", input) then
-            Anniversaries::anniversariesDive()
+            Anniversaries::dive()
             return
         end
 
@@ -75,7 +83,7 @@ class CatalystListing
         if Interpreting::match("set group", input) then
             item = store.getDefault()
             return if item.nil?
-            Cx22::addItemToInteractivelySelectedCx22(item["uuid"])
+            Cx22::addItemToInteractivelySelectedCx22OrNothing(item["uuid"])
             return
         end
 
@@ -83,7 +91,7 @@ class CatalystListing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            Cx22::addItemToInteractivelySelectedCx22(item["uuid"])
+            Cx22::addItemToInteractivelySelectedCx22OrNothing(item["uuid"])
             return
         end
 
@@ -179,21 +187,6 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("engine", input) then
-            item = store.getDefault()
-            return if item.nil?
-            Nx11E::interactivelySetANewEngineForItemOrNothing(item)
-            return
-        end
-
-        if Interpreting::match("engine *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            Nx11E::interactivelySetANewEngineForItemOrNothing(item)
-            return
-        end
-
         if Interpreting::match("exit", input) then
             exit
         end
@@ -240,19 +233,6 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("landing", input) then
-            PolyActions::landing(store.getDefault())
-            return
-        end
-
-        if Interpreting::match("landing *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            PolyActions::landing(item)
-            return
-        end
-
         if Interpreting::match("nyx", input) then
             Nyx::program()
             return
@@ -266,7 +246,7 @@ class CatalystListing
         end
 
         if Interpreting::match("ondates", input) then
-            NxTodos::diveOndates()
+            NxOndates::dive()
             return
         end
 
@@ -294,26 +274,6 @@ class CatalystListing
 
         if Interpreting::match("search", input) then
             SearchCatalyst::catalyst()
-            return
-        end
-
-        if Interpreting::match("float", input) then
-
-            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["item", "line"])
-            return if type.nil?
-            if type == "item" then
-                ordinal = LucilleCore::askQuestionAnswerAsString("item (ordinal): ").to_i
-                item = store.get(ordinal.to_i)
-                return if item.nil?
-                if LucilleCore::askQuestionAnswerAsBoolean("Set floating: '#{PolyFunctions::toString(item).green}' ") then
-                    TxListingPointer::issueNewWithItem(item)
-                end
-            end
-            if type == "line" then
-                announce = LucilleCore::askQuestionAnswerAsString("announce (empty to abort): ")
-                return if announce == ""
-                TxListingPointer::issueNewWithAnnounce(announce)
-            end
             return
         end
 
@@ -413,6 +373,11 @@ class CatalystListing
                     "name" => "Cx22::listingItems()",
                     "lambda" => lambda { Cx22::listingItems() }
                 },
+                {
+                    "name" => "NxTriages::listingItems()",
+                    "lambda" => lambda { NxTriages::listingItems() }
+                },
+
             ]
 
             runTest = lambda {|test|
@@ -474,11 +439,12 @@ class CatalystListing
             Waves::items(),
             Cx22::listingItems(),
             NxTodos::listingItems(),
-            Lx01s::listingItems()
+            Lx01s::listingItems(),
+            NxTriages::listingItems()
         ]
             .flatten
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+            .select{|item| true or DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| true or InternetStatus::itemShouldShow(item["uuid"]) }
             .map{|item|
                 {
                     "item"     => item,
@@ -524,23 +490,6 @@ class CatalystListing
             }
         end
 
-        pointersItemsUuids = []
-
-        items = TxListingPointer::items()
-        if items.size > 0 then
-            puts ""
-            puts "staged:"
-            vspaceleft = vspaceleft - 2
-            items
-                .each{|pointer|
-                    pointersItemsUuids << TxListingPointer::pointerToItemUUIDOrNull(pointer)
-                    store.register(pointer, false)
-                    line = "#{store.prefixString()} #{PolyFunctions::toStringForListing(pointer)}"
-                    puts line
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                }
-        end
-
         puts ""
         vspaceleft = vspaceleft - 1
 
@@ -548,7 +497,6 @@ class CatalystListing
             .each{|packet|
                 item = packet["item"]
                 priority = packet["priority"]
-                next if pointersItemsUuids.include?(item["uuid"])
                 break if vspaceleft <= 0
                 store.register(item, true)
                 line = "#{store.prefixString()} #{PolyFunctions::toStringForListing(item)}"

@@ -15,9 +15,20 @@ class Catalyst
         item = NxTodos::getItemOrNull(uuid)
         return item if item
 
+        item = NxTriages::getItemOrNull(uuid)
+        return item if item
+
+        item = NxOnDates::getItemOrNull(uuid)
+        return item if item
+
         item = Cx22::getOrNull(uuid)
         return item if item
 
         nil
+    end
+
+    # Catalyst::transmuteTo(item, targetMikuType)
+    def self.transmuteTo(item, targetMikuType)
+
     end
 end

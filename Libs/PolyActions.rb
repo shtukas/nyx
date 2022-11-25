@@ -11,7 +11,6 @@ class PolyActions
         # types in alphabetical order
 
         if item["mikuType"] == "Cx22" then
-            Cx22::dive(item)
             return
         end
 
@@ -37,19 +36,6 @@ class PolyActions
 
         if item["mikuType"] == "NxTodo" then
             NxTodos::access(item)
-            return
-        end
-
-        if item["mikuType"] == "TxListingPointer" then
-            puts "Accessing pointer: #{item["uuid"]}"
-            resolver = item["resolver"]
-            item = NxItemResolver1::getItemOrNull(resolver)
-            if item.nil? then
-                puts "I could not access an item for resolver: #{resolver}"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            PolyActions::access(item)
             return
         end
 
@@ -108,13 +94,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "TxListingPointer" then
-            puts "You have requested to destroy a TxListingPointer. This will only remove the pointer and the underlying item will not be touched."
-            LucilleCore::pressEnterToContinue()
-            TxListingPointer::destroy(item["uuid"])
-            return
-        end
-
         if item["mikuType"] == "Wave" then
             Waves::destroy(item["uuid"])
             return
@@ -157,11 +136,8 @@ class PolyActions
             puts PolyFunctions::toString(item)
             if item["nx113"] then
                 puts "You are attempting to done a NxTodo which carries some contents (Nx113)"
-                option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["landing", "Luke, use the Force (destroy)", "exit"])
+                option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["Luke, use the Force (destroy)", "exit"])
                 return if option == ""
-                if option == "landing" then
-                    PolyActions::landing(item)
-                end
                 if option == "Luke, use the Force (destroy)" then
                     NxTodos::destroy(item["uuid"])
                 end
@@ -176,13 +152,6 @@ class PolyActions
                 end
             else
                 NxTodos::destroy(item["uuid"])
-            end
-            return
-        end
-
-        if item["mikuType"] == "TxListingPointer" then
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy pointer: '#{PolyFunctions::toString(item).green}' ? ", true) then
-                TxListingPointer::done(item)
             end
             return
         end
@@ -243,50 +212,85 @@ class PolyActions
         end
     end
 
-    # PolyActions::landing(item)
-    def self.landing(item)
+    # PolyActions::postDoubleAccess(item)
+    def self.postDoubleAccess(item)
+
+        # order: alphabetical order
+
         if item["mikuType"] == "Cx22" then
-            Cx22::dive(item)
+            return
+        end
+
+        if item["mikuType"] == "Lx01" then
             return
         end
 
         if item["mikuType"] == "NxAnniversary" then
-            Anniversaries::landing(item)
+            Anniversaries::done(item["uuid"])
+            return
+        end
+
+        if item["mikuType"] == "NxBall" then
+            NxBall::commitTimeAndDestroy(item)
+            return
+        end
+
+        if item["mikuType"] == "NxTriage" then
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["Luke, use the Force (destroy)", "transmute > todo", "exit"])
+            return if option == ""
+            if option == "Luke, use the Force (destroy)" then
+                NxTriages::destroy(item["uuid"])
+            end
+            if option == "transmute > todo" then
+                raise "not implemented yet"
+            end
+            if option == "exit" then
+                return
+            end
+            return
+        end
+
+        if item["mikuType"] == "NxOndate" then
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["Luke, use the Force (destroy)", "redate", "exit"])
+            return if option == ""
+            if option == "Luke, use the Force (destroy)" then
+                NxOndates::destroy(item["uuid"])
+            end
+            if option == "redate" then
+                raise "not implemented yet"
+            end
+            if option == "exit" then
+                return
+            end
+            return
+        end
+
+        if item["mikuType"] == "NxTodo" then
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
+                NxTodos::destroy(item["uuid"])
+            end
             return
         end
 
         if item["mikuType"] == "Wave" then
-            Waves::landing(item)
-            return
-        end
-        
-        if item["mikuType"] == "NxTodo" then
-            NxTodos::landing(item)
+            if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
+                Waves::performWaveNx46WaveDone(item)
+            end
             return
         end
 
-        if item["mikuType"] == "Nx7" then
-            Nx7::landing(item)
-            return
-        end
-
-        raise "(error: D9DD0C7C-ECC4-46D0-A1ED-CD73591CC87B): item: #{item}"
+        puts "I do not know how to PolyActions::postDoubleAccess(#{JSON.pretty_generate(item)})"
+        raise "(error: 9CD4B61D-8B13-4075-A560-7F3D801DD0D6)"
     end
 
     # PolyActions::redate(item)
     def self.redate(item)
-        if item["mikuType"] != "NxTodo" then
-            puts "redate only applies to NxTodos (engine: ondate)"
+        if item["mikuType"] != "NxOndate" then
+            puts "redate only applies to NxOndate"
             LucilleCore::pressEnterToContinue()
             return
         end
-        if item["nx11e"]["type"] != "ondate" then
-            puts "redate only applies to NxTodos (engine: ondate)"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        datetime = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
-        item["nx11e"] = Nx11E::makeOndate(datetime)
+        item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
         PolyActions::commit(item)
     end
 end

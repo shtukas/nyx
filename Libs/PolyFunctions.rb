@@ -133,7 +133,7 @@ class PolyFunctions
         # This is the primary definition
 
         # NxAnniversary                 0.95
-        # NxTodo (triage)               0.92
+        # NxTriage                      0.92
         # Wave "orchestration"          0.90
         # Cx22 "isPriority" = true      0.80
         # Wave "ns:mandatory-today"     0.77
@@ -185,6 +185,10 @@ class PolyFunctions
             return NxTodos::listingPriorityOrNull(item)
         end
 
+        if item["mikuType"] == "NxTriage" then
+            return 0.92 + shiftOnUnixtime.call(item, item["unixtime"])
+        end
+
         if item["mikuType"] == "TxManualCountDown" then
             return 0.90
         end
@@ -233,11 +237,11 @@ class PolyFunctions
         if item["mikuType"] == "NxTodo" then
             return NxTodos::toString(item)
         end
+        if item["mikuType"] == "NxTriage" then
+            return NxTriages::toString(item)
+        end
         if item["mikuType"] == "TxManualCountDown" then
             return "(countdown) #{item["description"]}: #{item["counter"]}"
-        end
-        if item["mikuType"] == "TxListingPointer" then
-            return TxListingPointer::toString(item)
         end
         if item["mikuType"] == "Wave" then
             return Waves::toString(item)

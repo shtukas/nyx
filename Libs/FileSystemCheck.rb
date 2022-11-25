@@ -21,41 +21,6 @@ class FileSystemCheck
         end
     end
 
-    # FileSystemCheck::fsck_Nx11E(item, verbose)
-    def self.fsck_Nx11E(item, verbose)
-        if verbose then
-            puts "FileSystemCheck::fsck_Nx11E(#{JSON.pretty_generate(item)}, #{verbose})"
-        end
-
-        if item["mikuType"] != "Nx11E" then
-            raise "Incorrect Miku type for function"
-        end
-
-        FileSystemCheck::ensureAttribute(item, "uuid", "String")
-
-        if item["type"] == "ns:asap-not-nec-today" then
-            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-            return
-        end
-
-        if item["type"] == "triage" then
-            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-            return
-        end
-
-        if item["type"] == "ondate" then
-            FileSystemCheck::ensureAttribute(item, "datetime", "String")
-            return
-        end
-
-        if item["type"] == "standard" then
-            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-            return
-        end
-
-        raise "(error: 2a5f46bd-c5db-48e7-a20f-4dd079868948)"
-    end
-
     # FileSystemCheck::fsck_aion_point_rootnhash(operator, rootnhash, verbose)
     def self.fsck_aion_point_rootnhash(operator, rootnhash, verbose)
         if verbose then
@@ -431,12 +396,36 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
-            FileSystemCheck::ensureAttribute(item, "nx11e", "Hash")
-            FileSystemCheck::fsck_Nx11E(item["nx11e"], verbose)
-            FileSystemCheck::fsck_Nx113(NxTodos::getElizabethOperatorForItem(item), item["nx113"], verbose)
-            if item["nx22"] then
-                raise "NxTodos should not carry a Nx22"
+            FileSystemCheck::ensureAttribute(item, "lightspeed", "Hash")
+
+            lightspeed = item["lightspeed"]
+            FileSystemCheck::ensureAttribute(lightspeed, "unixtime", "Number")
+            FileSystemCheck::ensureAttribute(lightspeed, "period", "String")
+            if !["hours", "days", "weeks", "months" ].include?(lightspeed["period"]) then
+                raise "Incorrect lightspeed period in #{JSON.pretty_generate(item)}"
             end
+
+            FileSystemCheck::fsck_Nx113(NxTodos::getElizabethOperatorForItem(item), item["nx113"], verbose)
+            return
+        end
+
+        if mikuType == "NxTriage" then
+            FileSystemCheck::ensureAttribute(item, "uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
+            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+            FileSystemCheck::ensureAttribute(item, "datetime", "String")
+            FileSystemCheck::ensureAttribute(item, "description", "String")
+            FileSystemCheck::fsck_Nx113(NxTriages::getElizabethOperatorForItem(item), item["nx113"], verbose)
+            return
+        end
+
+        if mikuType == "NxOndate" then
+            FileSystemCheck::ensureAttribute(item, "uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
+            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+            FileSystemCheck::ensureAttribute(item, "datetime", "String")
+            FileSystemCheck::ensureAttribute(item, "description", "String")
+            FileSystemCheck::fsck_Nx113(NxOndates::getElizabethOperatorForItem(item), item["nx113"], verbose)
             return
         end
 

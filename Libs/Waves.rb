@@ -233,23 +233,8 @@ class Waves
 
     # Waves::dive()
     def self.dive()
-        loop {
-            waves = Waves::items()
-            wave = LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", waves, lambda{|item| Waves::toString(item) })
-            break if wave.nil?
-            puts Waves::toString(wave)
-            options = ["done", "landing"]
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-            next if option.nil?
-            if option == "done" then
-                Waves::performWaveNx46WaveDone(wave)
-                next
-            end
-            if option == "landing" then
-                Waves::landing(wave)
-                next
-            end
-        }
+        puts "code to be written"
+        exut
     end
 
     # Waves::access(item)
@@ -274,102 +259,5 @@ class Waves
         end
         Nx113Edit::editNx113Carrier(item)
         Waves::getOrNull(item["uuid"])
-    end
-
-    # Waves::landing(item)
-    def self.landing(item)
-        loop {
-
-            return nil if item.nil?
-
-            uuid = item["uuid"]
-            item = Waves::getOrNull(uuid)
-            return nil if item.nil?
-
-            system("clear")
-
-            puts PolyFunctions::toString(item)
-            puts "uuid: #{item["uuid"]}".yellow
-            puts "unixtime: #{item["unixtime"]}".yellow
-            puts "datetime: #{item["datetime"]}".yellow
-
-            puts ""
-            puts "description | access | start | stop | edit | done | do not show until | nx46 (schedule) | only on days | nx113 | expose | destroy | nyx".yellow
-            puts ""
-
-            input = LucilleCore::askQuestionAnswerAsString("> ")
-            return if input == ""
-
-            # ordering: alphabetical
-
-            if Interpreting::match("access", input) then
-                PolyActions::access(item)
-                next
-            end
-
-            if Interpreting::match("destroy", input) then
-                PolyActions::destroyWithPrompt(item)
-                return
-            end
-
-            if Interpreting::match("description", input) then
-                description = CommonUtils::editTextSynchronously(item["description"]).strip
-                return if description == ""
-                filepath = Waves::filepathForUUID(item["uuid"])
-                Nx5Ext::setAttribute(filepath, "description", description)
-                next
-            end
-
-            if Interpreting::match("done", input) then
-                PolyActions::done(item)
-                next
-            end
-
-            if Interpreting::match("do not show until", input) then
-                datecode = LucilleCore::askQuestionAnswerAsString("datecode: ")
-                return if datecode == ""
-                unixtime = CommonUtils::codeToUnixtimeOrNull(datecode.gsub(" ", ""))
-                return if unixtime.nil?
-                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-                return
-            end
-
-            if Interpreting::match("edit", input) then
-                item = PolyFunctions::edit(item)
-                next
-            end
-
-            if Interpreting::match("expose", input) then
-                puts JSON.pretty_generate(item)
-                LucilleCore::pressEnterToContinue()
-                next
-            end
-
-            if Interpreting::match("nx46", input) then
-                nx46 = Waves::makeNx46InteractivelyOrNull()
-                next if nx46.nil?
-                Waves::commitAttribute1(item["uuid"], "nx46", nx46)
-                next
-            end
-
-            if input == "only on days" then
-                days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
-                selected, _ = LucilleCore::selectZeroOrMore("days", [], days)
-                Waves::commitAttribute1(item["uuid"], "onlyOnDays", selected)
-                next
-            end
-
-            if Interpreting::match("nx113", input) then
-                nx113 = Nx113Make::interactivelyMakeNx113OrNull(Waves::operatorForItem(item))
-                return if nx113.nil?
-                Waves::commitAttribute1(item["uuid"], "nx113", nx113)
-                next
-            end
-
-            if Interpreting::match("nyx", input) then
-                Nyx::program()
-                next
-            end
-        }
     end
 end
