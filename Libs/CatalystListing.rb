@@ -5,7 +5,7 @@ class CatalystListing
     # CatalystListing::listingCommands()
     def self.listingCommands()
         [
-            "[listing interaction] .. | <datecode> | <n> | access (<n>) | group (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | destroy",
+            "[listing interaction] .. | <datecode> | access (<n>) | group (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | destroy",
             "[makers] wave | anniversary | today | ondate | todo | Cx22",
             "[nxballs] start or start * | stop",
             "[divings] anniversaries | ondates | waves | groups | todos",
@@ -323,10 +323,6 @@ class CatalystListing
                     "lambda" => lambda { NxTodos::items() }
                 },
                 {
-                    "name" => "Cx22::listingItems()",
-                    "lambda" => lambda { Cx22::listingItems() }
-                },
-                {
                     "name" => "NxTriages::listingItems()",
                     "lambda" => lambda { NxTriages::listingItems() }
                 },
@@ -385,12 +381,12 @@ class CatalystListing
         # TxListingItem {
         #     "item"     => item,
         #     "priority" => PolyFunctions::listingPriorityOrNull(item) || -1,
+        #     "group"    => Cx22 or null
         # }
         packets = [
             Anniversaries::listingItems(),
             TxManualCountDowns::listingItems(),
-            #Waves::items(),
-            Cx22::listingItems(),
+            Waves::items(),
             NxTodos::listingItems(),
             Lx01s::listingItems(),
             NxTriages::listingItems()
@@ -402,6 +398,7 @@ class CatalystListing
                 {
                     "item"     => item,
                     "priority" => PolyFunctions::listingPriorityOrNull(item) || -1,
+                    "cx22"     => Cx22::itemuuid2ToCx22OrNull(item["uuid"])
                 }
             }
             .select{|packet| packet["priority"] > 0 }
@@ -429,16 +426,14 @@ class CatalystListing
             vspaceleft = vspaceleft - 2
         end
 
-        nxballs = NxBall::items()
-        if nxballs.size > 0 then
-            puts ""
-            puts "nxballs:"
-            vspaceleft = vspaceleft - 2
-            nxballs.each{|nxball|
-                store.register(nxball, false)
-                puts "#{store.prefixString()} #{NxBall::toString(nxball)}".green
+        puts ""
+        vspaceleft = vspaceleft - 1
+        Cx22::itemsInCompletionOrder()
+            .each{|cx22|
+                next if Ax39::completionRatio(cx22["uuid"], cx22["ax39"]) >= 1
+                puts "#{Cx22::toStringWithDetailsFormatted(cx22)}".yellow
+                vspaceleft = vspaceleft - 1
             }
-        end
 
         puts ""
         vspaceleft = vspaceleft - 1
@@ -449,7 +444,9 @@ class CatalystListing
                 priority = packet["priority"]
                 break if vspaceleft <= 0
                 store.register(item, true)
-                line = "#{store.prefixString()} #{PolyFunctions::toStringForListing(item)}"
+                cx22 =  packet["cx22"]
+                cx22Str = cx22 ? " (#{Cx22::toString(cx22)})" : ""
+                line = "#{store.prefixString()} #{PolyFunctions::toStringForListing(item)}#{cx22Str.green}"
                 if priority < 0.5 then
                     line = line.yellow
                 end

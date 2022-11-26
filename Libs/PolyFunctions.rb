@@ -134,17 +134,12 @@ class PolyFunctions
 
         # NxAnniversary                 0.95
         # NxTriage                      0.92
-        # Wave "orchestration"          0.90
-        # Cx22 "isPriority" = true      0.80
-        # Wave "ns:mandatory-today"     0.77
+        # Wave "ns:mandatory-today"     0.77 "ns:mandatory-today", "ns:time-important", "ns:beach"
         # NxOndate                      0.76
         # TxManualCountDown             0.75
         # Wave "ns:time-important"      0.70
-        # Cx22 "isPriority" = false     0.60
-        # ----------------------------- 0.50
-        # NxTodo (asap-not-nec-today)   0.50
-        # ----------------------------- 0.50
-        # Wave "ns:beach"               0.40
+        # ----------------------------- 0.50 (above should ideally be done before bed, below yellow)
+        # Wave "ns:beach"               0.40 
         # NxTodo                        0.30
 
         shiftOnCompletionRatio = lambda {|ratio|
@@ -167,7 +162,7 @@ class PolyFunctions
 
         if item["mikuType"] == "Cx22" then
             return nil if !DoNotShowUntil::isVisible(item["uuid"])
-            completionRatio = Ax39::completionRatio(item["ax39"], item["uuid"])
+            completionRatio = Ax39::completionRatio(item["uuid"], item["ax39"])
             return nil if completionRatio >= 1
             base = item["isPriority"] ? 0.80 : 0.60
             return base + shiftOnCompletionRatio.call(completionRatio)
@@ -186,8 +181,9 @@ class PolyFunctions
         end
 
         if item["mikuType"] == "NxTodo" then
-            metric = LightSpeed::metric(item["lightspeed"])
-            return metric
+            # "ns:mandatory-today", "ns:time-important", "ns:beach"
+            lightspeed = item["lightspeed"]
+            return 0.30 + shiftOnUnixtime.call(item, item["unixtime"])
         end
 
         if item["mikuType"] == "NxTriage" then
@@ -225,7 +221,7 @@ class PolyFunctions
         # order: lexicographic
 
         if item["mikuType"] == "Cx22" then
-            return Cx22::toString1(item)
+            return Cx22::toString(item)
         end
         if item["mikuType"] == "Lx01" then
             return "(lambda) #{item["announce"]}"
@@ -258,7 +254,7 @@ class PolyFunctions
     # PolyFunctions::toStringForListing(item)
     def self.toStringForListing(item)
         if item["mikuType"] == "Cx22" then
-            return Cx22::toStringDiveStyleFormatted(item)
+            return Cx22::toStringWithDetailsFormatted(item)
         end
         PolyFunctions::toString(item)
     end

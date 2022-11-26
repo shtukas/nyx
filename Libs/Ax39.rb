@@ -62,8 +62,8 @@ class Ax39
         end
     end
 
-    # Ax39::completionRatio(ax39, uuid)
-    def self.completionRatio(ax39, uuid)
+    # Ax39::completionRatio(uuid, ax39)
+    def self.completionRatio(uuid, ax39)
         raise "(error: 92e23de4-61eb-4a07-a128-526e4be0e72a)" if ax39.nil?
         return 1 if !DoNotShowUntil::isVisible(uuid)
         if ax39["type"] == "daily-singleton-run" then
