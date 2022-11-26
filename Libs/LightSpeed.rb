@@ -39,4 +39,9 @@ class LightSpeed
             "period"   => period
         }
     end
+
+    # LightSpeed::metric(itemuuid, lightspeed)
+    def self.metric(itemuuid, lightspeed)
+        0.45
+    end
 end

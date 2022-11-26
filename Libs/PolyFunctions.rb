@@ -134,7 +134,7 @@ class PolyFunctions
 
         # NxAnniversary                 0.95
         # NxTriage                      0.92
-        # Wave "ns:mandatory-today"     0.77 "ns:mandatory-today", "ns:time-important", "ns:beach"
+        # Wave "ns:mandatory-today"     0.77
         # NxOndate                      0.76
         # TxManualCountDown             0.75
         # Wave "ns:time-important"      0.70
@@ -177,9 +177,8 @@ class PolyFunctions
         end
 
         if item["mikuType"] == "NxTodo" then
-            # "ns:mandatory-today", "ns:time-important", "ns:beach"
             lightspeed = item["lightspeed"]
-            return 0.30 + shiftOnUnixtime.call(item, item["unixtime"])
+            return LightSpeed::metric(item["uuid"], lightspeed)
         end
 
         if item["mikuType"] == "NxTriage" then
