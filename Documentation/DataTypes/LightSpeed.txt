@@ -1,0 +1,4 @@
+{
+    "unixtime" => Integer
+    "period"   => "hours", "days", "weeks", "months"
+}

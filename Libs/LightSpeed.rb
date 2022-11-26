@@ -42,6 +42,43 @@ class LightSpeed
 
     # LightSpeed::metric(itemuuid, lightspeed)
     def self.metric(itemuuid, lightspeed)
-        0.45
+
+        ageingRatio = lambda {|lightspeed|
+            if lightspeed["period"] == "hours" then
+                return 1
+            end
+            if lightspeed["period"] == "days" then
+                return (Time.new.to_f - lightspeed["unixtime"]).to_f/(86400*7)
+            end
+            if lightspeed["period"] == "weeks" then
+                return (Time.new.to_f - lightspeed["unixtime"]).to_f/(86400*7*30)
+            end
+            if lightspeed["period"] == "months" then
+                return (Time.new.to_f - lightspeed["unixtime"]).to_f/(86400*7*30*6)
+            end
+        }
+
+        shiftOnUnixtime = lambda {|unixtime|
+            0.001*Math.log(Time.new.to_f - unixtime)
+        }
+
+        if lightspeed["period"] == "hours" then
+            return 0.76 + shiftOnUnixtime.call(lightspeed["unixtime"])
+        end
+
+        if lightspeed["period"] == "days" then
+            ageing = ageingRatio.call(lightspeed)
+            return 0.25 + (0.5 * ageing)
+        end
+
+        if lightspeed["period"] == "weeks" then
+            ageing = ageingRatio.call(lightspeed)
+            return 0.20 + (0.5 * ageing)
+        end
+
+        if lightspeed["period"] == "months" then
+            ageing = ageingRatio.call(lightspeed)
+            return 0.15 + (0.5 * ageing)
+        end
     end
 end
