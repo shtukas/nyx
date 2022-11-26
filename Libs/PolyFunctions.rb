@@ -178,6 +178,9 @@ class PolyFunctions
 
         if item["mikuType"] == "NxTodo" then
             lightspeed = item["lightspeed"]
+            if lightspeed.nil? then
+                puts JSON.pretty_generate(item)
+            end
             return LightSpeed::metric(item["uuid"], lightspeed)
         end
 

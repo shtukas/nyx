@@ -179,6 +179,14 @@ class NxTriages
 
         FileUtils.mv(filepath1, filepath2)
 
+        item = NxTodos::getItemOrNull(item["uuid"])
+        if item.nil?  then
+            puts "This should not have happened (error: 38cd2c4d-c0d6-4652-b83b-63b9c077448d)"
+            puts "    - filepath1: #{filepath1}"
+            puts "    - filepath2: #{filepath2}"
+            exit
+        end
+
         # The file has moved to the NxTodo folder, now let's ask for a group
         Cx22::addItemToInteractivelySelectedCx22OrNothing(item["uuid"])
     end
