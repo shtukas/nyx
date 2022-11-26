@@ -156,10 +156,6 @@ class PolyFunctions
 
         # ordering: alphabetical order
 
-        if item["mikuType"] == "NxBall" then
-            return nil
-        end
-
         if item["mikuType"] == "Cx22" then
             return nil if !DoNotShowUntil::isVisible(item["uuid"])
             completionRatio = Ax39::completionRatio(item["uuid"], item["ax39"])
@@ -232,9 +228,6 @@ class PolyFunctions
         if item["mikuType"] == "NxAnniversary" then
             return Anniversaries::toString(item)
         end
-        if item["mikuType"] == "NxBall.v2" then
-            return NxBall::toString(item)
-        end
         if item["mikuType"] == "NxTodo" then
             return NxTodos::toString(item)
         end
@@ -249,13 +242,5 @@ class PolyFunctions
         end
         puts "I do not know how to PolyFunctions::toString(#{JSON.pretty_generate(item)})"
         raise "(error: 820ce38d-e9db-4182-8e14-69551f58671c)"
-    end
-
-    # PolyFunctions::toStringForListing(item)
-    def self.toStringForListing(item)
-        if item["mikuType"] == "Cx22" then
-            return Cx22::toStringWithDetailsFormatted(item)
-        end
-        PolyFunctions::toString(item)
     end
 end

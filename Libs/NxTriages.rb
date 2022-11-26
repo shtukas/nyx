@@ -157,4 +157,29 @@ class NxTriages
             end
         }
     end
+
+    # NxTriages::transmuteItemToNxTodo(item)
+    def self.transmuteItemToNxTodo(item)
+        # We apply this to only to Triage items
+        if item["mikuType"] != "NxTriage" then
+            puts "NxTriages::transmuteItemToNxTodo only applies to NxTriages"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        filepath1 = NxTriages::uuidToNx5Filepath(item["uuid"])
+        filepath2 = NxTodos::uuidToNx5Filepath(item["uuid"])
+
+        # We start by setting a lightspeed
+        lightspeed = LightSpeed::interactivelyCreateNewLightSpeed()
+        Nx5Ext::setAttribute(filepath1, "lightspeed", lightspeed)
+
+        # We set the new Miku Type
+        Nx5Ext::setAttribute(filepath1, "mikuType", "NxTodo")
+
+        FileUtils.mv(filepath1, filepath2)
+
+        # The file has moved to the NxTodo folder, now let's ask for a group
+        Cx22::addItemToInteractivelySelectedCx22OrNothing(item["uuid"])
+    end
 end

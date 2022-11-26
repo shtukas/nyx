@@ -354,17 +354,6 @@ class FileSystemCheck
             return
         end
 
-        if mikuType == "NxBall.v2" then
-            FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
-            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-            FileSystemCheck::ensureAttribute(item, "datetime", "String")
-            FileSystemCheck::ensureAttribute(item, "description", "String")
-            FileSystemCheck::ensureAttribute(item, "start", "Number")
-            FileSystemCheck::ensureAttribute(item, "accounts", "Array")
-            return
-        end
-
         if mikuType == "NxDoNotShowUntil" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")

@@ -1,8 +1,0 @@
-
-NxBall {
-    "uuid"     : String
-    "mikuType" : "NxBall"
-    "unixtime" : Float
-    "announce" : String
-    "cx22"     : UUID of Cx22
-}

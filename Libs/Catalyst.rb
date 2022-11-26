@@ -9,11 +9,6 @@ class Catalyst
 
     # Catalyst::getCatalystItemOrNull(uuid)
     def self.getCatalystItemOrNull(uuid)
-        item = Waves::getOrNull(uuid)
-        return item if item
-
-        item = NxTodos::getItemOrNull(uuid)
-        return item if item
 
         item = NxTriages::getItemOrNull(uuid)
         return item if item
@@ -21,14 +16,12 @@ class Catalyst
         item = NxOnDates::getItemOrNull(uuid)
         return item if item
 
-        item = Cx22::getOrNull(uuid)
+        item = Waves::getOrNull(uuid)
+        return item if item
+
+        item = NxTodos::getItemOrNull(uuid)
         return item if item
 
         nil
-    end
-
-    # Catalyst::transmuteTo(item, targetMikuType)
-    def self.transmuteTo(item, targetMikuType)
-
     end
 end

@@ -7,7 +7,7 @@ class CatalystListing
         [
             "[listing interaction] .. | <datecode> | access (<n>) | group (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | destroy",
             "[makers] wave | anniversary | today | ondate | todo | Cx22",
-            "[nxballs] start or start * | stop",
+            "[cruising] start | stop",
             "[divings] anniversaries | ondates | waves | groups | todos",
             "[transmutations] >todo",
             "[misc] require internet",
@@ -43,7 +43,15 @@ class CatalystListing
         if Interpreting::match(">todo", input) then
             item = store.getDefault()
             return if item.nil?
-            Catalyst::transmuteTo(item, "NxTodo")
+
+            # We apply this to only to Triage items
+            if item["mikuType"] != "NxTriage" then
+                puts "The >todo command only applies to NxTriages"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+
+            NxTriages::transmuteItemToNxTodo(item)
             return
         end
 
@@ -163,11 +171,6 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             puts JSON.pretty_generate(item)
-            if item["mikuType"] == "NxBall.v2" then
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            puts "PolyFunctions::listingPriorityOrNull(item): #{PolyFunctions::listingPriorityOrNull(item)}"
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -177,11 +180,6 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             puts JSON.pretty_generate(item)
-            if item["mikuType"] == "NxBall.v2" then
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            puts "PolyFunctions::listingPriorityOrNull(item): #{PolyFunctions::listingPriorityOrNull(item)}"
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -232,38 +230,13 @@ class CatalystListing
 
         if Interpreting::match("start", input) then
             item = store.getDefault()
-            if item and item["mikuType"] == "Cx22" then
-                NxBall::issue(item)
-                return
-            end
-            NxBall::interactivelyIssueNewNxBallOrNothing()
-            return
-        end
-
-        if Interpreting::match("start *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
             return if item.nil?
-            if item["mikuType"] == "Cx22" then
-                NxBall::issue(item)
-            end
+            Cruising::issueNewStateWithThisItem(item)
             return
         end
 
         if Interpreting::match("stop", input) then
-            nxballs = NxBall::items()
-            if nxballs.size == 0 then
-                return
-            end
-            if nxballs.size == 1 then
-                nxball = nxballs.first
-                NxBall::commitTimeAndDestroy(nxball)
-            end
-            if nxballs.size > 1 then
-                nxball = LucilleCore::selectEntityFromListOfEntitiesOrNull("nxball", nxballs, lambda{|nxball| nxball["announce"] })
-                return if nxball.nil?
-                NxBall::commitTimeAndDestroy(nxball)
-            end
+            Cruising::close()
             return
         end
 
@@ -435,10 +408,33 @@ class CatalystListing
                 vspaceleft = vspaceleft - 1
             }
 
+        txListingItems = CatalystListing::txListingItemsInPriorityOrderDesc()
+
+        state = Cruising::getStateOrNull()
+        if state then
+            if state["item"]["uuid"] != txListingItems.first["item"]["uuid"] then
+                # We have switched to a new item, or a new item is now #1
+                # Let's close the existing state
+                Cruising::close()
+
+                item = txListingItems.first["item"]
+                if ["NxOndate", "Wave", "NxTodo"].include?(item["mikuType"]) then
+                    Cruising::issueNewStateWithThisItem(item)
+                    return
+                end
+            end
+        end
+        state = Cruising::getStateOrNull()
+        if state then
+            puts ""
+            puts "> cruising with { #{Cx22::toString(state["cx22"])} }, running for #{((Time.new.to_i - state["unixtime"]).to_f/3600).round(2)} hours".green
+            vspaceleft = vspaceleft - 2
+        end
+
         puts ""
         vspaceleft = vspaceleft - 1
 
-        CatalystListing::txListingItemsInPriorityOrderDesc()
+        txListingItems
             .each{|packet|
                 item = packet["item"]
                 priority = packet["priority"]
@@ -446,7 +442,7 @@ class CatalystListing
                 store.register(item, true)
                 cx22 =  packet["cx22"]
                 cx22Str = cx22 ? " (#{Cx22::toString(cx22)})" : ""
-                line = "#{store.prefixString()} #{PolyFunctions::toStringForListing(item)}#{cx22Str.green}"
+                line = "#{store.prefixString()} #{PolyFunctions::toString(item)}#{cx22Str.green}"
                 if priority < 0.5 then
                     line = line.yellow
                 end

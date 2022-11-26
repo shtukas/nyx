@@ -116,7 +116,7 @@ class SearchNyx
                 selected = SearchNyx::nyxNx20s()
                                 .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
                                 .sort{|p1, p2| p1["unixtime"] <=> p2["unixtime"] }
-                nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", selected, lambda{|packet| PolyFunctions::toStringForListing(packet["item"]) })
+                nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", selected, lambda{|packet| PolyFunctions::toString(packet["item"]) })
                 break if nx20.nil?
                 item = nx20["item"]
                 item = Nx7::itemOrNull(item["uuid"])
@@ -146,7 +146,7 @@ class SearchNyx
                 nx20 = SearchNyx::nyxNx20s()
                             .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
                             .sort{|p1, p2| p1["unixtime"] <=> p2["unixtime"] }
-                nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", nx20, lambda{|packet| PolyFunctions::toStringForListing(packet["item"]) })
+                nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", nx20, lambda{|packet| PolyFunctions::toString(packet["item"]) })
                 break if nx20.nil?
                 system('clear')
                 item = nx20["item"]

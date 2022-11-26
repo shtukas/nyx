@@ -179,7 +179,7 @@ class Cx22
             return if action.nil?
             if action == "add time" then
                 timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
-                puts "adding #{timeInHours} hours to '#{Cx22::toStringWithDetails(cx22)}'"
+                puts "adding #{timeInHours} hours to '#{Cx22::toString(cx22)}'"
                 Bank::put(cx22["uuid"], timeInHours*3600)
             end
         }

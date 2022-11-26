@@ -25,11 +25,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxBall" then
-            NxBall::access(item)
-            return
-        end
-
         if item["mikuType"] == "Nx7" then
             Nx7::access(item)
             return
@@ -140,11 +135,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxBall" then
-            NxBall::commitTimeAndDestroy(item)
-            return
-        end
-
         if item["mikuType"] == "NxTodo" then
             puts PolyFunctions::toString(item)
             if item["nx113"] then
@@ -203,20 +193,16 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxBall" then
-            NxBall::access(item)
-            return
-        end
-
         if item["mikuType"] == "NxTriage" then
             NxTriages::access(item)
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["destroy", "transmute > todo", "exit"])
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["destroy", ">todo", "exit"])
             return if option == ""
             if option == "destroy" then
                 NxTriages::destroy(item["uuid"])
             end
-            if option == "transmute > todo" then
-                raise "transmute not implemented yet"
+            if option == ">todo" then
+                NxTriages::transmuteItemToNxTodo(item)
+                return
             end
             if option == "exit" then
                 return
@@ -286,11 +272,6 @@ class PolyActions
 
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::probe(item)
-            return
-        end
-
-        if item["mikuType"] == "NxBall" then
-            NxBall::access(item)
             return
         end
 

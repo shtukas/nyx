@@ -151,6 +151,7 @@ require_relative "CatalystListing.rb"
 require_relative "CommonUtils.rb"
 require_relative "CompositeElizabeth.rb"
 require_relative "Cx22.rb"
+require_relative "Cruising.rb"
 
 require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)
@@ -182,7 +183,6 @@ require_relative "Nx7.rb"
 require_relative "Nx7Payloads.rb"
 require_relative "NxItemResolver1.rb"
 require_relative "NxItemResolver2.rb"
-require_relative "NxBall.rb"
 require_relative "NxTriages.rb"
 require_relative "NxOndates.rb"
 

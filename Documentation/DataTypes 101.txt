@@ -14,4 +14,3 @@ Misc:
     Nx45      # UUID naming convention 
     Nx20      # Search Item
     Nx79      # Ownership inventory item
-    NxBall.v2 # Running data
