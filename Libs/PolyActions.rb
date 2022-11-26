@@ -11,6 +11,7 @@ class PolyActions
         # types in alphabetical order
 
         if item["mikuType"] == "Cx22" then
+            Cx22::probe(item)
             return
         end
 
@@ -20,7 +21,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxAnniversary" then
-            Anniversaries::access(item)
+            Anniversaries::accessAndDone(item)
             return
         end
 
@@ -36,6 +37,11 @@ class PolyActions
 
         if item["mikuType"] == "NxTodo" then
             NxTodos::access(item)
+            return
+        end
+
+        if item["mikuType"] == "NxOndate" then
+            NxOndates::access(item)
             return
         end
 
@@ -91,6 +97,7 @@ class PolyActions
     def self.destroy(item)
         if item["mikuType"] == "NxTodo" then
             NxTodos::destroy(item["uuid"])
+            PolyActions::garbageCollectionAfterItemDeletion(item)
             return
         end
 
@@ -101,6 +108,7 @@ class PolyActions
 
         if item["mikuType"] == "Wave" then
             Waves::destroy(item["uuid"])
+            PolyActions::garbageCollectionAfterItemDeletion(item)
             return
         end
 
@@ -176,53 +184,13 @@ class PolyActions
         raise "(error: f278f3e4-3f49-4f79-89d2-e5d3b8f728e6)"
     end
 
-    # PolyActions::editDatetime(item)
-    def self.editDatetime(item)
-        datetime = CommonUtils::editTextSynchronously(item["datetime"]).strip
-        return if !CommonUtils::isDateTime_UTC_ISO8601(datetime)
-        item["datetime"] = datetime
-        PolyActions::commit(item)
-    end
-
-    # PolyActions::editDescription(item)
-    def self.editDescription(item)
-        description = CommonUtils::editTextSynchronously(item["description"]).strip
-        return if description == ""
-        item["description"] = description
-        PolyActions::commit(item)
-    end
-
-    # PolyActions::editStartDate(item)
-    def self.editStartDate(item)
-        if item["mikuType"] != "NxAnniversary" then
-            puts "update description is only implemented for NxAnniversary"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        startdate = CommonUtils::editTextSynchronously(item["startdate"])
-        return if startdate == ""
-        item["startdate"] = startdate
-        PolyActions::commit(item)
-    end
-
-    # PolyActions::garbageCollectionAfterItemDeletion(item)
-    def self.garbageCollectionAfterItemDeletion(item)
-        return if item.nil?
-        if item["nx113"] then
-            nx113 = Nx113Access::getNx113(item["nx113"])
-            if nx113["type"] == "Dx8Unit" then
-                Nx113Dx33s::issue(nx113["unitId"])
-            end
-        end
-    end
-
-    # PolyActions::postDoubleAccess(item)
-    def self.postDoubleAccess(item)
+    # PolyActions::doubleDotAccess(item)
+    def self.doubleDotAccess(item)
 
         # order: alphabetical order
 
         if item["mikuType"] == "Cx22" then
+            Cx22::probe(item)
             return
         end
 
@@ -231,23 +199,24 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxAnniversary" then
-            Anniversaries::done(item["uuid"])
+            Anniversaries::accessAndDone(item)
             return
         end
 
         if item["mikuType"] == "NxBall" then
-            NxBall::commitTimeAndDestroy(item)
+            NxBall::access(item)
             return
         end
 
         if item["mikuType"] == "NxTriage" then
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["Luke, use the Force (destroy)", "transmute > todo", "exit"])
+            NxTriages::access(item)
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["destroy", "transmute > todo", "exit"])
             return if option == ""
-            if option == "Luke, use the Force (destroy)" then
+            if option == "destroy" then
                 NxTriages::destroy(item["uuid"])
             end
             if option == "transmute > todo" then
-                raise "not implemented yet"
+                raise "transmute not implemented yet"
             end
             if option == "exit" then
                 return
@@ -256,6 +225,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxOndate" then
+            NxOndates::access(item)
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["Luke, use the Force (destroy)", "redate", "exit"])
             return if option == ""
             if option == "Luke, use the Force (destroy)" then
@@ -271,7 +241,8 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxTodo" then
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
+            NxTodos::access(item)
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ") then
                 NxTodos::destroy(item["uuid"])
             end
             return
@@ -284,18 +255,66 @@ class PolyActions
             return
         end
 
-        puts "I do not know how to PolyActions::postDoubleAccess(#{JSON.pretty_generate(item)})"
+        puts "I do not know how to PolyActions::doubleDotAccess(#{JSON.pretty_generate(item)})"
         raise "(error: 9CD4B61D-8B13-4075-A560-7F3D801DD0D6)"
     end
 
-    # PolyActions::redate(item)
-    def self.redate(item)
-        if item["mikuType"] != "NxOndate" then
-            puts "redate only applies to NxOndate"
-            LucilleCore::pressEnterToContinue()
+    # PolyActions::garbageCollectionAfterItemDeletion(item)
+    def self.garbageCollectionAfterItemDeletion(item)
+        return if item.nil?
+        if item["nx113"] then
+            nx113 = Nx113Access::getNx113(item["nx113"])
+            if nx113["type"] == "Dx8Unit" then
+                Nx113Dx33s::issue(nx113["unitId"])
+            end
+        end
+    end
+
+    # PolyActions::probe(item)
+    def self.probe(item)
+
+        # order: alphabetical order
+
+        if item["mikuType"] == "Cx22" then
+            Cx22::probe(item)
             return
         end
-        item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
-        PolyActions::commit(item)
+
+        if item["mikuType"] == "Lx01" then
+            return
+        end
+
+        if item["mikuType"] == "NxAnniversary" then
+            Anniversaries::probe(item)
+            return
+        end
+
+        if item["mikuType"] == "NxBall" then
+            NxBall::access(item)
+            return
+        end
+
+        if item["mikuType"] == "NxTriage" then
+            NxTriages::probe(item)
+            return
+        end
+
+        if item["mikuType"] == "NxOndate" then
+            NxOndates::probe(item)
+            return
+        end
+
+        if item["mikuType"] == "NxTodo" then
+            NxTodos::probe(item)
+            return
+        end
+
+        if item["mikuType"] == "Wave" then
+            Waves::probe(item)
+            return
+        end
+
+        puts "I do not know how to PolyActions::probe(#{JSON.pretty_generate(item)})"
+        raise "(error: 9CD4B61D-8B13-4075-A560-7F3D801DD0D6)"
     end
 end

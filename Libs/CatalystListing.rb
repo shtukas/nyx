@@ -5,7 +5,7 @@ class CatalystListing
     # CatalystListing::listingCommands()
     def self.listingCommands()
         [
-            "[listing interaction] .. | <datecode> | <n> | access (<n>) | description (<n>) | datetime (<n>) | set group (<n>) | do not show until <n> | redate (<n>) | done (<n>) | edit (<n>) | expose (<n>) | float | destroy",
+            "[listing interaction] .. | <datecode> | <n> | access (<n>) | group (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | destroy",
             "[makers] wave | anniversary | today | ondate | todo | Cx22",
             "[nxballs] start or start * | stop",
             "[divings] anniversaries | ondates | waves | groups | todos",
@@ -28,8 +28,7 @@ class CatalystListing
         if Interpreting::match("..", input) then
             item = store.getDefault()
             return if item.nil?
-            PolyActions::access(item)
-            PolyActions::postDoubleAccess(item)
+            PolyActions::doubleDotAccess(item)
             return
         end
 
@@ -37,8 +36,7 @@ class CatalystListing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyActions::access(item)
-            PolyActions::done(item, true)
+            PolyActions::doubleDotAccess(item)
             return
         end
 
@@ -70,7 +68,7 @@ class CatalystListing
         end
 
         if Interpreting::match("anniversaries", input) then
-            Anniversaries::dive()
+            Anniversaries::mainprobe()
             return
         end
 
@@ -80,14 +78,14 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("set group", input) then
+        if Interpreting::match("group", input) then
             item = store.getDefault()
             return if item.nil?
             Cx22::addItemToInteractivelySelectedCx22OrNothing(item["uuid"])
             return
         end
 
-        if Interpreting::match("set group *", input) then
+        if Interpreting::match("group *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
@@ -112,36 +110,6 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::destroyWithPrompt(item)
-            return
-        end
-
-        if Interpreting::match("datetime", input) then
-            item = store.getDefault()
-            return if item.nil?
-            PolyActions::editDatetime(item)
-            return
-        end
-
-        if Interpreting::match("datetime *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            PolyActions::editDatetime(item)
-            return
-        end
-
-        if Interpreting::match("description", input) then
-            item = store.getDefault()
-            return if item.nil?
-            PolyActions::editDescription(item)
-            return
-        end
-
-        if Interpreting::match("description *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            PolyActions::editDescription(item)
             return
         end
 
@@ -219,7 +187,7 @@ class CatalystListing
         end
 
         if Interpreting::match("groups", input) then
-            Cx22::maindive()
+            Cx22::mainprobe()
             return
         end
 
@@ -254,21 +222,6 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             InternetStatus::markIdAsRequiringInternet(item["uuid"])
-            return
-        end
-
-        if Interpreting::match("redate", input) then
-            item = store.getDefault()
-            return if item.nil?
-            PolyActions::redate(item)
-            return
-        end
-
-        if Interpreting::match("redate *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            PolyActions::redate(item)
             return
         end
 
@@ -436,15 +389,15 @@ class CatalystListing
         packets = [
             Anniversaries::listingItems(),
             TxManualCountDowns::listingItems(),
-            Waves::items(),
+            #Waves::items(),
             Cx22::listingItems(),
             NxTodos::listingItems(),
             Lx01s::listingItems(),
             NxTriages::listingItems()
         ]
             .flatten
-            .select{|item| true or DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|item| true or InternetStatus::itemShouldShow(item["uuid"]) }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
             .map{|item|
                 {
                     "item"     => item,
@@ -452,9 +405,6 @@ class CatalystListing
                 }
             }
             .select{|packet| packet["priority"] > 0 }
-        if packets.any?{|packet| packet["priority"] > 0.5 } then
-            packets = packets.select{|packet| packet["priority"] > 0.5 }
-        end
         packets
             .sort{|p1, p2| p1["priority"] <=> p2["priority"] }
             .reverse
@@ -537,7 +487,7 @@ class CatalystListing
             LucilleCore::locationsAtFolder("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")
                 .each{|location|
                     next if File.basename(location).start_with?(".")
-                    item = NxTodos::bufferInImport(location)
+                    item = NxTriages::bufferInImport(location)
                     puts "Picked up from NxTodos-BufferIn: #{JSON.pretty_generate(item)}"
                     LucilleCore::removeFileSystemLocation(location)
                 }

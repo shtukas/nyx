@@ -76,25 +76,6 @@ class NxTodos
         item
     end
 
-    # NxTodos::bufferInImport(location)
-    def self.bufferInImport(location)
-        description = File.basename(location)
-        uuid = SecureRandom.uuid
-        operator = NxTodos::getElizabethOperatorForUUID(uuid)
-        nx113 = Nx113Make::aionpoint(operator, location)
-        item = {
-            "uuid"        => uuid,
-            "mikuType"    => "NxTodo",
-            "unixtime"    => Time.new.to_i,
-            "datetime"    => Time.new.utc.iso8601,
-            "description" => description,
-            "nx113"       => nx113,
-            "lightspeed"  => LightSpeed::fromComponents(Time.new.to_i, "hours")
-        }
-        NxTodos::commitObject(item)
-        item
-    end
-
     # NxTodos::issueUsingUrl(url)
     def self.issueUsingUrl(url)
         description = File.basename(location)
@@ -133,24 +114,12 @@ class NxTodos
     # NxTodos::toString(item)
     def self.toString(item)
         nx113str = Nx113Access::toStringOrNull(" ", item["nx113"], "")
-        "(todo)#{nx113str} #{item["description"]}"
+        "(todo) #{item["description"]}#{nx113str}"
     end
 
     # NxTodos::toStringForSearch(item)
     def self.toStringForSearch(item)
         "(todo) #{item["description"]}"
-    end
-
-    # NxTodos::toStringForListing(item)
-    def self.toStringForListing(item)
-        datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
-        dnsustr  = datetimeOpt ? " (do not show until: #{datetimeOpt})" : ""
-        "#{NxTodos::toString(item)}#{dnsustr}"
-    end
-
-    # NxTodos::listingPriorityOrNull(item)
-    def self.listingPriorityOrNull(item) # Float between 0 and 1
-        0.5
     end
 
     # NxTodos::listingItems()
@@ -210,5 +179,22 @@ class NxTodos
         end
         Nx113Edit::editNx113Carrier(item)
         NxTodos::getItemOrNull(item["uuid"])
+    end
+
+    # NxTodos::probe(item)
+    def self.probe(item)
+        loop {
+            actions = ["access", "destroy"]
+            action = LucilleCore::selectEntityFromListOfEntities("action: ", actions)
+            return if action.nil?
+            if action == "access" then
+                NxTodos::access(item)
+            end
+            if action == "destroy" then
+                NxTodos::destroy(item["uuid"])
+                PolyActions::garbageCollectionAfterItemDeletion(item)
+                return
+            end
+        }
     end
 end

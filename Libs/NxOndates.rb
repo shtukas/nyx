@@ -81,7 +81,7 @@ class NxOndates
     # NxOndates::toString(item)
     def self.toString(item)
         nx113str = Nx113Access::toStringOrNull(" ", item["nx113"], "")
-        "(ondate: #{item["datetime"][0, 10]})#{nx113str} #{item["description"]}"
+        "(ondate: #{item["datetime"][0, 10]} #{item["description"]}#{nx113str}"
     end
 
     # NxOndates::listingItems()
@@ -140,5 +140,28 @@ class NxOndates
         end
         Nx113Edit::editNx113Carrier(item)
         NxOndates::getItemOrNull(item["uuid"])
+    end
+
+    # NxOndates::probe(item)
+    def self.probe(item)
+        loop {
+            actions = ["access", "redate", "ondate"]
+            action = LucilleCore::selectEntityFromListOfEntities("action: ", actions)
+            return if action.nil?
+            if action == "access" then
+                NxOndates::access(item)
+                next
+            end
+            if action == "redate" then
+                item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
+                PolyActions::commit(item)
+                next
+            end
+            if action == "destroy" then
+                NxOndates::destroy(item["uuid"])
+                PolyActions::garbageCollectionAfterItemDeletion(item)
+                return
+            end
+        }
     end
 end

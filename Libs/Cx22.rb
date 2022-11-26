@@ -192,13 +192,27 @@ class Cx22
         Cx22::addItemToCx22(cx22["uuid"], itemuuid)
     end
 
-    # Cx22::maindive()
-    def self.maindive()
+    # Cx22::probe(cx22)
+    def self.probe(cx22)
+        loop {
+            actions = ["add time"]
+            action = LucilleCore::selectEntityFromListOfEntities("action: ", actions)
+            return if action.nil?
+            if action == "add time" then
+                timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
+                puts "adding #{timeInHours} hours to '#{Cx22::toStringWithDetails(cx22)}'"
+                Bank::put(cx22["uuid"], timeInHours*3600)
+            end
+        }
+    end
+
+    # Cx22::mainprobe()
+    def self.mainprobe()
         loop {
             system("clear")
             cx22 = Cx22::interactivelySelectCx22OrNull()
             return if cx22.nil?
- 
+            Cx22::probe(cx22)
         }
     end
 end

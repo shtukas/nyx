@@ -260,4 +260,21 @@ class Waves
         Nx113Edit::editNx113Carrier(item)
         Waves::getOrNull(item["uuid"])
     end
+
+    # Waves::probe(item)
+    def self.probe(item)
+        loop {
+            actions = ["access", "destroy"]
+            action = LucilleCore::selectEntityFromListOfEntities("action: ", actions)
+            return if action.nil?
+            if action == "access" then
+                Waves::access(item)
+            end
+            if action == "destroy" then
+                Waves::destroy(item["uuid"])
+                PolyActions::garbageCollectionAfterItemDeletion(item)
+                return
+            end
+        }
+    end
 end

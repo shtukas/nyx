@@ -137,7 +137,7 @@ class PolyFunctions
         # Wave "orchestration"          0.90
         # Cx22 "isPriority" = true      0.80
         # Wave "ns:mandatory-today"     0.77
-        # NxTodo (ondate:today)         0.76
+        # NxOndate                      0.76
         # TxManualCountDown             0.75
         # Wave "ns:time-important"      0.70
         # Cx22 "isPriority" = false     0.60
@@ -145,7 +145,7 @@ class PolyFunctions
         # NxTodo (asap-not-nec-today)   0.50
         # ----------------------------- 0.50
         # Wave "ns:beach"               0.40
-        # NxTodo (standard)             0.30
+        # NxTodo                        0.30
 
         shiftOnCompletionRatio = lambda {|ratio|
             0.01*Math.atan(-ratio)
@@ -181,8 +181,13 @@ class PolyFunctions
             return Anniversaries::isOpenToAcknowledgement(item) ? 0.95 : nil
         end
 
+        if item["mikuType"] == "NxOndate" then
+            return 0.76 + shiftOnUnixtime.call(item, item["unixtime"])
+        end
+
         if item["mikuType"] == "NxTodo" then
-            return NxTodos::listingPriorityOrNull(item)
+            metric = LightSpeed::metric(item["lightspeed"])
+            return metric
         end
 
         if item["mikuType"] == "NxTriage" then
@@ -254,9 +259,6 @@ class PolyFunctions
     def self.toStringForListing(item)
         if item["mikuType"] == "Cx22" then
             return Cx22::toStringDiveStyleFormatted(item)
-        end
-        if item["mikuType"] == "NxTodo" then
-            return NxTodos::toStringForListing(item)
         end
         PolyFunctions::toString(item)
     end

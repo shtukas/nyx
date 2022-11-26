@@ -80,7 +80,7 @@ class Anniversaries
         end
     end
 
-    # Anniversaries::accessTests()
+    # Anniversaries::probeTests()
     def self.runTests()
         raise "72118532-21b3-4897-a6d1-7c21458b4624" if Anniversaries::datePlusNMonthAnniversaryStyle("2020-11-25", 1) != "2020-12-25"
         raise "279b1ee3-728e-4883-9a4d-abf3b9a494d7" if Anniversaries::datePlusNMonthAnniversaryStyle("2020-12-25", 1) != "2021-01-25"
@@ -96,6 +96,7 @@ class Anniversaries
     end
 
     # ----------------------------------------------------------------------------------
+    # Data
 
     # Anniversaries::anniversaries()
     def self.anniversaries()
@@ -155,73 +156,6 @@ class Anniversaries
         "(anniversary) [#{anniversary["startdate"]}, #{date}, #{n.to_s.ljust(4)}, #{anniversary["repeatType"].ljust(7)}] #{anniversary["description"]}"
     end
 
-    # Anniversaries::done(uuid)
-    def self.done(uuid)
-        item = Anniversaries::getOrNull(uuid)
-        return if item.nil?
-        item["lastCelebrationDate"] = Time.new.to_s[0, 10]
-        Anniversaries::commit(item)
-    end
-
-    # Anniversaries::access(anniversary)
-    def self.access(anniversary)
-        loop {
-
-            return nil if item.nil?
-
-            uuid = item["uuid"]
-            item = Anniversaries::getOrNull(uuid)
-            return nil if item.nil?
-
-            system("clear")
-
-            puts PolyFunctions::toString(item)
-            puts "uuid: #{item["uuid"]}".yellow
-            puts "unixtime: #{item["unixtime"]}".yellow
-            puts "datetime: #{item["datetime"]}".yellow
-
-            puts ""
-            puts "description | update start date | edit | done | expose | destroy | nyx".yellow
-            puts ""
-
-            input = LucilleCore::askQuestionAnswerAsString("> ")
-            next if input == ""
-
-            # ordering: alphabetical
-
-            if Interpreting::match("destroy", input) then
-                PolyActions::destroyWithPrompt(item)
-                return
-            end
-
-            if Interpreting::match("description", input) then
-                PolyActions::editDescription(item)
-                next
-            end
-
-            if Interpreting::match("done", input) then
-                PolyActions::done(item)
-                return
-            end
-
-            if Interpreting::match("expose", input) then
-                puts JSON.pretty_generate(item)
-                LucilleCore::pressEnterToContinue()
-                next
-            end
-
-            if Interpreting::match("nyx", input) then
-                Nyx::program()
-                next
-            end
-
-            if Interpreting::match("update start date", input) then
-                PolyActions::editStartDate(item)
-                next
-            end
-        }
-    end
-
     # Anniversaries::isOpenToAcknowledgement(anniversary)
     def self.isOpenToAcknowledgement(anniversary)
         Anniversaries::nextDateOrdinal(anniversary)[0] <= CommonUtils::today() 
@@ -233,25 +167,61 @@ class Anniversaries
             .select{|anniversary| Anniversaries::isOpenToAcknowledgement(anniversary) }
     end
 
-    # Anniversaries::dailyBriefing()
-    def self.dailyBriefing()
-        puts "Anniversaries daily briefing:"
-        Anniversaries::anniversaries()
-            .sort{|i1, i2| Anniversaries::nextDateOrdinal(i1)[0] <=> Anniversaries::nextDateOrdinal(i2)[0] }
-            .each{|anniversary|
-                puts Anniversaries::toString(anniversary)
-            }
-        LucilleCore::pressEnterToContinue()
+    # ----------------------------------------------------------------------------------
+    # Operations
+
+    # Anniversaries::done(uuid)
+    def self.done(uuid)
+        item = Anniversaries::getOrNull(uuid)
+        return if item.nil?
+        item["lastCelebrationDate"] = Time.new.to_s[0, 10]
+        Anniversaries::commit(item)
     end
 
-    # Anniversaries::dive()
-    def self.dive()
+    # Anniversaries::accessAndDone(anniversary)
+    def self.accessAndDone(anniversary)
+        puts Anniversaries::toString(anniversary)
+        if LucilleCore::askQuestionAnswerAsBoolean("done ? : ", true) then
+            anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
+            Anniversaries::commit(anniversary)
+        end
+    end
+
+    # Anniversaries::probe(anniversary)
+    def self.probe(anniversary)
+        loop {
+            actions = ["update description", "update start date", "destroy"]
+            action = LucilleCore::selectEntityFromListOfEntities("action: ", actions)
+            return if action.nil?
+            if action == "update description" then
+                description = CommonUtils::editTextSynchronously(anniversary["description"]).strip
+                next if description == ""
+                anniversary["description"] = description
+                Anniversaries::commit(anniversary)
+            end
+            if action == "update start date" then
+                startdate = CommonUtils::editTextSynchronously(anniversary["startdate"])
+                next if startdate == ""
+                anniversary["startdate"] = startdate
+                Anniversaries::commit(anniversary)
+            end
+            if action == "destroy" then
+                filepath = "#{Config::pathToDataCenter()}/Anniversaries/#{anniversary["uuid"]}.json"
+                return nil if !File.exists?(filepath)
+                FileUtils.rm(filepath)
+                return
+            end
+        }
+    end
+
+    # Anniversaries::mainprobe()
+    def self.mainprobe()
         loop {
             anniversaries = Anniversaries::anniversaries()
                         .sort{|i1, i2| Anniversaries::nextDateOrdinal(i1)[0] <=> Anniversaries::nextDateOrdinal(i2)[0] }
             anniversary = LucilleCore::selectEntityFromListOfEntitiesOrNull("anniversary", anniversaries, lambda{|item| Anniversaries::toString(item) })
             return if anniversary.nil?
-            Anniversaries::access(anniversary)
+            Anniversaries::probe(anniversary)
         }
     end
 

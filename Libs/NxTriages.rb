@@ -56,13 +56,31 @@ class NxTriages
     # --------------------------------------------------
     # Makers
 
+    # NxTriages::bufferInImport(location)
+    def self.bufferInImport(location)
+        description = File.basename(location)
+        uuid = SecureRandom.uuid
+        operator = NxTodos::getElizabethOperatorForUUID(uuid)
+        nx113 = Nx113Make::aionpoint(operator, location)
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NxTriage",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "nx113"       => nx113,
+        }
+        NxTodos::commitObject(item)
+        item
+    end
+
     # --------------------------------------------------
     # Data
 
     # NxTriages::toString(item)
     def self.toString(item)
         nx113str = Nx113Access::toStringOrNull(" ", item["nx113"], "")
-        "(triage)#{nx113str} #{item["description"]}"
+        "(triage) #{item["description"]}#{nx113str}"
     end
 
     # NxTriages::listingItems()
@@ -121,5 +139,22 @@ class NxTriages
         end
         Nx113Edit::editNx113Carrier(item)
         NxTriages::getItemOrNull(item["uuid"])
+    end
+
+    # NxTriages::probe(item)
+    def self.probe(item)
+        loop {
+            actions = ["access", "destroy"]
+            action = LucilleCore::selectEntityFromListOfEntities("action: ", actions)
+            return if action.nil?
+            if action == "access" then
+                NxTriages::access(item)
+            end
+            if action == "destroy" then
+                NxTriages::destroy(item["uuid"])
+                PolyActions::garbageCollectionAfterItemDeletion(item)
+                return
+            end
+        }
     end
 end
