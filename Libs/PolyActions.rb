@@ -39,6 +39,11 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NxTriage" then
+            NxTriages::access(item)
+            return
+        end
+
         if item["mikuType"] == "TxManualCountDown" then
             puts item["description"]
             count = LucilleCore::askQuestionAnswerAsString("done count: ").to_i
