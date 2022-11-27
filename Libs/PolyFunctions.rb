@@ -134,8 +134,9 @@ class PolyFunctions
 
         # NxAnniversary                 0.95
         # NxTriage                      0.92
-        # Wave "ns:mandatory-today"     0.77
-        # NxOndate                      0.76
+        # Wave "ns:mandatory-today"     0.80
+        # NxOndate                      0.79
+        # TxProject                     0.77
         # TxManualCountDown             0.75
         # Wave "ns:time-important"      0.70
         # ----------------------------- 0.50 (above should ideally be done before bed, below yellow)
@@ -173,7 +174,11 @@ class PolyFunctions
         end
 
         if item["mikuType"] == "NxOndate" then
-            return 0.76 + shiftOnUnixtime.call(item, item["unixtime"])
+            return 0.79 + shiftOnUnixtime.call(item, item["unixtime"])
+        end
+
+        if item["mikuType"] == "TxProject" then
+            return 0.77 + shiftOnUnixtime.call(item, item["unixtime"])
         end
 
         if item["mikuType"] == "NxTodo" then
@@ -197,7 +202,7 @@ class PolyFunctions
                 return nil
             end
             mapping = {
-                "ns:mandatory-today" => 0.77,
+                "ns:mandatory-today" => 0.80,
                 "ns:time-important"  => 0.70,
                 "ns:beach"           => 0.40
             }
@@ -235,6 +240,9 @@ class PolyFunctions
         end
         if item["mikuType"] == "NxTriage" then
             return NxTriages::toString(item)
+        end
+        if item["mikuType"] == "TxProject" then
+            return TxProjects::toString(item)
         end
         if item["mikuType"] == "TxManualCountDown" then
             return "(countdown) #{item["description"]}: #{item["counter"]}"

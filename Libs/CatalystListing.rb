@@ -6,7 +6,7 @@ class CatalystListing
     def self.listingCommands()
         [
             "[listing interaction] .. | <datecode> | access (<n>) | group (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | destroy",
-            "[makers] wave | anniversary | today | ondate | todo | Cx22",
+            "[makers] wave | anniversary | today | ondate | todo | Cx22 | project",
             "[cruising] start | stop",
             "[divings] anniversaries | ondates | waves | groups | todos",
             "[transmutations] >todo",
@@ -216,6 +216,13 @@ class CatalystListing
             return
         end
 
+        if Interpreting::match("project", input) then
+            item = TxProjects::interactivelyIssueNewOrNull()
+            return if item.nil?
+            puts JSON.pretty_generate(item)
+            return
+        end
+
         if Interpreting::match("require internet", input) then
             item = store.getDefault()
             return if item.nil?
@@ -362,7 +369,8 @@ class CatalystListing
             Waves::items(),
             NxTodos::listingItems(),
             Lx01s::listingItems(),
-            NxTriages::listingItems()
+            NxTriages::listingItems(),
+            TxProjects::listingItems()
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
