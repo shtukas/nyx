@@ -1,0 +1,7 @@
+
+NxBall
+    "uuid"        : String
+    "mikuType"    : "NxBall"
+    "unixtime"    : Float
+    "description" : String
+    "accounts"    : Array[String]

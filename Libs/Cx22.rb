@@ -194,4 +194,15 @@ class Cx22
             Cx22::probe(cx22)
         }
     end
+
+    # Cx22::itemToCx22Attemp(item)
+    def self.itemToCx22Attemp(item)
+        cx22 = Cx22::itemuuid2ToCx22OrNull(item["uuid"])
+        return cx22 if cx22
+        puts "item: #{PolyFunctions::toString(item)}"
+        cx22 = Cx22::interactivelySelectCx22OrNull()
+        return nil if cx22.nil?
+        Cx22::attach(cx22["uuid"], item["uuid"])
+        cx22
+    end
 end

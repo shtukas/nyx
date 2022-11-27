@@ -1,0 +1,4 @@
+{
+    "topItemUUID" : String or null
+    "nxballuuid"  : String or null
+}

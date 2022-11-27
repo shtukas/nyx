@@ -7,7 +7,7 @@ class CatalystListing
         [
             "[listing interaction] .. | <datecode> | access (<n>) | group (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | destroy",
             "[makers] wave | anniversary | today | ondate | todo | Cx22 | project",
-            "[cruising] start | stop",
+            "[cruising] cruise on | cruise off",
             "[divings] anniversaries | ondates | waves | groups | todos",
             "[transmutations] >todo",
             "[misc] require internet",
@@ -235,15 +235,15 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("start", input) then
+        if Interpreting::match("cruise on", input) then
             item = store.getDefault()
             return if item.nil?
-            Cruising::issueNewStateWithThisItem(item)
+            Cruising::continueWithThisItem(item)
             return
         end
 
-        if Interpreting::match("stop", input) then
-            Cruising::close()
+        if Interpreting::match("cruise off", input) then
+            Cruising::end()
             return
         end
 
@@ -420,28 +420,38 @@ class CatalystListing
 
         state = Cruising::getStateOrNull()
         if state then
-            if state["item"]["uuid"] != txListingItems.first["item"]["uuid"] then
-                # We have switched to a new item, or a new item is now #1
-                # Let's close the existing state
-                Cruising::close()
-
+            if state["topItemUUID"] != txListingItems.first["item"]["uuid"] then
                 item = txListingItems.first["item"]
                 if ["NxOndate", "Wave", "NxTodo"].include?(item["mikuType"]) then
-                    Cruising::issueNewStateWithThisItem(item)
-                    return
+                    Cruising::continueWithThisItem(item)
+                else
+                    Cruising::continueWithNoItem()
                 end
             end
         end
         state = Cruising::getStateOrNull()
         if state then
             puts ""
-            puts "> cruising with { #{Cx22::toString(state["cx22"])} }, running for #{((Time.new.to_i - state["unixtime"]).to_f/3600).round(2)} hours".green
+            puts "> cruising: state: #{state}".green
             vspaceleft = vspaceleft - 2
+        else
+            puts ""
+            puts "> cruising is off".green
+            vspaceleft = vspaceleft - 2
+        end
+
+        nxballs = NxBalls::items()
+        if nxballs.size > 0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+            nxballs.each{|nxball|
+                puts "> #{NxBalls::toString(nxball)}".green
+                vspaceleft = vspaceleft - 1
+            }
         end
 
         puts ""
         vspaceleft = vspaceleft - 1
-
         txListingItems
             .each{|packet|
                 item = packet["item"]

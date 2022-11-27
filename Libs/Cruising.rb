@@ -3,9 +3,8 @@
 =begin
 
 NxCruisingState {
-    "topItem"       => Item
-    "startUnixtime" => Float
-    "cx22"          => Cx22
+    "topItemUUID" : String
+    "nxballuuid"  : String
 }
 
 =end
@@ -30,38 +29,55 @@ class Cruising
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(state)) }
     end
 
-    # Cruising::issueNewStateUsingComponents(item, unixtime, cx22)
-    def self.issueNewStateUsingComponents(item, unixtime, cx22)
+    # Cruising::issueNewStateUsingComponents(topItemUUID, nxballuuid)
+    def self.issueNewStateUsingComponents(topItemUUID, nxballuuid)
         state = {
-            "item"     => item,
-            "unixtime" => unixtime,
-            "cx22"     => cx22
+            "topItemUUID" => topItemUUID,
+            "nxballuuid"  => nxballuuid,
         }
         Cruising::setState(state)
         state
     end
 
-    # Cruising::issueNewStateWithThisItem(item)
-    def self.issueNewStateWithThisItem(item)
-        system("clear")
-        puts "item: #{PolyFunctions::toString(item)}"
-        cx22 = nil
-        loop {
-            cx22 = Cx22::itemuuid2ToCx22OrNull(item["uuid"])
-            break if cx22
-            Cx22::addItemToInteractivelySelectedCx22OrNothing(item["uuid"])
-        }
-        Cruising::issueNewStateUsingComponents(item, Time.new.to_f, cx22)
-    end
-
-    # Cruising::close()
-    def self.close()
+    # Cruising::settleAnyExistingState()
+    def self.settleAnyExistingState()
         state = Cruising::getStateOrNull()
         return if state.nil?
-        timespan = Time.new.to_i - state["unixtime"]
-        puts "bank: putting #{timespan} seconds into '#{Cx22::toString(state["cx22"])}'"
-        Bank::put(state["cx22"]["uuid"], timespan)
-        # Then we need to close that state
+        return if state["nxballuuid"].nil?
+        nxball = NxBalls::getItemOrNull(state["nxballuuid"])
+        return if nxball.nil?
+        NxBalls::close(nxball)
+        state["nxballuuid"] = nil
+        Cruising::setState(state)
+    end
+
+    # Cruising::continueWithThisItem(item)
+    def self.continueWithThisItem(item)
+        itemToAccounts = lambda {|item|
+            cx22 = Cx22::itemToCx22Attemp(item)
+            return [] if cx22.nil?
+            [cx22["uuid"]]
+        }
+        Cruising::settleAnyExistingState()
+        accounts = itemToAccounts.call(item)
+        if accounts.empty? then
+            Cruising::issueNewStateUsingComponents(item["uuid"], nil)
+        else
+            nxball = NxBalls::issue(PolyFunctions::toString(item), accounts)
+            Cruising::issueNewStateUsingComponents(item["uuid"], nxball["uuid"])
+        end
+    end
+
+    # Cruising::continueWithNoItem()
+    def self.continueWithNoItem()
+        Cruising::settleAnyExistingState()
+        Cruising::issueNewStateUsingComponents(nil, nil)
+    end
+
+    # Cruising::end()
+    def self.end()
+        Cruising::settleAnyExistingState()
+        # Then we need to delete that state
         filepath = Cruising::filepath()
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
