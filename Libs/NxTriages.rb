@@ -60,7 +60,7 @@ class NxTriages
     def self.bufferInImport(location)
         description = File.basename(location)
         uuid = SecureRandom.uuid
-        operator = NxTodos::getElizabethOperatorForUUID(uuid)
+        operator = NxTriages::getElizabethOperatorForUUID(uuid)
         nx113 = Nx113Make::aionpoint(operator, location)
         item = {
             "uuid"        => uuid,
@@ -70,7 +70,7 @@ class NxTriages
             "description" => description,
             "nx113"       => nx113,
         }
-        NxTodos::commitObject(item)
+        NxTriages::commitObject(item)
         item
     end
 

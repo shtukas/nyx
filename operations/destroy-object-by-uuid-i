@@ -5,4 +5,15 @@
 require_relative "../Libs/loader.rb"
 
 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-PolyActions::destroyWithPrompt(uuid)
+item = Catalyst::getCatalystItemOrNull(uuid)
+if item.nil? then
+    puts "Could not determine an item for this uuid"
+    exit
+end
+puts JSON.pretty_generate(item)
+LucilleCore::pressEnterToContinue()
+
+NxTriages::getItemOrNull(uuid)
+NxOndates::destroy(uuid)
+Waves::destroy(uuid)
+NxTodos::destroy(uuid)
