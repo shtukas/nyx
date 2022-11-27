@@ -54,6 +54,7 @@ class Nx7
                 return filepath
             end
         }
+        return nil
         Nx7::filepaths().each{|filepath|
             if Nx7::trueIfFilepathIsInstanceOfGivenUUID(filepath, uuid) then
                 return filepath
@@ -558,18 +559,22 @@ class AutomaticNx7NetworkMainteance
 
     # AutomaticNx7NetworkMainteance::pairAnalysisExportFoldersResolution(filepath1, filepath2)
     def self.pairAnalysisExportFoldersResolution(filepath1, filepath2)
-        return if !AutomaticNx7NetworkMainteance::trueIfFilepathIsInstanceDataCarrier(filepath1)
-        return if !AutomaticNx7NetworkMainteance::trueIfFilepathIsInstanceDataCarrier(filepath2)
+        return true if !AutomaticNx7NetworkMainteance::trueIfFilepathIsInstanceDataCarrier(filepath1)
+        return true if !AutomaticNx7NetworkMainteance::trueIfFilepathIsInstanceDataCarrier(filepath2)
         exportFolder1 = filepath1.gsub(".Nx7", "")
         exportFolder2 = filepath2.gsub(".Nx7", "")
         if File.exists?(exportFolder1) and File.exists?(exportFolder2) then
             message = CommonUtils::firstDifferenceBetweenTwoLocations(exportFolder1, exportFolder2)
             if message then
                 puts "AutomaticNx7NetworkMainteance::pairAnalysisExportFoldersResolution(#{filepath1}, #{filepath2})"
-                puts "message: #{message}"
-                exit
+                puts "message: #{message.split(";").join("\n")}"
+                system("open '#{exportFolder1}'")
+                system("open '#{exportFolder2}'")
+                LucilleCore::pressEnterToContinue()
+                return false
             end
         end
+        true
     end
 
     # AutomaticNx7NetworkMainteance::run()
@@ -595,7 +600,11 @@ class AutomaticNx7NetworkMainteance
             nx7locations["locations"]
                 .combination(2)
                 .each{|filepath1, filepath2|
-                    AutomaticNx7NetworkMainteance::pairAnalysisExportFoldersResolution(filepath1, filepath2)
+                    status = false 
+                    loop {
+                        status = AutomaticNx7NetworkMainteance::pairAnalysisExportFoldersResolution(filepath1, filepath2)
+                        break if status
+                    }
                 }
         }
 
