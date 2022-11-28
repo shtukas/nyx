@@ -117,8 +117,8 @@ class PolyActions
         end
     end
 
-    # PolyActions::done(item, useConfirmationIfRelevant = true)
-    def self.done(item, useConfirmationIfRelevant = true)
+    # PolyActions::done(item)
+    def self.done(item)
 
         # order: alphabetical order
 
@@ -149,11 +149,7 @@ class PolyActions
                 end
                 return
             end
-            if useConfirmationIfRelevant then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
-                    NxTodos::destroy(item["uuid"])
-                end
-            else
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
                 NxTodos::destroy(item["uuid"])
             end
             return
@@ -167,11 +163,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "Wave" then
-            if useConfirmationIfRelevant then
-                if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
-                    Waves::performWaveNx46WaveDone(item)
-                end
-            else
+            if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
                 Waves::performWaveNx46WaveDone(item)
             end
             return
@@ -238,6 +230,16 @@ class PolyActions
             if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ") then
                 NxTodos::destroy(item["uuid"])
             end
+            return
+        end
+
+        if item["mikuType"] == "TxManualCountDown" then
+            puts item["description"]
+            count = LucilleCore::askQuestionAnswerAsString("#{item["description"]}: done count: ").to_i
+            item["counter"] = item["counter"] - count
+            item["lastUpdatedUnixtime"] = Time.new.to_i
+            puts JSON.pretty_generate(item)
+            TxManualCountDowns::commit(item)
             return
         end
 

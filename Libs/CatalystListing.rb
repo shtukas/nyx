@@ -6,7 +6,7 @@ class CatalystListing
     def self.listingCommands()
         [
             "[listing interaction] .. | <datecode> | access (<n>) | group (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | destroy",
-            "[makers] wave | anniversary | today | ondate | todo | Cx22 | project",
+            "[makers] wave | anniversary | today | ondate | todo | Cx22 | project | manual countdown",
             "[nxballs] start | stop",
             "[cruising] on | off",
             "[divings] anniversaries | ondates | waves | groups | todos",
@@ -197,6 +197,11 @@ class CatalystListing
 
         if Interpreting::match("internet on", input) then
             InternetStatus::setInternetOn()
+            return
+        end
+
+        if Interpreting::match("manual countdown", input) then
+            TxManualCountDowns::issueNewOrNull()
             return
         end
 

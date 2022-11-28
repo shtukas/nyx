@@ -6,4 +6,5 @@
     "dailyTarget" : Int
     "date"        : Date
     "counter"     : Int
+    "lastUpdatedUnixtime" : nil or Integer
 }

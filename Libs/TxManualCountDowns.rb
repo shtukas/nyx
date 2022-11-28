@@ -40,7 +40,8 @@ class TxManualCountDowns
             "description" => description,
             "dailyTarget" => dailyTarget,
             "date"        => CommonUtils::today(),
-            "counter"     => dailyTarget
+            "counter"     => dailyTarget,
+            "lastUpdatedUnixtime" => nil
         }
         TxManualCountDowns::commit(item)
         item
@@ -59,6 +60,7 @@ class TxManualCountDowns
         }
         TxManualCountDowns::items()
             .select{|item| item["counter"] > 0 }
+            .select{|item| item["lastUpdatedUnixtime"].nil? or (Time.new.to_i - item["lastUpdatedUnixtime"]) > 3600 }
     end
 
 end

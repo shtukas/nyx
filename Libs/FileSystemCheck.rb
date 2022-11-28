@@ -421,8 +421,6 @@ class FileSystemCheck
         if mikuType == "TxManualCountDown" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
             FileSystemCheck::ensureAttribute(item, "mikuType", "String")
-            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-            FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
             FileSystemCheck::ensureAttribute(item, "dailyTarget", "Number")
             FileSystemCheck::ensureAttribute(item, "date", "String")
