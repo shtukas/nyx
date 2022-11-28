@@ -1,0 +1,8 @@
+
+LambdX1s are executables that automatically generated and appear in the Catalyst Listing
+LambdX1 {
+    "uuid"     : String
+    "mikuType" : "LambdX1"
+    "announce" : String
+    "lambda"   : Lambda
+}

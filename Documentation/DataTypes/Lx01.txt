@@ -1,8 +1,0 @@
-
-Lx01s are executables that automatically generated and appear in the Catalyst Listing
-Lx01 {
-    "uuid"     : String
-    "mikuType" : "Lx01"
-    "announce" : String
-    "lambda"   : Lambda
-}

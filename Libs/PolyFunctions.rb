@@ -172,7 +172,7 @@ class PolyFunctions
             return base + shiftOnCompletionRatio.call(completionRatio)
         end
 
-        if item["mikuType"] == "Lx01" then
+        if item["mikuType"] == "LambdX1" then
             return 1
         end
 
@@ -233,7 +233,7 @@ class PolyFunctions
         if item["mikuType"] == "Cx22" then
             return Cx22::toString(item)
         end
-        if item["mikuType"] == "Lx01" then
+        if item["mikuType"] == "LambdX1" then
             return "(lambda) #{item["announce"]}"
         end
         if item["mikuType"] == "Nx7" then

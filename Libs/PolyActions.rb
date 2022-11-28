@@ -15,7 +15,7 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "Lx01" then
+        if item["mikuType"] == "LambdX1" then
             item["lambda"].call()
             return
         end
@@ -126,7 +126,7 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "Lx01" then
+        if item["mikuType"] == "LambdX1" then
             return
         end
 
@@ -193,7 +193,7 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "Lx01" then
+        if item["mikuType"] == "LambdX1" then
             return
         end
 
@@ -293,7 +293,7 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "Lx01" then
+        if item["mikuType"] == "LambdX1" then
             return
         end
 

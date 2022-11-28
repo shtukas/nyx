@@ -371,7 +371,7 @@ class CatalystListing
             TxManualCountDowns::listingItems(),
             Waves::items(),
             NxTodos::listingItems(),
-            Lx01s::listingItems(),
+            LambdX1s::listingItems(),
             NxTriages::listingItems(),
             TxProjects::listingItems()
         ]
