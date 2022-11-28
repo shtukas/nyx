@@ -236,9 +236,7 @@ class CatalystListing
         end
 
         if Interpreting::match("cruise on", input) then
-            item = store.getDefault()
-            return if item.nil?
-            Cruising::continueWithThisItem(item)
+            Cruising::issueNewStateUsingComponents(nil, nil)
             return
         end
 
