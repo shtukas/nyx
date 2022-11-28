@@ -8,7 +8,6 @@ class CatalystListing
             "[listing interaction] .. | <datecode> | access (<n>) | group (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | destroy",
             "[makers] wave | anniversary | today | ondate | todo | Cx22 | project | manual countdown",
             "[nxballs] start | stop",
-            "[cruising] on | off",
             "[divings] anniversaries | ondates | waves | groups | todos",
             "[transmutations] >todo",
             "[misc] require internet",
@@ -207,16 +206,6 @@ class CatalystListing
 
         if Interpreting::match("nyx", input) then
             Nyx::program()
-            return
-        end
-
-        if Interpreting::match("on", input) then
-            Cruising::issueNewStateUsingComponents(nil, nil)
-            return
-        end
-
-        if Interpreting::match("off", input) then
-            Cruising::end()
             return
         end
 
@@ -430,30 +419,6 @@ class CatalystListing
                 vspaceleft = vspaceleft - 1
             }
 
-        txListingItems = CatalystListing::txListingItemsInPriorityOrderDesc()
-
-        state = Cruising::getStateOrNull()
-        if state then
-            if state["topItemUUID"] != txListingItems.first["item"]["uuid"] then
-                item = txListingItems.first["item"]
-                if ["NxOndate", "Wave", "NxTodo"].include?(item["mikuType"]) then
-                    Cruising::continueWithThisItem(item)
-                else
-                    Cruising::continueWithNoItem()
-                end
-            end
-        end
-        state = Cruising::getStateOrNull()
-        if state then
-            puts ""
-            puts "> cruising: state: #{state}".green
-            vspaceleft = vspaceleft - 2
-        else
-            puts ""
-            puts "> cruising is off".green
-            vspaceleft = vspaceleft - 2
-        end
-
         nxballs = NxBalls::items()
         if nxballs.size > 0 then
             puts ""
@@ -466,7 +431,7 @@ class CatalystListing
 
         puts ""
         vspaceleft = vspaceleft - 1
-        txListingItems
+        CatalystListing::txListingItemsInPriorityOrderDesc()
             .each{|packet|
                 item = packet["item"]
                 priority = packet["priority"]

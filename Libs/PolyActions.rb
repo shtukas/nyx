@@ -178,6 +178,15 @@ class PolyActions
 
         # order: alphabetical order
 
+        issueNxBallForItem = lambda {|item|
+            description = PolyFunctions::toString(item)
+            accounts = PolyFunctions::bankAccountsForItem(item)
+            cx22sStr = accounts.map{|account| Cx22::getOrNull(account) }.compact.map{|cx22| cx22["description"] }.join(" ; ")
+            announce = "#{description} { #{cx22sStr} }"
+            puts "starting: #{announce}".green
+            NxBalls::issue(announce, accounts)
+        }
+
         if item["mikuType"] == "Cx22" then
             Cx22::probe(item)
             return
@@ -210,14 +219,18 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxOndate" then
+            issueNxBallForItem.call(item)
             NxOndates::access(item)
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["Luke, use the Force (destroy)", "redate", "exit"])
             return if option == ""
             if option == "Luke, use the Force (destroy)" then
                 NxOndates::destroy(item["uuid"])
+                NxBalls::stop()
             end
             if option == "redate" then
-                raise "not implemented yet"
+                item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
+                NxOndates::commitObject(item)
+                NxBalls::stop()
             end
             if option == "exit" then
                 return
@@ -226,9 +239,11 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxTodo" then
+            issueNxBallForItem.call(item)
             NxTodos::access(item)
             if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ") then
                 NxTodos::destroy(item["uuid"])
+                NxBalls::stop()
             end
             return
         end
@@ -244,8 +259,10 @@ class PolyActions
         end
 
         if item["mikuType"] == "Wave" then
+            issueNxBallForItem.call(item)
             if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
                 Waves::performWaveNx46WaveDone(item)
+                NxBalls::stop()
             end
             return
         end

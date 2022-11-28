@@ -2,6 +2,13 @@ class PolyFunctions
 
     # ordering: alphabetical
 
+    # PolyFunctions::bankAccountsForItem(item)
+    def self.bankAccountsForItem(item)
+        cx22 = Cx22::itemToCx22Attemp(item)
+        return [] if cx22.nil?
+        [cx22["uuid"]]
+    end
+
     # PolyFunctions::edit(item) # item
     def self.edit(item)
 
