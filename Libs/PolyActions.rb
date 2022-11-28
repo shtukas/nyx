@@ -259,6 +259,13 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "TxFloat" then
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy TxFloat '#{TxFloats::toString(item)}' ? ") then
+                TxFloats::destroy(item["uuid"])
+            end
+            return
+        end
+
         if item["mikuType"] == "Wave" then
             issueNxBallForItem.call(item)
             if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
