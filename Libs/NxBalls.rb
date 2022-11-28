@@ -82,4 +82,24 @@ class NxBalls
         NxBalls::destroy(nxball["uuid"])
     end
 
+    # NxBalls::start()
+    def self.start()
+        cx22 = Cx22::interactivelySelectCx22OrNull()
+        return if cx22.nil?
+        NxBalls::issue(cx22["description"], [cx22["uuid"]])
+    end
+
+    # NxBalls::stop()
+    def self.stop()
+        nxballs = NxBalls::items()
+        return if nxballs.empty?
+        if nxballs.size == 1 then
+            NxBalls::close(nxballs[0])
+            return
+        end
+        nxball = LucilleCore::selectEntityFromListOfEntitiesOrNull("nxball", nxballs, lambda{|item| item["description"] })
+        return if nxball.nil?
+        NxBalls::close(nxball)
+    end
+
 end

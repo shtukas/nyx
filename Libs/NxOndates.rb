@@ -75,6 +75,24 @@ class NxOndates
         item
     end
 
+    # NxOndates::interactivelyIssueNewTodayOrNull()
+    def self.interactivelyIssueNewTodayOrNull()
+        description = LucilleCore::askQuestionAnswerAsString("today (empty to abort): ")
+        return nil if description == ""
+        uuid  = SecureRandom.uuid
+        nx113 = Nx113Make::interactivelyMakeNx113OrNull(NxOndates::getElizabethOperatorForUUID(uuid))
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NxOndate",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "nx113"       => nx113,
+        }
+        NxOndates::commitObject(item)
+        item
+    end
+
     # --------------------------------------------------
     # Data
 

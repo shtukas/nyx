@@ -7,6 +7,7 @@ class CatalystListing
         [
             "[listing interaction] .. | <datecode> | access (<n>) | group (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | destroy",
             "[makers] wave | anniversary | today | ondate | todo | Cx22 | project",
+            "[nxballs] start | stop",
             "[cruising] on | off",
             "[divings] anniversaries | ondates | waves | groups | todos",
             "[transmutations] >todo",
@@ -204,6 +205,16 @@ class CatalystListing
             return
         end
 
+        if Interpreting::match("on", input) then
+            Cruising::issueNewStateUsingComponents(nil, nil)
+            return
+        end
+
+        if Interpreting::match("off", input) then
+            Cruising::end()
+            return
+        end
+
         if Interpreting::match("ondate", input) then
             item = NxTodos::interactivelyIssueNewOndateOrNull()
             return if item.nil?
@@ -235,18 +246,18 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("on", input) then
-            Cruising::issueNewStateUsingComponents(nil, nil)
+        if Interpreting::match("start", input) then
+            NxBalls::start()
             return
         end
 
-        if Interpreting::match("off", input) then
-            Cruising::end()
+        if Interpreting::match("stop", input) then
+            NxBalls::stop()
             return
         end
 
         if Interpreting::match("today", input) then
-            item = NxTodos::interactivelyIssueNewTodayOrNull()
+            item = NxOndates::interactivelyIssueNewTodayOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
             return
