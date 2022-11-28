@@ -175,7 +175,7 @@ class Cx22
     def self.probe(cx22)
         loop {
             actions = ["add time"]
-            action = LucilleCore::selectEntityFromListOfEntities("action: ", actions)
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "add time" then
                 timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f

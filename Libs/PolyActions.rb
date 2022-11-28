@@ -181,6 +181,7 @@ class PolyActions
         issueNxBallForItem = lambda {|item|
             description = PolyFunctions::toString(item)
             accounts = PolyFunctions::bankAccountsForItem(item)
+            return if accounts.empty?
             cx22sStr = accounts.map{|account| Cx22::getOrNull(account) }.compact.map{|cx22| cx22["description"] }.join(" ; ")
             announce = "#{description} { #{cx22sStr} }"
             puts "starting: #{announce}".green
