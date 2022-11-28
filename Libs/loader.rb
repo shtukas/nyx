@@ -188,7 +188,6 @@ require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"
 require_relative "PolyActions.rb"
 require_relative "PolyFunctions.rb"
-require_relative "TxProjects.rb"
 
 require_relative "SectionsType0141.rb"
 require_relative "Search.rb"
@@ -197,6 +196,8 @@ require_relative "SyncConflicts.rb"
 
 require_relative "TxManualCountDowns.rb"
 require_relative "The99Percent.rb"
+require_relative "TxProjects.rb"
+require_relative "TxFloats.rb"
 
 require_relative "UniqueStrings.rb"
 require_relative "Upload.rb"

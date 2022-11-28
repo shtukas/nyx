@@ -8,7 +8,7 @@ class CatalystListing
             "[listing interaction] .. | <datecode> | access (<n>) | group (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | destroy",
             "[makers] wave | anniversary | today | ondate | todo | Cx22 | project | manual countdown",
             "[nxballs] start | stop",
-            "[divings] anniversaries | ondates | waves | groups | todos",
+            "[divings] anniversaries | ondates | waves | groups | todos | float",
             "[transmutations] >todo",
             "[misc] require internet",
             "[misc] search | nyx | speed | commands",
@@ -181,6 +181,11 @@ class CatalystListing
             return if item.nil?
             puts JSON.pretty_generate(item)
             LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if Interpreting::match("groups", input) then
+            TxFloats::interactivelyIssueOrNull()
             return
         end
 
@@ -408,6 +413,17 @@ class CatalystListing
             puts ""
             puts "INTERNET IS OFF".green
             vspaceleft = vspaceleft - 2
+        end
+
+        floats = TxFloats::listingItems()
+        if floats.size > 0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+            floats.each{|float|
+                    store.register(float, false)
+                    puts "#{store.prefixString()} #{TxFloats::toString(float)}"
+                    vspaceleft = vspaceleft - 1
+                }
         end
 
         puts ""

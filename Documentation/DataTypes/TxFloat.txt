@@ -1,0 +1,6 @@
+
+TxFloat:
+    "uuid"        : String
+    "mikuType"    : "TxFloat"
+    "unixtime"    : Float
+    "description" : String

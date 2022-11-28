@@ -66,7 +66,7 @@ class NxBalls
     # NxBalls::toString(item)
     def self.toString(item)
         timespan = (Time.new.to_i - item["unixtime"]).to_f/3600
-        "(nxball) #{item["description"]} (running for #{timespan.round(2)}) hours"
+        "(nxball) #{item["description"]} (running for #{timespan.round(2)} hours)"
     end
 
     # --------------------------------------------------
