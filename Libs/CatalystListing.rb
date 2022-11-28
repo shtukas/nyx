@@ -414,6 +414,7 @@ class CatalystListing
         vspaceleft = vspaceleft - 1
         Cx22::itemsInCompletionOrder()
             .each{|cx22|
+                next if !DoNotShowUntil::isVisible(cx22["uuid"])
                 next if Ax39::completionRatio(cx22["uuid"], cx22["ax39"]) >= 1
                 store.register(cx22, false)
                 puts "#{store.prefixString()} #{Cx22::toStringWithDetailsFormatted(cx22)}".yellow
