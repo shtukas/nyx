@@ -184,6 +184,11 @@ class CatalystListing
             return
         end
 
+        if Interpreting::match("float", input) then
+            TxFloats::interactivelyIssueOrNull()
+            return
+        end
+
         if Interpreting::match("groups", input) then
             TxFloats::interactivelyIssueOrNull()
             return
