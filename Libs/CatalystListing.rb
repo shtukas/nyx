@@ -7,7 +7,7 @@ class CatalystListing
         [
             "[listing interaction] .. | <datecode> | access (<n>) | group (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | destroy",
             "[makers] wave | anniversary | today | ondate | todo | Cx22 | project",
-            "[cruising] cruise on | cruise off",
+            "[cruising] on | off",
             "[divings] anniversaries | ondates | waves | groups | todos",
             "[transmutations] >todo",
             "[misc] require internet",
@@ -235,12 +235,12 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("cruise on", input) then
+        if Interpreting::match("on", input) then
             Cruising::issueNewStateUsingComponents(nil, nil)
             return
         end
 
-        if Interpreting::match("cruise off", input) then
+        if Interpreting::match("off", input) then
             Cruising::end()
             return
         end
