@@ -159,6 +159,13 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NxTriage" then
+            if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{NxTriages::toString(item).green} ? '") then
+                NxTriages::destroy(item["uuid"])
+            end
+            return
+        end
+
         if item["mikuType"] == "Wave" then
             if useConfirmationIfRelevant then
                 if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then

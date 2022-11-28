@@ -85,14 +85,7 @@ class NxTriages
 
     # NxTriages::listingItems()
     def self.listingItems()
-        NxTriages::filepaths().reduce([]){|selected, itemfilepath|
-            if selected.size >= 10 then
-                selected
-            else
-                item = NxTriages::getItemAtFilepathOrNull(itemfilepath)
-                selected + [item]
-            end
-        }
+        NxTriages::items()
     end
 
     # --------------------------------------------------
