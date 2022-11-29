@@ -16,7 +16,14 @@ class NxOndates
     # NxOndates::items()
     def self.items()
         NxOndates::filepaths()
-            .map{|filepath| Nx5Ext::readFileAsAttributesOfObject(filepath) }
+            .map{|filepath| 
+                item = Nx5Ext::readFileAsAttributesOfObject(filepath)
+                if item["mikuType"] != "NxOndate" then
+                    Nx5Ext::setAttribute(filepath, "mikuType", "NxOndate")
+                end
+                item["mikuType"] = "NxOndate"
+                item
+             }
     end
 
     # NxOndates::getItemAtFilepathOrNull(filepath)
@@ -104,14 +111,7 @@ class NxOndates
 
     # NxOndates::listingItems()
     def self.listingItems()
-        NxOndates::filepaths().reduce([]){|selected, itemfilepath|
-            if selected.size >= 10 then
-                selected
-            else
-                item = NxOndates::getItemAtFilepathOrNull(itemfilepath)
-                selected + [item]
-            end
-        }
+        NxOndates::items().select{|item| item["datetime"][0, 10] <= Time.new.to_s[0, 10] }
     end
 
     # --------------------------------------------------

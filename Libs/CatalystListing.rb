@@ -391,7 +391,8 @@ class CatalystListing
             NxTodos::listingItems(),
             LambdX1s::listingItems(),
             NxTriages::listingItems(),
-            TxProjects::listingItems()
+            TxProjects::listingItems(),
+            NxOndates::listingItems()
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -450,21 +451,16 @@ class CatalystListing
                 vspaceleft = vspaceleft - 1
             }
 
-        nxballs = NxBalls::items()
-        if nxballs.size > 0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-            nxballs.each{|nxball|
-                store.register(nxball, false)
-                puts "#{store.prefixString()} #{NxBalls::toString(nxball)}".green
-                vspaceleft = vspaceleft - 1
-            }
-        end
-
-        txListingItems = CatalystListing::txListingItemsInPriorityOrderDesc()
-
         puts ""
         vspaceleft = vspaceleft - 1
+
+        NxBalls::items().each{|nxball|
+            store.register(nxball, false)
+            puts "#{store.prefixString()} #{NxBalls::toString(nxball)}".green
+            vspaceleft = vspaceleft - 1
+        }
+
+        txListingItems = CatalystListing::txListingItemsInPriorityOrderDesc()
         txListingItems
             .each{|packet|
                 item = packet["item"]
@@ -476,9 +472,6 @@ class CatalystListing
                 puts line.green
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }
-
-        puts ""
-        vspaceleft = vspaceleft - 1
         txListingItems
             .each{|packet|
                 item = packet["item"]
