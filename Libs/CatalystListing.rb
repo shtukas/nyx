@@ -469,11 +469,13 @@ class CatalystListing
 
         puts ""
         vspaceleft = vspaceleft - 1
+        hasShownGreen = false
 
         NxBalls::items().each{|nxball|
             store.register(nxball, false)
             puts "#{store.prefixString()} #{NxBalls::toString(nxball)}".green
             vspaceleft = vspaceleft - 1
+            hasShownGreen = true
         }
 
         txListingItems = CatalystListing::txListingItemsInPriorityOrderDesc()
@@ -487,7 +489,14 @@ class CatalystListing
                 line = "#{store.prefixString()} #{PolyFunctions::toString(item)}"
                 puts line.green
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                hasShownGreen = true
             }
+
+        if hasShownGreen then
+            puts ""
+            vspaceleft = vspaceleft - 1
+        end
+
         txListingItems
             .each{|packet|
                 item = packet["item"]
