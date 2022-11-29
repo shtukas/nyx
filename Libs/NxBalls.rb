@@ -85,10 +85,10 @@ class NxBalls
     def self.start()
         cx22 = Cx22::interactivelySelectCx22OrNull()
         return if cx22.nil?
-        NxBalls::issue({
+        NxBalls::issue([{
             "description" => cx22["description"],
             "number"      => cx22["uuid"]
-        })
+        }])
     end
 
     # NxBalls::stop()
