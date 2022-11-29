@@ -106,7 +106,7 @@ class NxOndates
     # NxOndates::toString(item)
     def self.toString(item)
         nx113str = Nx113Access::toStringOrNull(" ", item["nx113"], "")
-        "(ondate: #{item["datetime"][0, 10]} #{item["description"]}#{nx113str}"
+        "(ondate: #{item["datetime"][0, 10]}) #{item["description"]}#{nx113str}"
     end
 
     # NxOndates::listingItems()
