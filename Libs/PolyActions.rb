@@ -96,8 +96,8 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "Nx7" then
-            Nx7::destroy(item["uuid"])
+        if item["mikuType"] == "TxProject" then
+            TxProjects::destroy(item["uuid"])
             return
         end
 
@@ -264,6 +264,11 @@ class PolyActions
             if LucilleCore::askQuestionAnswerAsBoolean("destroy TxFloat '#{TxFloats::toString(item)}' ? ") then
                 TxFloats::destroy(item["uuid"])
             end
+            return
+        end
+
+        if item["mikuType"] == "TxProject" then
+            issueNxBallForItem.call(item)
             return
         end
 
