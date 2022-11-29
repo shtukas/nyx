@@ -5,7 +5,7 @@ class CatalystListing
     # CatalystListing::listingCommands()
     def self.listingCommands()
         [
-            "[listing interaction] .. | <datecode> | access (<n>) | group (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | destroy",
+            "[listing interaction] .. | <datecode> | access (<n>) | group (<n>) | do not show until <n>, also: >> <n> | done (<n>) | edit (<n>) | expose (<n>) | destroy",
             "[makers] wave | anniversary | today | ondate | todo | Cx22 | project | manual countdown",
             "[nxballs] start | stop",
             "[divings] anniversaries | ondates | waves | groups | todos | float",
@@ -37,6 +37,25 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::doubleDotAccess(item)
+            return
+        end
+
+        if Interpreting::match(">>", input) then
+            item = store.getDefault()
+            return if item.nil?
+            datecode = LucilleCore::askQuestionAnswerAsString("datecode: ")
+            return if datecode == ""
+            unixtime = CommonUtils::codeToUnixtimeOrNull(datecode.gsub(" ", ""))
+            return if unixtime.nil?
+            DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+            return
+        end
+
+        if Interpreting::match(">>>", input) then
+            item = store.getDefault()
+            return if item.nil?
+            unixtime = Time.new.to_i + 86400 * 7 * (1 + rand) # pushing by a random time between 1 and 2 weeks
+            DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
             return
         end
 
