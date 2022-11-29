@@ -455,17 +455,36 @@ class CatalystListing
             puts ""
             vspaceleft = vspaceleft - 1
             nxballs.each{|nxball|
-                puts "> #{NxBalls::toString(nxball)}".green
+                store.register(nxball, false)
+                puts "#{store.prefixString()} #{NxBalls::toString(nxball)}".green
                 vspaceleft = vspaceleft - 1
             }
         end
 
+        txListingItems = CatalystListing::txListingItemsInPriorityOrderDesc()
+
         puts ""
         vspaceleft = vspaceleft - 1
-        CatalystListing::txListingItemsInPriorityOrderDesc()
+        txListingItems
             .each{|packet|
                 item = packet["item"]
                 priority = packet["priority"]
+                nxball = TxItemCx22Pair::getNxBallOrNull(item["uuid"])
+                next if nxball.nil?
+                store.register(item, false)
+                line = "#{store.prefixString()} #{PolyFunctions::toString(item)}"
+                puts line.green
+                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+            }
+
+        puts ""
+        vspaceleft = vspaceleft - 1
+        txListingItems
+            .each{|packet|
+                item = packet["item"]
+                priority = packet["priority"]
+                nxball = TxItemCx22Pair::getNxBallOrNull(item["uuid"])
+                next if nxball
                 break if vspaceleft <= 0
                 store.register(item, true)
                 cx22 =  packet["cx22"]

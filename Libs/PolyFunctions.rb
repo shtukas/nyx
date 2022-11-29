@@ -6,11 +6,17 @@ class PolyFunctions
     def self.bankAccountsForItem(item)
         accounts = []
 
-        accounts << item["uuid"]
+        accounts << {
+            "description" => PolyFunctions::genericDescriptionOrNull(item),
+            "number"      => item["uuid"]
+        }
 
         cx22 = Cx22::itemToCx22Attemp(item)
         if cx22 then
-            accounts << cx22["uuid"]
+            accounts << {
+            "description" => cx22["description"],
+            "number"      => cx22["uuid"]
+        }
         end
 
         accounts

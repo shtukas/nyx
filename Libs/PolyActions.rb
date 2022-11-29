@@ -135,14 +135,20 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NxBall" then
+            NxBalls::close(item)
+            return
+        end
+
         if item["mikuType"] == "NxTodo" then
             puts PolyFunctions::toString(item)
             if item["nx113"] then
                 puts "You are attempting to done a NxTodo which carries some contents (Nx113)"
-                option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["Luke, use the Force (destroy)", "exit"])
+                option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["destroy", "exit"])
                 return if option == ""
-                if option == "Luke, use the Force (destroy)" then
+                if option == "destroy" then
                     NxTodos::destroy(item["uuid"])
+                    TxItemCx22Pair::closeNxBallForItemIfExists(item["uuid"])
                 end
                 if option == "exit" then
                     return
@@ -151,6 +157,7 @@ class PolyActions
             end
             if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
                 NxTodos::destroy(item["uuid"])
+                TxItemCx22Pair::closeNxBallForItemIfExists(item["uuid"])
             end
             return
         end
@@ -158,6 +165,7 @@ class PolyActions
         if item["mikuType"] == "NxTriage" then
             if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTriage '#{NxTriages::toString(item).green} ? '") then
                 NxTriages::destroy(item["uuid"])
+                TxItemCx22Pair::closeNxBallForItemIfExists(item["uuid"])
             end
             return
         end
@@ -172,6 +180,7 @@ class PolyActions
         if item["mikuType"] == "Wave" then
             if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
                 Waves::performWaveNx46WaveDone(item)
+                TxItemCx22Pair::closeNxBallForItemIfExists(item["uuid"])
             end
             return
         end
@@ -189,10 +198,9 @@ class PolyActions
             description = PolyFunctions::toString(item)
             accounts = PolyFunctions::bankAccountsForItem(item)
             return if accounts.empty?
-            cx22sStr = accounts.map{|account| Cx22::getOrNull(account) }.compact.map{|cx22| cx22["description"] }.join(" ; ")
-            announce = "#{description} { #{cx22sStr} }"
-            puts "starting: #{announce}".green
-            NxBalls::issue(announce, accounts)
+            announce = accounts.map{|account| account["description"] }.join("; ")
+            puts "NxBall: starting: #{announce}".green
+            NxBalls::issue(accounts)
         }
 
         if item["mikuType"] == "Cx22" then
@@ -212,9 +220,9 @@ class PolyActions
 
         if item["mikuType"] == "NxTriage" then
             NxTriages::access(item)
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["destroy", ">todo", "exit"])
-            return if option == ""
-            if option == "destroy" then
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["done", ">todo", "exit"])
+            return if option.nil?
+            if option == "done" then
                 NxTriages::destroy(item["uuid"])
             end
             if option == ">todo" then
@@ -228,31 +236,38 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxOndate" then
-            issueNxBallForItem.call(item)
+            nxball = issueNxBallForItem.call(item)
             NxOndates::access(item)
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["Luke, use the Force (destroy)", "redate", "exit"])
-            return if option == ""
-            if option == "Luke, use the Force (destroy)" then
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["done", "redate", "run in background"])
+            return if option.nil?
+            if option == "done" then
                 NxOndates::destroy(item["uuid"])
-                NxBalls::stop()
+                NxBalls::close(nxball)
             end
             if option == "redate" then
                 item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
                 NxOndates::commitObject(item)
-                NxBalls::stop()
+                NxBalls::close(nxball)
             end
-            if option == "exit" then
+            if option == "run in background" then
+                TxItemCx22Pair::issue(item["uuid"], nxball["uuid"])
                 return
             end
             return
         end
 
         if item["mikuType"] == "NxTodo" then
-            issueNxBallForItem.call(item)
+            nxball = issueNxBallForItem.call(item)
             NxTodos::access(item)
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ") then
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["done", "run in background"])
+            return if option.nil?
+            if option == "done" then
                 NxTodos::destroy(item["uuid"])
-                NxBalls::stop()
+                NxBalls::close(nxball)
+            end
+            if option == "run in background" then
+                TxItemCx22Pair::issue(item["uuid"], nxball["uuid"])
+                return
             end
             return
         end
@@ -280,11 +295,17 @@ class PolyActions
         end
 
         if item["mikuType"] == "Wave" then
-            issueNxBallForItem.call(item)
+            nxball = issueNxBallForItem.call(item)
             PolyActions::access(item)
-            if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["done", "run in background"])
+            return if option.nil?
+            if option == "done" then
                 Waves::performWaveNx46WaveDone(item)
-                NxBalls::stop()
+                NxBalls::close(nxball)
+            end
+            if option == "run in background" then
+                TxItemCx22Pair::issue(item["uuid"], nxball["uuid"])
+                return
             end
             return
         end

@@ -3,5 +3,9 @@ NxBall
     "uuid"        : String
     "mikuType"    : "NxBall"
     "unixtime"    : Float
+    "accounts"    : Array[Account]
+
+Account {
     "description" : String
-    "accounts"    : Array[String]
+    "number"      : String
+}

@@ -46,14 +46,13 @@ class NxBalls
     # --------------------------------------------------
     # Makers
 
-    # NxBalls::issue(description, accounts)
-    def self.issue(description, accounts)
+    # NxBalls::issue(accounts)
+    def self.issue(accounts)
         uuid  = SecureRandom.uuid
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxBall",
             "unixtime"    => Time.new.to_i,
-            "description" => description,
             "accounts"    => accounts
         }
         NxBalls::commit(item)
@@ -66,7 +65,7 @@ class NxBalls
     # NxBalls::toString(item)
     def self.toString(item)
         timespan = (Time.new.to_i - item["unixtime"]).to_f/3600
-        "(nxball) #{item["description"]} (running for #{timespan.round(2)} hours)"
+        "(nxball) #{item["accounts"].map{|account| account["description"]}.join("; ")} (running for #{timespan.round(2)} hours)"
     end
 
     # --------------------------------------------------
@@ -76,8 +75,8 @@ class NxBalls
     def self.close(nxball)
         timespan = Time.new.to_i - nxball["unixtime"]
         nxball["accounts"].each{|account|
-            puts "Bank: putting #{timespan} seconds into '#{nxball["description"]}', account: #{account}"
-            Bank::put(account, timespan)
+            puts "Bank: putting #{timespan} seconds into '#{account["description"]}', account: #{account["number"]}"
+            Bank::put(account["number"], timespan)
         }
         NxBalls::destroy(nxball["uuid"])
     end
@@ -86,7 +85,10 @@ class NxBalls
     def self.start()
         cx22 = Cx22::interactivelySelectCx22OrNull()
         return if cx22.nil?
-        NxBalls::issue(cx22["description"], [cx22["uuid"]])
+        NxBalls::issue({
+            "description" => cx22["description"],
+            "number"      => cx22["uuid"]
+        })
     end
 
     # NxBalls::stop()
@@ -97,7 +99,7 @@ class NxBalls
             NxBalls::close(nxballs[0])
             return
         end
-        nxball = LucilleCore::selectEntityFromListOfEntitiesOrNull("nxball", nxballs, lambda{|item| item["description"] })
+        nxball = LucilleCore::selectEntityFromListOfEntitiesOrNull("nxball", nxballs, lambda{|item| NxBalls::toString(item) })
         return if nxball.nil?
         NxBalls::close(nxball)
     end
