@@ -156,8 +156,15 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxTriage" then
-            if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{NxTriages::toString(item).green} ? '") then
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTriage '#{NxTriages::toString(item).green} ? '") then
                 NxTriages::destroy(item["uuid"])
+            end
+            return
+        end
+
+        if item["mikuType"] == "TxFloat" then
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy TxFloat '#{NxTriages::toString(item).green} ? '") then
+                TxFloats::destroy(item["uuid"])
             end
             return
         end
