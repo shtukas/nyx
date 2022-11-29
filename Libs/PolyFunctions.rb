@@ -4,9 +4,16 @@ class PolyFunctions
 
     # PolyFunctions::bankAccountsForItem(item)
     def self.bankAccountsForItem(item)
+        accounts = []
+
+        accounts << item["uuid"]
+
         cx22 = Cx22::itemToCx22Attemp(item)
-        return [] if cx22.nil?
-        [cx22["uuid"]]
+        if cx22 then
+            accounts << cx22["uuid"]
+        end
+
+        accounts
     end
 
     # PolyFunctions::edit(item) # item
