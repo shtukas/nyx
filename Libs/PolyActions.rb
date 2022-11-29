@@ -140,6 +140,13 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NxOndate" then
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy NxOndate '#{item["description"].green}' ? ", true) then
+                NxOndates::destroy(item["uuid"])
+            end
+            return
+        end
+
         if item["mikuType"] == "NxTodo" then
             puts PolyFunctions::toString(item)
             if item["nx113"] then

@@ -265,7 +265,7 @@ class Waves
     def self.probe(item)
         loop {
             actions = ["access", "destroy"]
-            action = LucilleCore::selectEntityFromListOfEntities("action: ", actions)
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "access" then
                 Waves::access(item)

@@ -5,7 +5,7 @@ class CatalystListing
     # CatalystListing::listingCommands()
     def self.listingCommands()
         [
-            "[listing interaction] .. | <datecode> | access (<n>) | group (<n>) | do not show until <n>, also: +week* | done (<n>) | edit (<n>) | expose (<n>) | destroy",
+            "[listing interaction] .. | <datecode> | access (<n>) | group (<n>) | do not show until <n>, also: ++: | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | destroy",
             "[makers] wave | anniversary | today | ondate | todo | Cx22 | project | manual countdown",
             "[nxballs] start | stop",
             "[divings] anniversaries | ondates | waves | groups | todos | float",
@@ -40,10 +40,11 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("+week*", input) then
+        if Interpreting::match("++:", input) then
             item = store.getDefault()
             return if item.nil?
             unixtime = Time.new.to_i + 86400 * 7 * (1 + rand) # pushing by a random time between 1 and 2 weeks
+            puts "do not show until '#{PolyFunctions::toString(item)}' @ #{Time.at(unixtime).to_s}"
             DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
             return
         end
@@ -236,6 +237,21 @@ class CatalystListing
 
         if Interpreting::match("ondates", input) then
             NxOndates::dive()
+            return
+        end
+
+        if Interpreting::match("probe", input) then
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::probe(item)
+            return
+        end
+
+        if Interpreting::match("probe *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            PolyActions::probe(item)
             return
         end
 

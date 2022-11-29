@@ -163,8 +163,8 @@ class NxOndates
     # NxOndates::probe(item)
     def self.probe(item)
         loop {
-            actions = ["access", "redate", "ondate"]
-            action = LucilleCore::selectEntityFromListOfEntities("action: ", actions)
+            actions = ["access", "redate", "destroy"]
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "access" then
                 NxOndates::access(item)
@@ -172,7 +172,7 @@ class NxOndates
             end
             if action == "redate" then
                 item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
-                PolyActions::commit(item)
+                NxOndates::commitObject(item)
                 next
             end
             if action == "destroy" then

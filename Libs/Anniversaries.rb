@@ -191,7 +191,7 @@ class Anniversaries
     def self.probe(anniversary)
         loop {
             actions = ["update description", "update start date", "destroy"]
-            action = LucilleCore::selectEntityFromListOfEntities("action: ", actions)
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "update description" then
                 description = CommonUtils::editTextSynchronously(anniversary["description"]).strip
