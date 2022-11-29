@@ -194,6 +194,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "LambdX1" then
+            PolyActions::access(item)
             return
         end
 
@@ -268,6 +269,7 @@ class PolyActions
 
         if item["mikuType"] == "Wave" then
             issueNxBallForItem.call(item)
+            PolyActions::access(item)
             if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
                 Waves::performWaveNx46WaveDone(item)
                 NxBalls::stop()

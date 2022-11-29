@@ -10,7 +10,6 @@ Nyx Networks:
 
 Misc:
     Ax39      # Timing data
-    Nx01      # Unique string convention
     Nx45      # UUID naming convention 
     Nx20      # Search Item
     Nx79      # Ownership inventory item
