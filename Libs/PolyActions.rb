@@ -243,13 +243,13 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxOndate" then
-            nxball = issueNxBallForItem.call(item)
+            nxball = PolyActions::start(item)
             NxOndates::access(item)
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["done", "redate", "run in background"])
             return if option.nil?
             if option == "done" then
                 NxOndates::destroy(item["uuid"])
-                NxBalls::close(nxball)
+                NxBalls::close(nxball) if nxball
             end
             if option == "redate" then
                 item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
@@ -264,13 +264,13 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxTodo" then
-            nxball = issueNxBallForItem.call(item)
+            nxball = PolyActions::start(item)
             NxTodos::access(item)
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["done", "run in background"])
             return if option.nil?
             if option == "done" then
                 NxTodos::destroy(item["uuid"])
-                NxBalls::close(nxball)
+                NxBalls::close(nxball) if nxball
             end
             if option == "run in background" then
                 TxItemCx22Pair::issue(item["uuid"], nxball["uuid"])
@@ -302,13 +302,13 @@ class PolyActions
         end
 
         if item["mikuType"] == "Wave" then
-            nxball = issueNxBallForItem.call(item)
+            nxball = PolyActions::start(item)
             PolyActions::access(item)
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["done", "run in background"])
             return if option.nil?
             if option == "done" then
                 Waves::performWaveNx46WaveDone(item)
-                NxBalls::close(nxball)
+                NxBalls::close(nxball) if nxball
             end
             if option == "run in background" then
                 TxItemCx22Pair::issue(item["uuid"], nxball["uuid"])
@@ -373,5 +373,14 @@ class PolyActions
 
         puts "I do not know how to PolyActions::probe(#{JSON.pretty_generate(item)})"
         raise "(error: 9CD4B61D-8B13-4075-A560-7F3D801DD0D6)"
+    end
+
+    # PolyActions::start(item) # null or NxBall
+    def self.start(item)
+        accounts = PolyFunctions::bankAccountsForItem(item)
+        return nil if accounts.empty?
+        announce = accounts.map{|account| account["description"] }.join("; ")
+        puts "NxBall: starting: #{announce}".green
+        NxBalls::issue(accounts)
     end
 end

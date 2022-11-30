@@ -7,16 +7,18 @@ class PolyFunctions
         accounts = []
 
         accounts << {
-            "description" => PolyFunctions::genericDescriptionOrNull(item),
+            "description" => PolyFunctions::genericDescription(item),
             "number"      => item["uuid"]
         }
 
-        cx22 = Cx22Mapping::itemToCx22IncludingInteractiveAttempt(item)
-        if cx22 then
-            accounts << {
-            "description" => cx22["description"],
-            "number"      => cx22["uuid"]
-        }
+        if item["mikuType"] != "Cx22" then
+            cx22 = Cx22Mapping::itemToCx22IncludingInteractiveAttempt(item)
+            if cx22 then
+                accounts << {
+                "description" => cx22["description"],
+                "number"      => cx22["uuid"]
+            }
+            end
         end
 
         accounts
@@ -114,11 +116,14 @@ class PolyFunctions
         }
     end
 
-    # PolyFunctions::genericDescriptionOrNull(item)
-    def self.genericDescriptionOrNull(item)
+    # PolyFunctions::genericDescription(item)
+    def self.genericDescription(item)
 
         # ordering: alphabetical order
 
+        if item["mikuType"] == "Cx22" then
+            return item["description"]
+        end
         if item["mikuType"] == "InboxItem" then
             return item["description"]
         end
@@ -126,6 +131,9 @@ class PolyFunctions
             return item["description"]
         end
         if item["mikuType"] == "NxIced" then
+            return item["description"]
+        end
+        if item["mikuType"] == "NxOndate" then
             return item["description"]
         end
         if item["mikuType"] == "NxTodo" then
@@ -143,7 +151,8 @@ class PolyFunctions
         if item["mikuType"] == "Wave" then
             return item["description"]
         end
-        return nil
+
+        raise "(error: bd77060a-84e0-4940-a20f-8bf3f4aced34) no generic description defined for item: #{JSON.pretty_generate(item)}"
     end
 
     # PolyFunctions::listingPriorityOrNull(item)

@@ -8,7 +8,7 @@ class SearchCatalyst
         Catalyst::catalystItems()
             .map{|item|
                 {
-                    "announce" => "(#{item["mikuType"]}) #{PolyFunctions::genericDescriptionOrNull(item)}",
+                    "announce" => "(#{item["mikuType"]}) #{PolyFunctions::genericDescription(item)}",
                     "unixtime" => item["unixtime"],
                     "item"     => item
                 }
@@ -48,7 +48,7 @@ class SearchNyx
     # SearchNyx::nx7ToNx20(item)
     def self.nx7ToNx20(item)
         {
-            "announce" => "(#{item["mikuType"]}) #{PolyFunctions::genericDescriptionOrNull(item)}",
+            "announce" => "(#{item["mikuType"]}) #{PolyFunctions::genericDescription(item)}",
             "unixtime" => item["unixtime"],
             "item"     => item
         }

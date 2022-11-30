@@ -7,7 +7,7 @@ class CatalystListing
         [
             "[listing interaction] .. | <datecode> | access (<n>) | group (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | destroy",
             "[makers] wave | anniversary | today | ondate | todo | Cx22 | project | manual countdown",
-            "[nxballs] start | stop",
+            "[nxballs] start <n> | stop",
             "[divings] anniversaries | ondates | waves | groups | todos | float",
             "[transmutations] >todo",
             "[misc] require internet",
@@ -265,8 +265,11 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("start", input) then
-            NxBalls::start()
+        if Interpreting::match("start *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            PolyActions::start(item)
             return
         end
 
