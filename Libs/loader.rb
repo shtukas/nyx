@@ -151,6 +151,7 @@ require_relative "CatalystListing.rb"
 require_relative "CommonUtils.rb"
 require_relative "CompositeElizabeth.rb"
 require_relative "Cx22.rb"
+require_relative "Cx22Mapping.rb"
 
 require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)

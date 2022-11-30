@@ -50,8 +50,10 @@ class Waves
     # Waves::destroy(uuid)
     def self.destroy(uuid)
         filepath = Waves::filepathForUUID(uuid)
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
+        if !File.exists?(filepath) then
+            FileUtils.rm(filepath)
+        end
+        Cx22Mapping::garbageCollection(uuid)
     end
 
     # --------------------------------------------------

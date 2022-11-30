@@ -98,7 +98,7 @@ class CatalystListing
         if Interpreting::match("group", input) then
             item = store.getDefault()
             return if item.nil?
-            Cx22::addItemToInteractivelySelectedCx22OrNothing(item["uuid"])
+            Cx22Mapping::interactivelySelectAndMapToCx22OrNothing(item["uuid"])
             return
         end
 
@@ -106,7 +106,7 @@ class CatalystListing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            Cx22::addItemToInteractivelySelectedCx22OrNothing(item["uuid"])
+            Cx22Mapping::interactivelySelectAndMapToCx22OrNothing(item["uuid"])
             return
         end
 
@@ -417,7 +417,7 @@ class CatalystListing
                 {
                     "item"     => item,
                     "priority" => PolyFunctions::listingPriorityOrNull(item) || -1,
-                    "cx22"     => Cx22::itemuuid2ToCx22OrNull(item["uuid"])
+                    "cx22"     => Cx22Mapping::getCx22OrNull(item["uuid"])
                 }
             }
             .select{|packet| packet["priority"] > 0 }

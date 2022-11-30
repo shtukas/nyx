@@ -11,7 +11,7 @@ class PolyFunctions
             "number"      => item["uuid"]
         }
 
-        cx22 = Cx22::itemToCx22Attemp(item)
+        cx22 = Cx22Mapping::itemToCx22IncludingInteractiveAttempt(item)
         if cx22 then
             accounts << {
             "description" => cx22["description"],

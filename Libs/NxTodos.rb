@@ -50,7 +50,7 @@ class NxTodos
         if File.exists?(filepath) then
             FileUtils.rm(filepath)
         end
-        Cx22::garbageCollection(uuid)
+        Cx22Mapping::garbageCollection(uuid)
     end
 
     # --------------------------------------------------

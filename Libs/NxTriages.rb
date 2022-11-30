@@ -50,7 +50,6 @@ class NxTriages
         if File.exists?(filepath) then
             FileUtils.rm(filepath)
         end
-        Cx22::garbageCollection(uuid)
     end
 
     # --------------------------------------------------
@@ -181,6 +180,6 @@ class NxTriages
         end
 
         # The file has moved to the NxTodo folder, now let's ask for a group
-        Cx22::addItemToInteractivelySelectedCx22OrNothing(item["uuid"])
+        Cx22Mapping::interactivelySelectAndMapToCx22OrNothing(item["uuid"])
     end
 end

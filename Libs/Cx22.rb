@@ -102,59 +102,6 @@ class Cx22
             .map{|packet| packet["cx22"] }
     end
 
-    # ----------------------------------------------------------------
-    # Mapping
-
-    # Cx22::attach(cx22uuid, itemuuid)
-    def self.attach(cx22uuid, itemuuid)
-        folderpath = "#{Config::pathToDataCenter()}/Cx22/#{cx22uuid}"
-        if !File.exists?(folderpath) then
-            FileUtils.mkdir(folderpath)
-        end
-        filepath = "#{folderpath}/#{itemuuid}"
-        FileUtils.touch(filepath)
-    end
-
-    # Cx22::cx22uuidsToItemsuuids(cx22uuid)
-    def self.cx22uuidsToItemsuuids(cx22uuid)
-        folderpath = "#{Config::pathToDataCenter()}/Cx22/#{cx22uuid}"
-        return [] if !File.exists?(folderpath)
-        LucilleCore::locationsAtFolder(folderpath)
-            .select{|filepath| filepath[0, 1] != "." }
-            .map{|filepath| File.basename(filepath) }
-    end
-
-    # Cx22::cx22uuidsToItems(cx22uuid)
-    def self.cx22uuidsToItems(cx22uuid)
-        Cx22::cx22uuidsToItemsuuids(cx22uuid)
-            .map{|itemuuid| Catalyst::getCatalystItemOrNull(itemuuid) }
-            .compact
-    end
-
-    # Cx22::itemuuid2ToCx22OrNull(itemuuid)
-    def self.itemuuid2ToCx22OrNull(itemuuid)
-        Cx22::items().each{|cx22|
-            if Cx22::cx22uuidsToItemsuuids(cx22["uuid"]).include?(itemuuid) then
-                return cx22
-            end
-        }
-        nil
-    end
-
-    # Cx22::cx22uuidAndItemuuiToFilepath(cx22uuid, itemuuid)
-    def self.cx22uuidAndItemuuiToFilepath(cx22uuid, itemuuid)
-        "#{Config::pathToDataCenter()}/Cx22/#{cx22uuid}/#{itemuuid}"
-    end
-
-    # Cx22::garbageCollection(itemuuid)
-    def self.garbageCollection(itemuuid)
-        Cx22::items().each{|cx22|
-            filepath = Cx22::cx22uuidAndItemuuiToFilepath(cx22["uuid"], itemuuid)
-            next if !File.exists?(filepath)
-            FileUtils.rm(filepath)
-        }
-    end
-
     # --------------------------------------------
     # Ops
 
@@ -162,13 +109,6 @@ class Cx22
     def self.interactivelySelectCx22OrNull()
         cx22s = Cx22::items().sort{|i1, i2| i1["description"] <=> i2["description"] }
         LucilleCore::selectEntityFromListOfEntitiesOrNull("cx22", cx22s, lambda{|cx22| Cx22::toStringWithDetailsFormatted(cx22)})
-    end
-
-    # Cx22::addItemToInteractivelySelectedCx22OrNothing(itemuuid)
-    def self.addItemToInteractivelySelectedCx22OrNothing(itemuuid)
-        cx22 = Cx22::interactivelySelectCx22OrNull()
-        return if cx22.nil?
-        Cx22::attach(cx22["uuid"], itemuuid)
     end
 
     # Cx22::probe(cx22)
@@ -193,16 +133,5 @@ class Cx22
             return if cx22.nil?
             Cx22::probe(cx22)
         }
-    end
-
-    # Cx22::itemToCx22Attemp(item)
-    def self.itemToCx22Attemp(item)
-        cx22 = Cx22::itemuuid2ToCx22OrNull(item["uuid"])
-        return cx22 if cx22
-        puts "item: #{PolyFunctions::toString(item)}"
-        cx22 = Cx22::interactivelySelectCx22OrNull()
-        return nil if cx22.nil?
-        Cx22::attach(cx22["uuid"], item["uuid"])
-        cx22
     end
 end
