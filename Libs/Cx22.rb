@@ -114,13 +114,18 @@ class Cx22
     # Cx22::probe(cx22)
     def self.probe(cx22)
         loop {
-            actions = ["add time"]
+            actions = ["add time", "do not show until"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "add time" then
                 timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
                 puts "adding #{timeInHours} hours to '#{Cx22::toString(cx22)}'"
                 Bank::put(cx22["uuid"], timeInHours*3600)
+            end
+            if action == "do not show until" then
+                unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
+                next if unixtime.nil?
+                DoNotShowUntil::setUnixtime(cx22["uuid"], unixtime)
             end
         }
     end
