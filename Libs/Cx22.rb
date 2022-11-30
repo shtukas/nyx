@@ -114,6 +114,7 @@ class Cx22
     # Cx22::probe(cx22)
     def self.probe(cx22)
         loop {
+            puts Cx22::toStringWithDetails(cx22)
             actions = ["add time", "do not show until"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
