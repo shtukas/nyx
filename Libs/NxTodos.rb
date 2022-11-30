@@ -60,7 +60,7 @@ class NxTodos
     def self.interactivelyIssueNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-        uuid  = SecureRandom.uuid
+        uuid  = CommonUtils::timeStringL22() # We want the items to come in time order, ideally
         nx113 = Nx113Make::interactivelyMakeNx113OrNull(NxTodos::getElizabethOperatorForUUID(uuid))
         lightspeed = LightSpeed::interactivelyCreateNewLightSpeed()
         item = {
@@ -71,24 +71,6 @@ class NxTodos
             "description" => description,
             "nx113"       => nx113,
             "lightspeed"  => lightspeed
-        }
-        NxTodos::commitObject(item)
-        item
-    end
-
-    # NxTodos::issueUsingUrl(url)
-    def self.issueUsingUrl(url)
-        description = File.basename(location)
-        uuid  = SecureRandom.uuid
-        nx113 = Nx113Make::url(url)
-        item = {
-            "uuid"        => uuid,
-            "mikuType"    => "NxTodo",
-            "unixtime"    => Time.new.to_i,
-            "datetime"    => Time.new.utc.iso8601,
-            "description" => description,
-            "nx113"       => nx113,
-            "lightspeed"  => LightSpeed::fromComponents(Time.new.to_i, "days")
         }
         NxTodos::commitObject(item)
         item
@@ -122,17 +104,57 @@ class NxTodos
         "(todo) #{item["description"]}"
     end
 
+    # NxTodos::getTopCx22OrNull()
+    def self.getTopCx22OrNull()
+        Cx22::itemsInCompletionOrder()
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+            .first
+    end
+
+    # NxTodos::listingItemsUseTheForce(cx22)
+    def self.listingItemsUseTheForce(cx22)
+
+        puts "NxTodos::listingItemsUseTheForce(#{cx22 ? cx22["description"] : "nil"})"
+
+        if cx22 and Ax39::completionRatio(cx22["uuid"], cx22["ax39"]) < 1 then
+            NxTodos::filepaths()
+                .reduce([]){|selected, itemfilepath|
+                    if selected.size >= 10 then
+                        selected
+                    else
+                        item = Nx5Ext::readFileAsAttributesOfObject(itemfilepath)
+                        if Cx22Mapping::getOrNull(item["uuid"]) == cx22["uuid"] then
+                            selected + [item]
+                        else
+                            selected
+                        end
+                    end
+                }
+        else
+            NxTodos::filepaths()
+                .reduce([]){|selected, itemfilepath|
+                    if selected.size >= 10 then
+                        selected
+                    else
+                        item = Nx5Ext::readFileAsAttributesOfObject(itemfilepath)
+                        selected + [item]
+                    end
+                }
+        end
+    end
+
     # NxTodos::listingItems()
     def self.listingItems()
-        NxTodos::filepaths()
-            .reduce([]){|selected, itemfilepath|
-                if selected.size >= 10 then
-                    selected
-                else
-                    item = Nx5Ext::readFileAsAttributesOfObject(itemfilepath)
-                    selected + [item]
-                end
-            }
+        cx22 = NxTodos::getTopCx22OrNull()
+        key = "6879871f-d6d7-46b8-9119-3fb5709d5ae8:#{cx22}:#{Time.new.to_s[0, 13]}"
+        itemsuuids = XCache::getOrNull(key)
+        if itemsuuids then
+            return JSON.parse(itemsuuids).map{|itemsuuid| NxTodos::getItemOrNull(itemsuuid) }.compact
+        end
+        items = NxTodos::listingItemsUseTheForce(cx22)
+        XCache::set(key, JSON.generate(items.map{|item| item["uuid"] }))
+        items
     end
 
     # --------------------------------------------------

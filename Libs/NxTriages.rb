@@ -73,6 +73,23 @@ class NxTriages
         item
     end
 
+    # NxTriages::issueUsingUrl(url)
+    def self.issueUsingUrl(url)
+        description = File.basename(location)
+        uuid  = SecureRandom.uuid
+        nx113 = Nx113Make::url(url)
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NxTriage",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "nx113"       => nx113,
+        }
+        NxTodos::commitObject(item)
+        item
+    end
+
     # --------------------------------------------------
     # Data
 

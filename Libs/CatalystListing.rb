@@ -336,10 +336,6 @@ class CatalystListing
                     "lambda" => lambda { Waves::items() }
                 },
                 {
-                    "name" => "NxTodos::items()",
-                    "lambda" => lambda { NxTodos::items() }
-                },
-                {
                     "name" => "NxTriages::listingItems()",
                     "lambda" => lambda { NxTriages::listingItems() }
                 },
