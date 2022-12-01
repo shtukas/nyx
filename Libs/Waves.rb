@@ -50,7 +50,7 @@ class Waves
     # Waves::destroy(uuid)
     def self.destroy(uuid)
         filepath = Waves::filepathForUUID(uuid)
-        if !File.exists?(filepath) then
+        if File.exists?(filepath) then
             FileUtils.rm(filepath)
         end
         Cx22Mapping::garbageCollection(uuid)
@@ -266,6 +266,7 @@ class Waves
     # Waves::probe(item)
     def self.probe(item)
         loop {
+            puts Waves::toString(item)
             actions = ["access", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?

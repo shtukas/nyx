@@ -325,7 +325,7 @@ class PolyActions
     def self.garbageCollectionAfterItemDeletion(item)
         return if item.nil?
         if item["nx113"] then
-            nx113 = Nx113Access::getNx113(item["nx113"])
+            nx113 = item["nx113"]
             if nx113["type"] == "Dx8Unit" then
                 Nx113Dx33s::issue(nx113["unitId"])
             end
