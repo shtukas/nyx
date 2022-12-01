@@ -104,49 +104,48 @@ class NxTodos
         "(todo) #{item["description"]}"
     end
 
-    # NxTodos::getTopCx22OrNull()
-    def self.getTopCx22OrNull()
+    # NxTodos::getTopUnderPerformingCx22OrNull()
+    def self.getTopUnderPerformingCx22OrNull()
         Cx22::itemsInCompletionOrder()
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+            .select{|cx22| Ax39::completionRatio(cx22["uuid"], cx22["ax39"]) < 1 }
             .first
     end
 
     # NxTodos::listingItemsUseTheForce(cx22)
     def self.listingItemsUseTheForce(cx22)
 
-        puts "NxTodos::listingItemsUseTheForce(#{cx22 ? cx22["description"] : "nil"})"
+        cx22 = NxTodos::getTopUnderPerformingCx22OrNull()
 
-        if cx22 and Ax39::completionRatio(cx22["uuid"], cx22["ax39"]) < 1 then
-            NxTodos::filepaths()
-                .reduce([]){|selected, itemfilepath|
-                    if selected.size >= 10 then
-                        selected
-                    else
-                        item = Nx5Ext::readFileAsAttributesOfObject(itemfilepath)
-                        if Cx22Mapping::getOrNull(item["uuid"]) == cx22["uuid"] then
-                            selected + [item]
-                        else
-                            selected
-                        end
-                    end
+        items =
+            if cx22 then
+                NxTodos::filepaths()
+                    .map{|filepath| Nx5Ext::readFileAsAttributesOfObject(filepath) }
+                    .select{|item| Cx22Mapping::getOrNull(item["uuid"]) == cx22["uuid"] }
+            else
+                NxTodos::filepaths()
+                    .map{|filepath| Nx5Ext::readFileAsAttributesOfObject(filepath) }
+                    .select{|item| Cx22Mapping::getOrNull(item["uuid"]).nil? }
+            end
+
+        items
+            .map{|item|
+                {
+                    "item" => item,
+                    "priority" => PolyFunctions::listingPriorityOrNull(item)
                 }
-        else
-            NxTodos::filepaths()
-                .reduce([]){|selected, itemfilepath|
-                    if selected.size >= 10 then
-                        selected
-                    else
-                        item = Nx5Ext::readFileAsAttributesOfObject(itemfilepath)
-                        selected + [item]
-                    end
-                }
-        end
+            }
+            .select{|packet| !packet["priority"].nil? }
+            .sort{|p1, p2| p1["priority"] <=> p2["priority"] }
+            .reverse
+            .first(10)
+            .map{|packet| packet["item"] }
     end
 
     # NxTodos::listingItems()
     def self.listingItems()
-        cx22 = NxTodos::getTopCx22OrNull()
+        cx22 = NxTodos::getTopUnderPerformingCx22OrNull()
         key = "6879871f-d6d7-46b8-9119-3fb5709d5ae8:#{cx22}:#{Time.new.to_s[0, 13]}"
         itemsuuids = XCache::getOrNull(key)
         if itemsuuids then

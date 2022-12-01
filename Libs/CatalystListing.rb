@@ -101,6 +101,11 @@ class CatalystListing
             return
         end
 
+        if Interpreting::match("groups", input) then
+            Cx22::mainprobe()
+            return
+        end
+
         if Interpreting::match("Cx22", input) then
             Cx22::interactivelyIssueNewOrNull()
             return
