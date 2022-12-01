@@ -211,7 +211,7 @@ class PolyActions
         }
 
         if item["mikuType"] == "Cx22" then
-            Cx22::probe(item)
+            PolyActions::start(item)
             return
         end
 
