@@ -235,8 +235,12 @@ class Waves
 
     # Waves::dive()
     def self.dive()
-        puts "code to be written"
-        exut
+        loop {
+            items = Waves::items().sort{|w1, w2| w1["description"] <=> w2["description"] }
+            wave = LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", items, lambda{|wave| wave["description"] })
+            return if wave.nil?
+            Waves::probe(wave)
+        }
     end
 
     # Waves::access(item)
