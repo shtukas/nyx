@@ -403,7 +403,8 @@ class CatalystListing
             LambdX1s::listingItems(),
             NxTriages::listingItems(),
             TxProjects::listingItems(),
-            NxOndates::listingItems()
+            NxOndates::listingItems(),
+            Cx22::items()
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -453,17 +454,6 @@ class CatalystListing
 
         puts ""
         vspaceleft = vspaceleft - 1
-        Cx22::itemsInCompletionOrder()
-            .each{|cx22|
-                next if !DoNotShowUntil::isVisible(cx22["uuid"])
-                next if Ax39::completionRatio(cx22["uuid"], cx22["ax39"]) >= 1
-                store.register(cx22, false)
-                puts "#{store.prefixString()} #{Cx22::toStringWithDetailsFormatted(cx22)}".yellow
-                vspaceleft = vspaceleft - 1
-            }
-
-        puts ""
-        vspaceleft = vspaceleft - 1
         hasShownGreen = false
 
         NxBalls::items().each{|nxball|
@@ -473,38 +463,22 @@ class CatalystListing
             hasShownGreen = true
         }
 
-        txListingItems = CatalystListing::txListingItemsInPriorityOrderDesc()
-        txListingItems
+        CatalystListing::txListingItemsInPriorityOrderDesc()
             .each{|packet|
                 item = packet["item"]
                 priority = packet["priority"]
-                nxball = TxItemCx22Pair::getNxBallOrNull(item["uuid"])
-                next if nxball.nil?
-                store.register(item, false)
-                line = "#{store.prefixString()} #{PolyFunctions::toString(item)}"
-                puts line.green
-                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                hasShownGreen = true
-            }
 
-        if hasShownGreen then
-            puts ""
-            vspaceleft = vspaceleft - 1
-        end
-
-        txListingItems
-            .each{|packet|
-                item = packet["item"]
-                priority = packet["priority"]
-                nxball = TxItemCx22Pair::getNxBallOrNull(item["uuid"])
-                next if nxball
                 break if vspaceleft <= 0
                 store.register(item, true)
                 cx22 =  packet["cx22"]
                 cx22Str = cx22 ? " (#{Cx22::toString(cx22)})" : ""
-                line = "#{store.prefixString()} #{PolyFunctions::toString(item)}#{cx22Str.green}"
+                line = "#{store.prefixString()} #{PolyFunctions::toStringForCatalystListing(item)}#{cx22Str.green}"
                 if priority < 0.5 then
                     line = line.yellow
+                end
+                nxball = TxItemCx22Pair::getNxBallOrNull(item["uuid"])
+                if nxball then
+                    line = line.green
                 end
                 puts line
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)

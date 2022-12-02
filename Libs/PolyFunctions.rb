@@ -164,10 +164,12 @@ class PolyFunctions
         # NxAnniversary                 0.95
         # NxTriage                      0.92
         # Wave "ns:mandatory-today"     0.80
+        # Cx22 isPriority               0.80
         # NxOndate                      0.79
         # TxProject                     0.77
         # TxManualCountDown             0.75
         # Wave "ns:time-important"      0.70
+        # Cx22 !isPriority              0.60
         # ----------------------------- 0.50 (above should ideally be done before bed, below yellow)
         # Wave "ns:beach"               0.40 
         # NxTodo                        0.30
@@ -284,5 +286,14 @@ class PolyFunctions
         end
         puts "I do not know how to PolyFunctions::toString(#{JSON.pretty_generate(item)})"
         raise "(error: 820ce38d-e9db-4182-8e14-69551f58671c)"
+    end
+
+
+    # PolyFunctions::toStringForCatalystListing(item)
+    def self.toStringForCatalystListing(item)
+        if item["mikuType"] == "Cx22" then
+            return Cx22::toStringForListing(item)
+        end
+        PolyFunctions::toString(item)
     end
 end

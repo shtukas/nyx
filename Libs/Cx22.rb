@@ -63,7 +63,7 @@ class Cx22
 
     # Cx22::toString(item)
     def self.toString(item)
-        "#{item["description"]}"
+        "(Cx22) #{item["description"]}"
     end
 
     # Cx22::toStringWithDetails(item)
@@ -87,6 +87,18 @@ class Cx22
         dnsustr  = datetimeOpt ? ": (do not show until: #{datetimeOpt})" : ""
 
         "(group) #{item["description"].ljust(descriptionPadding)} : #{Ax39::toString(item["ax39"]).ljust(18)}#{percentageStr}#{dnsustr}"
+    end
+
+    # Cx22::toStringForListing(item)
+    def self.toStringForListing(item)
+        descriptionPadding = (XCache::getOrNull("Cx22-Description-Padding-DDBBF46A-2D56-4931-BE11-AF66F97F738E") || 28).to_i # the original value
+        percentage = 100 * Ax39::completionRatio(item["uuid"], item["ax39"])
+        percentageStr = ": #{percentage.to_i.to_s.rjust(3)} %"
+
+        datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
+        dnsustr  = datetimeOpt ? ": (do not show until: #{datetimeOpt})" : ""
+
+        "(Cx22) #{item["description"].ljust(descriptionPadding)} : #{Ax39::toString(item["ax39"]).ljust(18)}#{percentageStr}#{dnsustr}"
     end
 
     # Cx22::itemsInCompletionOrder()
