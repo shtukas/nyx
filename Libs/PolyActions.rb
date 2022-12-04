@@ -225,6 +225,12 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NxBall" then
+            puts "You cannot doubleDot a NxBall, but you can stop it"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
         if item["mikuType"] == "NxTriage" then
             NxTriages::access(item)
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["done", ">todo", "exit"])
