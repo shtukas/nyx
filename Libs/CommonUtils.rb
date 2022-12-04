@@ -252,14 +252,27 @@ class CommonUtils
         datetime
     end
 
-    # CommonUtils::dateSinceLastSaturday()
-    def self.dateSinceLastSaturday()
+    # CommonUtils::datesSinceLastSaturday()
+    def self.datesSinceLastSaturday()
         dates = []
         cursor = 0
         loop {
             date = CommonUtils::nDaysInTheFuture(cursor)
             dates << date
             break if Date.parse(date).to_time.wday == 6
+            cursor = cursor - 1
+        }
+        dates
+    end
+
+    # CommonUtils::datesSinceLastMonday()
+    def self.datesSinceLastMonday()
+        dates = []
+        cursor = 0
+        loop {
+            date = CommonUtils::nDaysInTheFuture(cursor)
+            dates << date
+            break if Date.parse(date).to_time.wday == 1
             cursor = cursor - 1
         }
         dates

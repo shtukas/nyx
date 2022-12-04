@@ -4,7 +4,7 @@ class Ax39
 
     # Ax39::types()
     def self.types()
-        ["daily-time-commitment", "weekly-time-commitment"]
+        ["daily-time-commitment", "weekly-time-commitment", "work:(mon-to-fri)+(week-end-overflow)"]
     end
 
     # Ax39::interactivelySelectTypeOrNull()
@@ -32,6 +32,14 @@ class Ax39
                 "hours" => hours.to_f
             }
         end
+        if type == "work:(mon-to-fri)+(week-end-overflow)" then
+            hours = LucilleCore::askQuestionAnswerAsString("weekly hours : ")
+            return nil if hours == ""
+            return {
+                "type"  => "work:(mon-to-fri)+(week-end-overflow)",
+                "hours" => hours.to_f
+            }
+        end
     end
 
     # Ax39::interactivelyCreateNewAx()
@@ -52,6 +60,10 @@ class Ax39
         if ax39["type"] == "weekly-time-commitment" then
             return "weekly #{"%4.2f" % ax39["hours"]} hours"
         end
+        if ax39["type"] == "work:(mon-to-fri)+(week-end-overflow)" then
+            return "work #{"%4.2f" % ax39["hours"]} hours"
+        end
+
     end
 
     # Ax39::completionRatio(uuid, ax39)
@@ -59,16 +71,21 @@ class Ax39
         raise "(error: 92e23de4-61eb-4a07-a128-526e4be0e72a)" if ax39.nil?
         return 1 if !DoNotShowUntil::isVisible(uuid)
         if ax39["type"] == "daily-time-commitment" then
-            return [
-                Bank::valueAtDate(uuid, CommonUtils::today()).to_f/(3600*ax39["hours"]),
-                BankExtended::stdRecoveredDailyTimeInHours(uuid).to_f/ax39["hours"]
-            ].max
+            return BankExtended::stdRecoveredDailyTimeInHours(uuid).to_f/ax39["hours"]
         end
         if ax39["type"] == "weekly-time-commitment" then
-            return [
-                Bank::valueAtDate(uuid, CommonUtils::today()).to_f/(0.3*3600*ax39["hours"]),
-                Bank::combinedValueOnThoseDays(uuid, CommonUtils::dateSinceLastSaturday()).to_f/(3600*ax39["hours"])
-            ].max
+            dates = CommonUtils::datesSinceLastSaturday()
+            idealTimeDoneInSeconds  = ([dates.size, 5].min.to_f/5)*ax39["hours"]
+            actualTimeDoneInSeconds = Bank::combinedValueOnThoseDays(uuid, dates)
+            ratio = actualTimeDoneInSeconds.to_f/idealTimeDoneInSeconds
+            return ratio
+        end
+        if ax39["type"] == "work:(mon-to-fri)+(week-end-overflow)" then
+            dates = CommonUtils::datesSinceLastMonday()
+            idealTimeDoneInSeconds  = ([dates.size, 5].min.to_f/5)*ax39["hours"]
+            actualTimeDoneInSeconds = Bank::combinedValueOnThoseDays(uuid, dates)
+            ratio = actualTimeDoneInSeconds.to_f/idealTimeDoneInSeconds
+            return ratio
         end
     end
 end

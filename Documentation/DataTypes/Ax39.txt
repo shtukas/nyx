@@ -11,3 +11,8 @@ It is carried by Cx22s and TxProjects
     "type"  => "weekly-time-commitment"
     "hours" => Float
 }
+
+{
+    "type"  => "work:(mon-to-fri)+(week-end-overflow)"
+    "hours" => Float
+}
