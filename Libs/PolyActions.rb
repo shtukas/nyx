@@ -120,7 +120,10 @@ class PolyActions
     # PolyActions::done(item)
     def self.done(item)
 
-        XCache::setFlag("b35b9312-638e-4139-9f2e-f03e1d7e8087:#{item["uuid"]}", false)
+        filepath = "/Users/pascal/Galaxy/DataHub/Stargate-DataCenter/Locks/#{item["uuid"]}.lock"
+        if File.exists?(filepath) then
+            FileUtils.touch(filepath)
+        end
 
         # order: alphabetical order
 
@@ -201,7 +204,10 @@ class PolyActions
     # PolyActions::doubleDotAccess(item)
     def self.doubleDotAccess(item)
 
-        XCache::setFlag("b35b9312-638e-4139-9f2e-f03e1d7e8087:#{item["uuid"]}", false)
+        filepath = "/Users/pascal/Galaxy/DataHub/Stargate-DataCenter/Locks/#{item["uuid"]}.lock"
+        if File.exists?(filepath) then
+            FileUtils.touch(filepath)
+        end
 
         # order: alphabetical order
 

@@ -217,7 +217,9 @@ class CatalystListing
         if Interpreting::match("lock", input) then
             item = store.getDefault()
             return if item.nil?
-            XCache::setFlag("b35b9312-638e-4139-9f2e-f03e1d7e8087:#{item["uuid"]}", true)
+            filepath = "/Users/pascal/Galaxy/DataHub/Stargate-DataCenter/Locks/#{item["uuid"]}.lock"
+            return if File.exists?(filepath)
+            FileUtils.touch(filepath)
             return
         end
 
@@ -454,7 +456,8 @@ class CatalystListing
             .select{|packet|
                 item = packet["item"]
                 priority = packet["priority"]
-                XCache::getFlag("b35b9312-638e-4139-9f2e-f03e1d7e8087:#{item["uuid"]}")
+                filepath = "/Users/pascal/Galaxy/DataHub/Stargate-DataCenter/Locks/#{item["uuid"]}.lock"
+                File.exists?(filepath)
             }
 
         if lockeds.size > 0 then
@@ -513,7 +516,8 @@ class CatalystListing
                 item = packet["item"]
                 priority = packet["priority"]
 
-                next if XCache::getFlag("b35b9312-638e-4139-9f2e-f03e1d7e8087:#{item["uuid"]}")
+                filepath = "/Users/pascal/Galaxy/DataHub/Stargate-DataCenter/Locks/#{item["uuid"]}.lock"
+                next if File.exists?(filepath)
 
                 break if vspaceleft <= 0
                 store.register(item, true)
