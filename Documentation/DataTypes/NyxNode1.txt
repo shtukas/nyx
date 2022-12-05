@@ -1,0 +1,9 @@
+NyxNode1 {
+    "uuid"         : String
+    "mikuType"     : "NyxNode1"
+    "unixtime"     : Float
+    "datetime"     : DateTime Iso 8601 UTC Zulu
+    "description"  : String
+}
+
+We do not have data, a data carrier, or a data pointer type this time around. Each node will have folder in which junk can be put, additionally we do not have distinctive node types (navigation versus data carriers).
