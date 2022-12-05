@@ -1,0 +1,3 @@
+For situations where we cannot use a .nyx2 file, we eill be using ids of the form Nx2-<hex> for files and directories.
+
+As the nyx nodes are created we will be given one or can provide one.

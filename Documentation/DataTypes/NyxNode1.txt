@@ -4,6 +4,19 @@ NyxNode1 {
     "unixtime"     : Float
     "datetime"     : DateTime Iso 8601 UTC Zulu
     "description"  : String
+    "tx1"          : Tx1
 }
 
+Tx1 
+    {
+        "type" : "regular"
+    }
+    {
+        "type"         : "unique-string"
+        "uniquestring" : String
+    }
+
 We do not have data, a data carrier, or a data pointer type this time around. Each node will have folder in which junk can be put, additionally we do not have distinctive node types (navigation versus data carriers).
+
+A regular node has its data on the file system in the Nyx repository. A "fs-pointer" node points at a file system location. Considering that the unique string is totally unspecified, it's probsably a good thing to have a convention. We will be using strings of the form Nx2-<hex> for files, or for directories that cannot have a .nyx2 files in them, and uuids inside *.nyx2 files otherwise.
+
