@@ -11,7 +11,7 @@ class CatalystListing
             "[divings] anniversaries | ondates | waves | groups | todos | float",
             "[transmutations] >todo",
             "[misc] require internet",
-            "[misc] search | nyx | speed | commands",
+            "[misc] search | nyx | speed | commands | lock",
         ].join("\n")
     end
 
@@ -211,6 +211,15 @@ class CatalystListing
 
         if Interpreting::match("internet on", input) then
             InternetStatus::setInternetOn()
+            return
+        end
+
+        if Interpreting::match("lock", input) then
+            item = store.getDefault()
+            return if item.nil?
+            filepath = "/Users/pascal/Galaxy/DataHub/Stargate-DataCenter/Locks/#{item["uuid"]}.lock"
+            return if File.exists?(filepath)
+            FileUtils.touch(filepath)
             return
         end
 
@@ -441,6 +450,44 @@ class CatalystListing
             vspaceleft = vspaceleft - 2
         end
 
+        txListingItems = CatalystListing::txListingItemsInPriorityOrderDesc()
+
+        lockeds = txListingItems
+            .select{|packet|
+                item = packet["item"]
+                priority = packet["priority"]
+                filepath = "/Users/pascal/Galaxy/DataHub/Stargate-DataCenter/Locks/#{item["uuid"]}.lock"
+                File.exists?(filepath)
+            }
+
+        if lockeds.size > 0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+            lockeds
+                .each{|packet|
+
+                    item = packet["item"]
+                    priority = packet["priority"]
+
+                    break if vspaceleft <= 0
+                    store.register(item, false)
+                    cx22 =  packet["cx22"]
+                    cx22Str = cx22 ? " (#{Cx22::toString(cx22)})" : ""
+                    line = "#{store.prefixString()} #{PolyFunctions::toStringForCatalystListing(item)}#{cx22Str.green}"
+                    if priority < 0.5 then
+                        line = line.yellow
+                    end
+                    nxball = TxItemCx22Pair::getNxBallOrNull(item["uuid"])
+                    line = line.yellow
+                    if nxball then
+                        line = line.green
+                    end
+                    puts line
+                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                }
+        end
+
+
         floats = TxFloats::listingItems()
         if floats.size > 0 then
             puts ""
@@ -463,10 +510,14 @@ class CatalystListing
             hasShownGreen = true
         }
 
-        CatalystListing::txListingItemsInPriorityOrderDesc()
+        txListingItems
             .each{|packet|
+
                 item = packet["item"]
                 priority = packet["priority"]
+
+                filepath = "/Users/pascal/Galaxy/DataHub/Stargate-DataCenter/Locks/#{item["uuid"]}.lock"
+                next if File.exists?(filepath)
 
                 break if vspaceleft <= 0
                 store.register(item, true)

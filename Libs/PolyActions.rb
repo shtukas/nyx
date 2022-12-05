@@ -120,6 +120,11 @@ class PolyActions
     # PolyActions::done(item)
     def self.done(item)
 
+        filepath = "/Users/pascal/Galaxy/DataHub/Stargate-DataCenter/Locks/#{item["uuid"]}.lock"
+        if File.exists?(filepath) then
+            FileUtils.touch(filepath)
+        end
+
         # order: alphabetical order
 
         if item["mikuType"] == "Cx22" then
@@ -198,6 +203,11 @@ class PolyActions
 
     # PolyActions::doubleDotAccess(item)
     def self.doubleDotAccess(item)
+
+        filepath = "/Users/pascal/Galaxy/DataHub/Stargate-DataCenter/Locks/#{item["uuid"]}.lock"
+        if File.exists?(filepath) then
+            FileUtils.touch(filepath)
+        end
 
         # order: alphabetical order
 
