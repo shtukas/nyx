@@ -75,14 +75,14 @@ class Ax39
         end
         if ax39["type"] == "weekly-time-commitment" then
             dates = CommonUtils::datesSinceLastSaturday()
-            idealTimeDoneInSeconds  = ([dates.size, 5].min.to_f/5)*ax39["hours"]
+            idealTimeDoneInSeconds  = ([dates.size, 5].min.to_f/5)*ax39["hours"]*3600
             actualTimeDoneInSeconds = Bank::combinedValueOnThoseDays(uuid, dates)
             ratio = actualTimeDoneInSeconds.to_f/idealTimeDoneInSeconds
             return ratio
         end
         if ax39["type"] == "work:(mon-to-fri)+(week-end-overflow)" then
             dates = CommonUtils::datesSinceLastMonday()
-            idealTimeDoneInSeconds  = ([dates.size, 5].min.to_f/5)*ax39["hours"]
+            idealTimeDoneInSeconds  = ([dates.size, 5].min.to_f/5)*ax39["hours"]*3600
             actualTimeDoneInSeconds = Bank::combinedValueOnThoseDays(uuid, dates)
             ratio = actualTimeDoneInSeconds.to_f/idealTimeDoneInSeconds
             return ratio

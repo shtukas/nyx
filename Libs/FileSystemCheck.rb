@@ -118,7 +118,6 @@ class FileSystemCheck
         FileSystemCheck::ensureAttribute(item, "datetime", "String")
         FileSystemCheck::ensureAttribute(item, "description", "String")
         FileSystemCheck::ensureAttribute(item, "ax39", "Hash")
-        FileSystemCheck::ensureAttribute(item, "isPriority", nil)
     end
 
     # FileSystemCheck::fsck_Dx33(item, verbose)

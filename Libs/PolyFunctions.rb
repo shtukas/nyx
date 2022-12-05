@@ -164,12 +164,11 @@ class PolyFunctions
         # NxAnniversary                 0.95
         # NxTriage                      0.92
         # Wave "ns:mandatory-today"     0.80
-        # Cx22 isPriority               0.80
         # NxOndate                      0.79
+        # Cx22                          0.78
         # TxProject                     0.77
         # TxManualCountDown             0.75
         # Wave "ns:time-important"      0.70
-        # Cx22 !isPriority              0.60
         # ----------------------------- 0.50 (above should ideally be done before bed, below yellow)
         # Wave "ns:beach"               0.40 
         # NxTodo                        0.30
@@ -192,8 +191,7 @@ class PolyFunctions
             return nil if !DoNotShowUntil::isVisible(item["uuid"])
             completionRatio = Ax39::completionRatio(item["uuid"], item["ax39"])
             return nil if completionRatio >= 1
-            base = item["isPriority"] ? 0.80 : 0.60
-            return base + shiftOnCompletionRatio.call(completionRatio)
+            return 0.78 + shiftOnCompletionRatio.call(completionRatio)
         end
 
         if item["mikuType"] == "LambdX1" then

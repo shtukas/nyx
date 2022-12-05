@@ -28,30 +28,18 @@ class Cx22
     # --------------------------------------------
     # Makers
 
-    # Cx22::interactivelySelectStyle()
-    def self.interactivelySelectStyle()
-        loop {
-            style = LucilleCore::selectEntityFromListOfEntitiesOrNull("Cx22 style", ["sequence", "managed-top-3"])
-            return style if style
-        }
-    end
-
     # Cx22::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         ax39 = Ax39::interactivelyCreateNewAx()
-        style = Cx22::interactivelySelectStyle()
-        isPriority = LucilleCore::askQuestionAnswerAsBoolean("is priority (work-like commitment) ? : ")
         item = {
             "uuid"        => SecureRandom.uuid,
             "mikuType"    => "Cx22",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "ax39"        => ax39,
-            "style"       => style,
-            "isPriority"  => isPriority
+            "ax39"        => ax39
         }
         FileSystemCheck::fsck_Cx22(item, true)
         Cx22::commit(item)
@@ -127,7 +115,7 @@ class Cx22
     def self.probe(cx22)
         loop {
             puts Cx22::toStringWithDetails(cx22)
-            actions = ["add time", "do not show until"]
+            actions = ["add time", "do not show until", "set Ax39"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "add time" then
@@ -139,6 +127,11 @@ class Cx22
                 unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
                 next if unixtime.nil?
                 DoNotShowUntil::setUnixtime(cx22["uuid"], unixtime)
+            end
+            if action == "set Ax39" then
+                cx22["ax39"] = Ax39::interactivelyCreateNewAx()
+                FileSystemCheck::fsck_Cx22(cx22, true)
+                Cx22::commit(cx22)
             end
         }
     end
