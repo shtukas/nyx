@@ -120,6 +120,8 @@ class PolyActions
     # PolyActions::done(item)
     def self.done(item)
 
+        XCache::setFlag("b35b9312-638e-4139-9f2e-f03e1d7e8087:#{item["uuid"]}", false)
+
         # order: alphabetical order
 
         if item["mikuType"] == "Cx22" then
@@ -198,6 +200,8 @@ class PolyActions
 
     # PolyActions::doubleDotAccess(item)
     def self.doubleDotAccess(item)
+
+        XCache::setFlag("b35b9312-638e-4139-9f2e-f03e1d7e8087:#{item["uuid"]}", false)
 
         # order: alphabetical order
 
