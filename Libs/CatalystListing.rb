@@ -532,7 +532,7 @@ class CatalystListing
                 break if vspaceleft <= 0
                 store.register(item, true)
                 cx22 =  packet["cx22"]
-                cx22Str = cx22 ? " (#{Cx22::toString(cx22)})" : ""
+                cx22Str = cx22 ? " (Cx22: #{cx22["description"]})" : ""
                 line = "#{store.prefixString()} #{PolyFunctions::toStringForCatalystListing(item)}#{cx22Str.green}"
                 if priority < 0.5 then
                     line = line.yellow
