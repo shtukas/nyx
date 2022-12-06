@@ -113,45 +113,33 @@ class NxTodos
             .first
     end
 
-    # NxTodos::listingItemsUseTheForce(cx22)
-    def self.listingItemsUseTheForce(cx22)
-
-        cx22 = NxTodos::getTopUnderPerformingCx22OrNull()
-
-        items =
-            if cx22 then
-                NxTodos::filepaths()
-                    .map{|filepath| Nx5Ext::readFileAsAttributesOfObject(filepath) }
-                    .select{|item| Cx22Mapping::getOrNull(item["uuid"]) == cx22["uuid"] }
-            else
-                NxTodos::filepaths()
-                    .map{|filepath| Nx5Ext::readFileAsAttributesOfObject(filepath) }
-                    .select{|item| Cx22Mapping::getOrNull(item["uuid"]).nil? }
-            end
-
-        items
-            .map{|item|
+    # NxTodos::listingItemsUseTheForce()
+    def self.listingItemsUseTheForce()
+        puts "> NxTodos::listingItemsUseTheForce()"
+        NxTodos::filepaths()
+            .map{|filepath|
+                item = Nx5Ext::readFileAsAttributesOfObject(filepath)
+                puts item["uuid"]
+                priority = PolyFunctions::listingPriorityOrNull(item)
                 {
-                    "item" => item,
-                    "priority" => PolyFunctions::listingPriorityOrNull(item)
+                    "item"     => item,
+                    "priority" => priority || -1
                 }
             }
-            .select{|packet| !packet["priority"].nil? }
             .sort{|p1, p2| p1["priority"] <=> p2["priority"] }
             .reverse
-            .first(10)
+            .first(20)
             .map{|packet| packet["item"] }
     end
 
     # NxTodos::listingItems()
     def self.listingItems()
-        cx22 = NxTodos::getTopUnderPerformingCx22OrNull()
-        key = "6879871f-d6d7-46b8-9119-3fb5709d5ae8:#{cx22}:#{Time.new.to_s[0, 13]}"
+        key = "6879873f-d6d7-46b8-9119-3fb5729d5ae8:#{Time.new.to_s[0, 13]}"
         itemsuuids = XCache::getOrNull(key)
         if itemsuuids then
             return JSON.parse(itemsuuids).map{|itemsuuid| NxTodos::getItemOrNull(itemsuuid) }.compact
         end
-        items = NxTodos::listingItemsUseTheForce(cx22)
+        items = NxTodos::listingItemsUseTheForce()
         XCache::set(key, JSON.generate(items.map{|item| item["uuid"] }))
         items
     end

@@ -176,6 +176,7 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             puts JSON.pretty_generate(item)
+            puts "priority: #{PolyFunctions::listingPriorityOrNull(item)}"
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -185,6 +186,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             puts JSON.pretty_generate(item)
+            puts "priority: #{PolyFunctions::listingPriorityOrNull(item)}"
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -287,7 +289,7 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("stop", input) then
+        if Interpreting::match("stop *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
@@ -415,7 +417,7 @@ class CatalystListing
         packets = [
             Anniversaries::listingItems(),
             TxManualCountDowns::listingItems(),
-            Waves::items(),
+            #Waves::items(),
             NxTodos::listingItems(),
             LambdX1s::listingItems(),
             NxTriages::listingItems(),

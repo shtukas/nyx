@@ -107,7 +107,7 @@ class Cx22
 
     # Cx22::interactivelySelectCx22OrNull()
     def self.interactivelySelectCx22OrNull()
-        cx22s = Cx22::items().sort{|i1, i2| i1["description"] <=> i2["description"] }
+        cx22s = Cx22::items().sort{|i1, i2| Ax39::completionRatio(i1["uuid"], i1["ax39"]) <=> Ax39::completionRatio(i2["uuid"], i2["ax39"]) }
         LucilleCore::selectEntityFromListOfEntitiesOrNull("cx22", cx22s, lambda{|cx22| Cx22::toStringWithDetailsFormatted(cx22)})
     end
 
@@ -151,5 +151,20 @@ class Cx22
             return if cx22.nil?
             Cx22::probe(cx22)
         }
+    end
+
+    # --------------------------------------------
+    # has items
+
+    # Cx22::markHasItems(cx22)
+    def self.markHasItems(cx22)
+        XCache::set("9af5b072-a5d2-41bd-b512-03928ce56b76:#{cx22["uuid"]}", Time.new.to_i)
+    end
+
+    # Cx22::hasItems(cx22)
+    def self.hasItems(cx22)
+        unixtime = XCache::getOrNull("9af5b072-a5d2-41bd-b512-03928ce56b76:#{cx22["uuid"]}")
+        return false if unixtime.nil?
+        (Time.new.to_i - unixtime.to_i) < 3600
     end
 end

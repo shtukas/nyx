@@ -43,6 +43,14 @@ class Cx22Mapping
         cx22
     end
 
+    # Cx22Mapping::itemToCx22OrNull(item)
+    def self.itemToCx22OrNull(item)
+        cx22 = Cx22Mapping::getCx22OrNull(item["uuid"])
+        return nil if cx22.nil?
+        Cx22::markHasItems(cx22)
+        cx22
+    end
+
     # Cx22Mapping::garbageCollection(itemuuid)
     def self.garbageCollection(itemuuid)
         filepath = "#{Config::pathToDataCenter()}/Cx22-Mapping/#{itemuuid}"

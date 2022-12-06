@@ -161,17 +161,17 @@ class PolyFunctions
 
         # This is the primary definition
 
-        # NxAnniversary                 0.95
-        # NxTriage                      0.92
-        # Wave "ns:mandatory-today"     0.80
-        # NxOndate                      0.79
-        # Cx22                          0.78
-        # TxProject                     0.77
-        # TxManualCountDown             0.75
-        # Wave "ns:time-important"      0.70
-        # ----------------------------- 0.50 (above should ideally be done before bed, below yellow)
-        # Wave "ns:beach"               0.40 
-        # NxTodo                        0.30
+        # NxAnniversary                             0.95
+        # NxTriage                                  0.92
+        # TxManualCountDown                         0.90
+        # Wave "ns:mandatory-today"                 0.80
+        # NxOndate                                  0.79
+        # Cx22 (without items) | NxTodo Cx22 items  0.78
+        # TxProject                                 0.77
+        # Wave "ns:time-important"                  0.70
+        # ----------------------------------------- 0.50 (above should ideally be done before bed, below yellow)
+        # Wave "ns:beach"                           0.40 
+        # NxTodo                                    0.30 Without Cx22
 
         shiftOnCompletionRatio = lambda {|ratio|
             0.01*Math.atan(-ratio)
@@ -211,11 +211,12 @@ class PolyFunctions
         end
 
         if item["mikuType"] == "NxTodo" then
-            lightspeed = item["lightspeed"]
-            if lightspeed.nil? then
-                puts JSON.pretty_generate(item)
+            if (cx22 = Cx22Mapping::itemToCx22OrNull(item)) then
+                priority = PolyFunctions::listingPriorityOrNull(cx22)
+                return nil if priority.nil?
+                return priority + 0.001*LightSpeed::metric(item["uuid"], item["lightspeed"])
             end
-            return LightSpeed::metric(item["uuid"], lightspeed)
+            return LightSpeed::metric(item["uuid"], item["lightspeed"])
         end
 
         if item["mikuType"] == "NxTriage" then
@@ -285,7 +286,6 @@ class PolyFunctions
         puts "I do not know how to PolyFunctions::toString(#{JSON.pretty_generate(item)})"
         raise "(error: 820ce38d-e9db-4182-8e14-69551f58671c)"
     end
-
 
     # PolyFunctions::toStringForCatalystListing(item)
     def self.toStringForCatalystListing(item)
