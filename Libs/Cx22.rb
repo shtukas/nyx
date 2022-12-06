@@ -115,7 +115,7 @@ class Cx22
     def self.probe(cx22)
         loop {
             puts Cx22::toStringWithDetails(cx22)
-            actions = ["add time", "do not show until", "set Ax39"]
+            actions = ["add time", "do not show until", "set Ax39", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "add time" then
@@ -132,6 +132,13 @@ class Cx22
                 cx22["ax39"] = Ax39::interactivelyCreateNewAx()
                 FileSystemCheck::fsck_Cx22(cx22, true)
                 Cx22::commit(cx22)
+            end
+            if action == "destroy" then
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy Cx22 '#{Cx22::toString(cx22)}' ? ") then
+                    filepath = "#{Config::pathToDataCenter()}/Cx22/#{cx22["uuid"]}.json"
+                    FileUtils.rm(filepath)
+                    return
+                end
             end
         }
     end
