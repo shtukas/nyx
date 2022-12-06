@@ -90,18 +90,4 @@ class NxBalls
             "number"      => cx22["uuid"]
         }])
     end
-
-    # NxBalls::stop()
-    def self.stop()
-        nxballs = NxBalls::items()
-        return if nxballs.empty?
-        if nxballs.size == 1 then
-            NxBalls::close(nxballs[0])
-            return
-        end
-        nxball = LucilleCore::selectEntityFromListOfEntitiesOrNull("nxball", nxballs, lambda{|item| NxBalls::toString(item) })
-        return if nxball.nil?
-        NxBalls::close(nxball)
-    end
-
 end

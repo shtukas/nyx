@@ -7,7 +7,7 @@ class CatalystListing
         [
             "[listing interaction] .. | <datecode> | access (<n>) | group (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | destroy",
             "[makers] wave | anniversary | today | ondate | todo | Cx22 | project | manual countdown",
-            "[nxballs] start <n> | stop",
+            "[nxballs] start <n> | stop <n>",
             "[divings] anniversaries | ondates | waves | groups | todos | float",
             "[transmutations] >todo",
             "[misc] require internet",
@@ -288,7 +288,15 @@ class CatalystListing
         end
 
         if Interpreting::match("stop", input) then
-            NxBalls::stop()
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            if item["mikuType"] != "NxBall" then
+                puts "You can only stop NxBalls"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            NxBalls::close(item)
             return
         end
 
