@@ -217,7 +217,7 @@ class CatalystListing
         if Interpreting::match("lock", input) then
             item = store.getDefault()
             return if item.nil?
-            filepath = "/Users/pascal/Galaxy/DataHub/Stargate-DataCenter/Locks/#{item["uuid"]}.lock"
+            filepath = "#{Config::pathToDataCenter()}/Locks/#{item["uuid"]}.lock"
             return if File.exists?(filepath)
             FileUtils.touch(filepath)
             return
@@ -456,7 +456,7 @@ class CatalystListing
             .select{|packet|
                 item = packet["item"]
                 priority = packet["priority"]
-                filepath = "/Users/pascal/Galaxy/DataHub/Stargate-DataCenter/Locks/#{item["uuid"]}.lock"
+                filepath = "#{Config::pathToDataCenter()}/Locks/#{item["uuid"]}.lock"
                 File.exists?(filepath)
             }
 
@@ -516,7 +516,7 @@ class CatalystListing
                 item = packet["item"]
                 priority = packet["priority"]
 
-                filepath = "/Users/pascal/Galaxy/DataHub/Stargate-DataCenter/Locks/#{item["uuid"]}.lock"
+                filepath = "#{Config::pathToDataCenter()}/Locks/#{item["uuid"]}.lock"
                 next if File.exists?(filepath)
 
                 break if vspaceleft <= 0

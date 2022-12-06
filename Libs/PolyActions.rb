@@ -120,7 +120,7 @@ class PolyActions
     # PolyActions::done(item)
     def self.done(item)
 
-        filepath = "/Users/pascal/Galaxy/DataHub/Stargate-DataCenter/Locks/#{item["uuid"]}.lock"
+        filepath = "#{Config::pathToDataCenter()}/Locks/#{item["uuid"]}.lock"
         if File.exists?(filepath) then
             FileUtils.touch(filepath)
         end
@@ -204,7 +204,7 @@ class PolyActions
     # PolyActions::doubleDotAccess(item)
     def self.doubleDotAccess(item)
 
-        filepath = "/Users/pascal/Galaxy/DataHub/Stargate-DataCenter/Locks/#{item["uuid"]}.lock"
+        filepath = "#{Config::pathToDataCenter()}/Locks/#{item["uuid"]}.lock"
         if File.exists?(filepath) then
             FileUtils.touch(filepath)
         end
