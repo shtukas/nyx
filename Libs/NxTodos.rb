@@ -119,7 +119,6 @@ class NxTodos
         NxTodos::filepaths()
             .map{|filepath|
                 item = Nx5Ext::readFileAsAttributesOfObject(filepath)
-                puts item["uuid"]
                 priority = PolyFunctions::listingPriorityOrNull(item)
                 {
                     "item"     => item,
@@ -134,14 +133,10 @@ class NxTodos
 
     # NxTodos::listingItems()
     def self.listingItems()
-        key = "6879873f-d6d7-46b8-9119-3fb5729d5ae8:#{Time.new.to_s[0, 13]}"
-        itemsuuids = XCache::getOrNull(key)
-        if itemsuuids then
-            return JSON.parse(itemsuuids).map{|itemsuuid| NxTodos::getItemOrNull(itemsuuid) }.compact
-        end
-        items = NxTodos::listingItemsUseTheForce()
-        XCache::set(key, JSON.generate(items.map{|item| item["uuid"] }))
-        items
+        filepath = LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodo-ListingItems").select{|filepath| filepath[-5, 5] == ".json" }.last
+        return [] if filepath.nil?
+        packet = JSON.parse(IO.read(filepath)) # {"instanceId": String, "unixtime": Float, "items": Array[Item] }
+        packet["items"].map{|item| NxTodos::getItemOrNull(item["uuid"]) }.compact
     end
 
     # --------------------------------------------------
@@ -204,6 +199,41 @@ class NxTodos
                 PolyActions::garbageCollectionAfterItemDeletion(item)
                 return
             end
+        }
+    end
+
+    # NxTodos::generateListingPacket()
+    def self.generateListingPacket()
+        packet = {
+            "instanceId" => Config::thisInstanceId(),
+            "unixtime"   => Time.new.to_i,
+            "items"      => NxTodos::listingItemsUseTheForce()
+        }
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodo-ListingItems").each{|filepath| LucilleCore::removeFileSystemLocation(filepath) }
+        filepath = "#{Config::pathToDataCenter()}/NxTodo-ListingItems/#{CommonUtils::timeStringL22()}-#{Config::thisInstanceId()}.json"
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(packet)) }
+    end
+
+    # NxTodos::listingItemsManager()
+    def self.listingItemsManager()
+        Thread.new {
+            loop {
+                sleep 1200
+                filepath = LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodo-ListingItems").select{|filepath| filepath[-5, 5] == ".json" }.last
+                if filepath.nil? then
+                    NxTodos::generateListingPacket()
+                    next
+                end
+                packet = JSON.parse(IO.read(filepath))
+                # {"instanceId": String, "unixtime": Float, "items": Array[Item] }
+                if packet["instanceId"] < Config::thisInstanceId() then
+                    NxTodos::generateListingPacket()
+                else
+                    if (Time.new.to_i - packet["unixtime"]) > 3600*2 then
+                        NxTodos::generateListingPacket()
+                    end
+                end
+            }
         }
     end
 end

@@ -19,6 +19,7 @@ class Git
 
     # Git::updateFromRemoteIfNeeded()
     def self.updateFromRemoteIfNeeded()
+        return if `cd '#{File.dirname(__FILE__)}/..' ; git status`.strip.size > 0
         remoteHash = Git::remoteHash()
         return if remoteHash == ""
         if remoteHash != Git::localHash() then

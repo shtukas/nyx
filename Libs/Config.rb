@@ -20,7 +20,7 @@ class Config
 
     # Config::configFilepath()
     def self.configFilepath()
-        "#{Config::userHomeDirectory()}/Galaxy/DataHub/Stargate-Config.json"
+        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-Config.json"
     end
 
     # Config::pathToDataCenter()
