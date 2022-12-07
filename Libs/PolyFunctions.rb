@@ -145,6 +145,9 @@ class PolyFunctions
         if item["mikuType"] == "TxFloat" then
             return item["description"]
         end
+        if item["mikuType"] == "TxProject" then
+            return item["description"]
+        end
         if item["mikuType"] == "TxThread" then
             return item["description"]
         end
