@@ -11,7 +11,7 @@ class CatalystListing
             "[divings] anniversaries | ondates | waves | groups | todos | float",
             "[transmutations] >todo",
             "[misc] require internet",
-            "[misc] search | nyx | speed | commands | lock",
+            "[misc] search | nyx | speed | commands | lock (<n>)",
         ].join("\n")
     end
 
@@ -218,6 +218,16 @@ class CatalystListing
 
         if Interpreting::match("lock", input) then
             item = store.getDefault()
+            return if item.nil?
+            filepath = "#{Config::pathToDataCenter()}/Locks/#{item["uuid"]}.lock"
+            return if File.exists?(filepath)
+            FileUtils.touch(filepath)
+            return
+        end
+
+        if Interpreting::match("lock *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
             return if item.nil?
             filepath = "#{Config::pathToDataCenter()}/Locks/#{item["uuid"]}.lock"
             return if File.exists?(filepath)
