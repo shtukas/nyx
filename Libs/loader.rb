@@ -49,6 +49,7 @@ checkLocation = lambda{|location|
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-Config.json")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub/Stargate-DataCenter")
+checkLocation.call("#{ENV['HOME']}/Galaxy/NxData/03-Nyx")
 checkLocation.call("#{ENV['HOME']}/Galaxy/LucilleOS/Libraries/Ruby-Libraries")
 checkLocation.call("#{ENV['HOME']}/x-space/xcache-v1-days")
 
@@ -200,7 +201,6 @@ require_relative "The99Percent.rb"
 require_relative "TxProjects.rb"
 require_relative "TxFloats.rb"
 require_relative "TxItemCx22Pair.rb"
-require_relative "Tx1.rb"
 
 require_relative "UniqueStrings.rb"
 require_relative "Upload.rb"
