@@ -579,65 +579,9 @@ class AutomaticNx7NetworkMainteance
 
     # AutomaticNx7NetworkMainteance::run()
     def self.run()
-
         time1 = Time.new.to_i
-
         puts "> AutomaticNx7NetworkMainteance::run()"
-
-        # First let us make sure that we have the right filepaths
-
-        puts "> Nx7Locations scan and update"
-        Nx7Locations::scanAndUpdate()
-
-        # The priority is then to detect if two export folders have diverged or not
-
-        puts "> Pairs analysis, export folders resolution"
-        Nx7::filepaths().each{|filepath|
-            next if !AutomaticNx7NetworkMainteance::trueIfFilepathIsInstanceDataCarrier(filepath)
-            item = Nx5Ext::readFileAsAttributesOfObject(filepath)
-            uuid = item["uuid"]
-            nx7locations = Nx7Locations::getNx7Locations(uuid)
-            nx7locations["locations"]
-                .combination(2)
-                .each{|filepath1, filepath2|
-                    status = false 
-                    loop {
-                        status = AutomaticNx7NetworkMainteance::pairAnalysisExportFoldersResolution(filepath1, filepath2)
-                        break if status
-                    }
-                }
-        }
-
-        # Then we want to make sure that changes in an export folder are reported into the instance
-
-        puts "> Instance analysis, batch"
-        Nx7::filepaths().each{|filepath|
-            next if !AutomaticNx7NetworkMainteance::trueIfFilepathIsInstanceDataCarrier(filepath)
-            AutomaticNx7NetworkMainteance::instanceAnalysis(filepath)
-        }
-
-        # Then we mirror pairs of instances
-
-        puts "> Pairs analysis: contents mirroring "
-        Nx7::filepaths().each{|filepath|
-            next if !AutomaticNx7NetworkMainteance::trueIfFilepathIsInstanceDataCarrier(filepath)
-            item = Nx5Ext::readFileAsAttributesOfObject(filepath)
-            uuid = item["uuid"]
-            nx7locations = Nx7Locations::getNx7Locations(uuid)
-            nx7locations["locations"]
-                .combination(2)
-                .each{|filepath1, filepath2|
-                    hash1 = File.mtime(filepath1).to_s
-                    hash2 = File.mtime(filepath2).to_s
-                    key = "4694f05c-a071-40dc-9c62-3b42c25ca9e6:#{hash1}:#{hash2}"
-                    next if XCache::getFlag(key)
-                    Nx5Ext::contentsMirroring(filepath1, filepath2)
-                    XCache::setFlag(key, true)
-                }
-        }
-
         time2 = Time.new.to_i
-
         puts "AutomaticNx7NetworkMainteance::run() completed successfully in #{(time2 - time1)} seconds".green
     end
 end
