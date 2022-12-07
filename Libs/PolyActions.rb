@@ -397,6 +397,8 @@ class PolyActions
         return nil if accounts.empty?
         announce = accounts.map{|account| account["description"] }.join("; ")
         puts "NxBall: starting: #{announce}".green
-        NxBalls::issue(accounts)
+        nxball = NxBalls::issue(accounts)
+        XCache::set("item-to-nxball-c15a5a0bcc54:#{item["uuid"]}", nxball["uuid"])
+        XCache::set("nxball-to-item-44f636350009:#{nxball["uuid"]}", item["uuid"])
     end
 end

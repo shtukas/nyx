@@ -62,10 +62,15 @@ class NxBalls
     # --------------------------------------------------
     # Data
 
+    # NxBalls::toRunningStatement(item)
+    def self.toRunningStatement(item)
+        timespan = (Time.new.to_i - item["unixtime"]).to_f/3600
+        "(running for #{timespan.round(2)} hours)"
+    end
+
     # NxBalls::toString(item)
     def self.toString(item)
-        timespan = (Time.new.to_i - item["unixtime"]).to_f/3600
-        "(nxball) #{item["accounts"].map{|account| account["description"]}.join("; ")} (running for #{timespan.round(2)} hours)"
+        "(nxball) #{item["accounts"].map{|account| account["description"]}.join("; ")} #{NxBalls::toRunningStatement(item)}"
     end
 
     # --------------------------------------------------
