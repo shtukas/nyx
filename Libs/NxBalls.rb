@@ -46,15 +46,15 @@ class NxBalls
     # --------------------------------------------------
     # Makers
 
-    # NxBalls::issue(accounts, itemuuid = nil)
-    def self.issue(accounts, itemuuid = nil)
+    # NxBalls::issue(accounts, linkeditemuuid = nil)
+    def self.issue(accounts, linkeditemuuid = nil)
         uuid  = SecureRandom.uuid
         item = {
-            "uuid"      => uuid,
-            "mikuType"  => "NxBall",
-            "unixtime"  => Time.new.to_i,
-            "accounts"  => accounts,
-            "itemuuid"  => itemuuid
+            "uuid"     => uuid,
+            "mikuType" => "NxBall",
+            "unixtime" => Time.new.to_i,
+            "accounts" => accounts,
+            "itemuuid" => linkeditemuuid
          }
         NxBalls::commit(item)
         item
