@@ -495,7 +495,8 @@ class CatalystListing
 
         txListingItems = CatalystListing::txListingItemsInPriorityOrderDesc()
 
-        lockeds, unlockeds = txListingItems.partition{|item|
+        lockeds, unlockeds = txListingItems.partition{|packet|
+            item = packet["item"]
             filepath = "#{Config::pathToDataCenter()}/Locks/#{item["uuid"]}.lock"
             File.exists?(filepath)
         }
@@ -521,9 +522,7 @@ class CatalystListing
                     cx22Str = cx22 ? " (#{Cx22::toString(cx22)})" : ""
                     line = "#{store.prefixString()} #{PolyFunctions::toStringForCatalystListing(item)}#{cx22Str.green}"
                     
-                    if priority < 0.5 then
-                        line = line.yellow
-                    end
+                    line = line.yellow
 
                     nxball = NxBalls::getNxBallForItemOrNull(item)
                     if nxball then
