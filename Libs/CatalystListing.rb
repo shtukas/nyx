@@ -523,7 +523,9 @@ class CatalystListing
         vspaceleft = vspaceleft - 1
         hasShownGreen = false
 
-        NxBalls::items().each{|nxball|
+        nxballs = NxBalls::items()
+
+        nxballs.each{|nxball|
             store.register(nxball, false)
             puts "#{store.prefixString()} #{NxBalls::toString(nxball)}".green
             vspaceleft = vspaceleft - 1
