@@ -146,7 +146,8 @@ class NyxNode1
             "datetime"     => Time.new.utc.iso8601,
             "description"  => description,
             "note"         => note,
-            "uniquestring" => uniquestring
+            "uniquestring" => uniquestring,
+            "linked"       => []
         }
         NyxNode1::commit(node)
         node

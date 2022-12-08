@@ -6,6 +6,7 @@ NyxNode1 {
     "description"  : String
     "note"         : null or String
     "uniquestring" : null or String
+    "linked"       : Array[String] # linked nodes' uuids
 }
 
 We do not have data descriptors this time around. Each node just carries a description, an optional note and an optional unique string.
