@@ -1,15 +1,5 @@
 # encoding: UTF-8
 
-=begin
-NyxNode1 {
-    "uuid"        : String
-    "mikuType"    : "NyxNode1"
-    "unixtime"    : Float
-    "datetime"    : DateTime Iso 8601 UTC Zulu
-    "description" : String
-}
-=end
-
 class NyxNode1
 
     # --------------------------------------------
@@ -17,7 +7,7 @@ class NyxNode1
 
     # NyxNode1::pathToObjectsRepository()
     def self.pathToObjectsRepository()
-        "#{Config::userHomeDirectory()}/Galaxy/NxData/03-Nyx/01-Objects"
+        "#{Config::pathToNyx()}/01-Objects"
     end
 
     # NyxNode1::commit(item)
@@ -105,7 +95,7 @@ class NyxNode1
             uniquestring = SecureRandom.hex(6)
             puts "unique string: #{uniquestring}"
             foldername = uniquestring
-            folderpath = "#{Config::pathToGalaxy()}/NxData/03-Nyx/02-Timeline/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{uniquestring}"
+            folderpath = "#{Config::pathToGalaxy()}/NxData/03-Nyx/03-Timeline/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{uniquestring}"
             puts "creating and opening folder"
             if !File.exists?(folderpath) then
                 FileUtils.mkpath(folderpath)
@@ -146,8 +136,7 @@ class NyxNode1
             "datetime"     => Time.new.utc.iso8601,
             "description"  => description,
             "note"         => note,
-            "uniquestring" => uniquestring,
-            "linked"       => []
+            "uniquestring" => uniquestring
         }
         NyxNode1::commit(node)
         node

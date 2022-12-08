@@ -18,6 +18,11 @@ class Config
         "#{Config::userHomeDirectory()}/Galaxy"
     end
 
+    # Config::pathToNyx()
+    def self.pathToNyx()
+        "#{Config::pathToGalaxy()}/NxData/03-Nyx"
+    end
+
     # Config::configFilepath()
     def self.configFilepath()
         "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate-Config.json"
