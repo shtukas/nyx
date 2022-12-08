@@ -1,15 +1,5 @@
 # encoding: UTF-8
 
-=begin
-NyxNode1 {
-    "uuid"        : String
-    "mikuType"    : "NyxNode1"
-    "unixtime"    : Float
-    "datetime"    : DateTime Iso 8601 UTC Zulu
-    "description" : String
-}
-=end
-
 class NyxNode1
 
     # --------------------------------------------
@@ -17,7 +7,7 @@ class NyxNode1
 
     # NyxNode1::pathToObjectsRepository()
     def self.pathToObjectsRepository()
-        "#{Config::userHomeDirectory()}/Galaxy/NxData/03-Nyx/01-Objects"
+        "#{Config::pathToNyx()}/01-Objects"
     end
 
     # NyxNode1::commit(item)
@@ -64,7 +54,73 @@ class NyxNode1
 
     # NyxNode1::issueUniqueStringOrNull()
     def self.issueUniqueStringOrNull()
-        nil
+
+        # We can either:
+        # 1. provide the unique string
+        # 2. the unique string is generated and the folder created at Nyx
+        # 3. the unique string is generated and you have to use it yourself.
+        # 4. A drop is generated for you, it's an empty file with a .nyx2 extension that carries the unique string in its name.
+        # 5. Decide to go with a null unique string (if for instance the note is what matters)
+
+        option1 = "no unique string (node note focused) (default)",
+        option2 = "generate string and show",
+        option3 = "generate string and create folder",
+        option4 = "generate drop file (for existing folder)"
+        option5 = "enter unique string"
+
+        options = [ option1, option2, option3, option4, option5 ]
+
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+
+        if option.nil? then
+            if LucilleCore::askQuestionAnswerAsBoolean("confirm no unique string: ") then
+                return nil
+            else
+                return NyxNode1::issueUniqueStringOrNull()
+            end
+        end
+
+        if option == option1 then
+            return nil
+        end
+
+        if option == option2 then
+            uniquestring = "Nx01-#{SecureRandom.hex(5)}"
+            puts "unique string: #{uniquestring}"
+            LucilleCore::pressEnterToContinue()
+            return uniquestring
+        end
+
+        if option == option3 then
+            uniquestring = SecureRandom.hex(6)
+            puts "unique string: #{uniquestring}"
+            foldername = uniquestring
+            folderpath = "#{Config::pathToGalaxy()}/NxData/03-Nyx/03-Timeline/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{uniquestring}"
+            puts "creating and opening folder"
+            if !File.exists?(folderpath) then
+                FileUtils.mkpath(folderpath)
+            end
+            system("open '#{folderpath}'")
+            LucilleCore::pressEnterToContinue()
+            return uniquestring
+        end
+
+        if option == option4 then
+            uniquestring = SecureRandom.hex(6)
+            filename = "#{uniquestring}.nxy2"
+            filepath = "#{Config::userHomeDirectory()}/Desktop/#{filename}"
+            puts "creating drop file at [desktop] #{File.dirname(filepath)}"
+            FileUtils.touch(filepath)
+            LucilleCore::pressEnterToContinue()
+            return uniquestring
+        end
+
+        if option == option5 then
+            uniquestring = LucilleCore::askQuestionAnswerAsString("unique string: ")
+            return uniquestring
+        end
+
+        raise "(error: adef292f-1765-4f92-b26a-9b5fef01125a) How did that happen ?"
     end
 
     # NyxNode1::interactivelyIssueNewOrNull()

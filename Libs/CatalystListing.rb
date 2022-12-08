@@ -7,7 +7,7 @@ class CatalystListing
         [
             "[listing interaction] .. | <datecode> | access (<n>) | group (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | destroy",
             "[makers] wave | anniversary | today | ondate | todo | Cx22 | project | manual countdown",
-            "[nxballs] start <n> | stop <n>",
+            "[nxballs] start (<n>) | stop <n>",
             "[divings] anniversaries | ondates | waves | groups | todos | float",
             "[transmutations] >todo",
             "[misc] require internet",
@@ -291,6 +291,13 @@ class CatalystListing
             return
         end
 
+        if Interpreting::match("start", input) then
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::start(item)
+            return
+        end
+
         if Interpreting::match("start *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
@@ -470,19 +477,38 @@ class CatalystListing
             vspaceleft = vspaceleft - 2
         end
 
+        itemToNxBallStateWithPrefixOrEmptyString = lambda {|item|
+            nxballuuid = XCache::getOrNull("item-to-nxball-c15a5a0bcc54:#{item["uuid"]}")
+            return "" if nxballuuid.nil?
+            nxball = NxBalls::getItemOrNull(nxballuuid)
+            return "" if nxball.nil?
+            " #{NxBalls::toRunningStatement(item)}"
+        }
+
+        nxballHasAnItemInThere = lambda {|nxball, txListingItems|
+            nxballuuid = nxball["uuid"]
+            itemuuid = XCache::getOrNull("nxball-to-item-44f636350009:#{nxballuuid}")
+            return false if itemuuid.nil?
+            txListingItems.any?{|packet| packet["item"]["uuid"] == itemuuid }
+        }
+
+        floats = TxFloats::listingItems()
+
         txListingItems = CatalystListing::txListingItemsInPriorityOrderDesc()
 
-        lockeds = txListingItems
-            .select{|packet|
-                item = packet["item"]
-                priority = packet["priority"]
-                filepath = "#{Config::pathToDataCenter()}/Locks/#{item["uuid"]}.lock"
-                File.exists?(filepath)
-            }
+        lockeds, unlockeds = txListingItems.partition{|item|
+            filepath = "#{Config::pathToDataCenter()}/Locks/#{item["uuid"]}.lock"
+            File.exists?(filepath)
+        }
 
-        if lockeds.size > 0 then
+        if (floats.size+lockeds.size) > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
+            floats.each{|float|
+                    store.register(float, false)
+                    puts "#{store.prefixString()} #{TxFloats::toString(float)}"
+                    vspaceleft = vspaceleft - 1
+                }
             lockeds
                 .each{|packet|
 
@@ -493,7 +519,7 @@ class CatalystListing
                     store.register(item, false)
                     cx22 =  packet["cx22"]
                     cx22Str = cx22 ? " (#{Cx22::toString(cx22)})" : ""
-                    line = "#{store.prefixString()} #{PolyFunctions::toStringForCatalystListing(item)}#{cx22Str.green}"
+                    line = "#{store.prefixString()} #{PolyFunctions::toStringForCatalystListing(item)}#{cx22Str.green}#{itemToNxBallStateWithPrefixOrEmptyString.call(item).green}"
                     if priority < 0.5 then
                         line = line.yellow
                     end
@@ -507,45 +533,31 @@ class CatalystListing
                 }
         end
 
-
-        floats = TxFloats::listingItems()
-        if floats.size > 0 then
+        nxballs = NxBalls::items()
+                    .select{|nxball| !nxballHasAnItemInThere.call(nxball, txListingItems) }
+        if nxballs.size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
-            floats.each{|float|
-                    store.register(float, false)
-                    puts "#{store.prefixString()} #{TxFloats::toString(float)}"
+            nxballs
+                .each{|nxball|
+                    store.register(nxball, false)
+                    puts "#{store.prefixString()} #{NxBalls::toString(nxball)}".green
                     vspaceleft = vspaceleft - 1
                 }
         end
 
         puts ""
         vspaceleft = vspaceleft - 1
-        hasShownGreen = false
 
-        nxballs = NxBalls::items()
-
-        nxballs.each{|nxball|
-            store.register(nxball, false)
-            puts "#{store.prefixString()} #{NxBalls::toString(nxball)}".green
-            vspaceleft = vspaceleft - 1
-            hasShownGreen = true
-        }
-
-        txListingItems
+        unlockeds
             .each{|packet|
-
                 item = packet["item"]
                 priority = packet["priority"]
-
-                filepath = "#{Config::pathToDataCenter()}/Locks/#{item["uuid"]}.lock"
-                next if File.exists?(filepath)
-
                 break if vspaceleft <= 0
                 store.register(item, true)
                 cx22 =  packet["cx22"]
                 cx22Str = cx22 ? " (Cx22: #{cx22["description"]})" : ""
-                line = "#{store.prefixString()} #{PolyFunctions::toStringForCatalystListing(item)}#{cx22Str.green}"
+                line = "#{store.prefixString()} #{PolyFunctions::toStringForCatalystListing(item)}#{cx22Str.green}#{itemToNxBallStateWithPrefixOrEmptyString.call(item).green}"
                 if priority < 0.5 then
                     line = line.yellow
                 end
