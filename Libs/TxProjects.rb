@@ -68,7 +68,7 @@ class TxProjects
     # TxProjects::toString(item)
     def self.toString(item)
         percentage = 100 * Ax39::completionRatio(item["uuid"], item["ax39"])
-        "(project) #{item["description"]} (#{percentage} % of #{Ax39::toString(item["ax39"])})"
+        "(project) #{item["description"]} (#{percentage.round(2)} % of #{Ax39::toString(item["ax39"])})"
     end
 
     # TxProjects::listingItems()
