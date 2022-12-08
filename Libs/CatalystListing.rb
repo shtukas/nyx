@@ -176,7 +176,9 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             puts JSON.pretty_generate(item)
-            puts "priority: #{PolyFunctions::listingPriorityOrNull(item)}"
+            if item["mikuType"] != "NxBall" then
+                puts "priority: #{PolyFunctions::listingPriorityOrNull(item)}"
+            end
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -186,7 +188,9 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             puts JSON.pretty_generate(item)
-            puts "priority: #{PolyFunctions::listingPriorityOrNull(item)}"
+            if item["mikuType"] != "NxBall" then
+                puts "priority: #{PolyFunctions::listingPriorityOrNull(item)}"
+            end
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -310,12 +314,16 @@ class CatalystListing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            if item["mikuType"] != "NxBall" then
-                puts "You can only stop NxBalls"
-                LucilleCore::pressEnterToContinue()
+
+            if item["mikuType"] == "NxBall" then
+                NxBalls::close(item)
                 return
+            else
+                nxball = NxBalls::getNxBallForItemOrNull(item)
+                if nxball then
+                    NxBalls::close(nxball)
+                end
             end
-            NxBalls::close(item)
             return
         end
 
@@ -477,17 +485,8 @@ class CatalystListing
             vspaceleft = vspaceleft - 2
         end
 
-        itemToNxBallStateWithPrefixOrEmptyString = lambda {|item|
-            nxballuuid = XCache::getOrNull("item-to-nxball-c15a5a0bcc54:#{item["uuid"]}")
-            return "" if nxballuuid.nil?
-            nxball = NxBalls::getItemOrNull(nxballuuid)
-            return "" if nxball.nil?
-            " #{NxBalls::toRunningStatement(item)}"
-        }
-
         nxballHasAnItemInThere = lambda {|nxball, txListingItems|
-            nxballuuid = nxball["uuid"]
-            itemuuid = XCache::getOrNull("nxball-to-item-44f636350009:#{nxballuuid}")
+            itemuuid = nxball["itemuuid"]
             return false if itemuuid.nil?
             txListingItems.any?{|packet| packet["item"]["uuid"] == itemuuid }
         }
@@ -517,17 +516,20 @@ class CatalystListing
 
                     break if vspaceleft <= 0
                     store.register(item, false)
+
                     cx22 =  packet["cx22"]
                     cx22Str = cx22 ? " (#{Cx22::toString(cx22)})" : ""
-                    line = "#{store.prefixString()} #{PolyFunctions::toStringForCatalystListing(item)}#{cx22Str.green}#{itemToNxBallStateWithPrefixOrEmptyString.call(item).green}"
+                    line = "#{store.prefixString()} #{PolyFunctions::toStringForCatalystListing(item)}#{cx22Str.green}"
+                    
                     if priority < 0.5 then
                         line = line.yellow
                     end
-                    nxball = TxItemCx22Pair::getNxBallOrNull(item["uuid"])
-                    line = line.yellow
+
+                    nxball = NxBalls::getNxBallForItemOrNull(item)
                     if nxball then
-                        line = line.green
+                        line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
                     end
+
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
@@ -555,16 +557,20 @@ class CatalystListing
                 priority = packet["priority"]
                 break if vspaceleft <= 0
                 store.register(item, true)
+
                 cx22 =  packet["cx22"]
                 cx22Str = cx22 ? " (Cx22: #{cx22["description"]})" : ""
-                line = "#{store.prefixString()} #{PolyFunctions::toStringForCatalystListing(item)}#{cx22Str.green}#{itemToNxBallStateWithPrefixOrEmptyString.call(item).green}"
+                line = "#{store.prefixString()} #{PolyFunctions::toStringForCatalystListing(item)}#{cx22Str.green}"
+
                 if priority < 0.5 then
                     line = line.yellow
                 end
-                nxball = TxItemCx22Pair::getNxBallOrNull(item["uuid"])
+
+                nxball = NxBalls::getNxBallForItemOrNull(item)
                 if nxball then
-                    line = line.green
+                    line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
                 end
+
                 puts line
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }

@@ -4,6 +4,7 @@ NxBall
     "mikuType"    : "NxBall"
     "unixtime"    : Float
     "accounts"    : Array[Account]
+    "itemuuid"    : null or String
 
 Account {
     "description" : String

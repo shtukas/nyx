@@ -46,15 +46,16 @@ class NxBalls
     # --------------------------------------------------
     # Makers
 
-    # NxBalls::issue(accounts)
-    def self.issue(accounts)
+    # NxBalls::issue(accounts, itemuuid = nil)
+    def self.issue(accounts, itemuuid = nil)
         uuid  = SecureRandom.uuid
         item = {
-            "uuid"        => uuid,
-            "mikuType"    => "NxBall",
-            "unixtime"    => Time.new.to_i,
-            "accounts"    => accounts
-        }
+            "uuid"      => uuid,
+            "mikuType"  => "NxBall",
+            "unixtime"  => Time.new.to_i,
+            "accounts"  => accounts,
+            "itemuuid"  => itemuuid
+         }
         NxBalls::commit(item)
         item
     end
@@ -73,6 +74,13 @@ class NxBalls
         "(nxball) #{item["accounts"].map{|account| account["description"]}.join("; ")} #{NxBalls::toRunningStatement(item)}"
     end
 
+    # NxBalls::getNxBallForItemOrNull(item)
+    def self.getNxBallForItemOrNull(item)
+        NxBalls::items()
+            .select{|nxball| nxball["itemuuid"] == item["uuid"] }
+            .first
+    end
+
     # --------------------------------------------------
     # Operations
 
@@ -84,15 +92,5 @@ class NxBalls
             Bank::put(account["number"], timespan)
         }
         NxBalls::destroy(nxball["uuid"])
-    end
-
-    # NxBalls::start()
-    def self.start()
-        cx22 = Cx22::interactivelySelectCx22OrNull()
-        return if cx22.nil?
-        NxBalls::issue([{
-            "description" => cx22["description"],
-            "number"      => cx22["uuid"]
-        }])
     end
 end
