@@ -310,6 +310,22 @@ class CatalystListing
             return
         end
 
+        if Interpreting::match("stop", input) then
+            item = store.getDefault()
+            return if item.nil?
+
+            if item["mikuType"] == "NxBall" then
+                NxBalls::close(item)
+                return
+            else
+                nxball = NxBalls::getNxBallForItemOrNull(item)
+                if nxball then
+                    NxBalls::close(nxball)
+                end
+            end
+            return
+        end
+
         if Interpreting::match("stop *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
