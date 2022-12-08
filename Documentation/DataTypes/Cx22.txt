@@ -6,4 +6,5 @@ Cx22 {
     "datetime"     : DateTime Iso 8601 UTC Zulu
     "description"  : String
     "ax39"         : Ax39
+    "isWork"       : Boolean
 }

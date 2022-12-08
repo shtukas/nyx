@@ -39,7 +39,8 @@ class Cx22
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "ax39"        => ax39
+            "ax39"        => ax39,
+            "isWork"      => false
         }
         FileSystemCheck::fsck_Cx22(item, true)
         Cx22::commit(item)
