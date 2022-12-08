@@ -109,7 +109,7 @@ class NxTodos
         Cx22::itemsInCompletionOrder()
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-            .select{|cx22| Ax39::completionRatio(cx22["uuid"], cx22["ax39"]) < 1 }
+            .select{|cx22| Ax39::standardAx39CarrierOperationalRatio(cx22) < 1 }
             .first
     end
 

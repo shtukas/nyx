@@ -66,26 +66,35 @@ class Ax39
 
     end
 
-    # Ax39::completionRatio(uuid, ax39)
-    def self.completionRatio(uuid, ax39)
+    # Ax39::operationalRatio(uuid, ax39, unrealisedTimespan = nil)
+    def self.operationalRatio(uuid, ax39, unrealisedTimespan = nil)
         raise "(error: 92e23de4-61eb-4a07-a128-526e4be0e72a)" if ax39.nil?
         return 1 if !DoNotShowUntil::isVisible(uuid)
         if ax39["type"] == "daily-time-commitment" then
-            return BankExtended::stdRecoveredDailyTimeInHours(uuid).to_f/ax39["hours"]
+            return BankExtended::stdRecoveredDailyTimeInHours(uuid, unrealisedTimespan).to_f/ax39["hours"]
         end
         if ax39["type"] == "weekly-time-commitment" then
             dates = CommonUtils::datesSinceLastSaturday()
             idealTimeDoneInSeconds  = ([dates.size, 5].min.to_f/5)*ax39["hours"]*3600
-            actualTimeDoneInSeconds = Bank::combinedValueOnThoseDays(uuid, dates)
+            actualTimeDoneInSeconds = Bank::combinedValueOnThoseDays(uuid, dates, unrealisedTimespan)
             ratio = actualTimeDoneInSeconds.to_f/idealTimeDoneInSeconds
             return ratio
         end
         if ax39["type"] == "work:(mon-to-fri)+(week-end-overflow)" then
             dates = CommonUtils::datesSinceLastMonday()
             idealTimeDoneInSeconds  = ([dates.size, 5].min.to_f/5)*ax39["hours"]*3600
-            actualTimeDoneInSeconds = Bank::combinedValueOnThoseDays(uuid, dates)
+            actualTimeDoneInSeconds = Bank::combinedValueOnThoseDays(uuid, dates, unrealisedTimespan)
             ratio = actualTimeDoneInSeconds.to_f/idealTimeDoneInSeconds
             return ratio
         end
+    end
+
+    # Ax39::standardAx39CarrierOperationalRatio(item)
+    def self.standardAx39CarrierOperationalRatio(item)
+        uuid = item["uuid"]
+        ax39 = item["ax39"]
+        nxball = NxBalls::getNxBallForItemOrNull(item)
+        unrealisedTimespan = nxball ? (Time.new.to_f - nxball["unixtime"]) : nil
+        Ax39::operationalRatio(uuid, ax39, unrealisedTimespan)
     end
 end

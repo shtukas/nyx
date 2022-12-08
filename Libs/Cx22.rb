@@ -56,7 +56,7 @@ class Cx22
 
     # Cx22::toStringWithDetails(item)
     def self.toStringWithDetails(item)
-        percentage = 100 * Ax39::completionRatio(item["uuid"], item["ax39"])
+        percentage = 100 * Ax39::standardAx39CarrierOperationalRatio(item)
         percentageStr = ": #{percentage.to_i.to_s.rjust(3)} %"
 
         datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
@@ -68,7 +68,7 @@ class Cx22
     # Cx22::toStringWithDetailsFormatted(item)
     def self.toStringWithDetailsFormatted(item)
         descriptionPadding = (XCache::getOrNull("Cx22-Description-Padding-DDBBF46A-2D56-4931-BE11-AF66F97F738E") || 28).to_i # the original value
-        percentage = 100 * Ax39::completionRatio(item["uuid"], item["ax39"])
+        percentage = 100 * Ax39::standardAx39CarrierOperationalRatio(item)
         percentageStr = ": #{percentage.to_i.to_s.rjust(3)} %"
 
         datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
@@ -80,7 +80,7 @@ class Cx22
     # Cx22::toStringForListing(item)
     def self.toStringForListing(item)
         descriptionPadding = (XCache::getOrNull("Cx22-Description-Padding-DDBBF46A-2D56-4931-BE11-AF66F97F738E") || 28).to_i # the original value
-        percentage = 100 * Ax39::completionRatio(item["uuid"], item["ax39"])
+        percentage = 100 * Ax39::standardAx39CarrierOperationalRatio(item)
         percentageStr = ": #{percentage.to_i.to_s.rjust(3)} %"
 
         datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
@@ -95,7 +95,7 @@ class Cx22
             .map{|cx22|  
                 {
                     "cx22"  => cx22,
-                    "ratio" => Ax39::completionRatio(cx22["uuid"], cx22["ax39"])
+                    "ratio" => Ax39::standardAx39CarrierOperationalRatio(cx22)
                 }
             }
             .sort{|p1, p2| p1["ratio"] <=> p2["ratio"] }
@@ -107,7 +107,7 @@ class Cx22
 
     # Cx22::interactivelySelectCx22OrNull()
     def self.interactivelySelectCx22OrNull()
-        cx22s = Cx22::items().sort{|i1, i2| Ax39::completionRatio(i1["uuid"], i1["ax39"]) <=> Ax39::completionRatio(i2["uuid"], i2["ax39"]) }
+        cx22s = Cx22::items().sort{|i1, i2| Ax39::standardAx39CarrierOperationalRatio(i1) <=> Ax39::standardAx39CarrierOperationalRatio(i2) }
         LucilleCore::selectEntityFromListOfEntitiesOrNull("cx22", cx22s, lambda{|cx22| Cx22::toStringWithDetailsFormatted(cx22)})
     end
 

@@ -28,8 +28,14 @@ class Bank
         db.close
     end
 
-    # Bank::valueAtDate(setuuid, date)
-    def self.valueAtDate(setuuid, date)
+    # Bank::valueAtDate(setuuid, date, unrealisedTimespan = nil)
+    def self.valueAtDate(setuuid, date, unrealisedTimespan = nil)
+        unrealisedTimespan = 
+            if date == CommonUtils::today() and unrealisedTimespan then
+                unrealisedTimespan
+            else
+                0
+            end
         prefix = Config::allInstanceIds()
                     .map{|instanceId| Bank::databaseFilepath(instanceId) }
                     .map{|filepath| File.mtime(filepath).to_s }
@@ -37,9 +43,11 @@ class Bank
 
         cachekey = "#{prefix}:#{setuuid}:#{date}"
         value = XCache::getOrNull(cachekey)
-        return value.to_f if value
+        if value then
+            return value.to_f + unrealisedTimespan
+        end
 
-        value = 0
+        value = 0 
 
         Config::allInstanceIds().each{|instanceId|
             filepath = Bank::databaseFilepath(instanceId)
@@ -54,12 +62,12 @@ class Bank
         }
 
         XCache::set(cachekey, value)
-        value
+        value + unrealisedTimespan
     end
 
-    # Bank::combinedValueOnThoseDays(setuuid, dates)
-    def self.combinedValueOnThoseDays(setuuid, dates)
-        dates.map{|date| Bank::valueAtDate(setuuid, date) }.inject(0, :+)
+    # Bank::combinedValueOnThoseDays(setuuid, dates, unrealisedTimespan = nil)
+    def self.combinedValueOnThoseDays(setuuid, dates, unrealisedTimespan = nil)
+        dates.map{|date| Bank::valueAtDate(setuuid, date, unrealisedTimespan)}.inject(0, :+)
     end
 end
 
@@ -70,23 +78,22 @@ class BankExtended
         (-6..0).map{|i| CommonUtils::nDaysInTheFuture(i) }.map{|date| Bank::valueAtDate(setuuid, date).to_f/3600 }
     end
 
-    # BankExtended::timeRatioOverDayCount(setuuid, daysCount)
-    def self.timeRatioOverDayCount(setuuid, daysCount)
+    # BankExtended::timeRatioOverDayCount(setuuid, daysCount, unrealisedTimespan = nil)
+    def self.timeRatioOverDayCount(setuuid, daysCount, unrealisedTimespan = nil)
         value = (0..(daysCount-1))
                     .map{|i| CommonUtils::nDaysInTheFuture(-i) }
-                    .map{|date| Bank::valueAtDate(setuuid, date) }
+                    .map{|date| Bank::valueAtDate(setuuid, date, unrealisedTimespan)}
                     .inject(0, :+)
         value.to_f/(daysCount*86400)
     end
 
-    # BankExtended::bestTimeRatioWithinDayCount(setuuid, daysCount)
-    def self.bestTimeRatioWithinDayCount(setuuid, daysCount)
-        (1..daysCount).map{|i| BankExtended::timeRatioOverDayCount(setuuid, i) }.max
+    # BankExtended::bestTimeRatioWithinDayCount(setuuid, daysCount, unrealisedTimespan = nil)
+    def self.bestTimeRatioWithinDayCount(setuuid, daysCount, unrealisedTimespan = nil)
+        (1..daysCount).map{|i| BankExtended::timeRatioOverDayCount(setuuid, i, unrealisedTimespan) }.max
     end
 
-    # BankExtended::stdRecoveredDailyTimeInHours(setuuid)
-    def self.stdRecoveredDailyTimeInHours(setuuid)
-        return 0 if setuuid.nil?
-        (BankExtended::bestTimeRatioWithinDayCount(setuuid, 7)*86400).to_f/3600
+    # BankExtended::stdRecoveredDailyTimeInHours(setuuid, unrealisedTimespan = nil)
+    def self.stdRecoveredDailyTimeInHours(setuuid, unrealisedTimespan = nil)
+        (BankExtended::bestTimeRatioWithinDayCount(setuuid, 7, unrealisedTimespan)*86400).to_f/3600
     end
 end

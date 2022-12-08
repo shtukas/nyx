@@ -192,7 +192,7 @@ class PolyFunctions
 
         if item["mikuType"] == "Cx22" then
             return nil if !DoNotShowUntil::isVisible(item["uuid"])
-            completionRatio = Ax39::completionRatio(item["uuid"], item["ax39"])
+            completionRatio = Ax39::standardAx39CarrierOperationalRatio(item)
             return nil if completionRatio >= 1
             return 0.78 + shiftOnCompletionRatio.call(completionRatio)
         end
