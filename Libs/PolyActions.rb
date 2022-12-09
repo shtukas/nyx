@@ -282,14 +282,23 @@ class PolyActions
         if item["mikuType"] == "NxTodo" then
             nxball = PolyActions::start(item)
             NxTodos::access(item)
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["done", "run in background"])
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["done", "stop", "run in background", "update description"])
             return if option.nil?
             if option == "done" then
                 NxTodos::destroy(item["uuid"])
                 NxBalls::close(nxball) if nxball
             end
+            if option == "stop" then
+                NxBalls::close(nxball) if nxball
+                return
+            end
             if option == "run in background" then
                 TxItemCx22Pair::issue(item["uuid"], nxball["uuid"])
+                return
+            end
+            if option == "update description" then
+                description = LucilleCore::askQuestionAnswerAsString("description: ")
+                NxTodos::setAttribute(item["uuid"], "description", description)
                 return
             end
             return

@@ -53,6 +53,11 @@ class NxTodos
         Cx22Mapping::garbageCollection(uuid)
     end
 
+    # NxTodos::setAttribute(uuid, attname, attvalue)
+    def self.setAttribute(uuid, attname, attvalue)
+        Nx5Ext::setAttribute(NxTodos::uuidToNx5Filepath(uuid), attname, attvalue)
+    end
+
     # --------------------------------------------------
     # Makers
 
@@ -188,11 +193,16 @@ class NxTodos
     # NxTodos::probe(item)
     def self.probe(item)
         loop {
-            actions = ["access", "destroy"]
+            actions = ["access", "update description", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "access" then
                 NxTodos::access(item)
+            end
+            if option == "update description" then
+                description = LucilleCore::askQuestionAnswerAsString("description: ")
+                NxTodos::setAttribute(item["uuid"], "description", description)
+                item = NxTodos::getItemOrNull(item["uuid"])
             end
             if action == "destroy" then
                 NxTodos::destroy(item["uuid"])
