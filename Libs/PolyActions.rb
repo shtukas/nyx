@@ -154,30 +154,32 @@ class PolyActions
 
         if item["mikuType"] == "NxTodo" then
             puts PolyFunctions::toString(item)
-            if item["nx113"] then
-                puts "You are attempting to done a NxTodo which carries some contents (Nx113)"
-                option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["destroy", "exit"])
-                return if option == ""
-                if option == "destroy" then
-                    NxTodos::destroy(item["uuid"])
-                    TxItemCx22Pair::closeNxBallForItemIfExists(item["uuid"])
-                end
-                if option == "exit" then
-                    return
-                end
-                return
-            end
             if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
-                NxTodos::destroy(item["uuid"])
-                TxItemCx22Pair::closeNxBallForItemIfExists(item["uuid"])
+                if item["nx113"] then
+                    puts "You are attempting to done a NxTodo which carries some contents (Nx113)"
+                    option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["destroy", "exit"])
+                    return if option == ""
+                    if option == "destroy" then
+                        NxBalls::closeNxBallForItemOrNothing(item)
+                        NxTodos::destroy(item["uuid"])
+                        return
+                    end
+                    if option == "exit" then
+                        return
+                    end
+                    return
+                else
+                    NxBalls::closeNxBallForItemOrNothing(item)
+                    NxTodos::destroy(item["uuid"])
+                end
             end
             return
         end
 
         if item["mikuType"] == "NxTriage" then
             if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTriage '#{NxTriages::toString(item).green} ? '") then
+                NxBalls::closeNxBallForItemOrNothing(item)
                 NxTriages::destroy(item["uuid"])
-                TxItemCx22Pair::closeNxBallForItemIfExists(item["uuid"])
             end
             return
         end
@@ -191,8 +193,8 @@ class PolyActions
 
         if item["mikuType"] == "Wave" then
             if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
+                NxBalls::closeNxBallForItemOrNothing(item)
                 Waves::performWaveNx46WaveDone(item)
-                TxItemCx22Pair::closeNxBallForItemIfExists(item["uuid"])
             end
             return
         end

@@ -1,5 +1,0 @@
-
-TxItemCx22Pair {
-    "itemuuid"   : String # Should be the uuid of the item
-    "nxballuuid" : String
-}

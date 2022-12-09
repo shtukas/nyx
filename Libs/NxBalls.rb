@@ -93,4 +93,11 @@ class NxBalls
         }
         NxBalls::destroy(nxball["uuid"])
     end
+
+    # NxBalls::closeNxBallForItemOrNothing(item)
+    def self.closeNxBallForItemOrNothing(item)
+        nxball = NxBalls::getNxBallForItemOrNull(item)
+        return if nxball.nil?
+        NxBalls::close(nxball)
+    end
 end
