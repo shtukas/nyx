@@ -172,7 +172,6 @@ require_relative "InMemoryStore.rb"
 require_relative "FileSystemCheck.rb"
 
 require_relative "LambdX1s.rb"
-require_relative "LightSpeed.rb"
 
 require_relative "Nyx.rb"
 require_relative "Nx113.rb"

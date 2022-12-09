@@ -61,13 +61,22 @@ class NxTodos
     # --------------------------------------------------
     # Makers
 
+    # NxTodos::decidePriority()
+    def self.decidePriority()
+        priority = LucilleCore::askQuestionAnswerAsString("priority 1, 2, 3 : ").to_i
+        if ![1, 2, 3].include?(priority) then
+            return NxTodos::decidePriority()
+        end
+        priority
+    end
+
     # NxTodos::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid  = CommonUtils::timeStringL22() # We want the items to come in time order, ideally
         nx113 = Nx113Make::interactivelyMakeNx113OrNull(NxTodos::getElizabethOperatorForUUID(uuid))
-        lightspeed = LightSpeed::interactivelyCreateNewLightSpeed()
+        priority = NxTodos::decidePriority()
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
@@ -75,24 +84,10 @@ class NxTodos
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
             "nx113"       => nx113,
-            "lightspeed"  => lightspeed
+            "priority"    => priority
         }
         NxTodos::commitObject(item)
         item
-    end
-
-    # NxTodos::issueFromElements(uuid, description, nx113, lightspeed)
-    def self.issueFromElements(uuid, description, nx113, lightspeed)
-        item = {
-            "uuid"        => uuid,
-            "mikuType"    => "NxTodo",
-            "unixtime"    => Time.new.to_i,
-            "datetime"    => Time.new.utc.iso8601,
-            "description" => description,
-            "nx113"       => nx113,
-            "lightspeed"  => lightspeed
-        }
-        NxTodos::commitObject(item)
     end
 
     # --------------------------------------------------
@@ -136,7 +131,7 @@ class NxTodos
             end
         end
         items = NxTodos::itemsForCx22(cx22)
-                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+                    .sort{|i1, i2| i1["priority"] <=> i2["priority"] }
                     .first(10)
         uuids = items.map{|item| item["uuid"] }
         packet = {
@@ -159,7 +154,7 @@ class NxTodos
             end
         end
         items = NxTodos::itemsWithoutCx22()
-                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+                    .sort{|i1, i2| i1["priority"] <=> i2["priority"] }
                     .first(10)
         uuids = items.map{|item| item["uuid"] }
         packet = {

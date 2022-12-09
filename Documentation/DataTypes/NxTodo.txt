@@ -7,4 +7,4 @@ NxTodo:
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : String
     "nx113"       : Nx113
-    "lightspeed"  : LightSpeed
+    "priority"    : Integer

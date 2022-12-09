@@ -384,15 +384,7 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
-            FileSystemCheck::ensureAttribute(item, "lightspeed", "Hash")
-
-            lightspeed = item["lightspeed"]
-            FileSystemCheck::ensureAttribute(lightspeed, "unixtime", "Number")
-            FileSystemCheck::ensureAttribute(lightspeed, "period", "String")
-            if !["hours", "days", "weeks", "months" ].include?(lightspeed["period"]) then
-                raise "Incorrect lightspeed period in #{JSON.pretty_generate(item)}"
-            end
-
+            FileSystemCheck::ensureAttribute(item, "priority", "Number")
             FileSystemCheck::fsck_Nx113(NxTodos::getElizabethOperatorForItem(item), item["nx113"], verbose)
             return
         end

@@ -174,9 +174,9 @@ class NxTriages
         filepath1 = NxTriages::uuidToNx5Filepath(item["uuid"])
         filepath2 = NxTodos::uuidToNx5Filepath(item["uuid"])
 
-        # We start by setting a lightspeed
-        lightspeed = LightSpeed::interactivelyCreateNewLightSpeed()
-        Nx5Ext::setAttribute(filepath1, "lightspeed", lightspeed)
+        # We start by setting a priority
+        priority =  NxTodos::decidePriority()
+        Nx5Ext::setAttribute(filepath1, "priority", priority)
 
         # We set the new Miku Type
         Nx5Ext::setAttribute(filepath1, "mikuType", "NxTodo")
