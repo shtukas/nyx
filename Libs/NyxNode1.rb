@@ -43,8 +43,8 @@ class NyxNode1
     # --------------------------------------------
     # 
 
-    # NyxNode1::interacrtivelyMakeNoteOrNull()
-    def self.interacrtivelyMakeNoteOrNull()
+    # NyxNode1::interactivelyMakeNoteOrNull()
+    def self.interactivelyMakeNoteOrNull()
         note = nil
         if LucilleCore::askQuestionAnswerAsBoolean("add note ? :") then
             note = CommonUtils::editTextSynchronously("")
@@ -127,7 +127,7 @@ class NyxNode1
     def self.interactivelyIssueNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-        note = NyxNode1::interacrtivelyMakeNoteOrNull()
+        note = NyxNode1::interactivelyMakeNoteOrNull()
         uniquestring = NyxNode1::issueUniqueStringOrNull()
         node = {
             "uuid"         => SecureRandom.uuid,
