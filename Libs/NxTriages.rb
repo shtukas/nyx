@@ -99,11 +99,6 @@ class NxTriages
         "(triage) #{item["description"]}#{nx113str}"
     end
 
-    # NxTriages::listingItems()
-    def self.listingItems()
-        NxTriages::items()
-    end
-
     # --------------------------------------------------
     # Operations
 

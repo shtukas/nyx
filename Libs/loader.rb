@@ -265,8 +265,6 @@ if $RunNonEssentialThreads then
         }
     }
 
-    NxTodos::listingItemsManager()
-
 end
 
 # ------------------------------------------------------------

@@ -362,98 +362,131 @@ class CatalystListing
         end
 
         if Interpreting::match("speed", input) then
-
-            tests = [
-                {
-                    "name" => "source code trace generation",
-                    "lambda" => lambda { CommonUtils::stargateTraceCode() }
-                },
-                {
-                    "name" => "Anniversaries::listingItems()",
-                    "lambda" => lambda { Anniversaries::listingItems() }
-                },
-                {
-                    "name" => "The99Percent::getCurrentCount()",
-                    "lambda" => lambda { The99Percent::getCurrentCount() }
-                },
-                {
-                    "name" => "NxTodos::listingItems()",
-                    "lambda" => lambda { NxTodos::listingItems() }
-                },
-                {
-                    "name" => "TxManualCountDowns::listingItems()",
-                    "lambda" => lambda { TxManualCountDowns::listingItems() }
-                },
-                {
-                    "name" => "Waves::items()",
-                    "lambda" => lambda { Waves::items() }
-                },
-                {
-                    "name" => "NxTriages::listingItems()",
-                    "lambda" => lambda { NxTriages::listingItems() }
-                },
-
-            ]
-
-            runTest = lambda {|test|
-               t1 = Time.new.to_f
-                (1..3).each{ test["lambda"].call() }
-                t2 = Time.new.to_f
-                {
-                    "name" => test["name"],
-                    "runtime" => (t2 - t1).to_f/3
-                }
-            }
-
-            printTestResults = lambda{|result, padding|
-                puts "- #{result["name"].ljust(padding)} : #{"%6.3f" % result["runtime"]}"
-            }
-
-            padding = tests.map{|test| test["name"].size }.max
-
-            # dry run to initialise things
-            tests
-                .each{|test|
-                    test["lambda"].call()
-                }
-
-            results = tests
-                        .map{|test|
-                            puts "running: #{test["name"]}"
-                            runTest.call(test)
-                        }
-                        .sort{|r1, r2| r1["runtime"] <=> r2["runtime"] }
-                        .reverse
-
-            puts ""
-            results
-                .each{|result|
-                    printTestResults.call(result, padding)
-                }
-
-            puts ""
-            printTestResults.call(runTest.call({
-                "name" => "CatalystListing::listingItems",
-                "lambda" => lambda { CatalystListing::listingItems }
-            }), padding)
-
-            LucilleCore::pressEnterToContinue()
+            CatalystListing::runSpeedTest()
             return
         end
+    end
+
+    # CatalystListing::runSpeedTest()
+    def self.runSpeedTest()
+        tests = [
+            {
+                "name" => "source code trace generation",
+                "lambda" => lambda { CommonUtils::stargateTraceCode() }
+            },
+            {
+                "name" => "Anniversaries::listingItems()",
+                "lambda" => lambda { Anniversaries::listingItems() }
+            },
+            {
+                "name" => "The99Percent::getCurrentCount()",
+                "lambda" => lambda { The99Percent::getCurrentCount() }
+            },
+            {
+                "name" => "Waves::listingItems(ns:mandatory-today)",
+                "lambda" => lambda { Waves::listingItems("ns:mandatory-today") }
+            },
+            {
+                "name" => "NxOndates::listingItems()",
+                "lambda" => lambda { NxOndates::listingItems() }
+            },
+            {
+                "name" => "Cx22::listingItemsIsWork()",
+                "lambda" => lambda { Cx22::listingItemsIsWork() }
+            },
+            {
+                "name" => "NxTriages::items()",
+                "lambda" => lambda { NxTriages::items() }
+            },
+            {
+                "name" => "TxManualCountDowns::listingItems()",
+                "lambda" => lambda { TxManualCountDowns::listingItems() }
+            },
+            {
+                "name" => "Cx22::listingItemsTop()",
+                "lambda" => lambda { Cx22::listingItemsTop() }
+            },
+            {
+                "name" => "Waves::listingItems(ns:time-important)",
+                "lambda" => lambda { Waves::listingItems("ns:time-important") }
+            },
+            {
+                "name" => "TxProjects::listingItems()",
+                "lambda" => lambda { TxProjects::listingItems() }
+            },
+            {
+                "name" => "Waves::listingItems(ns:beach)",
+                "lambda" => lambda { Waves::listingItems("ns:beach") }
+            },
+            {
+                "name" => "Waves::listingItems(ns:beach)",
+                "lambda" => lambda { Waves::listingItems("ns:beach") }
+            },
+            {
+                "name" => "NxTodos::listingItems()",
+                "lambda" => lambda { NxTodos::listingItems() }
+            }
+        ]
+
+        runTest = lambda {|test|
+            t1 = Time.new.to_f
+            (1..3).each{ test["lambda"].call() }
+            t2 = Time.new.to_f
+            {
+                "name" => test["name"],
+                "runtime" => (t2 - t1).to_f/3
+            }
+        }
+
+        printTestResults = lambda{|result, padding|
+            puts "- #{result["name"].ljust(padding)} : #{"%6.3f" % result["runtime"]}"
+        }
+
+        padding = tests.map{|test| test["name"].size }.max
+
+        # dry run to initialise things
+        tests
+            .each{|test|
+                test["lambda"].call()
+            }
+
+        results = tests
+                    .map{|test|
+                        puts "running: #{test["name"]}"
+                        runTest.call(test)
+                    }
+                    .sort{|r1, r2| r1["runtime"] <=> r2["runtime"] }
+                    .reverse
+
+        puts ""
+        results
+            .each{|result|
+                printTestResults.call(result, padding)
+            }
+
+        puts ""
+        printTestResults.call(runTest.call({
+            "name" => "CatalystListing::listingItems",
+            "lambda" => lambda { CatalystListing::listingItems }
+        }), padding)
+
+        LucilleCore::pressEnterToContinue()
     end
 
     # CatalystListing::listingItems
     def self.listingItems
         packets = [
             Anniversaries::listingItems(),
-            TxManualCountDowns::listingItems(),
-            Waves::items(),
-            NxTodos::listingItems(),
-            LambdX1s::listingItems(),
-            NxTriages::listingItems(),
-            TxProjects::listingItems(),
+            Waves::listingItems("ns:mandatory-today"),
             NxOndates::listingItems(),
-            Cx22::items()
+            Cx22::listingItemsIsWork(),
+            NxTriages::items(),
+            TxManualCountDowns::listingItems(),
+            Cx22::listingItemsTop(),
+            Waves::listingItems("ns:time-important"),
+            TxProjects::listingItems(),
+            Waves::listingItems("ns:beach"),
+            NxTodos::listingItems()
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }

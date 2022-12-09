@@ -1,15 +1,13 @@
 Here is the order in which we take elements for the main listing
 
-NxAnniversary                             0.95
-Wave "ns:mandatory-today"                 0.94
-NxOndate                                  0.79
-Cx22 isWork                               0.93
-NxTriage                                  0.92
-TxManualCountDown                         0.90
-Top Cx22's items                          0.78
-Cx22                                      0.78
-Wave "ns:time-important"                  0.70
-TxProjects for one hour                   0.77
-Wave "ns:beach"                           0.40 
-NxTodo (without Cx22)                     0.30
-
+- NxAnniversary
+- Wave "ns:mandatory-today"
+- NxOndate
+- Cx22 isWork { NxTodo and Cx22 }
+- NxTriage
+- TxManualCountDown
+- Cx22 (top)'s items and { self }
+- Wave "ns:time-important"
+- TxProjects (for one hour)
+- Wave "ns:beach"
+- NxTodo (without Cx22)

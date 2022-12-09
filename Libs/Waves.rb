@@ -210,7 +210,13 @@ class Waves
         "(wave) #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")} (#{Waves::nx46ToString(item["nx46"])}) (#{ago}) 🌊 [#{item["priority"]}]"
     end
 
+    # Waves::listingItems(priority)
+    def self.listingItems(priority)
+        Waves::items().select{|item| item["priority"] == priority }
+    end
+
     # -------------------------------------------------------------------------
+    # Operations
 
     # Waves::operatorForUUID(uuid)
     def self.operatorForUUID(uuid)

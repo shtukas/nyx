@@ -50,6 +50,20 @@ class Cx22
     # ----------------------------------------------------------------
     # Data
 
+    # Cx22::cx22Ordered()
+    def self.cx22Ordered()
+        Cx22::items()
+            .sort{|i1, i2| Ax39::standardAx39CarrierOperationalRatio(i1) <=> Ax39::standardAx39CarrierOperationalRatio(i2) }
+    end
+
+    # Cx22::cx22OrderedActive()
+    def self.cx22OrderedActive()
+        Cx22::cx22Ordered()
+            .flatten
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+    end
+
     # Cx22::toString(item)
     def self.toString(item)
         "(Cx22) #{item["description"]}"
@@ -103,13 +117,52 @@ class Cx22
             .map{|packet| packet["cx22"] }
     end
 
+    # Cx22::markHasItems(cx22)
+    def self.markHasItems(cx22)
+        XCache::set("9af5b072-a5d2-41bd-b512-03928ce56b76:#{cx22["uuid"]}", Time.new.to_i)
+    end
+
+    # Cx22::hasItems(cx22)
+    def self.hasItems(cx22)
+        unixtime = XCache::getOrNull("9af5b072-a5d2-41bd-b512-03928ce56b76:#{cx22["uuid"]}")
+        return false if unixtime.nil?
+        (Time.new.to_i - unixtime.to_i) < 3600
+    end
+
+    # Cx22::listingItemsIsWork()
+    def self.listingItemsIsWork()
+        cx22s = Cx22::cx22OrderedActive().select{|cx22| cx22["isWork"] }
+        return [] if cx22s.empty?
+        items = NxTodos::items()
+            .select{|item|
+                icx = Item2Cx22::getCx22OrNull(item["uuid"])
+                if icx then
+                    cx22s.map{|xcx| xcx["uuid"] }.include?(icx["uuid"])
+                else
+                    false
+                end
+            }
+        items + cx22s # all work NxTodo items and Cx22 isWork
+    end
+
+    # Cx22::listingItemsTop()
+    def self.listingItemsTop()
+        cx22 = Cx22::cx22OrderedActive().first
+        return [] if cx22.nil?
+        items = NxTodos::items()
+            .select{|item|
+                icx = Item2Cx22::getCx22OrNull(item["uuid"])
+                icx and (icx["uuid"] == cx22["uuid"])
+            }
+        items + [cx22] # all items from the top Cx22 and the Cx22
+    end
+
     # --------------------------------------------
     # Ops
 
     # Cx22::interactivelySelectCx22OrNull()
     def self.interactivelySelectCx22OrNull()
-        cx22s = Cx22::items().sort{|i1, i2| Ax39::standardAx39CarrierOperationalRatio(i1) <=> Ax39::standardAx39CarrierOperationalRatio(i2) }
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("cx22", cx22s, lambda{|cx22| Cx22::toStringWithDetailsFormatted(cx22)})
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("cx22", Cx22::cx22Ordered(), lambda{|cx22| Cx22::toStringWithDetailsFormatted(cx22)})
     end
 
     # Cx22::probe(cx22)
@@ -152,20 +205,5 @@ class Cx22
             return if cx22.nil?
             Cx22::probe(cx22)
         }
-    end
-
-    # --------------------------------------------
-    # has items
-
-    # Cx22::markHasItems(cx22)
-    def self.markHasItems(cx22)
-        XCache::set("9af5b072-a5d2-41bd-b512-03928ce56b76:#{cx22["uuid"]}", Time.new.to_i)
-    end
-
-    # Cx22::hasItems(cx22)
-    def self.hasItems(cx22)
-        unixtime = XCache::getOrNull("9af5b072-a5d2-41bd-b512-03928ce56b76:#{cx22["uuid"]}")
-        return false if unixtime.nil?
-        (Time.new.to_i - unixtime.to_i) < 3600
     end
 end
