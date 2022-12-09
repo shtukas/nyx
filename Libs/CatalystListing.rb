@@ -89,7 +89,7 @@ class CatalystListing
         if Interpreting::match("group", input) then
             item = store.getDefault()
             return if item.nil?
-            Cx22Mapping::interactivelySelectAndMapToCx22OrNothing(item["uuid"])
+            Item2Cx22::interactivelySelectAndMapToCx22OrNothing(item["uuid"])
             return
         end
 
@@ -97,7 +97,7 @@ class CatalystListing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            Cx22Mapping::interactivelySelectAndMapToCx22OrNothing(item["uuid"])
+            Item2Cx22::interactivelySelectAndMapToCx22OrNothing(item["uuid"])
             return
         end
 
@@ -176,9 +176,6 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             puts JSON.pretty_generate(item)
-            if item["mikuType"] != "NxBall" then
-                puts "priority: #{PolyFunctions::listingPriorityOrNull(item)}"
-            end
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -188,9 +185,6 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             puts JSON.pretty_generate(item)
-            if item["mikuType"] != "NxBall" then
-                puts "priority: #{PolyFunctions::listingPriorityOrNull(item)}"
-            end
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -439,8 +433,8 @@ class CatalystListing
 
             puts ""
             printTestResults.call(runTest.call({
-                "name" => "CatalystListing::txListingItemsInPriorityOrderDesc()",
-                "lambda" => lambda { CatalystListing::txListingItemsInPriorityOrderDesc() }
+                "name" => "CatalystListing::listingItems",
+                "lambda" => lambda { CatalystListing::listingItems }
             }), padding)
 
             LucilleCore::pressEnterToContinue()
@@ -448,13 +442,8 @@ class CatalystListing
         end
     end
 
-    # CatalystListing::txListingItemsInPriorityOrderDesc()
-    def self.txListingItemsInPriorityOrderDesc()
-        # TxListingItem {
-        #     "item"     => item,
-        #     "priority" => PolyFunctions::listingPriorityOrNull(item) || -1,
-        #     "group"    => Cx22 or null
-        # }
+    # CatalystListing::listingItems
+    def self.listingItems
         packets = [
             Anniversaries::listingItems(),
             TxManualCountDowns::listingItems(),
@@ -469,17 +458,6 @@ class CatalystListing
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-            .map{|item|
-                {
-                    "item"     => item,
-                    "priority" => PolyFunctions::listingPriorityOrNull(item) || -1,
-                    "cx22"     => Cx22Mapping::getCx22OrNull(item["uuid"])
-                }
-            }
-            .select{|packet| packet["priority"] > 0 }
-        packets
-            .sort{|p1, p2| p1["priority"] <=> p2["priority"] }
-            .reverse
     end
 
     # CatalystListing::displayListing()
@@ -501,18 +479,17 @@ class CatalystListing
             vspaceleft = vspaceleft - 2
         end
 
-        nxballHasAnItemInThere = lambda {|nxball, txListingItems|
+        nxballHasAnItemInThere = lambda {|nxball, listingItems|
             itemuuid = nxball["itemuuid"]
             return false if itemuuid.nil?
-            txListingItems.any?{|packet| packet["item"]["uuid"] == itemuuid }
+            listingItems.any?{|packet| packet["item"]["uuid"] == itemuuid }
         }
 
         floats = TxFloats::listingItems()
 
-        txListingItems = CatalystListing::txListingItemsInPriorityOrderDesc()
+        listingItems = CatalystListing::listingItems
 
-        lockeds, unlockeds = txListingItems.partition{|packet|
-            item = packet["item"]
+        lockeds, unlockeds = listingItems.partition{|item|
             filepath = "#{Config::pathToDataCenter()}/Locks/#{item["uuid"]}.lock"
             File.exists?(filepath)
         }
@@ -522,19 +499,16 @@ class CatalystListing
             vspaceleft = vspaceleft - 1
             floats.each{|float|
                     store.register(float, false)
-                    puts "#{store.prefixString()} #{TxFloats::toString(float)}"
+                    puts "#{store.prefixString()} #{TxFloats::toString(float)}".yellow
                     vspaceleft = vspaceleft - 1
                 }
             lockeds
-                .each{|packet|
-
-                    item = packet["item"]
-                    priority = packet["priority"]
+                .each{|item|
 
                     break if vspaceleft <= 0
                     store.register(item, false)
 
-                    cx22 =  packet["cx22"]
+                    cx22 =  Item2Cx22::getCx22OrNull(item["uuid"])
                     cx22Str = cx22 ? " (#{Cx22::toString(cx22)})" : ""
                     line = "#{store.prefixString()} #{PolyFunctions::toStringForCatalystListing(item)}#{cx22Str.green}"
                     
@@ -551,7 +525,7 @@ class CatalystListing
         end
 
         nxballs = NxBalls::items()
-                    .select{|nxball| !nxballHasAnItemInThere.call(nxball, txListingItems) }
+                    .select{|nxball| !nxballHasAnItemInThere.call(nxball, listingItems) }
         if nxballs.size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
@@ -567,19 +541,14 @@ class CatalystListing
         vspaceleft = vspaceleft - 1
 
         unlockeds
-            .each{|packet|
-                item = packet["item"]
-                priority = packet["priority"]
+            .each{|item|
+
                 break if vspaceleft <= 0
                 store.register(item, true)
 
-                cx22 =  packet["cx22"]
+                cx22 =  cx22 =  Item2Cx22::getCx22OrNull(item["uuid"])
                 cx22Str = cx22 ? " (Cx22: #{cx22["description"]})" : ""
                 line = "#{store.prefixString()} #{PolyFunctions::toStringForCatalystListing(item)}#{cx22Str.green}"
-
-                if priority < 0.5 then
-                    line = line.yellow
-                end
 
                 nxball = NxBalls::getNxBallForItemOrNull(item)
                 if nxball then

@@ -197,6 +197,6 @@ class NxTriages
         end
 
         # The file has moved to the NxTodo folder, now let's ask for a group
-        Cx22Mapping::interactivelySelectAndMapToCx22OrNothing(item["uuid"])
+        Item2Cx22::interactivelySelectAndMapToCx22OrNothing(item["uuid"])
     end
 end

@@ -50,7 +50,7 @@ class NxTodos
         if File.exists?(filepath) then
             FileUtils.rm(filepath)
         end
-        Cx22Mapping::garbageCollection(uuid)
+        Item2Cx22::garbageCollection(uuid)
     end
 
     # NxTodos::setAttribute(uuid, attname, attvalue)
@@ -120,20 +120,10 @@ class NxTodos
 
     # NxTodos::listingItemsUseTheForce()
     def self.listingItemsUseTheForce()
-        puts "> NxTodos::listingItemsUseTheForce()"
         NxTodos::filepaths()
-            .map{|filepath|
-                item = Nx5Ext::readFileAsAttributesOfObject(filepath)
-                priority = PolyFunctions::listingPriorityOrNull(item)
-                {
-                    "item"     => item,
-                    "priority" => priority || -1
-                }
-            }
-            .sort{|p1, p2| p1["priority"] <=> p2["priority"] }
-            .reverse
+            .map{|filepath| Nx5Ext::readFileAsAttributesOfObject(filepath)}
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .first(20)
-            .map{|packet| packet["item"] }
     end
 
     # NxTodos::listingItems()

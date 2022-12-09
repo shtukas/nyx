@@ -57,7 +57,7 @@ class NxOndates
         if File.exists?(filepath) then
             FileUtils.rm(filepath)
         end
-        Cx22Mapping::garbageCollection(uuid)
+        Item2Cx22::garbageCollection(uuid)
     end
 
     # --------------------------------------------------
