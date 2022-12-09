@@ -63,7 +63,6 @@ class Ax39
         if ax39["type"] == "work:(mon-to-fri)+(week-end-overflow)" then
             return "work #{"%4.2f" % ax39["hours"]} hours"
         end
-
     end
 
     # Ax39::operationalRatio(uuid, ax39, unrealisedTimespan = nil)
@@ -74,18 +73,30 @@ class Ax39
             return BankExtended::stdRecoveredDailyTimeInHours(uuid, unrealisedTimespan).to_f/ax39["hours"]
         end
         if ax39["type"] == "weekly-time-commitment" then
-            dates = CommonUtils::datesSinceLastSaturday()
-            idealTimeDoneInSeconds  = ([dates.size, 5].min.to_f/5)*ax39["hours"]*3600
-            actualTimeDoneInSeconds = Bank::combinedValueOnThoseDays(uuid, dates, unrealisedTimespan)
-            ratio = actualTimeDoneInSeconds.to_f/idealTimeDoneInSeconds
-            return ratio
+
+            dates                       = CommonUtils::datesSinceLastSaturday()
+            actualTimeDoneInSeconds     = Bank::combinedValueOnThoseDays(uuid, dates, unrealisedTimespan)
+            idealTimeDoneInSeconds      = ([dates.size, 5].min.to_f/5)*ax39["hours"]*3600
+            ratio1                      = actualTimeDoneInSeconds.to_f/idealTimeDoneInSeconds
+
+            todayTimeInSeconds          = Bank::valueAtDate(uuid, CommonUtils::today(), unrealisedTimespan)
+            boostedDayDueTimeInSeconds  = 1.2*(ax39["hours"]*3600).to_f/7 # We operate over 7 days
+            ratio2                      = todayTimeInSeconds.to_f/boostedDayDueTimeInSeconds
+
+            return [ratio1, ratio2].max
         end
         if ax39["type"] == "work:(mon-to-fri)+(week-end-overflow)" then
-            dates = CommonUtils::datesSinceLastMonday()
-            idealTimeDoneInSeconds  = ([dates.size, 5].min.to_f/5)*ax39["hours"]*3600
-            actualTimeDoneInSeconds = Bank::combinedValueOnThoseDays(uuid, dates, unrealisedTimespan)
-            ratio = actualTimeDoneInSeconds.to_f/idealTimeDoneInSeconds
-            return ratio
+
+            dates                       = CommonUtils::datesSinceLastMonday()
+            actualTimeDoneInSeconds     = Bank::combinedValueOnThoseDays(uuid, dates, unrealisedTimespan)
+            idealTimeDoneInSeconds      = ([dates.size, 5].min.to_f/5)*ax39["hours"]*3600
+            ratio1                      = actualTimeDoneInSeconds.to_f/idealTimeDoneInSeconds
+
+            todayTimeInSeconds          = Bank::valueAtDate(uuid, CommonUtils::today(), unrealisedTimespan)
+            boostedDayDueTimeInSeconds  = 1.2*(ax39["hours"]*3600).to_f/5 # We operate ideally over 5 days
+            ratio2                      = todayTimeInSeconds.to_f/boostedDayDueTimeInSeconds
+
+            return [ratio1, ratio2].max
         end
     end
 
