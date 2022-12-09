@@ -5,7 +5,7 @@ class Cx22Mapping
 
     # Cx22Mapping::set(itemuuid, cx22uuid)
     def self.set(itemuuid, cx22uuid)
-        filepath = "#{Config::pathToDataCenter()}/Mapping-Item-Cx22/#{itemuuid}"
+        filepath = "#{Config::pathToDataCenter()}/Item-to-Cx22/#{itemuuid}"
         File.open(filepath, "w"){|f| f.write(cx22uuid) }
     end
 
@@ -20,7 +20,7 @@ class Cx22Mapping
 
     # Cx22Mapping::getOrNull(itemuuid)
     def self.getOrNull(itemuuid)
-        filepath = "#{Config::pathToDataCenter()}/Mapping-Item-Cx22/#{itemuuid}"
+        filepath = "#{Config::pathToDataCenter()}/Item-to-Cx22/#{itemuuid}"
         return nil if !File.exists?(filepath)
         IO.read(filepath).strip
     end
@@ -53,7 +53,7 @@ class Cx22Mapping
 
     # Cx22Mapping::garbageCollection(itemuuid)
     def self.garbageCollection(itemuuid)
-        filepath = "#{Config::pathToDataCenter()}/Mapping-Item-Cx22/#{itemuuid}"
+        filepath = "#{Config::pathToDataCenter()}/Item-to-Cx22/#{itemuuid}"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
