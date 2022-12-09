@@ -165,10 +165,10 @@ class PolyFunctions
         # This is the primary definition
 
         # NxAnniversary                             0.95
+        # Wave "ns:mandatory-today"                 0.94
         # Cx22 isWork                               0.93
         # NxTriage                                  0.92
         # TxManualCountDown                         0.90
-        # Wave "ns:mandatory-today"                 0.80
         # NxOndate                                  0.79
         # Cx22                                      0.78
         # NxTodo with Cx22                          0.78
@@ -238,7 +238,7 @@ class PolyFunctions
                 return nil
             end
             mapping = {
-                "ns:mandatory-today" => 0.80,
+                "ns:mandatory-today" => 0.94,
                 "ns:time-important"  => 0.70,
                 "ns:beach"           => 0.40
             }
