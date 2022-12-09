@@ -109,21 +109,19 @@ class NxTodos
         "(todo) #{item["description"]}"
     end
 
-    # NxTodos::itemsForCx22InUnixtimeOrder(cx22)
-    def self.itemsForCx22InUnixtimeOrder(cx22)
+    # NxTodos::itemsForCx22(cx22)
+    def self.itemsForCx22(cx22)
         NxTodos::items()
             .select{|item|
                 icx = Item2Cx22::getCx22OrNull(item["uuid"])
                 icx and (icx["uuid"] == cx22["uuid"])
             }
-            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 
-    # NxTodos::itemsWithoutCx22InUnixtimeOrder()
-    def self.itemsWithoutCx22InUnixtimeOrder()
+    # NxTodos::itemsWithoutCx22()
+    def self.itemsWithoutCx22()
         NxTodos::items()
             .select{|item| Item2Cx22::getCx22OrNull(item["uuid"]).nil? }
-            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 
     # NxTodos::firstUnixtimeOrderItemsForCx22(cx22)
@@ -137,7 +135,9 @@ class NxTodos
                             .compact
             end
         end
-        items = NxTodos::itemsForCx22InUnixtimeOrder(cx22).first(10)
+        items = NxTodos::itemsForCx22(cx22)
+                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+                    .first(10)
         uuids = items.map{|item| item["uuid"] }
         packet = {
             "unixtime" => Time.new.to_i,
@@ -158,7 +158,9 @@ class NxTodos
                             .compact
             end
         end
-        items = NxTodos::itemsWithoutCx22InUnixtimeOrder().first(10)
+        items = NxTodos::itemsWithoutCx22()
+                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+                    .first(10)
         uuids = items.map{|item| item["uuid"] }
         packet = {
             "unixtime" => Time.new.to_i,
