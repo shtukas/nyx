@@ -363,6 +363,7 @@ class CatalystListing
 
         if Interpreting::match("speed", input) then
             CatalystListing::runSpeedTest()
+            LucilleCore::pressEnterToContinue()
             return
         end
     end
@@ -469,8 +470,6 @@ class CatalystListing
             "name" => "CatalystListing::listingItems()",
             "lambda" => lambda { CatalystListing::listingItems() }
         }), padding)
-
-        LucilleCore::pressEnterToContinue()
     end
 
     # CatalystListing::listingItems()

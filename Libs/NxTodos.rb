@@ -118,28 +118,17 @@ class NxTodos
             .first
     end
 
-    # NxTodos::listingItems()
-    def self.listingItems()
-        NxTodos::filepaths().reduce([]){|items, filepath|
-            item = Nx5Ext::readFileAsAttributesOfObject(filepath)
-            if Item2Cx22::getCx22OrNull(item["uuid"]) then
-                items
-            else
-                if items.size >= 10 then
-                    items
-                else
-                    items + [ item ]
-                end
-            end
-        }
-    end
-
     # NxTodos::itemsForCx22(cx22)
     def self.itemsForCx22(cx22)
         NxTodos::items().select{|item|
             icx = Item2Cx22::getCx22OrNull(item["uuid"])
             icx and (icx["uuid"] == cx22["uuid"])
         }
+    end
+
+    # NxTodos::itemsWithoutCx22()
+    def self.itemsWithoutCx22()
+        NxTodos::items().select{|item| Item2Cx22::getCx22OrNull(item["uuid"]).nil? }
     end
 
     # NxTodos::firstItemsForCx22Cached(cx22)
@@ -151,6 +140,32 @@ class NxTodos
                         .compact
         end
         items = NxTodos::itemsForCx22(cx22).first(20)
+        uuids = items.map{|item| item["uuid"] }
+        File.open(filepath,  "w"){|f| f.puts(JSON.pretty_generate(uuids)) }
+        items
+    end
+
+    # NxTodos::listingItems()
+    def self.listingItems()
+        filepath = "#{Config::pathToDataCenter()}/NxTodo-ListingItems.json"
+        if File.exists?(filepath) then
+            return JSON.parse(IO.read(filepath))
+                        .map{|uuid| NxTodos::getItemOrNull(uuid) }
+                        .compact
+        end
+        items =  NxTodos::filepaths()
+                    .reduce([]){|selected, filepath|
+                        item = Nx5Ext::readFileAsAttributesOfObject(filepath)
+                        if Item2Cx22::getCx22OrNull(item["uuid"]) then
+                            selected
+                        else
+                            if selected.size >= 20 then
+                                selected
+                            else
+                                selected + [ item ]
+                            end
+                        end
+                    }
         uuids = items.map{|item| item["uuid"] }
         File.open(filepath,  "w"){|f| f.puts(JSON.pretty_generate(uuids)) }
         items
