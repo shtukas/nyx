@@ -466,15 +466,15 @@ class CatalystListing
 
         puts ""
         printTestResults.call(runTest.call({
-            "name" => "CatalystListing::listingItems",
-            "lambda" => lambda { CatalystListing::listingItems }
+            "name" => "CatalystListing::listingItems()",
+            "lambda" => lambda { CatalystListing::listingItems() }
         }), padding)
 
         LucilleCore::pressEnterToContinue()
     end
 
-    # CatalystListing::listingItems
-    def self.listingItems
+    # CatalystListing::listingItems()
+    def self.listingItems()
         packets = [
             Anniversaries::listingItems(),
             Waves::listingItems("ns:mandatory-today"),

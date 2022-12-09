@@ -134,6 +134,28 @@ class NxTodos
         }
     end
 
+    # NxTodos::itemsForCx22(cx22)
+    def self.itemsForCx22(cx22)
+        NxTodos::items().select{|item|
+            icx = Item2Cx22::getCx22OrNull(item["uuid"])
+            icx and (icx["uuid"] == cx22["uuid"])
+        }
+    end
+
+    # NxTodos::firstItemsForCx22Cached(cx22)
+    def self.firstItemsForCx22Cached(cx22)
+        filepath = "#{Config::pathToDataCenter()}/Cx22-to-FirstItems/#{cx22["uuid"]}"
+        if File.exists?(filepath) then
+            return JSON.parse(IO.read(filepath))
+                        .map{|uuid| NxTodos::getItemOrNull(uuid) }
+                        .compact
+        end
+        items = NxTodos::itemsForCx22(cx22).first(20)
+        uuids = items.map{|item| item["uuid"] }
+        File.open(filepath,  "w"){|f| f.puts(JSON.pretty_generate(uuids)) }
+        items
+    end
+
     # --------------------------------------------------
     # Operations
 

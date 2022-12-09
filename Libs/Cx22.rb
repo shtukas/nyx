@@ -56,12 +56,13 @@ class Cx22
             .sort{|i1, i2| Ax39::standardAx39CarrierOperationalRatio(i1) <=> Ax39::standardAx39CarrierOperationalRatio(i2) }
     end
 
-    # Cx22::cx22OrderedActive()
-    def self.cx22OrderedActive()
+    # Cx22::cx22OrderedOperations()
+    def self.cx22OrderedOperations()
         Cx22::cx22Ordered()
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+            .select{|cx22| Ax39::standardAx39CarrierOperationalRatio(cx22) < 1 }
     end
 
     # Cx22::toString(item)
@@ -131,30 +132,18 @@ class Cx22
 
     # Cx22::listingItemsIsWork()
     def self.listingItemsIsWork()
-        cx22s = Cx22::cx22OrderedActive().select{|cx22| cx22["isWork"] }
-        return [] if cx22s.empty?
-        items = NxTodos::items()
-            .select{|item|
-                icx = Item2Cx22::getCx22OrNull(item["uuid"])
-                if icx then
-                    cx22s.map{|xcx| xcx["uuid"] }.include?(icx["uuid"])
-                else
-                    false
-                end
-            }
-        items + cx22s # all work NxTodo items and Cx22 isWork
+        Cx22::cx22OrderedOperations()
+            .select{|cx22| cx22["isWork"] }
+            .map{|cx22| NxTodos::firstItemsForCx22Cached(cx22) + [cx22]}
+            .flatten
+
     end
 
     # Cx22::listingItemsTop()
     def self.listingItemsTop()
-        cx22 = Cx22::cx22OrderedActive().first
-        return [] if cx22.nil?
-        items = NxTodos::items()
-            .select{|item|
-                icx = Item2Cx22::getCx22OrNull(item["uuid"])
-                icx and (icx["uuid"] == cx22["uuid"])
-            }
-        items + [cx22] # all items from the top Cx22 and the Cx22
+        Cx22::cx22OrderedOperations()
+            .map{|cx22| NxTodos::firstItemsForCx22Cached(cx22) + [cx22]}
+            .flatten
     end
 
     # --------------------------------------------
