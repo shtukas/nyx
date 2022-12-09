@@ -474,7 +474,7 @@ class CatalystListing
 
     # CatalystListing::listingItems()
     def self.listingItems()
-        packets = [
+        [
             Anniversaries::listingItems(),
             Waves::listingItems("ns:mandatory-today"),
             NxOndates::listingItems(),

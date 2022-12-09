@@ -134,7 +134,7 @@ class Cx22
     def self.listingItemsIsWork()
         Cx22::cx22OrderedOperations()
             .select{|cx22| cx22["isWork"] }
-            .map{|cx22| NxTodos::firstItemsForCx22Cached(cx22) + [cx22]}
+            .map{|cx22| NxTodos::firstUnixtimeOrderItemsForCx22(cx22) + [cx22]}
             .flatten
 
     end
@@ -142,7 +142,7 @@ class Cx22
     # Cx22::listingItemsTop()
     def self.listingItemsTop()
         Cx22::cx22OrderedOperations()
-            .map{|cx22| NxTodos::firstItemsForCx22Cached(cx22) + [cx22]}
+            .map{|cx22| NxTodos::firstUnixtimeOrderItemsForCx22(cx22) + [cx22]}
             .flatten
     end
 

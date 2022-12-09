@@ -109,39 +109,41 @@ class NxTodos
         "(todo) #{item["description"]}"
     end
 
-    # NxTodos::getTopUnderPerformingCx22OrNull()
-    def self.getTopUnderPerformingCx22OrNull()
-        Cx22::itemsInCompletionOrder()
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-            .select{|cx22| Ax39::standardAx39CarrierOperationalRatio(cx22) < 1 }
-            .first
+    # NxTodos::itemsForCx22InUnixtimeOrder(cx22)
+    def self.itemsForCx22InUnixtimeOrder(cx22)
+        NxTodos::items()
+            .select{|item|
+                icx = Item2Cx22::getCx22OrNull(item["uuid"])
+                icx and (icx["uuid"] == cx22["uuid"])
+            }
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 
-    # NxTodos::itemsForCx22(cx22)
-    def self.itemsForCx22(cx22)
-        NxTodos::items().select{|item|
-            icx = Item2Cx22::getCx22OrNull(item["uuid"])
-            icx and (icx["uuid"] == cx22["uuid"])
-        }
+    # NxTodos::itemsWithoutCx22InUnixtimeOrder()
+    def self.itemsWithoutCx22InUnixtimeOrder()
+        NxTodos::items()
+            .select{|item| Item2Cx22::getCx22OrNull(item["uuid"]).nil? }
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 
-    # NxTodos::itemsWithoutCx22()
-    def self.itemsWithoutCx22()
-        NxTodos::items().select{|item| Item2Cx22::getCx22OrNull(item["uuid"]).nil? }
-    end
-
-    # NxTodos::firstItemsForCx22Cached(cx22)
-    def self.firstItemsForCx22Cached(cx22)
-        filepath = "#{Config::pathToDataCenter()}/Cx22-to-FirstItems/#{cx22["uuid"]}"
+    # NxTodos::firstUnixtimeOrderItemsForCx22(cx22)
+    def self.firstUnixtimeOrderItemsForCx22(cx22)
+        filepath = "#{Config::pathToDataCenter()}/Cx22-to-FirstItems/#{cx22["uuid"]},json"
         if File.exists?(filepath) then
-            return JSON.parse(IO.read(filepath))
-                        .map{|uuid| NxTodos::getItemOrNull(uuid) }
-                        .compact
+            packet = JSON.parse(IO.read(filepath)) # {unixtime, uuids}
+            if (Time.new.to_i - packet["unixtime"]) < 3600 then
+                return packet["uuids"]
+                            .map{|uuid| NxTodos::getItemOrNull(uuid) }
+                            .compact
+            end
         end
-        items = NxTodos::itemsForCx22(cx22).first(20)
+        items = NxTodos::itemsForCx22InUnixtimeOrder(cx22).first(10)
         uuids = items.map{|item| item["uuid"] }
-        File.open(filepath,  "w"){|f| f.puts(JSON.pretty_generate(uuids)) }
+        packet = {
+            "unixtime" => Time.new.to_i,
+            "uuids"    => uuids
+        }
+        File.open(filepath,  "w"){|f| f.puts(JSON.pretty_generate(packet)) }
         items
     end
 
@@ -149,25 +151,20 @@ class NxTodos
     def self.listingItems()
         filepath = "#{Config::pathToDataCenter()}/NxTodo-ListingItems.json"
         if File.exists?(filepath) then
-            return JSON.parse(IO.read(filepath))
-                        .map{|uuid| NxTodos::getItemOrNull(uuid) }
-                        .compact
+            packet = JSON.parse(IO.read(filepath)) # {unixtime, uuids}
+            if (Time.new.to_i - packet["unixtime"]) < 3600 then
+                return packet["uuids"]
+                            .map{|uuid| NxTodos::getItemOrNull(uuid) }
+                            .compact
+            end
         end
-        items =  NxTodos::filepaths()
-                    .reduce([]){|selected, filepath|
-                        item = Nx5Ext::readFileAsAttributesOfObject(filepath)
-                        if Item2Cx22::getCx22OrNull(item["uuid"]) then
-                            selected
-                        else
-                            if selected.size >= 20 then
-                                selected
-                            else
-                                selected + [ item ]
-                            end
-                        end
-                    }
+        items = NxTodos::itemsWithoutCx22InUnixtimeOrder().first(10)
         uuids = items.map{|item| item["uuid"] }
-        File.open(filepath,  "w"){|f| f.puts(JSON.pretty_generate(uuids)) }
+        packet = {
+            "unixtime" => Time.new.to_i,
+            "uuids"    => uuids
+        }
+        File.open(filepath,  "w"){|f| f.puts(JSON.pretty_generate(packet)) }
         items
     end
 
