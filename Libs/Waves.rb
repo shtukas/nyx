@@ -271,11 +271,15 @@ class Waves
     def self.probe(item)
         loop {
             puts Waves::toString(item)
-            actions = ["access", "destroy"]
+            actions = ["access", "perform done", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "access" then
                 Waves::access(item)
+            end
+            if action == "perform done" then
+                Waves::performWaveNx46WaveDone(item)
+                next
             end
             if action == "destroy" then
                 Waves::destroy(item["uuid"])
