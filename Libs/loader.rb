@@ -263,6 +263,12 @@ if $RunNonEssentialThreads then
         }
     }
 
+    Thread.new {
+        loop {
+            sleep 600
+            CatalystListing::listingItems(true)
+        }
+    }
 end
 
 # ------------------------------------------------------------

@@ -130,19 +130,18 @@ class Cx22
         (Time.new.to_i - unixtime.to_i) < 3600
     end
 
-    # Cx22::listingItemsIsWork()
-    def self.listingItemsIsWork()
+    # Cx22::workOnlyListingItems(recomputeStuffIfNeeded)
+    def self.workOnlyListingItems(recomputeStuffIfNeeded)
         Cx22::cx22OrderedOperations()
             .select{|cx22| cx22["isWork"] }
-            .map{|cx22| NxTodos::firstUnixtimeOrderItemsForCx22(cx22) + [cx22]}
+            .map{|cx22| NxTodos::firstItemsForCx22(cx22, recomputeStuffIfNeeded) + [cx22]}
             .flatten
-
     end
 
-    # Cx22::listingItemsTop()
-    def self.listingItemsTop()
+    # Cx22::listingItems(recomputeStuffIfNeeded)
+    def self.listingItems(recomputeStuffIfNeeded)
         Cx22::cx22OrderedOperations()
-            .map{|cx22| NxTodos::firstUnixtimeOrderItemsForCx22(cx22) + [cx22]}
+            .map{|cx22| NxTodos::firstItemsForCx22(cx22, recomputeStuffIfNeeded) + [cx22]}
             .flatten
     end
 

@@ -119,12 +119,12 @@ class NxTodos
             .select{|item| Item2Cx22::getCx22OrNull(item["uuid"]).nil? }
     end
 
-    # NxTodos::firstUnixtimeOrderItemsForCx22(cx22)
-    def self.firstUnixtimeOrderItemsForCx22(cx22)
+    # NxTodos::firstItemsForCx22(cx22, recomputeStuffIfNeeded)
+    def self.firstItemsForCx22(cx22, recomputeStuffIfNeeded)
         filepath = "#{Config::pathToDataCenter()}/Cx22-to-FirstItems/#{cx22["uuid"]},json"
         if File.exists?(filepath) then
             packet = JSON.parse(IO.read(filepath)) # {unixtime, uuids}
-            if (Time.new.to_i - packet["unixtime"]) < 3600 then
+            if !recomputeStuffIfNeeded or (Time.new.to_i - packet["unixtime"]) < 3600 then
                 return packet["uuids"]
                             .map{|uuid| NxTodos::getItemOrNull(uuid) }
                             .compact
@@ -142,12 +142,12 @@ class NxTodos
         items
     end
 
-    # NxTodos::listingItems()
-    def self.listingItems()
+    # NxTodos::listingItems(recomputeStuffIfNeeded)
+    def self.listingItems(recomputeStuffIfNeeded)
         filepath = "#{Config::pathToDataCenter()}/NxTodo-ListingItems.json"
         if File.exists?(filepath) then
             packet = JSON.parse(IO.read(filepath)) # {unixtime, uuids}
-            if (Time.new.to_i - packet["unixtime"]) < 3600 then
+            if !recomputeStuffIfNeeded or (Time.new.to_i - packet["unixtime"]) < 3600 then
                 return packet["uuids"]
                             .map{|uuid| NxTodos::getItemOrNull(uuid) }
                             .compact

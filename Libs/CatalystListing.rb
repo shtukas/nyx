@@ -385,8 +385,8 @@ class CatalystListing
                 "lambda" => lambda { NxOndates::listingItems() }
             },
             {
-                "name" => "Cx22::listingItemsIsWork()",
-                "lambda" => lambda { Cx22::listingItemsIsWork() }
+                "name" => "Cx22::workOnlyListingItems()",
+                "lambda" => lambda { Cx22::workOnlyListingItems(false) }
             },
             {
                 "name" => "NxTriages::items()",
@@ -397,8 +397,8 @@ class CatalystListing
                 "lambda" => lambda { TxManualCountDowns::listingItems() }
             },
             {
-                "name" => "Cx22::listingItemsTop()",
-                "lambda" => lambda { Cx22::listingItemsTop() }
+                "name" => "Cx22::listingItems()",
+                "lambda" => lambda { Cx22::listingItems(false) }
             },
             {
                 "name" => "Waves::listingItems(ns:time-important)",
@@ -414,7 +414,7 @@ class CatalystListing
             },
             {
                 "name" => "NxTodos::listingItems()",
-                "lambda" => lambda { NxTodos::listingItems() }
+                "lambda" => lambda { NxTodos::listingItems(false) }
             }
         ]
 
@@ -456,24 +456,24 @@ class CatalystListing
 
         puts ""
         printTestResults.call(runTest.call({
-            "name" => "CatalystListing::listingItems()",
-            "lambda" => lambda { CatalystListing::listingItems() }
+            "name" => "CatalystListing::listingItems(false)",
+            "lambda" => lambda { CatalystListing::listingItems(false) }
         }), padding)
     end
 
-    # CatalystListing::listingItems()
-    def self.listingItems()
+    # CatalystListing::listingItems(recomputeStuffIfNeeded)
+    def self.listingItems(recomputeStuffIfNeeded)
         [
             Anniversaries::listingItems(),
             Waves::listingItems("ns:mandatory-today"),
             NxOndates::listingItems(),
-            Cx22::listingItemsIsWork(),
+            Cx22::workOnlyListingItems(recomputeStuffIfNeeded),
             NxTriages::items(),
             TxManualCountDowns::listingItems(),
-            Cx22::listingItemsTop(),
+            Cx22::listingItems(recomputeStuffIfNeeded),
             Waves::listingItems("ns:time-important"),
             Waves::listingItems("ns:beach"),
-            NxTodos::listingItems()
+            NxTodos::listingItems(recomputeStuffIfNeeded)
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -507,7 +507,7 @@ class CatalystListing
 
         floats = TxFloats::listingItems()
 
-        listingItems = CatalystListing::listingItems
+        listingItems = CatalystListing::listingItems(false)
 
         lockeds, unlockeds = listingItems.partition{|item|
             filepath = "#{Config::pathToDataCenter()}/Locks/#{item["uuid"]}.lock"
