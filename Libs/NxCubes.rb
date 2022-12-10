@@ -71,6 +71,7 @@ class NxCubeDatablobs
         if !File.exists?(filepath) then
             raise "(error: b25af4e5-2fef-4cc8-8492-d5a76e99ffa5) file doesn't exist for reference: #{reference}"
         end
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
         return nhash if NxCubeDatablobs::trueIfFileHasBlob(reference, nhash)
         puts "datablob: #{nhash} (at: #{filepath})".green
         db = SQLite3::Database.new(filepath)
