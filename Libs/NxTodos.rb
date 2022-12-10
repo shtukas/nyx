@@ -121,7 +121,7 @@ class NxTodos
 
     # NxTodos::firstItemsForCx22(cx22, recomputeStuffIfNeeded)
     def self.firstItemsForCx22(cx22, recomputeStuffIfNeeded)
-        filepath = "#{Config::pathToDataCenter()}/Cx22-to-FirstItems/#{cx22["uuid"]},json"
+        filepath = "#{Config::pathToDataCenter()}/Cx22-to-FirstItems/#{cx22["uuid"]}.json"
         if File.exists?(filepath) then
             packet = JSON.parse(IO.read(filepath)) # {unixtime, uuids}
             if !recomputeStuffIfNeeded or (Time.new.to_i - packet["unixtime"]) < 3600 then
