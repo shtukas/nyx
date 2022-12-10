@@ -27,22 +27,6 @@ class NxCubes
     def self.interactivelyMakeCubeOrNull() # cube reference
 
     end
-
-    # NxCubes::accessCube(reference)
-    def self.accessCube(reference)
-
-    end
-
-    # NxCubes::editCube(reference)
-    def self.editCube(reference)
-
-    end
-
-    # NxCubes::destroyCube(reference)
-    def self.destroyCube(reference)
-
-    end
-
 end
 
 class NxCubeDatablobs
@@ -139,5 +123,23 @@ class NxCubeElizabeth
         rescue
             false
         end
+    end
+end
+
+class NxCubeOps
+
+    # NxCubeOps::accessCube(reference, nx113)
+    def self.accessCube(reference, nx113)
+
+    end
+
+    # NxCubeOps::editCube(reference, nx113) # nx113
+    def self.editCube(reference, nx113)
+
+    end
+
+    # NxCubeOps::destroyCube(reference)
+    def self.destroyCube(reference)
+
     end
 end
