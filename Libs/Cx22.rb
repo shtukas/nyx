@@ -141,6 +141,7 @@ class Cx22
     # Cx22::listingItems(recomputeStuffIfNeeded)
     def self.listingItems(recomputeStuffIfNeeded)
         Cx22::cx22OrderedOperations()
+            .select{|cx22| !cx22["isWork"] }
             .map{|cx22| NxTodos::firstItemsForCx22(cx22, recomputeStuffIfNeeded) + [cx22]}
             .flatten
     end
