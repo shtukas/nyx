@@ -165,11 +165,6 @@ class NxTriages
     # NxTriages::transmuteItemToNxTodo(item)
     def self.transmuteItemToNxTodo(item)
         # We apply this to only to Triage items
-        if item["mikuType"] != "NxTriage" then
-            puts "NxTriages::transmuteItemToNxTodo only applies to NxTriages"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
 
         filepath1 = NxTriages::uuidToNx5Filepath(item["uuid"])
         filepath2 = NxTodos::uuidToNx5Filepath(item["uuid"])
@@ -190,8 +185,5 @@ class NxTriages
             puts "    - filepath2: #{filepath2}"
             exit
         end
-
-        # The file has moved to the NxTodo folder, now let's ask for a group
-        Item2Cx22::interactivelySelectAndMapToCx22OrNothing(item["uuid"])
     end
 end

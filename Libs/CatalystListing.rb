@@ -270,13 +270,6 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("project", input) then
-            item = TxProjects::interactivelyIssueNewOrNull()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
-            return
-        end
-
         if Interpreting::match("require internet", input) then
             item = store.getDefault()
             return if item.nil?
@@ -412,10 +405,6 @@ class CatalystListing
                 "lambda" => lambda { Waves::listingItems("ns:time-important") }
             },
             {
-                "name" => "TxProjects::listingItems()",
-                "lambda" => lambda { TxProjects::listingItems() }
-            },
-            {
                 "name" => "Waves::listingItems(ns:beach)",
                 "lambda" => lambda { Waves::listingItems("ns:beach") }
             },
@@ -483,7 +472,6 @@ class CatalystListing
             TxManualCountDowns::listingItems(),
             Cx22::listingItemsTop(),
             Waves::listingItems("ns:time-important"),
-            TxProjects::listingItems(),
             Waves::listingItems("ns:beach"),
             NxTodos::listingItems()
         ]

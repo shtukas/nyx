@@ -189,9 +189,6 @@ class PolyFunctions
         if item["mikuType"] == "NxTriage" then
             return NxTriages::toString(item)
         end
-        if item["mikuType"] == "TxProject" then
-            return TxProjects::toString(item)
-        end
         if item["mikuType"] == "TxManualCountDown" then
             return "(countdown) #{item["description"]}: #{item["counter"]}"
         end

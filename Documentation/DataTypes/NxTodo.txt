@@ -6,5 +6,5 @@ NxTodo:
     "unixtime"    : Float
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : String
-    "nx113"       : Nx113
+    "nx113"       : null or Nx113
     "priority"    : Integer

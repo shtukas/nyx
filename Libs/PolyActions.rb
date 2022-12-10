@@ -96,11 +96,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "TxProject" then
-            TxProjects::destroy(item["uuid"])
-            return
-        end
-
         if item["mikuType"] == "Wave" then
             Waves::destroy(item["uuid"])
             PolyActions::garbageCollectionAfterItemDeletion(item)
