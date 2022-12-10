@@ -318,11 +318,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "TxProject" then
-            issueNxBallForItem.call(item)
-            return
-        end
-
         if item["mikuType"] == "Wave" then
             nxball = PolyActions::start(item)
             PolyActions::access(item)
