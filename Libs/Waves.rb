@@ -212,7 +212,9 @@ class Waves
 
     # Waves::listingItems(priority)
     def self.listingItems(priority)
-        Waves::items().select{|item| item["priority"] == priority }
+        Waves::items()
+            .select{|item| item["onlyOnDays"].nil? or item["onlyOnDays"].include?(CommonUtils::todayAsLowercaseEnglishWeekDayName()) }
+            .select{|item| item["priority"] == priority }
     end
 
     # -------------------------------------------------------------------------
@@ -277,7 +279,7 @@ class Waves
     def self.probe(item)
         loop {
             puts Waves::toString(item)
-            actions = ["access", "perform done", "destroy"]
+            actions = ["access", "perform done", "set days of the week", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "access" then
@@ -286,6 +288,11 @@ class Waves
             if action == "perform done" then
                 Waves::performWaveNx46WaveDone(item)
                 next
+            end
+            if action == "set days of the week" then
+                days, _ = CommonUtils::interactivelySelectSomeDaysOfTheWeekLowercaseEnglish()
+                item["onlyOnDays"] = days
+                Waves::commitItem(item)
             end
             if action == "destroy" then
                 Waves::destroy(item["uuid"])

@@ -297,6 +297,12 @@ class CommonUtils
         end
     end
 
+    # CommonUtils::interactivelySelectSomeDaysOfTheWeekLowercaseEnglish()
+    def self.interactivelySelectSomeDaysOfTheWeekLowercaseEnglish()
+        days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+        LucilleCore::selectZeroOrMore("days", [], days)
+    end
+
     # ----------------------------------------------------
     # File System Routines (Desktop selection)
 
