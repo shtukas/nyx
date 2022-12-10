@@ -12,7 +12,7 @@ class PolyFunctions
         }
 
         if item["mikuType"] != "Cx22" then
-            cx22 = Item2Cx22::itemToCx22IncludingInteractiveAttempt(item)
+            cx22 = ItemToCx22::itemToCx22IncludingInteractiveAttempt(item)
             if cx22 then
                 accounts << {
                 "description" => cx22["description"],
@@ -148,6 +148,9 @@ class PolyFunctions
         if item["mikuType"] == "TxThread" then
             return item["description"]
         end
+        if item["mikuType"] == "Vx01" then
+            return item["description"]
+        end
         if item["mikuType"] == "Wave" then
             return item["description"]
         end
@@ -188,6 +191,9 @@ class PolyFunctions
         end
         if item["mikuType"] == "TxManualCountDown" then
             return "(countdown) #{item["description"]}: #{item["counter"]}"
+        end
+        if item["mikuType"] == "Vx01" then
+            return "(-vx-) #{item["description"]}"
         end
         if item["mikuType"] == "Wave" then
             return Waves::toString(item)

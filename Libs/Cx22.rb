@@ -132,9 +132,23 @@ class Cx22
 
     # Cx22::workOnlyListingItems(recomputeStuffIfNeeded)
     def self.workOnlyListingItems(recomputeStuffIfNeeded)
+        mainFocusItem = lambda{|cx22|
+            uuid = "Vx01-#{cx22["uuid"]}-MainFocus"
+            ItemToCx22::set(uuid, cx22["uuid"])
+            ratio = Ax39::standardAx39CarrierOperationalRatio(cx22)
+            shouldShow = ratio < 0.75
+            return nil if !shouldShow
+            {
+                "uuid"        => uuid,
+                "mikuType"    => "Vx01",
+                "unixtime"    => cx22["unixtime"],
+                "description" => "Main Focus, non itemized, for '#{Cx22::toString(cx22)}' (current ratio: #{ratio.round(2)}, until: 0.75)"
+            }
+        }
+
         Cx22::cx22OrderedOperations()
             .select{|cx22| cx22["isWork"] }
-            .map{|cx22| NxTodos::firstItemsForCx22(cx22, recomputeStuffIfNeeded) + [cx22]}
+            .map{|cx22| [mainFocusItem.call(cx22)].compact + NxTodos::firstItemsForCx22(cx22, recomputeStuffIfNeeded) + [cx22]}
             .flatten
     end
 

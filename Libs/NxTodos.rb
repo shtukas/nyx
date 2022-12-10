@@ -50,7 +50,7 @@ class NxTodos
         if File.exists?(filepath) then
             FileUtils.rm(filepath)
         end
-        Item2Cx22::garbageCollection(uuid)
+        ItemToCx22::garbageCollection(uuid)
     end
 
     # NxTodos::setAttribute(uuid, attname, attvalue)
@@ -108,7 +108,7 @@ class NxTodos
     def self.itemsForCx22(cx22)
         NxTodos::items()
             .select{|item|
-                icx = Item2Cx22::getCx22OrNull(item["uuid"])
+                icx = ItemToCx22::getCx22OrNull(item["uuid"])
                 icx and (icx["uuid"] == cx22["uuid"])
             }
     end
@@ -116,7 +116,7 @@ class NxTodos
     # NxTodos::itemsWithoutCx22()
     def self.itemsWithoutCx22()
         NxTodos::items()
-            .select{|item| Item2Cx22::getCx22OrNull(item["uuid"]).nil? }
+            .select{|item| ItemToCx22::getCx22OrNull(item["uuid"]).nil? }
     end
 
     # NxTodos::firstItemsForCx22(cx22, recomputeStuffIfNeeded)

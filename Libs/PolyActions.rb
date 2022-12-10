@@ -318,6 +318,11 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "Vx01" then
+            PolyActions::start(item)
+            return
+        end
+
         if item["mikuType"] == "Wave" then
             nxball = PolyActions::start(item)
             PolyActions::access(item)

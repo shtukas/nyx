@@ -89,7 +89,7 @@ class CatalystListing
         if Interpreting::match("group", input) then
             item = store.getDefault()
             return if item.nil?
-            Item2Cx22::interactivelySelectAndMapToCx22OrNothing(item["uuid"])
+            ItemToCx22::interactivelySelectAndMapToCx22OrNothing(item["uuid"])
             return
         end
 
@@ -97,7 +97,7 @@ class CatalystListing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            Item2Cx22::interactivelySelectAndMapToCx22OrNothing(item["uuid"])
+            ItemToCx22::interactivelySelectAndMapToCx22OrNothing(item["uuid"])
             return
         end
 
@@ -502,7 +502,7 @@ class CatalystListing
         nxballHasAnItemInThere = lambda {|nxball, listingItems|
             itemuuid = nxball["itemuuid"]
             return false if itemuuid.nil?
-            listingItems.any?{|packet| packet["item"]["uuid"] == itemuuid }
+            listingItems.any?{|item| item["uuid"] == itemuuid }
         }
 
         floats = TxFloats::listingItems()
@@ -528,7 +528,7 @@ class CatalystListing
                     break if vspaceleft <= 0
                     store.register(item, false)
 
-                    cx22 =  Item2Cx22::getCx22OrNull(item["uuid"])
+                    cx22 =  ItemToCx22::getCx22OrNull(item["uuid"])
                     cx22Str = cx22 ? " (#{Cx22::toString(cx22)})" : ""
                     line = "#{store.prefixString()} #{PolyFunctions::toStringForCatalystListing(item)}#{cx22Str.green}"
                     
@@ -566,7 +566,7 @@ class CatalystListing
                 break if vspaceleft <= 0
                 store.register(item, true)
 
-                cx22 =  cx22 =  Item2Cx22::getCx22OrNull(item["uuid"])
+                cx22 =  cx22 =  ItemToCx22::getCx22OrNull(item["uuid"])
                 cx22Str = cx22 ? " (Cx22: #{cx22["description"]})" : ""
                 line = "#{store.prefixString()} #{PolyFunctions::toStringForCatalystListing(item)}#{cx22Str.green}"
 
