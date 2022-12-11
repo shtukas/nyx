@@ -168,6 +168,7 @@ require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"
 require_relative "InternetStatus.rb"
 require_relative "InMemoryStore.rb"
+require_relative "ItemsManager.rb"
 
 require_relative "FileSystemCheck.rb"
 
