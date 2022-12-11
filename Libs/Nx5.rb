@@ -2,27 +2,6 @@
 
 class Nx5
 
-    # Nx5::issueNewFileAtFilepath(filepath, uuid)
-    def self.issueNewFileAtFilepath(filepath, uuid)
-        raise "(error: B11E6590-A1D3-4BF4-9A6E-6FBC4CD06A4A)" if File.exists?(filepath)
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute "create table _events_ (_eventuuid_ text, _eventTime_ float, _eventType_ text, _event_ text)"
-        db.execute "create table _datablobs_ (_nhash_ text, _datablob_ blob)"
-
-        event = {
-            "mikuType"  => "Nx3",
-            "eventuuid" => SecureRandom.uuid,
-            "eventTime" => Time.new.to_f,
-            "eventType" => "uuid",
-            "payload"   => uuid
-        }
-        db.execute "insert into _events_ (_eventuuid_, _eventTime_, _eventType_, _event_) values (?, ?, ?, ?)", [event["eventuuid"], event["eventTime"], event["eventType"], JSON.generate(event)]
-        db.close
-    end
-
     # EVENTS
 
     # Nx5::getLatestPayloadOfEventTypeOrNull(filepath, eventType)
@@ -121,21 +100,6 @@ class Nx5
 
     # DATABLOBS
 
-    # Nx5::getDataBlobsNhashes(filepath)
-    def self.getDataBlobsNhashes(filepath)
-        raise "(error: 37854fc9-28e3-4c73-a4c2-76faac4a5186) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        nhashes = []
-        db.execute("select _nhash_ from _datablobs_", []) do |row|
-            nhashes << row["_nhash_"]
-        end
-        db.close
-        nhashes
-    end
-
     # Nx5::getDatablobOrNull(filepath, nhash)
     def self.getDatablobOrNull(filepath, nhash)
         raise "(error: a27f23c4-31dd-478e-8236-a95a4fe37984) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
@@ -150,36 +114,6 @@ class Nx5
         db.close
         blob
     end
-
-    # Nx5::trueIfFileHasBlob(filepath, nhash)
-    def self.trueIfFileHasBlob(filepath, nhash)
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        flag = false
-        db.execute("select _nhash_ from _datablobs_ where _nhash_=?", [nhash]) do |row|
-            flag = true
-        end
-        db.close
-        flag
-    end
-
-    # Nx5::putBlob(filepath, blob)
-    def self.putBlob(filepath, blob)
-        raise "(error: 4272141b-4bab-4a7b-ba0d-377291d27809) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        return nhash if Nx5::trueIfFileHasBlob(filepath, nhash)
-        puts "datablob: #{nhash} (at: #{filepath})".green
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute "delete from _datablobs_ where _nhash_=?", [nhash]
-        db.execute "insert into _datablobs_ (_nhash_, _datablob_) values (?, ?)", [nhash, blob]
-        db.close
-        nhash
-    end
 end
 
 class ElizabethNx5
@@ -189,7 +123,7 @@ class ElizabethNx5
     end
 
     def putBlob(datablob)
-        Nx5::putBlob(@filepath, datablob)
+        Store1::put(datablob)
     end
 
     def filepathToContentHash(filepath)
@@ -197,7 +131,15 @@ class ElizabethNx5
     end
 
     def getBlobOrNull(nhash)
-        Nx5::getDatablobOrNull(@filepath, nhash)
+        blob = Store1::getOrNull(nhash)
+        return blob if blob
+        blob = Nx5::getDatablobOrNull(@filepath, nhash)
+        if blob then
+            puts "writing nhash: #{nhash} at Store 1".green
+            Store1::put(datablob)
+            return blob
+        end
+        nil
     end
 
     def readBlobErrorIfNotFound(nhash)
@@ -222,12 +164,6 @@ class ElizabethNx5
 end
 
 class Nx5Ext
-
-    # Nx5Ext::setAttribute(filepath, attname, attvalue)
-    def self.setAttribute(filepath, attname, attvalue)
-        Nx5::emitEventToFile1(filepath, attname, attvalue)
-    end
-
     # Nx5Ext::readFileAsAttributesOfObject(filepath)
     def self.readFileAsAttributesOfObject(filepath)
         raise "(error: 35519C87-740E-4D59-8CF2-15E7434E8024) file doesn't exist: '#{filepath}'" if !File.exists?(filepath)
@@ -235,51 +171,5 @@ class Nx5Ext
             item[event["eventType"]] = event["payload"]
             item
         }
-    end
-
-    # Nx5Ext::ensureSetAndIdenticalUUIDsOrError(file1, file2)
-    def self.ensureSetAndIdenticalUUIDsOrError(file1, file2)
-        payloads1 = Nx5::getOrderedPayloadsForEventType(file1, "uuid")
-        if payloads1.empty? then
-            raise "(error: 47021527-13f3-4d8a-95f7-e130760b9ed5) file: '#{file1.green}' doesn't have a uuid attribute"
-        end
-        uuid1 = payloads1.last
-
-        payloads2 = Nx5::getOrderedPayloadsForEventType(file2, "uuid")
-        if payloads2.empty? then
-            raise "(error: 4b56c0f6-edd0-4c70-bc0b-8543f902d4b9) file: '#{file2.green}' doesn't have a uuid attribute"
-        end
-        uuid2 = payloads2.last
-
-        if uuid1 != uuid2 then
-            raise "attepting mirroring onto two files with distinct uuids; file1: #{file1}; uuid: #{uuid1}; file2: #{file2}; uuid: #{uuid2} "
-        end
-    end
-
-    # Nx5Ext::contentsPropagation(sourcefilepath, targetfilepath)
-    def self.contentsPropagation(sourcefilepath, targetfilepath)
-
-        # We need to fail if either of the two files doesn't have a uuid or if they are not identical
-        Nx5Ext::ensureSetAndIdenticalUUIDsOrError(sourcefilepath, targetfilepath)
-
-        Nx5::getDataBlobsNhashes(sourcefilepath)
-            .each{|nhash|
-                blob = Nx5::getDatablobOrNull(sourcefilepath, nhash)
-                if blob.nil? then
-                    raise "(error: 0a10fcee-064e-46d8-ae07-a4ddc6160197) sourcefilepath: '#{sourcefilepath}', nhash: '#{nhash}'"
-                end
-                Nx5::putBlob(targetfilepath, blob)
-            }
-
-        Nx5::getOrderedEvents(sourcefilepath)
-            .each{|event|
-                Nx5::emitEventToFile0(targetfilepath, event)
-            }
-    end
-
-    # Nx5Ext::contentsMirroring(file1, file2)
-    def self.contentsMirroring(file1, file2)
-        Nx5Ext::contentsPropagation(file1, file2)
-        Nx5Ext::contentsPropagation(file2, file1)
     end
 end

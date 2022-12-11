@@ -63,7 +63,7 @@ class PolyFunctions
             # We register the item which is also the default element in the store
             store.register(item, true)
 
-            entities = Nx7::parents(item)
+            entities = []
             if entities.size > 0 then
                 puts ""
                 puts "parents:"
@@ -75,7 +75,7 @@ class PolyFunctions
                     }
             end
 
-            entities = Nx7::relateds(item)
+            entities = []
             if entities.size > 0 then
                 puts ""
                 puts "related:"
@@ -87,7 +87,7 @@ class PolyFunctions
                     }
             end
 
-            entities = Nx7::children(item)
+            entities = []
             if entities.size > 0 then
                 puts ""
                 puts "parents:"
@@ -139,9 +139,6 @@ class PolyFunctions
         if item["mikuType"] == "NxTodo" then
             return item["description"]
         end
-        if item["mikuType"] == "Nx7" then
-            return item["description"]
-        end
         if item["mikuType"] == "TxFloat" then
             return item["description"]
         end
@@ -173,9 +170,6 @@ class PolyFunctions
         end
         if item["mikuType"] == "LambdX1" then
             return "(lambda) #{item["announce"]}"
-        end
-        if item["mikuType"] == "Nx7" then
-            return Nx7::toString(item)
         end
         if item["mikuType"] == "NxAnniversary" then
             return Anniversaries::toString(item)

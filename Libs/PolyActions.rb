@@ -25,11 +25,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "Nx7" then
-            Nx7::access(item)
-            return
-        end
-
         if item["mikuType"] == "NxTodo" then
             NxTodos::access(item)
             return
@@ -72,11 +67,6 @@ class PolyActions
 
         if item["mikuType"] == "NxTodo" then
             ItemsManager::commit("NxTodo", item)
-            return
-        end
-
-        if item["mikuType"] == "Nx7" then
-            Nx7::commit(item)
             return
         end
 

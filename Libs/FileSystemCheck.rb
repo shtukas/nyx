@@ -236,39 +236,6 @@ class FileSystemCheck
         end
     end
 
-    # FileSystemCheck::fsck_Nx7(operator, item, verbose)
-    def self.fsck_Nx7(operator, item, verbose)
-
-        if verbose then
-            puts "FileSystemCheck::fsck_Nx7(operator, #{JSON.pretty_generate(item)}, #{verbose})"
-        end
-
-        if item["mikuType"].nil? then
-            raise "item has no Miku type"
-        end
-        if item["mikuType"] != "Nx7" then
-            raise "Incorrect Miku type for function"
-        end
-
-        FileSystemCheck::ensureAttribute(item, "uuid", "String")
-        FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-        FileSystemCheck::ensureAttribute(item, "datetime", "String")
-        FileSystemCheck::ensureAttribute(item, "description", "String")
-
-        FileSystemCheck::ensureAttribute(item, "nx7Payload", "Hash")
-
-        FileSystemCheck::fsck_Nx7Payload(operator, item["nx7Payload"], verbose)
-
-        FileSystemCheck::ensureAttribute(item, "comments", "Array")
-
-        item["comments"].each{|op|
-            # TODO:
-        }
-
-        FileSystemCheck::ensureAttribute(item, "parentsuuids", "Array")
-        FileSystemCheck::ensureAttribute(item, "relatedsuuids", "Array")
-    end
-
     # FileSystemCheck::fsck_Nx3(item, verbose)
     def self.fsck_Nx3(item, verbose)
 
@@ -288,36 +255,6 @@ class FileSystemCheck
         FileSystemCheck::ensureAttribute(item, "eventType", "String")
 
         #FileSystemCheck::ensureAttribute(item, "payload", nil) # We sometimes have null payload 
-    end
-
-    # FileSystemCheck::fsck_Nx7Payload(operator, item, verbose)
-    def self.fsck_Nx7Payload(operator, item, verbose)
-
-        if verbose then
-            puts "FileSystemCheck::fsck_Nx7Payload(operator, #{JSON.pretty_generate(item)}, #{verbose})"
-        end
-
-        if item["mikuType"].nil? then
-            raise "item has no Miku type"
-        end
-        if item["mikuType"] != "Nx7Payload" then
-            raise "Incorrect Miku type for function"
-        end
-
-        FileSystemCheck::ensureAttribute(item, "type", "String")
-
-        if !Nx7Payloads::types().include?(item["type"]) then
-            raise "Incorrect type in #{JSON.pretty_generate(item)}"
-        end
-
-        if item["type"] == "Data" then
-            FileSystemCheck::ensureAttribute(item, "state", "Hash")
-            FileSystemCheck::fsck_GridState(operator, item["state"], verbose)
-        end
-
-        if Nx7Payloads::navigationTypes().include?(item["type"]) then
-            FileSystemCheck::ensureAttribute(item, "childrenuuids", "Array")
-        end
     end
 
     # -----------------------------------------------------
@@ -361,12 +298,6 @@ class FileSystemCheck
 
         if mikuType == "NxGraphEdge1" then
             FileSystemCheck::fsck_NxGraphEdge1(item, verbose)
-            return
-        end
-
-        if mikuType == "Nx7" then
-            operator = Nx7::getElizabethOperatorForItem(item)
-            FileSystemCheck::fsck_Nx7(operator, item, verbose)
             return
         end
 
@@ -450,7 +381,7 @@ class FileSystemCheck
 
     # FileSystemCheck::fsckErrorAtFirstFailure()
     def self.fsckErrorAtFirstFailure()
-        (ItemsManager::items("Wave") + ItemsManager::items("NxTodo") + Nx7::itemsEnumerator().to_a)
+        (ItemsManager::items("Wave") + ItemsManager::items("NxTodo"))
             .each{|item|
                 FileSystemCheck::exitIfMissingCanary()
                 FileSystemCheck::fsck_MikuTypedItem(item, true)

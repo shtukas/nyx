@@ -9,17 +9,12 @@ class Nyx
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
         return nil if operation.nil?
         if operation == "existing || new" then
-            entity = SearchNyx::nyxFoxTerrier()
+            entity = nil
             return entity if entity
-            return Nx7::interactivelyIssueNewOrNull()
+            return nil
         end
         if operation == "new" then
-            return Nx7::interactivelyIssueNewOrNull()
+            return nil
         end
-    end
-
-    # Nyx::program()
-    def self.program()
-        SearchNyx::nyx()
     end
 end

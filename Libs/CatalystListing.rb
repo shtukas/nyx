@@ -11,7 +11,7 @@ class CatalystListing
             "[divings] anniversaries | ondates | waves | groups | todos | float",
             "[transmutations] >todo",
             "[misc] require internet",
-            "[misc] search | nyx | speed | commands | lock (<n>)",
+            "[misc] search | speed | commands | lock (<n>)",
         ].join("\n")
     end
 
@@ -235,11 +235,6 @@ class CatalystListing
 
         if Interpreting::match("manual countdown", input) then
             TxManualCountDowns::issueNewOrNull()
-            return
-        end
-
-        if Interpreting::match("nyx", input) then
-            Nyx::program()
             return
         end
 

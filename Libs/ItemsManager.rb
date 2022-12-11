@@ -62,9 +62,6 @@ class ItemsManager
     # ItemsManager::operatorForNx5(foldername, uuid)
     def self.operatorForNx5(foldername, uuid)
         filepath = ItemsManager::filepath1(foldername, uuid)
-        if !File.exists?(filepath) then
-            Nx5::issueNewFileAtFilepath(filepath, uuid)
-        end
         ElizabethNx5.new(filepath)
     end
 end
