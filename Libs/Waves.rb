@@ -9,6 +9,11 @@ class Waves
         "#{Config::pathToDataCenter()}/Wave/#{uuid}.Nx5"
     end
 
+    # Waves::filepath2(uuid)
+    def self.filepath2(uuid)
+        "#{Config::pathToDataCenter()}/Wave/#{uuid}.json"
+    end
+
     # Waves::items()
     def self.items()
         LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Wave")
@@ -27,20 +32,8 @@ class Waves
     # Waves::commitItem(item)
     def self.commitItem(item)
         FileSystemCheck::fsck_MikuTypedItem(item, false)
-        filepath = Waves::filepathForUUID(item["uuid"])
-        if !File.exists?(filepath) then
-            Nx5::issueNewFileAtFilepath(filepath, item["uuid"])
-        end
-        item.each{|key, value|
-            Nx5::emitEventToFile1(filepath, key, value)
-        }
-    end
-
-    # Waves::commitAttribute1(uuid, attname, attvalue)
-    def self.commitAttribute1(uuid, attname, attvalue)
-        filepath = Waves::filepathForUUID(uuid)
-        raise "(error: EDE283D3-0E7E-4D66-B055-160F43D127C5) uuid: '#{uuid}', attname: '#{attname}', attvalue: '#{attvalue}'" if !File.exists?(filepath)
-        Nx5::emitEventToFile1(filepath, attname, attvalue)
+        filepath = Waves::filepath2(item["uuid"])
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
     # Waves::getOrNull(uuid)
@@ -61,6 +54,10 @@ class Waves
         filepath = Waves::filepathForUUID(uuid)
         if File.exists?(filepath) then
             FileUtils.rm(filepath)
+        end
+        filepath2 = filepath.gsub(".Nx5", ".json")
+        if File.exists?(filepath2) then
+            FileUtils.rm(filepath2)
         end
         ItemToCx22::garbageCollection(uuid)
     end
@@ -243,7 +240,8 @@ class Waves
     # Waves::performWaveNx46WaveDone(item)
     def self.performWaveNx46WaveDone(item)
         puts "done-ing: #{Waves::toString(item)}"
-        Waves::commitAttribute1(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
+        item["lastDoneDateTime"] = Time.now.utc.iso8601
+        Waves::commitItem(item)
 
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
         puts "not shown until: #{Time.at(unixtime).to_s}"
