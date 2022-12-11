@@ -6,60 +6,32 @@ class Waves
 
     # Waves::filepathForUUID(uuid)
     def self.filepathForUUID(uuid)
-        "#{Config::pathToDataCenter()}/Wave/#{uuid}.Nx5"
+        ItemsManager::filepathForUUID("Wave", uuid)
     end
 
     # Waves::filepath2(uuid)
     def self.filepath2(uuid)
-        "#{Config::pathToDataCenter()}/Wave/#{uuid}.json"
+        ItemsManager::filepath2("Wave", uuid)
     end
 
     # Waves::items()
     def self.items()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Wave")
-            .select{|filepath| filepath[-4, 4] == ".Nx5" }
-            .map{|filepath|
-                # We are doing this during the transition period
-                filepath2 = filepath.gsub(".Nx5", "json")
-                if File.exists?(filepath2) then
-                    JSON.parse(IO.read(filepath2))
-                else
-                    Nx5Ext::readFileAsAttributesOfObject(filepath)
-                end
-            }
+        ItemsManager::items("Wave")
     end
 
     # Waves::commitItem(item)
     def self.commitItem(item)
-        FileSystemCheck::fsck_MikuTypedItem(item, false)
-        filepath = Waves::filepath2(item["uuid"])
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
+        ItemsManager::commitItem("Wave", item)
     end
 
     # Waves::getOrNull(uuid)
     def self.getOrNull(uuid)
-        filepath = Waves::filepathForUUID(uuid)
-        filepath2 = filepath.gsub(".Nx5", ".json")
-        if File.exists?(filepath2) then
-            return JSON.parse(IO.read(filepath2))
-        end
-        if File.exists?(filepath) then
-            return Nx5Ext::readFileAsAttributesOfObject(filepath)
-        end
-        nil
+        ItemsManager::getOrNull("Wave", uuid)
     end
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        filepath = Waves::filepathForUUID(uuid)
-        if File.exists?(filepath) then
-            FileUtils.rm(filepath)
-        end
-        filepath2 = filepath.gsub(".Nx5", ".json")
-        if File.exists?(filepath2) then
-            FileUtils.rm(filepath2)
-        end
-        ItemToCx22::garbageCollection(uuid)
+        ItemsManager::destroy("Wave", uuid)
     end
 
     # --------------------------------------------------
