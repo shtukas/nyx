@@ -74,6 +74,8 @@ class Ax39
         end
         if ax39["type"] == "weekly-time-commitment" then
 
+            return 1 if Time.new.wday == 5 # We ignore those on Friday with a clean start on Saturday
+
             dates                       = CommonUtils::datesSinceLastSaturday()
             actualTimeDoneInSeconds     = Bank::combinedValueOnThoseDays(uuid, dates, unrealisedTimespan)
             idealTimeDoneInSeconds      = ([dates.size, 5].min.to_f/5)*ax39["hours"]*3600
@@ -86,6 +88,8 @@ class Ax39
             return [ratio1, ratio2].max
         end
         if ax39["type"] == "work:(mon-to-fri)+(week-end-overflow)" then
+
+            return 1 if Time.new.wday == 0 # We ignore those on Sunday with a clean start on Monday
 
             dates                       = CommonUtils::datesSinceLastMonday()
             actualTimeDoneInSeconds     = Bank::combinedValueOnThoseDays(uuid, dates, unrealisedTimespan)
