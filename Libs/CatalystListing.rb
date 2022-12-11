@@ -341,6 +341,7 @@ class CatalystListing
             item = NxTodos::interactivelyIssueNewOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
+            ItemToCx22::interactivelySelectAndMapToCx22OrNothing(item["uuid"])
             return
         end
 
