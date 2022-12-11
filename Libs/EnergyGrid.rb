@@ -13,5 +13,4 @@ class EnergyGrid
         return if File.exists?(EnergyGrid::energyGridPath())
         exit
     end
-
 end

@@ -1,20 +1,20 @@
 # encoding: UTF-8
 
-class NxCubes
+class Datablobs
 
-    # NxCubes::repositoryFolderPath()
+    # Datablobs::repositoryFolderPath()
     def self.repositoryFolderPath()
-        "#{Config::pathToDataCenter()}/NxCubes"
+        "#{Config::pathToDataCenter()}/Datablobs"
     end
 
-    # NxCubes::referenceToFilepath(reference)
+    # Datablobs::referenceToFilepath(reference)
     def self.referenceToFilepath(reference)
-        "#{NxCubes::repositoryFolderPath()}/#{reference}.cube"
+        "#{Datablobs::repositoryFolderPath()}/#{reference}.data"
     end
 
-    # NxCubes::makeNewEmptyCube(reference)
+    # Datablobs::makeNewEmptyCube(reference)
     def self.makeNewEmptyCube(reference)
-        filepath = NxCubes::referenceToFilepath(reference)
+        filepath = Datablobs::referenceToFilepath(reference)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -23,17 +23,17 @@ class NxCubes
         db.close
     end
 
-    # NxCubes::interactivelyMakeCubeOrNull()
+    # Datablobs::interactivelyMakeCubeOrNull()
     def self.interactivelyMakeCubeOrNull() # cube reference
 
     end
 end
 
-class NxCubeDatablobs
+class DatablobDatablobs
 
-    # NxCubeDatablobs::trueIfFileHasBlob(reference, nhash)
+    # DatablobDatablobs::trueIfFileHasBlob(reference, nhash)
     def self.trueIfFileHasBlob(reference, nhash)
-        filepath = NxCubes::referenceToFilepath(reference)
+        filepath = Datablobs::referenceToFilepath(reference)
         if !File.exists?(filepath) then
             raise "(error: 470f9b50-09ec-449b-a824-dcbfe1d7ba2e) file doesn't exist for reference: #{reference}"
         end
@@ -49,14 +49,14 @@ class NxCubeDatablobs
         flag
     end
 
-    # NxCubeDatablobs::putBlob(reference, blob) # nhash
+    # DatablobDatablobs::putBlob(reference, blob) # nhash
     def self.putBlob(reference, blob) # nhash
-        filepath = NxCubes::referenceToFilepath(reference)
+        filepath = Datablobs::referenceToFilepath(reference)
         if !File.exists?(filepath) then
             raise "(error: b25af4e5-2fef-4cc8-8492-d5a76e99ffa5) file doesn't exist for reference: #{reference}"
         end
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        return nhash if NxCubeDatablobs::trueIfFileHasBlob(reference, nhash)
+        return nhash if DatablobDatablobs::trueIfFileHasBlob(reference, nhash)
         puts "datablob: #{nhash} (at: #{filepath})".green
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -68,9 +68,9 @@ class NxCubeDatablobs
         nhash
     end
 
-    # NxCubeDatablobs::getBlobOrNull(reference, nhash)
+    # DatablobDatablobs::getBlobOrNull(reference, nhash)
     def  self.getBlobOrNull(reference, nhash)
-        filepath = NxCubes::referenceToFilepath(reference)
+        filepath = Datablobs::referenceToFilepath(reference)
         if !File.exists?(filepath) then
             raise "(error: 369ca9fa-ab95-47f4-89ee-6dfb38e5bb5b) file doesn't exist for reference: #{reference}"
         end
@@ -87,14 +87,14 @@ class NxCubeDatablobs
     end
 end
 
-class NxCubeElizabeth
+class DatablobElizabeth
 
     def initialize(reference)
         @reference = reference
     end
 
     def putBlob(datablob)
-        NxCubeDatablobs::putBlob(@reference, datablob)
+        DatablobDatablobs::putBlob(@reference, datablob)
     end
 
     def filepathToContentHash(filepath)
@@ -102,7 +102,7 @@ class NxCubeElizabeth
     end
 
     def getBlobOrNull(nhash)
-        NxCubeDatablobs::getBlobOrNull(@reference, nhash)
+        DatablobDatablobs::getBlobOrNull(@reference, nhash)
     end
 
     def readBlobErrorIfNotFound(nhash)
@@ -126,19 +126,19 @@ class NxCubeElizabeth
     end
 end
 
-class NxCubeOps
+class DatablobOps
 
-    # NxCubeOps::accessCube(reference, nx113)
+    # DatablobOps::accessCube(reference, nx113)
     def self.accessCube(reference, nx113)
 
     end
 
-    # NxCubeOps::editCube(reference, nx113) # nx113
+    # DatablobOps::editCube(reference, nx113) # nx113
     def self.editCube(reference, nx113)
 
     end
 
-    # NxCubeOps::destroyCube(reference)
+    # DatablobOps::destroyCube(reference)
     def self.destroyCube(reference)
 
     end
