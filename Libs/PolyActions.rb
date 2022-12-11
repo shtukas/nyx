@@ -81,7 +81,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "Wave" then
-            Waves::commitItem(item)
+            ItemsManager::commitItem("Wave", item)
             return
         end
 
@@ -97,7 +97,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "Wave" then
-            Waves::destroy(item["uuid"])
+            ItemsManager::destroy("Wave", item["uuid"])
             PolyActions::garbageCollectionAfterItemDeletion(item)
             return
         end

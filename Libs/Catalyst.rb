@@ -4,7 +4,7 @@ class Catalyst
 
     # Catalyst::catalystItems()
     def self.catalystItems()
-        NxTodos::items() + Waves::items()
+        NxTodos::items() + ItemsManager::items("Wave")
     end
 
     # Catalyst::getCatalystItemOrNull(uuid)
@@ -16,7 +16,7 @@ class Catalyst
         item = NxOnDates::getItemOrNull(uuid)
         return item if item
 
-        item = Waves::getOrNull(uuid)
+        item = ItemsManager::getOrNull("Wave", uuid)
         return item if item
 
         item = NxTodos::getItemOrNull(uuid)

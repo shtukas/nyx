@@ -2,39 +2,6 @@
 class Waves
 
     # --------------------------------------------------
-    # IO
-
-    # Waves::filepathForUUID(uuid)
-    def self.filepathForUUID(uuid)
-        ItemsManager::filepathForUUID("Wave", uuid)
-    end
-
-    # Waves::filepath2(uuid)
-    def self.filepath2(uuid)
-        ItemsManager::filepath2("Wave", uuid)
-    end
-
-    # Waves::items()
-    def self.items()
-        ItemsManager::items("Wave")
-    end
-
-    # Waves::commitItem(item)
-    def self.commitItem(item)
-        ItemsManager::commitItem("Wave", item)
-    end
-
-    # Waves::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        ItemsManager::getOrNull("Wave", uuid)
-    end
-
-    # Waves::destroy(uuid)
-    def self.destroy(uuid)
-        ItemsManager::destroy("Wave", uuid)
-    end
-
-    # --------------------------------------------------
     # Making
 
     # Waves::interactivelySelectPriorityOrNull()
@@ -174,7 +141,7 @@ class Waves
             "nx113"            => nx113,
             "lastDoneDateTime" => "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         }
-        Waves::commitItem(item)
+        ItemsManager::commitItem("Wave", item)
         item
     end
 
@@ -190,7 +157,7 @@ class Waves
 
     # Waves::listingItems(priority)
     def self.listingItems(priority)
-        Waves::items()
+        ItemsManager::items("Wave")
             .select{|item| item["onlyOnDays"].nil? or item["onlyOnDays"].include?(CommonUtils::todayAsLowercaseEnglishWeekDayName()) }
             .select{|item| item["priority"] == priority }
     end
@@ -200,7 +167,7 @@ class Waves
 
     # Waves::operatorForUUID(uuid)
     def self.operatorForUUID(uuid)
-        filepath = Waves::filepathForUUID(uuid)
+        filepath = ItemsManager::filepathForUUID("Wave", uuid)
         ElizabethNx5.new(filepath)
     end
 
@@ -213,7 +180,7 @@ class Waves
     def self.performWaveNx46WaveDone(item)
         puts "done-ing: #{Waves::toString(item)}"
         item["lastDoneDateTime"] = Time.now.utc.iso8601
-        Waves::commitItem(item)
+        ItemsManager::commitItem("Wave", item)
 
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
         puts "not shown until: #{Time.at(unixtime).to_s}"
@@ -223,7 +190,7 @@ class Waves
     # Waves::dive()
     def self.dive()
         loop {
-            items = Waves::items().sort{|w1, w2| w1["description"] <=> w2["description"] }
+            items = ItemsManager::items("Wave").sort{|w1, w2| w1["description"] <=> w2["description"] }
             wave = LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", items, lambda{|wave| wave["description"] })
             return if wave.nil?
             Waves::probe(wave)
@@ -245,13 +212,13 @@ class Waves
             status = LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit the description instead ? ")
             if status then
                 PolyActions::editDescription(item)
-                return Waves::getOrNull(item["uuid"])
+                return ItemsManager::getOrNull("Wave", item["uuid"])
             else
                 return item
             end
         end
         Nx113Edit::editNx113Carrier(item)
-        Waves::getOrNull(item["uuid"])
+        ItemsManager::getOrNull("Wave", item["uuid"])
     end
 
     # Waves::probe(item)
@@ -271,10 +238,10 @@ class Waves
             if action == "set days of the week" then
                 days, _ = CommonUtils::interactivelySelectSomeDaysOfTheWeekLowercaseEnglish()
                 item["onlyOnDays"] = days
-                Waves::commitItem(item)
+                ItemsManager::commitItem("Wave", item)
             end
             if action == "destroy" then
-                Waves::destroy(item["uuid"])
+                ItemsManager::destroy("Wave", item["uuid"])
                 PolyActions::garbageCollectionAfterItemDeletion(item)
                 return
             end

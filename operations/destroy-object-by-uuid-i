@@ -15,5 +15,5 @@ LucilleCore::pressEnterToContinue()
 
 NxTriages::destroy(uuid)
 NxOndates::destroy(uuid)
-Waves::destroy(uuid)
+ItemsManager::destroy("Wave", uuid)
 NxTodos::destroy(uuid)
