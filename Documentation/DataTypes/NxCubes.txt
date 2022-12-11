@@ -1,5 +1,0 @@
-
-NxCubes are SQLite files data carriers. They are not associated to a particular Miku type, they were introduced in Dec 2022 to decouple items (which I wished I could transmute more easily) and data. They follow the Nx5 convention, since the first were reporpused Nx5 files. 
-
-create table _datablobs_ (_nhash_ text, _datablob_ blob);
-

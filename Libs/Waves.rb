@@ -9,16 +9,19 @@ class Waves
         "#{Config::pathToDataCenter()}/Wave/#{uuid}.Nx5"
     end
 
-    # Waves::nx5Filepaths()
-    def self.nx5Filepaths()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Wave")
-            .select{|filepath| filepath[-4, 4] == ".Nx5" }
-    end
-
     # Waves::items()
     def self.items()
-        Waves::nx5Filepaths()
-            .map{|filepath| Nx5Ext::readFileAsAttributesOfObject(filepath) }
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Wave")
+            .select{|filepath| filepath[-4, 4] == ".Nx5" }
+            .map{|filepath|
+                # We are doing this during the transition period
+                filepath2 = filepath.gsub(".Nx5", "json")
+                if File.exists?(filepath2) then
+                    JSON.parse(IO.read(filepath2))
+                else
+                    Nx5Ext::readFileAsAttributesOfObject(filepath)
+                end
+            }
     end
 
     # Waves::commitItem(item)
@@ -43,8 +46,14 @@ class Waves
     # Waves::getOrNull(uuid)
     def self.getOrNull(uuid)
         filepath = Waves::filepathForUUID(uuid)
-        return nil if !File.exists?(filepath)
-        Nx5Ext::readFileAsAttributesOfObject(filepath)
+        filepath2 = filepath.gsub(".Nx5", ".json")
+        if File.exists?(filepath2) then
+            return JSON.parse(IO.read(filepath2))
+        end
+        if File.exists?(filepath) then
+            return Nx5Ext::readFileAsAttributesOfObject(filepath)
+        end
+        nil
     end
 
     # Waves::destroy(uuid)
