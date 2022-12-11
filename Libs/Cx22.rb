@@ -11,20 +11,6 @@ class Cx22
         items
     end
 
-    # Cx22::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        filepath = "#{Config::pathToDataCenter()}/Cx22/#{uuid}.json"
-        return nil if !File.exists?(filepath)
-        JSON.parse(IO.read(filepath))
-    end
-
-    # Cx22::commit(item)
-    def self.commit(item)
-        FileSystemCheck::fsck_MikuTypedItem(item, false)
-        filepath = "#{Config::pathToDataCenter()}/Cx22/#{item["uuid"]}.json"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
-    end
-
     # --------------------------------------------
     # Makers
 
@@ -43,7 +29,7 @@ class Cx22
             "isWork"      => false
         }
         FileSystemCheck::fsck_Cx22(item, true)
-        Cx22::commit(item)
+        ItemsManager::commit("Cx22", item)
         item
     end
 
@@ -192,7 +178,7 @@ class Cx22
             if action == "set Ax39" then
                 cx22["ax39"] = Ax39::interactivelyCreateNewAx()
                 FileSystemCheck::fsck_Cx22(cx22, true)
-                Cx22::commit(cx22)
+                ItemsManager::commit("Cx22", cx22)
             end
             if action == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy Cx22 '#{Cx22::toString(cx22)}' ? ") then

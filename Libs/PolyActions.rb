@@ -49,7 +49,7 @@ class PolyActions
             puts item["description"]
             count = LucilleCore::askQuestionAnswerAsString("done count: ").to_i
             item["counter"] = item["counter"] - count
-            TxManualCountDowns::commit(item)
+            ItemsManager::commit("TxManualCountDown", item)
             return
         end
 
@@ -66,12 +66,12 @@ class PolyActions
     def self.commit(item)
 
         if item["mikuType"] == "Cx22" then
-            Cx22::commit(item)
+            ItemsManager::commit("Cx22", item)
             return
         end
 
         if item["mikuType"] == "NxTodo" then
-            NxTodos::commitObject(item)
+            ItemsManager::commit("NxTodo", item)
             return
         end
 
@@ -81,7 +81,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "Wave" then
-            ItemsManager::commitItem("Wave", item)
+            ItemsManager::commit("Wave", item)
             return
         end
 
@@ -91,7 +91,7 @@ class PolyActions
     # PolyActions::destroy(item)
     def self.destroy(item)
         if item["mikuType"] == "NxTodo" then
-            NxTodos::destroy(item["uuid"])
+            ItemsManager::destroy("NxTodo", item["uuid"])
             PolyActions::garbageCollectionAfterItemDeletion(item)
             return
         end
@@ -142,7 +142,7 @@ class PolyActions
 
         if item["mikuType"] == "NxOndate" then
             if LucilleCore::askQuestionAnswerAsBoolean("destroy NxOndate '#{item["description"].green}' ? ", true) then
-                NxOndates::destroy(item["uuid"])
+                ItemsManager::destroy("NxOndate", item["uuid"])
             end
             return
         end
@@ -156,7 +156,7 @@ class PolyActions
                     return if option == ""
                     if option == "destroy" then
                         NxBalls::closeNxBallForItemOrNothing(item)
-                        NxTodos::destroy(item["uuid"])
+                        ItemsManager::destroy("NxTodo", item["uuid"])
                         return
                     end
                     if option == "exit" then
@@ -165,7 +165,7 @@ class PolyActions
                     return
                 else
                     NxBalls::closeNxBallForItemOrNothing(item)
-                    NxTodos::destroy(item["uuid"])
+                    ItemsManager::destroy("NxTodo", item["uuid"])
                 end
             end
             return
@@ -174,14 +174,14 @@ class PolyActions
         if item["mikuType"] == "NxTriage" then
             if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTriage '#{NxTriages::toString(item).green} ? '") then
                 NxBalls::closeNxBallForItemOrNothing(item)
-                NxTriages::destroy(item["uuid"])
+                ItemsManager::destroy("NxTriage", item["uuid"])
             end
             return
         end
 
         if item["mikuType"] == "TxFloat" then
             if LucilleCore::askQuestionAnswerAsBoolean("destroy TxFloat '#{NxTriages::toString(item).green} ? '") then
-                TxFloats::destroy(item["uuid"])
+                ItemsManager::destroy("TxFloat", item["uuid"])
             end
             return
         end
@@ -243,7 +243,7 @@ class PolyActions
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["done", ">todo", "exit"])
             return if option.nil?
             if option == "done" then
-                NxTriages::destroy(item["uuid"])
+                ItemsManager::destroy("NxTriage", item["uuid"])
             end
             if option == ">todo" then
                 NxTriages::transmuteItemToNxTodo(item)
@@ -261,7 +261,7 @@ class PolyActions
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["done", "redate", "run in background"])
             return if option.nil?
             if option == "done" then
-                NxOndates::destroy(item["uuid"])
+                ItemsManager::destroy("NxOndate", item["uuid"])
                 NxBalls::close(nxball) if nxball
             end
             if option == "redate" then
@@ -282,7 +282,7 @@ class PolyActions
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["done", "stop", "run in background", "update description"])
             return if option.nil?
             if option == "done" then
-                NxTodos::destroy(item["uuid"])
+                ItemsManager::destroy("NxTodo", item["uuid"])
                 NxBalls::close(nxball) if nxball
             end
             if option == "stop" then
@@ -295,7 +295,8 @@ class PolyActions
             end
             if option == "update description" then
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
-                NxTodos::setAttribute(item["uuid"], "description", description)
+                item["description"] = description
+                ItemsManager::commit("NxTodo", item)
                 return
             end
             return
@@ -307,13 +308,13 @@ class PolyActions
             item["counter"] = item["counter"] - count
             item["lastUpdatedUnixtime"] = Time.new.to_i
             puts JSON.pretty_generate(item)
-            TxManualCountDowns::commit(item)
+            ItemsManager::commit("TxManualCountDown", item)
             return
         end
 
         if item["mikuType"] == "TxFloat" then
             if LucilleCore::askQuestionAnswerAsBoolean("destroy TxFloat '#{TxFloats::toString(item)}' ? ") then
-                TxFloats::destroy(item["uuid"])
+                ItemsManager::destroy("TxFloat", item["uuid"])
             end
             return
         end

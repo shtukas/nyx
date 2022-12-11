@@ -1,8 +1,8 @@
 
 class ItemsManager
 
-    # ItemsManager::filepathForUUID(foldername, uuid)
-    def self.filepathForUUID(foldername, uuid)
+    # ItemsManager::filepath1(foldername, uuid)
+    def self.filepath1(foldername, uuid)
         "#{Config::pathToDataCenter()}/#{foldername}/#{uuid}.Nx5"
     end
 
@@ -26,8 +26,8 @@ class ItemsManager
             }
     end
 
-    # ItemsManager::commitItem(foldername, item)
-    def self.commitItem(foldername, item)
+    # ItemsManager::commit(foldername, item)
+    def self.commit(foldername, item)
         FileSystemCheck::fsck_MikuTypedItem(item, false)
         filepath = ItemsManager::filepath2(foldername, item["uuid"])
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
@@ -35,7 +35,7 @@ class ItemsManager
 
     # ItemsManager::getOrNull(foldername, uuid)
     def self.getOrNull(foldername, uuid)
-        filepath = ItemsManager::filepathForUUID(foldername, uuid)
+        filepath = ItemsManager::filepath1(foldername, uuid)
         filepath2 = filepath.gsub(".Nx5", ".json")
         if File.exists?(filepath2) then
             return JSON.parse(IO.read(filepath2))
@@ -48,7 +48,7 @@ class ItemsManager
 
     # ItemsManager::destroy(foldername, uuid)
     def self.destroy(foldername, uuid)
-        filepath = ItemsManager::filepathForUUID(foldername, uuid)
+        filepath = ItemsManager::filepath1(foldername, uuid)
         if File.exists?(filepath) then
             FileUtils.rm(filepath)
         end
@@ -59,4 +59,12 @@ class ItemsManager
         ItemToCx22::garbageCollection(uuid)
     end
 
+    # ItemsManager::operatorForNx5(foldername, uuid)
+    def self.operatorForNx5(foldername, uuid)
+        filepath = ItemsManager::filepath1(foldername, uuid)
+        if !File.exists?(filepath) then
+            Nx5::issueNewFileAtFilepath(filepath, uuid)
+        end
+        ElizabethNx5.new(filepath)
+    end
 end

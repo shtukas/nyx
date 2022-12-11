@@ -293,7 +293,7 @@ class Nx113Edit
 
         operator = nil
         if item["mikuType"] == "NxTodo" then
-            operator = NxTodos::getElizabethOperatorForItem(item)
+            operator = ItemsManager::operatorForNx5("NxTodo", item)
         end
 
         nx113v2 = Nx113Edit::editNx113(operator, nx113)

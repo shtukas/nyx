@@ -13,7 +13,7 @@ end
 puts JSON.pretty_generate(item)
 LucilleCore::pressEnterToContinue()
 
-NxTriages::destroy(uuid)
-NxOndates::destroy(uuid)
+ItemsManager::destroy("NxTriage", uuid)
+ItemsManager::destroy("NxOndate", uuid)
 ItemsManager::destroy("Wave", uuid)
-NxTodos::destroy(uuid)
+ItemsManager::destroy("NxTodo", uuid)

@@ -29,7 +29,7 @@ class ItemToCx22
     def self.getCx22OrNull(itemuuid)
         cx22uuid = ItemToCx22::getOrNull(itemuuid)
         return nil if cx22uuid.nil?
-        Cx22::getOrNull(cx22uuid)
+        ItemsManager::getOrNull("Cx22", cx22uuid)
     end
 
     # ItemToCx22::itemToCx22IncludingInteractiveAttempt(item)

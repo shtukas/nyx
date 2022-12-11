@@ -128,7 +128,7 @@ class Waves
         nx46 = Waves::makeNx46InteractivelyOrNull()
         return nil if nx46.nil?
         uuid = SecureRandom.uuid
-        nx113 = Nx113Make::interactivelyMakeNx113OrNull(Waves::operatorForUUID(uuid))
+        nx113 = Nx113Make::interactivelyMakeNx113OrNull(ItemsManager::operatorForNx5("Wave", uuid))
         priority = Waves::interactivelySelectPriority()
         item = {
             "uuid"             => uuid,
@@ -141,7 +141,7 @@ class Waves
             "nx113"            => nx113,
             "lastDoneDateTime" => "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         }
-        ItemsManager::commitItem("Wave", item)
+        ItemsManager::commit("Wave", item)
         item
     end
 
@@ -165,22 +165,16 @@ class Waves
     # -------------------------------------------------------------------------
     # Operations
 
-    # Waves::operatorForUUID(uuid)
-    def self.operatorForUUID(uuid)
-        filepath = ItemsManager::filepathForUUID("Wave", uuid)
-        ElizabethNx5.new(filepath)
-    end
-
     # Waves::operatorForItem(item)
     def self.operatorForItem(item)
-        Waves::operatorForUUID(item["uuid"])
+        ItemsManager::operatorForNx5("Wave", item["uuid"])
     end
 
     # Waves::performWaveNx46WaveDone(item)
     def self.performWaveNx46WaveDone(item)
         puts "done-ing: #{Waves::toString(item)}"
         item["lastDoneDateTime"] = Time.now.utc.iso8601
-        ItemsManager::commitItem("Wave", item)
+        ItemsManager::commit("Wave", item)
 
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
         puts "not shown until: #{Time.at(unixtime).to_s}"
@@ -238,7 +232,7 @@ class Waves
             if action == "set days of the week" then
                 days, _ = CommonUtils::interactivelySelectSomeDaysOfTheWeekLowercaseEnglish()
                 item["onlyOnDays"] = days
-                ItemsManager::commitItem("Wave", item)
+                ItemsManager::commit("Wave", item)
             end
             if action == "destroy" then
                 ItemsManager::destroy("Wave", item["uuid"])

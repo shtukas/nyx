@@ -2,62 +2,6 @@
 
 class NxTodos
 
-    # NxTodos::uuidToNx5Filepath(uuid)
-    def self.uuidToNx5Filepath(uuid)
-        "#{Config::pathToDataCenter()}/NxTodo/#{uuid}.Nx5"
-    end
-
-    # NxTodos::filepaths()
-    def self.filepaths()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodo")
-            .select{|filepath| filepath[-4, 4] == ".Nx5" }
-    end
-
-    # NxTodos::items()
-    def self.items()
-        NxTodos::filepaths()
-            .map{|filepath| Nx5Ext::readFileAsAttributesOfObject(filepath) }
-    end
-
-    # NxTodos::getItemAtFilepathOrNull(filepath)
-    def self.getItemAtFilepathOrNull(filepath)
-        return nil if !File.exists?(filepath)
-        Nx5Ext::readFileAsAttributesOfObject(filepath)
-    end
-
-    # NxTodos::getItemOrNull(uuid)
-    def self.getItemOrNull(uuid)
-        filepath = NxTodos::uuidToNx5Filepath(uuid)
-        return nil if !File.exists?(filepath)
-        Nx5Ext::readFileAsAttributesOfObject(filepath)
-    end
-
-    # NxTodos::commitObject(item)
-    def self.commitObject(item)
-        FileSystemCheck::fsck_MikuTypedItem(item, false)
-        filepath = NxTodos::uuidToNx5Filepath(item["uuid"])
-        if !File.exists?(filepath) then
-            Nx5::issueNewFileAtFilepath(filepath, item["uuid"])
-        end
-        item.each{|key, value|
-            Nx5::emitEventToFile1(filepath, key, value)
-        }
-    end
-
-    # NxTodos::destroy(uuid)
-    def self.destroy(uuid)
-        filepath = NxTodos::uuidToNx5Filepath(uuid)
-        if File.exists?(filepath) then
-            FileUtils.rm(filepath)
-        end
-        ItemToCx22::garbageCollection(uuid)
-    end
-
-    # NxTodos::setAttribute(uuid, attname, attvalue)
-    def self.setAttribute(uuid, attname, attvalue)
-        Nx5Ext::setAttribute(NxTodos::uuidToNx5Filepath(uuid), attname, attvalue)
-    end
-
     # --------------------------------------------------
     # Makers
 
@@ -75,7 +19,7 @@ class NxTodos
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid  = CommonUtils::timeStringL22() # We want the items to come in time order, ideally
-        nx113 = Nx113Make::interactivelyMakeNx113OrNull(NxTodos::getElizabethOperatorForUUID(uuid))
+        nx113 = Nx113Make::interactivelyMakeNx113OrNull(ItemsManager::operatorForNx5("NxTodo", uuid))
         priority = NxTodos::decidePriority()
         item = {
             "uuid"        => uuid,
@@ -86,7 +30,7 @@ class NxTodos
             "nx113"       => nx113,
             "priority"    => priority
         }
-        NxTodos::commitObject(item)
+        ItemsManager::commit("NxTodo", item)
         item
     end
 
@@ -106,7 +50,7 @@ class NxTodos
 
     # NxTodos::itemsForCx22(cx22)
     def self.itemsForCx22(cx22)
-        NxTodos::items()
+        ItemsManager::items("NxTodo")
             .select{|item|
                 icx = ItemToCx22::getCx22OrNull(item["uuid"])
                 icx and (icx["uuid"] == cx22["uuid"])
@@ -115,7 +59,7 @@ class NxTodos
 
     # NxTodos::itemsWithoutCx22()
     def self.itemsWithoutCx22()
-        NxTodos::items()
+        ItemsManager::items("NxTodo")
             .select{|item| ItemToCx22::getCx22OrNull(item["uuid"]).nil? }
     end
 
@@ -126,7 +70,7 @@ class NxTodos
             packet = JSON.parse(IO.read(filepath)) # {unixtime, uuids}
             if !recomputeStuffIfNeeded or (Time.new.to_i - packet["unixtime"]) < 3600 then
                 return packet["uuids"]
-                            .map{|uuid| NxTodos::getItemOrNull(uuid) }
+                            .map{|uuid| ItemsManager::getOrNull("NxTodo", uuid) }
                             .compact
             end
         end
@@ -149,7 +93,7 @@ class NxTodos
             packet = JSON.parse(IO.read(filepath)) # {unixtime, uuids}
             if !recomputeStuffIfNeeded or (Time.new.to_i - packet["unixtime"]) < 3600 then
                 return packet["uuids"]
-                            .map{|uuid| NxTodos::getItemOrNull(uuid) }
+                            .map{|uuid| ItemsManager::getOrNull("NxTodo", uuid) }
                             .compact
             end
         end
@@ -168,30 +112,11 @@ class NxTodos
     # --------------------------------------------------
     # Operations
 
-    # NxTodos::getElizabethOperatorForUUID(uuid)
-    def self.getElizabethOperatorForUUID(uuid)
-        filepath = NxTodos::uuidToNx5Filepath(uuid)
-        if !File.exists?(filepath) then
-            Nx5::issueNewFileAtFilepath(filepath, uuid)
-        end
-        ElizabethNx5.new(filepath)
-    end
-
-    # NxTodos::getElizabethOperatorForItem(item)
-    def self.getElizabethOperatorForItem(item)
-        raise "(error: c0581614-3ee5-4ed3-a192-537ed22c1dce)" if item["mikuType"] != "NxTodo"
-        filepath = NxTodos::uuidToNx5Filepath(item["uuid"])
-        if !File.exists?(filepath) then
-            Nx5::issueNewFileAtFilepath(filepath, item["uuid"])
-        end
-        ElizabethNx5.new(filepath)
-    end
-
     # NxTodos::access(item)
     def self.access(item)
         puts NxTodos::toString(item).green
         if item["nx113"] then
-            Nx113Access::access(NxTodos::getElizabethOperatorForItem(item), item["nx113"])
+            Nx113Access::access(ItemsManager::operatorForNx5("NxTodo", item), item["nx113"])
         end
     end
 
@@ -202,18 +127,19 @@ class NxTodos
             status = LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit the description instead ? ")
             if status then
                 PolyActions::editDescription(item)
-                return NxTodos::getItemOrNull(item["uuid"])
+                return ItemsManager::getOrNull("NxTodo", item["uuid"])
             else
                 return item
             end
         end
         Nx113Edit::editNx113Carrier(item)
-        NxTodos::getItemOrNull(item["uuid"])
+        ItemsManager::getOrNull("NxTodo", item["uuid"])
     end
 
     # NxTodos::probe(item)
     def self.probe(item)
         loop {
+            item = ItemsManager::getOrNull("NxTodo", item["uuid"])
             actions = ["access", "update description", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
@@ -222,11 +148,11 @@ class NxTodos
             end
             if option == "update description" then
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
-                NxTodos::setAttribute(item["uuid"], "description", description)
-                item = NxTodos::getItemOrNull(item["uuid"])
+                item["description"] = description
+                ItemsManager::commit("NxTodo", item)
             end
             if action == "destroy" then
-                NxTodos::destroy(item["uuid"])
+                ItemsManager::destroy("NxTodo", item["uuid"])
                 PolyActions::garbageCollectionAfterItemDeletion(item)
                 return
             end

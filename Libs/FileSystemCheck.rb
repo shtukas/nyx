@@ -385,7 +385,7 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
             FileSystemCheck::ensureAttribute(item, "priority", "Number")
-            FileSystemCheck::fsck_Nx113(NxTodos::getElizabethOperatorForItem(item), item["nx113"], verbose)
+            FileSystemCheck::fsck_Nx113(ItemsManager::operatorForNx5("NxTodo", item), item["nx113"], verbose)
             return
         end
 
@@ -395,7 +395,7 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
-            FileSystemCheck::fsck_Nx113(NxTriages::getElizabethOperatorForItem(item), item["nx113"], verbose)
+            FileSystemCheck::fsck_Nx113(ItemsManager::operatorForNx5("NxTriage", item), item["nx113"], verbose)
             return
         end
 
@@ -405,7 +405,7 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
-            FileSystemCheck::fsck_Nx113(NxOndates::getElizabethOperatorForItem(item), item["nx113"], verbose)
+            FileSystemCheck::fsck_Nx113(ItemsManager::operatorForNx5("NxOndate", item), item["nx113"], verbose)
             return
         end
 
@@ -450,7 +450,7 @@ class FileSystemCheck
 
     # FileSystemCheck::fsckErrorAtFirstFailure()
     def self.fsckErrorAtFirstFailure()
-        (ItemsManager::items("Wave") + NxTodos::items() + Nx7::itemsEnumerator().to_a)
+        (ItemsManager::items("Wave") + ItemsManager::items("NxTodo") + Nx7::itemsEnumerator().to_a)
             .each{|item|
                 FileSystemCheck::exitIfMissingCanary()
                 FileSystemCheck::fsck_MikuTypedItem(item, true)

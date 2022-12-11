@@ -390,8 +390,8 @@ class CatalystListing
                 "lambda" => lambda { Cx22::workOnlyListingItems(false) }
             },
             {
-                "name" => "NxTriages::items()",
-                "lambda" => lambda { NxTriages::items() }
+                "name" => "ItemsManager::items(NxTriage) ",
+                "lambda" => lambda { ItemsManager::items("NxTriage") }
             },
             {
                 "name" => "TxManualCountDowns::listingItems()",
@@ -469,7 +469,7 @@ class CatalystListing
             Waves::listingItems("ns:mandatory-today"),
             NxOndates::listingItems(),
             Cx22::workOnlyListingItems(recomputeStuffIfNeeded),
-            NxTriages::items(),
+            ItemsManager::items("NxTriage") ,
             TxManualCountDowns::listingItems(),
             Cx22::listingItems(recomputeStuffIfNeeded),
             Waves::listingItems("ns:time-important"),

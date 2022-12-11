@@ -3,30 +3,6 @@
 
 class TxManualCountDowns
 
-    # Basic IO
-
-    # TxManualCountDowns::items()
-    def self.items()
-        folderpath = "#{Config::pathToDataCenter()}/TxManualCountDown"
-        LucilleCore::locationsAtFolder(folderpath)
-            .select{|filepath| filepath[-5, 5] == ".json" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
-    end
-
-    # TxManualCountDowns::commit(item)
-    def self.commit(item)
-        FileSystemCheck::fsck_MikuTypedItem(item, false)
-        filepath = "#{Config::pathToDataCenter()}/TxManualCountDown/#{item["uuid"]}.json"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
-    end
-
-    # TxManualCountDowns::destroy(uuid)
-    def self.destroy(uuid)
-        filepath = "#{Config::pathToDataCenter()}/TxManualCountDown/#{uuid}.json"
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
-    end
-
     # TxManualCountDowns::issueNewOrNull()
     def self.issueNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
@@ -43,7 +19,7 @@ class TxManualCountDowns
             "counter"     => dailyTarget,
             "lastUpdatedUnixtime" => nil
         }
-        TxManualCountDowns::commit(item)
+        ItemsManager::commit("TxManualCountDown", item)
         item
     end
 
@@ -51,14 +27,14 @@ class TxManualCountDowns
 
     # TxManualCountDowns::listingItems()
     def self.listingItems()
-        TxManualCountDowns::items().each{|item|
+        ItemsManager::items("TxManualCountDown").each{|item|
             if item["date"] != CommonUtils::today() then
                 item["date"] = CommonUtils::today()
                 item["counter"] = item["dailyTarget"]
-                TxManualCountDowns::commit(item)
+                ItemsManager::commit("TxManualCountDown", item)
             end
         }
-        TxManualCountDowns::items()
+        ItemsManager::items("TxManualCountDown")
             .select{|item| item["counter"] > 0 }
             .select{|item| item["lastUpdatedUnixtime"].nil? or (Time.new.to_i - item["lastUpdatedUnixtime"]) > 3600 }
     end
