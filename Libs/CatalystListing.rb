@@ -244,7 +244,7 @@ class CatalystListing
         end
 
         if Interpreting::match("ondate", input) then
-            item = NxTodos::interactivelyIssueNewOndateOrNull()
+            item = NxOndates::interactivelyIssueNewOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
             return
