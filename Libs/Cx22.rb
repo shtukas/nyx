@@ -172,9 +172,13 @@ class Cx22
     def self.probe(cx22)
         loop {
             puts Cx22::toStringWithDetails(cx22)
-            actions = ["add time", "do not show until", "set Ax39", "destroy"]
+            actions = ["start", "add time", "do not show until", "set Ax39", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
+            if action == "start" then
+                PolyActions::start(cx22)
+                return
+            end
             if action == "add time" then
                 timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
                 puts "adding #{timeInHours} hours to '#{Cx22::toString(cx22)}'"

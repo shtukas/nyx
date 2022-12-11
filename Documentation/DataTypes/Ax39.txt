@@ -8,11 +8,11 @@ It is carried by Cx22s
 }
 
 {
-    "type"  => "weekly-time-commitment"
+    "type"  => "weekly-starting-on-Saturday"
     "hours" => Float
 }
 
 {
-    "type"  => "work:(mon-to-fri)+(week-end-overflow)"
+    "type"  => "weekly-starting-on-Monday"
     "hours" => Float
 }

@@ -4,7 +4,7 @@ class Ax39
 
     # Ax39::types()
     def self.types()
-        ["daily-time-commitment", "weekly-time-commitment", "work:(mon-to-fri)+(week-end-overflow)"]
+        ["daily-time-commitment", "weekly-starting-on-Saturday", "weekly-starting-on-Monday"]
     end
 
     # Ax39::interactivelySelectTypeOrNull()
@@ -24,19 +24,19 @@ class Ax39
                 "hours" => hours.to_f
             }
         end
-        if type == "weekly-time-commitment" then
+        if type == "weekly-starting-on-Saturday" then
             hours = LucilleCore::askQuestionAnswerAsString("weekly hours : ")
             return nil if hours == ""
             return {
-                "type"  => "weekly-time-commitment",
+                "type"  => "weekly-starting-on-Saturday",
                 "hours" => hours.to_f
             }
         end
-        if type == "work:(mon-to-fri)+(week-end-overflow)" then
+        if type == "weekly-starting-on-Monday" then
             hours = LucilleCore::askQuestionAnswerAsString("weekly hours : ")
             return nil if hours == ""
             return {
-                "type"  => "work:(mon-to-fri)+(week-end-overflow)",
+                "type"  => "weekly-starting-on-Monday",
                 "hours" => hours.to_f
             }
         end
@@ -57,11 +57,11 @@ class Ax39
         if ax39["type"] == "daily-time-commitment" then
             return "daily #{"%4.2f" % ax39["hours"]} hours"
         end
-        if ax39["type"] == "weekly-time-commitment" then
-            return "weekly #{"%4.2f" % ax39["hours"]} hours"
+        if ax39["type"] == "weekly-starting-on-Saturday" then
+            return "weekly:saturday #{"%4.2f" % ax39["hours"]} hours"
         end
-        if ax39["type"] == "work:(mon-to-fri)+(week-end-overflow)" then
-            return "work #{"%4.2f" % ax39["hours"]} hours"
+        if ax39["type"] == "weekly-starting-on-Monday" then
+            return "weekly:monday #{"%4.2f" % ax39["hours"]} hours"
         end
     end
 
@@ -72,7 +72,7 @@ class Ax39
         if ax39["type"] == "daily-time-commitment" then
             return BankExtended::stdRecoveredDailyTimeInHours(uuid, unrealisedTimespan).to_f/ax39["hours"]
         end
-        if ax39["type"] == "weekly-time-commitment" then
+        if ax39["type"] == "weekly-starting-on-Saturday" then
 
             return 1 if Time.new.wday == 5 # We ignore those on Friday with a clean start on Saturday
 
@@ -87,7 +87,7 @@ class Ax39
 
             return [ratio1, ratio2].max
         end
-        if ax39["type"] == "work:(mon-to-fri)+(week-end-overflow)" then
+        if ax39["type"] == "weekly-starting-on-Monday" then
 
             return 1 if Time.new.wday == 0 # We ignore those on Sunday with a clean start on Monday
 
