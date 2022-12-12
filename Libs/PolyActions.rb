@@ -105,10 +105,7 @@ class PolyActions
     # PolyActions::done(item)
     def self.done(item)
 
-        filepath = "#{Config::pathToDataCenter()}/Locks/#{item["uuid"]}.lock"
-        if File.exists?(filepath) then
-            FileUtils.touch(filepath)
-        end
+        Locks::unlock(item)
 
         # order: alphabetical order
 

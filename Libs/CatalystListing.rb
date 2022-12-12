@@ -217,9 +217,7 @@ class CatalystListing
         if Interpreting::match("lock", input) then
             item = store.getDefault()
             return if item.nil?
-            filepath = "#{Config::pathToDataCenter()}/Locks/#{item["uuid"]}.lock"
-            return if File.exists?(filepath)
-            FileUtils.touch(filepath)
+            Locks::lock(item)
             return
         end
 
@@ -227,9 +225,7 @@ class CatalystListing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            filepath = "#{Config::pathToDataCenter()}/Locks/#{item["uuid"]}.lock"
-            return if File.exists?(filepath)
-            FileUtils.touch(filepath)
+            Locks::lock(item)
             return
         end
 
@@ -505,10 +501,7 @@ class CatalystListing
 
         listingItems = CatalystListing::listingItems(false)
 
-        lockeds, unlockeds = listingItems.partition{|item|
-            filepath = "#{Config::pathToDataCenter()}/Locks/#{item["uuid"]}.lock"
-            File.exists?(filepath)
-        }
+        lockeds, unlockeds = listingItems.partition{|item| Locks::isLocked(item) }
 
         if (floats.size+lockeds.size) > 0 then
             puts ""
