@@ -17,7 +17,7 @@ class Locks
     # Locks::unlock(item)
     def self.unlock(item)
         filepath = "#{Config::pathToDataCenter()}/Locks/#{item["uuid"]}.lock"
-        return if File.exists?(filepath)
+        return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
 end
