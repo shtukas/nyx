@@ -19,7 +19,7 @@ class NxTodos
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid  = CommonUtils::timeStringL22() # We want the items to come in time order, ideally
-        nx113 = Nx113Make::interactivelyMakeNx113OrNull(ItemsManager::operatorForNx5("NxTodo", uuid))
+        nx113 = Nx113Make::interactivelyMakeNx113OrNull()
         priority = NxTodos::decidePriority()
         item = {
             "uuid"        => uuid,
@@ -116,7 +116,7 @@ class NxTodos
     def self.access(item)
         puts NxTodos::toString(item).green
         if item["nx113"] then
-            Nx113Access::access(ItemsManager::operatorForNx5("NxTodo", item), item["nx113"])
+            Nx113Access::access(item["nx113"])
         end
     end
 

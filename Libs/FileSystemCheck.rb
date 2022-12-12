@@ -21,23 +21,20 @@ class FileSystemCheck
         end
     end
 
-    # FileSystemCheck::fsck_aion_point_rootnhash(operator, rootnhash, verbose)
-    def self.fsck_aion_point_rootnhash(operator, rootnhash, verbose)
+    # FileSystemCheck::fsck_aion_point_rootnhash(rootnhash, verbose)
+    def self.fsck_aion_point_rootnhash(rootnhash, verbose)
         if verbose then
-            puts "FileSystemCheck::fsck_aion_point_rootnhash(operator, #{rootnhash}, #{verbose})"
+            puts "FileSystemCheck::fsck_aion_point_rootnhash(#{rootnhash}, #{verbose})"
         end
-        status = AionFsck::structureCheckAionHash(operator, rootnhash)
-        if !status then
-            raise "(error: 50daf867-0dab-47d9-ae79-d8e431650eab) aion structure fsck failed "
-        end
+        AionFsck::structureCheckAionHashRaiseErrorIfAny(Store1Elizabeth.new(), rootnhash)
     end
 
-    # FileSystemCheck::fsck_Nx113(operator, item, verbose)
-    def self.fsck_Nx113(operator, item, verbose)
+    # FileSystemCheck::fsck_Nx113(item, verbose)
+    def self.fsck_Nx113(item, verbose)
         return if item.nil?
 
         if verbose then
-            puts "FileSystemCheck::fsck_Nx113(operator, #{JSON.pretty_generate(item)}, #{verbose})"
+            puts "FileSystemCheck::fsck_Nx113(#{JSON.pretty_generate(item)}, #{verbose})"
         end
 
         if item["mikuType"] != "Nx113" then
@@ -71,7 +68,7 @@ class FileSystemCheck
             dottedExtension  = item["dottedExtension"]
             nhash            = item["nhash"]
             parts            = item["parts"]
-            status = PrimitiveFiles::fsckPrimitiveFileDataRaiseAtFirstError(operator, dottedExtension, nhash, parts, verbose)
+            status = PrimitiveFiles::fsckPrimitiveFileDataRaiseAtFirstError(dottedExtension, nhash, parts, verbose)
             if !status then
                 puts JSON.pretty_generate(item)
                 raise "(error: 3e428541-805b-455e-b6a2-c400a6519aef) primitive file fsck failed"
@@ -84,7 +81,7 @@ class FileSystemCheck
                  raise "rootnhash is not defined on #{item}"
             end
             rootnhash = item["rootnhash"]
-            FileSystemCheck::fsck_aion_point_rootnhash(operator, rootnhash, verbose)
+            FileSystemCheck::fsck_aion_point_rootnhash(rootnhash, verbose)
             return
         end
 
@@ -164,11 +161,11 @@ class FileSystemCheck
         end
     end
 
-    # FileSystemCheck::fsck_GridState(operator, item, verbose)
-    def self.fsck_GridState(operator, item, verbose)
+    # FileSystemCheck::fsck_GridState(item, verbose)
+    def self.fsck_GridState(item, verbose)
 
         if verbose then
-            puts "FileSystemCheck::fsck_GridState(operator, #{JSON.pretty_generate(item)}, #{verbose})"
+            puts "FileSystemCheck::fsck_GridState( #{JSON.pretty_generate(item)}, #{verbose})"
         end
 
         if item["mikuType"].nil? then
@@ -209,7 +206,7 @@ class FileSystemCheck
             dottedExtension  = item["dottedExtension"]
             nhash            = item["nhash"]
             parts            = item["parts"]
-            status = PrimitiveFiles::fsckPrimitiveFileDataRaiseAtFirstError(operator, dottedExtension, nhash, parts, verbose)
+            status = PrimitiveFiles::fsckPrimitiveFileDataRaiseAtFirstError(dottedExtension, nhash, parts, verbose)
             if !status then
                 puts JSON.pretty_generate(item)
                 raise "(error: 3e428541-805b-455e-b6a2-c400a6519aef) primitive file fsck failed"
@@ -218,7 +215,7 @@ class FileSystemCheck
 
         if item["type"] == "NxDirectoryContents" then
             item["rootnhashes"].each{|rootnhash|
-                FileSystemCheck::fsck_aion_point_rootnhash(operator, rootnhash, verbose)
+                FileSystemCheck::fsck_aion_point_rootnhash(rootnhash, verbose)
             }
         end
 
@@ -316,7 +313,7 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
             FileSystemCheck::ensureAttribute(item, "priority", "Number")
-            FileSystemCheck::fsck_Nx113(ItemsManager::operatorForNx5("NxTodo", item), item["nx113"], verbose)
+            FileSystemCheck::fsck_Nx113(item["nx113"], verbose)
             return
         end
 
@@ -326,7 +323,7 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
-            FileSystemCheck::fsck_Nx113(ItemsManager::operatorForNx5("NxTriage", item), item["nx113"], verbose)
+            FileSystemCheck::fsck_Nx113(item["nx113"], verbose)
             return
         end
 
@@ -336,7 +333,7 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
-            FileSystemCheck::fsck_Nx113(ItemsManager::operatorForNx5("NxOndate", item), item["nx113"], verbose)
+            FileSystemCheck::fsck_Nx113(item["nx113"], verbose)
             return
         end
 
@@ -359,7 +356,7 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "nx46", "Hash")
             FileSystemCheck::ensureAttribute(item, "priority", "String")
             FileSystemCheck::ensureAttribute(item, "lastDoneDateTime", "String")
-            FileSystemCheck::fsck_Nx113(Waves::operatorForItem(item), item["nx113"], verbose)
+            FileSystemCheck::fsck_Nx113(item["nx113"], verbose)
             if item["nx23"] then
                 raise "Waves should not carry a Nx23"
             end
@@ -381,7 +378,18 @@ class FileSystemCheck
 
     # FileSystemCheck::fsckErrorAtFirstFailure()
     def self.fsckErrorAtFirstFailure()
-        (ItemsManager::items("Wave") + ItemsManager::items("NxTodo"))
+        [
+            ItemsManager::items("Anniversaries"),
+            Cx22::items(),
+            ItemsManager::items("NxOndate"),
+            ItemsManager::items("NxTodo"),
+            ItemsManager::items("NxTriage"),
+            ItemsManager::items("NyxNode1"),
+            ItemsManager::items("TxFloat"),
+            ItemsManager::items("TxManualCountDown"),
+            ItemsManager::items("Wave")
+        ]
+            .flatten
             .each{|item|
                 FileSystemCheck::exitIfMissingCanary()
                 FileSystemCheck::fsck_MikuTypedItem(item, true)

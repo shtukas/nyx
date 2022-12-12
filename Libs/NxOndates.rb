@@ -10,7 +10,7 @@ class NxOndates
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid  = SecureRandom.uuid
-        nx113 = Nx113Make::interactivelyMakeNx113OrNull(ItemsManager::operatorForNx5("NxOndate", uuid))
+        nx113 = Nx113Make::interactivelyMakeNx113OrNull()
         datetime = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
         item = {
             "uuid"        => uuid,
@@ -20,7 +20,7 @@ class NxOndates
             "description" => description,
             "nx113"       => nx113,
         }
-        NxOndates::commitObject(item)
+        ItemsManager::commit("NxOndate", item)
         item
     end
 
@@ -29,7 +29,7 @@ class NxOndates
         description = LucilleCore::askQuestionAnswerAsString("today (empty to abort): ")
         return nil if description == ""
         uuid  = SecureRandom.uuid
-        nx113 = Nx113Make::interactivelyMakeNx113OrNull(ItemsManager::operatorForNx5("NxOndate", uuid))
+        nx113 = Nx113Make::interactivelyMakeNx113OrNull()
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxOndate",
@@ -38,7 +38,7 @@ class NxOndates
             "description" => description,
             "nx113"       => nx113,
         }
-        NxOndates::commitObject(item)
+        ItemsManager::commit("NxOndate", item)
         item
     end
 
@@ -63,7 +63,7 @@ class NxOndates
     def self.access(item)
         puts NxOndates::toString(item).green
         if item["nx113"] then
-            Nx113Access::access(ItemsManager::operatorForNx5("NxOndate", item), item["nx113"])
+            Nx113Access::access(item["nx113"])
         end
     end
 
@@ -86,6 +86,7 @@ class NxOndates
     # NxOndates::probe(item)
     def self.probe(item)
         loop {
+            item = ItemsManager::getOrNull("NxOndate", item["uuid"])
             actions = ["access", "redate", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
@@ -95,7 +96,7 @@ class NxOndates
             end
             if action == "redate" then
                 item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
-                NxOndates::commitObject(item)
+                ItemsManager::commit("NxOndate", item)
                 next
             end
             if action == "destroy" then

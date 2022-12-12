@@ -17,16 +17,33 @@ class Store1
         end
         filepath = "#{folderpath}/#{filename}"
         File.open(filepath, "w"){|f| f.write(datablob) }
+
+        # -------------------------------------
+        nhash_check = "SHA256-#{Digest::SHA256.hexdigest(Store1::getOrNull(nhash))}"
+        if nhash_check != nhash then
+            raise "(error: 43070006-dcaf-48b7-ac43-025ed2351336) something incredibly wrong just happened"
+        end
+        # -------------------------------------
+
         nhash
     end
 
     # Store1::getOrNull(nhash)
-    def  self.getOrNull(nhash)
+    def self.getOrNull(nhash)
         filename = "#{nhash}.data"
         folderpath = "#{Store1::repositoryFolderPath()}/#{nhash[7, 2]}"
         filepath = "#{folderpath}/#{filename}"
         return nil if !File.exists?(filepath)
-        IO.read(filepath)
+        blob = IO.read(filepath)
+
+        # -------------------------------------
+        nhash_check = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        if nhash_check != nhash then
+            raise "(error: 38cb55a1-c7d4-49cd-9e22-3d0673e51bf2) something incredibly wrong just happened"
+        end
+        # -------------------------------------
+
+        blob
     end
 end
 

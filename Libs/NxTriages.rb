@@ -9,8 +9,7 @@ class NxTriages
     def self.bufferInImport(location)
         description = File.basename(location)
         uuid = SecureRandom.uuid
-        operator = ItemsManager::operatorForNx5("NxTriage", uuid)
-        nx113 = Nx113Make::aionpoint(operator, location)
+        nx113 = Nx113Make::aionpoint(location)
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTriage",
@@ -56,7 +55,7 @@ class NxTriages
     def self.access(item)
         puts NxTriages::toString(item).green
         if item["nx113"] then
-            Nx113Access::access(ItemsManager::operatorForNx5("NxTriage", item), item["nx113"])
+            Nx113Access::access(item["nx113"])
         end
     end
 

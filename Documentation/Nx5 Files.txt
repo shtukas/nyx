@@ -1,7 +1,0 @@
-
-Nx5 Files are sqlite database that implement two tables
-
-create table _events_ (_eventuuid_ text, _eventTime_ float, _eventType_ text, _event_ text);
-create table _datablobs_ (_nhash_ text, _datablob_ blob);
-
-The _events_ tables carries Nx3s

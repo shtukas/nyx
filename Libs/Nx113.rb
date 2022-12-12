@@ -21,10 +21,10 @@ class Nx113Make
         }
     end
 
-    # Nx113Make::file(operator, filepath) # Nx113
-    def self.file(operator, filepath)
+    # Nx113Make::file(filepath) # Nx113
+    def self.file(filepath)
         raise "(error: d3539fc0-5615-46ff-809b-85ac34850070)" if !File.exists?(filepath)
-        dottedExtension, nhash, parts = PrimitiveFiles::commitFileReturnDataElements(operator, filepath) # [dottedExtension, nhash, parts]
+        dottedExtension, nhash, parts = PrimitiveFiles::commitFileReturnDataElements(filepath) # [dottedExtension, nhash, parts]
 
         {
             "mikuType"        => "Nx113",
@@ -35,10 +35,10 @@ class Nx113Make
         }
     end
 
-    # Nx113Make::aionpoint(operator, location) # Nx113
-    def self.aionpoint(operator, location)
+    # Nx113Make::aionpoint(location) # Nx113
+    def self.aionpoint(location)
         raise "(error: 93590239-f8e0-4f35-af47-d7f1407e21f2)" if !File.exists?(location)
-        rootnhash = AionCore::commitLocationReturnHash(operator, location)
+        rootnhash = AionCore::commitLocationReturnHash(Store1Elizabeth.new(), location)
         {
             "mikuType"  => "Nx113",
             "type"      => "aion-point",
@@ -46,10 +46,10 @@ class Nx113Make
         }
     end
 
-    # Nx113Make::interactivelyMakeNx113AionPoint(operator)
-    def self.interactivelyMakeNx113AionPoint(operator)
+    # Nx113Make::interactivelyMakeNx113AionPoint()
+    def self.interactivelyMakeNx113AionPoint()
         location = CommonUtils::interactivelySelectDesktopLocation()
-        Nx113Make::aionpoint(operator, location)
+        Nx113Make::aionpoint(location)
     end
 
     # Nx113Make::dx8Unit(unitId) # Nx113
@@ -80,21 +80,21 @@ class Nx113Make
         LucilleCore::selectEntityFromListOfEntitiesOrNull("type", Nx113Make::types())
     end
 
-    # Nx113Make::interactivelyMakeNx113OrNull(operator) # Nx113
-    def self.interactivelyMakeNx113OrNull(operator)
+    # Nx113Make::interactivelyMakeNx113OrNull() # Nx113
+    def self.interactivelyMakeNx113OrNull()
         type = Nx113Make::interactivelySelectOneNx113TypeOrNull()
         return nil if type.nil?
         if type == "text" then
             text = CommonUtils::editTextSynchronously("")
             nx113 = Nx113Make::text(text)
-            FileSystemCheck::fsck_Nx113(operator, nx113, true)
+            FileSystemCheck::fsck_Nx113(nx113, true)
             return nx113
         end
         if type == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
             return nil if url == ""
             nx113 = Nx113Make::url(url)
-            FileSystemCheck::fsck_Nx113(operator, nx113, true)
+            FileSystemCheck::fsck_Nx113(nx113, true)
             return nx113
         end
         if type == "file" then
@@ -102,27 +102,27 @@ class Nx113Make
             return nil if location.nil?
             return nil if !File.file?(location)
             filepath = location
-            nx113 = Nx113Make::file(operator, filepath)
-            FileSystemCheck::fsck_Nx113(operator, nx113, true)
+            nx113 = Nx113Make::file(filepath)
+            FileSystemCheck::fsck_Nx113(nx113, true)
             return nx113
         end
         if type == "aion-point" then
-            nx113 = Nx113Make::interactivelyMakeNx113AionPoint(operation)
-            FileSystemCheck::fsck_Nx113(operator, nx113, true)
+            nx113 = Nx113Make::interactivelyMakeNx113AionPoint()
+            FileSystemCheck::fsck_Nx113(nx113, true)
             return nx113
         end
         if type == "Dx8Unit" then
             unitId = LucilleCore::askQuestionAnswerAsString("unitId (empty to abort): ")
             return nil if  unitId == ""
             nx113 = Nx113Make::dx8Unit(unitId)
-            FileSystemCheck::fsck_Nx113(operator, nx113, true)
+            FileSystemCheck::fsck_Nx113(nx113, true)
             return nx113
         end
         if type == "unique-string" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
             return nil if uniquestring.nil?
             nx113 = Nx113Make::uniqueString(uniquestring)
-            FileSystemCheck::fsck_Nx113(operator, nx113, true)
+            FileSystemCheck::fsck_Nx113(nx113, true)
             return nx113
         end
         raise "(error: 0d26fe42-8669-4f33-9a09-aeecbd52c77c)"
@@ -131,24 +131,24 @@ end
 
 class Nx113Access
 
-    # Nx113Access::accessAionPointAtExportDirectory(operator, rootnhash, parentLocation)
-    def self.accessAionPointAtExportDirectory(operator, rootnhash, parentLocation)
+    # Nx113Access::accessAionPointAtExportDirectory(rootnhash, parentLocation)
+    def self.accessAionPointAtExportDirectory(rootnhash, parentLocation)
         if !File.exists?(parentLocation) then
             FileUtils.mkdir(parentLocation)
         end
-        AionCore::exportHashAtFolder(operator, rootnhash, parentLocation)
+        AionCore::exportHashAtFolder(Store1Elizabeth.new(), rootnhash, parentLocation)
     end
 
-    # Nx113Access::accessAionPoint(operator, rootnhash)
-    def self.accessAionPoint(operator, rootnhash)
+    # Nx113Access::accessAionPoint(rootnhash)
+    def self.accessAionPoint(rootnhash)
         exportDirectory = "#{ENV['HOME']}/Desktop/aion-point-#{SecureRandom.hex(4)}"
-        Nx113Access::accessAionPointAtExportDirectory(operator, rootnhash, exportDirectory)
+        Nx113Access::accessAionPointAtExportDirectory(rootnhash, exportDirectory)
         puts "Item exported at #{exportDirectory}"
         LucilleCore::pressEnterToContinue()
     end
 
-    # Nx113Access::access(operator, nx113)
-    def self.access(operator, nx113)
+    # Nx113Access::access(nx113)
+    def self.access(nx113)
 
         if nx113["type"] == "text" then
             CommonUtils::accessText(nx113["text"])
@@ -165,6 +165,7 @@ class Nx113Access
             nhash            = nx113["nhash"]
             parts            = nx113["parts"]
             filepath         = "#{ENV['HOME']}/Desktop/#{nhash}#{dottedExtension}"
+            operator         = Store1Elizabeth.new()
             File.open(filepath, "w"){|f|
                 parts.each{|nhash|
                     blob = operator.getBlobOrNull(nhash)
@@ -178,7 +179,7 @@ class Nx113Access
         end
 
         if nx113["type"] == "aion-point" then
-            Nx113Access::accessAionPoint(operator, nx113["rootnhash"])
+            Nx113Access::accessAionPoint(nx113["rootnhash"])
         end
 
         if nx113["type"] == "Dx8Unit" then
@@ -207,11 +208,11 @@ end
 
 class Nx113Edit
 
-    # Nx113Edit::editAionPoint(operator, rootnhash)
-    def self.editAionPoint(operator, rootnhash)
+    # Nx113Edit::editAionPoint(rootnhash)
+    def self.editAionPoint(rootnhash)
         exportLocation = "#{ENV['HOME']}/Desktop/aion-point-#{SecureRandom.hex(4)}"
         FileUtils.mkdir(exportLocation)
-        AionCore::exportHashAtFolder(operator, rootnhash, exportLocation)
+        AionCore::exportHashAtFolder(rootnhash, exportLocation)
         puts "Item exported at #{exportLocation} for edition"
         LucilleCore::pressEnterToContinue()
 
@@ -234,11 +235,11 @@ class Nx113Edit
 
         location = acquireLocationInsideExportFolder.call(exportLocation)
         puts "reading: #{location}"
-        AionCore::commitLocationReturnHash(operator, location)
+        AionCore::commitLocationReturnHash(location)
     end
 
-    # Nx113Edit::editNx113(operator, nx113) # Nx113 or null if no change
-    def self.editNx113(operator, nx113)
+    # Nx113Edit::editNx113(nx113) # Nx113 or null if no change
+    def self.editNx113(nx113)
 
         if nx113["type"] == "text" then
             text1 = nx113["text"]
@@ -257,14 +258,14 @@ class Nx113Edit
         end
 
         if nx113["type"] == "file" then
-            Nx113Access::access(operator, item["nx113"])
+            Nx113Access::access(item["nx113"])
             filepath = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if filepath.nil?
-            return Nx113Make::file(operator, filepath)
+            return Nx113Make::file(filepath)
         end
 
         if nx113["type"] == "aion-point" then
-            rootnhash = Nx113Edit::editAionPoint(operator, nx113["rootnhash"])
+            rootnhash = Nx113Edit::editAionPoint(nx113["rootnhash"])
             nx113 = {
                 "mikuType"   => "Nx113",
                 "type"       => "aion-point",
@@ -290,13 +291,7 @@ class Nx113Edit
     def self.editNx113Carrier(item)
         return if item["nx113"].nil?
         nx113 = item["nx113"]
-
-        operator = nil
-        if item["mikuType"] == "NxTodo" then
-            operator = ItemsManager::operatorForNx5("NxTodo", item)
-        end
-
-        nx113v2 = Nx113Edit::editNx113(operator, nx113)
+        nx113v2 = Nx113Edit::editNx113(Store1Elizabeth.new(), nx113)
         return if nx113v2.nil?
         item["nx113"] = nx113v2
         PolyActions::commit(item)

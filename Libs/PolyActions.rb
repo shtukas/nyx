@@ -256,7 +256,7 @@ class PolyActions
             end
             if option == "redate" then
                 item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
-                NxOndates::commitObject(item)
+                ItemsManager::commit("NxOndate", item)
                 NxBalls::close(nxball)
             end
             if option == "run in background" then

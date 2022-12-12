@@ -13,7 +13,7 @@ class Catalyst
         item = ItemsManager::getOrNull("NxTriage", uuid)
         return item if item
 
-        item = NxOnDates::getItemOrNull(uuid)
+        item = ItemsManager::getOrNull("NxOndate", uuid)
         return item if item
 
         item = ItemsManager::getOrNull("Wave", uuid)

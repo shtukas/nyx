@@ -128,7 +128,7 @@ class Waves
         nx46 = Waves::makeNx46InteractivelyOrNull()
         return nil if nx46.nil?
         uuid = SecureRandom.uuid
-        nx113 = Nx113Make::interactivelyMakeNx113OrNull(ItemsManager::operatorForNx5("Wave", uuid))
+        nx113 = Nx113Make::interactivelyMakeNx113OrNull()
         priority = Waves::interactivelySelectPriority()
         item = {
             "uuid"             => uuid,
@@ -165,11 +165,6 @@ class Waves
     # -------------------------------------------------------------------------
     # Operations
 
-    # Waves::operatorForItem(item)
-    def self.operatorForItem(item)
-        ItemsManager::operatorForNx5("Wave", item["uuid"])
-    end
-
     # Waves::performWaveNx46WaveDone(item)
     def self.performWaveNx46WaveDone(item)
         puts "done-ing: #{Waves::toString(item)}"
@@ -195,7 +190,7 @@ class Waves
     def self.access(item)
         puts Waves::toString(item).green
         if item["nx113"] then
-            Nx113Access::access(Waves::operatorForItem(item), item["nx113"])
+            Nx113Access::access(item["nx113"])
         end
     end
 

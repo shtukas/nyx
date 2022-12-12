@@ -126,7 +126,7 @@ end
 AionCore::commitLocationReturnHash(operator, location)
 AionCore::exportHashAtFolder(operator, nhash, targetReconstructionFolderpath)
 
-AionFsck::structureCheckAionHash(operator, nhash)
+AionFsck::structureCheckAionHashRaiseErrorIfAny(operator, nhash)
 
 =end
 
@@ -141,7 +141,6 @@ require "#{Config::userHomeDirectory()}/Galaxy/LucilleOS/Libraries/Ruby-Librarie
 # ------------------------------------------------------------
 
 require_relative "Anniversaries.rb"
-require_relative "AionTransforms.rb"
 require_relative "Ax39.rb"
 
 require_relative "Bank.rb"
@@ -177,7 +176,6 @@ require_relative "LambdX1s.rb"
 require_relative "Nyx.rb"
 require_relative "Nx113.rb"
 require_relative "NxTodos.rb"
-require_relative "Nx5.rb"
 require_relative "NxTriages.rb"
 require_relative "NxOndates.rb"
 require_relative "NxBalls.rb"
@@ -199,8 +197,6 @@ require_relative "Store1.rb"
 require_relative "TxManualCountDowns.rb"
 require_relative "The99Percent.rb"
 require_relative "TxFloats.rb"
-
-require_relative "UniqueStrings.rb"
 
 require_relative "Waves.rb"
 
