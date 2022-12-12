@@ -3,10 +3,7 @@ class Cx22
 
     # Cx22::items()
     def self.items()
-        folderpath = "#{Config::pathToDataCenter()}/Cx22"
-        items = LucilleCore::locationsAtFolder(folderpath)
-                .select{|filepath| filepath[-5, 5] == ".json" }
-                .map{|filepath| JSON.parse(IO.read(filepath)) }
+        items = ItemsManager::items("Cx22")
         XCache::set("Cx22-Description-Padding-DDBBF46A-2D56-4931-BE11-AF66F97F738E", items.map{|item| item["description"].size}.max)
         items
     end

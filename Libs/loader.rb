@@ -254,7 +254,7 @@ if $RunNonEssentialThreads then
     Thread.new {
         loop {
             sleep 120
-            NxBalls::items().each{|nxball|
+            ItemsManager::items("NxBall").each{|nxball|
                 if (Time.new.to_i - nxball["unixtime"]) > 3600 then
                     CommonUtils::onScreenNotification("catalyst", "NxBall over 1 hour")
                 end

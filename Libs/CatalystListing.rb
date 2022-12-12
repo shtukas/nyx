@@ -540,7 +540,7 @@ class CatalystListing
                 }
         end
 
-        nxballs = NxBalls::items()
+        nxballs = ItemsManager::items("NxBall")
                     .select{|nxball| !nxballHasAnItemInThere.call(nxball, listingItems) }
         if nxballs.size > 0 then
             puts ""

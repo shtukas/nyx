@@ -2,47 +2,6 @@
 
 class NxBalls
 
-    # -----------------------------------------
-    # IO
-
-    # NxBalls::filepath(uuid)
-    def self.filepath(uuid)
-        "#{Config::pathToDataCenter()}/NxBall/#{uuid}.json"
-    end
-
-    # NxBalls::filepaths()
-    def self.filepaths()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxBall")
-            .select{|filepath| filepath[-5, 5] == ".json" }
-    end
-
-    # NxBalls::items()
-    def self.items()
-        NxBalls::filepaths()
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
-    end
-
-    # NxBalls::getItemOrNull(uuid)
-    def self.getItemOrNull(uuid)
-        filepath = NxBalls::filepath(uuid)
-        return nil if !File.exists?(filepath)
-        JSON.parse(IO.read(filepath))
-    end
-
-    # NxBalls::commit(item)
-    def self.commit(item)
-        filepath = NxBalls::filepath(item["uuid"])
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
-    end
-
-    # NxBalls::destroy(uuid)
-    def self.destroy(uuid)
-        filepath = NxBalls::filepath(uuid)
-        if File.exists?(filepath) then
-            FileUtils.rm(filepath)
-        end
-    end
-
     # --------------------------------------------------
     # Makers
 
@@ -56,7 +15,7 @@ class NxBalls
             "accounts" => accounts,
             "itemuuid" => linkeditemuuid
          }
-        NxBalls::commit(item)
+        ItemsManager::commit("NxBall", item)
         item
     end
 
@@ -76,7 +35,7 @@ class NxBalls
 
     # NxBalls::getNxBallForItemOrNull(item)
     def self.getNxBallForItemOrNull(item)
-        NxBalls::items()
+        ItemsManager::items("NxBall")
             .select{|nxball| nxball["itemuuid"] == item["uuid"] }
             .first
     end
@@ -91,7 +50,7 @@ class NxBalls
             puts "Bank: putting #{timespan} seconds into '#{account["description"]}', account: #{account["number"]}"
             Bank::put(account["number"], timespan)
         }
-        NxBalls::destroy(nxball["uuid"])
+        ItemsManager::destroy("NxBall", nxball["uuid"])
     end
 
     # NxBalls::closeNxBallForItemOrNothing(item)

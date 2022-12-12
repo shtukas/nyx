@@ -200,5 +200,4 @@ class Anniversaries
             Anniversaries::probe(anniversary)
         }
     end
-
 end

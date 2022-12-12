@@ -2,11 +2,6 @@
 
 class NxTriages
 
-    # NxTriages::uuidToNx5Filepath(uuid)
-    def self.uuidToNx5Filepath(uuid)
-        "#{Config::pathToDataCenter()}/NxTriage/#{uuid}.Nx5"
-    end
-
     # --------------------------------------------------
     # Makers
 

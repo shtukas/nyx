@@ -135,7 +135,7 @@ class ElizabethNx5
         return blob if blob
         blob = Nx5::getDatablobOrNull(@filepath, nhash)
         if blob then
-            puts "writing nhash: #{nhash} at Store 1".green
+            puts "Writing nhash: #{nhash} at Store 1".green
             Store1::put(datablob)
             return blob
         end
