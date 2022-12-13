@@ -53,6 +53,13 @@ class NxBalls
         ItemsManager::destroy("NxBall", nxball["uuid"])
     end
 
+    # NxBalls::pursue(nxball)
+    def self.pursue(nxball)
+        # We close the existing ball and issue a new one with the same payload (and it doesn't need to have the same uuid)
+        NxBalls::close(nxball)
+        NxBalls::issue(nxball["accounts"], nxball["itemuuid"])
+    end
+
     # NxBalls::closeNxBallForItemOrNothing(item)
     def self.closeNxBallForItemOrNothing(item)
         nxball = NxBalls::getNxBallForItemOrNull(item)
