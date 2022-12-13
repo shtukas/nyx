@@ -549,7 +549,9 @@ class CatalystListing
         puts ""
         vspaceleft = vspaceleft - 1
 
-        unlockeds
+        unlockeds1, unlockeds2 = unlockeds.partition{|item| NxBalls::getNxBallForItemOrNull(item) }
+
+        (unlockeds1 + unlockeds2)
             .each{|item|
 
                 break if vspaceleft <= 0
