@@ -257,7 +257,7 @@ class PolyActions
                 NxBalls::close(nxball)
             end
             if option == "run in background" then
-                TxItemCx22Pair::issue(item["uuid"], nxball["uuid"])
+                ItemToCx22::set(item["uuid"], nxball["uuid"])
                 return
             end
             return
@@ -277,7 +277,7 @@ class PolyActions
                 return
             end
             if option == "run in background" then
-                TxItemCx22Pair::issue(item["uuid"], nxball["uuid"])
+                ItemToCx22::set(item["uuid"], nxball["uuid"])
                 return
             end
             if option == "update description" then
@@ -321,7 +321,7 @@ class PolyActions
                 NxBalls::close(nxball) if nxball
             end
             if option == "run in background" then
-                TxItemCx22Pair::issue(item["uuid"], nxball["uuid"])
+                ItemToCx22::set(item["uuid"], nxball["uuid"])
                 return
             end
             return
