@@ -129,6 +129,7 @@ class PolyActions
 
         if item["mikuType"] == "NxOndate" then
             if LucilleCore::askQuestionAnswerAsBoolean("destroy NxOndate '#{item["description"].green}' ? ", true) then
+                NxBalls::closeNxBallForItemOrNothing(item)
                 ItemsManager::destroy("NxOndate", item["uuid"])
             end
             return

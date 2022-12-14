@@ -44,7 +44,7 @@ class NxOndates
 
     # NxOndates::viennaUrlForToday(url)
     def self.viennaUrlForToday(url)
-        description = url
+        description = "(vienna) #{url}"
         uuid  = SecureRandom.uuid
         nx113 = Nx113Make::url(url)
         item = {
