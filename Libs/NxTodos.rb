@@ -84,7 +84,7 @@ class NxTodos
                 .compact
         }
 
-        issueNewFile = lambda {|cx22, filepath|
+        issueNewFile = lambda {|filepath, cx22|
             items = NxTodos::itemsForCx22(cx22)
                         .sort{|i1, i2| i1["priority"] <=> i2["priority"] }
                         .first(10)
@@ -100,9 +100,9 @@ class NxTodos
         if Config::getOrNull("isLeaderInstance") then
             items = getRecentDataOrNull.call(filepath)
             return items if items
-            return issueNewFile.call(cx22, filepath)
+            return issueNewFile.call(filepath, cx22)
         else
-            return (getDataOrNull.call() || [])
+            return (getDataOrNull.call(filepath) || [])
         end
     end
 
@@ -127,7 +127,7 @@ class NxTodos
                 .compact
         }
 
-        issueNewFile = lambda {|cx22, filepath|
+        issueNewFile = lambda {|filepath|
             items = NxTodos::itemsWithoutCx22()
                         .sort{|i1, i2| i1["priority"] <=> i2["priority"] }
                         .first(10)
@@ -143,7 +143,7 @@ class NxTodos
         if Config::getOrNull("isLeaderInstance") then
             items = getRecentDataOrNull.call(filepath)
             return items if items
-            return issueNewFile.call(cx22, filepath)
+            return issueNewFile.call(filepath)
         else
             return (getDataOrNull.call() || [])
         end
