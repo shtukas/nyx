@@ -7,7 +7,7 @@ class CatalystListing
         [
             "[listing interaction] .. | <datecode> | access (<n>) | group (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | destroy",
             "[makers] wave | anniversary | today | ondate | todo | Cx22 | project | manual countdown",
-            "[nxballs] start (<n>) | stop <n>",
+            "[nxballs] start (<n>) | stop <n> | pursue <n> (NxBall)",
             "[divings] anniversaries | ondates | waves | groups | todos | float",
             "[transmutations] >todo",
             "[misc] require internet",
@@ -258,6 +258,22 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::probe(item)
+            return
+        end
+
+        if Interpreting::match("pursue *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            if item["mikuType"] == "Nxball" then
+                NxBalls::pursue(item)
+                return
+            end
+            nxball = NxBalls::getNxBallForItemOrNull(item)
+            if nxball then
+                NxBalls::pursue(nxball)
+                return
+            end
             return
         end
 
@@ -549,7 +565,9 @@ class CatalystListing
         puts ""
         vspaceleft = vspaceleft - 1
 
-        unlockeds
+        unlockeds1, unlockeds2 = unlockeds.partition{|item| NxBalls::getNxBallForItemOrNull(item) }
+
+        (unlockeds1 + unlockeds2)
             .each{|item|
 
                 break if vspaceleft <= 0
