@@ -113,8 +113,8 @@ class Cx22
         (Time.new.to_i - unixtime.to_i) < 3600
     end
 
-    # Cx22::workOnlyListingItems(recomputeStuffIfNeeded)
-    def self.workOnlyListingItems(recomputeStuffIfNeeded)
+    # Cx22::workOnlyListingItems()
+    def self.workOnlyListingItems()
         mainFocusItem = lambda{|cx22|
             uuid = "Vx01-#{cx22["uuid"]}-MainFocus"
             ItemToCx22::set(uuid, cx22["uuid"])
@@ -131,15 +131,15 @@ class Cx22
 
         Cx22::cx22OrderedOperations()
             .select{|cx22| cx22["isWork"] }
-            .map{|cx22| [mainFocusItem.call(cx22)].compact + NxTodos::firstItemsForCx22(cx22, recomputeStuffIfNeeded) + [cx22]}
+            .map{|cx22| [mainFocusItem.call(cx22)].compact + NxTodos::firstItemsForCx22(cx22) + [cx22]}
             .flatten
     end
 
-    # Cx22::listingItems(recomputeStuffIfNeeded)
-    def self.listingItems(recomputeStuffIfNeeded)
+    # Cx22::listingItems()
+    def self.listingItems()
         Cx22::cx22OrderedOperations()
             .select{|cx22| !cx22["isWork"] }
-            .map{|cx22| NxTodos::firstItemsForCx22(cx22, recomputeStuffIfNeeded) + [cx22]}
+            .map{|cx22| NxTodos::firstItemsForCx22(cx22) + [cx22]}
             .flatten
     end
 

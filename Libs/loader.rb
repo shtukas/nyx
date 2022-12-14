@@ -222,6 +222,15 @@ if $RunNonEssentialThreads then
         }
     end
 
+    if Config::getOrNull("isLeaderInstance") then
+        Thread.new {
+            loop {
+                sleep 3600
+                CatalystListing::listingItems()
+            }
+        }
+    end
+
     Thread.new {
         loop {
             sleep 12
@@ -256,13 +265,6 @@ if $RunNonEssentialThreads then
                     CommonUtils::onScreenNotification("catalyst", "NxBall over 1 hour")
                 end
             }
-        }
-    }
-
-    Thread.new {
-        loop {
-            sleep 600
-            CatalystListing::listingItems(true)
         }
     }
 end

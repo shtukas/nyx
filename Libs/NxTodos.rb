@@ -63,50 +63,90 @@ class NxTodos
             .select{|item| ItemToCx22::getCx22OrNull(item["uuid"]).nil? }
     end
 
-    # NxTodos::firstItemsForCx22(cx22, recomputeStuffIfNeeded)
-    def self.firstItemsForCx22(cx22, recomputeStuffIfNeeded)
+    # NxTodos::firstItemsForCx22(cx22)
+    def self.firstItemsForCx22(cx22)
         filepath = "#{Config::pathToDataCenter()}/Cx22-to-FirstItems/#{cx22["uuid"]}.json"
-        if File.exists?(filepath) then
-            packet = JSON.parse(IO.read(filepath)) # {unixtime, uuids}
-            if !recomputeStuffIfNeeded or (Time.new.to_i - packet["unixtime"]) < 3600 then
-                return packet["uuids"]
-                            .map{|uuid| ItemsManager::getOrNull("NxTodo", uuid) }
-                            .compact
-            end
-        end
-        items = NxTodos::itemsForCx22(cx22)
-                    .sort{|i1, i2| i1["priority"] <=> i2["priority"] }
-                    .first(10)
-        uuids = items.map{|item| item["uuid"] }
-        packet = {
-            "unixtime" => Time.new.to_i,
-            "uuids"    => uuids
+
+        getDataOrNull = lambda {|filepath|
+            return nil if !File.exists?(filepath)
+            packet = JSON.parse(IO.read(filepath))
+            packet["uuids"]
+                .map{|uuid| ItemsManager::getOrNull("NxTodo", uuid) }
+                .compact
         }
-        File.open(filepath,  "w"){|f| f.puts(JSON.pretty_generate(packet)) }
-        items
+
+        getRecentDataOrNull = lambda {|filepath|
+            return nil if !File.exists?(filepath)
+            packet = JSON.parse(IO.read(filepath))
+            return nil if (Time.new.to_i - packet["unixtime"]) > 3600
+            packet["uuids"]
+                .map{|uuid| ItemsManager::getOrNull("NxTodo", uuid) }
+                .compact
+        }
+
+        issueNewFile = lambda {|cx22, filepath|
+            items = NxTodos::itemsForCx22(cx22)
+                        .sort{|i1, i2| i1["priority"] <=> i2["priority"] }
+                        .first(10)
+            uuids = items.map{|item| item["uuid"] }
+            packet = {
+                "unixtime" => Time.new.to_i,
+                "uuids"    => uuids
+            }
+            File.open(filepath,  "w"){|f| f.puts(JSON.pretty_generate(packet)) }
+            items
+        }
+
+        if Config::getOrNull("isLeaderInstance") then
+            items = getRecentDataOrNull.call(filepath)
+            return items if items
+            return issueNewFile.call(cx22, filepath)
+        else
+            return (getDataOrNull.call() || [])
+        end
     end
 
-    # NxTodos::listingItems(recomputeStuffIfNeeded)
-    def self.listingItems(recomputeStuffIfNeeded)
+    # NxTodos::listingItems()
+    def self.listingItems()
         filepath = "#{Config::pathToDataCenter()}/NxTodo-ListingItems.json"
-        if File.exists?(filepath) then
-            packet = JSON.parse(IO.read(filepath)) # {unixtime, uuids}
-            if !recomputeStuffIfNeeded or (Time.new.to_i - packet["unixtime"]) < 3600 then
-                return packet["uuids"]
-                            .map{|uuid| ItemsManager::getOrNull("NxTodo", uuid) }
-                            .compact
-            end
-        end
-        items = NxTodos::itemsWithoutCx22()
-                    .sort{|i1, i2| i1["priority"] <=> i2["priority"] }
-                    .first(10)
-        uuids = items.map{|item| item["uuid"] }
-        packet = {
-            "unixtime" => Time.new.to_i,
-            "uuids"    => uuids
+
+        getDataOrNull = lambda {|filepath|
+            return nil if !File.exists?(filepath)
+            packet = JSON.parse(IO.read(filepath))
+            packet["uuids"]
+                .map{|uuid| ItemsManager::getOrNull("NxTodo", uuid) }
+                .compact
         }
-        File.open(filepath,  "w"){|f| f.puts(JSON.pretty_generate(packet)) }
-        items
+
+        getRecentDataOrNull = lambda {|filepath|
+            return nil if !File.exists?(filepath)
+            packet = JSON.parse(IO.read(filepath))
+            return nil if (Time.new.to_i - packet["unixtime"]) > 3600
+            packet["uuids"]
+                .map{|uuid| ItemsManager::getOrNull("NxTodo", uuid) }
+                .compact
+        }
+
+        issueNewFile = lambda {|cx22, filepath|
+            items = NxTodos::itemsWithoutCx22()
+                        .sort{|i1, i2| i1["priority"] <=> i2["priority"] }
+                        .first(10)
+            uuids = items.map{|item| item["uuid"] }
+            packet = {
+                "unixtime" => Time.new.to_i,
+                "uuids"    => uuids
+            }
+            File.open(filepath,  "w"){|f| f.puts(JSON.pretty_generate(packet)) }
+            items
+        }
+
+        if Config::getOrNull("isLeaderInstance") then
+            items = getRecentDataOrNull.call(filepath)
+            return items if items
+            return issueNewFile.call(cx22, filepath)
+        else
+            return (getDataOrNull.call() || [])
+        end
     end
 
     # --------------------------------------------------
