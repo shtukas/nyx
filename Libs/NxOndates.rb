@@ -42,6 +42,23 @@ class NxOndates
         item
     end
 
+    # NxOndates::viennaUrlForToday(url)
+    def self.viennaUrlForToday(url)
+        description = url
+        uuid  = SecureRandom.uuid
+        nx113 = Nx113Make::url(url)
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NxOndate",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "nx113"       => nx113,
+        }
+        ItemsManager::commit("NxOndate", item)
+        item
+    end
+
     # --------------------------------------------------
     # Data
 
