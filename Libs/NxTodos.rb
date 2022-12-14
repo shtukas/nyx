@@ -145,7 +145,7 @@ class NxTodos
             return items if items
             return issueNewFile.call(filepath)
         else
-            return (getDataOrNull.call() || [])
+            return (getDataOrNull.call(filepath) || [])
         end
     end
 
