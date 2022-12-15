@@ -9,7 +9,7 @@ class SyncConflicts
                 FileUtils.rm(path)
                 next
             end
-            if File.basename(path).include?(".sync-conflict-20") then
+            if File.basename(path).include?(".sync-conflict-20") and !File.basename(path).start_with?(".") then
                 return path
             end
         end
