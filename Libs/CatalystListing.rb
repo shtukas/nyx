@@ -595,8 +595,6 @@ class CatalystListing
     # CatalystListing::mainListingProgram()
     def self.mainListingProgram()
 
-        Git::updateFromRemoteIfNeeded()
-
         initialCodeTrace = CommonUtils::stargateTraceCode()
 
         $SyncConflictInterruptionFilepath = nil
