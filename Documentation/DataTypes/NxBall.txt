@@ -5,6 +5,7 @@ NxBall
     "unixtime"    : Float
     "accounts"    : Array[Account]
     "itemuuid"    : null or String
+    "sequenceStart" : Unixtime # this is set from the second ball of a sequence, when we pursue
 
 Account {
     "description" : String

@@ -5,15 +5,16 @@ class NxBalls
     # --------------------------------------------------
     # Makers
 
-    # NxBalls::issue(accounts, linkeditemuuid = nil)
-    def self.issue(accounts, linkeditemuuid = nil)
+    # NxBalls::issue(accounts, linkeditemuuid = nil, sequenceStart = nil)
+    def self.issue(accounts, linkeditemuuid = nil, sequenceStart = nil)
         uuid  = SecureRandom.uuid
         item = {
             "uuid"     => uuid,
             "mikuType" => "NxBall",
             "unixtime" => Time.new.to_i,
             "accounts" => accounts,
-            "itemuuid" => linkeditemuuid
+            "itemuuid" => linkeditemuuid,
+            "sequenceStart" => sequenceStart
          }
         ItemsManager::commit("NxBall", item)
         item
@@ -25,7 +26,8 @@ class NxBalls
     # NxBalls::toRunningStatement(item)
     def self.toRunningStatement(item)
         timespan = (Time.new.to_i - item["unixtime"]).to_f/3600
-        "(running for #{timespan.round(2)} hours)"
+        sequenceStartStr = item["sequenceStart"] ? ", sequence: #{((Time.new.to_i - item["sequenceStart"]).to_f/3600).round(2)} hours" : ""
+        "(running for #{timespan.round(2)} hours#{sequenceStartStr})"
     end
 
     # NxBalls::toString(item)
@@ -57,7 +59,7 @@ class NxBalls
     def self.pursue(nxball)
         # We close the existing ball and issue a new one with the same payload (and it doesn't need to have the same uuid)
         NxBalls::close(nxball)
-        NxBalls::issue(nxball["accounts"], nxball["itemuuid"])
+        NxBalls::issue(nxball["accounts"], nxball["itemuuid"], nxball["unixtime"])
     end
 
     # NxBalls::closeNxBallForItemOrNothing(item)
