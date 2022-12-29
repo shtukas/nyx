@@ -476,10 +476,10 @@ class CatalystListing
             Waves::listingItems("ns:mandatory-today"),
             NxOndates::listingItems(),
             Cx22::workOnlyListingItems(),
-            ItemsManager::items("NxTriage") ,
             TxManualCountDowns::listingItems(),
-            Cx22::listingItems(),
             Waves::listingItems("ns:time-important"),
+            ItemsManager::items("NxTriage"),
+            Cx22::listingItems(),
             Waves::listingItems("ns:beach"),
             NxTodos::listingItems()
         ]
