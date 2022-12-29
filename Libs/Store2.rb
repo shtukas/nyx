@@ -9,15 +9,18 @@ class Store2
         "#{Config::pathToDataCenter()}/Store2"
     end
 
-    # Store2::putElementAtSet(setId, elementId)
-    def self.putElementAtSet(setId, elementId)
+    # Store2::putObjectAtSet(setId, object)
+    def self.putObjectAtSet(setId, object)
         setfolderpath = "#{Store2::repositoryFolderPath()}/#{setId}"
         if !File.exists?(setfolderpath) then
             FileUtils.mkdir(setfolderpath)
         end
-        elementfilepath = "#{setfolderpath}/#{elementId}"
-        return if File.exists?(elementfilepath)
-        FileUtils.touch(elementfilepath)
+        if object["uuid"].nil? then
+            puts "You are trying to put object #{object} at set '#{setId}', but object doesn't have an uuid"
+            raise "(error: 2331)"
+        end
+        objectfilepath = "#{setfolderpath}/#{object["uuid"]}"
+        File.open(objectfilepath, "w"){|f| f.puts(JSON.pretty_generate(object)) }
     end
 
 end
