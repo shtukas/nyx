@@ -2,16 +2,16 @@
 
 # Store2 is a sets store
 
-class Store2 
+class TodoItems
 
-    # Store2::repositoryFolderPath()
+    # TodoItems::repositoryFolderPath()
     def self.repositoryFolderPath()
-        "#{Config::pathToDataCenter()}/Store2"
+        "#{Config::pathToDataCenter()}/TodoItems"
     end
 
-    # Store2::putObjectAtSet(setId, object)
+    # TodoItems::putObjectAtSet(setId, object)
     def self.putObjectAtSet(setId, object)
-        setfolderpath = "#{Store2::repositoryFolderPath()}/#{setId}"
+        setfolderpath = "#{TodoItems::repositoryFolderPath()}/#{setId}"
         if !File.exists?(setfolderpath) then
             FileUtils.mkdir(setfolderpath)
         end

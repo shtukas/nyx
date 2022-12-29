@@ -26,7 +26,7 @@ class FileSystemCheck
         if verbose then
             puts "FileSystemCheck::fsck_aion_point_rootnhash(#{rootnhash}, #{verbose})"
         end
-        AionFsck::structureCheckAionHashRaiseErrorIfAny(Store1Elizabeth.new(), rootnhash)
+        AionFsck::structureCheckAionHashRaiseErrorIfAny(DatablobStoreElizabeth.new(), rootnhash)
     end
 
     # FileSystemCheck::fsck_Nx113(item, verbose)

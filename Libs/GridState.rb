@@ -79,7 +79,7 @@ class GridState
             raise "(error: 1765ea10-524b-45af-a1a9-6ab6b5c664cf) #{location}"
         end
         LucilleCore::locationsAtFolder(location)
-            .map{|loc| AionCore::commitLocationReturnHash(Store1Elizabeth.new(), loc) }
+            .map{|loc| AionCore::commitLocationReturnHash(DatablobStoreElizabeth.new(), loc) }
     end
 
     # GridState::directoryPathToNxDirectoryContentsGridState(location) # GridState
@@ -225,7 +225,7 @@ class GridState
             nhash           = state["nhash"]
             parts           = state["parts"]
             filepath        = "#{folder}/#{nhash}#{dottedExtension}"
-            operator        = Store1Elizabeth.new()
+            operator        = DatablobStoreElizabeth.new()
             File.open(filepath, "w"){|f|
                 parts.each{|nhash|
                     blob = operator.getBlobOrNull(nhash)
@@ -277,7 +277,7 @@ class GridState
             parts           = state["parts"]
             filepath        = "#{ENV['HOME']}/Desktop/#{nhash}#{dottedExtension}"
             puts "Exporting file at #{filepath}"
-            operator        = Store1Elizabeth.new()
+            operator        = DatablobStoreElizabeth.new()
             File.open(filepath, "w"){|f|
                 parts.each{|nhash|
                     blob = operator.getBlobOrNull(nhash)
@@ -348,7 +348,7 @@ class GridState
             puts "Exporting file at #{filepath}"
             File.open(filepath, "w"){|f|
                 parts.each{|nhash|
-                    blob = Store1::getOrNull(nhash)
+                    blob = DatablobStore::getOrNull(nhash)
                     raise "(error: 13709695-3dca-493b-be46-62d4ef6cf18f)" if blob.nil?
                     f.write(blob)
                 }

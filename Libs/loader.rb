@@ -155,6 +155,7 @@ require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)
 # DoNotShowUntil::isVisible(uid)
 require_relative "Dx8Units.rb"
+require_relative "DatablobStore.rb"
 
 require_relative "EnergyGrid.rb"
 
@@ -192,12 +193,11 @@ require_relative "SectionsType0141.rb"
 require_relative "Search.rb"
 require_relative "Stargate.rb"
 require_relative "SyncConflicts.rb"
-require_relative "Store1.rb"
-require_relative "Store2.rb"
 
 require_relative "TxManualCountDowns.rb"
 require_relative "The99Percent.rb"
 require_relative "TxFloats.rb"
+require_relative "TodoItems.rb"
 
 require_relative "Waves.rb"
 

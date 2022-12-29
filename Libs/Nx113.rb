@@ -38,7 +38,7 @@ class Nx113Make
     # Nx113Make::aionpoint(location) # Nx113
     def self.aionpoint(location)
         raise "(error: 93590239-f8e0-4f35-af47-d7f1407e21f2)" if !File.exists?(location)
-        rootnhash = AionCore::commitLocationReturnHash(Store1Elizabeth.new(), location)
+        rootnhash = AionCore::commitLocationReturnHash(DatablobStoreElizabeth.new(), location)
         {
             "mikuType"  => "Nx113",
             "type"      => "aion-point",
@@ -136,7 +136,7 @@ class Nx113Access
         if !File.exists?(parentLocation) then
             FileUtils.mkdir(parentLocation)
         end
-        AionCore::exportHashAtFolder(Store1Elizabeth.new(), rootnhash, parentLocation)
+        AionCore::exportHashAtFolder(DatablobStoreElizabeth.new(), rootnhash, parentLocation)
     end
 
     # Nx113Access::accessAionPoint(rootnhash)
@@ -165,7 +165,7 @@ class Nx113Access
             nhash            = nx113["nhash"]
             parts            = nx113["parts"]
             filepath         = "#{ENV['HOME']}/Desktop/#{nhash}#{dottedExtension}"
-            operator         = Store1Elizabeth.new()
+            operator         = DatablobStoreElizabeth.new()
             File.open(filepath, "w"){|f|
                 parts.each{|nhash|
                     blob = operator.getBlobOrNull(nhash)
@@ -291,7 +291,7 @@ class Nx113Edit
     def self.editNx113Carrier(item)
         return if item["nx113"].nil?
         nx113 = item["nx113"]
-        nx113v2 = Nx113Edit::editNx113(Store1Elizabeth.new(), nx113)
+        nx113v2 = Nx113Edit::editNx113(DatablobStoreElizabeth.new(), nx113)
         return if nx113v2.nil?
         item["nx113"] = nx113v2
         PolyActions::commit(item)

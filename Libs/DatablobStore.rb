@@ -1,19 +1,19 @@
 # encoding: UTF-8
 
-# Store1 is a contents addressable store.
+# DatablobStore is a contents addressable store.
 
-class Store1
+class DatablobStore
 
-    # Store1::repositoryFolderPath()
+    # DatablobStore::repositoryFolderPath()
     def self.repositoryFolderPath()
-        "#{Config::pathToDataCenter()}/Store1"
+        "#{Config::pathToDataCenter()}/DatablobStore"
     end
 
-    # Store1::put(datablob) # nhash
+    # DatablobStore::put(datablob) # nhash
     def self.put(datablob) # nhash
         nhash = "SHA256-#{Digest::SHA256.hexdigest(datablob)}"
         filename = "#{nhash}.data"
-        folderpath = "#{Store1::repositoryFolderPath()}/#{nhash[7, 2]}"
+        folderpath = "#{DatablobStore::repositoryFolderPath()}/#{nhash[7, 2]}"
         if !File.exists?(folderpath) then
             FileUtils.mkdir(folderpath)
         end
@@ -21,7 +21,7 @@ class Store1
         File.open(filepath, "w"){|f| f.write(datablob) }
 
         # -------------------------------------
-        nhash_check = "SHA256-#{Digest::SHA256.hexdigest(Store1::getOrNull(nhash))}"
+        nhash_check = "SHA256-#{Digest::SHA256.hexdigest(DatablobStore::getOrNull(nhash))}"
         if nhash_check != nhash then
             raise "(error: 43070006-dcaf-48b7-ac43-025ed2351336) something incredibly wrong just happened"
         end
@@ -30,10 +30,10 @@ class Store1
         nhash
     end
 
-    # Store1::getOrNull(nhash)
+    # DatablobStore::getOrNull(nhash)
     def self.getOrNull(nhash)
         filename = "#{nhash}.data"
-        folderpath = "#{Store1::repositoryFolderPath()}/#{nhash[7, 2]}"
+        folderpath = "#{DatablobStore::repositoryFolderPath()}/#{nhash[7, 2]}"
         filepath = "#{folderpath}/#{filename}"
         return nil if !File.exists?(filepath)
         blob = IO.read(filepath)
@@ -49,13 +49,13 @@ class Store1
     end
 end
 
-class Store1Elizabeth
+class DatablobStoreElizabeth
 
     def initialize()
     end
 
     def putBlob(datablob)
-        Store1::put(datablob)
+        DatablobStore::put(datablob)
     end
 
     def filepathToContentHash(filepath)
@@ -63,7 +63,7 @@ class Store1Elizabeth
     end
 
     def getBlobOrNull(nhash)
-        Store1::getOrNull(nhash)
+        DatablobStore::getOrNull(nhash)
     end
 
     def readBlobErrorIfNotFound(nhash)
