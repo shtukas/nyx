@@ -7,7 +7,7 @@ class CatalystListing
         [
             "[listing interaction] .. | <datecode> | access (<n>) | group (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | destroy",
             "[makers] wave | anniversary | today | ondate | todo | Cx22 | project | manual countdown",
-            "[nxballs] start (<n>) | stop <n> | pursue <n> (NxBall)",
+            "[nxballs] start (<n>) | stop <n> | pause <n> | pursue <n>",
             "[divings] anniversaries | ondates | waves | groups | todos | float",
             "[transmutations] >todo",
             "[misc] require internet",
@@ -258,6 +258,22 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::probe(item)
+            return
+        end
+
+        if Interpreting::match("pause *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            if item["mikuType"] == "Nxball" then
+                NxBalls::pause(item)
+                return
+            end
+            nxball = NxBalls::getNxBallForItemOrNull(item)
+            if nxball then
+                NxBalls::pause(nxball)
+                return
+            end
             return
         end
 

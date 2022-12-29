@@ -5,13 +5,14 @@ class NxBalls
     # --------------------------------------------------
     # Makers
 
-    # NxBalls::issue(accounts, linkeditemuuid = nil, sequenceStart = nil)
-    def self.issue(accounts, linkeditemuuid = nil, sequenceStart = nil)
+    # NxBalls::issue(accounts, linkeditemuuid = nil, sequenceStart = nil, isActive = true)
+    def self.issue(accounts, linkeditemuuid = nil, sequenceStart = nil, isActive = true)
         uuid  = SecureRandom.uuid
         item = {
             "uuid"     => uuid,
             "mikuType" => "NxBall",
             "unixtime" => Time.new.to_i,
+            "isActive" => isActive,
             "accounts" => accounts,
             "itemuuid" => linkeditemuuid,
             "sequenceStart" => sequenceStart
@@ -25,9 +26,13 @@ class NxBalls
 
     # NxBalls::toRunningStatement(item)
     def self.toRunningStatement(item)
-        timespan = (Time.new.to_i - item["unixtime"]).to_f/3600
-        sequenceStartStr = item["sequenceStart"] ? ", sequence: #{((Time.new.to_i - item["sequenceStart"]).to_f/3600).round(2)} hours" : ""
-        "(running for #{timespan.round(2)} hours#{sequenceStartStr})"
+        if item["isActive"] then
+            timespan = (Time.new.to_i - item["unixtime"]).to_f/3600
+            sequenceStartStr = item["sequenceStart"] ? ", sequence: #{((Time.new.to_i - item["sequenceStart"]).to_f/3600).round(2)} hours" : ""
+            "(running for #{timespan.round(2)} hours#{sequenceStartStr})"
+        else
+            "(paused)"
+        end
     end
 
     # NxBalls::toString(item)
@@ -55,11 +60,17 @@ class NxBalls
         ItemsManager::destroy("NxBall", nxball["uuid"])
     end
 
+    # NxBalls::pause(nxball)
+    def self.pause(nxball)
+        NxBalls::close(nxball)
+        NxBalls::issue(nxball["accounts"], nxball["itemuuid"], nil, false)
+    end
+
     # NxBalls::pursue(nxball)
     def self.pursue(nxball)
         # We close the existing ball and issue a new one with the same payload (and it doesn't need to have the same uuid)
         NxBalls::close(nxball)
-        NxBalls::issue(nxball["accounts"], nxball["itemuuid"], nxball["unixtime"])
+        NxBalls::issue(nxball["accounts"], nxball["itemuuid"], nxball["isActive"] ? nxball["unixtime"] : nil)
     end
 
     # NxBalls::closeNxBallForItemOrNothing(item)

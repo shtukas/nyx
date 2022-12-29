@@ -34,6 +34,16 @@ class NxTodos
         item
     end
 
+    # NxTodos::issueUsingNxOndate(nxondate)
+    def self.issueUsingNxOndate(nxondate)
+        item = nxondate.clone
+        item["uuid"] = CommonUtils::timeStringL22()
+        item["mikuType"] = "NxTodo"
+        item["priority"] = NxTodos::decidePriority()
+        ItemsManager::commit("NxTodo", item)
+        item
+    end
+
     # --------------------------------------------------
     # Data
 

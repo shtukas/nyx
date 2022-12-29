@@ -104,12 +104,18 @@ class NxOndates
     def self.probe(item)
         loop {
             item = ItemsManager::getOrNull("NxOndate", item["uuid"])
-            actions = ["access", "redate", "destroy"]
+            actions = ["access", "redate", "convert to NxTodo", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "access" then
                 NxOndates::access(item)
                 next
+            end
+            if action == "convert to NxTodo" then
+                item2 = NxTodos::issueUsingNxOndate(item)
+                ItemToCx22::interactivelySelectAndMapToCx22OrNothing(item2["uuid"])
+                ItemsManager::destroy("NxOndate", item["uuid"])
+                return
             end
             if action == "redate" then
                 item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()

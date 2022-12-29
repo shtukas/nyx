@@ -159,7 +159,7 @@ class Waves
     def self.listingItems(priority)
         ItemsManager::items("Wave")
             .select{|item| item["onlyOnDays"].nil? or item["onlyOnDays"].include?(CommonUtils::todayAsLowercaseEnglishWeekDayName()) }
-            .select{|item| item["priority"] == priority }
+            .select{|item| (item["priority"] == priority) or item["nx46"]["type"] == "sticky" }
     end
 
     # -------------------------------------------------------------------------
