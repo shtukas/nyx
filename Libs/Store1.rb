@@ -1,5 +1,7 @@
 # encoding: UTF-8
 
+# Store1 is a contents addressable store.
+
 class Store1
 
     # Store1::repositoryFolderPath()

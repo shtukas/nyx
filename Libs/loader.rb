@@ -193,6 +193,7 @@ require_relative "Search.rb"
 require_relative "Stargate.rb"
 require_relative "SyncConflicts.rb"
 require_relative "Store1.rb"
+require_relative "Store2.rb"
 
 require_relative "TxManualCountDowns.rb"
 require_relative "The99Percent.rb"
