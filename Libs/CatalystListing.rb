@@ -510,9 +510,11 @@ class CatalystListing
 
         projects = NxProjects::projectsForListing()
         puts ""
+        vspaceleft = vspaceleft - 1
         if projects.size > 0 then
             projects.each{|project|
                 puts NxProjects::toStringWithDetailsFormatted(project)
+                vspaceleft = vspaceleft - 1
             }
         end
 
