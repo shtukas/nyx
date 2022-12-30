@@ -9,18 +9,17 @@ class TodoItems
         "#{Config::pathToDataCenter()}/TodoItems"
     end
 
-    # TodoItems::putObjectAtSet(setId, object)
-    def self.putObjectAtSet(setId, object)
-        setfolderpath = "#{TodoItems::repositoryFolderPath()}/#{setId}"
-        if !File.exists?(setfolderpath) then
-            FileUtils.mkdir(setfolderpath)
-        end
-        if object["uuid"].nil? then
-            puts "You are trying to put object #{object} at set '#{setId}', but object doesn't have an uuid"
-            raise "(error: 2331)"
-        end
-        objectfilepath = "#{setfolderpath}/#{object["uuid"]}"
-        File.open(objectfilepath, "w"){|f| f.puts(JSON.pretty_generate(object)) }
+    # TodoItems::commit(object)
+    def self.commit(object)
+        filepath = "#{TodoItems::repositoryFolderPath()}/#{object["uuid"]}"
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(object)) }
+    end
+
+    # TodoItems::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        filepath = "#{TodoItems::repositoryFolderPath()}/#{uuid}"
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
     end
 
 end
