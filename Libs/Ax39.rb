@@ -60,7 +60,7 @@ class Ax39
         return 1 if !DoNotShowUntil::isVisible(uuid)
         if ax39["type"] == "weekly-starting-on-Saturday" then
 
-            return 1 if Time.new.wday == 5 # We ignore those on Friday with a clean start on Saturday
+            return 1 if Time.new.wday == 5 # We ignore those on Friday
 
             dates                       = CommonUtils::datesSinceLastSaturday()
             actualTimeDoneInSeconds     = Bank::combinedValueOnThoseDays(uuid, dates, unrealisedTimespan)
@@ -75,7 +75,7 @@ class Ax39
         end
         if ax39["type"] == "weekly-starting-on-Monday" then
 
-            return 1 if Time.new.wday == 0 # We ignore those on Sunday with a clean start on Monday
+            return 1 if Time.new.wday == 6 # We ignore those on Saturday
 
             dates                       = CommonUtils::datesSinceLastMonday()
             actualTimeDoneInSeconds     = Bank::combinedValueOnThoseDays(uuid, dates, unrealisedTimespan)

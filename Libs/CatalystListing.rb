@@ -508,6 +508,14 @@ class CatalystListing
             listingItems.any?{|item| item["uuid"] == itemuuid }
         }
 
+        projects = NxProjects::projectsForListing()
+        puts ""
+        if projects.size > 0 then
+            projects.each{|project|
+                puts NxProjects::toStringWithDetailsFormatted(project)
+            }
+        end
+
         floats = TxFloats::listingItems()
 
         listingItems = CatalystListing::listingItems()
