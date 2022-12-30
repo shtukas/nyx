@@ -2,6 +2,40 @@
 
 class TxFloats
 
+    # TxFloats::filepath(uuid)
+    def self.filepath(uuid)
+        "#{Config::pathToDataCenter()}/TxFloat/#{uuid}.json"
+    end
+
+    # TxFloats::items()
+    def self.items()
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/TxFloat")
+            .select{|filepath| filepath[-5, 5] == ".json" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
+    end
+
+    # TxFloats::commit(item)
+    def self.commit(item)
+        FileSystemCheck::fsck_MikuTypedItem(item, false)
+        filepath = TxFloats::filepath(item["uuid"])
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
+    end
+
+    # TxFloats::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        filepath = TxFloats::filepath(uuid)
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
+    end
+
+    # TxFloats::destroy(uuid)
+    def self.destroy(uuid)
+        filepath = TxFloats::filepath(uuid)
+        if File.exists?(filepath) then
+            FileUtils.rm(filepath)
+        end
+    end
+
     # --------------------------------------------------
     # Makers
 
@@ -16,7 +50,7 @@ class TxFloats
             "unixtime"    => Time.new.to_i,
             "description" => description
         }
-        ItemsManager::commit("TxFloat", item)
+        TxFloats::commit(item)
         item
     end
 
@@ -30,7 +64,7 @@ class TxFloats
 
     # TxFloats::listingItems()
     def self.listingItems()
-        ItemsManager::items("TxFloat")
+        TxFloats::items()
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 end

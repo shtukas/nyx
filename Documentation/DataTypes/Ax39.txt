@@ -1,6 +1,6 @@
 Ax39 represents a time commitment, either daily or weekly.
 
-It is carried by Cx22s
+It is carried by NxProjects
 
 {
     "type"  => "daily-time-commitment"

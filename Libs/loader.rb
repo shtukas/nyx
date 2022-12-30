@@ -149,7 +149,7 @@ require_relative "Catalyst.rb"
 require_relative "CatalystListing.rb"
 require_relative "CommonUtils.rb"
 require_relative "CompositeElizabeth.rb"
-require_relative "Cx22.rb"
+require_relative "NxProjects.rb"
 
 require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)
@@ -166,8 +166,6 @@ require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"
 require_relative "InternetStatus.rb"
 require_relative "InMemoryStore.rb"
-require_relative "ItemsManager.rb"
-require_relative "ItemToCx22.rb"
 
 require_relative "FileSystemCheck.rb"
 
@@ -180,7 +178,6 @@ require_relative "NxTodos.rb"
 require_relative "NxTriages.rb"
 require_relative "NxOndates.rb"
 require_relative "NxBalls.rb"
-require_relative "NyxNode1.rb"
 require_relative "NyxNetwork.rb"
 
 
@@ -197,7 +194,6 @@ require_relative "SyncConflicts.rb"
 require_relative "TxManualCountDowns.rb"
 require_relative "The99Percent.rb"
 require_relative "TxFloats.rb"
-require_relative "TodoItems.rb"
 
 require_relative "Waves.rb"
 
@@ -252,7 +248,7 @@ if $RunNonEssentialThreads then
     Thread.new {
         loop {
             sleep 120
-            ItemsManager::items("NxBall").each{|nxball|
+            NxBalls::items().each{|nxball|
                 if (Time.new.to_i - nxball["unixtime"]) > 3600 then
                     CommonUtils::onScreenNotification("catalyst", "NxBall over 1 hour")
                 end

@@ -1,5 +1,41 @@
-2
+
 class Anniversaries
+
+    # Anniversaries::filepath(uuid)
+    def self.filepath(uuid)
+        "#{Config::pathToDataCenter()}/Anniversaries/#{uuid}.json"
+    end
+
+    # Anniversaries::items()
+    def self.items()
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Anniversaries")
+            .select{|filepath| filepath[-5, 5] == ".json" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
+    end
+
+    # Anniversaries::commit(item)
+    def self.commit(item)
+        FileSystemCheck::fsck_MikuTypedItem(item, false)
+        filepath = Anniversaries::filepath(item["uuid"])
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
+    end
+
+    # Anniversaries::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        filepath = Anniversaries::filepath(uuid)
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
+    end
+
+    # Anniversaries::destroy(uuid)
+    def self.destroy(uuid)
+        filepath = Anniversaries::filepath(uuid)
+        if File.exists?(filepath) then
+            FileUtils.rm(filepath)
+        end
+    end
+
+    # ----------------------------------------------------------------
 
     # Anniversaries::dateIsCorrect(date)
     def self.dateIsCorrect(date)
@@ -117,7 +153,7 @@ class Anniversaries
             "repeatType"          => repeatType,
             "lastCelebrationDate" => lastCelebrationDate
         }
-        ItemsManager::commit("Anniversaries", item)
+        Anniversaries::commit(item)
         item
     end
 
@@ -139,7 +175,7 @@ class Anniversaries
 
     # Anniversaries::listingItems()
     def self.listingItems()
-        ItemsManager::items("Anniversaries")
+        Anniversaries::items()
             .select{|anniversary| Anniversaries::isOpenToAcknowledgement(anniversary) }
     end
 
@@ -148,10 +184,10 @@ class Anniversaries
 
     # Anniversaries::done(uuid)
     def self.done(uuid)
-        item = ItemsManager::getOrNull("Anniversaries", uuid)
+        item = Anniversaries::getOrNull(uuid)
         return if item.nil?
         item["lastCelebrationDate"] = Time.new.to_s[0, 10]
-        ItemsManager::commit("Anniversaries", item)
+        Anniversaries::commit(item)
     end
 
     # Anniversaries::accessAndDone(anniversary)
@@ -159,7 +195,7 @@ class Anniversaries
         puts Anniversaries::toString(anniversary)
         if LucilleCore::askQuestionAnswerAsBoolean("done ? : ", true) then
             anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
-            ItemsManager::commit("Anniversaries", anniversary)
+            Anniversaries::commit(anniversary)
         end
     end
 
@@ -173,13 +209,13 @@ class Anniversaries
                 description = CommonUtils::editTextSynchronously(anniversary["description"]).strip
                 next if description == ""
                 anniversary["description"] = description
-                ItemsManager::commit("Anniversaries", anniversary)
+                Anniversaries::commit(anniversary)
             end
             if action == "update start date" then
                 startdate = CommonUtils::editTextSynchronously(anniversary["startdate"])
                 next if startdate == ""
                 anniversary["startdate"] = startdate
-                ItemsManager::commit("Anniversaries", anniversary)
+                Anniversaries::commit(anniversary)
             end
             if action == "destroy" then
                 filepath = "#{Config::pathToDataCenter()}/Anniversaries/#{anniversary["uuid"]}.json"
@@ -193,7 +229,7 @@ class Anniversaries
     # Anniversaries::mainprobe()
     def self.mainprobe()
         loop {
-            anniversaries = ItemsManager::items("Anniversaries")
+            anniversaries = Anniversaries::items()
                         .sort{|i1, i2| Anniversaries::nextDateOrdinal(i1)[0] <=> Anniversaries::nextDateOrdinal(i2)[0] }
             anniversary = LucilleCore::selectEntityFromListOfEntitiesOrNull("anniversary", anniversaries, lambda{|item| Anniversaries::toString(item) })
             return if anniversary.nil?

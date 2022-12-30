@@ -97,15 +97,15 @@ class FileSystemCheck
         raise "Unsupported Nx113 type: #{type}"
     end
 
-    # FileSystemCheck::fsck_Cx22(item, verbose)
-    def self.fsck_Cx22(item, verbose)
+    # FileSystemCheck::fsck_NxProject(item, verbose)
+    def self.fsck_NxProject(item, verbose)
         return if item.nil?
 
         if verbose then
-            puts "FileSystemCheck::fsck_Cx22(#{JSON.pretty_generate(item)}, #{verbose})"
+            puts "FileSystemCheck::fsck_NxProject(#{JSON.pretty_generate(item)}, #{verbose})"
         end
 
-        if item["mikuType"] != "Cx22" then
+        if item["mikuType"] != "NxProject" then
             raise "Incorrect Miku type for function"
         end
 
@@ -265,8 +265,8 @@ class FileSystemCheck
 
         mikuType = item["mikuType"]
 
-        if mikuType == "Cx22" then
-            FileSystemCheck::fsck_Cx22(item, verbose)
+        if mikuType == "NxProject" then
+            FileSystemCheck::fsck_NxProject(item, verbose)
             return
         end
 
@@ -322,6 +322,7 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
             FileSystemCheck::ensureAttribute(item, "priority", "Number")
+            FileSystemCheck::ensureAttribute(item, "projectId", "String")
             FileSystemCheck::fsck_Nx113(item["nx113"], verbose)
             return
         end
@@ -388,15 +389,14 @@ class FileSystemCheck
     # FileSystemCheck::fsckErrorAtFirstFailure()
     def self.fsckErrorAtFirstFailure()
         [
-            ItemsManager::items("Anniversaries"),
-            Cx22::items(),
-            ItemsManager::items("NxOndate"),
-            ItemsManager::items("NxTodo"),
-            ItemsManager::items("NxTriage"),
-            ItemsManager::items("NyxNode1"),
-            ItemsManager::items("TxFloat"),
-            ItemsManager::items("TxManualCountDown"),
-            ItemsManager::items("Wave")
+            Anniversaries::items(),
+            NxProjects::items(),
+            NxOndates::items(),
+            NxTodos::itemsEnumerator(),
+            NxTriages::items(),
+            TxFloats::items(),
+            TxManualCountDowns::items(),
+            Waves::items()
         ]
             .flatten
             .each{|item|

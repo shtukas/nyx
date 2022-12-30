@@ -2,6 +2,40 @@
 
 class NxBalls
 
+    # NxBalls::filepath(uuid)
+    def self.filepath(uuid)
+        "#{Config::pathToDataCenter()}/NxBall/#{uuid}.json"
+    end
+
+    # NxBalls::items()
+    def self.items()
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxBall")
+            .select{|filepath| filepath[-5, 5] == ".json" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
+    end
+
+    # NxBalls::commit(item)
+    def self.commit(item)
+        FileSystemCheck::fsck_MikuTypedItem(item, false)
+        filepath = NxBalls::filepath(item["uuid"])
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
+    end
+
+    # NxBalls::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        filepath = NxBalls::filepath(uuid)
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
+    end
+
+    # NxBalls::destroy(uuid)
+    def self.destroy(uuid)
+        filepath = NxBalls::filepath(uuid)
+        if File.exists?(filepath) then
+            FileUtils.rm(filepath)
+        end
+    end
+
     # --------------------------------------------------
     # Makers
 
@@ -17,7 +51,7 @@ class NxBalls
             "itemuuid" => linkeditemuuid,
             "sequenceStart" => sequenceStart
          }
-        ItemsManager::commit("NxBall", item)
+        NxBalls::commit(item)
         item
     end
 
@@ -42,7 +76,7 @@ class NxBalls
 
     # NxBalls::getNxBallForItemOrNull(item)
     def self.getNxBallForItemOrNull(item)
-        ItemsManager::items("NxBall")
+        NxBalls::items()
             .select{|nxball| nxball["itemuuid"] == item["uuid"] }
             .first
     end
@@ -57,7 +91,7 @@ class NxBalls
             puts "Bank: putting #{timespan} seconds into '#{account["description"]}', account: #{account["number"]}"
             Bank::put(account["number"], timespan)
         }
-        ItemsManager::destroy("NxBall", nxball["uuid"])
+        NxBalls::destroy(nxball["uuid"])
     end
 
     # NxBalls::pause(nxball)

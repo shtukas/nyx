@@ -11,14 +11,13 @@ class PolyFunctions
             "number"      => item["uuid"]
         }
 
-        if item["mikuType"] != "Cx22" then
-            cx22 = ItemToCx22::itemToCx22IncludingInteractiveAttempt(item)
-            if cx22 then
-                accounts << {
-                "description" => cx22["description"],
-                "number"      => cx22["uuid"]
+        if item["mikuType"] == "NxTodo" then
+            projectId = item["projectId"]
+            project = 
+            accounts << {
+                "description" => PolyFunctions::genericDescription(item),
+                "number"      => item["uuid"]
             }
-            end
         end
 
         accounts
@@ -121,7 +120,7 @@ class PolyFunctions
 
         # ordering: alphabetical order
 
-        if item["mikuType"] == "Cx22" then
+        if item["mikuType"] == "NxProject" then
             return item["description"]
         end
         if item["mikuType"] == "InboxItem" then
@@ -165,8 +164,8 @@ class PolyFunctions
 
         # order: lexicographic
 
-        if item["mikuType"] == "Cx22" then
-            return Cx22::toString(item)
+        if item["mikuType"] == "NxProject" then
+            return NxProjects::toString(item)
         end
         if item["mikuType"] == "LambdX1" then
             return "(lambda) #{item["announce"]}"
@@ -198,8 +197,8 @@ class PolyFunctions
 
     # PolyFunctions::toStringForCatalystListing(item)
     def self.toStringForCatalystListing(item)
-        if item["mikuType"] == "Cx22" then
-            return Cx22::toStringForListing(item)
+        if item["mikuType"] == "NxProject" then
+            return NxProjects::toStringForListing(item)
         end
         PolyFunctions::toString(item)
     end

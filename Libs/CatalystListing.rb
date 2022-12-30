@@ -5,8 +5,8 @@ class CatalystListing
     # CatalystListing::listingCommands()
     def self.listingCommands()
         [
-            "[listing interaction] .. | <datecode> | access (<n>) | group (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | destroy",
-            "[makers] wave | anniversary | today | ondate | todo | Cx22 | project | manual countdown",
+            "[listing interaction] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | destroy",
+            "[makers] wave | anniversary | today | ondate | todo | project | manual countdown",
             "[nxballs] start (<n>) | stop <n> | pause <n> | pursue <n>",
             "[divings] anniversaries | ondates | waves | groups | todos | float",
             "[transmutations] >todo",
@@ -86,28 +86,8 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("group", input) then
-            item = store.getDefault()
-            return if item.nil?
-            ItemToCx22::interactivelySelectAndMapToCx22OrNothing(item["uuid"])
-            return
-        end
-
-        if Interpreting::match("group *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            ItemToCx22::interactivelySelectAndMapToCx22OrNothing(item["uuid"])
-            return
-        end
-
         if Interpreting::match("groups", input) then
-            Cx22::mainprobe()
-            return
-        end
-
-        if Interpreting::match("Cx22", input) then
-            Cx22::interactivelyIssueNewOrNull()
+            NxProjects::mainprobe()
             return
         end
 
@@ -200,7 +180,7 @@ class CatalystListing
         end
 
         if Interpreting::match("groups", input) then
-            Cx22::mainprobe()
+            NxProjects::mainprobe()
             return
         end
 
@@ -243,6 +223,11 @@ class CatalystListing
 
         if Interpreting::match("ondates", input) then
             NxOndates::dive()
+            return
+        end
+
+        if Interpreting::match("project", input) then
+            NxProjects::interactivelyIssueNewOrNull()
             return
         end
 
@@ -364,7 +349,6 @@ class CatalystListing
             item = NxTodos::interactivelyIssueNewOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
-            ItemToCx22::interactivelySelectAndMapToCx22OrNothing(item["uuid"])
             return
         end
 
@@ -409,20 +393,20 @@ class CatalystListing
                 "lambda" => lambda { NxOndates::listingItems() }
             },
             {
-                "name" => "Cx22::workOnlyListingItems()",
-                "lambda" => lambda { Cx22::workOnlyListingItems(false) }
+                "name" => "NxProjects::listingItemsWork()",
+                "lambda" => lambda { NxProjects::listingItemsWork() }
             },
             {
-                "name" => "ItemsManager::items(NxTriage) ",
-                "lambda" => lambda { ItemsManager::items("NxTriage") }
+                "name" => "NxTriages::items()",
+                "lambda" => lambda { NxTriages::items() }
             },
             {
                 "name" => "TxManualCountDowns::listingItems()",
                 "lambda" => lambda { TxManualCountDowns::listingItems() }
             },
             {
-                "name" => "Cx22::listingItems()",
-                "lambda" => lambda { Cx22::listingItems(false) }
+                "name" => "NxProjects::listingItemsNonWork()",
+                "lambda" => lambda { NxProjects::listingItemsNonWork() }
             },
             {
                 "name" => "Waves::listingItems(ns:time-important)",
@@ -435,10 +419,6 @@ class CatalystListing
             {
                 "name" => "Waves::listingItems(ns:beach)",
                 "lambda" => lambda { Waves::listingItems("ns:beach") }
-            },
-            {
-                "name" => "NxTodos::listingItems()",
-                "lambda" => lambda { NxTodos::listingItems(false) }
             }
         ]
 
@@ -491,13 +471,12 @@ class CatalystListing
             Anniversaries::listingItems(),
             Waves::listingItems("ns:mandatory-today"),
             NxOndates::listingItems(),
-            Cx22::workOnlyListingItems(),
+            NxProjects::listingItemsWork(),
             TxManualCountDowns::listingItems(),
             Waves::listingItems("ns:time-important"),
-            ItemsManager::items("NxTriage"),
-            Cx22::listingItems(),
-            Waves::listingItems("ns:beach"),
-            NxTodos::listingItems()
+            NxTriages::items(),
+            NxProjects::listingItemsNonWork(),
+            Waves::listingItems("ns:beach")
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -549,9 +528,9 @@ class CatalystListing
                     break if vspaceleft <= 0
                     store.register(item, false)
 
-                    cx22 =  ItemToCx22::getCx22OrNull(item["uuid"])
-                    cx22Str = cx22 ? " (#{Cx22::toString(cx22)})" : ""
-                    line = "#{store.prefixString()} #{PolyFunctions::toStringForCatalystListing(item)}#{cx22Str.green}"
+                    project =  NxProjects::itemToProject(item)
+                    projectStr = project ? " (#{NxProjects::toString(project)})" : ""
+                    line = "#{store.prefixString()} #{PolyFunctions::toStringForCatalystListing(item)}#{projectStr.green}"
                     
                     line = line.yellow
 
@@ -565,7 +544,7 @@ class CatalystListing
                 }
         end
 
-        nxballs = ItemsManager::items("NxBall")
+        nxballs = NxBalls::items()
                     .select{|nxball| !nxballHasAnItemInThere.call(nxball, listingItems) }
         if nxballs.size > 0 then
             puts ""
@@ -589,9 +568,9 @@ class CatalystListing
                 break if vspaceleft <= 0
                 store.register(item, true)
 
-                cx22 =  cx22 =  ItemToCx22::getCx22OrNull(item["uuid"])
-                cx22Str = cx22 ? " (Cx22: #{cx22["description"]})" : ""
-                line = "#{store.prefixString()} #{PolyFunctions::toStringForCatalystListing(item)}#{cx22Str.green}"
+                project =  project =  NxProjects::itemToProject(item)
+                projectStr = project ? " (NxProject: #{project["description"]})" : ""
+                line = "#{store.prefixString()} #{PolyFunctions::toStringForCatalystListing(item)}#{projectStr.green}"
 
                 nxball = NxBalls::getNxBallForItemOrNull(item)
                 if nxball then

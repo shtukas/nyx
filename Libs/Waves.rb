@@ -1,6 +1,40 @@
 
 class Waves
 
+    # Waves::filepath(uuid)
+    def self.filepath( uuid)
+        "#{Config::pathToDataCenter()}/Wave/#{uuid}.json"
+    end
+
+    # Waves::items()
+    def self.items()
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Wave")
+            .select{|filepath| filepath[-5, 5] == ".json" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
+    end
+
+    # Waves::commit(item)
+    def self.commit(item)
+        FileSystemCheck::fsck_MikuTypedItem(item, false)
+        filepath = Waves::filepath(item["uuid"])
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
+    end
+
+    # Waves::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        filepath = Waves::filepath(uuid)
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
+    end
+
+    # Waves::destroy(uuid)
+    def self.destroy(uuid)
+        filepath = Waves::filepath(uuid)
+        if File.exists?(filepath) then
+            FileUtils.rm(filepath)
+        end
+    end
+
     # --------------------------------------------------
     # Making
 
@@ -141,7 +175,7 @@ class Waves
             "nx113"            => nx113,
             "lastDoneDateTime" => "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         }
-        ItemsManager::commit("Wave", item)
+        Waves::commit(item)
         item
     end
 
@@ -157,7 +191,7 @@ class Waves
 
     # Waves::listingItems(priority)
     def self.listingItems(priority)
-        ItemsManager::items("Wave")
+        Waves::items()
             .select{|item| item["onlyOnDays"].nil? or item["onlyOnDays"].include?(CommonUtils::todayAsLowercaseEnglishWeekDayName()) }
             .select{|item| (item["priority"] == priority) or item["nx46"]["type"] == "sticky" }
     end
@@ -169,7 +203,7 @@ class Waves
     def self.performWaveNx46WaveDone(item)
         puts "done-ing: #{Waves::toString(item)}"
         item["lastDoneDateTime"] = Time.now.utc.iso8601
-        ItemsManager::commit("Wave", item)
+        Waves::commit(item)
 
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
         puts "not shown until: #{Time.at(unixtime).to_s}"
@@ -179,7 +213,7 @@ class Waves
     # Waves::dive()
     def self.dive()
         loop {
-            items = ItemsManager::items("Wave").sort{|w1, w2| w1["description"] <=> w2["description"] }
+            items = Waves::items().sort{|w1, w2| w1["description"] <=> w2["description"] }
             wave = LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", items, lambda{|wave| wave["description"] })
             return if wave.nil?
             Waves::probe(wave)
@@ -201,13 +235,13 @@ class Waves
             status = LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit the description instead ? ")
             if status then
                 PolyActions::editDescription(item)
-                return ItemsManager::getOrNull("Wave", item["uuid"])
+                return Waves::getOrNull(item["uuid"])
             else
                 return item
             end
         end
         Nx113Edit::editNx113Carrier(item)
-        ItemsManager::getOrNull("Wave", item["uuid"])
+        Waves::getOrNull(item["uuid"])
     end
 
     # Waves::probe(item)
@@ -223,7 +257,7 @@ class Waves
             if action == "update description" then
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
                 item["description"] = description
-                ItemsManager::commit("Wave", item)
+                Waves::commit(item)
                 next
             end
             if action == "perform done" then
@@ -233,10 +267,10 @@ class Waves
             if action == "set days of the week" then
                 days, _ = CommonUtils::interactivelySelectSomeDaysOfTheWeekLowercaseEnglish()
                 item["onlyOnDays"] = days
-                ItemsManager::commit("Wave", item)
+                Waves::commit(item)
             end
             if action == "destroy" then
-                ItemsManager::destroy("Wave", item["uuid"])
+                Waves::destroy(item["uuid"])
                 PolyActions::garbageCollectionAfterItemDeletion(item)
                 return
             end

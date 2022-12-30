@@ -3,6 +3,55 @@
 class NxTodos
 
     # --------------------------------------------------
+    # IO
+
+    # NxTodos::repositoryFolderPath()
+    def self.repositoryFolderPath()
+        "#{Config::pathToDataCenter()}/NxTodo"
+    end
+
+    # NxTodos::commit(object)
+    def self.commit(object)
+        FileSystemCheck::fsck_MikuTypedItem(object, true)
+        filepath = "#{NxTodos::repositoryFolderPath()}/#{object["uuid"]}.json"
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(object)) }
+    end
+
+    # NxTodos::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        filepath = "#{NxTodos::repositoryFolderPath()}/#{uuid}.json"
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
+    end
+
+    # NxTodos::itemsEnumerator()
+    def self.itemsEnumerator()
+        Enumerator.new do |items|
+            LucilleCore::locationsAtFolder(NxTodos::repositoryFolderPath())
+            .select{|filepath| filepath[-5, 5] == ".json" }
+            .each{|filepath|
+                items << JSON.parse(IO.read(filepath))
+            }
+        end
+    end
+
+    # NxTodos::itemsForNxProject(projectId)
+    def self.itemsForNxProject(projectId)
+        NxTodos::itemsEnumerator()
+            .select{|item|
+                item["projectId"] == projectId
+            }
+    end
+
+    # NxTodos::destroy(uuid)
+    def self.destroy(uuid)
+        filepath = NxTodos::filepath(uuid)
+        if File.exists?(filepath) then
+            FileUtils.rm(filepath)
+        end
+    end
+
+    # --------------------------------------------------
     # Makers
 
     # NxTodos::decidePriority()
@@ -21,6 +70,7 @@ class NxTodos
         uuid  = CommonUtils::timeStringL22() # We want the items to come in time order, ideally
         nx113 = Nx113Make::interactivelyMakeNx113OrNull()
         priority = NxTodos::decidePriority()
+        projectId = NxProjects::interactivelySelectProject()["uuid"]
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
@@ -28,9 +78,10 @@ class NxTodos
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
             "nx113"       => nx113,
-            "priority"    => priority
+            "priority"    => priority,
+            "projectId"   => projectId
         }
-        ItemsManager::commit("NxTodo", item)
+        NxTodos::commit(item)
         item
     end
 
@@ -40,7 +91,8 @@ class NxTodos
         item["uuid"] = CommonUtils::timeStringL22()
         item["mikuType"] = "NxTodo"
         item["priority"] = NxTodos::decidePriority()
-        ItemsManager::commit("NxTodo", item)
+        item["projectId"] = NxProjects::interactivelySelectProject()["uuid"]
+        NxTodos::commit(item)
         item
     end
 
@@ -56,107 +108,6 @@ class NxTodos
     # NxTodos::toStringForSearch(item)
     def self.toStringForSearch(item)
         "(todo) #{item["description"]}"
-    end
-
-    # NxTodos::itemsForCx22(cx22)
-    def self.itemsForCx22(cx22)
-        ItemsManager::items("NxTodo")
-            .select{|item|
-                icx = ItemToCx22::getCx22OrNull(item["uuid"])
-                icx and (icx["uuid"] == cx22["uuid"])
-            }
-    end
-
-    # NxTodos::itemsWithoutCx22()
-    def self.itemsWithoutCx22()
-        ItemsManager::items("NxTodo")
-            .select{|item| ItemToCx22::getCx22OrNull(item["uuid"]).nil? }
-    end
-
-    # NxTodos::firstItemsForCx22(cx22)
-    def self.firstItemsForCx22(cx22)
-        filepath = "#{Config::pathToDataCenter()}/Cx22-to-FirstItems/#{cx22["uuid"]}.json"
-
-        getDataOrNull = lambda {|filepath|
-            return nil if !File.exists?(filepath)
-            packet = JSON.parse(IO.read(filepath))
-            packet["uuids"]
-                .map{|uuid| ItemsManager::getOrNull("NxTodo", uuid) }
-                .compact
-        }
-
-        getRecentDataOrNull = lambda {|filepath|
-            return nil if !File.exists?(filepath)
-            packet = JSON.parse(IO.read(filepath))
-            return nil if (Time.new.to_i - packet["unixtime"]) > 3600
-            packet["uuids"]
-                .map{|uuid| ItemsManager::getOrNull("NxTodo", uuid) }
-                .compact
-        }
-
-        issueNewFile = lambda {|filepath, cx22|
-            items = NxTodos::itemsForCx22(cx22)
-                        .sort{|i1, i2| i1["priority"] <=> i2["priority"] }
-                        .first(10)
-            uuids = items.map{|item| item["uuid"] }
-            packet = {
-                "unixtime" => Time.new.to_i,
-                "uuids"    => uuids
-            }
-            File.open(filepath,  "w"){|f| f.puts(JSON.pretty_generate(packet)) }
-            items
-        }
-
-        if Config::getOrNull("isLeaderInstance") then
-            items = getRecentDataOrNull.call(filepath)
-            return items if items
-            return issueNewFile.call(filepath, cx22)
-        else
-            return (getDataOrNull.call(filepath) || [])
-        end
-    end
-
-    # NxTodos::listingItems()
-    def self.listingItems()
-        filepath = "#{Config::pathToDataCenter()}/NxTodo-ListingItems.json"
-
-        getDataOrNull = lambda {|filepath|
-            return nil if !File.exists?(filepath)
-            packet = JSON.parse(IO.read(filepath))
-            packet["uuids"]
-                .map{|uuid| ItemsManager::getOrNull("NxTodo", uuid) }
-                .compact
-        }
-
-        getRecentDataOrNull = lambda {|filepath|
-            return nil if !File.exists?(filepath)
-            packet = JSON.parse(IO.read(filepath))
-            return nil if (Time.new.to_i - packet["unixtime"]) > 3600
-            packet["uuids"]
-                .map{|uuid| ItemsManager::getOrNull("NxTodo", uuid) }
-                .compact
-        }
-
-        issueNewFile = lambda {|filepath|
-            items = NxTodos::itemsWithoutCx22()
-                        .sort{|i1, i2| i1["priority"] <=> i2["priority"] }
-                        .first(10)
-            uuids = items.map{|item| item["uuid"] }
-            packet = {
-                "unixtime" => Time.new.to_i,
-                "uuids"    => uuids
-            }
-            File.open(filepath,  "w"){|f| f.puts(JSON.pretty_generate(packet)) }
-            items
-        }
-
-        if Config::getOrNull("isLeaderInstance") then
-            items = getRecentDataOrNull.call(filepath)
-            return items if items
-            return issueNewFile.call(filepath)
-        else
-            return (getDataOrNull.call(filepath) || [])
-        end
     end
 
     # --------------------------------------------------
@@ -177,19 +128,19 @@ class NxTodos
             status = LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit the description instead ? ")
             if status then
                 PolyActions::editDescription(item)
-                return ItemsManager::getOrNull("NxTodo", item["uuid"])
+                return NxTodos::getOrNull(item["uuid"])
             else
                 return item
             end
         end
         Nx113Edit::editNx113Carrier(item)
-        ItemsManager::getOrNull("NxTodo", item["uuid"])
+        NxTodos::getOrNull(item["uuid"])
     end
 
     # NxTodos::probe(item)
     def self.probe(item)
         loop {
-            item = ItemsManager::getOrNull("NxTodo", item["uuid"])
+            item = NxTodos::getOrNull(item["uuid"])
             actions = ["access", "update description", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
@@ -199,10 +150,10 @@ class NxTodos
             if option == "update description" then
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
                 item["description"] = description
-                ItemsManager::commit("NxTodo", item)
+                NxTodos::commit(item)
             end
             if action == "destroy" then
-                ItemsManager::destroy("NxTodo", item["uuid"])
+                NxTodos::destroy(item["uuid"])
                 PolyActions::garbageCollectionAfterItemDeletion(item)
                 return
             end

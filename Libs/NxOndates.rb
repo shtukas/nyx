@@ -2,6 +2,40 @@
 
 class NxOndates
 
+    # NxOndates::filepath(uuid)
+    def self.filepath(uuid)
+        "#{Config::pathToDataCenter()}/NxOndate/#{uuid}.json"
+    end
+
+    # NxOndates::items()
+    def self.items()
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxOndate")
+            .select{|filepath| filepath[-5, 5] == ".json" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
+    end
+
+    # NxOndates::commit(item)
+    def self.commit(item)
+        FileSystemCheck::fsck_MikuTypedItem(item, false)
+        filepath = NxOndates::filepath(item["uuid"])
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
+    end
+
+    # NxOndates::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        filepath = NxOndates::filepath(uuid)
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
+    end
+
+    # NxOndates::destroy(uuid)
+    def self.destroy(uuid)
+        filepath = NxOndates::filepath(uuid)
+        if File.exists?(filepath) then
+            FileUtils.rm(filepath)
+        end
+    end
+
     # --------------------------------------------------
     # Makers
 
@@ -20,7 +54,7 @@ class NxOndates
             "description" => description,
             "nx113"       => nx113,
         }
-        ItemsManager::commit("NxOndate", item)
+        NxOndates::destroy(item)
         item
     end
 
@@ -38,7 +72,7 @@ class NxOndates
             "description" => description,
             "nx113"       => nx113,
         }
-        ItemsManager::commit("NxOndate", item)
+        NxOndates::destroy(item)
         item
     end
 
@@ -55,7 +89,7 @@ class NxOndates
             "description" => description,
             "nx113"       => nx113,
         }
-        ItemsManager::commit("NxOndate", item)
+        NxOndates::destroy(item)
         item
     end
 
@@ -70,7 +104,7 @@ class NxOndates
 
     # NxOndates::listingItems()
     def self.listingItems()
-        ItemsManager::items("NxOndate").select{|item| item["datetime"][0, 10] <= Time.new.to_s[0, 10] }
+        NxOndates::items().select{|item| item["datetime"][0, 10] <= Time.new.to_s[0, 10] }
     end
 
     # --------------------------------------------------
@@ -91,19 +125,19 @@ class NxOndates
             status = LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit the description instead ? ")
             if status then
                 PolyActions::editDescription(item)
-                return ItemsManager::getOrNull("NxOndate", item["uuid"])
+                return NxOndates::getOrNull(item["uuid"])
             else
                 return item
             end
         end
         Nx113Edit::editNx113Carrier(item)
-        ItemsManager::getOrNull("NxOndate", item["uuid"])
+        NxOndates::getOrNull(item["uuid"])
     end
 
     # NxOndates::probe(item)
     def self.probe(item)
         loop {
-            item = ItemsManager::getOrNull("NxOndate", item["uuid"])
+            item = NxOndates::getOrNull(item["uuid"])
             actions = ["access", "redate", "convert to NxTodo", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
@@ -113,17 +147,16 @@ class NxOndates
             end
             if action == "convert to NxTodo" then
                 item2 = NxTodos::issueUsingNxOndate(item)
-                ItemToCx22::interactivelySelectAndMapToCx22OrNothing(item2["uuid"])
-                ItemsManager::destroy("NxOndate", item["uuid"])
+                NxOndates::destroy(item["uuid"])
                 return
             end
             if action == "redate" then
                 item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
-                ItemsManager::commit("NxOndate", item)
+                NxOndates::destroy(item)
                 next
             end
             if action == "destroy" then
-                ItemsManager::destroy("NxOndate", item["uuid"])
+                NxOndates::destroy(item["uuid"])
                 PolyActions::garbageCollectionAfterItemDeletion(item)
                 return
             end

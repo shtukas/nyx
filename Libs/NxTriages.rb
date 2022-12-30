@@ -2,6 +2,40 @@
 
 class NxTriages
 
+    # NxTriages::filepath(uuid)
+    def self.filepath(uuid)
+        "#{Config::pathToDataCenter()}/NxTriage/#{uuid}.json"
+    end
+
+    # NxTriages::items()
+    def self.items()
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTriage")
+            .select{|filepath| filepath[-5, 5] == ".json" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
+    end
+
+    # NxTriages::commit(item)
+    def self.commit(item)
+        FileSystemCheck::fsck_MikuTypedItem(item, false)
+        filepath = NxTriages::filepath(item["uuid"])
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
+    end
+
+    # NxTriages::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        filepath = NxTriages::filepath(uuid)
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
+    end
+
+    # NxTriages::destroy(uuid)
+    def self.destroy(uuid)
+        filepath = NxTriages::filepath(uuid)
+        if File.exists?(filepath) then
+            FileUtils.rm(filepath)
+        end
+    end
+
     # --------------------------------------------------
     # Makers
 
@@ -18,7 +52,7 @@ class NxTriages
             "description" => description,
             "nx113"       => nx113,
         }
-        ItemsManager::commit("NxTriage", item)
+        NxTriages::commit(item)
         item
     end
 
@@ -49,13 +83,13 @@ class NxTriages
             status = LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit the description instead ? ")
             if status then
                 PolyActions::editDescription(item)
-                return ItemsManager::getOrNull("NxTriage", item["uuid"])
+                return NxTriages::getOrNull(item["uuid"])
             else
                 return item
             end
         end
         Nx113Edit::editNx113Carrier(item)
-        ItemsManager::getOrNull("NxTriage", item["uuid"])
+        NxTriages::getOrNull(item["uuid"])
     end
 
     # NxTriages::probe(item)
@@ -68,7 +102,7 @@ class NxTriages
                 NxTriages::access(item)
             end
             if action == "destroy" then
-                ItemsManager::destroy("NxTriage", item["uuid"])
+                NxTriages::destroy(item["uuid"])
                 PolyActions::garbageCollectionAfterItemDeletion(item)
                 return
             end
