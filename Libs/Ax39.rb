@@ -4,7 +4,7 @@ class Ax39
 
     # Ax39::types()
     def self.types()
-        ["daily-time-commitment", "weekly-starting-on-Saturday", "weekly-starting-on-Monday"]
+        ["weekly-starting-on-Saturday", "weekly-starting-on-Monday"]
     end
 
     # Ax39::interactivelySelectTypeOrNull()
@@ -16,14 +16,6 @@ class Ax39
     def self.interactivelyCreateNewAxOrNull()
         type = Ax39::interactivelySelectTypeOrNull()
         return nil if type.nil?
-        if type == "daily-time-commitment" then
-            hours = LucilleCore::askQuestionAnswerAsString("daily hours : ")
-            return nil if hours == ""
-            return {
-                "type"  => "daily-time-commitment",
-                "hours" => hours.to_f
-            }
-        end
         if type == "weekly-starting-on-Saturday" then
             hours = LucilleCore::askQuestionAnswerAsString("weekly hours : ")
             return nil if hours == ""
@@ -54,9 +46,6 @@ class Ax39
 
     # Ax39::toString(ax39)
     def self.toString(ax39)
-        if ax39["type"] == "daily-time-commitment" then
-            return "daily #{"%4.2f" % ax39["hours"]} hours"
-        end
         if ax39["type"] == "weekly-starting-on-Saturday" then
             return "weekly:saturday #{"%4.2f" % ax39["hours"]} hours"
         end
@@ -69,9 +58,6 @@ class Ax39
     def self.operationalRatio(uuid, ax39, unrealisedTimespan = nil)
         raise "(error: 92e23de4-61eb-4a07-a128-526e4be0e72a)" if ax39.nil?
         return 1 if !DoNotShowUntil::isVisible(uuid)
-        if ax39["type"] == "daily-time-commitment" then
-            return BankExtended::stdRecoveredDailyTimeInHours(uuid, unrealisedTimespan).to_f/ax39["hours"]
-        end
         if ax39["type"] == "weekly-starting-on-Saturday" then
 
             return 1 if Time.new.wday == 5 # We ignore those on Friday with a clean start on Saturday
