@@ -8,7 +8,7 @@ class SearchCatalyst
         Catalyst::catalystItems()
             .map{|item|
                 {
-                    "announce" => "(#{item["mikuType"]}) #{PolyFunctions::genericDescription(item)}",
+                    "announce" => "(#{item["mikuType"]}) #{PolyFunctions::toStringForSearchListing(item)}",
                     "unixtime" => item["unixtime"],
                     "item"     => item
                 }

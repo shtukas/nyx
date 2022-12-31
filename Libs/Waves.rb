@@ -184,9 +184,15 @@ class Waves
 
     # Waves::toString(item)
     def self.toString(item)
-        lastDoneDateTime = item["lastDoneDateTime"]
-        ago = "#{((Time.new.to_i - DateTime.parse(lastDoneDateTime).to_time.to_i).to_f/86400).round(2)} days ago"
+        ago = "#{((Time.new.to_i - DateTime.parse(item["lastDoneDateTime"]).to_time.to_i).to_f/86400).round(2)} days ago"
         "(wave) #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")} (#{Waves::nx46ToString(item["nx46"])}) (#{ago}) 🌊 [#{item["priority"]}]"
+    end
+
+    # Waves::toStringForSearch(item)
+    def self.toStringForSearch(item)
+        ago = "#{((Time.new.to_i - DateTime.parse(item["lastDoneDateTime"]).to_time.to_i).to_f/86400).round(2)} days ago"
+        isPendingStr = DoNotShowUntil::isVisible(item["uuid"]) ? " (pending)".green : ""
+        "(wave) #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")} (#{Waves::nx46ToString(item["nx46"])}) (#{ago})#{isPendingStr} 🌊 [#{item["priority"]}]"
     end
 
     # Waves::listingItems(priority)

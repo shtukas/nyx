@@ -211,4 +211,12 @@ class PolyFunctions
         end
         PolyFunctions::toString(item)
     end
+
+    # PolyFunctions::toStringForSearchListing(item)
+    def self.toStringForSearchListing(item)
+        if item["mikuType"] == "Wave" then
+            return Waves::toStringForSearch(item)
+        end
+        PolyFunctions::toString(item)
+    end
 end
