@@ -80,24 +80,29 @@ class NxProjects
     # NxProjects::toStringWithDetails(item)
     def self.toStringWithDetails(item)
         percentage = 100 * Ax39::standardAx39CarrierOperationalRatio(item)
-        percentageStr = ": #{percentage.to_i.to_s.rjust(3)} %"
+        percentageStr = ", #{percentage} %"
 
         datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
-        dnsustr  = datetimeOpt ? ": (do not show until: #{datetimeOpt})" : ""
+        dnsustr  = datetimeOpt ? ", (do not show until: #{datetimeOpt})" : ""
 
-        "#{item["description"]} : #{Ax39::toString(item["ax39"])}#{percentageStr}#{dnsustr}"
+        "#{item["description"]}, #{Ax39::toString(item["ax39"])}#{percentageStr}#{dnsustr}"
     end
 
     # NxProjects::toStringWithDetailsFormatted(item)
     def self.toStringWithDetailsFormatted(item)
         descriptionPadding = (XCache::getOrNull("NxProject-Description-Padding-DDBBF46A-2D56-4931-BE11-AF66F97F738E") || 28).to_i # the original value
         percentage = 100 * Ax39::standardAx39CarrierOperationalRatio(item)
-        percentageStr = ": #{percentage.to_i.to_s.rjust(3)} %"
+        percentageStr = ", #{percentage.to_i.to_s.rjust(3)} %"
 
         datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
-        dnsustr  = datetimeOpt ? ": (do not show until: #{datetimeOpt})" : ""
+        dnsustr  = datetimeOpt ? ", (do not show until: #{datetimeOpt})" : ""
 
-        "(project) #{item["description"].ljust(descriptionPadding)} : #{Ax39::toStringFormatted(item["ax39"]).ljust(18)}#{percentageStr}#{dnsustr}"
+        "(project) #{item["description"].ljust(descriptionPadding)}, #{Ax39::toStringFormatted(item["ax39"]).ljust(18)}#{percentageStr}#{dnsustr}"
+    end
+
+    # NxProjects::itemToProject(item)
+    def self.itemToProject(item)
+        NxProjects::getOrNull(item["projectId"])
     end
 
     # NxProjects::projectsForListing()
@@ -107,43 +112,6 @@ class NxProjects
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
             .select{|project| Ax39::standardAx39CarrierOperationalRatio(project) < 1 }
-    end
-
-    # NxProjects::listingItemsWork()
-    def self.listingItemsWork()
-        mainFocusItem = lambda{|project|
-            uuid = "Vx01-#{project["uuid"]}-MainFocus"
-            ratio = Ax39::standardAx39CarrierOperationalRatio(project)
-            shouldShow = ratio < 0.75
-            return nil if !shouldShow
-            {
-                "uuid"        => uuid,
-                "mikuType"    => "Vx01",
-                "unixtime"    => project["unixtime"],
-                "description" => "Main Focus, non itemized, for '#{NxProjects::toString(project)}' (current ratio: #{ratio.round(2)}, until: 0.75)"
-            }
-        }
-
-        NxProjects::projectsForListing()
-            .select{|project| project["isWork"] }
-            .map{|project| [mainFocusItem.call(project)].compact + NxProjects::firstNxTodoItemsForNxProject(project["uuid"]) + [project]}
-            .flatten
-    end
-
-    # NxProjects::listingItemsNonWork()
-    def self.listingItemsNonWork()
-        NxProjects::projectsForListing()
-            .select{|project| !project["isWork"] }
-            .map{|project| NxProjects::firstNxTodoItemsForNxProject(project["uuid"]) + [project]}
-            .flatten
-    end
-
-    # NxProjects::listingItemsNonWork()
-    def self.listingItemsNonWork()
-        NxProjects::projectsForListing()
-            .select{|project| !project["isWork"] }
-            .map{|project| NxProjects::firstNxTodoItemsForNxProject(project["uuid"]) + [project]}
-            .flatten
     end
 
     # NxProjects::firstNxTodoItemsForNxProject(projectId)
@@ -189,9 +157,33 @@ class NxProjects
         end
     end
 
-    # NxProjects::itemToProject(item)
-    def self.itemToProject(item)
-        NxProjects::getOrNull(item["projectId"])
+    # NxProjects::listingItemsWork()
+    def self.listingItemsWork()
+        mainFocusItem = lambda{|project|
+            uuid = "Vx01-#{project["uuid"]}-MainFocus"
+            ratio = Ax39::standardAx39CarrierOperationalRatio(project)
+            shouldShow = ratio < 0.75
+            return nil if !shouldShow
+            {
+                "uuid"        => uuid,
+                "mikuType"    => "Vx01",
+                "unixtime"    => project["unixtime"],
+                "description" => "Main Focus, non itemized, for '#{NxProjects::toString(project)}' (current ratio: #{ratio.round(2)}, until: 0.75)"
+            }
+        }
+
+        NxProjects::projectsForListing()
+            .select{|project| project["isWork"] }
+            .map{|project| [mainFocusItem.call(project)].compact + NxProjects::firstNxTodoItemsForNxProject(project["uuid"]) + [project]}
+            .flatten
+    end
+
+    # NxProjects::listingItemsNonWork()
+    def self.listingItemsNonWork()
+        NxProjects::projectsForListing()
+            .select{|project| !project["isWork"] }
+            .map{|project| NxProjects::firstNxTodoItemsForNxProject(project["uuid"]) + [project]}
+            .flatten
     end
 
     # --------------------------------------------
