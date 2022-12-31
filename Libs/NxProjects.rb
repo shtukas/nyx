@@ -133,7 +133,7 @@ class NxProjects
 
         issueNewFile = lambda {|filepath, projectId|
             items = NxTodos::itemsForNxProject(projectId)
-                        .sort{|i1, i2| i1["priority"] <=> i2["priority"] }
+                        .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
                         .first(10)
             uuids = items.map{|item| item["uuid"] }
             packet = {

@@ -54,22 +54,12 @@ class NxTodos
     # --------------------------------------------------
     # Makers
 
-    # NxTodos::decidePriority()
-    def self.decidePriority()
-        priority = LucilleCore::askQuestionAnswerAsString("priority 1, 2, 3 : ").to_i
-        if ![1, 2, 3].include?(priority) then
-            return NxTodos::decidePriority()
-        end
-        priority
-    end
-
     # NxTodos::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid  = CommonUtils::timeStringL22() # We want the items to come in time order, ideally
         nx113 = Nx113Make::interactivelyMakeNx113OrNull()
-        priority = NxTodos::decidePriority()
         projectId = NxProjects::interactivelySelectProject()["uuid"]
         item = {
             "uuid"        => uuid,
@@ -78,21 +68,31 @@ class NxTodos
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
             "nx113"       => nx113,
-            "priority"    => priority,
             "projectId"   => projectId
         }
         NxTodos::commit(item)
         item
     end
 
-    # NxTodos::issueUsingNxOndate(nxondate)
-    def self.issueUsingNxOndate(nxondate)
+    # NxTodos::issueConsumingNxOndate(nxondate)
+    def self.issueConsumingNxOndate(nxondate)
         item = nxondate.clone
         item["uuid"] = CommonUtils::timeStringL22()
         item["mikuType"] = "NxTodo"
-        item["priority"] = NxTodos::decidePriority()
         item["projectId"] = NxProjects::interactivelySelectProject()["uuid"]
         NxTodos::commit(item)
+        NxOndates::destroy(nxondate["uuid"])
+        item
+    end
+
+    # NxTodos::issueConsumingNxTriage(nxtriage)
+    def self.issueConsumingNxTriage(nxtriage)
+        item = nxtriage.clone
+        item["uuid"] = CommonUtils::timeStringL22()
+        item["mikuType"] = "NxTodo"
+        item["projectId"] = NxProjects::interactivelySelectProject()["uuid"]
+        NxTodos::commit(item)
+        NxTriages::destroy(nxtriage["uuid"])
         item
     end
 

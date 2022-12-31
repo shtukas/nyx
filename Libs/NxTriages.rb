@@ -108,9 +108,4 @@ class NxTriages
             end
         }
     end
-
-    # NxTriages::transmuteItemToNxTodo(item)
-    def self.transmuteItemToNxTodo(item)
-        raise "not implemented yet"
-    end
 end

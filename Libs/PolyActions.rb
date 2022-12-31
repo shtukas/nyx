@@ -228,13 +228,13 @@ class PolyActions
 
         if item["mikuType"] == "NxTriage" then
             NxTriages::access(item)
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["done", ">todo", "exit"])
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["done", ">>", "exit"])
             return if option.nil?
             if option == "done" then
                 NxTriages::destroy(item["uuid"])
             end
-            if option == ">todo" then
-                NxTriages::transmuteItemToNxTodo(item)
+            if option == ">>" then
+                NxTodos::issueConsumingNxTriage(item)
                 return
             end
             if option == "exit" then

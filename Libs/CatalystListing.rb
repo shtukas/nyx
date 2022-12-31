@@ -9,7 +9,7 @@ class CatalystListing
             "[makers] wave | anniversary | today | ondate | todo | project | manual countdown",
             "[nxballs] start (<n>) | stop <n> | pause <n> | pursue <n>",
             "[divings] anniversaries | ondates | waves | projects | todos | float",
-            "[transmutations] >todo",
+            "[transmutations] >> (ondates and triages)",
             "[misc] require internet",
             "[misc] search | speed | commands | lock (<n>)",
         ].join("\n")
@@ -40,18 +40,17 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match(">todo", input) then
+        if Interpreting::match(">>", input) then
             item = store.getDefault()
             return if item.nil?
-
-            # We apply this to only to Triage items
-            if item["mikuType"] != "NxTriage" then
-                puts "The >todo command only applies to NxTriages"
-                LucilleCore::pressEnterToContinue()
+            if item["mikuType"] == "NxOndate" then
+                NxTodos::issueConsumingNxOndate(item)
                 return
             end
-
-            NxTriages::transmuteItemToNxTodo(item)
+            if item["mikuType"] == "NxTriage" then
+                NxTodos::issueConsumingNxTriage(item)
+                return
+            end
             return
         end
 
