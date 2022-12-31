@@ -35,12 +35,6 @@ class NxProjects
         end
     end
 
-    # --------------------------------------------------------
-
-    # NxProjects::getOrNull(uuid)
-    def self.getOrNull(uuid)
-    end
-
     # --------------------------------------------
     # Makers
 
@@ -168,7 +162,8 @@ class NxProjects
                 "uuid"        => uuid,
                 "mikuType"    => "Vx01",
                 "unixtime"    => project["unixtime"],
-                "description" => "Main Focus, non itemized, for '#{NxProjects::toString(project)}' (current ratio: #{ratio.round(2)}, until: 0.75)"
+                "description" => "'#{NxProjects::toString(project)}' (Main Focus) (current ratio: #{ratio.round(2)}, until: 0.75)",
+                "projectId"   => project["uuid"]
             }
         }
 
@@ -206,12 +201,16 @@ class NxProjects
     def self.probe(project)
         loop {
             puts NxProjects::toStringWithDetails(project)
-            actions = ["start", "add time", "do not show until", "set Ax39", "destroy"]
+            actions = ["start", "display ratio", "add time", "do not show until", "set Ax39", "expose", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "start" then
                 PolyActions::start(project)
                 return
+            end
+            if action == "display ratio" then
+                puts "Ax39 ratio: #{Ax39::standardAx39CarrierOperationalRatio(project)}"
+                LucilleCore::pressEnterToContinue()
             end
             if action == "add time" then
                 timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
@@ -227,6 +226,10 @@ class NxProjects
                 project["ax39"] = Ax39::interactivelyCreateNewAx()
                 FileSystemCheck::fsck_NxProject(project, true)
                 NxProjects::commit(project)
+            end
+            if action == "expose" then
+                puts JSON.pretty_generate(project)
+                LucilleCore::pressEnterToContinue()
             end
             if action == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy NxProject '#{NxProjects::toString(project)}' ? ") then

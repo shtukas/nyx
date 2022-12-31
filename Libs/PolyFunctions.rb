@@ -13,10 +13,19 @@ class PolyFunctions
 
         if item["mikuType"] == "NxTodo" then
             projectId = item["projectId"]
-            project = 
+            project = NxProjects::getOrNull(projectId)
             accounts << {
-                "description" => PolyFunctions::genericDescription(item),
-                "number"      => item["uuid"]
+                "description" => PolyFunctions::genericDescription(project),
+                "number"      => project["uuid"]
+            }
+        end
+
+        if item["mikuType"] == "Vx01" then
+            projectId = item["projectId"]
+            project = NxProjects::getOrNull(projectId)
+            accounts << {
+                "description" => PolyFunctions::genericDescription(project),
+                "number"      => project["uuid"]
             }
         end
 

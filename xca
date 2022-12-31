@@ -1,5 +1,5 @@
 #!/bin/zsh
 
 cd ~/Galaxy/Software/github.com/shtukas/stargate
-ruby bin/catalyst.rb
+ruby --version
 
