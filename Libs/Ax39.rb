@@ -47,10 +47,20 @@ class Ax39
     # Ax39::toString(ax39)
     def self.toString(ax39)
         if ax39["type"] == "weekly-starting-on-Saturday" then
-            return "weekly:saturday #{"%4.2f" % ax39["hours"]} hours"
+            return "weekly:saturday #{ax39["hours"]} hours"
         end
         if ax39["type"] == "weekly-starting-on-Monday" then
-            return "weekly:monday #{"%4.2f" % ax39["hours"]} hours"
+            return "weekly:monday #{ax39["hours"]} hours"
+        end
+    end
+
+    # Ax39::toStringFormatted(ax39)
+    def self.toStringFormatted(ax39)
+        if ax39["type"] == "weekly-starting-on-Saturday" then
+            return "weekly:saturday #{"%5.2f" % ax39["hours"]} hours"
+        end
+        if ax39["type"] == "weekly-starting-on-Monday" then
+            return "weekly:monday   #{"%5.2f" % ax39["hours"]} hours"
         end
     end
 

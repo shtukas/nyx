@@ -97,19 +97,7 @@ class NxProjects
         datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
         dnsustr  = datetimeOpt ? ": (do not show until: #{datetimeOpt})" : ""
 
-        "(project) #{item["description"].ljust(descriptionPadding)} : #{Ax39::toString(item["ax39"]).ljust(18)}#{percentageStr}#{dnsustr}"
-    end
-
-    # NxProjects::toStringForListing(item)
-    def self.toStringForListing(item)
-        descriptionPadding = (XCache::getOrNull("NxProject-Description-Padding-DDBBF46A-2D56-4931-BE11-AF66F97F738E") || 28).to_i # the original value
-        percentage = 100 * Ax39::standardAx39CarrierOperationalRatio(item)
-        percentageStr = ": #{percentage.to_i.to_s.rjust(3)} %"
-
-        datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
-        dnsustr  = datetimeOpt ? ": (do not show until: #{datetimeOpt})" : ""
-
-        "(project) #{item["description"].ljust(descriptionPadding)} : #{Ax39::toString(item["ax39"]).ljust(18)}#{percentageStr}#{dnsustr}"
+        "(project) #{item["description"].ljust(descriptionPadding)} : #{Ax39::toStringFormatted(item["ax39"]).ljust(18)}#{percentageStr}#{dnsustr}"
     end
 
     # NxProjects::projectsForListing()

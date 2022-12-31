@@ -198,7 +198,7 @@ class PolyFunctions
     # PolyFunctions::toStringForCatalystListing(item)
     def self.toStringForCatalystListing(item)
         if item["mikuType"] == "NxProject" then
-            return NxProjects::toStringForListing(item)
+            return NxProjects::toStringWithDetailsFormatted(item)
         end
         PolyFunctions::toString(item)
     end

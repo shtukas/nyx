@@ -8,7 +8,7 @@ class CatalystListing
             "[listing interaction] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | destroy",
             "[makers] wave | anniversary | today | ondate | todo | project | manual countdown",
             "[nxballs] start (<n>) | stop <n> | pause <n> | pursue <n>",
-            "[divings] anniversaries | ondates | waves | groups | todos | float",
+            "[divings] anniversaries | ondates | waves | projects | todos | float",
             "[transmutations] >todo",
             "[misc] require internet",
             "[misc] search | speed | commands | lock (<n>)",
@@ -83,11 +83,6 @@ class CatalystListing
         if Interpreting::match("commands", input) then
             puts CatalystListing::listingCommands().yellow
             LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if Interpreting::match("groups", input) then
-            NxProjects::mainprobe()
             return
         end
 
@@ -175,11 +170,6 @@ class CatalystListing
         end
 
         if Interpreting::match("groups", input) then
-            TxFloats::interactivelyIssueOrNull()
-            return
-        end
-
-        if Interpreting::match("groups", input) then
             NxProjects::mainprobe()
             return
         end
@@ -228,6 +218,11 @@ class CatalystListing
 
         if Interpreting::match("project", input) then
             NxProjects::interactivelyIssueNewOrNull()
+            return
+        end
+
+        if Interpreting::match("projects", input) then
+            NxProjects::mainprobe()
             return
         end
 
