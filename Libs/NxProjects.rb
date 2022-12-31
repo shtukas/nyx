@@ -8,9 +8,11 @@ class NxProjects
 
     # NxProjects::items()
     def self.items()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxProject")
-            .select{|filepath| filepath[-5, 5] == ".json" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
+        items = LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxProject")
+                    .select{|filepath| filepath[-5, 5] == ".json" }
+                    .map{|filepath| JSON.parse(IO.read(filepath)) }
+        XCache::set("NxProject-Description-Padding-DDBBF46A-2D56-4931-BE11-AF66F97F738E", items.map{|item| item["description"].size }.max)
+        items
     end
 
     # NxProjects::commit(item)
