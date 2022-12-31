@@ -80,7 +80,7 @@ class NxProjects
     # NxProjects::toStringWithDetails(item)
     def self.toStringWithDetails(item)
         percentage = 100 * Ax39::standardAx39CarrierOperationalRatio(item)
-        percentageStr = ", #{percentage} %"
+        percentageStr = ", #{percentage.round(2)} %"
 
         datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
         dnsustr  = datetimeOpt ? ", (do not show until: #{datetimeOpt})" : ""
