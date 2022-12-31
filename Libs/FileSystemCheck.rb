@@ -256,6 +256,14 @@ class FileSystemCheck
             return
         end
 
+        if mikuType == "TxFloat" then
+            FileSystemCheck::ensureAttribute(item, "uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
+            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+            FileSystemCheck::ensureAttribute(item, "description", "String")
+            return
+        end
+
         if mikuType == "Wave" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
             FileSystemCheck::ensureAttribute(item, "mikuType", "String")

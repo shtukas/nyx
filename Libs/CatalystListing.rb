@@ -508,7 +508,7 @@ class CatalystListing
         vspaceleft = vspaceleft - 1
         if projects.size > 0 then
             projects.each{|project|
-                puts NxProjects::toStringWithDetailsFormatted(project)
+                puts NxProjects::toStringWithDetailsFormatted(project).yellow
                 vspaceleft = vspaceleft - 1
             }
         end
@@ -524,7 +524,7 @@ class CatalystListing
             vspaceleft = vspaceleft - 1
             floats.each{|float|
                     store.register(float, false)
-                    puts "#{store.prefixString()} #{TxFloats::toString(float)}".yellow
+                    puts "#{store.prefixString()} #{TxFloats::toString(float)}"
                     vspaceleft = vspaceleft - 1
                 }
             lockeds
@@ -536,8 +536,6 @@ class CatalystListing
                     project =  NxProjects::itemToProject(item)
                     projectStr = project ? " (#{NxProjects::toString(project)})" : ""
                     line = "#{store.prefixString()} #{PolyFunctions::toStringForCatalystListing(item)}#{projectStr.green}"
-                    
-                    line = line.yellow
 
                     nxball = NxBalls::getNxBallForItemOrNull(item)
                     if nxball then
