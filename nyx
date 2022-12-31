@@ -1,11 +1,4 @@
-#!/usr/bin/ruby
+#!/bin/zsh
 
-# encoding: UTF-8
-
-$RunNonEssentialThreads = false
-
-require_relative "Libs/loader.rb"
-
-# ----------------------------------------------------------------------------
-
-
+cd ~/Galaxy/Software/github.com/shtukas/stargate
+ruby bin/nyx.rb

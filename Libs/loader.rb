@@ -212,7 +212,7 @@ if $RunNonEssentialThreads then
         Thread.new {
             loop {
                 sleep 600
-                system("#{File.dirname(__FILE__)}/operations/vienna-import")
+                system("#{File.dirname(__FILE__)}/bin/vienna-import")
             }
         }
     end

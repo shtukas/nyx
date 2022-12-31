@@ -4,12 +4,8 @@
 
 $RunNonEssentialThreads = false
 
-require_relative "Libs/loader.rb"
+require_relative "../Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
-location1 = ARGV[0]
-location2 = ARGV[1]
-
-puts CommonUtils::firstDifferenceBetweenTwoLocations(location1, location2)
 

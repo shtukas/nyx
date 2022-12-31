@@ -168,7 +168,8 @@ class NxProjects
                 "uuid"        => uuid,
                 "mikuType"    => "Vx01",
                 "unixtime"    => project["unixtime"],
-                "description" => "Main Focus, non itemized, for '#{NxProjects::toString(project)}' (current ratio: #{ratio.round(2)}, until: 0.75)"
+                "description" => "Main Focus, non itemized, for '#{NxProjects::toString(project)}' (current ratio: #{ratio.round(2)}, until: 0.75)",
+                "projectId"   => project["uuid"]
             }
         }
 
