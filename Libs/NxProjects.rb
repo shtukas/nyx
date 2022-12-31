@@ -59,7 +59,7 @@ class NxProjects
             "isWork"      => false
         }
         FileSystemCheck::fsck_NxProject(item, true)
-        NxProjects::items()
+        NxProjects::commit(item)
         item
     end
 

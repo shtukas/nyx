@@ -137,102 +137,6 @@ class FileSystemCheck
         FileSystemCheck::ensureAttribute(item, "unitId", "String")
     end
 
-    # FileSystemCheck::fsck_NxGraphEdge1(item, verbose)
-    def self.fsck_NxGraphEdge1(item, verbose)
-
-        if verbose then
-            puts "FileSystemCheck::fsck_NxGraphEdge1(#{JSON.pretty_generate(item)}, #{verbose})"
-        end
-
-        if item["mikuType"].nil? then
-            raise "item has no Miku type"
-        end
-        if item["mikuType"] != "NxGraphEdge1" then
-            raise "Incorrect Miku type for function"
-        end
-        FileSystemCheck::ensureAttribute(item, "mikuType", "String")
-        FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-        FileSystemCheck::ensureAttribute(item, "datetime", "String")
-        FileSystemCheck::ensureAttribute(item, "uuid1", "String")
-        FileSystemCheck::ensureAttribute(item, "uuid2", "String")
-        FileSystemCheck::ensureAttribute(item, "type", "String")
-        if !["bidirectional", "arrow", "none"].include?(item["type"]) then
-            raise "incorrect value for type: #{item["type"]}"
-        end
-    end
-
-    # FileSystemCheck::fsck_GridState(item, verbose)
-    def self.fsck_GridState(item, verbose)
-
-        if verbose then
-            puts "FileSystemCheck::fsck_GridState( #{JSON.pretty_generate(item)}, #{verbose})"
-        end
-
-        if item["mikuType"].nil? then
-            raise "item has no Miku type"
-        end
-        if item["mikuType"] != "GridState" then
-            raise "Incorrect Miku type for function"
-        end
-
-        FileSystemCheck::ensureAttribute(item, "type", "String")
-
-        if !GridState::gridStateTypes().include?(item["type"]) then
-            raise "Incorrect type in #{JSON.pretty_generate(item)}"
-        end
-
-        if item["type"] == "null" then
-
-        end
-
-        if item["type"] == "text" then
-            FileSystemCheck::ensureAttribute(item, "text", "String")
-        end
-
-        if item["type"] == "url" then
-            FileSystemCheck::ensureAttribute(item, "url", "String")
-        end
-
-        if item["type"] == "file" then
-            if item["dottedExtension"].nil? then
-                 raise "dottedExtension is not defined on #{item}"
-            end
-            if item["nhash"].nil? then
-                 raise "nhash is not defined on #{item}"
-            end
-            if item["parts"].nil? then
-                 raise "parts is not defined on #{item}"
-            end
-            dottedExtension  = item["dottedExtension"]
-            nhash            = item["nhash"]
-            parts            = item["parts"]
-            status = PrimitiveFiles::fsckPrimitiveFileDataRaiseAtFirstError(dottedExtension, nhash, parts, verbose)
-            if !status then
-                puts JSON.pretty_generate(item)
-                raise "(error: 3e428541-805b-455e-b6a2-c400a6519aef) primitive file fsck failed"
-            end
-        end
-
-        if item["type"] == "NxDirectoryContents" then
-            item["rootnhashes"].each{|rootnhash|
-                FileSystemCheck::fsck_aion_point_rootnhash(rootnhash, verbose)
-            }
-        end
-
-        if item["type"] == "Dx8Unit" then
-            FileSystemCheck::ensureAttribute(item, "unitId", "String")
-            folder = Dx8Units::acquireUnitFolderPathOrNull(item["unitId"])
-            if folder.nil? then
-                raise "could not find Dx8Unit for state: #{JSON.pretty_generate(item)}"
-            end
-        end
-
-        if item["type"] == "unique-string" then
-            FileSystemCheck::ensureAttribute(item, "uniquestring", "String")
-            # TODO: Complete
-        end
-    end
-
     # FileSystemCheck::fsck_Nx3(item, verbose)
     def self.fsck_Nx3(item, verbose)
 
@@ -299,11 +203,6 @@ class FileSystemCheck
         if mikuType == "NxDoNotShowUntil" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-            return
-        end
-
-        if mikuType == "NxGraphEdge1" then
-            FileSystemCheck::fsck_NxGraphEdge1(item, verbose)
             return
         end
 
