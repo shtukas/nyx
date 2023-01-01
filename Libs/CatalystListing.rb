@@ -104,6 +104,7 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             PolyActions::done(item)
+            Ticks::emit()
             return
         end
 
@@ -112,6 +113,7 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::done(item)
+            Ticks::emit()
             return
         end
 
@@ -165,11 +167,6 @@ class CatalystListing
 
         if Interpreting::match("float", input) then
             TxFloats::interactivelyIssueOrNull()
-            return
-        end
-
-        if Interpreting::match("groups", input) then
-            NxProjects::mainprobe()
             return
         end
 
@@ -615,6 +612,8 @@ class CatalystListing
                     puts "Picked up from NxTodos-BufferIn: #{JSON.pretty_generate(item)}"
                     LucilleCore::removeFileSystemLocation(location)
                 }
+
+            Ticks::gc()
 
             CatalystListing::displayListing()
         }
