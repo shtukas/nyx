@@ -497,10 +497,11 @@ class CatalystListing
             listingItems.any?{|item| item["uuid"] == itemuuid }
         }
 
-        projects = NxProjects::projectsForListing()
-        puts ""
-        vspaceleft = vspaceleft - 1
+        projects1, projects2 = NxProjects::projectsForListing().partition{|project| project["isWork"] }
+        projects = projects1 + projects2
         if projects.size > 0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
             projects.each{|project|
                 puts NxProjects::toStringWithDetailsFormatted(project).yellow
                 vspaceleft = vspaceleft - 1
