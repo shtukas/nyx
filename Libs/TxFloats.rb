@@ -34,6 +34,7 @@ class TxFloats
         if File.exists?(filepath) then
             FileUtils.rm(filepath)
         end
+        Ticks::emit()
     end
 
     # --------------------------------------------------

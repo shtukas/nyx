@@ -104,7 +104,6 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             PolyActions::done(item)
-            Ticks::emit()
             return
         end
 
@@ -113,7 +112,6 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::done(item)
-            Ticks::emit()
             return
         end
 

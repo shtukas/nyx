@@ -232,7 +232,6 @@ class PolyActions
             return if option.nil?
             if option == "done" then
                 NxTriages::destroy(item["uuid"])
-                Ticks::emit()
             end
             if option == ">>" then
                 NxTodos::issueConsumingNxTriage(item)
@@ -252,7 +251,6 @@ class PolyActions
             if option == "done" then
                 NxOndates::destroy(item["uuid"])
                 NxBalls::close(nxball) if nxball
-                Ticks::emit()
             end
             if option == "redate" then
                 item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
@@ -273,7 +271,6 @@ class PolyActions
             if option == "done" then
                 NxTodos::destroy(item["uuid"])
                 NxBalls::close(nxball) if nxball
-                Ticks::emit()
             end
             if option == "stop" then
                 NxBalls::close(nxball) if nxball
