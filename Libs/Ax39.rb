@@ -64,48 +64,51 @@ class Ax39
         end
     end
 
-    # Ax39::operationalRatio(uuid, ax39, unrealisedTimespan = nil)
-    def self.operationalRatio(uuid, ax39, unrealisedTimespan = nil)
-        raise "(error: 92e23de4-61eb-4a07-a128-526e4be0e72a)" if ax39.nil?
-        return 1 if !DoNotShowUntil::isVisible(uuid)
+    # Ax39::operationalRatioOrNull(uuid, ax39, hasNxBall, unrealisedTimespan = nil)
+    def self.operationalRatioOrNull(uuid, ax39, hasNxBall, unrealisedTimespan = nil)
+        return nil if (!hasNxBall and !DoNotShowUntil::isVisible(uuid))
         if ax39["type"] == "weekly-starting-on-Saturday" then
 
-            return 1 if Time.new.wday == 5 # We ignore those on Friday
+            return nil if (!hasNxBall and Time.new.wday == 5) # We ignore those on Friday
 
-            dates                       = CommonUtils::datesSinceLastSaturday()
-            actualTimeDoneInSeconds     = Bank::combinedValueOnThoseDays(uuid, dates, unrealisedTimespan)
-            idealTimeDoneInSeconds      = ([dates.size, 5].min.to_f/5)*ax39["hours"]*3600
-            ratio1                      = actualTimeDoneInSeconds.to_f/idealTimeDoneInSeconds
+            dates                                 = CommonUtils::datesSinceLastSaturday()
+            actualTimeDoneInSecondsSinceInception = Bank::combinedValueOnThoseDays(uuid, dates, unrealisedTimespan)
+            idealTimeDoneInSecondsSinceInception  = (dates.size.to_f/5)*ax39["hours"]*3600
+            isUpToDate                            = (actualTimeDoneInSecondsSinceInception > idealTimeDoneInSecondsSinceInception)
 
-            todayTimeInSeconds          = Bank::valueAtDate(uuid, CommonUtils::today(), unrealisedTimespan)
-            boostedDayDueTimeInSeconds  = 1.2*(ax39["hours"]*3600).to_f/7 # We operate over 7 days
-            ratio2                      = todayTimeInSeconds.to_f/boostedDayDueTimeInSeconds
+            return nil if (!hasNxBall and isUpToDate)
 
-            return [ratio1, ratio2].max
+            todayTimeInSeconds    = Bank::valueAtDate(uuid, CommonUtils::today(), unrealisedTimespan)
+            todayDueTimeInSeconds = (ax39["hours"]*3600).to_f/5
+            ratio                 = todayTimeInSeconds.to_f/todayDueTimeInSeconds
+
+            return ratio
         end
         if ax39["type"] == "weekly-starting-on-Monday" then
 
-            return 1 if Time.new.wday == 6 # We ignore those on Saturday
+            return nil if (!hasNxBall and Time.new.wday == 6) # We ignore those on Saturday
 
-            dates                       = CommonUtils::datesSinceLastMonday()
-            actualTimeDoneInSeconds     = Bank::combinedValueOnThoseDays(uuid, dates, unrealisedTimespan)
-            idealTimeDoneInSeconds      = ([dates.size, 5].min.to_f/5)*ax39["hours"]*3600
-            ratio1                      = actualTimeDoneInSeconds.to_f/idealTimeDoneInSeconds
+            dates                                 = CommonUtils::datesSinceLastMonday()
+            actualTimeDoneInSecondsSinceInception = Bank::combinedValueOnThoseDays(uuid, dates, unrealisedTimespan)
+            idealTimeDoneInSecondsSinceInception  = (dates.size.to_f/5)*ax39["hours"]*3600
+            isUpToDate                            = (actualTimeDoneInSecondsSinceInception > idealTimeDoneInSecondsSinceInception)
 
-            todayTimeInSeconds          = Bank::valueAtDate(uuid, CommonUtils::today(), unrealisedTimespan)
-            boostedDayDueTimeInSeconds  = 1.2*(ax39["hours"]*3600).to_f/5 # We operate ideally over 5 days
-            ratio2                      = todayTimeInSeconds.to_f/boostedDayDueTimeInSeconds
+            return nil if (!hasNxBall and isUpToDate)
 
-            return [ratio1, ratio2].max
+            todayTimeInSeconds    = Bank::valueAtDate(uuid, CommonUtils::today(), unrealisedTimespan)
+            todayDueTimeInSeconds = (ax39["hours"]*3600).to_f/5
+            ratio                 = todayTimeInSeconds.to_f/todayDueTimeInSeconds
+
+            return ratio
         end
     end
 
-    # Ax39::standardAx39CarrierOperationalRatio(item)
-    def self.standardAx39CarrierOperationalRatio(item)
+    # Ax39::standardAx39CarrierOperationalRatioOrNull(item)
+    def self.standardAx39CarrierOperationalRatioOrNull(item)
         uuid = item["uuid"]
         ax39 = item["ax39"]
         nxball = NxBalls::getNxBallForItemOrNull(item)
         unrealisedTimespan = nxball ? (Time.new.to_f - nxball["unixtime"]) : nil
-        Ax39::operationalRatio(uuid, ax39, unrealisedTimespan)
+        Ax39::operationalRatioOrNull(uuid, ax39, !nxball.nil?, unrealisedTimespan)
     end
 end

@@ -382,8 +382,8 @@ class CatalystListing
                 "lambda" => lambda { NxOndates::listingItems() }
             },
             {
-                "name" => "NxProjects::listingItemsWork()",
-                "lambda" => lambda { NxProjects::listingItemsWork() }
+                "name" => "NxProjects::listingWorkItems()",
+                "lambda" => lambda { NxProjects::listingWorkItems() }
             },
             {
                 "name" => "NxTriages::items()",
@@ -394,8 +394,8 @@ class CatalystListing
                 "lambda" => lambda { TxManualCountDowns::listingItems() }
             },
             {
-                "name" => "NxProjects::listingItemsNonWork()",
-                "lambda" => lambda { NxProjects::listingItemsNonWork() }
+                "name" => "NxProjects::listingClassicProjects()",
+                "lambda" => lambda { NxProjects::listingClassicProjects() }
             },
             {
                 "name" => "Waves::listingItems(ns:time-important)",
@@ -461,10 +461,10 @@ class CatalystListing
             Waves::listingItems("ns:mandatory-today"),
             NxOndates::listingItems(),
             TxManualCountDowns::listingItems(),
-            NxProjects::listingItemsWork(),
+            NxProjects::listingWorkItems(),
             Waves::listingItems("ns:time-important"),
             NxTriages::items(),
-            NxProjects::listingItemsNonWork(),
+            NxProjects::listingClassicProjects(),
             Waves::listingItems("ns:beach")
         ]
             .flatten

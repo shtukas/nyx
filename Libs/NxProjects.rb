@@ -62,10 +62,11 @@ class NxProjects
     # ----------------------------------------------------------------
     # Data
 
-    # NxProjects::itemsOrdered()
-    def self.itemsOrdered()
+    # NxProjects::itemsWithNonNullRatioOrdered()
+    def self.itemsWithNonNullRatioOrdered()
         NxProjects::items()
-            .sort{|i1, i2| Ax39::standardAx39CarrierOperationalRatio(i1) <=> Ax39::standardAx39CarrierOperationalRatio(i2) }
+            .select{|item| !Ax39::standardAx39CarrierOperationalRatioOrNull(item).nil? }
+            .sort{|i1, i2| Ax39::standardAx39CarrierOperationalRatioOrNull(i1) <=> Ax39::standardAx39CarrierOperationalRatioOrNull(i2) }
     end
 
     # NxProjects::toString(item)
@@ -75,9 +76,14 @@ class NxProjects
 
     # NxProjects::toStringWithDetails(item)
     def self.toStringWithDetails(item)
-        percentage = 100 * Ax39::standardAx39CarrierOperationalRatio(item)
-        percentageStr = ", #{percentage.round(2)} %"
-
+        ratio = Ax39::standardAx39CarrierOperationalRatioOrNull(item)
+        percentageStr = 
+            if ratio then
+                percentage = 100 * ratio
+                percentageStr = ", #{percentage.round(2)} %"
+            else
+                ", ratio: null"
+            end
         datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
         dnsustr  = datetimeOpt ? ", (do not show until: #{datetimeOpt})" : ""
 
@@ -87,8 +93,15 @@ class NxProjects
     # NxProjects::toStringWithDetailsFormatted(item)
     def self.toStringWithDetailsFormatted(item)
         descriptionPadding = (XCache::getOrNull("NxProject-Description-Padding-DDBBF46A-2D56-4931-BE11-AF66F97F738E") || 28).to_i # the original value
-        percentage = 100 * Ax39::standardAx39CarrierOperationalRatio(item)
-        percentageStr = ", #{percentage.to_i.to_s.rjust(3)} %"
+        
+        ratio = Ax39::standardAx39CarrierOperationalRatioOrNull(item)
+        percentageStr = 
+            if ratio then
+                percentage = 100 * ratio
+                percentageStr = ", #{percentage.to_i.to_s.rjust(3)} %"
+            else
+                ", ratio: null"
+            end
 
         datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
         dnsustr  = datetimeOpt ? ", (do not show until: #{datetimeOpt})" : ""
@@ -103,11 +116,11 @@ class NxProjects
 
     # NxProjects::projectsForListing()
     def self.projectsForListing()
-        NxProjects::itemsOrdered()
+        NxProjects::itemsWithNonNullRatioOrdered()
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-            .select{|project| Ax39::standardAx39CarrierOperationalRatio(project) < 1 }
+            .select{|project| Ax39::standardAx39CarrierOperationalRatioOrNull(project) < 1 }
     end
 
     # NxProjects::firstNxTodoItemsForNxProject(projectId)
@@ -153,30 +166,30 @@ class NxProjects
         end
     end
 
-    # NxProjects::listingItemsWork()
-    def self.listingItemsWork()
+    # NxProjects::listingWorkItems()
+    def self.listingWorkItems()
         mainFocusItem = lambda{|project|
-            uuid = "Vx01-#{project["uuid"]}-MainFocus"
-            ratio = Ax39::standardAx39CarrierOperationalRatio(project)
+            uuid = "Vx01-MainFocus-#{project["uuid"]}"
+            ratio = Ax39::standardAx39CarrierOperationalRatioOrNull(project)
+            return nil if ratio.nil?
             shouldShow = ratio < 0.75
             return nil if !shouldShow
             {
                 "uuid"        => uuid,
                 "mikuType"    => "Vx01",
                 "unixtime"    => project["unixtime"],
-                "description" => "'#{NxProjects::toString(project)}' (Main Focus) (current ratio: #{ratio.round(2)}, until: 0.75)",
+                "description" => "Main Focus: '#{NxProjects::toString(project)}' (current ratio: #{ratio.round(2)}, until: 0.75)",
                 "projectId"   => project["uuid"]
             }
         }
-
         NxProjects::projectsForListing()
             .select{|project| project["isWork"] }
             .map{|project| [mainFocusItem.call(project)].compact + NxProjects::firstNxTodoItemsForNxProject(project["uuid"]) + [project]}
             .flatten
     end
 
-    # NxProjects::listingItemsNonWork()
-    def self.listingItemsNonWork()
+    # NxProjects::listingClassicProjects()
+    def self.listingClassicProjects()
         NxProjects::projectsForListing()
             .select{|project| !project["isWork"] }
             .map{|project| NxProjects::firstNxTodoItemsForNxProject(project["uuid"]) + [project]}
@@ -188,7 +201,7 @@ class NxProjects
 
     # NxProjects::interactivelySelectNxProjectOrNull()
     def self.interactivelySelectNxProjectOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("project", NxProjects::itemsOrdered(), lambda{|project| NxProjects::toStringWithDetailsFormatted(project)})
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("project", NxProjects::items(), lambda{|project| NxProjects::toStringWithDetailsFormatted(project)})
     end
 
     # NxProjects::interactivelySelectProject()
@@ -203,16 +216,13 @@ class NxProjects
     def self.probe(project)
         loop {
             puts NxProjects::toStringWithDetails(project)
-            actions = ["start", "display ratio", "add time", "do not show until", "set Ax39", "expose", "destroy"]
+            puts "ratio: #{Ax39::standardAx39CarrierOperationalRatioOrNull(project)}"
+            actions = ["start", "add time", "do not show until", "set Ax39", "expose", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "start" then
                 PolyActions::start(project)
                 return
-            end
-            if action == "display ratio" then
-                puts "Ax39 ratio: #{Ax39::standardAx39CarrierOperationalRatio(project)}"
-                LucilleCore::pressEnterToContinue()
             end
             if action == "add time" then
                 timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
