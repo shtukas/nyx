@@ -13,9 +13,9 @@ class Ticks
     def self.gc()
         LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Ticks")
             .select{|location| location[-5 ,5] == ".tick" }
-            .each{|location|
+            .each{|filepath|
                 if (Time.new.to_i - IO.read(filepath).to_i) > 86400*7 then
-                    FileUtils.rm(location)
+                    FileUtils.rm(filepath)
                 end
             }
     end
