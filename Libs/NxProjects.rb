@@ -73,20 +73,10 @@ class NxProjects
         "(project) #{item["description"]}"
     end
 
-    # NxProjects::toStringWithDetails(item)
-    def self.toStringWithDetails(item)
-        percentage = 100 * Ax39::standardAx39CarrierOperationalRatio(item)
-        percentageStr = ", #{percentage.round(2)} %"
-
-        datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
-        dnsustr  = datetimeOpt ? ", (do not show until: #{datetimeOpt})" : ""
-
-        "#{item["description"]}, #{Ax39::toString(item["ax39"])}#{percentageStr}#{dnsustr}"
-    end
-
     # NxProjects::toStringWithDetailsFormatted(item)
     def self.toStringWithDetailsFormatted(item)
-        descriptionPadding = (XCache::getOrNull("NxProject-Description-Padding-DDBBF46A-2D56-4931-BE11-AF66F97F738E") || 28).to_i # the original value
+        descriptionPadding = (XCache::getOrNull("NxProject-Description-Padding-DDBBF46A-2D56-4931-BE11-AF66F97F738E") || 0).to_i
+
         percentage = 100 * Ax39::standardAx39CarrierOperationalRatio(item)
         percentageStr = ", #{percentage.to_i.to_s.rjust(3)} %"
 
@@ -202,7 +192,7 @@ class NxProjects
     # NxProjects::probe(project)
     def self.probe(project)
         loop {
-            puts NxProjects::toStringWithDetails(project)
+            puts NxProjects::toStringWithDetailsFormatted(project)
             actions = ["start", "display ratio", "add time", "do not show until", "set Ax39", "expose", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
