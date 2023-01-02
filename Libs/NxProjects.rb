@@ -74,9 +74,14 @@ class NxProjects
         "(project) #{item["description"]}"
     end
 
-    # NxProjects::toStringWithDetails(item)
-    def self.toStringWithDetails(item)
-        descriptionPadding = (XCache::getOrNull("NxProject-Description-Padding-DDBBF46A-2D56-4931-BE11-AF66F97F738E") || 0).to_i
+    # NxProjects::toStringWithDetails(item, shouldFormat)
+    def self.toStringWithDetails(item, shouldFormat)
+        descriptionPadding = 
+        if shouldFormat then
+            (XCache::getOrNull("NxProject-Description-Padding-DDBBF46A-2D56-4931-BE11-AF66F97F738E") || 0).to_i
+        else
+            0
+        end
 
         data = Ax39::standardAx39CarrierData(item)
         dataStr = " (today: #{"%4.2f" % data["todayDoneHours"]} of #{"%4.2f" % data["todayDueHours"]} h, #{"%5.2f" % data["hoursSinceWeekStart"]} hss, #{data["shouldListing"] ? "🔥" : "✨"})"
@@ -84,7 +89,7 @@ class NxProjects
         datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
         dnsustr  = datetimeOpt ? ", (do not show until: #{datetimeOpt})" : ""
 
-        "(project) #{item["description"].ljust(descriptionPadding)} (#{Ax39::toStringFormatted(item["ax39"]).ljust(18)})#{dataStr}#{dnsustr}"
+        "(project) #{item["description"].ljust(descriptionPadding)} (#{Ax39::toStringFormatted(item["ax39"])})#{dataStr}#{dnsustr}"
     end
 
     # NxProjects::itemToProject(item)
@@ -185,7 +190,7 @@ class NxProjects
 
     # NxProjects::interactivelySelectNxProjectOrNull()
     def self.interactivelySelectNxProjectOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("project", NxProjects::items(), lambda{|project| NxProjects::toStringWithDetails(project)})
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("project", NxProjects::items(), lambda{|project| NxProjects::toStringWithDetails(project, true)})
     end
 
     # NxProjects::interactivelySelectProject()
@@ -199,7 +204,7 @@ class NxProjects
     # NxProjects::probe(project)
     def self.probe(project)
         loop {
-            puts NxProjects::toStringWithDetails(project)
+            puts NxProjects::toStringWithDetails(project, false)
             puts "data: #{Ax39::standardAx39CarrierData(project)}"
             actions = ["start", "add time", "do not show until", "set Ax39", "expose", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)

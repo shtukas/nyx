@@ -503,7 +503,7 @@ class CatalystListing
             puts ""
             vspaceleft = vspaceleft - 1
             projects.each{|project|
-                puts NxProjects::toStringWithDetails(project).yellow
+                puts NxProjects::toStringWithDetails(project, true).yellow
                 vspaceleft = vspaceleft - 1
             }
         end
