@@ -88,6 +88,7 @@ class Ax39
             "shouldListing"            => shouldListing,
             "sinceWeekStartHoursDone"  => actualTimeDoneInSecondsSinceInception.to_f/3600,
             "sinceWeekStartHoursIdeal" => idealTimeDoneInSecondsSinceInception.to_f/3600,
+            "isUpToDate"               => isUpToDate,
             "todayDoneHours"           => todayDoneTimeInSeconds.to_f/3600,
             "todayDueHours"            => todayDueTimeInSeconds.to_f/3600,
             "todayRatio"               => todayRatio
