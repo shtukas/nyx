@@ -85,11 +85,12 @@ class Ax39
         shouldListing = (hasNxBall or (!isUpToDate and todayRatio < 1.2))
 
         return {
-            "shouldListing"       => shouldListing,
-            "hoursSinceWeekStart" => actualTimeDoneInSecondsSinceInception.to_f/3600,
-            "todayDoneHours"      => todayDoneTimeInSeconds.to_f/3600,
-            "todayDueHours"       => todayDueTimeInSeconds.to_f/3600,
-            "todayRatio"          => todayRatio
+            "shouldListing"            => shouldListing,
+            "sinceWeekStartHoursDone"  => actualTimeDoneInSecondsSinceInception.to_f/3600,
+            "sinceWeekStartHoursIdeal" => idealTimeDoneInSecondsSinceInception.to_f/3600,
+            "todayDoneHours"           => todayDoneTimeInSeconds.to_f/3600,
+            "todayDueHours"            => todayDueTimeInSeconds.to_f/3600,
+            "todayRatio"               => todayRatio
         }
     end
 

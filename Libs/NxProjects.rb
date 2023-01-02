@@ -84,7 +84,7 @@ class NxProjects
         end
 
         data = Ax39::standardAx39CarrierData(item)
-        dataStr = " (today: #{"%4.2f" % data["todayDoneHours"]} of #{"%4.2f" % data["todayDueHours"]} h, #{"%5.2f" % data["hoursSinceWeekStart"]} hss, #{data["shouldListing"] ? "🔥" : "✨"})"
+        dataStr = " (today: #{"%4.2f" % data["todayDoneHours"]} of #{"%4.2f" % data["todayDueHours"]} h, #{"%5.2f" % data["sinceWeekStartHoursDone"]} hss, need: #{"%5.2f" %  data["sinceWeekStartHoursIdeal"]}, #{data["shouldListing"] ? "🔥" : "✨"})"
 
         datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
         dnsustr  = datetimeOpt ? ", (do not show until: #{datetimeOpt})" : ""
