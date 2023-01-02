@@ -9,7 +9,7 @@ class CatalystListing
             "[makers] wave | anniversary | today | ondate | todo | project | manual countdown",
             "[nxballs] start (<n>) | stop <n> | pause <n> | pursue <n>",
             "[divings] anniversaries | ondates | waves | projects | todos | float",
-            "[transmutations] >todo",
+            "[transmutations] >> (ondates and triages)",
             "[misc] require internet",
             "[misc] search | speed | commands | lock (<n>)",
         ].join("\n")
@@ -40,18 +40,17 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match(">todo", input) then
+        if Interpreting::match(">>", input) then
             item = store.getDefault()
             return if item.nil?
-
-            # We apply this to only to Triage items
-            if item["mikuType"] != "NxTriage" then
-                puts "The >todo command only applies to NxTriages"
-                LucilleCore::pressEnterToContinue()
+            if item["mikuType"] == "NxOndate" then
+                NxTodos::issueConsumingNxOndate(item)
                 return
             end
-
-            NxTriages::transmuteItemToNxTodo(item)
+            if item["mikuType"] == "NxTriage" then
+                NxTodos::issueConsumingNxTriage(item)
+                return
+            end
             return
         end
 
@@ -166,11 +165,6 @@ class CatalystListing
 
         if Interpreting::match("float", input) then
             TxFloats::interactivelyIssueOrNull()
-            return
-        end
-
-        if Interpreting::match("groups", input) then
-            NxProjects::mainprobe()
             return
         end
 
@@ -388,8 +382,8 @@ class CatalystListing
                 "lambda" => lambda { NxOndates::listingItems() }
             },
             {
-                "name" => "NxProjects::listingItemsWork()",
-                "lambda" => lambda { NxProjects::listingItemsWork() }
+                "name" => "NxProjects::listingWorkItems()",
+                "lambda" => lambda { NxProjects::listingWorkItems() }
             },
             {
                 "name" => "NxTriages::items()",
@@ -400,8 +394,8 @@ class CatalystListing
                 "lambda" => lambda { TxManualCountDowns::listingItems() }
             },
             {
-                "name" => "NxProjects::listingItemsNonWork()",
-                "lambda" => lambda { NxProjects::listingItemsNonWork() }
+                "name" => "NxProjects::listingClassicProjects()",
+                "lambda" => lambda { NxProjects::listingClassicProjects() }
             },
             {
                 "name" => "Waves::listingItems(ns:time-important)",
@@ -467,10 +461,10 @@ class CatalystListing
             Waves::listingItems("ns:mandatory-today"),
             NxOndates::listingItems(),
             TxManualCountDowns::listingItems(),
-            NxProjects::listingItemsWork(),
+            NxProjects::listingWorkItems(),
             Waves::listingItems("ns:time-important"),
             NxTriages::items(),
-            NxProjects::listingItemsNonWork(),
+            NxProjects::listingClassicProjects(),
             Waves::listingItems("ns:beach")
         ]
             .flatten
@@ -503,12 +497,13 @@ class CatalystListing
             listingItems.any?{|item| item["uuid"] == itemuuid }
         }
 
-        projects = NxProjects::projectsForListing()
-        puts ""
-        vspaceleft = vspaceleft - 1
+        projects1, projects2 = NxProjects::projectsForListing().partition{|project| project["isWork"] }
+        projects = projects1 + projects2
         if projects.size > 0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
             projects.each{|project|
-                puts NxProjects::toStringWithDetailsFormatted(project).yellow
+                puts NxProjects::toStringWithDetails(project).yellow
                 vspaceleft = vspaceleft - 1
             }
         end
@@ -616,6 +611,8 @@ class CatalystListing
                     puts "Picked up from NxTodos-BufferIn: #{JSON.pretty_generate(item)}"
                     LucilleCore::removeFileSystemLocation(location)
                 }
+
+            Ticks::gc()
 
             CatalystListing::displayListing()
         }

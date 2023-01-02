@@ -193,6 +193,7 @@ require_relative "SyncConflicts.rb"
 require_relative "TxManualCountDowns.rb"
 require_relative "The99Percent.rb"
 require_relative "TxFloats.rb"
+require_relative "Ticks.rb"
 
 require_relative "Waves.rb"
 

@@ -34,6 +34,7 @@ class NxTriages
         if File.exists?(filepath) then
             FileUtils.rm(filepath)
         end
+        Ticks::emit()
     end
 
     # --------------------------------------------------
@@ -107,10 +108,5 @@ class NxTriages
                 return
             end
         }
-    end
-
-    # NxTriages::transmuteItemToNxTodo(item)
-    def self.transmuteItemToNxTodo(item)
-        raise "not implemented yet"
     end
 end

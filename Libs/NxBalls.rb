@@ -92,6 +92,9 @@ class NxBalls
             Bank::put(account["number"], timespan)
         }
         NxBalls::destroy(nxball["uuid"])
+        (timespan/3600).to_i.times {
+            Ticks::emit()
+        }
     end
 
     # NxBalls::pause(nxball)

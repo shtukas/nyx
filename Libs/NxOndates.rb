@@ -34,6 +34,7 @@ class NxOndates
         if File.exists?(filepath) then
             FileUtils.rm(filepath)
         end
+        Ticks::emit()
     end
 
     # --------------------------------------------------
@@ -146,8 +147,7 @@ class NxOndates
                 next
             end
             if action == "convert to NxTodo" then
-                item2 = NxTodos::issueUsingNxOndate(item)
-                NxOndates::destroy(item["uuid"])
+                item2 = NxTodos::issueConsumingNxOndate(item)
                 return
             end
             if action == "redate" then

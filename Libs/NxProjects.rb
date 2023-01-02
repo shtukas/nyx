@@ -62,10 +62,11 @@ class NxProjects
     # ----------------------------------------------------------------
     # Data
 
-    # NxProjects::itemsOrdered()
-    def self.itemsOrdered()
+    # NxProjects::itemsWithNonNullRatioOrdered()
+    def self.itemsWithNonNullRatioOrdered()
         NxProjects::items()
-            .sort{|i1, i2| Ax39::standardAx39CarrierOperationalRatio(i1) <=> Ax39::standardAx39CarrierOperationalRatio(i2) }
+            .select{|item| !Ax39::standardAx39CarrierData(item).nil? }
+            .sort{|i1, i2| Ax39::standardAx39CarrierData(i1)["todayRatio"] <=> Ax39::standardAx39CarrierData(i2)["todayRatio"] }
     end
 
     # NxProjects::toString(item)
@@ -73,17 +74,17 @@ class NxProjects
         "(project) #{item["description"]}"
     end
 
-    # NxProjects::toStringWithDetailsFormatted(item)
-    def self.toStringWithDetailsFormatted(item)
+    # NxProjects::toStringWithDetails(item)
+    def self.toStringWithDetails(item)
         descriptionPadding = (XCache::getOrNull("NxProject-Description-Padding-DDBBF46A-2D56-4931-BE11-AF66F97F738E") || 0).to_i
 
-        percentage = 100 * Ax39::standardAx39CarrierOperationalRatio(item)
-        percentageStr = ", #{percentage.to_i.to_s.rjust(3)} %"
+        data = Ax39::standardAx39CarrierData(item)
+        dataStr = " (today: #{"%4.2f" % data["todayDoneHours"]} of #{"%4.2f" % data["todayDueHours"]} h, #{"%5.2f" % data["hoursSinceWeekStart"]} hss, #{data["shouldListing"] ? "🔥" : "✨"})"
 
         datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
         dnsustr  = datetimeOpt ? ", (do not show until: #{datetimeOpt})" : ""
 
-        "(project) #{item["description"].ljust(descriptionPadding)}, #{Ax39::toStringFormatted(item["ax39"]).ljust(18)}#{percentageStr}#{dnsustr}"
+        "(project) #{item["description"].ljust(descriptionPadding)} (#{Ax39::toStringFormatted(item["ax39"]).ljust(18)})#{dataStr}#{dnsustr}"
     end
 
     # NxProjects::itemToProject(item)
@@ -93,11 +94,11 @@ class NxProjects
 
     # NxProjects::projectsForListing()
     def self.projectsForListing()
-        NxProjects::itemsOrdered()
+        NxProjects::itemsWithNonNullRatioOrdered()
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-            .select{|project| Ax39::standardAx39CarrierOperationalRatio(project) < 1 }
+            .select{|project| Ax39::standardAx39CarrierData(project)["shouldListing"]}
     end
 
     # NxProjects::firstNxTodoItemsForNxProject(projectId)
@@ -123,7 +124,7 @@ class NxProjects
 
         issueNewFile = lambda {|filepath, projectId|
             items = NxTodos::itemsForNxProject(projectId)
-                        .sort{|i1, i2| i1["priority"] <=> i2["priority"] }
+                        .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
                         .first(10)
             uuids = items.map{|item| item["uuid"] }
             packet = {
@@ -143,33 +144,39 @@ class NxProjects
         end
     end
 
-    # NxProjects::listingItemsWork()
-    def self.listingItemsWork()
+    # NxProjects::listingWorkItems()
+    def self.listingWorkItems()
         mainFocusItem = lambda{|project|
-            uuid = "Vx01-#{project["uuid"]}-MainFocus"
-            ratio = Ax39::standardAx39CarrierOperationalRatio(project)
-            shouldShow = ratio < 0.75
-            return nil if !shouldShow
+            uuid = "Vx01-MainFocus-#{project["uuid"]}"
+            data = Ax39::standardAx39CarrierData(project)
+            return nil if data.nil?
+            return nil if data["todayRatio"] > 0.75
             {
                 "uuid"        => uuid,
                 "mikuType"    => "Vx01",
                 "unixtime"    => project["unixtime"],
-                "description" => "'#{NxProjects::toString(project)}' (Main Focus) (current ratio: #{ratio.round(2)}, until: 0.75)",
+                "description" => "Main Focus: '#{NxProjects::toString(project)}' (today ratio: #{data["todayRatio"].round(2)}, until: 0.75)",
                 "projectId"   => project["uuid"]
             }
         }
-
         NxProjects::projectsForListing()
             .select{|project| project["isWork"] }
-            .map{|project| [mainFocusItem.call(project)].compact + NxProjects::firstNxTodoItemsForNxProject(project["uuid"]) + [project]}
+            .map{|project| 
+                focus = mainFocusItem.call(project)
+                items = NxProjects::firstNxTodoItemsForNxProject(project["uuid"])
+                (focus ? [focus] : []) + items + ((focus.nil? and items.empty?) ? [project] : [])
+            }
             .flatten
     end
 
-    # NxProjects::listingItemsNonWork()
-    def self.listingItemsNonWork()
+    # NxProjects::listingClassicProjects()
+    def self.listingClassicProjects()
         NxProjects::projectsForListing()
             .select{|project| !project["isWork"] }
-            .map{|project| NxProjects::firstNxTodoItemsForNxProject(project["uuid"]) + [project]}
+            .map{|project| 
+                items = NxProjects::firstNxTodoItemsForNxProject(project["uuid"])
+                items + (items.empty? ? [project] : [])
+            }
             .flatten
     end
 
@@ -178,7 +185,7 @@ class NxProjects
 
     # NxProjects::interactivelySelectNxProjectOrNull()
     def self.interactivelySelectNxProjectOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("project", NxProjects::itemsOrdered(), lambda{|project| NxProjects::toStringWithDetailsFormatted(project)})
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("project", NxProjects::items(), lambda{|project| NxProjects::toStringWithDetails(project)})
     end
 
     # NxProjects::interactivelySelectProject()
@@ -192,17 +199,14 @@ class NxProjects
     # NxProjects::probe(project)
     def self.probe(project)
         loop {
-            puts NxProjects::toStringWithDetailsFormatted(project)
-            actions = ["start", "display ratio", "add time", "do not show until", "set Ax39", "expose", "destroy"]
+            puts NxProjects::toStringWithDetails(project)
+            puts "data: #{Ax39::standardAx39CarrierData(project)}"
+            actions = ["start", "add time", "do not show until", "set Ax39", "expose", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "start" then
                 PolyActions::start(project)
                 return
-            end
-            if action == "display ratio" then
-                puts "Ax39 ratio: #{Ax39::standardAx39CarrierOperationalRatio(project)}"
-                LucilleCore::pressEnterToContinue()
             end
             if action == "add time" then
                 timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f

@@ -220,7 +220,6 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
-            FileSystemCheck::ensureAttribute(item, "priority", "Number")
             FileSystemCheck::ensureAttribute(item, "projectId", "String")
             FileSystemCheck::fsck_Nx113(item["nx113"], verbose)
             return

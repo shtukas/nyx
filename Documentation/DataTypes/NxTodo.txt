@@ -8,4 +8,3 @@ NxTodo:
     "description" : String
     "projectId"   : String
     "nx113"       : null or Nx113
-    "priority"    : Integer
