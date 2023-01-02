@@ -184,7 +184,11 @@ class NxProjects
         }
         NxProjects::projectsForListing()
             .select{|project| project["isWork"] }
-            .map{|project| [mainFocusItem.call(project)].compact + NxProjects::firstNxTodoItemsForNxProject(project["uuid"]) + [project]}
+            .map{|project| 
+                focus = mainFocusItem.call(project)
+                items = NxProjects::firstNxTodoItemsForNxProject(project["uuid"])
+                (focus ? [focus] : []) + items + ((focus.nil? and items.empty?) ? [project] : [])
+            }
             .flatten
     end
 
@@ -192,7 +196,10 @@ class NxProjects
     def self.listingClassicProjects()
         NxProjects::projectsForListing()
             .select{|project| !project["isWork"] }
-            .map{|project| NxProjects::firstNxTodoItemsForNxProject(project["uuid"]) + [project]}
+            .map{|project| 
+                items = NxProjects::firstNxTodoItemsForNxProject(project["uuid"])
+                items + (items.empty? ? [project] : [])
+            }
             .flatten
     end
 
