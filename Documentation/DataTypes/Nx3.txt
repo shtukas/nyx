@@ -1,7 +1,0 @@
-Nx3 {
-    "mikuType"  => "Nx3"
-    "eventuuid" => String
-    "eventTime" => Float
-    "eventType" => String # This is like the attribute name
-    "payload"   => JsValue
-}

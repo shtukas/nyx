@@ -178,7 +178,7 @@ require_relative "NxTriages.rb"
 require_relative "NxOndates.rb"
 require_relative "NxBalls.rb"
 require_relative "NyxNetwork.rb"
-
+require_relative "NxNodes.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"

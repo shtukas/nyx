@@ -137,25 +137,24 @@ class FileSystemCheck
         FileSystemCheck::ensureAttribute(item, "unitId", "String")
     end
 
-    # FileSystemCheck::fsck_Nx3(item, verbose)
-    def self.fsck_Nx3(item, verbose)
+    # FileSystemCheck::fsck_NxNode(item, verbose)
+    def self.fsck_NxNode(item, verbose)
 
         if verbose then
-            puts "FileSystemCheck::fsck_Nx3(#{JSON.pretty_generate(item)}, #{verbose})"
+            puts "FileSystemCheck::fsck_NxNode(#{JSON.pretty_generate(item)}, #{verbose})"
         end
 
         if item["mikuType"].nil? then
             raise "item has no Miku type"
         end
-        if item["mikuType"] != "Nx3" then
+        if item["mikuType"] != "NxNode" then
             raise "Incorrect Miku type for function"
         end
 
-        FileSystemCheck::ensureAttribute(item, "eventuuid", "String")
-        FileSystemCheck::ensureAttribute(item, "eventTime", "Number")
-        FileSystemCheck::ensureAttribute(item, "eventType", "String")
-
-        #FileSystemCheck::ensureAttribute(item, "payload", nil) # We sometimes have null payload 
+        FileSystemCheck::ensureAttribute(item, "uuid", "String")
+        FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+        FileSystemCheck::ensureAttribute(item, "datetime", "String")
+        FileSystemCheck::ensureAttribute(item, "description", "String")
     end
 
     # -----------------------------------------------------
@@ -242,6 +241,11 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
             FileSystemCheck::fsck_Nx113(item["nx113"], verbose)
+            return
+        end
+
+        if mikuType == "NxNode" then
+            FileSystemCheck::fsck_NxNode(item, verbose)
             return
         end
 
