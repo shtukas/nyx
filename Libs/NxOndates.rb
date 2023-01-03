@@ -55,7 +55,7 @@ class NxOndates
             "description" => description,
             "nx113"       => nx113,
         }
-        NxOndates::destroy(item)
+        NxOndates::commit(item)
         item
     end
 
@@ -73,7 +73,7 @@ class NxOndates
             "description" => description,
             "nx113"       => nx113,
         }
-        NxOndates::destroy(item)
+        NxOndates::commit(item)
         item
     end
 
@@ -90,7 +90,7 @@ class NxOndates
             "description" => description,
             "nx113"       => nx113,
         }
-        NxOndates::destroy(item)
+        NxOndates::commit(item)
         item
     end
 
@@ -152,7 +152,7 @@ class NxOndates
             end
             if action == "redate" then
                 item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
-                NxOndates::destroy(item)
+                NxOndates::commit(item)
                 next
             end
             if action == "destroy" then
