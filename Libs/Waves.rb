@@ -198,8 +198,11 @@ class Waves
     # Waves::listingItems(priority)
     def self.listingItems(priority)
         Waves::items()
-            .select{|item| item["onlyOnDays"].nil? or item["onlyOnDays"].include?(CommonUtils::todayAsLowercaseEnglishWeekDayName()) }
-            .select{|item| (item["priority"] == priority) or (item["priority"] == "ns:mandatory-today" and  item["nx46"]["type"] == "sticky")}
+            .select{|item| 
+                b1 = (item["priority"] == priority) 
+                b2 = (item["onlyOnDays"].nil? or item["onlyOnDays"].include?(CommonUtils::todayAsLowercaseEnglishWeekDayName()))
+                b1 and b2
+            }
     end
 
     # -------------------------------------------------------------------------
