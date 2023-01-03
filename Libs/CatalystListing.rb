@@ -503,7 +503,14 @@ class CatalystListing
             puts ""
             vspaceleft = vspaceleft - 1
             projects.each{|project|
-                puts NxProjects::toStringWithDetails(project, true).yellow
+                store.register(project, false)
+                line = "#{store.prefixString()} #{NxProjects::toStringWithDetails(project, true)}"
+                if NxBalls::getNxBallForItemOrNull(project) then
+                    line = line.green
+                else
+                    line = line.yellow
+                end
+                puts line
                 vspaceleft = vspaceleft - 1
             }
         end
@@ -517,33 +524,26 @@ class CatalystListing
         if (floats.size+lockeds.size) > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
-            floats.each{|float|
-                    store.register(float, false)
-                    puts "#{store.prefixString()} #{TxFloats::toString(float)}"
-                    vspaceleft = vspaceleft - 1
-                }
-            lockeds
+            (floats+lockeds)
                 .each{|item|
-
                     break if vspaceleft <= 0
                     store.register(item, false)
-
                     project =  NxProjects::itemToProject(item)
                     projectStr = project ? " (#{NxProjects::toString(project)})" : ""
                     line = "#{store.prefixString()} #{PolyFunctions::toStringForCatalystListing(item)}#{projectStr.green}"
-
                     nxball = NxBalls::getNxBallForItemOrNull(item)
                     if nxball then
                         line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
+                    else
+                        line = line.yellow
                     end
-
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
         end
 
         nxballs = NxBalls::items()
-                    .select{|nxball| !nxballHasAnItemInThere.call(nxball, listingItems) }
+                    .select{|nxball| !nxballHasAnItemInThere.call(nxball, projects + floats + listingItems) }
         if nxballs.size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
