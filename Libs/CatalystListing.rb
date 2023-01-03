@@ -505,8 +505,8 @@ class CatalystListing
             projects.each{|project|
                 store.register(project, false)
                 line = "#{store.prefixString()} #{NxProjects::toStringWithDetails(project, true)}"
-                if NxBalls::getNxBallForItemOrNull(project) then
-                    line = line.green
+                if (nxball = NxBalls::getNxBallForItemOrNull(project)) then
+                    line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
                 else
                     line = line.yellow
                 end
