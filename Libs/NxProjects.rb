@@ -103,7 +103,7 @@ class NxProjects
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-            .select{|project| Ax39::standardAx39CarrierData(project)["shouldListing"]}
+            .select{|project| Ax39::standardAx39CarrierData(project)["shouldListing"] }
     end
 
     # NxProjects::firstNxTodoItemsForNxProject(projectId)
@@ -114,7 +114,7 @@ class NxProjects
             return nil if !File.exists?(filepath)
             packet = JSON.parse(IO.read(filepath))
             packet["uuids"]
-                .map{|uuid| NxTodos::getOrNull(projectId) }
+                .map{|uuid| NxTodos::getOrNull(uuid) }
                 .compact
         }
 
@@ -123,7 +123,7 @@ class NxProjects
             packet = JSON.parse(IO.read(filepath))
             return nil if (Time.new.to_i - packet["unixtime"]) > 3600
             packet["uuids"]
-                .map{|uuid| NxTodos::getOrNull(projectId) }
+                .map{|uuid| NxTodos::getOrNull(uuid) }
                 .compact
         }
 
