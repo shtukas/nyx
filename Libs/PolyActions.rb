@@ -174,6 +174,12 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "TxManualCountDown" then
+            puts "You cannot done a TxManualCountDown, you need to double dot it"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
         if item["mikuType"] == "Wave" then
             if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
                 NxBalls::closeNxBallForItemOrNothing(item)
