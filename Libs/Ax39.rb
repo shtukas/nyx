@@ -82,6 +82,9 @@ class Ax39
         todayDueTimeInSeconds  = (ax39["hours"]*3600).to_f/5
         todayRatio             = todayDoneTimeInSeconds.to_f/todayDueTimeInSeconds
 
+        missingTodayInSeconds  = todayDueTimeInSeconds - todayDoneTimeInSeconds
+        todayMissingInHoursOpt = (missingTodayInSeconds > 0) ? missingTodayInSeconds.to_f/3600 : nil
+
         shouldListing = (hasNxBall or (!isUpToDate and todayRatio < 1.2))
 
         return {
@@ -91,7 +94,8 @@ class Ax39
             "isUpToDate"               => isUpToDate,
             "todayDoneHours"           => todayDoneTimeInSeconds.to_f/3600,
             "todayDueHours"            => todayDueTimeInSeconds.to_f/3600,
-            "todayRatio"               => todayRatio
+            "todayRatio"               => todayRatio,
+            "todayMissingInHoursOpt"   => todayMissingInHoursOpt
         }
     end
 

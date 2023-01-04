@@ -515,6 +515,12 @@ class CatalystListing
             }
         end
 
+        todayMissingInHours = NxProjects::getTodayMissingInHours()
+        if todayMissingInHours > 0 then
+            puts "      (missing today in hours: #{todayMissingInHours.round(2)}, projected end: #{Time.at( Time.new.to_i + todayMissingInHours*3600 ).to_s})".yellow
+            vspaceleft = vspaceleft - 1
+        end
+
         floats = TxFloats::listingItems()
 
         listingItems = CatalystListing::listingItems()

@@ -185,6 +185,15 @@ class NxProjects
             .flatten
     end
 
+    # NxProjects::getTodayMissingInHours()
+    def self.getTodayMissingInHours()
+        NxProjects::projectsForListing()
+            .map{|project| Ax39::standardAx39CarrierData(project) }
+            .map{|data| data["todayMissingInHoursOpt"] }
+            .compact
+            .inject(0, :+)
+    end
+
     # --------------------------------------------
     # Ops
 
