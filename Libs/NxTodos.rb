@@ -10,10 +10,15 @@ class NxTodos
         "#{Config::pathToDataCenter()}/NxTodo"
     end
 
+    # NxTodos::filepath(uuid)
+    def self.filepath(uuid)
+        "#{NxTodos::repositoryFolderPath()}/#{uuid}.json"
+    end
+
     # NxTodos::commit(object)
     def self.commit(object)
         FileSystemCheck::fsck_MikuTypedItem(object, true)
-        filepath = "#{NxTodos::repositoryFolderPath()}/#{object["uuid"]}.json"
+        filepath = NxTodos::filepath(object["uuid"])
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(object)) }
     end
 
