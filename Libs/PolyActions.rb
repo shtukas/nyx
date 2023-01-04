@@ -138,6 +138,18 @@ class PolyActions
         if item["mikuType"] == "NxTodo" then
             puts PolyFunctions::toString(item)
             if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
+
+                # If the item didn't have a running ball, let's add 5 mins to the accounts
+                if NxBalls::getNxBallForItemOrNull(item).nil? then
+                    PolyFunctions::bankAccountsForItem(item).each{|account|
+                        #{
+                        #    "description"
+                        #    "number"
+                        #}
+                        Bank::put(account["number"], 300)
+                    }
+                end
+
                 if item["nx113"] then
                     puts "You are attempting to done a NxTodo which carries some contents (Nx113)"
                     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["destroy", "exit"])
