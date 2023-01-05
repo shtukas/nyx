@@ -40,6 +40,11 @@ class NxNodes
         end
     end
 
+    # NxNodes::dataDirectoryPath(uuid)
+    def self.dataDirectoryPath(uuid)
+        "#{Nyx::pathToNyx()}/Data/#{uuid}"
+    end
+
     # --------------------------------------
     # Makers
 
@@ -75,7 +80,7 @@ class NxNodes
 
     # NxNodes::accessNyxDirectory(uuid)
     def self.accessNyxDirectory(uuid)
-        folderpath = "#{Nyx::pathToNyx()}/Data/#{uuid}"
+        folderpath = NxNodes::dataDirectoryPath(uuid)
         if !File.exists?(folderpath) then
             FileUtils.mkdir(folderpath)
         end
@@ -85,8 +90,17 @@ class NxNodes
 
     # NxNodes::landing(item)
     def self.landing(item)
-        puts "landing on #{item}"
-        LucilleCore::pressEnterToContinue()
+        puts NxNodes::toString(item)
+        if File.exists?(NxNodes::dataDirectoryPath(uuid)) then
+            if LucilleCore::askQuestionAnswerAsBoolean("access data directory ? ") then
+                NxNodes::accessNyxDirectory(item["uuid"])
+            end
+        else
+            puts "data directory doesn't exist"
+            if LucilleCore::askQuestionAnswerAsBoolean("create and access data directory ? ") then
+                NxNodes::accessNyxDirectory(item["uuid"])
+            end
+        end
     end
 
 end
