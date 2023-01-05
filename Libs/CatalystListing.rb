@@ -275,7 +275,7 @@ class CatalystListing
         end
 
         if Interpreting::match("search", input) then
-            SearchCatalyst::catalyst()
+            SearchCatalyst::run()
             return
         end
 

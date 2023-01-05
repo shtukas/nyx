@@ -63,6 +63,14 @@ class NxNodes
     end
 
     # --------------------------------------
+    # Data
+
+    # NxNodes::toString(item)
+    def self.toString(item)
+        "(node) #{item["description"]}"
+    end
+
+    # --------------------------------------
     # Ops
 
     # NxNodes::accessNyxDirectory(uuid)
@@ -72,6 +80,12 @@ class NxNodes
             FileUtils.mkdir(folderpath)
         end
         system("open '#{folderpath}'")
+        LucilleCore::pressEnterToContinue()
+    end
+
+    # NxNodes::landing(item)
+    def self.landing(item)
+        puts "landing on #{item}"
         LucilleCore::pressEnterToContinue()
     end
 

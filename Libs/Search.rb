@@ -3,8 +3,8 @@
 
 class SearchCatalyst
 
-    # SearchCatalyst::catalystNx20s() # Array[Nx20]
-    def self.catalystNx20s()
+    # SearchCatalyst::nx20s() # Array[Nx20]
+    def self.nx20s()
         Catalyst::catalystItems()
             .map{|item|
                 {
@@ -15,13 +15,13 @@ class SearchCatalyst
             }
     end
 
-    # SearchCatalyst::catalyst()
-    def self.catalyst()
+    # SearchCatalyst::run()
+    def self.run()
         loop {
             system('clear')
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort) : ")
             break if fragment == ""
-            selected = SearchCatalyst::catalystNx20s()
+            selected = SearchCatalyst::nx20s()
                             .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
             if selected.empty? then
                 puts "Could not find a matching element for '#{fragment}'"
@@ -30,12 +30,53 @@ class SearchCatalyst
             end
             loop {
                 system('clear')
-                selected = SearchCatalyst::catalystNx20s()
+                selected = SearchCatalyst::nx20s()
                                 .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
                                 .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
                 nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", selected, lambda{|i| i["announce"] })
                 break if nx20.nil?
                 PolyActions::probe(nx20["item"])
+            }
+        }
+        nil
+    end
+end
+
+class SearchNyx
+
+    # SearchNyx::nx20s() # Array[Nx20]
+    def self.nx20s()
+        NxNodes::items()
+            .map{|item|
+                {
+                    "announce" => "(node) #{PolyFunctions::toStringForSearchListing(item)}",
+                    "unixtime" => item["unixtime"],
+                    "item"     => item
+                }
+            }
+    end
+
+    # SearchNyx::run()
+    def self.run()
+        loop {
+            system('clear')
+            fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort) : ")
+            break if fragment == ""
+            selected = SearchNyx::nx20s()
+                            .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
+            if selected.empty? then
+                puts "Could not find a matching element for '#{fragment}'"
+                LucilleCore::pressEnterToContinue()
+                next
+            end
+            loop {
+                system('clear')
+                selected = SearchNyx::nx20s()
+                                .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
+                                .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+                nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", selected, lambda{|i| i["announce"] })
+                break if nx20.nil?
+                NxNodes::landing(nx20["item"])
             }
         }
         nil

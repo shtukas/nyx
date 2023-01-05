@@ -182,6 +182,9 @@ class PolyFunctions
         if item["mikuType"] == "NxAnniversary" then
             return Anniversaries::toString(item)
         end
+        if item["mikuType"] == "NxNode" then
+            return NxNodes::toString(item)
+        end
         if item["mikuType"] == "NxOndate" then
             return NxOndates::toString(item)
         end
