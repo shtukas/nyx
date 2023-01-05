@@ -38,8 +38,8 @@ class NxNetwork
         end
     end
 
-    # NxNetwork::linkedUUIDs(uuid)
-    def self.linkedUUIDs(uuid)
+    # NxNetwork::linkeduuids(uuid)
+    def self.linkeduuids(uuid)
         dir = "#{Config::pathToNyx()}/Network/#{uuid}"
         return [] if !File.exists?(dir)
         LucilleCore::locationsAtFolder(dir)
