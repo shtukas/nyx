@@ -37,4 +37,12 @@ class NxNetwork
             FileUtils.rm(filepath2)
         end
     end
+
+    # NxNetwork::linkedUUIDs(uuid)
+    def self.linkedUUIDs(uuid)
+        dir = "#{Config::pathToNyx()}/Network/#{uuid}"
+        return [] if !File.exists?(dir)
+        LucilleCore::locationsAtFolder(dir)
+            .map{|filepath| File.basename(filepath).gsub(".link", "") }
+    end
 end
