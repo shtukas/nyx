@@ -45,4 +45,11 @@ class NxNetwork
         LucilleCore::locationsAtFolder(dir)
             .map{|filepath| File.basename(filepath).gsub(".link", "") }
     end
+
+    # NxNetwork::linkednodes(uuid)
+    def self.linkednodes(uuid)
+        NxNetwork::linkeduuids(uuid)
+            .map{|linkeduuid| NxNodes::getOrNull(linkeduuid) }
+            .compact
+    end
 end
