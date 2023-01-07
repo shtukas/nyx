@@ -84,7 +84,7 @@ class NxProjects
         end
 
         data = Ax39::standardAx39CarrierData(item)
-        dataStr = " (today: #{"%5.2f" % data["todayDoneHours"]} of #{"%4.2f" % data["todayDueHours"]} h, #{"%5.2f" % data["sinceWeekStartHoursDone"]} hss, need: #{"%5.2f" %  data["sinceWeekStartHoursIdeal"]}, #{data["isUpToDate"] ? "✨" :  "🔥"})"
+        dataStr = " (today: #{"%5.2f" % data["todayDoneInHours"]} of #{"%4.2f" % data["todayDueInHours"]} h, #{"%5.2f" % data["weekActualTimeDoneInHours"]} hss, need: #{"%5.2f" %  item["ax39"]["hours"]}, #{data["weekIsUpToDate"] ? "✨" :  "🔥"})"
 
         datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
         dnsustr  = datetimeOpt ? ", (do not show until: #{datetimeOpt})" : ""
@@ -189,7 +189,7 @@ class NxProjects
     def self.getTodayMissingInHours()
         NxProjects::projectsForListing()
             .map{|project| Ax39::standardAx39CarrierData(project) }
-            .map{|data| data["todayMissingInHoursOpt"] }
+            .map{|data| data["todayMissingTimeInHoursOpt"] }
             .compact
             .inject(0, :+)
     end
@@ -214,7 +214,7 @@ class NxProjects
     def self.probe(project)
         loop {
             puts NxProjects::toStringWithDetails(project, false)
-            puts "data: #{Ax39::standardAx39CarrierData(project)}"
+            puts "data: #{JSON.pretty_generate(Ax39::standardAx39CarrierData(project))}"
             actions = ["start", "add time", "do not show until", "set Ax39", "expose", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?

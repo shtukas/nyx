@@ -74,28 +74,29 @@ class Ax39
             dates = CommonUtils::datesSinceLastMonday()
         end
 
-        actualTimeDoneInSecondsSinceInception = Bank::combinedValueOnThoseDays(uuid, dates, unrealisedTimespan)
-        idealTimeDoneInSecondsSinceInception  = ([dates.size.to_f/5, 5].min)*ax39["hours"]*3600
-        isUpToDate                            = (actualTimeDoneInSecondsSinceInception > idealTimeDoneInSecondsSinceInception)
+        weekActualTimeDoneInSeconds  = Bank::combinedValueOnThoseDays(uuid, dates, unrealisedTimespan)
+        weekIdealTimeDoneInSeconds   = ([dates.size.to_f/5, 1].min)*ax39["hours"]*3600
+        weekIsUpToDate               = (weekActualTimeDoneInSeconds >= weekIdealTimeDoneInSeconds)
+        weekMissingTimeInSecondsOpt  = weekIsUpToDate ? nil : (weekIdealTimeDoneInSeconds-weekActualTimeDoneInSeconds)
 
-        todayDoneTimeInSeconds = Bank::valueAtDate(uuid, CommonUtils::today(), unrealisedTimespan)
-        todayDueTimeInSeconds  = (ax39["hours"]*3600).to_f/5
-        todayRatio             = todayDoneTimeInSeconds.to_f/todayDueTimeInSeconds
+        todayDoneTimeInSeconds       = Bank::valueAtDate(uuid, CommonUtils::today(), unrealisedTimespan)
+        todayDueTimeInSeconds        = (ax39["hours"]*3600).to_f/5
+        todayRatio                   = todayDoneTimeInSeconds.to_f/todayDueTimeInSeconds
+        todayMissingTimeInSecondsOpt = (todayRatio < 1) ? todayDueTimeInSeconds - todayDoneTimeInSeconds : nil
 
-        missingTodayInSeconds  = todayDueTimeInSeconds - todayDoneTimeInSeconds
-        todayMissingInHoursOpt = (missingTodayInSeconds > 0) ? missingTodayInSeconds.to_f/3600 : nil
-
-        shouldListing = (hasNxBall or (!isUpToDate and todayRatio < 1.2))
+        shouldListing = (hasNxBall or (!weekIsUpToDate and todayRatio < 1.2))
 
         return {
-            "shouldListing"            => shouldListing,
-            "sinceWeekStartHoursDone"  => actualTimeDoneInSecondsSinceInception.to_f/3600,
-            "sinceWeekStartHoursIdeal" => idealTimeDoneInSecondsSinceInception.to_f/3600,
-            "isUpToDate"               => isUpToDate,
-            "todayDoneHours"           => todayDoneTimeInSeconds.to_f/3600,
-            "todayDueHours"            => todayDueTimeInSeconds.to_f/3600,
-            "todayRatio"               => todayRatio,
-            "todayMissingInHoursOpt"   => todayMissingInHoursOpt
+            "dates"                       => dates,
+            "shouldListing"               => shouldListing,
+            "weekActualTimeDoneInHours"   => weekActualTimeDoneInSeconds.to_f/3600,
+            "weekIdealTimeDoneInHours"    => weekIdealTimeDoneInSeconds.to_f/3600,
+            "weekIsUpToDate"              => weekIsUpToDate,
+            "weekMissingTimeInHoursOpt"   => weekMissingTimeInSecondsOpt ? weekMissingTimeInSecondsOpt.to_f/3600 : nil,
+            "todayDoneInHours"            => todayDoneTimeInSeconds.to_f/3600,
+            "todayDueInHours"             => todayDueTimeInSeconds.to_f/3600,
+            "todayRatio"                  => todayRatio,
+            "todayMissingTimeInHoursOpt"  => todayMissingTimeInSecondsOpt ? todayMissingTimeInSecondsOpt.to_f/3600 : nil
         }
     end
 
