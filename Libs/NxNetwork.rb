@@ -4,6 +4,9 @@ class NxNetwork
 
     # NxNetwork::link(uuid1, uuid2)
     def self.link(uuid1, uuid2)
+        return if uuid1 == uuid2
+        return if NxNodes::getOrNull(uuid1).nil?
+        return if NxNodes::getOrNull(uuid2).nil?
         dir1 = "#{Config::pathToNyx()}/Network/#{uuid1}"
         if !File.exists?(dir1) then
             FileUtils::mkdir(dir1)

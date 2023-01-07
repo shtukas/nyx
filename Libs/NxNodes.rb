@@ -90,17 +90,50 @@ class NxNodes
 
     # NxNodes::landing(item)
     def self.landing(item)
-        puts NxNodes::toString(item)
-        if File.exists?(NxNodes::dataDirectoryPath(uuid)) then
-            if LucilleCore::askQuestionAnswerAsBoolean("access data directory ? ") then
+        loop {
+
+            system('clear')
+
+            puts NxNodes::toString(item)
+
+            linked = NxNetwork::linkednodes(item["uuid"])
+            linked.each{|linkednode|
+                puts "- #{PolyFunctions::toString(linkednode)}"
+            }
+
+            puts "commands: access | link"
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            break if command == ""
+
+            if command == "access" then
+                if !File.exists?(NxNodes::dataDirectoryPath(item["uuid"])) then
+                    puts "data directory doesn't exist"
+                    if LucilleCore::askQuestionAnswerAsBoolean("create and access data directory ? ") then
+                        NxNodes::accessNyxDirectory(item["uuid"])
+                    else
+                        next
+                    end
+                end
                 NxNodes::accessNyxDirectory(item["uuid"])
             end
-        else
-            puts "data directory doesn't exist"
-            if LucilleCore::askQuestionAnswerAsBoolean("create and access data directory ? ") then
-                NxNodes::accessNyxDirectory(item["uuid"])
+
+            if command == "link" then
+                node2 = NxNodes::interactivelySelectNodeOrNull()
+                if node2 then
+                    NxNetwork::link(item["uuid"], node2["uuid"])
+                end
             end
-        end
+
+        }
+    end
+
+    # NxNodes::interactivelySelectNodeOrNull()
+    def self.interactivelySelectNodeOrNull()
+        # This function is going to evolve as we get more nodes, but it's gonna do for the moment
+        items = NxNodes::items()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("nodes", items, lambda{|item| NxNodes::toString(item) })
     end
 
 end
