@@ -128,6 +128,7 @@ class NxProjects
         }
 
         issueNewFile = lambda {|filepath, projectId|
+            puts "> issuing new file for project: #{NxProjects::getOrNull(projectId)["description"]}"
             items = NxTodos::itemsForNxProject(projectId)
                         .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
                         .first(10)
