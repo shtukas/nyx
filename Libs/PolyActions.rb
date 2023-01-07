@@ -192,6 +192,12 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "Vx01" then
+            unixtime = CommonUtils::unixtimeAtComingMidnightAtGivenTimeZone(CommonUtils::getLocalTimeZone())
+            DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+            return
+        end
+
         if item["mikuType"] == "Wave" then
             if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
                 NxBalls::closeNxBallForItemOrNothing(item)
