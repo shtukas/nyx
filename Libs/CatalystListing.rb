@@ -483,6 +483,13 @@ class CatalystListing
         puts The99Percent::line()
         vspaceleft = vspaceleft - 2
 
+        count = XNyxMonotoring::countOrNull()
+        if count then
+            puts ""
+            puts "XNyxMonotoring::countOrNull(): #{count}"
+            vspaceleft = vspaceleft - 2
+        end
+
         store = ItemStore.new()
 
         if !InternetStatus::internetIsActive() then
