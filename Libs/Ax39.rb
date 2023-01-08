@@ -86,6 +86,10 @@ class Ax39
 
         shouldListing = (hasNxBall or (!weekIsUpToDate and todayRatio < 1.2))
 
+        if ax39["type"] == "weekly-starting-on-Monday" and Time.new.wday == 6 then
+            shouldListing = hasNxBall
+        end
+
         return {
             "dates"                       => dates,
             "shouldListing"               => shouldListing,
