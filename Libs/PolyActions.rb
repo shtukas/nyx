@@ -146,6 +146,7 @@ class PolyActions
                         #    "description"
                         #    "number"
                         #}
+                        puts "[bank] adding 300 seconds to account #{account["number"]}"
                         Bank::put(account["number"], 300)
                     }
                 end
@@ -189,6 +190,12 @@ class PolyActions
         if item["mikuType"] == "TxManualCountDown" then
             puts "You cannot done a TxManualCountDown, you need to double dot it"
             LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if item["mikuType"] == "Vx01" then
+            unixtime = CommonUtils::unixtimeAtComingMidnightAtGivenTimeZone(CommonUtils::getLocalTimeZone())
+            DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
             return
         end
 

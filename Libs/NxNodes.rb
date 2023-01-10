@@ -61,7 +61,7 @@ class NxNodes
             "description" => description,
         }
         NxNodes::commit(item)
-        if LucilleCore::askQuestionAnswerAsBoolean("> access directory ? ") then
+        if LucilleCore::askQuestionAnswerAsBoolean("> make and access directory ? ") then
             NxNodes::accessNyxDirectory(uuid)
         end
         item
@@ -90,17 +90,84 @@ class NxNodes
 
     # NxNodes::landing(item)
     def self.landing(item)
-        puts NxNodes::toString(item)
-        if File.exists?(NxNodes::dataDirectoryPath(uuid)) then
-            if LucilleCore::askQuestionAnswerAsBoolean("access data directory ? ") then
-                NxNodes::accessNyxDirectory(item["uuid"])
+        loop {
+
+            system('clear')
+
+            puts NxNodes::toString(item).green
+
+            store = ItemStore.new()
+
+            puts ""
+            linked = NxNetwork::linkednodes(item["uuid"])
+            linked.each{|linkednode|
+                store.register(linkednode, false)
+                puts "- #{store.prefixString()} #{PolyFunctions::toString(linkednode)}"
+            }
+
+            puts ""
+            puts "commands: access | link"
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            break if command == ""
+
+            if CommonUtils::isInteger(command) then
+                indx = command.to_i
+                linkednode = store.get(indx)
+                next if linkednode.nil?
+                NxNodes::landing(linkednode)
+                next
             end
-        else
-            puts "data directory doesn't exist"
-            if LucilleCore::askQuestionAnswerAsBoolean("create and access data directory ? ") then
+
+            if command == "access" then
+                if !File.exists?(NxNodes::dataDirectoryPath(item["uuid"])) then
+                    puts "data directory doesn't exist"
+                    if LucilleCore::askQuestionAnswerAsBoolean("create and access data directory ? ") then
+                        NxNodes::accessNyxDirectory(item["uuid"])
+                    else
+                        next
+                    end
+                end
                 NxNodes::accessNyxDirectory(item["uuid"])
+                next
             end
+
+            if command == "link" then
+                node2 = NxNodes::architectNodeOrNull()
+                if node2 then
+                    NxNetwork::link(item["uuid"], node2["uuid"])
+                    NxNodes::landing(node2)
+                end
+                next
+            end
+
+        }
+    end
+
+    # NxNodes::interactivelySelectNodeOrNull()
+    def self.interactivelySelectNodeOrNull()
+        # This function is going to evolve as we get more nodes, but it's gonna do for the moment
+        items = NxNodes::items()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("nodes", items, lambda{|item| NxNodes::toString(item) })
+    end
+
+    # NxNodes::architectNodeOrNull()
+    def self.architectNodeOrNull()
+        options = ["select || new", "new"]
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+        return nil if option.nil?
+        if option == "select || new" then
+            node = NxNodes::interactivelySelectNodeOrNull()
+            if node then
+                return node
+            end
+            return NxNodes::interactivelyIssueNewOrNull()
         end
+        if option == "new" then
+            return NxNodes::interactivelyIssueNewOrNull()
+        end
+        nil
     end
 
 end
