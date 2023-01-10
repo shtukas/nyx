@@ -129,7 +129,7 @@ class NxProjects
 
         issueNewFile = lambda {|filepath, projectId|
             items = NxTodos::itemsForNxProject(projectId)
-                        .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+                        .sort{|i1, i2| i1["projectposition"] <=> i2["projectposition"] }
                         .first(10)
             uuids = items.map{|item| item["uuid"] }
             packet = {
@@ -149,8 +149,8 @@ class NxProjects
         end
     end
 
-    # NxProjects::listingWorkItems()
-    def self.listingWorkItems()
+    # NxProjects::listingWorkProjects()
+    def self.listingWorkProjects()
         mainFocusItem = lambda{|project|
             uuid = "Vx01-MainFocus-#{project["uuid"]}"
             data = Ax39::standardAx39CarrierData(project)
@@ -194,6 +194,11 @@ class NxProjects
             .inject(0, :+)
     end
 
+    # NxProjects::nextPositionForProject(projectId)
+    def self.nextPositionForProject(projectId)
+        ([0] + NxTodos::itemsForNxProject(projectId).map{|todo| todo["projectposition"] }).max + 1
+    end
+
     # --------------------------------------------
     # Ops
 
@@ -210,12 +215,29 @@ class NxProjects
         }
     end
 
+    # NxProjects::presentProjectItems(project)
+    def self.presentProjectItems(project)
+        items = NxTodos::itemsForNxProject(project["uuid"])
+        loop {
+            system("clear")
+            puts ""
+            items
+                .first(CommonUtils::screenHeight() - 4)
+                .each{|item|
+                    puts "- (#{"%7.3f" % item["projectposition"]}) #{NxTodos::toString(item)}"
+                }
+            puts ""
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+            break if command == ""
+        }
+    end
+
     # NxProjects::probe(project)
     def self.probe(project)
         loop {
             puts NxProjects::toStringWithDetails(project, false)
             puts "data: #{Ax39::standardAx39CarrierData(project)}"
-            actions = ["start", "add time", "do not show until", "set Ax39", "expose", "destroy"]
+            actions = ["start", "add time", "do not show until", "set Ax39", "expose", "present items", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "start" then
@@ -241,6 +263,9 @@ class NxProjects
                 puts JSON.pretty_generate(project)
                 LucilleCore::pressEnterToContinue()
             end
+            if action == "present items" then
+                NxProjects::presentProjectItems(project)
+            end
             if action == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy NxProject '#{NxProjects::toString(project)}' ? ") then
                     filepath = "#{Config::pathToDataCenter()}/NxProject/#{project["uuid"]}.json"
@@ -259,5 +284,21 @@ class NxProjects
             return if project.nil?
             NxProjects::probe(project)
         }
+    end
+
+    # NxProjects::interactivelyDecideProjectPosition(projectId)
+    def self.interactivelyDecideProjectPosition(projectId)
+        NxTodos::itemsForNxProject(projectId)
+            .sort{|i1, i2| i1["projectposition"] <=> i2["projectposition"] }
+            .first(CommonUtils::screenHeight() - 2)
+            .each{|item|
+                puts "- (#{"%7.3f" % item["projectposition"]}) #{NxTodos::toString(item)}"
+            }
+        position = LucilleCore::askQuestionAnswerAsString("position (default to next): ")
+        if position then
+            position.to_f
+        else
+            NxProjects::nextPositionForProject(projectId)
+        end
     end
 end

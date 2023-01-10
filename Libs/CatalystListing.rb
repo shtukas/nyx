@@ -382,8 +382,8 @@ class CatalystListing
                 "lambda" => lambda { NxOndates::listingItems() }
             },
             {
-                "name" => "NxProjects::listingWorkItems()",
-                "lambda" => lambda { NxProjects::listingWorkItems() }
+                "name" => "NxProjects::listingWorkProjects()",
+                "lambda" => lambda { NxProjects::listingWorkProjects() }
             },
             {
                 "name" => "NxTriages::items()",
@@ -461,7 +461,7 @@ class CatalystListing
             Waves::listingItems("ns:mandatory-today"),
             NxOndates::listingItems(),
             TxManualCountDowns::listingItems(),
-            NxProjects::listingWorkItems(),
+            NxProjects::listingWorkProjects(),
             Waves::listingItems("ns:time-important"),
             NxTriages::items(),
             NxProjects::listingClassicProjects(),
