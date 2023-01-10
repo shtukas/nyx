@@ -146,6 +146,7 @@ class PolyActions
                         #    "description"
                         #    "number"
                         #}
+                        puts "[bank] adding 300 seconds to account #{account["number"]}"
                         Bank::put(account["number"], 300)
                     }
                 end
