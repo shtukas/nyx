@@ -8,7 +8,7 @@ class CatalystListing
             "[listing interaction] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | destroy",
             "[makers] wave | anniversary | today | ondate | todo | project | manual countdown",
             "[nxballs] start (<n>) | stop <n> | pause <n> | pursue <n>",
-            "[divings] anniversaries | ondates | waves | projects | todos | float",
+            "[divings] anniversaries | ondates | waves | projects | todos | float | limited-emptier",
             "[transmutations] >> (ondates and triages)",
             "[misc] require internet",
             "[misc] search | speed | commands | lock (<n>)",
@@ -175,6 +175,11 @@ class CatalystListing
 
         if Interpreting::match("internet on", input) then
             InternetStatus::setInternetOn()
+            return
+        end
+
+        if Interpreting::match("limited-emptier", input) then
+            NxLimitedEmptiers::interactivelyIssueNewOrNull()
             return
         end
 
@@ -462,6 +467,7 @@ class CatalystListing
             NxOndates::listingItems(),
             TxManualCountDowns::listingItems(),
             NxProjects::listingWorkProjects(),
+            NxLimitedEmptiers::listingItems(),
             Waves::listingItems("ns:time-important"),
             NxTriages::items(),
             NxProjects::listingClassicProjects(),

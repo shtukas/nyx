@@ -25,6 +25,10 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NxLimitedEmptier" then
+            return
+        end
+
         if item["mikuType"] == "NxTodo" then
             NxTodos::access(item)
             return
@@ -119,6 +123,13 @@ class PolyActions
 
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::done(item["uuid"])
+            return
+        end
+
+        if item["mikuType"] == "NxLimitedEmptier" then
+            NxBalls::closeNxBallForItemOrNothing(item)
+            item["lastDoneDate"] = CommonUtils::today()
+            NxLimitedEmptiers::commit(item)
             return
         end
 

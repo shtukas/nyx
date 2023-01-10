@@ -81,6 +81,13 @@ class NxBalls
             .first
     end
 
+    # NxBalls::unrealisedTimespanForItemOrNull(item)
+    def self.unrealisedTimespanForItemOrNull(item)
+        nxball = NxBalls::getNxBallForItemOrNull(item)
+        return nil if nxball.nil?
+        Time.new.to_f - nxball["unixtime"]
+    end
+
     # --------------------------------------------------
     # Operations
 

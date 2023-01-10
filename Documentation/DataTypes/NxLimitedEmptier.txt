@@ -1,0 +1,10 @@
+
+NxLimitedEmptier:
+
+    "uuid"         : String
+    "mikuType"     : "NxLimitedEmptier"
+    "unixtime"     : Float
+    "datetime"     : DateTime Iso 8601 UTC Zulu
+    "description"  : String
+    "hours"        : String
+    "lastDoneDate" : null or Date
