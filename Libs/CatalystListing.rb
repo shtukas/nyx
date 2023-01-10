@@ -510,7 +510,7 @@ class CatalystListing
             vspaceleft = vspaceleft - 1
             projects.each{|project|
                 store.register(project, false)
-                line = "#{store.prefixString()} #{NxProjects::toStringWithDetails(project, true)}"
+                line = "(#{store.prefixString()}) #{NxProjects::toStringWithDetails(project, true)}"
                 if (nxball = NxBalls::getNxBallForItemOrNull(project)) then
                     line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
                 else
@@ -542,7 +542,7 @@ class CatalystListing
                     store.register(item, false)
                     project =  NxProjects::itemToProject(item)
                     projectStr = project ? " (#{NxProjects::toString(project)})" : ""
-                    line = "#{store.prefixString()} #{PolyFunctions::toStringForCatalystListing(item)}#{projectStr.green}"
+                    line = "(#{store.prefixString()}) #{PolyFunctions::toStringForCatalystListing(item)}#{projectStr.green}"
                     nxball = NxBalls::getNxBallForItemOrNull(item)
                     if nxball then
                         line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
@@ -562,7 +562,7 @@ class CatalystListing
             nxballs
                 .each{|nxball|
                     store.register(nxball, false)
-                    puts "#{store.prefixString()} #{NxBalls::toString(nxball)}".green
+                    puts "(#{store.prefixString()}) #{NxBalls::toString(nxball)}".green
                     vspaceleft = vspaceleft - 1
                 }
         end
@@ -580,7 +580,7 @@ class CatalystListing
 
                 project =  project =  NxProjects::itemToProject(item)
                 projectStr = project ? " (NxProject: #{project["description"]})" : ""
-                line = "#{store.prefixString()} #{PolyFunctions::toStringForCatalystListing(item)}#{projectStr.green}"
+                line = "(#{store.prefixString()}) #{PolyFunctions::toStringForCatalystListing(item)}#{projectStr.green}"
 
                 nxball = NxBalls::getNxBallForItemOrNull(item)
                 if nxball then

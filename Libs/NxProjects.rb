@@ -219,17 +219,31 @@ class NxProjects
     # NxProjects::presentProjectItems(project)
     def self.presentProjectItems(project)
         items = NxTodos::itemsForNxProject(project["uuid"])
+                    .sort{|i1, i2| i1["projectposition"] <=> i2["projectposition"] }
         loop {
             system("clear")
+            store = ItemStore.new()
             puts ""
             items
                 .first(CommonUtils::screenHeight() - 4)
                 .each{|item|
-                    puts "- (#{"%7.3f" % item["projectposition"]}) #{NxTodos::toString(item)}"
+                    store.register(item, false)
+                    puts "- (#{store.prefixString().to_s.rjust(2)}, #{"%7.3f" % item["projectposition"]}) #{NxTodos::toString(item)}"
                 }
             puts ""
+            puts "set position <index> <position>"
             command = LucilleCore::askQuestionAnswerAsString("> ")
             break if command == ""
+            if command.start_with?("set position") then
+                command == command.strip[12, command.size]
+                elements = command.split(" ")
+                indx = elements[0].to_i
+                position = elements[1].to_f
+                item = store.get(indx)
+                next if item.nil?
+                item["projectposition"] = position
+                NxTodos::commit(item)
+            end
         }
     end
 
@@ -238,7 +252,7 @@ class NxProjects
         loop {
             puts NxProjects::toStringWithDetails(project, false)
             puts "data: #{Ax39::standardAx39CarrierData(project)}"
-            actions = ["start", "add time", "do not show until", "set Ax39", "expose", "present items", "destroy"]
+            actions = ["start", "add time", "do not show until", "set Ax39", "expose", "items dive", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "start" then
@@ -264,7 +278,7 @@ class NxProjects
                 puts JSON.pretty_generate(project)
                 LucilleCore::pressEnterToContinue()
             end
-            if action == "present items" then
+            if action == "items dive" then
                 NxProjects::presentProjectItems(project)
             end
             if action == "destroy" then

@@ -102,7 +102,7 @@ class NxNodes
             linked = NxNetwork::linkednodes(item["uuid"])
             linked.each{|linkednode|
                 store.register(linkednode, false)
-                puts "- #{store.prefixString()} #{PolyFunctions::toString(linkednode)}"
+                puts "- (#{store.prefixString()}) #{PolyFunctions::toString(linkednode)}"
             }
 
             puts ""
