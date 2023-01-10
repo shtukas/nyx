@@ -180,7 +180,6 @@ require_relative "NxOndates.rb"
 require_relative "NxBalls.rb"
 require_relative "NxNetwork.rb"
 require_relative "NxNodes.rb"
-require_relative "XNyxMonotoring.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"
