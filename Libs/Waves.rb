@@ -258,8 +258,9 @@ class Waves
     # Waves::probe(item)
     def self.probe(item)
         loop {
+            item = Waves::getOrNull(item["uuid"])
             puts Waves::toString(item)
-            actions = ["access", "update description", "perform done", "set days of the week", "destroy"]
+            actions = ["access", "update description", "update wave pattern", "perform done", "set days of the week", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "access" then
@@ -268,6 +269,11 @@ class Waves
             if action == "update description" then
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
                 item["description"] = description
+                Waves::commit(item)
+                next
+            end
+            if action == "update wave pattern" then
+                item["nx46"] = Waves::makeNx46InteractivelyOrNull()
                 Waves::commit(item)
                 next
             end
