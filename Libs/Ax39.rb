@@ -86,6 +86,10 @@ class Ax39
 
         shouldListing = (hasNxBall or (!weekIsUpToDate and todayRatio < 1.2))
 
+        if ax39["type"] == "weekly-starting-on-Monday" and Time.new.wday == 6 then
+            shouldListing = hasNxBall
+        end
+
         return {
             "dates"                       => dates,
             "shouldListing"               => shouldListing,
@@ -104,8 +108,7 @@ class Ax39
     def self.standardAx39CarrierData(item)
         uuid = item["uuid"]
         ax39 = item["ax39"]
-        nxball = NxBalls::getNxBallForItemOrNull(item)
-        unrealisedTimespan = nxball ? (Time.new.to_f - nxball["unixtime"]) : nil
-        Ax39::data(uuid, ax39, !nxball.nil?, unrealisedTimespan)
+        hasNxBall = NxBalls::getNxBallForItemOrNull(item)
+        Ax39::data(uuid, ax39, hasNxBall, NxBalls::unrealisedTimespanForItemOrNull(item))
     end
 end

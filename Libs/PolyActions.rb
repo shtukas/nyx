@@ -25,6 +25,10 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NxLimitedEmptier" then
+            return
+        end
+
         if item["mikuType"] == "NxTodo" then
             NxTodos::access(item)
             return
@@ -122,6 +126,15 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NxLimitedEmptier" then
+            if LucilleCore::askQuestionAnswerAsBoolean("Do you want to done limited emptier '#{NxLimitedEmptiers::toString(item)}' for today ?") then
+                NxBalls::closeNxBallForItemOrNothing(item)
+                item["lastDoneDate"] = CommonUtils::today()
+                NxLimitedEmptiers::commit(item)
+            end
+            return
+        end
+
         if item["mikuType"] == "NxBall" then
             NxBalls::close(item)
             return
@@ -146,6 +159,7 @@ class PolyActions
                         #    "description"
                         #    "number"
                         #}
+                        puts "[bank] adding 300 seconds to account #{account["number"]}"
                         Bank::put(account["number"], 300)
                     }
                 end
@@ -189,6 +203,12 @@ class PolyActions
         if item["mikuType"] == "TxManualCountDown" then
             puts "You cannot done a TxManualCountDown, you need to double dot it"
             LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if item["mikuType"] == "Vx01" then
+            unixtime = CommonUtils::unixtimeAtComingMidnightAtGivenTimeZone(CommonUtils::getLocalTimeZone())
+            DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
             return
         end
 

@@ -64,9 +64,10 @@ class NxTodos
     def self.interactivelyIssueNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-        uuid  = CommonUtils::timeStringL22() # We want the items to come in time order, ideally
+        uuid  = CommonUtils::timeStringL22()
         nx113 = Nx113Make::interactivelyMakeNx113OrNull()
         projectId = NxProjects::interactivelySelectProject()["uuid"]
+        projectposition = NxProjects::interactivelyDecideProjectPosition(projectId)
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
@@ -74,7 +75,8 @@ class NxTodos
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
             "nx113"       => nx113,
-            "projectId"   => projectId
+            "projectId"       => projectId,
+            "projectposition" => projectposition
         }
         NxTodos::commit(item)
         item
@@ -83,9 +85,12 @@ class NxTodos
     # NxTodos::issueConsumingNxOndate(nxondate)
     def self.issueConsumingNxOndate(nxondate)
         item = nxondate.clone
+        project = NxProjects::interactivelySelectProject()
+        projectposition = NxProjects::nextPositionForProject(project["uuid"])
         item["uuid"] = CommonUtils::timeStringL22()
         item["mikuType"] = "NxTodo"
-        item["projectId"] = NxProjects::interactivelySelectProject()["uuid"]
+        item["projectId"] = project["uuid"]
+        item["projectposition"] = projectposition
         NxTodos::commit(item)
         NxOndates::destroy(nxondate["uuid"])
         item
@@ -94,9 +99,12 @@ class NxTodos
     # NxTodos::issueConsumingNxTriage(nxtriage)
     def self.issueConsumingNxTriage(nxtriage)
         item = nxtriage.clone
+        project = NxProjects::interactivelySelectProject()
+        projectposition = NxProjects::nextPositionForProject(project["uuid"])
         item["uuid"] = CommonUtils::timeStringL22()
         item["mikuType"] = "NxTodo"
-        item["projectId"] = NxProjects::interactivelySelectProject()["uuid"]
+        item["projectId"] = project["uuid"]
+        item["projectposition"] = projectposition
         NxTodos::commit(item)
         NxTriages::destroy(nxtriage["uuid"])
         item

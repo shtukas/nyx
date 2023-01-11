@@ -141,6 +141,9 @@ class PolyFunctions
         if item["mikuType"] == "NxIced" then
             return item["description"]
         end
+        if item["mikuType"] == "NxLimitedEmptier" then
+            return item["description"]
+        end
         if item["mikuType"] == "NxOndate" then
             return item["description"]
         end
@@ -187,6 +190,9 @@ class PolyFunctions
         end
         if item["mikuType"] == "NxOndate" then
             return NxOndates::toString(item)
+        end
+        if item["mikuType"] == "NxLimitedEmptier" then
+            return NxLimitedEmptiers::toString(item)
         end
         if item["mikuType"] == "NxTodo" then
             return NxTodos::toString(item)

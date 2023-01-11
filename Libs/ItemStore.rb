@@ -23,7 +23,7 @@ class ItemStore
 
     def prefixString()
         indx = @items.size-1
-        latestEnteredItemIsDefault() ? "(-->)".green : "(#{"%3d" % indx})"
+        latestEnteredItemIsDefault() ? "-->".green : "#{"%3d" % indx}"
     end
 
     def get(indx)

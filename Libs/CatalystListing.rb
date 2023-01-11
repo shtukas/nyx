@@ -8,7 +8,7 @@ class CatalystListing
             "[listing interaction] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | destroy",
             "[makers] wave | anniversary | today | ondate | todo | project | manual countdown",
             "[nxballs] start (<n>) | stop <n> | pause <n> | pursue <n>",
-            "[divings] anniversaries | ondates | waves | projects | todos | float",
+            "[divings] anniversaries | ondates | waves | projects | todos | float | limited-emptier",
             "[transmutations] >> (ondates and triages)",
             "[misc] require internet",
             "[misc] search | speed | commands | lock (<n>)",
@@ -175,6 +175,11 @@ class CatalystListing
 
         if Interpreting::match("internet on", input) then
             InternetStatus::setInternetOn()
+            return
+        end
+
+        if Interpreting::match("limited-emptier", input) then
+            NxLimitedEmptiers::interactivelyIssueNewOrNull()
             return
         end
 
@@ -382,8 +387,8 @@ class CatalystListing
                 "lambda" => lambda { NxOndates::listingItems() }
             },
             {
-                "name" => "NxProjects::listingWorkItems()",
-                "lambda" => lambda { NxProjects::listingWorkItems() }
+                "name" => "NxProjects::listingWorkProjects()",
+                "lambda" => lambda { NxProjects::listingWorkProjects() }
             },
             {
                 "name" => "NxTriages::items()",
@@ -461,7 +466,8 @@ class CatalystListing
             Waves::listingItems("ns:mandatory-today"),
             NxOndates::listingItems(),
             TxManualCountDowns::listingItems(),
-            NxProjects::listingWorkItems(),
+            NxProjects::listingWorkProjects(),
+            NxLimitedEmptiers::listingItems(),
             Waves::listingItems("ns:time-important"),
             NxTriages::items(),
             NxProjects::listingClassicProjects(),
@@ -504,7 +510,7 @@ class CatalystListing
             vspaceleft = vspaceleft - 1
             projects.each{|project|
                 store.register(project, false)
-                line = "#{store.prefixString()} #{NxProjects::toStringWithDetails(project, true)}"
+                line = "(#{store.prefixString()}) #{NxProjects::toStringWithDetails(project, true)}"
                 if (nxball = NxBalls::getNxBallForItemOrNull(project)) then
                     line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
                 else
@@ -536,7 +542,7 @@ class CatalystListing
                     store.register(item, false)
                     project =  NxProjects::itemToProject(item)
                     projectStr = project ? " (#{NxProjects::toString(project)})" : ""
-                    line = "#{store.prefixString()} #{PolyFunctions::toStringForCatalystListing(item)}#{projectStr.green}"
+                    line = "(#{store.prefixString()}) #{PolyFunctions::toStringForCatalystListing(item)}#{projectStr.green}"
                     nxball = NxBalls::getNxBallForItemOrNull(item)
                     if nxball then
                         line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
@@ -556,7 +562,7 @@ class CatalystListing
             nxballs
                 .each{|nxball|
                     store.register(nxball, false)
-                    puts "#{store.prefixString()} #{NxBalls::toString(nxball)}".green
+                    puts "(#{store.prefixString()}) #{NxBalls::toString(nxball)}".green
                     vspaceleft = vspaceleft - 1
                 }
         end
@@ -574,7 +580,7 @@ class CatalystListing
 
                 project =  project =  NxProjects::itemToProject(item)
                 projectStr = project ? " (NxProject: #{project["description"]})" : ""
-                line = "#{store.prefixString()} #{PolyFunctions::toStringForCatalystListing(item)}#{projectStr.green}"
+                line = "(#{store.prefixString()}) #{PolyFunctions::toStringForCatalystListing(item)}#{projectStr.green}"
 
                 nxball = NxBalls::getNxBallForItemOrNull(item)
                 if nxball then
