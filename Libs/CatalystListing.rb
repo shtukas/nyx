@@ -9,7 +9,7 @@ class CatalystListing
             "[makers] wave | anniversary | today | ondate | todo | project | manual countdown",
             "[nxballs] start (<n>) | stop <n> | pause <n> | pursue <n>",
             "[divings] anniversaries | ondates | waves | projects | todos | float | limited-emptier",
-            "[transmutations] >> (ondates and triages)",
+            "[transmutations] >todo (ondates and triages)",
             "[misc] require internet",
             "[misc] search | speed | commands | lock (<n>)",
         ].join("\n")
@@ -40,7 +40,7 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match(">>", input) then
+        if Interpreting::match(">todo", input) then
             item = store.getDefault()
             return if item.nil?
             if item["mikuType"] == "NxOndate" then
