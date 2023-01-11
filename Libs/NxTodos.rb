@@ -161,7 +161,7 @@ class NxTodos
             if action == "access" then
                 NxTodos::access(item)
             end
-            if option == "update description" then
+            if action == "update description" then
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
                 item["description"] = description
                 NxTodos::commit(item)

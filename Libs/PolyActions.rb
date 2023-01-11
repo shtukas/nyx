@@ -398,6 +398,11 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NxLimitedEmptier" then
+            NxLimitedEmptiers::probe(item)
+            return
+        end
+
         if item["mikuType"] == "NxTriage" then
             NxTriages::probe(item)
             return

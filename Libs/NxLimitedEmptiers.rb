@@ -107,7 +107,7 @@ class NxLimitedEmptiers
             if action == "access" then
                 NxLimitedEmptiers::access(item)
             end
-            if option == "update description" then
+            if action == "update description" then
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
                 item["description"] = description
                 NxLimitedEmptiers::commit(item)
