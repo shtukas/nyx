@@ -90,7 +90,7 @@ class NxLimitedEmptiers
                 valueToday = Bank::valueAtDate(item["uuid"], CommonUtils::today(), NxBalls::unrealisedTimespanForItemOrNull(item))
                 b1 = (valueToday.to_f/3600) < item["hours"]
                 b2 = (item["lastDoneDate"].nil? or (item["lastDoneDate"] != CommonUtils::today()))
-                b1 and b2
+                !NxBalls::getNxBallForItemOrNull(item).nil? or (b1 and b2)
             }
     end
 
