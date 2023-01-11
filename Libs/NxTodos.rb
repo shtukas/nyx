@@ -154,7 +154,9 @@ class NxTodos
     # NxTodos::probe(item)
     def self.probe(item)
         loop {
+            system("clear")
             item = NxTodos::getOrNull(item["uuid"])
+            puts NxTodos::toString(item)
             actions = ["access", "update description", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
@@ -167,9 +169,11 @@ class NxTodos
                 NxTodos::commit(item)
             end
             if action == "destroy" then
-                NxTodos::destroy(item["uuid"])
-                PolyActions::garbageCollectionAfterItemDeletion(item)
-                return
+                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of NxTodo '#{NxTodos::toString(item)}' ? ") then
+                    NxTodos::destroy(item["uuid"])
+                    PolyActions::garbageCollectionAfterItemDeletion(item)
+                    return
+                end
             end
         }
     end

@@ -113,9 +113,11 @@ class NxLimitedEmptiers
                 NxLimitedEmptiers::commit(item)
             end
             if action == "destroy" then
-                NxLimitedEmptiers::destroy(item["uuid"])
-                PolyActions::garbageCollectionAfterItemDeletion(item)
-                return
+                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of NxLimitedEmptier '#{NxLimitedEmptiers::toString(item)}' ? ") then
+                    NxLimitedEmptiers::destroy(item["uuid"])
+                    PolyActions::garbageCollectionAfterItemDeletion(item)
+                    return
+                end
             end
         }
     end
