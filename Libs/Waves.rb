@@ -287,8 +287,10 @@ class Waves
                 Waves::commit(item)
             end
             if action == "destroy" then
-                Waves::destroy(item["uuid"])
-                PolyActions::garbageCollectionAfterItemDeletion(item)
+                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of '#{Waves::toString(item)}' ? ") then
+                    Waves::destroy(item["uuid"])
+                    PolyActions::garbageCollectionAfterItemDeletion(item)
+                end
                 return
             end
         }
