@@ -267,8 +267,7 @@ class Waves
                 Waves::access(item)
             end
             if action == "update description" then
-                description = LucilleCore::askQuestionAnswerAsString("description: ")
-                item["description"] = description
+                item["description"] = CommonUtils::editTextSynchronously(item["description"])
                 Waves::commit(item)
                 next
             end
