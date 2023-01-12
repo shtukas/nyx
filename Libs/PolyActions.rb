@@ -127,10 +127,12 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxLimitedEmptier" then
-            if LucilleCore::askQuestionAnswerAsBoolean("Do you want to done limited emptier '#{NxLimitedEmptiers::toString(item)}' for today ?") then
-                NxBalls::closeNxBallForItemOrNothing(item)
-                item["lastDoneDate"] = CommonUtils::today()
-                NxLimitedEmptiers::commit(item)
+            if item["lastDoneDate"] != CommonUtils::today() then
+                if LucilleCore::askQuestionAnswerAsBoolean("Do you want to done limited emptier '#{NxLimitedEmptiers::toString(item)}' for today ? ") then
+                    NxBalls::closeNxBallForItemOrNothing(item)
+                    item["lastDoneDate"] = CommonUtils::today()
+                    NxLimitedEmptiers::commit(item)
+                end
             end
             return
         end
@@ -395,6 +397,11 @@ class PolyActions
 
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::probe(item)
+            return
+        end
+
+        if item["mikuType"] == "NxLimitedEmptier" then
+            NxLimitedEmptiers::probe(item)
             return
         end
 

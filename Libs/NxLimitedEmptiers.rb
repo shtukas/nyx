@@ -90,7 +90,7 @@ class NxLimitedEmptiers
                 valueToday = Bank::valueAtDate(item["uuid"], CommonUtils::today(), NxBalls::unrealisedTimespanForItemOrNull(item))
                 b1 = (valueToday.to_f/3600) < item["hours"]
                 b2 = (item["lastDoneDate"].nil? or (item["lastDoneDate"] != CommonUtils::today()))
-                b1 and b2
+                !NxBalls::getNxBallForItemOrNull(item).nil? or (b1 and b2)
             }
     end
 
@@ -107,15 +107,17 @@ class NxLimitedEmptiers
             if action == "access" then
                 NxLimitedEmptiers::access(item)
             end
-            if option == "update description" then
+            if action == "update description" then
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
                 item["description"] = description
                 NxLimitedEmptiers::commit(item)
             end
             if action == "destroy" then
-                NxLimitedEmptiers::destroy(item["uuid"])
-                PolyActions::garbageCollectionAfterItemDeletion(item)
-                return
+                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of NxLimitedEmptier '#{NxLimitedEmptiers::toString(item)}' ? ") then
+                    NxLimitedEmptiers::destroy(item["uuid"])
+                    PolyActions::garbageCollectionAfterItemDeletion(item)
+                    return
+                end
             end
         }
     end

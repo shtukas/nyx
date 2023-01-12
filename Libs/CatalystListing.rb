@@ -503,29 +503,9 @@ class CatalystListing
             listingItems.any?{|item| item["uuid"] == itemuuid }
         }
 
-        projects1, projects2 = NxProjects::projectsForListing().partition{|project| project["isWork"] }
-        projects = projects1 + projects2
-        if projects.size > 0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-            projects.each{|project|
-                store.register(project, false)
-                line = "(#{store.prefixString()}) #{NxProjects::toStringWithDetails(project, true)}"
-                if (nxball = NxBalls::getNxBallForItemOrNull(project)) then
-                    line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
-                else
-                    line = line.yellow
-                end
-                puts line
-                vspaceleft = vspaceleft - 1
-            }
-        end
-
-        todayMissingInHours = NxProjects::getTodayMissingInHours()
-        if todayMissingInHours > 0 then
-            puts "      (missing today in hours: #{todayMissingInHours.round(2)}, projected end: #{Time.at( Time.new.to_i + todayMissingInHours*3600 ).to_s})".yellow
-            vspaceleft = vspaceleft - 1
-        end
+        data = TimeCommitments::printAtListing(store)
+        projects = data[:projects]
+        vspaceleft = vspaceleft - data[:linecount]
 
         floats = TxFloats::listingItems()
 
