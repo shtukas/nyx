@@ -29,6 +29,15 @@ class PolyFunctions
             }
         end
 
+        if item["mikuType"] == "Wave" then
+            projectId = item["projectId"]
+            project = NxProjects::getOrNull(projectId)
+            accounts << {
+                "description" => PolyFunctions::genericDescription(project),
+                "number"      => project["uuid"]
+            }
+        end
+
         accounts
     end
 

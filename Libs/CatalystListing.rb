@@ -519,7 +519,7 @@ class CatalystListing
         listingItems = CatalystListing::listingItems()
 
         nxballs = NxBalls::items()
-                    .select{|nxball| !nxballHasAnItemInThere.call(nxball, projects + floats + listingItems) }
+                    .select{|nxball| !nxballHasAnItemInThere.call(nxball, projects + listingItems) }
         if nxballs.size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
