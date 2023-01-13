@@ -100,7 +100,7 @@ class NxTodos
     def self.issueConsumingNxTriage(nxtriage)
         item = nxtriage.clone
         project = NxProjects::interactivelySelectProject()
-        projectposition = NxProjects::nextPositionForProject(project["uuid"])
+        projectposition = NxProjects::interactivelyDecideProjectPosition(project["uuid"])
         item["uuid"] = CommonUtils::timeStringL22()
         item["mikuType"] = "NxTodo"
         item["projectId"] = project["uuid"]
