@@ -101,7 +101,8 @@ class NxLimitedEmptiers
     def self.probe(item)
         loop {
             item = NxLimitedEmptiers::getOrNull(item["uuid"])
-            actions = ["access", "update description", "destroy"]
+            puts NxLimitedEmptiers::toString(item).green
+            actions = ["access", "update description", "set project", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "access" then
@@ -110,6 +111,12 @@ class NxLimitedEmptiers
             if action == "update description" then
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
                 item["description"] = description
+                NxLimitedEmptiers::commit(item)
+            end
+            if action == "set project" then
+                project = NxProjects::interactivelySelectNxProjectOrNull()
+                next if project.nil?
+                item["projectId"] = project["uuid"]
                 NxLimitedEmptiers::commit(item)
             end
             if action == "destroy" then

@@ -8,3 +8,4 @@ NxLimitedEmptier:
     "description"  : String
     "hours"        : String
     "lastDoneDate" : null or Date
+    "projectId"    : nil or String
