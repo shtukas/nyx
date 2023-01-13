@@ -1,13 +1,17 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    colorize (0.8.1)
     date (3.3.3)
+    sqlite3 (1.5.4-x86_64-darwin)
 
 PLATFORMS
   x86_64-darwin-22
 
 DEPENDENCIES
+  colorize
   date
+  sqlite3
 
 RUBY VERSION
    ruby 3.1.2p20

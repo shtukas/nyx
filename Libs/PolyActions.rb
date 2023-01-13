@@ -128,7 +128,7 @@ class PolyActions
 
         if item["mikuType"] == "NxLimitedEmptier" then
             if item["lastDoneDate"] != CommonUtils::today() then
-                if LucilleCore::askQuestionAnswerAsBoolean("Do you want to done limited emptier '#{NxLimitedEmptiers::toString(item)}' for today ? ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("Do you want to done limited emptier '#{NxLimitedEmptiers::toString(item)}' for today ? ", true) then
                     NxBalls::closeNxBallForItemOrNothing(item)
                     item["lastDoneDate"] = CommonUtils::today()
                     NxLimitedEmptiers::commit(item)

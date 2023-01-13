@@ -267,8 +267,7 @@ class Waves
                 Waves::access(item)
             end
             if action == "update description" then
-                description = LucilleCore::askQuestionAnswerAsString("description: ")
-                item["description"] = description
+                item["description"] = CommonUtils::editTextSynchronously(item["description"])
                 Waves::commit(item)
                 next
             end
@@ -287,8 +286,10 @@ class Waves
                 Waves::commit(item)
             end
             if action == "destroy" then
-                Waves::destroy(item["uuid"])
-                PolyActions::garbageCollectionAfterItemDeletion(item)
+                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of '#{Waves::toString(item)}' ? ") then
+                    Waves::destroy(item["uuid"])
+                    PolyActions::garbageCollectionAfterItemDeletion(item)
+                end
                 return
             end
         }

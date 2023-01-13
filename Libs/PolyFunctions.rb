@@ -200,6 +200,9 @@ class PolyFunctions
         if item["mikuType"] == "NxTriage" then
             return NxTriages::toString(item)
         end
+        if item["mikuType"] == "TxFloat" then
+            return TxFloats::toString(item)
+        end
         if item["mikuType"] == "TxManualCountDown" then
             return "(countdown) #{item["description"]}: #{item["counter"]}"
         end

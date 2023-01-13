@@ -462,14 +462,14 @@ class CatalystListing
     # CatalystListing::listingItems()
     def self.listingItems()
         [
+            NxTriages::items(),
             Anniversaries::listingItems(),
             Waves::listingItems("ns:mandatory-today"),
             NxOndates::listingItems(),
-            TxManualCountDowns::listingItems(),
             NxProjects::listingWorkProjects(),
+            TxManualCountDowns::listingItems(),
             NxLimitedEmptiers::listingItems(),
             Waves::listingItems("ns:time-important"),
-            NxTriages::items(),
             NxProjects::listingClassicProjects(),
             Waves::listingItems("ns:beach")
         ]
