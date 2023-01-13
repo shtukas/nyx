@@ -531,8 +531,8 @@ class CatalystListing
                 }
         end
 
-        linecount = TimeCommitments::printing(store)
-        vspaceleft = vspaceleft - linecount
+        #linecount = TimeCommitments::printing(store)
+        #vspaceleft = vspaceleft - linecount
 
         locks = Locks::locks()
 
