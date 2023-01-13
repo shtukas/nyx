@@ -69,12 +69,6 @@ class DoNotShowUntil
 
     # DoNotShowUntil::getUnixtimeOrNull(uuid)
     def self.getUnixtimeOrNull(uuid)
-        filepath = "#{Config::pathToDataCenter()}/DoNotShowUntil/#{uuid}.info"
-        if File.exists?(filepath) then
-            unixtime = IO.read(filepath).strip.to_f
-            DNSUIO::setUnixtime(uuid, unixtime)
-            FileUtils.rm(filepath)
-        end
         DNSUIO::unixtimeOrNull(uuid)
     end
 
