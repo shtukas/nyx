@@ -1,6 +1,60 @@
 
 # encoding: UTF-8
 
+class NxNodeContentService
+
+    # NxNodeContentService::contentTypes()
+    def self.contentTypes()
+        ["directory", "text", "url"]
+    end
+
+    # NxNodeContentService::interactivelySelectContentType()
+    def self.interactivelySelectContentType()
+        types = NxNodeContentService::contentTypes()
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("content type", types)
+        return "directory" if type.nil?
+        type
+    end
+
+    # NxNodeContentService::installContentType(type, uuid)
+    def self.installContentType(type, uuid)
+        if type == "directory" then
+            NxNodeContentService::accessNyxDirectory(uuid)
+            return
+        end
+        if type == "text" then
+            # Here we get the text and write it in a TEXT.txt file
+            folderpath = NxNodeContentService::ensureNyxDataDirectory(uuid)
+            filepath = "#{folderpath}/TEXT.txt"
+            text = CommonUtils::editTextSynchronously("")
+            File.open(filepath, "w"){|f| f.puts(text) }
+            return
+        end
+        if type == "url" then
+            # Here we get the url and write it in a URL.txt file
+             folderpath = NxNodeContentService::ensureNyxDataDirectory(uuid)
+            filepath = "#{folderpath}/URL.txt"
+        end
+    end
+
+    # NxNodeContentService::ensureNyxDataDirectory(uuid)
+    def self.ensureNyxDataDirectory(uuid)
+        folderpath = NxNodes::dataDirectoryPath(uuid)
+        if !File.exists?(folderpath) then
+            FileUtils.mkdir(folderpath)
+        end
+        folderpath
+    end
+
+    # NxNodeContentService::accessNyxDirectory(uuid)
+    def self.accessNyxDirectory(uuid)
+        folderpath = NxNodeContentService::ensureNyxDataDirectory(uuid)
+        system("open '#{folderpath}'")
+        LucilleCore::pressEnterToContinue()
+    end
+
+end
+
 class NxNodes
 
     # --------------------------------------
@@ -62,7 +116,7 @@ class NxNodes
         }
         NxNodes::commit(item)
         if LucilleCore::askQuestionAnswerAsBoolean("> make and access directory ? ") then
-            NxNodes::accessNyxDirectory(uuid)
+            NxNodeContentService::accessNyxDirectory(uuid)
         end
         item
     end
@@ -77,16 +131,6 @@ class NxNodes
 
     # --------------------------------------
     # Ops
-
-    # NxNodes::accessNyxDirectory(uuid)
-    def self.accessNyxDirectory(uuid)
-        folderpath = NxNodes::dataDirectoryPath(uuid)
-        if !File.exists?(folderpath) then
-            FileUtils.mkdir(folderpath)
-        end
-        system("open '#{folderpath}'")
-        LucilleCore::pressEnterToContinue()
-    end
 
     # NxNodes::landing(item)
     def self.landing(item)
@@ -124,12 +168,12 @@ class NxNodes
                 if !File.exists?(NxNodes::dataDirectoryPath(item["uuid"])) then
                     puts "data directory doesn't exist"
                     if LucilleCore::askQuestionAnswerAsBoolean("create and access data directory ? ") then
-                        NxNodes::accessNyxDirectory(item["uuid"])
+                        NxNodeContentService::accessNyxDirectory(item["uuid"])
                     else
                         next
                     end
                 end
-                NxNodes::accessNyxDirectory(item["uuid"])
+                NxNodeContentService::accessNyxDirectory(item["uuid"])
                 next
             end
 

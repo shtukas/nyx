@@ -219,9 +219,13 @@ class NxProjects
     # NxProjects::presentProjectItems(project)
     def self.presentProjectItems(project)
         items = NxTodos::itemsForNxProject(project["uuid"])
-                    .sort{|i1, i2| i1["projectposition"] <=> i2["projectposition"] }
         loop {
             system("clear")
+            # We do not recompute all the items but we recall the ones we had to get the new 
+            # projectpositions
+            items = items
+                        .map{|item| NxTodos::getOrNull(item["uuid"]) }
+                        .sort{|i1, i2| i1["projectposition"] <=> i2["projectposition"] }
             store = ItemStore.new()
             puts ""
             items
@@ -235,11 +239,13 @@ class NxProjects
             command = LucilleCore::askQuestionAnswerAsString("> ")
             break if command == ""
             if command.start_with?("set position") then
-                command == command.strip[12, command.size]
+                command = command.strip[12, command.size]
                 elements = command.split(" ")
+                #puts JSON.generate(elements)
                 indx = elements[0].to_i
                 position = elements[1].to_f
                 item = store.get(indx)
+                #puts item
                 next if item.nil?
                 item["projectposition"] = position
                 NxTodos::commit(item)
