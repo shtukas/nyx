@@ -524,6 +524,19 @@ class CatalystListing
                 }
         end
 
+        locks = Locks::locks()
+
+        lockStatus = lambda{|item|
+            oldlocks, newlocks = locks.partition{|lock| lock["unixtime"] < (Time.new.to_i - 86400)}
+            if oldlocks.map{|data| data["uuid"]}.include?(item["uuid"]) then
+                return "oldlock"
+            end
+            if newlocks.map{|data| data["uuid"]}.include?(item["uuid"]) then
+                return "newlock"
+            end
+            nil
+        }
+
         puts ""
         vspaceleft = vspaceleft - 1
 
@@ -533,7 +546,8 @@ class CatalystListing
             .each{|item|
 
                 canBeDefault = lambda {|item|
-                    return false if Locks::isLocked(item)
+                    lockstat = lockStatus.call(item)
+                    return false if ["oldlock", "newlock"].include?(lockstat)
                     return false if item["mikuType"] == "TxFloat"
                     true
                 }
@@ -545,7 +559,13 @@ class CatalystListing
                 projectStr = project ? " (NxProject: #{project["description"]})" : ""
                 line = "(#{store.prefixString()}) #{PolyFunctions::toStringForCatalystListing(item)}#{projectStr.green}"
 
+                lockstat = lockStatus.call(item)
+                if lockstat == "oldlock" then
+                    line = "#{line} #{NxBalls::toRunningStatement(nxball)}".yellow
+                end
+
                 nxball = NxBalls::getNxBallForItemOrNull(item)
+
                 if nxball then
                     line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
                 end

@@ -1,7 +1,5 @@
 # encoding: UTF-8
 
-# create table _dnsu_ (_uuid_ text, _unixtime_ float);
-
 class DNSUIO
 
     # DNSUIO::filepaths()
