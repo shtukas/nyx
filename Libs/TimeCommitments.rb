@@ -10,6 +10,7 @@ class TimeCommitments
     def self.itemMissingHours(item)
         if item["mikuType"] == "NxProject" then
             data = Ax39::standardAx39CarrierData(item)
+            return 0 if !data["shouldListing"]
             return 0 if data["todayMissingTimeInHoursOpt"].nil?
             return data["todayMissingTimeInHoursOpt"]
         end
@@ -19,6 +20,23 @@ class TimeCommitments
             return item["hours"] - valueTodayInHours
         end
         raise "(error: cf5e1901-7190-4e82-a417-fd1041cff9bf)"
+    end
+
+    # TimeCommitments::itemToString(item)
+    def self.itemToString(item)
+        if item["mikuType"] == "NxProject" then
+            return NxProjects::toStringWithDetails(item, true)
+        end
+        if item["mikuType"] == "NxLimitedEmptier" then
+            return NxLimitedEmptiers::toString(item)
+        end
+        raise "(error: cf5e1901-7190-4e82-a417-fd1041cff9bf)"
+    end
+
+    # TimeCommitments::itemShouldDisplay(item)
+    def self.itemShouldDisplay(item)
+        return false if !DoNotShowUntil::isVisible(item["uuid"])
+        TimeCommitments::itemMissingHours(item) > 0
     end
 
     # TimeCommitments::missingHours()
@@ -38,51 +56,19 @@ class TimeCommitments
         0
     end
 
-    # TimeCommitments::printAtListing(store) # linecount
-    def self.printAtListing(store)
+    # TimeCommitments::printing(store) # linecount
+    def self.printing(store)
         linecount = 0
-
-        projectsHaveDisplayed = false
-
-        projects1, projects2 = NxProjects::projectsForListing().partition{|project| project["isWork"] }
-        projects = projects1 + projects2
-        if projects.size > 0 then
-            puts ""
-            linecount = linecount + 1
-            projects.each{|project|
-                store.register(project, false)
-                line = "(#{store.prefixString()}) #{NxProjects::toStringWithDetails(project, true)}"
-                if (nxball = NxBalls::getNxBallForItemOrNull(project)) then
-                    line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
-                else
-                    line = line.yellow
-                end
-                puts line
-                linecount = linecount + 1
-            }
-            projectsHaveDisplayed = true
-        end
-
-        limiteds = NxLimitedEmptiers::listingItems()
-        if !projectsHaveDisplayed and limiteds.size > 0 then
-            puts ""
-            linecount = linecount + 1
-        end
-        limiteds.each{|limited|
-            store.register(limited, false)
-            line = "(#{store.prefixString()}) #{NxLimitedEmptiers::toString(limited)}"
-            if (nxball = NxBalls::getNxBallForItemOrNull(limited)) then
-                line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
-            else
-                line = line.yellow
-            end
-            puts line
+        TimeCommitments::timeCommitments()
+        .select{|item| TimeCommitments::itemShouldDisplay(item) }
+        .sort{|i1, i2| TimeCommitments::itemMissingHours(i1) <=> TimeCommitments::itemMissingHours(i2) }
+        .reverse
+        .each{|item|
+            next if !TimeCommitments::itemToString(item)
+            store.register(item, false)
+            puts "(#{store.prefixString()}) #{TimeCommitments::itemToString(item)}".yellow
             linecount = linecount + 1
         }
-
-        {
-            projects: projects,
-            linecount: linecount
-        }
+        linecount
     end
 end
