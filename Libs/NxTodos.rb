@@ -98,10 +98,19 @@ class NxTodos
 
     # NxTodos::issueConsumingNxTriage(nxtriage)
     def self.issueConsumingNxTriage(nxtriage)
+
+        puts "description: #{nxtriage["description"].green}"
+        if LucilleCore::askQuestionAnswerAsBoolean("> confirm description ? ", true) then
+            description = nxtriage["description"]
+        else
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+        end
+
         item = nxtriage.clone
         project = NxProjects::interactivelySelectProject()
         projectposition = NxProjects::interactivelyDecideProjectPosition(project["uuid"])
         item["uuid"] = CommonUtils::timeStringL22()
+        item["description"] = description
         item["mikuType"] = "NxTodo"
         item["projectId"] = project["uuid"]
         item["projectposition"] = projectposition
