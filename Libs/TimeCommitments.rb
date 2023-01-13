@@ -1,20 +1,31 @@
 
 class TimeCommitments
 
+    # TimeCommitments::timeCommitments()
+    def self.timeCommitments()
+        NxProjects::items() + NxLimitedEmptiers::items()
+    end
+
+    # TimeCommitments::itemMissingHours(item)
+    def self.itemMissingHours(item)
+        if item["mikuType"] == "NxProject" then
+            data = Ax39::standardAx39CarrierData(item)
+            return 0 if data["todayMissingTimeInHoursOpt"].nil?
+            return data["todayMissingTimeInHoursOpt"]
+        end
+        if item["mikuType"] == "NxLimitedEmptier" then
+            valueTodayInHours = Bank::valueAtDate(item["uuid"], CommonUtils::today(), NxBalls::unrealisedTimespanForItemOrNull(item)).to_f/3600
+            return 0 if (valueTodayInHours >= item["hours"])
+            return item["hours"] - valueTodayInHours
+        end
+        raise "(error: cf5e1901-7190-4e82-a417-fd1041cff9bf)"
+    end
+
     # TimeCommitments::missingHours()
     def self.missingHours()
-        todayMissingInHours = NxProjects::getTodayMissingInHours()
-        limitedMissingInHours = NxLimitedEmptiers::listingItems()
-                                    .map{|limited|
-                                        valueToday = Bank::valueAtDate(limited["uuid"], CommonUtils::today(), NxBalls::unrealisedTimespanForItemOrNull(limited))
-                                        if (valueToday.to_f/3600) < limited["hours"] then
-                                            limited["hours"] - (valueToday.to_f/3600)
-                                        else
-                                            0
-                                        end
-                                    }
-                                    .inject(0, :+)
-        todayMissingInHours + limitedMissingInHours
+        TimeCommitments::timeCommitments()
+            .map{|item| TimeCommitments::itemMissingHours(item) }
+            .inject(0, :+)
     end
 
     # TimeCommitments::printMissingHoursLine() # linecount
@@ -74,5 +85,4 @@ class TimeCommitments
             linecount: linecount
         }
     end
-
 end

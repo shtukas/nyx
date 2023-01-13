@@ -29,15 +29,11 @@ class NxLimitedEmptiers
         JSON.parse(IO.read(filepath))
     end
 
-    # NxLimitedEmptiers::itemsEnumerator()
-    def self.itemsEnumerator()
-        Enumerator.new do |items|
-            LucilleCore::locationsAtFolder(NxLimitedEmptiers::repositoryFolderPath())
+    # NxLimitedEmptiers::items()
+    def self.items()
+        LucilleCore::locationsAtFolder(NxLimitedEmptiers::repositoryFolderPath())
             .select{|filepath| filepath[-5, 5] == ".json" }
-            .each{|filepath|
-                items << JSON.parse(IO.read(filepath))
-            }
-        end
+            .map{|filepath| JSON.parse(IO.read(filepath))}
     end
 
     # NxLimitedEmptiers::destroy(uuid)
@@ -84,8 +80,7 @@ class NxLimitedEmptiers
 
     # NxLimitedEmptiers::listingItems()
     def self.listingItems()
-        NxLimitedEmptiers::itemsEnumerator()
-            .to_a
+        NxLimitedEmptiers::items()
             .select{|item|
                 valueToday = Bank::valueAtDate(item["uuid"], CommonUtils::today(), NxBalls::unrealisedTimespanForItemOrNull(item))
                 b1 = (valueToday.to_f/3600) < item["hours"]
