@@ -462,6 +462,7 @@ class CatalystListing
     # CatalystListing::listingItems()
     def self.listingItems()
         [
+            TxFloats::listingItems(),
             NxTriages::items(),
             Anniversaries::listingItems(),
             Waves::listingItems("ns:mandatory-today"),
@@ -486,8 +487,11 @@ class CatalystListing
         vspaceleft = CommonUtils::screenHeight() - 4
 
         puts ""
-        puts The99Percent::line()
-        vspaceleft = vspaceleft - 2
+        linecount = TimeCommitments::printMissingHoursLine()
+        vspaceleft = vspaceleft - linecount
+
+        #puts The99Percent::line()
+        #vspaceleft = vspaceleft - 2
 
         store = ItemStore.new()
 
@@ -503,36 +507,9 @@ class CatalystListing
             listingItems.any?{|item| item["uuid"] == itemuuid }
         }
 
-        data = TimeCommitments::printAtListing(store)
-        projects = data[:projects]
-        vspaceleft = vspaceleft - data[:linecount]
-
-        floats = TxFloats::listingItems()
+        projects = NxProjects::projectsForListing()
 
         listingItems = CatalystListing::listingItems()
-
-        lockeds, unlockeds = listingItems.partition{|item| Locks::isLocked(item) }
-
-        if (floats.size+lockeds.size) > 0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-            (floats+lockeds)
-                .each{|item|
-                    break if vspaceleft <= 0
-                    store.register(item, false)
-                    project =  NxProjects::itemToProject(item)
-                    projectStr = project ? " (#{NxProjects::toString(project)})" : ""
-                    line = "(#{store.prefixString()}) #{PolyFunctions::toStringForCatalystListing(item)}#{projectStr.green}"
-                    nxball = NxBalls::getNxBallForItemOrNull(item)
-                    if nxball then
-                        line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
-                    else
-                        line = line.yellow
-                    end
-                    puts line
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                }
-        end
 
         nxballs = NxBalls::items()
                     .select{|nxball| !nxballHasAnItemInThere.call(nxball, projects + floats + listingItems) }
@@ -550,13 +527,19 @@ class CatalystListing
         puts ""
         vspaceleft = vspaceleft - 1
 
-        unlockeds1, unlockeds2 = unlockeds.partition{|item| NxBalls::getNxBallForItemOrNull(item) }
+        set1, set2 = listingItems.partition{|item| NxBalls::getNxBallForItemOrNull(item) }
 
-        (unlockeds1 + unlockeds2)
+        (set1 + set2)
             .each{|item|
 
+                canBeDefault = lambda {|item|
+                    return false if Locks::isLocked(item)
+                    return false if item["mikuType"] == "TxFloat"
+                    true
+                }
+
                 break if vspaceleft <= 0
-                store.register(item, true)
+                store.register(item, canBeDefault.call(item))
 
                 project =  project =  NxProjects::itemToProject(item)
                 projectStr = project ? " (NxProject: #{project["description"]})" : ""

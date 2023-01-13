@@ -17,6 +17,16 @@ class TimeCommitments
         todayMissingInHours + limitedMissingInHours
     end
 
+    # TimeCommitments::printMissingHoursLine() # linecount
+    def self.printMissingHoursLine()
+        todayMissingInHours = TimeCommitments::missingHours()
+        if todayMissingInHours > 0 then
+            puts "> missing today in hours: #{todayMissingInHours.round(2)}, projected end: #{Time.at( Time.new.to_i + todayMissingInHours*3600 ).to_s}".yellow
+            return 1
+        end
+        0
+    end
+
     # TimeCommitments::printAtListing(store) # linecount
     def self.printAtListing(store)
         linecount = 0
@@ -58,12 +68,6 @@ class TimeCommitments
             puts line
             linecount = linecount + 1
         }
-
-        todayMissingInHours = TimeCommitments::missingHours()
-        if todayMissingInHours > 0 then
-            puts "      (missing today in hours: #{todayMissingInHours.round(2)}, projected end: #{Time.at( Time.new.to_i + todayMissingInHours*3600 ).to_s})".yellow
-            linecount = linecount + 1
-        end
 
         {
             projects: projects,
