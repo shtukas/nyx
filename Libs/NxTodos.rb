@@ -100,10 +100,12 @@ class NxTodos
     def self.issueConsumingNxTriage(nxtriage)
 
         puts "description: #{nxtriage["description"].green}"
-        if LucilleCore::askQuestionAnswerAsBoolean("> confirm description ? ", true) then
+        d = LucilleCore::askQuestionAnswerAsString("description (empty to confirm existing): ")
+
+        if d == "" then
             description = nxtriage["description"]
         else
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            description = d
         end
 
         item = nxtriage.clone
