@@ -490,17 +490,21 @@ class CatalystListing
     def self.displayListing()
 
         system("clear")
-
+        store = ItemStore.new()
         vspaceleft = CommonUtils::screenHeight() - 4
 
         puts ""
         linecount = TimeCommitments::printMissingHoursLine()
         vspaceleft = vspaceleft - linecount
 
+        NxProjects::runningProjects().each{|project|
+            store.register(project, false)
+            puts "(#{store.prefixString()}) #{NxProjects::toStringWithDetails(project, true)}".green
+            vspaceleft = vspaceleft - 1
+        }
+
         #puts The99Percent::line()
         #vspaceleft = vspaceleft - 2
-
-        store = ItemStore.new()
 
         if !InternetStatus::internetIsActive() then
             puts ""

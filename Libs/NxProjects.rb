@@ -106,6 +106,12 @@ class NxProjects
             .select{|project| Ax39::standardAx39CarrierData(project)["shouldListing"] }
     end
 
+    # NxProjects::runningProjects()
+    def self.runningProjects()
+        NxProjects::items()
+            .select{|project| NxBalls::getNxBallForItemOrNull(project) }
+    end
+
     # NxProjects::firstNxTodoItemsForNxProject(projectId)
     def self.firstNxTodoItemsForNxProject(projectId)
         filepath = "#{Config::pathToDataCenter()}/NxProject-to-FirstItems/#{projectId}.json"
