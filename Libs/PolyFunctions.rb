@@ -23,28 +23,34 @@ class PolyFunctions
         if item["mikuType"] == "NxLimitedEmptier" then
             projectId = item["projectId"]
             project = NxProjects::getOrNull(projectId)
-            accounts << {
-                "description" => PolyFunctions::genericDescription(project),
-                "number"      => project["uuid"]
-            }
+            if project then
+                accounts << {
+                    "description" => PolyFunctions::genericDescription(project),
+                    "number"      => project["uuid"]
+                }
+            end
         end
 
         if item["mikuType"] == "Vx01" then
             projectId = item["projectId"]
             project = NxProjects::getOrNull(projectId)
-            accounts << {
-                "description" => PolyFunctions::genericDescription(project),
-                "number"      => project["uuid"]
-            }
+            if project then
+                accounts << {
+                    "description" => PolyFunctions::genericDescription(project),
+                    "number"      => project["uuid"]
+                }
+            end
         end
 
         if item["mikuType"] == "Wave" then
             projectId = item["projectId"]
             project = NxProjects::getOrNull(projectId)
-            accounts << {
-                "description" => PolyFunctions::genericDescription(project),
-                "number"      => project["uuid"]
-            }
+            if project then
+                accounts << {
+                    "description" => PolyFunctions::genericDescription(project),
+                    "number"      => project["uuid"]
+                }
+            end
         end
 
         accounts
