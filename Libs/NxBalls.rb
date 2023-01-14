@@ -88,6 +88,11 @@ class NxBalls
         Time.new.to_f - nxball["unixtime"]
     end
 
+    # NxBalls::itemIsRunning(item)
+    def self.itemIsRunning(item)
+        !NxBalls::getNxBallForItemOrNull(item).nil?
+    end
+
     # --------------------------------------------------
     # Operations
 

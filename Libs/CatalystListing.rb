@@ -468,7 +468,7 @@ class CatalystListing
 
     # CatalystListing::listingItems()
     def self.listingItems()
-        [
+        items = [
             TxFloats::listingItems(),
             NxTriages::items(),
             Anniversaries::listingItems(),
@@ -484,6 +484,12 @@ class CatalystListing
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+    end
+
+    # CatalystListing::focusItems()
+    def self.focusItems()
+        items = CatalystListing::listingItems()
+        Focus::select(items)
     end
 
     # CatalystListing::displayListing()
@@ -520,7 +526,7 @@ class CatalystListing
 
         projects = NxProjects::projectsForListing()
 
-        listingItems = CatalystListing::listingItems()
+        listingItems = CatalystListing::focusItems()
 
         nxballs = NxBalls::items()
                     .select{|nxball| !nxballHasAnItemInThere.call(nxball, projects + listingItems) }
@@ -575,7 +581,7 @@ class CatalystListing
 
                 lockstat = lockStatus.call(item)
                 if lockstat == "oldlock" then
-                    line = "#{line} #{NxBalls::toRunningStatement(nxball)}".yellow
+                    line = line.yellow
                 end
 
                 nxball = NxBalls::getNxBallForItemOrNull(item)
