@@ -206,6 +206,11 @@ class NxProjects
         ([0] + NxTodos::itemsForNxProject(projectId).map{|todo| todo["projectposition"] }).max + 1
     end
 
+    # NxProjects::projectsTotalHoursPerWeek()
+    def self.projectsTotalHoursPerWeek()
+        NxProjects::items().map{|item| item["ax39"]["hours"] }.inject(0, :+)
+    end
+
     # --------------------------------------------
     # Ops
 
@@ -307,6 +312,7 @@ class NxProjects
     def self.mainprobe()
         loop {
             system("clear")
+            puts "Total hours (daily): #{(NxProjects::projectsTotalHoursPerWeek().to_f/7).round(2)}"
             project = NxProjects::interactivelySelectNxProjectOrNull()
             return if project.nil?
             NxProjects::probe(project)
