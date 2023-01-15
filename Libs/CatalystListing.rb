@@ -504,17 +504,44 @@ class CatalystListing
         vspaceleft = CommonUtils::screenHeight() - 4
 
         puts ""
+
+        # The99 Percent
+        line = The99Percent::lineOrNull()
+        if line then
+            puts The99Percent::lineOrNull()
+            vspaceleft = vspaceleft - 2
+        end
+
+        # Focus line
+        puts Focus::line()
+        vspaceleft = vspaceleft - 2
+
+        # TimeCommitment report
+        puts ""
+        vspaceleft = vspaceleft - 1
+        text = TimeCommitments::report().join("\n")
+        if text.size > 0 then
+            puts text.yellow
+            vspaceleft = vspaceleft - CommonUtils::verticalSize(text)
+        end
+
+        # TimeCommitment total
+        puts ""
+        vspaceleft = vspaceleft - 1
         linecount = TimeCommitments::printLine()
         vspaceleft = vspaceleft - linecount
 
-        NxProjects::runningProjects().each{|project|
-            store.register(project, false)
-            puts "(#{store.prefixString()}) #{NxProjects::toStringWithDetails(project, true)}".green
+        # Running Projects
+        projects = NxProjects::runningProjects()
+        if projects.size > 0 then
+            puts ""
             vspaceleft = vspaceleft - 1
-        }
-
-        #puts The99Percent::line()
-        #vspaceleft = vspaceleft - 2
+            projects.each{|project|
+                store.register(project, false)
+                puts "(#{store.prefixString()}) #{NxProjects::toStringWithDetails(project, true)}".green
+                vspaceleft = vspaceleft - 1
+            }
+        end
 
         if !InternetStatus::internetIsActive() then
             puts ""
@@ -525,9 +552,6 @@ class CatalystListing
         projects = NxProjects::projectsForListing()
 
         listingItems = CatalystListing::listingItems()
-
-        puts Focus::line().yellow
-        vspaceleft = vspaceleft - 1
 
         displayData = Focus::makeDisplayData(listingItems)
         #{

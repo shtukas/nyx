@@ -205,6 +205,22 @@ class Waves
             }
     end
 
+    # Waves::numbers(item)
+    def self.numbers(item)
+        if item["maxTimeInHours"].nil? then
+            {
+                "shouldListing"        => true,
+                "missingHoursForToday" => 0
+            }
+        else
+            valueToday = Bank::valueAtDate(item["uuid"], CommonUtils::today(), NxBalls::unrealisedTimespanForItemOrNull(item))
+            {
+                "shouldListing"        => true,
+                "missingHoursForToday" => (item["maxTimeInHours"]*3600 - valueToday).to_f/3600
+            }
+        end
+    end
+
     # -------------------------------------------------------------------------
     # Operations
 
@@ -258,7 +274,7 @@ class Waves
         loop {
             item = Waves::getOrNull(item["uuid"])
             puts Waves::toString(item)
-            actions = ["access", "update description", "update wave pattern", "perform done", "set project", "set days of the week", "destroy"]
+            actions = ["access", "update description", "update wave pattern", "perform done", "set project", "set max time", "set days of the week", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "access" then
@@ -282,6 +298,13 @@ class Waves
                 project = NxProjects::interactivelySelectNxProjectOrNull()
                 next if project.nil?
                 item["projectId"] = project["uuid"]
+                Waves::commit(item)
+                next
+            end
+            if action == "set max time" then
+                maxTimeInHours = LucilleCore::askQuestionAnswerAsString("max time in hours: ").to_f
+                next if maxTimeInHours == 0
+                item["maxTimeInHours"] = maxTimeInHours
                 Waves::commit(item)
                 next
             end

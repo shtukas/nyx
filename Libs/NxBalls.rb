@@ -58,20 +58,20 @@ class NxBalls
     # --------------------------------------------------
     # Data
 
-    # NxBalls::toRunningStatement(item)
-    def self.toRunningStatement(item)
-        if item["isActive"] then
-            timespan = (Time.new.to_i - item["unixtime"]).to_f/3600
-            sequenceStartStr = item["sequenceStart"] ? ", sequence: #{((Time.new.to_i - item["sequenceStart"]).to_f/3600).round(2)} hours" : ""
+    # NxBalls::toRunningStatement(nxball)
+    def self.toRunningStatement(nxball)
+        if nxball["isActive"] then
+            timespan = (Time.new.to_i - nxball["unixtime"]).to_f/3600
+            sequenceStartStr = nxball["sequenceStart"] ? ", sequence: #{((Time.new.to_i - nxball["sequenceStart"]).to_f/3600).round(2)} hours" : ""
             "(running for #{timespan.round(2)} hours#{sequenceStartStr})"
         else
             "(paused)"
         end
     end
 
-    # NxBalls::toString(item)
-    def self.toString(item)
-        "(nxball) #{item["accounts"].map{|account| account["description"]}.join("; ")} #{NxBalls::toRunningStatement(item)}"
+    # NxBalls::toString(nxball)
+    def self.toString(nxball)
+        "(nxball) #{nxball["accounts"].map{|account| account["description"]}.join("; ")} #{NxBalls::toRunningStatement(nxball)}"
     end
 
     # NxBalls::getNxBallForItemOrNull(item)
@@ -91,6 +91,13 @@ class NxBalls
     # NxBalls::itemIsRunning(item)
     def self.itemIsRunning(item)
         !NxBalls::getNxBallForItemOrNull(item).nil?
+    end
+
+    # NxBalls::itemRunTimeInSecondsOrNull(item)
+    def self.itemRunTimeInSecondsOrNull(item)
+        nxball = NxBalls::getNxBallForItemOrNull(item)
+        return nil if nxball.nil?
+        Time.new.to_f - nxball["unixtime"]
     end
 
     # --------------------------------------------------

@@ -48,12 +48,12 @@ class The99Percent
         ratio
     end
 
-    # The99Percent::line()
-    def self.line()
+    # The99Percent::lineOrNull()
+    def self.lineOrNull()
         reference = The99Percent::getReference()
         return nil if reference.nil?
         current = The99Percent::getCurrentCount()
         ratio   = current.to_f/reference["count"]
-        "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
+        "> The 99%: #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
     end
 end
