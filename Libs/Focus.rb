@@ -71,14 +71,16 @@ class Focus
         # main is empty.
 
         data = Focus::getdata()
+        puts "----------------------------------------------------------------------"
         puts "Achievement unlocked ✨ in #{((Time.new.to_i - data["unixtime"]).to_f/3600).round(2)} hours"
         puts "Sleeping for one minute 😴"
+        puts "----------------------------------------------------------------------"
         sleep 60
         items = CatalystListing::listingItems().first(12)
         data = {
             "unixtime" => Time.new.to_i,
             "uuids"    => items.map{|item| item["uuid"] },
-            "locks"    => data
+            "locks"    => data["locks"]
         }
         Focus::commitdata(data)
         data
