@@ -501,7 +501,7 @@ class CatalystListing
 
         system("clear")
         store = ItemStore.new()
-        vspaceleft = CommonUtils::screenHeight() - 4
+        vspaceleft = CommonUtils::screenHeight() - 3
 
         puts ""
         vspaceleft = vspaceleft - 1
@@ -591,6 +591,7 @@ class CatalystListing
                 cbdf = item["mikuType"] != "TxFloat"
                 linecount = printItem.call(store, item, cbdf)
                 vspaceleft = vspaceleft - linecount
+                break if vspaceleft <= 0
             }
 
         puts ""
