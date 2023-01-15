@@ -49,7 +49,7 @@ checkLocation = lambda{|location|
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-Config.json")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub/Stargate-DataCenter")
-checkLocation.call("#{ENV['HOME']}/Galaxy/NxData/03-Nyx")
+checkLocation.call("#{ENV['HOME']}/Galaxy/Nyx")
 checkLocation.call("#{ENV['HOME']}/Galaxy/LucilleOS/Libraries/Ruby-Libraries")
 checkLocation.call("#{ENV['HOME']}/x-space/xcache-v1-days")
 
@@ -149,7 +149,6 @@ require_relative "Catalyst.rb"
 require_relative "CatalystListing.rb"
 require_relative "CommonUtils.rb"
 require_relative "CompositeElizabeth.rb"
-require_relative "NxProjects.rb"
 
 require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)
@@ -158,6 +157,8 @@ require_relative "Dx8Units.rb"
 require_relative "DatablobStore.rb"
 
 require_relative "EnergyGrid.rb"
+
+require_relative "Focus.rb"
 
 require_relative "Galaxy.rb"
 
@@ -170,8 +171,8 @@ require_relative "FileSystemCheck.rb"
 
 require_relative "LambdX1s.rb"
 require_relative "Locks.rb"
-require_relative "NxLimitedEmptiers.rb"
 
+require_relative "NxLimitedEmptiers.rb"
 require_relative "Nyx.rb"
 require_relative "Nx113.rb"
 require_relative "NxTodos.rb"
@@ -180,6 +181,7 @@ require_relative "NxOndates.rb"
 require_relative "NxBalls.rb"
 require_relative "NxNetwork.rb"
 require_relative "NxNodes.rb"
+require_relative "NxProjects.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"
@@ -194,7 +196,6 @@ require_relative "SyncConflicts.rb"
 require_relative "TxManualCountDowns.rb"
 require_relative "The99Percent.rb"
 require_relative "TxFloats.rb"
-require_relative "Ticks.rb"
 require_relative "TimeCommitments.rb"
 
 require_relative "Waves.rb"

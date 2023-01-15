@@ -88,6 +88,11 @@ class NxBalls
         Time.new.to_f - nxball["unixtime"]
     end
 
+    # NxBalls::itemIsRunning(item)
+    def self.itemIsRunning(item)
+        !NxBalls::getNxBallForItemOrNull(item).nil?
+    end
+
     # --------------------------------------------------
     # Operations
 
@@ -99,9 +104,6 @@ class NxBalls
             Bank::put(account["number"], timespan)
         }
         NxBalls::destroy(nxball["uuid"])
-        (timespan/3600).to_i.times {
-            Ticks::emit()
-        }
     end
 
     # NxBalls::pause(nxball)

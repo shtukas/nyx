@@ -42,7 +42,6 @@ class NxLimitedEmptiers
         if File.exists?(filepath) then
             FileUtils.rm(filepath)
         end
-        Ticks::emit()
     end
 
     # --------------------------------------------------
@@ -87,6 +86,15 @@ class NxLimitedEmptiers
                 b2 = (item["lastDoneDate"].nil? or (item["lastDoneDate"] != CommonUtils::today()))
                 !NxBalls::getNxBallForItemOrNull(item).nil? or (b1 and b2)
             }
+    end
+
+    # NxLimitedEmptiers::numbers(item)
+    def self.numbers(item)
+        valueToday = Bank::valueAtDate(item["uuid"], CommonUtils::today(), NxBalls::unrealisedTimespanForItemOrNull(item))
+        {
+            "shouldListing"         => valueToday < item["hours"]*3600,
+            "missingHoursForToday"  => (item["hours"]*3600 - valueToday).to_f/3600
+        }
     end
 
     # --------------------------------------------------

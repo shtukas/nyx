@@ -335,7 +335,6 @@ class PolyActions
             item["lastUpdatedUnixtime"] = Time.new.to_i
             puts JSON.pretty_generate(item)
             TxManualCountDowns::commit(item)
-            Ticks::emit()
             return
         end
 
