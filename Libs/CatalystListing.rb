@@ -472,12 +472,6 @@ class CatalystListing
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
     end
 
-    # CatalystListing::focusItems()
-    def self.focusItems()
-        items = CatalystListing::listingItems()
-        Focus::select(items)
-    end
-
     # CatalystListing::displayListing()
     def self.displayListing()
 
@@ -556,7 +550,7 @@ class CatalystListing
 
         projects = NxProjects::projectsForListing()
 
-        listingItems = CatalystListing::focusItems()
+        listingItems = CatalystListing::listingItems()
 
         displayData = Focus::makeDisplayData(listingItems)
         #{
