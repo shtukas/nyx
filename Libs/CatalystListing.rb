@@ -40,13 +40,6 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match(">>", input) then
-            item = store.getDefault()
-            return if item.nil?
-            Locks::lock(item)
-            return
-        end
-
         if Interpreting::match(">todo", input) then
             item = store.getDefault()
             return if item.nil?
@@ -193,15 +186,8 @@ class CatalystListing
         if Interpreting::match("lock", input) then
             item = store.getDefault()
             return if item.nil?
-            Locks::lock(item)
-            return
-        end
-
-        if Interpreting::match("lock *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            Locks::lock(item)
+            domain = LucilleCore::askQuestionAnswerAsString("domain: ")
+            Focus::lock(domain, item["uuid"])
             return
         end
 
@@ -495,22 +481,72 @@ class CatalystListing
     # CatalystListing::displayListing()
     def self.displayListing()
 
+        nxballHasAnItemInThere = lambda {|nxball, listingItems|
+            itemuuid = nxball["itemuuid"]
+            return false if itemuuid.nil?
+            listingItems.any?{|item| item["uuid"] == itemuuid }
+        }
+
+        printItem = lambda {|store, item, canBeDefault|
+
+            store.register(item, canBeDefault)
+
+            project =  project =  NxProjects::itemToProject(item)
+            projectStr = project ? " (NxProject: #{project["description"]})" : ""
+            line = "(#{store.prefixString()}) #{PolyFunctions::toStringForCatalystListing(item)}#{projectStr.green}"
+
+            nxball = NxBalls::getNxBallForItemOrNull(item)
+
+            if nxball then
+                line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
+            end
+
+            puts line
+            return CommonUtils::verticalSize(line)
+        }
+
         system("clear")
         store = ItemStore.new()
         vspaceleft = CommonUtils::screenHeight() - 4
 
         puts ""
-        linecount = TimeCommitments::printMissingHoursLine()
-        vspaceleft = vspaceleft - linecount
+        vspaceleft = vspaceleft - 1
 
-        NxProjects::runningProjects().each{|project|
-            store.register(project, false)
-            puts "(#{store.prefixString()}) #{NxProjects::toStringWithDetails(project, true)}".green
+        # The99 Percent
+        line = The99Percent::lineOrNull()
+        if line then
+            puts The99Percent::lineOrNull()
             vspaceleft = vspaceleft - 1
-        }
+        end
 
-        #puts The99Percent::line()
-        #vspaceleft = vspaceleft - 2
+        # Focus line
+        puts Focus::line()
+        vspaceleft = vspaceleft - 1
+
+        # TimeCommitment total
+        puts TimeCommitments::line()
+        vspaceleft = vspaceleft - 1
+
+        # TimeCommitment report
+        puts ""
+        vspaceleft = vspaceleft - 1
+        text = TimeCommitments::report().join("\n")
+        if text.size > 0 then
+            puts text.yellow
+            vspaceleft = vspaceleft - CommonUtils::verticalSize(text)
+        end
+
+        # Running Projects
+        projects = NxProjects::runningProjects()
+        if projects.size > 0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+            projects.each{|project|
+                store.register(project, false)
+                puts "(#{store.prefixString()}) #{NxProjects::toStringWithDetails(project, true)}".green
+                vspaceleft = vspaceleft - 1
+            }
+        end
 
         if !InternetStatus::internetIsActive() then
             puts ""
@@ -518,15 +554,26 @@ class CatalystListing
             vspaceleft = vspaceleft - 2
         end
 
-        nxballHasAnItemInThere = lambda {|nxball, listingItems|
-            itemuuid = nxball["itemuuid"]
-            return false if itemuuid.nil?
-            listingItems.any?{|item| item["uuid"] == itemuuid }
-        }
-
         projects = NxProjects::projectsForListing()
 
         listingItems = CatalystListing::focusItems()
+
+        displayData = Focus::makeDisplayData(listingItems)
+        #{
+        #    "items" : array[item]
+        #    "locks" : array[{domain, item}]
+        #}
+        domains = displayData["locks"].map{|datum| datum["domain"] }.uniq
+        domains.each{|domain|
+            domainItems = displayData["locks"].select{|datum| datum["domain"] == domain }.map{|datum| datum["item"] }
+            puts ""
+            puts "#{domain}".yellow
+            vspaceleft = vspaceleft - 2
+            domainItems.each{|item|
+                linecount = printItem.call(store, item, false)
+                vspaceleft = vspaceleft - linecount
+            }
+        }
 
         nxballs = NxBalls::items()
                     .select{|nxball| !nxballHasAnItemInThere.call(nxball, projects + listingItems) }
@@ -541,57 +588,15 @@ class CatalystListing
                 }
         end
 
-        #linecount = TimeCommitments::printing(store)
-        #vspaceleft = vspaceleft - linecount
-
-        locks = Locks::locks()
-
-        lockStatus = lambda{|item|
-            oldlocks, newlocks = locks.partition{|lock| lock["unixtime"] < (Time.new.to_i - 86400)}
-            if oldlocks.map{|data| data["uuid"]}.include?(item["uuid"]) then
-                return "oldlock"
-            end
-            if newlocks.map{|data| data["uuid"]}.include?(item["uuid"]) then
-                return "newlock"
-            end
-            nil
-        }
-
         puts ""
         vspaceleft = vspaceleft - 1
 
-        set1, set2 = listingItems.partition{|item| NxBalls::getNxBallForItemOrNull(item) }
-
+        set1, set2 = displayData["items"].partition{|item| NxBalls::getNxBallForItemOrNull(item) }
         (set1 + set2)
             .each{|item|
-
-                canBeDefault = lambda {|item|
-                    lockstat = lockStatus.call(item)
-                    return false if ["oldlock", "newlock"].include?(lockstat)
-                    return false if item["mikuType"] == "TxFloat"
-                    true
-                }
-
-                break if vspaceleft <= 0
-                store.register(item, canBeDefault.call(item))
-
-                project =  project =  NxProjects::itemToProject(item)
-                projectStr = project ? " (NxProject: #{project["description"]})" : ""
-                line = "(#{store.prefixString()}) #{PolyFunctions::toStringForCatalystListing(item)}#{projectStr.green}"
-
-                lockstat = lockStatus.call(item)
-                if lockstat == "oldlock" then
-                    line = line.yellow
-                end
-
-                nxball = NxBalls::getNxBallForItemOrNull(item)
-
-                if nxball then
-                    line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
-                end
-
-                puts line
-                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                cbdf = item["mikuType"] != "TxFloat"
+                linecount = printItem.call(store, item, cbdf)
+                vspaceleft = vspaceleft - linecount
             }
 
         puts ""
@@ -626,8 +631,6 @@ class CatalystListing
                     puts "Picked up from NxTodos-BufferIn: #{JSON.pretty_generate(item)}"
                     LucilleCore::removeFileSystemLocation(location)
                 }
-
-            Ticks::gc()
 
             CatalystListing::displayListing()
         }

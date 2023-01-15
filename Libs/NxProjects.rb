@@ -65,8 +65,7 @@ class NxProjects
     # NxProjects::itemsWithNonNullRatioOrdered()
     def self.itemsWithNonNullRatioOrdered()
         NxProjects::items()
-            .select{|item| !Ax39::standardAx39CarrierData(item).nil? }
-            .sort{|i1, i2| Ax39::standardAx39CarrierData(i1)["todayRatio"] <=> Ax39::standardAx39CarrierData(i2)["todayRatio"] }
+            .sort{|i1, i2| Ax39::standardAx39CarrierNumbers(i1)["missingHoursForToday"] <=> Ax39::standardAx39CarrierNumbers(i2)["missingHoursForToday"] }
     end
 
     # NxProjects::toString(item)
@@ -83,8 +82,8 @@ class NxProjects
             0
         end
 
-        data = Ax39::standardAx39CarrierData(item)
-        dataStr = " (today: #{"%5.2f" % data["todayDoneInHours"]} of #{"%4.2f" % data["todayDueInHours"]} h, #{"%5.2f" % data["weekActualTimeDoneInHours"]} hss, need: #{"%5.2f" %  item["ax39"]["hours"]}, #{data["weekIsUpToDate"] ? "✨" :  "🔥"})"
+        data = Ax39::standardAx39CarrierNumbers(item) # {shouldListing, missingHoursForToday}
+        dataStr = " (today: #{"%5.2f" % data["missingHoursForToday"]})"
 
         datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
         dnsustr  = datetimeOpt ? ", (do not show until: #{datetimeOpt})" : ""
@@ -103,7 +102,7 @@ class NxProjects
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-            .select{|project| Ax39::standardAx39CarrierData(project)["shouldListing"] }
+            .select{|project| Ax39::standardAx39CarrierNumbers(project)["shouldListing"] }
     end
 
     # NxProjects::runningProjects()
@@ -160,14 +159,11 @@ class NxProjects
     def self.listingWorkProjects()
         mainFocusItem = lambda{|project|
             uuid = "Vx01-MainFocus-#{project["uuid"]}"
-            data = Ax39::standardAx39CarrierData(project)
-            return nil if data.nil?
-            return nil if data["todayRatio"] > 0.75
             {
                 "uuid"        => uuid,
                 "mikuType"    => "Vx01",
                 "unixtime"    => project["unixtime"],
-                "description" => "Main Focus: '#{NxProjects::toString(project)}' (today ratio: #{data["todayRatio"].round(2)}, until: 0.75)",
+                "description" => "Main Focus: '#{NxProjects::toString(project)}'",
                 "projectId"   => project["uuid"]
             }
         }
@@ -176,7 +172,7 @@ class NxProjects
             .map{|project| 
                 focus = mainFocusItem.call(project)
                 items = NxProjects::firstNxTodoItemsForNxProject(project["uuid"])
-                (focus ? [focus] : []) + items + ((focus.nil? and items.empty?) ? [project] : [])
+                [focus] + items
             }
             .flatten
     end
@@ -192,15 +188,6 @@ class NxProjects
             .flatten
     end
 
-    # NxProjects::getTodayMissingInHours()
-    def self.getTodayMissingInHours()
-        NxProjects::projectsForListing()
-            .map{|project| Ax39::standardAx39CarrierData(project) }
-            .map{|data| data["todayMissingTimeInHoursOpt"] }
-            .compact
-            .inject(0, :+)
-    end
-
     # NxProjects::nextPositionForProject(projectId)
     def self.nextPositionForProject(projectId)
         ([0] + NxTodos::itemsForNxProject(projectId).map{|todo| todo["projectposition"] }).max + 1
@@ -209,6 +196,11 @@ class NxProjects
     # NxProjects::projectsTotalHoursPerWeek()
     def self.projectsTotalHoursPerWeek()
         NxProjects::items().map{|item| item["ax39"]["hours"] }.inject(0, :+)
+    end
+
+    # NxProjects::numbers(project)
+    def self.numbers(project)
+        Ax39::standardAx39CarrierNumbers(project)
     end
 
     # --------------------------------------------
@@ -268,7 +260,7 @@ class NxProjects
     def self.probe(project)
         loop {
             puts NxProjects::toStringWithDetails(project, false)
-            puts "data: #{Ax39::standardAx39CarrierData(project)}"
+            puts "data: #{Ax39::standardAx39CarrierNumbers(project)}"
             actions = ["start", "add time", "do not show until", "set Ax39", "expose", "items dive", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
