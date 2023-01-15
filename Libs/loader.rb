@@ -255,7 +255,7 @@ if $RunNonEssentialThreads then
             Waves::items().each{|wave|
                 next if !NxBalls::itemIsRunning(wave)
                 next if wave["maxTimeInHours"].nil?
-                if NxBalls::itemRunTimeInSecondsOrNull(item) > wave["maxTimeInHours"]*3600 then
+                if NxBalls::itemRunTimeInSecondsOrNull(wave) > wave["maxTimeInHours"]*3600 then
                     CommonUtils::onScreenNotification("catalyst", "Max timed wave is overflowing")
                 end
             }
