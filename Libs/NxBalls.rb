@@ -96,10 +96,11 @@ class NxBalls
         Time.new.to_f - nxball["unixtime"]
     end
 
-    def self.itemRealisedAndUnrealsedTime(item)
+    # NxBalls::itemRealisedAndUnrealsedTimeInSeconds(item)
+    def self.itemRealisedAndUnrealsedTimeInSeconds(item)
         realisedTime = Bank::valueAtDate(item["uuid"], CommonUtils::today())
         unrealisedTime = NxBalls::itemUnrealisedRunTimeInSecondsOrNull(item) || 0
-        realisedTime + unrealisedTimespan
+        realisedTime + unrealisedTime
     end
 
     # --------------------------------------------------
