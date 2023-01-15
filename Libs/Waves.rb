@@ -214,7 +214,7 @@ class Waves
                 "missingHoursForToday" => 0
             }
         else
-            valueToday = Bank::valueAtDate(item["uuid"], CommonUtils::today(), NxBalls::unrealisedTimespanForItemOrNull(item))
+            valueToday = Bank::valueAtDate(item["uuid"], CommonUtils::today(), NxBalls::itemUnrealisedRunTimeInSecondsOrNull(item))
             {
                 "shouldListing"        => true,
                 "missingHoursForToday" => (item["maxTimeInHours"]*3600 - valueToday).to_f/3600

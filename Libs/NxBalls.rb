@@ -56,7 +56,7 @@ class NxBalls
     end
 
     # --------------------------------------------------
-    # Data
+    # Data NxBalls
 
     # NxBalls::toRunningStatement(nxball)
     def self.toRunningStatement(nxball)
@@ -74,6 +74,9 @@ class NxBalls
         "(nxball) #{nxball["accounts"].map{|account| account["description"]}.join("; ")} #{NxBalls::toRunningStatement(nxball)}"
     end
 
+    # --------------------------------------------------
+    # Data Item
+
     # NxBalls::getNxBallForItemOrNull(item)
     def self.getNxBallForItemOrNull(item)
         NxBalls::items()
@@ -81,23 +84,22 @@ class NxBalls
             .first
     end
 
-    # NxBalls::unrealisedTimespanForItemOrNull(item)
-    def self.unrealisedTimespanForItemOrNull(item)
-        nxball = NxBalls::getNxBallForItemOrNull(item)
-        return nil if nxball.nil?
-        Time.new.to_f - nxball["unixtime"]
-    end
-
     # NxBalls::itemIsRunning(item)
     def self.itemIsRunning(item)
         !NxBalls::getNxBallForItemOrNull(item).nil?
     end
 
-    # NxBalls::itemRunTimeInSecondsOrNull(item)
-    def self.itemRunTimeInSecondsOrNull(item)
+    # NxBalls::itemUnrealisedRunTimeInSecondsOrNull(item)
+    def self.itemUnrealisedRunTimeInSecondsOrNull(item)
         nxball = NxBalls::getNxBallForItemOrNull(item)
         return nil if nxball.nil?
         Time.new.to_f - nxball["unixtime"]
+    end
+
+    def self.itemRealisedAndUnrealsedTime(item)
+        realisedTime = Bank::valueAtDate(item["uuid"], CommonUtils::today())
+        unrealisedTime = NxBalls::itemUnrealisedRunTimeInSecondsOrNull(item) || 0
+        realisedTime + unrealisedTimespan
     end
 
     # --------------------------------------------------

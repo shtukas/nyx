@@ -98,6 +98,6 @@ class Ax39
         uuid = item["uuid"]
         ax39 = item["ax39"]
         hasNxBall = NxBalls::getNxBallForItemOrNull(item)
-        Ax39::numbers(uuid, ax39, hasNxBall, NxBalls::unrealisedTimespanForItemOrNull(item))
+        Ax39::numbers(uuid, ax39, hasNxBall, NxBalls::itemUnrealisedRunTimeInSecondsOrNull(item))
     end
 end

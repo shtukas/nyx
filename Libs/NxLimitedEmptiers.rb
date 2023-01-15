@@ -73,7 +73,7 @@ class NxLimitedEmptiers
 
     # NxLimitedEmptiers::toString(item)
     def self.toString(item)
-        valueToday = Bank::valueAtDate(item["uuid"], CommonUtils::today(), NxBalls::unrealisedTimespanForItemOrNull(item))
+        valueToday = Bank::valueAtDate(item["uuid"], CommonUtils::today(), NxBalls::itemUnrealisedRunTimeInSecondsOrNull(item))
         "(limited emptier) #{item["description"]} (value today: #{(valueToday.to_f/3600).round(2)} hours, of: #{item["hours"]})"
     end
 
@@ -81,7 +81,7 @@ class NxLimitedEmptiers
     def self.listingItems()
         NxLimitedEmptiers::items()
             .select{|item|
-                valueToday = Bank::valueAtDate(item["uuid"], CommonUtils::today(), NxBalls::unrealisedTimespanForItemOrNull(item))
+                valueToday = Bank::valueAtDate(item["uuid"], CommonUtils::today(), NxBalls::itemUnrealisedRunTimeInSecondsOrNull(item))
                 b1 = (valueToday.to_f/3600) < item["hours"]
                 b2 = (item["lastDoneDate"].nil? or (item["lastDoneDate"] != CommonUtils::today()))
                 !NxBalls::getNxBallForItemOrNull(item).nil? or (b1 and b2)
@@ -90,7 +90,7 @@ class NxLimitedEmptiers
 
     # NxLimitedEmptiers::numbers(item)
     def self.numbers(item)
-        valueToday = Bank::valueAtDate(item["uuid"], CommonUtils::today(), NxBalls::unrealisedTimespanForItemOrNull(item))
+        valueToday = Bank::valueAtDate(item["uuid"], CommonUtils::today(), NxBalls::itemUnrealisedRunTimeInSecondsOrNull(item))
         {
             "shouldListing"         => valueToday < item["hours"]*3600,
             "missingHoursForToday"  => (item["hours"]*3600 - valueToday).to_f/3600
