@@ -39,7 +39,7 @@ class TimeCommitments
             .map{|item|
                 hours = TimeCommitments::itemMissingHours(item)
                 if hours > 0 then
-                    "> missing: #{"%5.2f" % hours} hours; #{PolyFunctions::toString(item)}"
+                    "> missing: #{"%5.2f" % hours} hours; #{PolyFunctions::toStringForCatalystListing(item)}"
                 else
                     nil
                 end
