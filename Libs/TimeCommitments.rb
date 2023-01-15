@@ -27,14 +27,10 @@ class TimeCommitments
             .inject(0, :+)
     end
 
-    # TimeCommitments::printLine() # linecount
-    def self.printLine()
+    # TimeCommitments::line()
+    def self.line()
         todayMissingInHours = TimeCommitments::missingHours()
-        if todayMissingInHours > 0 then
-            puts "> missing: #{"%5.2f" % todayMissingInHours} hours, projected end: #{Time.at( Time.new.to_i + todayMissingInHours*3600 ).to_s}".yellow
-            return 1
-        end
-        0
+        "> missing: #{"%5.2f" % todayMissingInHours} hours, projected end: #{Time.at( Time.new.to_i + todayMissingInHours*3600 ).to_s}"
     end
 
     # TimeCommitments::report()

@@ -504,17 +504,22 @@ class CatalystListing
         vspaceleft = CommonUtils::screenHeight() - 4
 
         puts ""
+        vspaceleft = vspaceleft - 1
 
         # The99 Percent
         line = The99Percent::lineOrNull()
         if line then
             puts The99Percent::lineOrNull()
-            vspaceleft = vspaceleft - 2
+            vspaceleft = vspaceleft - 1
         end
 
         # Focus line
         puts Focus::line()
-        vspaceleft = vspaceleft - 2
+        vspaceleft = vspaceleft - 1
+
+        # TimeCommitment total
+        puts TimeCommitments::line()
+        vspaceleft = vspaceleft - 1
 
         # TimeCommitment report
         puts ""
@@ -524,12 +529,6 @@ class CatalystListing
             puts text.yellow
             vspaceleft = vspaceleft - CommonUtils::verticalSize(text)
         end
-
-        # TimeCommitment total
-        puts ""
-        vspaceleft = vspaceleft - 1
-        linecount = TimeCommitments::printLine()
-        vspaceleft = vspaceleft - linecount
 
         # Running Projects
         projects = NxProjects::runningProjects()

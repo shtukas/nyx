@@ -128,6 +128,6 @@ class Focus
     # Focus::line()
     def self.line()
         data = Focus::getdata()
-        "> Focus: active for #{((Time.new.to_i - data["unixtime"]).to_f/3600).round(2)} hours"
+        "> focus: active for #{((Time.new.to_i - data["unixtime"]).to_f/3600).round(2)} hours"
     end
 end
