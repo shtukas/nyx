@@ -184,8 +184,9 @@ class Waves
 
     # Waves::toString(item)
     def self.toString(item)
+        maxt = item["maxTimeInHours"] ? " (max time: #{item["maxTimeInHours"].to_s.green})" : ""
         ago = "#{((Time.new.to_i - DateTime.parse(item["lastDoneDateTime"]).to_time.to_i).to_f/86400).round(2)} days ago"
-        "(wave) #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")} (#{Waves::nx46ToString(item["nx46"])}) (#{ago}) 🌊 [#{item["priority"]}]"
+        "(wave) #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")} (#{Waves::nx46ToString(item["nx46"])}) (#{ago}) 🌊 (#{item["priority"]})#{maxt}"
     end
 
     # Waves::toStringForSearch(item)
