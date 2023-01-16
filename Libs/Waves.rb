@@ -24,7 +24,7 @@ class Waves
     # Waves::commit(item)
     def self.commit(item)
         FileSystemCheck::fsck_MikuTypedItem(item, false)
-        filepath1 = Waves::getExistingFilepathForUUIDOrNull(uuid)
+        filepath1 = Waves::getExistingFilepathForUUIDOrNull(item["uuid"])
         filepath2 = "#{Config::pathToDataCenter()}/Wave/#{Digest::SHA1.hexdigest(JSON.generate(item))}.json"
         return if filepath1 == filepath2
         File.open(filepath2, "w"){|f| f.puts(JSON.pretty_generate(item)) }
