@@ -522,22 +522,18 @@ class CatalystListing
         vspaceleft = vspaceleft - 1
 
         # TimeCommitment report
-        puts ""
-        vspaceleft = vspaceleft - 1
-        text = TimeCommitments::report().join("\n")
-        if text.size > 0 then
-            puts text.yellow
-            vspaceleft = vspaceleft - CommonUtils::verticalSize(text)
-        end
-
-        # Running Projects
-        projects = NxProjects::runningProjects()
-        if projects.size > 0 then
+        timecommitments = TimeCommitments::listingItemsX()
+        if timecommitments.size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
-            projects.each{|project|
-                store.register(project, false)
-                puts "(#{store.prefixString()}) #{NxProjects::toStringWithDetails(project, true)}".green
+            timecommitments.each{|item|
+                store.register(item, false)
+                line = "(#{store.prefixString()}) #{TimeCommitments::toStringForListing(item)}"
+                nxball = NxBalls::getNxBallForItemOrNull(item)
+                if nxball then
+                    line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
+                end
+                puts line
                 vspaceleft = vspaceleft - 1
             }
         end

@@ -46,4 +46,16 @@ class TimeCommitments
             }
             .compact
     end
+
+    # TimeCommitments::toStringForListing(item)
+    def self.toStringForListing(item)
+        hours = TimeCommitments::itemMissingHours(item)
+        "> missing: #{"%5.2f" % hours} hours; #{PolyFunctions::toStringForCatalystListing(item)}"
+    end
+
+    # TimeCommitments::listingItemsX()
+    def self.listingItemsX()
+        TimeCommitments::timeCommitments()
+            .select{|item| NxBalls::itemIsRunning(item) or TimeCommitments::itemMissingHours(item) > 0 }
+    end
 end
