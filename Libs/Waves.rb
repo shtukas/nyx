@@ -2,7 +2,7 @@
 class Waves
 
     # Waves::filepath(uuid)
-    def self.filepath( uuid)
+    def self.filepath(uuid)
         "#{Config::pathToDataCenter()}/Wave/#{uuid}.json"
     end
 
