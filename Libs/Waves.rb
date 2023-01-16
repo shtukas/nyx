@@ -1,10 +1,8 @@
 
 class Waves
 
-    # Waves::filepath(uuid)
-    def self.filepath( uuid)
-        "#{Config::pathToDataCenter()}/Wave/#{uuid}.json"
-    end
+    # ------------------------------------------------------------------
+    # IO
 
     # Waves::items()
     def self.items()
@@ -16,20 +14,24 @@ class Waves
     # Waves::commit(item)
     def self.commit(item)
         FileSystemCheck::fsck_MikuTypedItem(item, false)
-        filepath = Waves::filepath(item["uuid"])
+        filepath = "#{Config::pathToDataCenter()}/Wave/#{uuid}.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
     # Waves::getOrNull(uuid)
     def self.getOrNull(uuid)
-        filepath = Waves::filepath(uuid)
-        return nil if !File.exists?(filepath)
-        JSON.parse(IO.read(filepath))
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Wave")
+            .select{|filepath|
+                obj = JSON.parse(IO.read(filepath))
+                next if obj["uuid"] != uuid
+                return obj
+            }
+        nil
     end
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        filepath = Waves::filepath(uuid)
+        filepath = "#{Config::pathToDataCenter()}/Wave/#{uuid}.json"
         if File.exists?(filepath) then
             FileUtils.rm(filepath)
         end
