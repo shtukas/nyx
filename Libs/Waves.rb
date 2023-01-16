@@ -4,6 +4,16 @@ class Waves
     # ------------------------------------------------------------------
     # IO
 
+    # Waves::getExistingFilepathForUUIDOrNull(uuid)
+    def self.getExistingFilepathForUUIDOrNull(uuid)
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Wave")
+            .select{|filepath|
+                obj = JSON.parse(IO.read(filepath))
+                obj["uuid"] == uuid
+            }
+            .first
+    end
+
     # Waves::items()
     def self.items()
         LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Wave")
@@ -14,27 +24,27 @@ class Waves
     # Waves::commit(item)
     def self.commit(item)
         FileSystemCheck::fsck_MikuTypedItem(item, false)
-        filepath = "#{Config::pathToDataCenter()}/Wave/#{uuid}.json"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
+        filepath1 = Waves::getExistingFilepathForUUIDOrNull(uuid)
+        filepath2 = "#{Config::pathToDataCenter()}/Wave/#{Digest::SHA1.hexdigest(JSON.generate(item))}.json"
+        return if filepath1 == filepath2
+        File.open(filepath2, "w"){|f| f.puts(JSON.pretty_generate(item)) }
+        if filepath1 then
+            FileUtils.rm(filepath1)
+        end
     end
 
     # Waves::getOrNull(uuid)
     def self.getOrNull(uuid)
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Wave")
-            .select{|filepath|
-                obj = JSON.parse(IO.read(filepath))
-                next if obj["uuid"] != uuid
-                return obj
-            }
-        nil
+        filepath = Waves::getExistingFilepathForUUIDOrNull(uuid)
+        return nil if filepath.nil?
+        JSON.parse(IO.read(filepath))
     end
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        filepath = "#{Config::pathToDataCenter()}/Wave/#{uuid}.json"
-        if File.exists?(filepath) then
-            FileUtils.rm(filepath)
-        end
+        filepath = Waves::getExistingFilepathForUUIDOrNull(uuid)
+        return if filepath.nil?
+        FileUtils.rm(filepath)
     end
 
     # --------------------------------------------------
