@@ -158,7 +158,7 @@ require_relative "DatablobStore.rb"
 
 require_relative "EnergyGrid.rb"
 
-require_relative "Focus.rb"
+require_relative "Locks.rb"
 
 require_relative "Galaxy.rb"
 

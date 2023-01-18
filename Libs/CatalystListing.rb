@@ -187,7 +187,7 @@ class CatalystListing
             item = store.getDefault()
             return if item.nil?
             domain = LucilleCore::askQuestionAnswerAsString("domain: ")
-            Focus::lock(domain, item["uuid"])
+            Locks::lock(domain, item["uuid"])
             return
         end
 
@@ -563,7 +563,7 @@ class CatalystListing
             }
         end
 
-        shelves = Focus::shelves()
+        shelves = Locks::shelves()
         domains = shelves.map{|datum| datum["domain"] }.uniq
         domains.each{|domain|
             items = shelves
@@ -612,7 +612,7 @@ class CatalystListing
         items1, items2 = listingItems.partition{|item| NxBalls::getNxBallForItemOrNull(item) }
         (items1 + items2)
             .each{|item|
-                next if Focus::isLocked(item["uuid"])
+                next if Locks::isLocked(item["uuid"])
                 cbdf = item["mikuType"] != "TxFloat"
                 linecount = printItem.call(store, item, cbdf)
                 vspaceleft = vspaceleft - linecount

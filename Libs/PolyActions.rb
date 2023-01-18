@@ -109,7 +109,7 @@ class PolyActions
     # PolyActions::done(item)
     def self.done(item)
 
-        Focus::done(item["uuid"])
+        Locks::done(item["uuid"])
 
         # order: alphabetical order
 
