@@ -489,7 +489,7 @@ class CatalystListing
 
             store.register(item, canBeDefault)
 
-            project =  project =  NxProjects::itemToProject(item)
+            project = NxProjects::itemToProject(item)
             projectStr = project ? " (NxProject: #{project["description"]})" : ""
             line = "(#{store.prefixString()}) #{PolyFunctions::toStringForCatalystListing(item)}#{projectStr.green}"
 
@@ -501,6 +501,10 @@ class CatalystListing
 
             puts line
             return CommonUtils::verticalSize(line)
+        }
+
+        getItemFromListingItemsOrNull = lambda {|items, uuid|
+            items.select{|item| item["uuid"] == uuid }.first
         }
 
         system("clear")
@@ -516,10 +520,6 @@ class CatalystListing
             puts The99Percent::lineOrNull()
             vspaceleft = vspaceleft - 1
         end
-
-        # Focus line
-        puts Focus::line()
-        vspaceleft = vspaceleft - 1
 
         # TimeCommitment total
         puts TimeCommitments::summaryLine()
@@ -563,18 +563,18 @@ class CatalystListing
             }
         end
 
-        displayData = Focus::makeDisplayData(listingItems)
-        #{
-        #    "items" : array[item]
-        #    "locks" : array[{domain, item}]
-        #}
-        domains = displayData["locks"].map{|datum| datum["domain"] }.uniq
+        shelves = Focus::shelves()
+        domains = shelves.map{|datum| datum["domain"] }.uniq
         domains.each{|domain|
-            domainItems = displayData["locks"].select{|datum| datum["domain"] == domain }.map{|datum| datum["item"] }
+            items = shelves
+                        .select{|datum| datum["domain"] == domain }
+                        .map{|datum| getItemFromListingItemsOrNull.call(listingItems, datum["uuid"]) }
+                        .compact
+            next if items.empty?
             puts ""
             puts "#{domain}".yellow
             vspaceleft = vspaceleft - 2
-            domainItems.each{|item|
+            items.each{|item|
                 linecount = printItem.call(store, item, false)
                 vspaceleft = vspaceleft - linecount
             }
@@ -582,6 +582,7 @@ class CatalystListing
 
         nxballs = NxBalls::items()
                     .select{|nxball| !nxballHasAnItemInThere.call(nxball, projects + listingItems) }
+
         if nxballs.size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
@@ -608,9 +609,10 @@ class CatalystListing
         puts ""
         vspaceleft = vspaceleft - 1
 
-        set1, set2 = displayData["items"].partition{|item| NxBalls::getNxBallForItemOrNull(item) }
-        (set1 + set2)
+        items1, items2 = listingItems.partition{|item| NxBalls::getNxBallForItemOrNull(item) }
+        (items1 + items2)
             .each{|item|
+                next if Focus::isLocked(item["uuid"])
                 cbdf = item["mikuType"] != "TxFloat"
                 linecount = printItem.call(store, item, cbdf)
                 vspaceleft = vspaceleft - linecount

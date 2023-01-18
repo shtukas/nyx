@@ -109,6 +109,8 @@ class PolyActions
     # PolyActions::done(item)
     def self.done(item)
 
+        Focus::done(item["uuid"])
+
         # order: alphabetical order
 
         if item["mikuType"] == "NxProject" then
