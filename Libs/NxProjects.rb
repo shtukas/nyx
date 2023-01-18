@@ -77,7 +77,7 @@ class NxProjects
         end
 
         data = Ax39::standardAx39CarrierNumbers(item) # {shouldListing, missingHoursForToday}
-        dataStr = " (today: #{"%5.2f" % data["missingHoursForToday"]})"
+        dataStr = " (pending today: #{"%5.2f" % data["missingHoursForToday"]})"
 
         datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
         dnsustr  = datetimeOpt ? ", (do not show until: #{datetimeOpt})" : ""

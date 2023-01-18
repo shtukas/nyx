@@ -59,12 +59,12 @@ class TimeCommitments
     # TimeCommitments::summaryLine()
     def self.summaryLine()
         todayMissingInHours = TimeCommitments::totalMissingHours()
-        "> missing: #{"%5.2f" % todayMissingInHours} hours, projected end: #{Time.at( Time.new.to_i + todayMissingInHours*3600 ).to_s}"
+        "> pending today: #{"%5.2f" % todayMissingInHours} hours, projected end: #{Time.at( Time.new.to_i + todayMissingInHours*3600 ).to_s}"
     end
 
     # TimeCommitments::toStringForListing(item)
     def self.toStringForListing(item)
         hours = TimeCommitments::itemMissingHours(item)
-        "> missing: #{"%5.2f" % hours} hours; #{PolyFunctions::toStringForCatalystListing(item)}"
+        "tc: #{"%5.2f" % hours} hours; #{PolyFunctions::toStringForCatalystListing(item)}"
     end
 end

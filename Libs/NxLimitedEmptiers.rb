@@ -74,7 +74,8 @@ class NxLimitedEmptiers
     # NxLimitedEmptiers::toString(item)
     def self.toString(item)
         valueToday = Bank::valueAtDate(item["uuid"], CommonUtils::today(), NxBalls::itemUnrealisedRunTimeInSecondsOrNull(item))
-        "(limited emptier) #{item["description"]} (value today: #{(valueToday.to_f/3600).round(2)} hours, of: #{item["hours"]})"
+        pendingTodayInSeconds = [item["hours"]*3600 - valueToday, 0].max
+        "(limited emptier) #{item["description"]} (pending today: #{(pendingTodayInSeconds.to_f/3600).round(2)} hours, of: #{item["hours"]})"
     end
 
     # NxLimitedEmptiers::listingItems()
