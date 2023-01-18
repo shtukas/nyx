@@ -74,7 +74,6 @@ class Focus
         puts "----------------------------------------------------------------------"
         puts "Achievement unlocked ✨ in #{((Time.new.to_i - data["unixtime"]).to_f/3600).round(2)} hours"
         puts "----------------------------------------------------------------------"
-        LucilleCore::pressEnterToContinue()
         items = CatalystListing::listingItems().first(12)
         data = {
             "unixtime" => Time.new.to_i,
