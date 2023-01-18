@@ -109,8 +109,6 @@ class PolyActions
     # PolyActions::done(item)
     def self.done(item)
 
-        Locks::unlock(item)
-
         # order: alphabetical order
 
         if item["mikuType"] == "NxProject" then

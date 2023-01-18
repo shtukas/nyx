@@ -170,7 +170,6 @@ require_relative "InMemoryStore.rb"
 require_relative "FileSystemCheck.rb"
 
 require_relative "LambdX1s.rb"
-require_relative "Locks.rb"
 
 require_relative "NsTopLines.rb"
 
