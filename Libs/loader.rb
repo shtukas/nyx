@@ -172,6 +172,8 @@ require_relative "FileSystemCheck.rb"
 require_relative "LambdX1s.rb"
 require_relative "Locks.rb"
 
+require_relative "NsTopLines.rb"
+
 require_relative "NxLimitedEmptiers.rb"
 require_relative "Nyx.rb"
 require_relative "Nx113.rb"

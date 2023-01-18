@@ -360,53 +360,53 @@ class CatalystListing
     def self.runSpeedTest()
         tests = [
             {
-                "name" => "source code trace generation",
-                "lambda" => lambda { CommonUtils::stargateTraceCode() }
-            },
-            {
                 "name" => "Anniversaries::listingItems()",
                 "lambda" => lambda { Anniversaries::listingItems() }
-            },
-            {
-                "name" => "The99Percent::getCurrentCount()",
-                "lambda" => lambda { The99Percent::getCurrentCount() }
-            },
-            {
-                "name" => "Waves::listingItems(ns:mandatory-today)",
-                "lambda" => lambda { Waves::listingItems("ns:mandatory-today") }
             },
             {
                 "name" => "NxOndates::listingItems()",
                 "lambda" => lambda { NxOndates::listingItems() }
             },
             {
-                "name" => "NxProjects::listingWorkProjects()",
-                "lambda" => lambda { NxProjects::listingWorkProjects() }
-            },
-            {
                 "name" => "NxTriages::items()",
                 "lambda" => lambda { NxTriages::items() }
+            },
+            {
+                "name" => "NxProjects::listingItems()",
+                "lambda" => lambda { NxProjects::listingItems() }
+            },
+            {
+                "name" => "source code trace generation",
+                "lambda" => lambda { CommonUtils::stargateTraceCode() }
+            },
+            {
+                "name" => "TimeCommitments::listingItems()",
+                "lambda" => lambda { TimeCommitments::listingItems() }
+            },
+            {
+                "name" => "TimeCommitments::reportItemsX()",
+                "lambda" => lambda { TimeCommitments::reportItemsX() }
+            },
+            {
+                "name" => "The99Percent::getCurrentCount()",
+                "lambda" => lambda { The99Percent::getCurrentCount() }
             },
             {
                 "name" => "TxManualCountDowns::listingItems()",
                 "lambda" => lambda { TxManualCountDowns::listingItems() }
             },
             {
-                "name" => "NxProjects::listingClassicProjects()",
-                "lambda" => lambda { NxProjects::listingClassicProjects() }
+                "name" => "Waves::listingItems(ns:beach)",
+                "lambda" => lambda { Waves::listingItems("ns:beach") }
+            },
+            {
+                "name" => "Waves::listingItems(ns:mandatory-today)",
+                "lambda" => lambda { Waves::listingItems("ns:mandatory-today") }
             },
             {
                 "name" => "Waves::listingItems(ns:time-important)",
                 "lambda" => lambda { Waves::listingItems("ns:time-important") }
             },
-            {
-                "name" => "Waves::listingItems(ns:beach)",
-                "lambda" => lambda { Waves::listingItems("ns:beach") }
-            },
-            {
-                "name" => "Waves::listingItems(ns:beach)",
-                "lambda" => lambda { Waves::listingItems("ns:beach") }
-            }
         ]
 
         runTest = lambda {|test|
@@ -455,16 +455,13 @@ class CatalystListing
     # CatalystListing::listingItems()
     def self.listingItems()
         items = [
-            TxFloats::listingItems(),
             NxTriages::items(),
             Anniversaries::listingItems(),
             Waves::listingItems("ns:mandatory-today"),
             NxOndates::listingItems(),
-            NxProjects::listingWorkProjects(),
             TxManualCountDowns::listingItems(),
-            NxLimitedEmptiers::listingItems(),
             Waves::listingItems("ns:time-important"),
-            NxProjects::listingClassicProjects(),
+            TimeCommitments::listingItems(),
             Waves::listingItems("ns:beach")
         ]
             .flatten
@@ -518,11 +515,11 @@ class CatalystListing
         vspaceleft = vspaceleft - 1
 
         # TimeCommitment total
-        puts TimeCommitments::line()
+        puts TimeCommitments::summaryLine()
         vspaceleft = vspaceleft - 1
 
         # TimeCommitment report
-        timecommitments = TimeCommitments::listingItemsX()
+        timecommitments = TimeCommitments::reportItemsX()
         if timecommitments.size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
@@ -547,6 +544,29 @@ class CatalystListing
         projects = NxProjects::projectsForListing()
 
         listingItems = CatalystListing::listingItems()
+
+        tops = NsTopLines::listingItems()
+        if tops.size > 0 then
+            puts ""
+            puts "tops".green
+            vspaceleft = vspaceleft - 2
+            tops.each{|line|
+                store.register(line, false)
+                puts "(#{store.prefixString()}) (line) #{line["line"]}"
+                vspaceleft = vspaceleft - 1
+            }
+        end
+
+        floats = TxFloats::listingItems()
+        if floats.size > 0 then
+            puts ""
+            puts "floats".yellow
+            vspaceleft = vspaceleft - 2
+            floats.each{|item|
+                linecount = printItem.call(store, item, false)
+                vspaceleft = vspaceleft - linecount
+            }
+        end
 
         displayData = Focus::makeDisplayData(listingItems)
         #{

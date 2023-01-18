@@ -20,42 +20,51 @@ class TimeCommitments
         raise "(error: a458a103-1fb8-46d6-b3a2-72e583b28863)"
     end
 
-    # TimeCommitments::missingHours()
-    def self.missingHours()
+    # TimeCommitments::itemToAllAssociatedListingItems(item)
+    def self.itemToAllAssociatedListingItems(item)
+        if item["mikuType"] == "NxProject" then
+            return NxProjects::projectWithToAllAssociatedListingItems(item)
+        end
+        if item["mikuType"] == "NxLimitedEmptier" then
+            return item
+        end
+        if item["mikuType"] == "Wave" then
+            return item
+        end
+        raise "(error: 774dc851-f949-4ed6-b076-d91079d8b393)"
+    end
+
+    # TimeCommitments::totalMissingHours()
+    def self.totalMissingHours()
         TimeCommitments::timeCommitments()
             .map{|item| TimeCommitments::itemMissingHours(item) }
             .inject(0, :+)
     end
 
-    # TimeCommitments::line()
-    def self.line()
-        todayMissingInHours = TimeCommitments::missingHours()
-        "> missing: #{"%5.2f" % todayMissingInHours} hours, projected end: #{Time.at( Time.new.to_i + todayMissingInHours*3600 ).to_s}"
+    # TimeCommitments::reportItemsX()
+    def self.reportItemsX()
+        TimeCommitments::timeCommitments()
+            .select{|item| item["mikuType"] != "Wave" }
+            .select{|item| NxBalls::itemIsRunning(item) or TimeCommitments::itemMissingHours(item) > 0 }
+            .sort{|i1, i2| TimeCommitments::itemMissingHours(i1) <=> TimeCommitments::itemMissingHours(i2) }
     end
 
-    # TimeCommitments::report()
-    def self.report()
-        TimeCommitments::timeCommitments()
-            .map{|item|
-                hours = TimeCommitments::itemMissingHours(item)
-                if hours > 0 then
-                    "> missing: #{"%5.2f" % hours} hours; #{PolyFunctions::toStringForCatalystListing(item)}"
-                else
-                    nil
-                end
-            }
-            .compact
+    # TimeCommitments::listingItems()
+    def self.listingItems()
+        TimeCommitments::reportItemsX()
+            .map{|item| TimeCommitments::itemToAllAssociatedListingItems(item) }
+            .flatten
+    end
+
+    # TimeCommitments::summaryLine()
+    def self.summaryLine()
+        todayMissingInHours = TimeCommitments::totalMissingHours()
+        "> missing: #{"%5.2f" % todayMissingInHours} hours, projected end: #{Time.at( Time.new.to_i + todayMissingInHours*3600 ).to_s}"
     end
 
     # TimeCommitments::toStringForListing(item)
     def self.toStringForListing(item)
         hours = TimeCommitments::itemMissingHours(item)
         "> missing: #{"%5.2f" % hours} hours; #{PolyFunctions::toStringForCatalystListing(item)}"
-    end
-
-    # TimeCommitments::listingItemsX()
-    def self.listingItemsX()
-        TimeCommitments::timeCommitments()
-            .select{|item| NxBalls::itemIsRunning(item) or TimeCommitments::itemMissingHours(item) > 0 }
     end
 end

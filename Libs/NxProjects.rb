@@ -99,7 +99,6 @@ class NxProjects
     # NxProjects::projectsForListing()
     def self.projectsForListing()
         NxProjects::itemsWithNonNullRatioOrdered()
-            .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
             .select{|project| Ax39::standardAx39CarrierNumbers(project)["shouldListing"] }
@@ -155,39 +154,6 @@ class NxProjects
         end
     end
 
-    # NxProjects::listingWorkProjects()
-    def self.listingWorkProjects()
-        mainFocusItem = lambda{|project|
-            uuid = "Vx01-MainFocus-#{project["uuid"]}"
-            {
-                "uuid"        => uuid,
-                "mikuType"    => "Vx01",
-                "unixtime"    => project["unixtime"],
-                "description" => "Main Focus: '#{NxProjects::toString(project)}'",
-                "projectId"   => project["uuid"]
-            }
-        }
-        NxProjects::projectsForListing()
-            .select{|project| project["isWork"] }
-            .map{|project| 
-                focus = mainFocusItem.call(project)
-                items = NxProjects::firstNxTodoItemsForNxProject(project["uuid"])
-                [focus] + items
-            }
-            .flatten
-    end
-
-    # NxProjects::listingClassicProjects()
-    def self.listingClassicProjects()
-        NxProjects::projectsForListing()
-            .select{|project| !project["isWork"] }
-            .map{|project| 
-                items = NxProjects::firstNxTodoItemsForNxProject(project["uuid"])
-                items + (items.empty? ? [project] : [])
-            }
-            .flatten
-    end
-
     # NxProjects::nextPositionForProject(projectId)
     def self.nextPositionForProject(projectId)
         ([0] + NxTodos::itemsForNxProject(projectId).map{|todo| todo["projectposition"] }).max + 1
@@ -201,6 +167,19 @@ class NxProjects
     # NxProjects::numbers(project)
     def self.numbers(project)
         Ax39::standardAx39CarrierNumbers(project)
+    end
+
+    # NxProjects::projectWithToAllAssociatedListingItems(project)
+    def self.projectWithToAllAssociatedListingItems(project)
+        items = NxProjects::firstNxTodoItemsForNxProject(project["uuid"])
+        items + (items.empty? ? [project] : [])
+    end
+
+    # NxProjects::listingItems()
+    def self.listingItems()
+        NxProjects::projectsForListing()
+            .map{|project| NxProjects::projectWithToAllAssociatedListingItems(project) }
+            .flatten
     end
 
     # --------------------------------------------

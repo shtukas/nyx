@@ -121,6 +121,11 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NsTopLine" then
+            NsTopLines::destroy(item["uuid"])
+            return
+        end
+
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::done(item["uuid"])
             return
