@@ -6,7 +6,7 @@ class CatalystListing
     def self.listingCommands()
         [
             "[listing interaction] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | destroy",
-            "[makers] wave | anniversary | today | ondate | todo | project | manual countdown",
+            "[makers] wave | anniversary | today | ondate | todo | project | manual countdown | top",
             "[nxballs] start (<n>) | stop <n> | pause <n> | pursue <n>",
             "[divings] anniversaries | ondates | waves | projects | todos | float | limited-emptier",
             "[transmutations] >todo (ondates and triages)",
@@ -339,6 +339,13 @@ class CatalystListing
             return
         end
 
+        if Interpreting::match("top", input) then
+            item = NsTopLines::interactivelyIssueNewOrNull()
+            return if item.nil?
+            puts JSON.pretty_generate(item)
+            return
+        end
+
         if input == "wave" then
             Waves::issueNewWaveInteractivelyOrNull()
             return
@@ -545,18 +552,6 @@ class CatalystListing
 
         listingItems = CatalystListing::listingItems()
 
-        tops = NsTopLines::listingItems()
-        if tops.size > 0 then
-            puts ""
-            puts "tops".green
-            vspaceleft = vspaceleft - 2
-            tops.each{|line|
-                store.register(line, false)
-                puts "(#{store.prefixString()}) (line) #{line["line"]}"
-                vspaceleft = vspaceleft - 1
-            }
-        end
-
         floats = TxFloats::listingItems()
         if floats.size > 0 then
             puts ""
@@ -596,6 +591,18 @@ class CatalystListing
                     puts "(#{store.prefixString()}) #{NxBalls::toString(nxball)}".green
                     vspaceleft = vspaceleft - 1
                 }
+        end
+
+        tops = NsTopLines::listingItems()
+        if tops.size > 0 then
+            puts ""
+            puts "tops".green
+            vspaceleft = vspaceleft - 2
+            tops.each{|line|
+                store.register(line, false)
+                puts "(#{store.prefixString()}) (line) #{line["line"]}"
+                vspaceleft = vspaceleft - 1
+            }
         end
 
         puts ""
