@@ -62,12 +62,6 @@ class NxProjects
     # ----------------------------------------------------------------
     # Data
 
-    # NxProjects::itemsWithNonNullRatioOrdered()
-    def self.itemsWithNonNullRatioOrdered()
-        NxProjects::items()
-            .sort{|i1, i2| Ax39::standardAx39CarrierNumbers(i1)["missingHoursForToday"] <=> Ax39::standardAx39CarrierNumbers(i2)["missingHoursForToday"] }
-    end
-
     # NxProjects::toString(item)
     def self.toString(item)
         "(project) #{item["description"]}"
@@ -98,7 +92,7 @@ class NxProjects
 
     # NxProjects::projectsForListing()
     def self.projectsForListing()
-        NxProjects::itemsWithNonNullRatioOrdered()
+        NxProjects::items()
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
             .select{|project| Ax39::standardAx39CarrierNumbers(project)["shouldListing"] }

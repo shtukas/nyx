@@ -3,17 +3,40 @@
 
 class NxNodeContentService
 
+    # --------------------------------------------------------
+
+    # NxNodeContentService::dataDirectoryPath(uuid)
+    def self.dataDirectoryPath(uuid)
+        "#{Nyx::pathToNyx()}/Data/#{uuid}"
+    end
+
+    # NxNodeContentService::ensureNyxDataDirectory(uuid)
+    def self.ensureNyxDataDirectory(uuid)
+        folderpath = NxNodeContentService::dataDirectoryPath(uuid)
+        if !File.exists?(folderpath) then
+            FileUtils.mkdir(folderpath)
+        end
+        folderpath
+    end
+
+    # NxNodeContentService::accessNyxDirectory(uuid)
+    def self.accessNyxDirectory(uuid)
+        folderpath = NxNodeContentService::ensureNyxDataDirectory(uuid)
+        system("open '#{folderpath}'")
+        LucilleCore::pressEnterToContinue()
+    end
+
+    # --------------------------------------------------------
+
     # NxNodeContentService::contentTypes()
     def self.contentTypes()
         ["directory", "text", "url"]
     end
 
-    # NxNodeContentService::interactivelySelectContentType()
-    def self.interactivelySelectContentType()
+    # NxNodeContentService::interactivelySelectContentTypeOrNull()
+    def self.interactivelySelectContentTypeOrNull()
         types = NxNodeContentService::contentTypes()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("content type", types)
-        return "directory" if type.nil?
-        type
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("content type", types)
     end
 
     # NxNodeContentService::installContentType(type, uuid)
@@ -32,25 +55,20 @@ class NxNodeContentService
         end
         if type == "url" then
             # Here we get the url and write it in a URL.txt file
-             folderpath = NxNodeContentService::ensureNyxDataDirectory(uuid)
+            folderpath = NxNodeContentService::ensureNyxDataDirectory(uuid)
             filepath = "#{folderpath}/URL.txt"
+            url = LucilleCore::askQuestionAnswerAsString("url: ")
+            File.open(filepath, "w"){|f| f.puts(url) }
+            return
         end
+        raise "(error: unsupported type: #{type})"
     end
 
-    # NxNodeContentService::ensureNyxDataDirectory(uuid)
-    def self.ensureNyxDataDirectory(uuid)
-        folderpath = NxNodes::dataDirectoryPath(uuid)
-        if !File.exists?(folderpath) then
-            FileUtils.mkdir(folderpath)
-        end
-        folderpath
-    end
-
-    # NxNodeContentService::accessNyxDirectory(uuid)
-    def self.accessNyxDirectory(uuid)
-        folderpath = NxNodeContentService::ensureNyxDataDirectory(uuid)
-        system("open '#{folderpath}'")
-        LucilleCore::pressEnterToContinue()
+    # NxNodeContentService::installContentOrNothing(uuid)
+    def self.installContentOrNothing(uuid)
+        type = NxNodeContentService::interactivelySelectContentTypeOrNull()
+        return if type.nil?
+        NxNodeContentService::installContentType(type, uuid)
     end
 
 end
@@ -94,11 +112,6 @@ class NxNodes
         end
     end
 
-    # NxNodes::dataDirectoryPath(uuid)
-    def self.dataDirectoryPath(uuid)
-        "#{Nyx::pathToNyx()}/Data/#{uuid}"
-    end
-
     # --------------------------------------
     # Makers
 
@@ -115,9 +128,7 @@ class NxNodes
             "description" => description,
         }
         NxNodes::commit(item)
-        if LucilleCore::askQuestionAnswerAsBoolean("> make and access directory ? ") then
-            NxNodeContentService::accessNyxDirectory(uuid)
-        end
+        NxNodeContentService::installContentOrNothing(uuid)
         item
     end
 
@@ -165,7 +176,7 @@ class NxNodes
             end
 
             if command == "access" then
-                if !File.exists?(NxNodes::dataDirectoryPath(item["uuid"])) then
+                if !File.exists?(NxNodeContentService::dataDirectoryPath(item["uuid"])) then
                     puts "data directory doesn't exist"
                     if LucilleCore::askQuestionAnswerAsBoolean("create and access data directory ? ") then
                         NxNodeContentService::accessNyxDirectory(item["uuid"])

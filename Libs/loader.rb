@@ -271,6 +271,14 @@ if $RunNonEssentialThreads then
                 end
             }
 
+            NxLimitedEmptiers::items().each{|item|
+                next if !NxBalls::itemIsRunning(item)
+                numbers = NxLimitedEmptiers::numbers(item)
+                if !numbers["shouldListing"] then
+                    CommonUtils::onScreenNotification("catalyst", "NxLimited emptiers")
+                end
+            }
+
             NxBalls::items().each{|nxball|
                 if (Time.new.to_i - nxball["unixtime"]) > 3600 then
                     CommonUtils::onScreenNotification("catalyst", "NxBall over 1 hour")

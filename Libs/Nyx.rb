@@ -5,7 +5,7 @@ class Nyx
 
     # Nyx::pathToNyx()
     def self.pathToNyx()
-        "#{Config::pathToGalaxy()}/NxData/03-Nyx"
+        "#{Config::pathToGalaxy()}/Nyx"
     end
 
     # Nyx::main()
