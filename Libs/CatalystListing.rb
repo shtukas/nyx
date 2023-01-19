@@ -5,7 +5,7 @@ class CatalystListing
     # CatalystListing::listingCommands()
     def self.listingCommands()
         [
-            "[listing interaction] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | destroy",
+            "[listing interaction] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | >> skip default | destroy",
             "[makers] wave | anniversary | today | ondate | todo | project | manual countdown | top",
             "[nxballs] start (<n>) | stop <n> | pause <n> | pursue <n>",
             "[divings] anniversaries | ondates | waves | projects | todos | float | limited-emptier",
@@ -325,6 +325,13 @@ class CatalystListing
             return
         end
 
+        if Interpreting::match(">>", input) then
+            item = store.getDefault()
+            return if item.nil?
+            Skips::skip(item["uuid"], Time.new.to_f + 3600*1.5)
+            return
+        end
+
         if Interpreting::match("today", input) then
             item = NxOndates::interactivelyIssueNewTodayOrNull()
             return if item.nil?
@@ -602,7 +609,7 @@ class CatalystListing
             puts "tops".green
             vspaceleft = vspaceleft - 2
             tops.each{|item|
-                store.register(item, false)
+                store.register(item, !Skips::isSkipped(item["uuid"]))
                 line = "(#{store.prefixString()}) (line) #{item["line"]}"
                 nxball = NxBalls::getNxBallForItemOrNull(item)
                 if nxball then
@@ -620,7 +627,7 @@ class CatalystListing
         (items1 + items2)
             .each{|item|
                 next if Locks::isLocked(item["uuid"])
-                cbdf = item["mikuType"] != "TxFloat"
+                cbdf = (item["mikuType"] != "TxFloat") and !Skips::isSkipped(item["uuid"])
                 linecount = printItem.call(store, item, cbdf)
                 vspaceleft = vspaceleft - linecount
                 break if vspaceleft <= 0
