@@ -43,10 +43,15 @@ class TimeCommitments
 
     # TimeCommitments::reportItemsX()
     def self.reportItemsX()
-        TimeCommitments::timeCommitments()
+        items = TimeCommitments::timeCommitments()
             .select{|item| item["mikuType"] != "Wave" }
             .select{|item| NxBalls::itemIsRunning(item) or TimeCommitments::itemMissingHours(item) > 0 }
             .sort{|i1, i2| TimeCommitments::itemMissingHours(i1) <=> TimeCommitments::itemMissingHours(i2) }
+        isMidDay = Time.new.hour >= 9 and Time.new.hour < 16
+        if isMidDay then
+            items = items.reverse # higher demand first as they usually correspond to work
+        end
+        items
     end
 
     # TimeCommitments::listingItems()

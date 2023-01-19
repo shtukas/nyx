@@ -6,3 +6,4 @@ Vx01:
     "mikuType"    : "Vx01"
     "unixtime"    : Float
     "description" : String
+    "projectId"   : String

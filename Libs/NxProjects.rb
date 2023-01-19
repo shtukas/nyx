@@ -165,8 +165,24 @@ class NxProjects
 
     # NxProjects::projectWithToAllAssociatedListingItems(project)
     def self.projectWithToAllAssociatedListingItems(project)
+
+        makeVx01 = lambda {|project|
+            uuid = Digest::SHA1.hexdigest("0BCED4BA-4FCC-405A-8B06-EB5359CBFC75")
+            {
+                "uuid"        => uuid,
+                "mikuType"    => "Vx01",
+                "unixtime"    => Time.new.to_f,
+                "description" => "Main focus for project '#{NxProjects::toString(project)}'",
+                "projectId"   => project["uuid"]
+            }
+        }
+
         items = NxProjects::firstNxTodoItemsForNxProject(project["uuid"])
-        items + (items.empty? ? [project] : [])
+        if items.size > 0 then
+            [makeVx01.call(project)] + items
+        else
+            [project]
+        end
     end
 
     # NxProjects::listingItems()

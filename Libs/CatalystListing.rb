@@ -580,8 +580,10 @@ class CatalystListing
             }
         }
 
+        tops = NsTopLines::listingItems()
+
         nxballs = NxBalls::items()
-                    .select{|nxball| !nxballHasAnItemInThere.call(nxball, projects + listingItems) }
+                    .select{|nxball| !nxballHasAnItemInThere.call(nxball, projects + listingItems + tops) }
 
         if nxballs.size > 0 then
             puts ""
@@ -599,9 +601,14 @@ class CatalystListing
             puts ""
             puts "tops".green
             vspaceleft = vspaceleft - 2
-            tops.each{|line|
-                store.register(line, false)
-                puts "(#{store.prefixString()}) (line) #{line["line"]}"
+            tops.each{|item|
+                store.register(item, false)
+                line = "(#{store.prefixString()}) (line) #{item["line"]}"
+                nxball = NxBalls::getNxBallForItemOrNull(item)
+                if nxball then
+                    line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
+                end
+                puts line
                 vspaceleft = vspaceleft - 1
             }
         end
