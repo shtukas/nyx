@@ -253,6 +253,12 @@ if $RunNonEssentialThreads then
         loop {
             sleep 120
 
+            NxBalls::items().each{|nxball|
+                if (Time.new.to_i - nxball["unixtime"]) > 3600 then
+                    CommonUtils::onScreenNotification("catalyst", "NxBall over 1 hour")
+                end
+            }
+
             Waves::items().each{|wave|
                 next if !NxBalls::itemIsRunning(wave)
                 next if wave["maxTimeInHours"].nil?
@@ -262,11 +268,10 @@ if $RunNonEssentialThreads then
                 end
             }
 
-            NxLimitedEmptiers::items().each{|item|
-                next if !NxBalls::itemIsRunning(item)
-                numbers = NxLimitedEmptiers::numbers(item)
+            NxProjects::runningProjects().each{|item|
+                numbers = NxProjects::numbers(item)
                 if !numbers["shouldListing"] then
-                    CommonUtils::onScreenNotification("catalyst", "NxLimited emptiers")
+                    CommonUtils::onScreenNotification("catalyst", "project is overflowing")
                 end
             }
 
@@ -274,13 +279,7 @@ if $RunNonEssentialThreads then
                 next if !NxBalls::itemIsRunning(item)
                 numbers = NxLimitedEmptiers::numbers(item)
                 if !numbers["shouldListing"] then
-                    CommonUtils::onScreenNotification("catalyst", "NxLimited emptiers")
-                end
-            }
-
-            NxBalls::items().each{|nxball|
-                if (Time.new.to_i - nxball["unixtime"]) > 3600 then
-                    CommonUtils::onScreenNotification("catalyst", "NxBall over 1 hour")
+                    CommonUtils::onScreenNotification("catalyst", "NxLimited is overflowing")
                 end
             }
         }
