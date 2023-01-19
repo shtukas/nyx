@@ -159,6 +159,9 @@ class PolyFunctions
         if item["mikuType"] == "InboxItem" then
             return item["description"]
         end
+        if item["mikuType"] == "NsTopLine" then
+            return item["line"]
+        end
         if item["mikuType"] == "NxAnniversary" then
             return item["description"]
         end
