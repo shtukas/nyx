@@ -308,7 +308,7 @@ class Waves
                 next
             end
             if action == "set project" then
-                project = NxProjects::interactivelySelectNxProjectOrNull()
+                project = NxTimeCommitments::interactivelySelectNxTimeCommitmentOrNull()
                 next if project.nil?
                 item["projectId"] = project["uuid"]
                 Waves::commit(item)

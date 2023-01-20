@@ -183,7 +183,7 @@ require_relative "NxOndates.rb"
 require_relative "NxBalls.rb"
 require_relative "NxNetwork.rb"
 require_relative "NxNodes.rb"
-require_relative "NxProjects.rb"
+require_relative "NxTimeCommitments.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"
@@ -270,8 +270,8 @@ if $RunNonEssentialThreads then
                 end
             }
 
-            NxProjects::runningProjects().each{|item|
-                numbers = NxProjects::numbers(item)
+            NxTimeCommitments::runningProjects().each{|item|
+                numbers = NxTimeCommitments::numbers(item)
                 if !numbers["shouldListing"] then
                     CommonUtils::onScreenNotification("catalyst", "project is overflowing")
                 end

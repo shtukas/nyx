@@ -118,7 +118,7 @@ class NxLimitedEmptiers
                 NxLimitedEmptiers::commit(item)
             end
             if action == "set project" then
-                project = NxProjects::interactivelySelectNxProjectOrNull()
+                project = NxTimeCommitments::interactivelySelectNxTimeCommitmentOrNull()
                 next if project.nil?
                 item["projectId"] = project["uuid"]
                 NxLimitedEmptiers::commit(item)

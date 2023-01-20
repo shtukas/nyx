@@ -40,8 +40,8 @@ class NxTodos
         end
     end
 
-    # NxTodos::itemsForNxProject(projectId)
-    def self.itemsForNxProject(projectId)
+    # NxTodos::itemsForNxTimeCommitment(projectId)
+    def self.itemsForNxTimeCommitment(projectId)
         NxTodos::itemsEnumerator()
             .select{|item|
                 item["projectId"] == projectId
@@ -65,8 +65,8 @@ class NxTodos
         return nil if description == ""
         uuid  = CommonUtils::timeStringL22()
         nx113 = Nx113Make::interactivelyMakeNx113OrNull()
-        projectId = NxProjects::interactivelySelectProject()["uuid"]
-        projectposition = NxProjects::interactivelyDecideProjectPosition(projectId)
+        projectId = NxTimeCommitments::interactivelySelectProject()["uuid"]
+        projectposition = NxTimeCommitments::interactivelyDecideProjectPosition(projectId)
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
@@ -84,8 +84,8 @@ class NxTodos
     # NxTodos::issueConsumingNxOndate(nxondate)
     def self.issueConsumingNxOndate(nxondate)
         item = nxondate.clone
-        project = NxProjects::interactivelySelectProject()
-        projectposition = NxProjects::nextPositionForProject(project["uuid"])
+        project = NxTimeCommitments::interactivelySelectProject()
+        projectposition = NxTimeCommitments::nextPositionForProject(project["uuid"])
         item["uuid"] = CommonUtils::timeStringL22()
         item["mikuType"] = "NxTodo"
         item["projectId"] = project["uuid"]
@@ -108,8 +108,8 @@ class NxTodos
         end
 
         item = nxtriage.clone
-        project = NxProjects::interactivelySelectProject()
-        projectposition = NxProjects::interactivelyDecideProjectPosition(project["uuid"])
+        project = NxTimeCommitments::interactivelySelectProject()
+        projectposition = NxTimeCommitments::interactivelyDecideProjectPosition(project["uuid"])
         item["uuid"] = CommonUtils::timeStringL22()
         item["description"] = description
         item["mikuType"] = "NxTodo"

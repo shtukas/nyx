@@ -1,37 +1,37 @@
 
-class NxProjects
+class NxTimeCommitments
 
-    # NxProjects::filepath(uuid)
+    # NxTimeCommitments::filepath(uuid)
     def self.filepath(uuid)
-        "#{Config::pathToDataCenter()}/NxProject/#{uuid}.json"
+        "#{Config::pathToDataCenter()}/NxTimeCommitment/#{uuid}.json"
     end
 
-    # NxProjects::items()
+    # NxTimeCommitments::items()
     def self.items()
-        items = LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxProject")
+        items = LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTimeCommitment")
                     .select{|filepath| filepath[-5, 5] == ".json" }
                     .map{|filepath| JSON.parse(IO.read(filepath)) }
-        XCache::set("NxProject-Description-Padding-DDBBF46A-2D56-4931-BE11-AF66F97F738E", items.map{|item| item["description"].size }.max)
+        XCache::set("NxTimeCommitment-Description-Padding-DDBBF46A-2D56-4931-BE11-AF66F97F738E", items.map{|item| item["description"].size }.max)
         items
     end
 
-    # NxProjects::commit(item)
+    # NxTimeCommitments::commit(item)
     def self.commit(item)
         FileSystemCheck::fsck_MikuTypedItem(item, false)
-        filepath = NxProjects::filepath(item["uuid"])
+        filepath = NxTimeCommitments::filepath(item["uuid"])
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
-    # NxProjects::getOrNull(uuid)
+    # NxTimeCommitments::getOrNull(uuid)
     def self.getOrNull(uuid)
-        filepath = NxProjects::filepath(uuid)
+        filepath = NxTimeCommitments::filepath(uuid)
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
-    # NxProjects::destroy(uuid)
+    # NxTimeCommitments::destroy(uuid)
     def self.destroy(uuid)
-        filepath = NxProjects::filepath(uuid)
+        filepath = NxTimeCommitments::filepath(uuid)
         if File.exists?(filepath) then
             FileUtils.rm(filepath)
         end
@@ -40,38 +40,38 @@ class NxProjects
     # --------------------------------------------
     # Makers
 
-    # NxProjects::interactivelyIssueNewOrNull()
+    # NxTimeCommitments::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         ax39 = Ax39::interactivelyCreateNewAx()
         item = {
             "uuid"        => SecureRandom.uuid,
-            "mikuType"    => "NxProject",
+            "mikuType"    => "NxTimeCommitment",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
             "ax39"        => ax39,
             "isWork"      => false
         }
-        FileSystemCheck::fsck_NxProject(item, true)
-        NxProjects::commit(item)
+        FileSystemCheck::fsck_NxTimeCommitment(item, true)
+        NxTimeCommitments::commit(item)
         item
     end
 
     # ----------------------------------------------------------------
     # Data
 
-    # NxProjects::toString(item)
+    # NxTimeCommitments::toString(item)
     def self.toString(item)
         "(project) #{item["description"]}"
     end
 
-    # NxProjects::toStringWithDetails(item, shouldFormat)
+    # NxTimeCommitments::toStringWithDetails(item, shouldFormat)
     def self.toStringWithDetails(item, shouldFormat)
         descriptionPadding = 
         if shouldFormat then
-            (XCache::getOrNull("NxProject-Description-Padding-DDBBF46A-2D56-4931-BE11-AF66F97F738E") || 0).to_i
+            (XCache::getOrNull("NxTimeCommitment-Description-Padding-DDBBF46A-2D56-4931-BE11-AF66F97F738E") || 0).to_i
         else
             0
         end
@@ -85,28 +85,28 @@ class NxProjects
         "(project) #{item["description"].ljust(descriptionPadding)} (#{Ax39::toStringFormatted(item["ax39"])})#{dataStr}#{dnsustr}"
     end
 
-    # NxProjects::itemToProject(item)
+    # NxTimeCommitments::itemToProject(item)
     def self.itemToProject(item)
-        NxProjects::getOrNull(item["projectId"])
+        NxTimeCommitments::getOrNull(item["projectId"])
     end
 
-    # NxProjects::projectsForListing()
+    # NxTimeCommitments::projectsForListing()
     def self.projectsForListing()
-        NxProjects::items()
+        NxTimeCommitments::items()
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
             .select{|project| Ax39::standardAx39CarrierNumbers(project)["shouldListing"] }
     end
 
-    # NxProjects::runningProjects()
+    # NxTimeCommitments::runningProjects()
     def self.runningProjects()
-        NxProjects::items()
+        NxTimeCommitments::items()
             .select{|project| NxBalls::getNxBallForItemOrNull(project) }
     end
 
-    # NxProjects::firstNxTodoItemsForNxProject(projectId)
-    def self.firstNxTodoItemsForNxProject(projectId)
-        filepath = "#{Config::pathToDataCenter()}/NxProject-to-FirstItems/#{projectId}.json"
+    # NxTimeCommitments::firstNxTodoItemsForNxTimeCommitment(projectId)
+    def self.firstNxTodoItemsForNxTimeCommitment(projectId)
+        filepath = "#{Config::pathToDataCenter()}/NxTimeCommitment-to-FirstItems/#{projectId}.json"
 
         getDataOrNull = lambda {|filepath|
             return nil if !File.exists?(filepath)
@@ -126,8 +126,8 @@ class NxProjects
         }
 
         issueNewFile = lambda {|filepath, projectId|
-            #puts "> issuing new file for project: #{NxProjects::getOrNull(projectId)["description"]}"
-            items = NxTodos::itemsForNxProject(projectId)
+            #puts "> issuing new file for project: #{NxTimeCommitments::getOrNull(projectId)["description"]}"
+            items = NxTodos::itemsForNxTimeCommitment(projectId)
                         .sort{|i1, i2| i1["projectposition"] <=> i2["projectposition"] }
                         .first(10)
             uuids = items.map{|item| item["uuid"] }
@@ -148,22 +148,22 @@ class NxProjects
         end
     end
 
-    # NxProjects::nextPositionForProject(projectId)
+    # NxTimeCommitments::nextPositionForProject(projectId)
     def self.nextPositionForProject(projectId)
-        ([0] + NxTodos::itemsForNxProject(projectId).map{|todo| todo["projectposition"] }).max + 1
+        ([0] + NxTodos::itemsForNxTimeCommitment(projectId).map{|todo| todo["projectposition"] }).max + 1
     end
 
-    # NxProjects::projectsTotalHoursPerWeek()
+    # NxTimeCommitments::projectsTotalHoursPerWeek()
     def self.projectsTotalHoursPerWeek()
-        NxProjects::items().map{|item| item["ax39"]["hours"] }.inject(0, :+)
+        NxTimeCommitments::items().map{|item| item["ax39"]["hours"] }.inject(0, :+)
     end
 
-    # NxProjects::numbers(project)
+    # NxTimeCommitments::numbers(project)
     def self.numbers(project)
         Ax39::standardAx39CarrierNumbers(project)
     end
 
-    # NxProjects::projectWithToAllAssociatedListingItems(project)
+    # NxTimeCommitments::projectWithToAllAssociatedListingItems(project)
     def self.projectWithToAllAssociatedListingItems(project)
 
         makeVx01 = lambda {|project|
@@ -172,12 +172,12 @@ class NxProjects
                 "uuid"        => uuid,
                 "mikuType"    => "Vx01",
                 "unixtime"    => Time.new.to_f,
-                "description" => "Main focus for project '#{NxProjects::toString(project)}'",
+                "description" => "Main focus for project '#{NxTimeCommitments::toString(project)}'",
                 "projectId"   => project["uuid"]
             }
         }
 
-        items = NxProjects::firstNxTodoItemsForNxProject(project["uuid"])
+        items = NxTimeCommitments::firstNxTodoItemsForNxTimeCommitment(project["uuid"])
         if items.size > 0 then
             [makeVx01.call(project)] + items
         else
@@ -185,32 +185,32 @@ class NxProjects
         end
     end
 
-    # NxProjects::listingItems()
+    # NxTimeCommitments::listingItems()
     def self.listingItems()
-        NxProjects::projectsForListing()
-            .map{|project| NxProjects::projectWithToAllAssociatedListingItems(project) }
+        NxTimeCommitments::projectsForListing()
+            .map{|project| NxTimeCommitments::projectWithToAllAssociatedListingItems(project) }
             .flatten
     end
 
     # --------------------------------------------
     # Ops
 
-    # NxProjects::interactivelySelectNxProjectOrNull()
-    def self.interactivelySelectNxProjectOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("project", NxProjects::items(), lambda{|project| NxProjects::toStringWithDetails(project, true)})
+    # NxTimeCommitments::interactivelySelectNxTimeCommitmentOrNull()
+    def self.interactivelySelectNxTimeCommitmentOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("project", NxTimeCommitments::items(), lambda{|project| NxTimeCommitments::toStringWithDetails(project, true)})
     end
 
-    # NxProjects::interactivelySelectProject()
+    # NxTimeCommitments::interactivelySelectProject()
     def self.interactivelySelectProject()
         loop {
-            project = NxProjects::interactivelySelectNxProjectOrNull()
+            project = NxTimeCommitments::interactivelySelectNxTimeCommitmentOrNull()
             return project if project
         }
     end
 
-    # NxProjects::presentProjectItems(project)
+    # NxTimeCommitments::presentProjectItems(project)
     def self.presentProjectItems(project)
-        items = NxTodos::itemsForNxProject(project["uuid"])
+        items = NxTodos::itemsForNxTimeCommitment(project["uuid"])
         loop {
             system("clear")
             # We do not recompute all the items but we recall the ones we had to get the new 
@@ -245,10 +245,10 @@ class NxProjects
         }
     end
 
-    # NxProjects::probe(project)
+    # NxTimeCommitments::probe(project)
     def self.probe(project)
         loop {
-            puts NxProjects::toStringWithDetails(project, false)
+            puts NxTimeCommitments::toStringWithDetails(project, false)
             puts "data: #{Ax39::standardAx39CarrierNumbers(project)}"
             actions = ["start", "add time", "do not show until", "set Ax39", "expose", "items dive", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
@@ -259,7 +259,7 @@ class NxProjects
             end
             if action == "add time" then
                 timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
-                puts "adding #{timeInHours} hours to '#{NxProjects::toString(project)}'"
+                puts "adding #{timeInHours} hours to '#{NxTimeCommitments::toString(project)}'"
                 Bank::put(project["uuid"], timeInHours*3600)
             end
             if action == "do not show until" then
@@ -269,19 +269,19 @@ class NxProjects
             end
             if action == "set Ax39" then
                 project["ax39"] = Ax39::interactivelyCreateNewAx()
-                FileSystemCheck::fsck_NxProject(project, true)
-                NxProjects::commit(project)
+                FileSystemCheck::fsck_NxTimeCommitment(project, true)
+                NxTimeCommitments::commit(project)
             end
             if action == "expose" then
                 puts JSON.pretty_generate(project)
                 LucilleCore::pressEnterToContinue()
             end
             if action == "items dive" then
-                NxProjects::presentProjectItems(project)
+                NxTimeCommitments::presentProjectItems(project)
             end
             if action == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy NxProject '#{NxProjects::toString(project)}' ? ") then
-                    filepath = "#{Config::pathToDataCenter()}/NxProject/#{project["uuid"]}.json"
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTimeCommitment '#{NxTimeCommitments::toString(project)}' ? ") then
+                    filepath = "#{Config::pathToDataCenter()}/NxTimeCommitment/#{project["uuid"]}.json"
                     FileUtils.rm(filepath)
                     return
                 end
@@ -289,20 +289,20 @@ class NxProjects
         }
     end
 
-    # NxProjects::mainprobe()
+    # NxTimeCommitments::mainprobe()
     def self.mainprobe()
         loop {
             system("clear")
-            puts "Total hours (daily): #{(NxProjects::projectsTotalHoursPerWeek().to_f/7).round(2)}"
-            project = NxProjects::interactivelySelectNxProjectOrNull()
+            puts "Total hours (daily): #{(NxTimeCommitments::projectsTotalHoursPerWeek().to_f/7).round(2)}"
+            project = NxTimeCommitments::interactivelySelectNxTimeCommitmentOrNull()
             return if project.nil?
-            NxProjects::probe(project)
+            NxTimeCommitments::probe(project)
         }
     end
 
-    # NxProjects::interactivelyDecideProjectPosition(projectId)
+    # NxTimeCommitments::interactivelyDecideProjectPosition(projectId)
     def self.interactivelyDecideProjectPosition(projectId)
-        NxTodos::itemsForNxProject(projectId)
+        NxTodos::itemsForNxTimeCommitment(projectId)
             .sort{|i1, i2| i1["projectposition"] <=> i2["projectposition"] }
             .first(CommonUtils::screenHeight() - 2)
             .each{|item|
@@ -312,7 +312,7 @@ class NxProjects
         if position then
             position.to_f
         else
-            NxProjects::nextPositionForProject(projectId)
+            NxTimeCommitments::nextPositionForProject(projectId)
         end
     end
 end

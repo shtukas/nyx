@@ -97,15 +97,15 @@ class FileSystemCheck
         raise "Unsupported Nx113 type: #{type}"
     end
 
-    # FileSystemCheck::fsck_NxProject(item, verbose)
-    def self.fsck_NxProject(item, verbose)
+    # FileSystemCheck::fsck_NxTimeCommitment(item, verbose)
+    def self.fsck_NxTimeCommitment(item, verbose)
         return if item.nil?
 
         if verbose then
-            puts "FileSystemCheck::fsck_NxProject(#{JSON.pretty_generate(item)}, #{verbose})"
+            puts "FileSystemCheck::fsck_NxTimeCommitment(#{JSON.pretty_generate(item)}, #{verbose})"
         end
 
-        if item["mikuType"] != "NxProject" then
+        if item["mikuType"] != "NxTimeCommitment" then
             raise "Incorrect Miku type for function"
         end
 
@@ -168,8 +168,8 @@ class FileSystemCheck
 
         mikuType = item["mikuType"]
 
-        if mikuType == "NxProject" then
-            FileSystemCheck::fsck_NxProject(item, verbose)
+        if mikuType == "NxTimeCommitment" then
+            FileSystemCheck::fsck_NxTimeCommitment(item, verbose)
             return
         end
 
@@ -310,7 +310,7 @@ class FileSystemCheck
     def self.fsckErrorAtFirstFailure()
         [
             Anniversaries::items(),
-            NxProjects::items(),
+            NxTimeCommitments::items(),
             NxOndates::items(),
             NxTodos::itemsEnumerator(),
             NxTriages::items(),

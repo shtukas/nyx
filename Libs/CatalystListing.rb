@@ -209,12 +209,12 @@ class CatalystListing
         end
 
         if Interpreting::match("project", input) then
-            NxProjects::interactivelyIssueNewOrNull()
+            NxTimeCommitments::interactivelyIssueNewOrNull()
             return
         end
 
         if Interpreting::match("projects", input) then
-            NxProjects::mainprobe()
+            NxTimeCommitments::mainprobe()
             return
         end
 
@@ -386,8 +386,8 @@ class CatalystListing
                 "lambda" => lambda { NxTriages::items() }
             },
             {
-                "name" => "NxProjects::listingItems()",
-                "lambda" => lambda { NxProjects::listingItems() }
+                "name" => "NxTimeCommitments::listingItems()",
+                "lambda" => lambda { NxTimeCommitments::listingItems() }
             },
             {
                 "name" => "source code trace generation",
@@ -496,8 +496,8 @@ class CatalystListing
 
             store.register(item, canBeDefault)
 
-            project = NxProjects::itemToProject(item)
-            projectStr = project ? " (NxProject: #{project["description"]})" : ""
+            project = NxTimeCommitments::itemToProject(item)
+            projectStr = project ? " (NxTimeCommitment: #{project["description"]})" : ""
             line = "(#{store.prefixString()}) #{PolyFunctions::toStringForCatalystListing(item)}#{projectStr.green}"
 
             nxball = NxBalls::getNxBallForItemOrNull(item)
@@ -555,7 +555,7 @@ class CatalystListing
             vspaceleft = vspaceleft - 2
         end
 
-        projects = NxProjects::projectsForListing()
+        projects = NxTimeCommitments::projectsForListing()
 
         listingItems = CatalystListing::listingItems()
 

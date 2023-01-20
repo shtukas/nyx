@@ -13,7 +13,7 @@ class PolyFunctions
 
         if item["mikuType"] == "NxTodo" then
             projectId = item["projectId"]
-            project = NxProjects::getOrNull(projectId)
+            project = NxTimeCommitments::getOrNull(projectId)
             accounts << {
                 "description" => PolyFunctions::genericDescription(project),
                 "number"      => project["uuid"]
@@ -22,7 +22,7 @@ class PolyFunctions
 
         if item["mikuType"] == "NxLimitedEmptier" then
             projectId = item["projectId"]
-            project = NxProjects::getOrNull(projectId)
+            project = NxTimeCommitments::getOrNull(projectId)
             if project then
                 accounts << {
                     "description" => PolyFunctions::genericDescription(project),
@@ -33,7 +33,7 @@ class PolyFunctions
 
         if item["mikuType"] == "Vx01" then
             projectId = item["projectId"]
-            project = NxProjects::getOrNull(projectId)
+            project = NxTimeCommitments::getOrNull(projectId)
             if project then
                 accounts << {
                     "description" => PolyFunctions::genericDescription(project),
@@ -44,7 +44,7 @@ class PolyFunctions
 
         if item["mikuType"] == "Wave" then
             projectId = item["projectId"]
-            project = NxProjects::getOrNull(projectId)
+            project = NxTimeCommitments::getOrNull(projectId)
             if project then
                 accounts << {
                     "description" => PolyFunctions::genericDescription(project),
@@ -153,7 +153,7 @@ class PolyFunctions
 
         # ordering: alphabetical order
 
-        if item["mikuType"] == "NxProject" then
+        if item["mikuType"] == "NxTimeCommitment" then
             return item["description"]
         end
         if item["mikuType"] == "InboxItem" then
@@ -203,8 +203,8 @@ class PolyFunctions
 
         # order: lexicographic
 
-        if item["mikuType"] == "NxProject" then
-            return NxProjects::toString(item)
+        if item["mikuType"] == "NxTimeCommitment" then
+            return NxTimeCommitments::toString(item)
         end
         if item["mikuType"] == "LambdX1" then
             return "(lambda) #{item["announce"]}"
@@ -245,8 +245,8 @@ class PolyFunctions
 
     # PolyFunctions::toStringForCatalystListing(item)
     def self.toStringForCatalystListing(item)
-        if item["mikuType"] == "NxProject" then
-            return NxProjects::toStringWithDetails(item, true)
+        if item["mikuType"] == "NxTimeCommitment" then
+            return NxTimeCommitments::toStringWithDetails(item, true)
         end
         PolyFunctions::toString(item)
     end

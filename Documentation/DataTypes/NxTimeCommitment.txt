@@ -1,7 +1,7 @@
 
-NxProject {
+NxTimeCommitment {
     "uuid"         : String
-    "mikuType"     : "NxProject"
+    "mikuType"     : "NxTimeCommitment"
     "unixtime"     : Float
     "datetime"     : DateTime Iso 8601 UTC Zulu
     "description"  : String
