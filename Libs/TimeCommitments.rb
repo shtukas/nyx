@@ -64,6 +64,6 @@ class TimeCommitments
     # TimeCommitments::toStringForListing(item)
     def self.toStringForListing(item)
         hours = TimeCommitments::itemMissingHours(item)
-        "tc: #{"%5.2f" % hours} hours; #{PolyFunctions::toStringForCatalystListing(item)}"
+        "[tc: #{"%5.2f" % hours} hours] #{PolyFunctions::toStringForCatalystListing(item)}"
     end
 end
