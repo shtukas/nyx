@@ -3,16 +3,13 @@ class TimeCommitments
 
     # TimeCommitments::timeCommitments()
     def self.timeCommitments()
-        NxTimeCommitments::items() + NxLimitedEmptiers::items() + Waves::items()
+        NxTimeCommitments::items() + Waves::items()
     end
 
     # TimeCommitments::itemMissingHours(item)
     def self.itemMissingHours(item)
         if item["mikuType"] == "NxTimeCommitment" then
             return NxTimeCommitments::numbers(item)["missingHoursForToday"]
-        end
-        if item["mikuType"] == "NxLimitedEmptier" then
-            return NxLimitedEmptiers::numbers(item)["missingHoursForToday"]
         end
         if item["mikuType"] == "Wave" then
             return Waves::numbers(item)["missingHoursForToday"]
@@ -24,9 +21,6 @@ class TimeCommitments
     def self.itemToAllAssociatedListingItems(item)
         if item["mikuType"] == "NxTimeCommitment" then
             return NxTimeCommitments::projectWithToAllAssociatedListingItems(item)
-        end
-        if item["mikuType"] == "NxLimitedEmptier" then
-            return item
         end
         if item["mikuType"] == "Wave" then
             return item

@@ -51,8 +51,7 @@ class NxTimeCommitments
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "ax39"        => ax39,
-            "isWork"      => false
+            "ax39"        => ax39
         }
         FileSystemCheck::fsck_NxTimeCommitment(item, true)
         NxTimeCommitments::commit(item)

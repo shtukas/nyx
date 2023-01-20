@@ -20,17 +20,6 @@ class PolyFunctions
             }
         end
 
-        if item["mikuType"] == "NxLimitedEmptier" then
-            projectId = item["projectId"]
-            project = NxTimeCommitments::getOrNull(projectId)
-            if project then
-                accounts << {
-                    "description" => PolyFunctions::genericDescription(project),
-                    "number"      => project["uuid"]
-                }
-            end
-        end
-
         if item["mikuType"] == "Vx01" then
             projectId = item["projectId"]
             project = NxTimeCommitments::getOrNull(projectId)
@@ -168,9 +157,6 @@ class PolyFunctions
         if item["mikuType"] == "NxIced" then
             return item["description"]
         end
-        if item["mikuType"] == "NxLimitedEmptier" then
-            return item["description"]
-        end
         if item["mikuType"] == "NxOndate" then
             return item["description"]
         end
@@ -217,9 +203,6 @@ class PolyFunctions
         end
         if item["mikuType"] == "NxOndate" then
             return NxOndates::toString(item)
-        end
-        if item["mikuType"] == "NxLimitedEmptier" then
-            return NxLimitedEmptiers::toString(item)
         end
         if item["mikuType"] == "NxTodo" then
             return NxTodos::toString(item)

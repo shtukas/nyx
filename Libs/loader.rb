@@ -173,8 +173,6 @@ require_relative "FileSystemCheck.rb"
 require_relative "LambdX1s.rb"
 
 require_relative "NsTopLines.rb"
-
-require_relative "NxLimitedEmptiers.rb"
 require_relative "Nyx.rb"
 require_relative "Nx113.rb"
 require_relative "NxTodos.rb"
@@ -274,14 +272,6 @@ if $RunNonEssentialThreads then
                 numbers = NxTimeCommitments::numbers(item)
                 if !numbers["shouldListing"] then
                     CommonUtils::onScreenNotification("catalyst", "project is overflowing")
-                end
-            }
-
-            NxLimitedEmptiers::items().each{|item|
-                next if !NxBalls::itemIsRunning(item)
-                numbers = NxLimitedEmptiers::numbers(item)
-                if !numbers["shouldListing"] then
-                    CommonUtils::onScreenNotification("catalyst", "NxLimited is overflowing")
                 end
             }
         }

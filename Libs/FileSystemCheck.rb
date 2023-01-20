@@ -205,15 +205,6 @@ class FileSystemCheck
             return
         end
 
-        if mikuType == "NxLimitedEmptier" then
-            FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
-            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-            FileSystemCheck::ensureAttribute(item, "description", "String")
-            FileSystemCheck::ensureAttribute(item, "hours", "Number")
-            return
-        end
-
         if mikuType == "NxNetworkLocalView" then
             FileSystemCheck::ensureAttribute(item, "center", "String")
             FileSystemCheck::ensureAttribute(item, "parents", "Array")
