@@ -197,7 +197,6 @@ require_relative "Skips.rb"
 require_relative "TxManualCountDowns.rb"
 require_relative "The99Percent.rb"
 require_relative "TxFloats.rb"
-require_relative "TimeCommitments.rb"
 
 require_relative "Waves.rb"
 
@@ -256,15 +255,6 @@ if $RunNonEssentialThreads then
             NxBalls::items().each{|nxball|
                 if (Time.new.to_i - nxball["unixtime"]) > 3600 then
                     CommonUtils::onScreenNotification("catalyst", "NxBall over 1 hour")
-                end
-            }
-
-            Waves::items().each{|wave|
-                next if !NxBalls::itemIsRunning(wave)
-                next if wave["maxTimeInHours"].nil?
-                puts NxBalls::itemRealisedAndUnrealsedTimeInSeconds(wave)
-                if NxBalls::itemRealisedAndUnrealsedTimeInSeconds(wave) > wave["maxTimeInHours"]*3600 then
-                    CommonUtils::onScreenNotification("catalyst", "Max timed wave is overflowing")
                 end
             }
 

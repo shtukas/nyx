@@ -7,8 +7,7 @@ Wave:
     "description"      : description
     "nx46"             : Nx46 # Wave pattern
     "priority"         : "ns:mandatory-today" | "ns:time-important" | "ns:beach"
-    "projectId"        : nil or String
-    "maxTimeInHours"   : nil or Float
+    "tcId"             : nil or String
     "lastDoneDateTime" : DateTime Iso 8601 UTC Zulu
     "nx113"            : Nx113
     "onlyOnDays"       : null or Array[week days names lowercase english] # Indicates on which days the wave can show up

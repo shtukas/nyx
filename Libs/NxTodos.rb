@@ -40,11 +40,11 @@ class NxTodos
         end
     end
 
-    # NxTodos::itemsForNxTimeCommitment(projectId)
-    def self.itemsForNxTimeCommitment(projectId)
+    # NxTodos::itemsForNxTimeCommitment(tcId)
+    def self.itemsForNxTimeCommitment(tcId)
         NxTodos::itemsEnumerator()
             .select{|item|
-                item["projectId"] == projectId
+                item["tcId"] == tcId
             }
     end
 
@@ -65,8 +65,8 @@ class NxTodos
         return nil if description == ""
         uuid  = CommonUtils::timeStringL22()
         nx113 = Nx113Make::interactivelyMakeNx113OrNull()
-        projectId = NxTimeCommitments::interactivelySelectProject()["uuid"]
-        projectposition = NxTimeCommitments::interactivelyDecideProjectPosition(projectId)
+        tcId = NxTimeCommitments::interactivelySelectProject()["uuid"]
+        projectposition = NxTimeCommitments::interactivelyDecideProjectPosition(tcId)
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
@@ -74,7 +74,7 @@ class NxTodos
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
             "nx113"       => nx113,
-            "projectId"       => projectId,
+            "tcId"       => tcId,
             "projectposition" => projectposition
         }
         NxTodos::commit(item)
@@ -88,7 +88,7 @@ class NxTodos
         projectposition = NxTimeCommitments::nextPositionForItem(project["uuid"])
         item["uuid"] = CommonUtils::timeStringL22()
         item["mikuType"] = "NxTodo"
-        item["projectId"] = project["uuid"]
+        item["tcId"] = project["uuid"]
         item["projectposition"] = projectposition
         NxTodos::commit(item)
         NxOndates::destroy(nxondate["uuid"])
@@ -113,7 +113,7 @@ class NxTodos
         item["uuid"] = CommonUtils::timeStringL22()
         item["description"] = description
         item["mikuType"] = "NxTodo"
-        item["projectId"] = project["uuid"]
+        item["tcId"] = project["uuid"]
         item["projectposition"] = projectposition
         NxTodos::commit(item)
         NxTriages::destroy(nxtriage["uuid"])

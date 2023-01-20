@@ -12,8 +12,8 @@ class PolyFunctions
         }
 
         if item["mikuType"] == "NxTodo" then
-            projectId = item["projectId"]
-            project = NxTimeCommitments::getOrNull(projectId)
+            tcId = item["tcId"]
+            project = NxTimeCommitments::getOrNull(tcId)
             accounts << {
                 "description" => PolyFunctions::genericDescription(project),
                 "number"      => project["uuid"]
@@ -21,8 +21,8 @@ class PolyFunctions
         end
 
         if item["mikuType"] == "Vx01" then
-            projectId = item["projectId"]
-            project = NxTimeCommitments::getOrNull(projectId)
+            tcId = item["tcId"]
+            project = NxTimeCommitments::getOrNull(tcId)
             if project then
                 accounts << {
                     "description" => PolyFunctions::genericDescription(project),
@@ -32,8 +32,8 @@ class PolyFunctions
         end
 
         if item["mikuType"] == "Wave" then
-            projectId = item["projectId"]
-            project = NxTimeCommitments::getOrNull(projectId)
+            tcId = item["tcId"]
+            project = NxTimeCommitments::getOrNull(tcId)
             if project then
                 accounts << {
                     "description" => PolyFunctions::genericDescription(project),

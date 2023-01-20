@@ -90,9 +90,9 @@ class NxTimeCommitments
             .select{|project| NxBalls::getNxBallForItemOrNull(project) }
     end
 
-    # NxTimeCommitments::firstNxTodoItemsForNxTimeCommitment(projectId)
-    def self.firstNxTodoItemsForNxTimeCommitment(projectId)
-        filepath = "#{Config::pathToDataCenter()}/NxTimeCommitment-to-FirstItems/#{projectId}.json"
+    # NxTimeCommitments::firstNxTodoItemsForNxTimeCommitment(tcId)
+    def self.firstNxTodoItemsForNxTimeCommitment(tcId)
+        filepath = "#{Config::pathToDataCenter()}/NxTimeCommitment-to-FirstItems/#{tcId}.json"
 
         getDataOrNull = lambda {|filepath|
             return nil if !File.exists?(filepath)
@@ -111,9 +111,9 @@ class NxTimeCommitments
                 .compact
         }
 
-        issueNewFile = lambda {|filepath, projectId|
-            #puts "> issuing new file for project: #{NxTimeCommitments::getOrNull(projectId)["description"]}"
-            items = NxTodos::itemsForNxTimeCommitment(projectId)
+        issueNewFile = lambda {|filepath, tcId|
+            #puts "> issuing new file for project: #{NxTimeCommitments::getOrNull(tcId)["description"]}"
+            items = NxTodos::itemsForNxTimeCommitment(tcId)
                         .sort{|i1, i2| i1["projectposition"] <=> i2["projectposition"] }
                         .first(10)
             uuids = items.map{|item| item["uuid"] }
@@ -128,15 +128,15 @@ class NxTimeCommitments
         if Config::getOrNull("isLeaderInstance") then
             items = getRecentDataOrNull.call(filepath)
             return items if items
-            return issueNewFile.call(filepath, projectId)
+            return issueNewFile.call(filepath, tcId)
         else
             return (getDataOrNull.call(filepath) || [])
         end
     end
 
-    # NxTimeCommitments::nextPositionForItem(projectId)
-    def self.nextPositionForItem(projectId)
-        ([0] + NxTodos::itemsForNxTimeCommitment(projectId).map{|todo| todo["projectposition"] }).max + 1
+    # NxTimeCommitments::nextPositionForItem(tcId)
+    def self.nextPositionForItem(tcId)
+        ([0] + NxTodos::itemsForNxTimeCommitment(tcId).map{|todo| todo["projectposition"] }).max + 1
     end
 
     # NxTimeCommitments::totalHoursPerWeek()
@@ -147,6 +147,13 @@ class NxTimeCommitments
     # NxTimeCommitments::numbers(project)
     def self.numbers(project)
         Ax39::standardAx39CarrierNumbers(project)
+    end
+
+    # NxTimeCommitments::totalMissingHours()
+    def self.totalMissingHours()
+        NxTimeCommitments::items()
+            .map{|item| NxTimeCommitments::numbers(item)["missingHoursForToday"] }
+            .inject(0, :+)
     end
 
     # NxTimeCommitments::itemsThatShouldBeListed()
@@ -167,7 +174,7 @@ class NxTimeCommitments
                 "mikuType"    => "Vx01",
                 "unixtime"    => Time.new.to_f,
                 "description" => "Main focus for project '#{NxTimeCommitments::toString(project)}'",
-                "projectId"   => project["uuid"]
+                "tcId"   => project["uuid"]
             }
         }
 
@@ -184,6 +191,24 @@ class NxTimeCommitments
         NxTimeCommitments::itemsThatShouldBeListed()
             .map{|project| NxTimeCommitments::itemWithToAllAssociatedListingItems(project) }
             .flatten
+    end
+
+    # NxTimeCommitments::reportItemsX()
+    def self.reportItemsX()
+        items = NxTimeCommitments::items()
+            .select{|item| NxBalls::itemIsRunning(item) or NxTimeCommitments::numbers(item)["missingHoursForToday"] > 0 }
+            .sort{|i1, i2| NxTimeCommitments::numbers(i1)["missingHoursForToday"] <=> NxTimeCommitments::numbers(i2)["missingHoursForToday"] }
+        isMidDay = Time.new.hour >= 9 and Time.new.hour < 16
+        if isMidDay then
+            items = items.reverse # higher demand first as they usually correspond to work
+        end
+        items
+    end
+
+    # NxTimeCommitments::summaryLine()
+    def self.summaryLine()
+        todayMissingInHours = NxTimeCommitments::totalMissingHours()
+        "> pending today: #{"%5.2f" % todayMissingInHours} hours, projected end: #{Time.at( Time.new.to_i + todayMissingInHours*3600 ).to_s}"
     end
 
     # --------------------------------------------
@@ -294,9 +319,9 @@ class NxTimeCommitments
         }
     end
 
-    # NxTimeCommitments::interactivelyDecideProjectPosition(projectId)
-    def self.interactivelyDecideProjectPosition(projectId)
-        NxTodos::itemsForNxTimeCommitment(projectId)
+    # NxTimeCommitments::interactivelyDecideProjectPosition(tcId)
+    def self.interactivelyDecideProjectPosition(tcId)
+        NxTodos::itemsForNxTimeCommitment(tcId)
             .sort{|i1, i2| i1["projectposition"] <=> i2["projectposition"] }
             .first(CommonUtils::screenHeight() - 2)
             .each{|item|
@@ -306,7 +331,7 @@ class NxTimeCommitments
         if position then
             position.to_f
         else
-            NxTimeCommitments::nextPositionForItem(projectId)
+            NxTimeCommitments::nextPositionForItem(tcId)
         end
     end
 end

@@ -389,12 +389,8 @@ class CatalystListing
                 "lambda" => lambda { CommonUtils::stargateTraceCode() }
             },
             {
-                "name" => "TimeCommitments::listingItems()",
-                "lambda" => lambda { TimeCommitments::listingItems() }
-            },
-            {
-                "name" => "TimeCommitments::reportItemsX()",
-                "lambda" => lambda { TimeCommitments::reportItemsX() }
+                "name" => "NxTimeCommitments::reportItemsX()",
+                "lambda" => lambda { NxTimeCommitments::reportItemsX() }
             },
             {
                 "name" => "The99Percent::getCurrentCount()",
@@ -470,7 +466,7 @@ class CatalystListing
             NxOndates::listingItems(),
             TxManualCountDowns::listingItems(),
             Waves::listingItems("ns:time-important"),
-            TimeCommitments::listingItems(),
+            NxTimeCommitments::listingItems(),
             Waves::listingItems("ns:beach")
         ]
             .flatten
@@ -491,9 +487,9 @@ class CatalystListing
 
             store.register(item, canBeDefault)
 
-            project = NxTimeCommitments::getOrNull(item["projectId"])
-            projectStr = project ? " (NxTimeCommitment: #{project["description"]})" : ""
-            line = "(#{store.prefixString()}) #{PolyFunctions::toStringForCatalystListing(item)}#{projectStr.green}"
+            tc = NxTimeCommitments::getOrNull(item["tcId"])
+            tcStr = tc ? " (NxTimeCommitment: #{tc["description"]})" : ""
+            line = "(#{store.prefixString()}) #{PolyFunctions::toStringForCatalystListing(item)}#{tcStr.green}"
 
             nxball = NxBalls::getNxBallForItemOrNull(item)
 
@@ -524,17 +520,17 @@ class CatalystListing
         end
 
         # TimeCommitment total
-        puts TimeCommitments::summaryLine()
+        puts NxTimeCommitments::summaryLine()
         vspaceleft = vspaceleft - 1
 
         # TimeCommitment report
-        timecommitments = TimeCommitments::reportItemsX()
+        timecommitments = NxTimeCommitments::reportItemsX()
         if timecommitments.size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
             timecommitments.each{|item|
                 store.register(item, false)
-                line = "(#{store.prefixString()}) #{TimeCommitments::toStringForListing(item)}"
+                line = "(#{store.prefixString()}) #{NxTimeCommitments::toStringWithDetails(item, true)}"
                 nxball = NxBalls::getNxBallForItemOrNull(item)
                 if nxball then
                     line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
@@ -550,7 +546,7 @@ class CatalystListing
             vspaceleft = vspaceleft - 2
         end
 
-        projects = NxTimeCommitments::itemsThatShouldBeListed()
+        timecommitments = NxTimeCommitments::itemsThatShouldBeListed()
 
         listingItems = CatalystListing::listingItems()
 
@@ -585,7 +581,7 @@ class CatalystListing
         tops = NsTopLines::listingItems()
 
         nxballs = NxBalls::items()
-                    .select{|nxball| !nxballHasAnItemInThere.call(nxball, projects + listingItems + tops) }
+                    .select{|nxball| !nxballHasAnItemInThere.call(nxball, timecommitments + listingItems + tops) }
 
         if nxballs.size > 0 then
             puts ""
