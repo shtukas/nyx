@@ -3,6 +3,11 @@ Ax39 represents a time commitment, either daily or weekly.
 It is carried by NxTimeCommitments
 
 {
+    "type"  => "daily-provision-fillable"
+    "hours" => Float
+}
+
+{
     "type"  => "weekly-starting-on-Saturday"
     "hours" => Float
 }

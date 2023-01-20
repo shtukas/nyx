@@ -4,7 +4,11 @@ class Ax39
 
     # Ax39::types()
     def self.types()
-        ["weekly-starting-on-Saturday", "weekly-starting-on-Monday"]
+        [
+            "daily-provision-fillable",
+            "weekly-starting-on-Saturday",
+            "weekly-starting-on-Monday"
+        ]
     end
 
     # Ax39::interactivelySelectTypeOrNull()
@@ -16,6 +20,14 @@ class Ax39
     def self.interactivelyCreateNewAxOrNull()
         type = Ax39::interactivelySelectTypeOrNull()
         return nil if type.nil?
+        if type == "daily-provision-fillable" then
+            hours = LucilleCore::askQuestionAnswerAsString("hours : ")
+            return nil if hours == ""
+            return {
+                "type"  => "daily-provision-fillable",
+                "hours" => hours.to_f
+            }
+        end
         if type == "weekly-starting-on-Saturday" then
             hours = LucilleCore::askQuestionAnswerAsString("weekly hours : ")
             return nil if hours == ""
@@ -46,6 +58,9 @@ class Ax39
 
     # Ax39::toString(ax39)
     def self.toString(ax39)
+        if ax39["type"] == "daily-provision-fillable" then
+            return "daily #{ax39["hours"]} hours"
+        end
         if ax39["type"] == "weekly-starting-on-Saturday" then
             return "weekly:saturday #{ax39["hours"]} hours"
         end
@@ -56,6 +71,9 @@ class Ax39
 
     # Ax39::toStringFormatted(ax39)
     def self.toStringFormatted(ax39)
+        if ax39["type"] == "daily-provision-fillable" then
+            return "daily           #{"%5.2f" % ax39["hours"]} hours"
+        end
         if ax39["type"] == "weekly-starting-on-Saturday" then
             return "weekly:saturday #{"%5.2f" % ax39["hours"]} hours"
         end
@@ -69,10 +87,23 @@ class Ax39
 
         # We return {shouldListing, missingHoursForToday}
 
+        if ax39["type"] == "daily-provision-fillable" then
+            doneTodayInSeconds = Bank::valueAtDate(uuid, CommonUtils::today(), unrealisedTimespan)
+            requiredTodayInSeconds = ax39["hours"]*3600
+            shouldListing = doneTodayInSeconds < requiredTodayInSeconds
+            missingHoursForToday = [requiredTodayInSeconds - doneTodayInSeconds, 0].max.to_f/3600
+            return {
+                "shouldListing"         => shouldListing,
+                "missingHoursForToday"  => missingHoursForToday
+            }
+        end
+
         dates = nil
+
         if ax39["type"] == "weekly-starting-on-Saturday" then
             dates = CommonUtils::datesSinceLastSaturday()
         end
+
         if ax39["type"] == "weekly-starting-on-Monday" then
             dates = CommonUtils::datesSinceLastMonday()
         end
