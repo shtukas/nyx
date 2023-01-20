@@ -6,9 +6,9 @@ class CatalystListing
     def self.listingCommands()
         [
             "[listing interaction] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | >> skip default | destroy",
-            "[makers] wave | anniversary | today | ondate | todo | project | manual countdown | top",
+            "[makers] wave | anniversary | today | ondate | todo | time commitment | manual countdown | top",
             "[nxballs] start (<n>) | stop <n> | pause <n> | pursue <n>",
-            "[divings] anniversaries | ondates | waves | projects | todos | float",
+            "[divings] anniversaries | ondates | waves | time commitments | todos | float",
             "[transmutations] >todo (ondates and triages)",
             "[misc] require internet",
             "[misc] search | speed | commands | lock (<n>)",
@@ -203,12 +203,12 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("project", input) then
+        if Interpreting::match("time commitment", input) then
             NxTimeCommitments::interactivelyIssueNewOrNull()
             return
         end
 
-        if Interpreting::match("projects", input) then
+        if Interpreting::match("time commitments", input) then
             NxTimeCommitments::mainprobe()
             return
         end
@@ -491,7 +491,7 @@ class CatalystListing
 
             store.register(item, canBeDefault)
 
-            project = NxTimeCommitments::itemToProject(item)
+            project = NxTimeCommitments::getOrNull(item["projectId"])
             projectStr = project ? " (NxTimeCommitment: #{project["description"]})" : ""
             line = "(#{store.prefixString()}) #{PolyFunctions::toStringForCatalystListing(item)}#{projectStr.green}"
 
@@ -550,7 +550,7 @@ class CatalystListing
             vspaceleft = vspaceleft - 2
         end
 
-        projects = NxTimeCommitments::projectsForListing()
+        projects = NxTimeCommitments::itemsThatShouldBeListed()
 
         listingItems = CatalystListing::listingItems()
 

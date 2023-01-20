@@ -85,7 +85,7 @@ class NxTodos
     def self.issueConsumingNxOndate(nxondate)
         item = nxondate.clone
         project = NxTimeCommitments::interactivelySelectProject()
-        projectposition = NxTimeCommitments::nextPositionForProject(project["uuid"])
+        projectposition = NxTimeCommitments::nextPositionForItem(project["uuid"])
         item["uuid"] = CommonUtils::timeStringL22()
         item["mikuType"] = "NxTodo"
         item["projectId"] = project["uuid"]

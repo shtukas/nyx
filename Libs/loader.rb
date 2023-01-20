@@ -268,7 +268,7 @@ if $RunNonEssentialThreads then
                 end
             }
 
-            NxTimeCommitments::runningProjects().each{|item|
+            NxTimeCommitments::runningItems().each{|item|
                 numbers = NxTimeCommitments::numbers(item)
                 if !numbers["shouldListing"] then
                     CommonUtils::onScreenNotification("catalyst", "project is overflowing")

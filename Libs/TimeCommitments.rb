@@ -20,7 +20,7 @@ class TimeCommitments
     # TimeCommitments::itemToAllAssociatedListingItems(item)
     def self.itemToAllAssociatedListingItems(item)
         if item["mikuType"] == "NxTimeCommitment" then
-            return NxTimeCommitments::projectWithToAllAssociatedListingItems(item)
+            return NxTimeCommitments::itemWithToAllAssociatedListingItems(item)
         end
         if item["mikuType"] == "Wave" then
             return item

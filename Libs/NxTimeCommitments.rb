@@ -84,21 +84,8 @@ class NxTimeCommitments
         "(project) #{item["description"].ljust(descriptionPadding)} (#{Ax39::toStringFormatted(item["ax39"])})#{dataStr}#{dnsustr}"
     end
 
-    # NxTimeCommitments::itemToProject(item)
-    def self.itemToProject(item)
-        NxTimeCommitments::getOrNull(item["projectId"])
-    end
-
-    # NxTimeCommitments::projectsForListing()
-    def self.projectsForListing()
-        NxTimeCommitments::items()
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-            .select{|project| Ax39::standardAx39CarrierNumbers(project)["shouldListing"] }
-    end
-
-    # NxTimeCommitments::runningProjects()
-    def self.runningProjects()
+    # NxTimeCommitments::runningItems()
+    def self.runningItems()
         NxTimeCommitments::items()
             .select{|project| NxBalls::getNxBallForItemOrNull(project) }
     end
@@ -147,13 +134,13 @@ class NxTimeCommitments
         end
     end
 
-    # NxTimeCommitments::nextPositionForProject(projectId)
-    def self.nextPositionForProject(projectId)
+    # NxTimeCommitments::nextPositionForItem(projectId)
+    def self.nextPositionForItem(projectId)
         ([0] + NxTodos::itemsForNxTimeCommitment(projectId).map{|todo| todo["projectposition"] }).max + 1
     end
 
-    # NxTimeCommitments::projectsTotalHoursPerWeek()
-    def self.projectsTotalHoursPerWeek()
+    # NxTimeCommitments::totalHoursPerWeek()
+    def self.totalHoursPerWeek()
         NxTimeCommitments::items().map{|item| item["ax39"]["hours"] }.inject(0, :+)
     end
 
@@ -162,8 +149,16 @@ class NxTimeCommitments
         Ax39::standardAx39CarrierNumbers(project)
     end
 
-    # NxTimeCommitments::projectWithToAllAssociatedListingItems(project)
-    def self.projectWithToAllAssociatedListingItems(project)
+    # NxTimeCommitments::itemsThatShouldBeListed()
+    def self.itemsThatShouldBeListed()
+        NxTimeCommitments::items()
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+            .select{|project| Ax39::standardAx39CarrierNumbers(project)["shouldListing"] }
+    end
+
+    # NxTimeCommitments::itemWithToAllAssociatedListingItems(project)
+    def self.itemWithToAllAssociatedListingItems(project)
 
         makeVx01 = lambda {|project|
             uuid = Digest::SHA1.hexdigest("0BCED4BA-4FCC-405A-8B06-EB5359CBFC75")
@@ -186,8 +181,8 @@ class NxTimeCommitments
 
     # NxTimeCommitments::listingItems()
     def self.listingItems()
-        NxTimeCommitments::projectsForListing()
-            .map{|project| NxTimeCommitments::projectWithToAllAssociatedListingItems(project) }
+        NxTimeCommitments::itemsThatShouldBeListed()
+            .map{|project| NxTimeCommitments::itemWithToAllAssociatedListingItems(project) }
             .flatten
     end
 
@@ -292,7 +287,7 @@ class NxTimeCommitments
     def self.mainprobe()
         loop {
             system("clear")
-            puts "Total hours (daily): #{(NxTimeCommitments::projectsTotalHoursPerWeek().to_f/7).round(2)}"
+            puts "Total hours (daily): #{(NxTimeCommitments::totalHoursPerWeek().to_f/7).round(2)}"
             project = NxTimeCommitments::interactivelySelectNxTimeCommitmentOrNull()
             return if project.nil?
             NxTimeCommitments::probe(project)
@@ -311,7 +306,7 @@ class NxTimeCommitments
         if position then
             position.to_f
         else
-            NxTimeCommitments::nextPositionForProject(projectId)
+            NxTimeCommitments::nextPositionForItem(projectId)
         end
     end
 end
