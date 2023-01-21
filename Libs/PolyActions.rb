@@ -276,7 +276,7 @@ class PolyActions
         if item["mikuType"] == "NxOndate" then
             nxball = PolyActions::start(item)
             NxOndates::access(item)
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["done", "redate", "run in background"])
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["done", "redate", "stop", "run in background"])
             return if option.nil?
             if option == "done" then
                 NxOndates::destroy(item["uuid"])
@@ -286,6 +286,9 @@ class PolyActions
                 item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
                 NxOndates::commit(item)
                 NxBalls::close(nxball)
+            end
+            if option == "stop" then
+                NxBalls::close(nxball) if nxball
             end
             if option == "run in background" then
                 return
@@ -343,10 +346,13 @@ class PolyActions
         if item["mikuType"] == "Wave" then
             nxball = PolyActions::start(item)
             PolyActions::access(item)
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["done", "run in background"])
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["done", "stop", "run in background"])
             return if option.nil?
             if option == "done" then
                 Waves::performWaveNx46WaveDone(item)
+                NxBalls::close(nxball) if nxball
+            end
+            if option == "stop" then
                 NxBalls::close(nxball) if nxball
             end
             if option == "run in background" then
