@@ -10,6 +10,11 @@ class TheSpeedOfLight
         return nil if data["date"] != CommonUtils::today()
         data["speed"]
     end
+
+    # TheSpeedOfLight::getDaySpeedOfLightOrZero()
+    def self.getDaySpeedOfLightOrZero()
+        TheSpeedOfLight::getDaySpeedOfLightOrNull() || 0
+    end
  
     # TheSpeedOfLight::issueSpeedOfLightForTheDay(timeInHours)
     def self.issueSpeedOfLightForTheDay(timeInHours)
@@ -47,5 +52,18 @@ class TheSpeedOfLight
         data = JSON.parse(IO.read(filepath))
         data["speed"] = data["speed"] + 0.1
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(data)) }
+    end
+
+    # TheSpeedOfLight::manageSpeedOfLight()
+    def self.manageSpeedOfLight()
+        unixtime = CommonUtils::unixtimeAtComingMidnightAtGivenTimeZone(CommonUtils::getLocalTimeZone())
+        timeToMidnight = unixtime - Time.new.to_i
+        pendingTimeInSeconds = GeneralTimeCommitments::pendingTimeInHours()*3600
+        if pendingTimeInSeconds > timeToMidnight then
+            TheSpeedOfLight::decrementLightSpeed()
+        end
+        if pendingTimeInSeconds < (timeToMidnight-3600*2) then
+            TheSpeedOfLight::incrementLightSpeed()
+        end
     end
 end

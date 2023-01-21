@@ -77,7 +77,7 @@ class NxWTimeCommitments
                 0
             end
 
-        timeload = NxWTCTodayTimeLoads::getTimeLoadInSeconds(item).to_f/3600
+        timeload = NxWTCTodayTimeLoads::getSpeedOfLightedTimeLoadInSeconds(item).to_f/3600
 
         datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
         dnsustr  = datetimeOpt ? ", (do not show until: #{datetimeOpt})" : ""
@@ -304,16 +304,14 @@ end
 
 class NxWTCTodayTimeLoads
 
-    # NxWTCTodayTimeLoads::getTimeLoadInSeconds(item)
-    def self.getTimeLoadInSeconds(item)
-        speed = TheSpeedOfLight::getDaySpeedOfLightOrNull()
-        return 0 if speed.nil?
-        NxWTimeCommitments::numbers(item)["pendingTimeInHours"]*3600*speed
+    # NxWTCTodayTimeLoads::getSpeedOfLightedTimeLoadInSeconds(item)
+    def self.getSpeedOfLightedTimeLoadInSeconds(item)
+        TheSpeedOfLight::getDaySpeedOfLightOrZero() * NxWTimeCommitments::numbers(item)["pendingTimeInHours"]*3600
     end
 
     # NxWTCTodayTimeLoads::itemPendingTimeInSeconds(item)
     def self.itemPendingTimeInSeconds(item)
-        NxWTCTodayTimeLoads::getTimeLoadInSeconds(item) - NxBalls::itemRealisedAndUnrealsedTimeInSeconds(item)
+        [NxWTCTodayTimeLoads::getSpeedOfLightedTimeLoadInSeconds(item) - NxBalls::itemRealisedAndUnrealsedTimeInSeconds(item), 0].max
     end
 
     # NxWTCTodayTimeLoads::itemIsFullToday(item)

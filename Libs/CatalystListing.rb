@@ -484,8 +484,8 @@ class CatalystListing
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
     end
 
-    # CatalystListing::displayListing(listingItems, totalEstimatedTimeInSeconds)
-    def self.displayListing(listingItems, totalEstimatedTimeInSeconds)
+    # CatalystListing::displayListing(listingItems)
+    def self.displayListing(listingItems)
 
         nxballHasAnItemInThere = lambda {|nxball, listingItems|
             itemuuid = nxball["itemuuid"]
@@ -523,7 +523,7 @@ class CatalystListing
         vspaceleft = vspaceleft - 1
 
         # TimeCommitment total
-        puts GeneralTimeCommitments::summaryLine(totalEstimatedTimeInSeconds)
+        puts GeneralTimeCommitments::summaryLine()
         vspaceleft = vspaceleft - 1
 
         # The99 Percent
@@ -666,11 +666,9 @@ class CatalystListing
 
             listingItems = CatalystListing::listingItems()
 
-            totalEstimatedTimeInSeconds = listingItems.map{|item| TimeEstimations::itemToEstimationInSeconds(item) }.inject(0,:+)
+            TheSpeedOfLight::manageSpeedOfLight()
 
-            TimeEstimations::manageSpeedOfLight(totalEstimatedTimeInSeconds)
-
-            CatalystListing::displayListing(listingItems, totalEstimatedTimeInSeconds)
+            CatalystListing::displayListing(listingItems)
         }
     end
 end

@@ -97,7 +97,7 @@ class NxOTimeCommitments
 
     # NxOTimeCommitments::itemPendingTimeInSeconds(item)
     def self.itemPendingTimeInSeconds(item)
-        item["hours"]*3600 - NxBalls::itemRealisedAndUnrealsedTimeInSeconds(item)
+        [item["hours"]*3600 - NxBalls::itemRealisedAndUnrealsedTimeInSeconds(item), 0].max
     end
 
     # NxOTimeCommitments::pendingTimeInSeconds()
