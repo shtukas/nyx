@@ -22,10 +22,10 @@ class TimeEstimations
         unixtime = CommonUtils::unixtimeAtComingMidnightAtGivenTimeZone(CommonUtils::getLocalTimeZone())
         timeToMidnight = unixtime - Time.new.to_i
         if totalEstimatedTimeInSeconds > (timeToMidnight-3600) then
-            NxWTCSpeedOfLight::decrementLightSpeed()
+            TheSpeedOfLight::decrementLightSpeed()
         end
         if totalEstimatedTimeInSeconds < (timeToMidnight-3600*3) then
-            NxWTCSpeedOfLight::incrementLightSpeed()
+            TheSpeedOfLight::incrementLightSpeed()
         end
     end
 end

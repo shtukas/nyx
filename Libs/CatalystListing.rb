@@ -468,6 +468,7 @@ class CatalystListing
 
     # CatalystListing::listingItems()
     def self.listingItems()
+        light = TheSpeedOfLight::getDaySpeedOfLightOrNull()
         items = [
             NxTriages::items(),
             Anniversaries::listingItems(),
@@ -476,7 +477,7 @@ class CatalystListing
             TxManualCountDowns::listingItems(),
             Waves::listingItems("ns:time-important"),
             GeneralTimeCommitments::listingItems(),
-            Waves::listingItems("ns:beach")
+            (light and light >= 1) ? Waves::listingItems("ns:beach") : []
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }

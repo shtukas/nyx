@@ -109,10 +109,6 @@ class PolyActions
 
         # order: alphabetical order
 
-        if item["mikuType"] == "NxWTimeCommitment" then
-            return
-        end
-
         if item["mikuType"] == "LambdX1" then
             return
         end
@@ -181,6 +177,19 @@ class PolyActions
             if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTriage '#{NxTriages::toString(item).green} ? '") then
                 NxBalls::closeNxBallForItemOrNothing(item)
                 NxTriages::destroy(item["uuid"])
+            end
+            return
+        end
+
+        if item["mikuType"] == "NxWTimeCommitment" then
+            return
+        end
+
+        if item["mikuType"] == "NxOTimeCommitment" then
+            puts "You can't done a NxOTimeCommitment per se, but we can stop it and destroy it"
+            if LucilleCore::askQuestionAnswerAsBoolean("Confirm ? ") then
+                NxBalls::closeNxBallForItemOrNothing(item)
+                NxOTimeCommitments::destroy(item["uuid"])
             end
             return
         end

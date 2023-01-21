@@ -198,6 +198,7 @@ require_relative "TxManualCountDowns.rb"
 require_relative "The99Percent.rb"
 require_relative "TxFloats.rb"
 require_relative "TimeEstimations.rb"
+require_relative "TheSpeedOfLight.rb"
 
 require_relative "Waves.rb"
 

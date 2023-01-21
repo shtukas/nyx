@@ -306,7 +306,7 @@ class NxWTCTodayTimeLoads
 
     # NxWTCTodayTimeLoads::getTimeLoadInSeconds(item)
     def self.getTimeLoadInSeconds(item)
-        speed = NxWTCSpeedOfLight::getDaySpeedOfLightOrNull()
+        speed = TheSpeedOfLight::getDaySpeedOfLightOrNull()
         return 0 if speed.nil?
         NxWTimeCommitments::numbers(item)["pendingTimeInHours"]*3600*speed
     end
@@ -337,63 +337,12 @@ class NxWTCTodayTimeLoads
     end
 end
 
-class NxWTCSpeedOfLight
-
-    # NxWTCSpeedOfLight::getDaySpeedOfLightOrNull()
-    def self.getDaySpeedOfLightOrNull()
-        filepath = "#{Config::pathToDataCenter()}/NxWTimeCommitment-DayTimeLoads/speedOfLight.json"
-        return nil if !File.exists?(filepath)
-        data = JSON.parse(IO.read(filepath))
-        # data: {date, value}
-        return nil if data["date"] != CommonUtils::today()
-        data["speed"]
-    end
-
-    # NxWTCSpeedOfLight::issueSpeedOfLightForTheDay(timeInHours)
-    def self.issueSpeedOfLightForTheDay(timeInHours)
-        total = NxWTimeCommitments::pendingTimeInSeconds()
-        speed = 
-            if total > 0 then
-                available = timeInHours
-                available.to_f/total
-            else
-                1
-            end
-        data = { "date" => CommonUtils::today(), "speed" => speed }
-        filepath = "#{Config::pathToDataCenter()}/NxWTimeCommitment-DayTimeLoads/speedOfLight.json"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(data)) }
-        speed
-    end
-
-    # NxWTCSpeedOfLight::interactivelySetSpeedOfLightAndTimeloadsForTheDay()
-    def self.interactivelySetSpeedOfLightAndTimeloadsForTheDay()
-        timeInHours = LucilleCore::askQuestionAnswerAsString("Time available in hours: ").to_f
-        NxWTCSpeedOfLight::issueSpeedOfLightForTheDay(timeInHours)
-    end
-
-    # NxWTCSpeedOfLight::decrementLightSpeed()
-    def self.decrementLightSpeed()
-        filepath = "#{Config::pathToDataCenter()}/NxWTimeCommitment-DayTimeLoads/speedOfLight.json"
-        data = JSON.parse(IO.read(filepath))
-        data["speed"] = [data["speed"] - 0.1, 0].max
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(data)) }
-    end
-
-    # NxWTCSpeedOfLight::incrementLightSpeed()
-    def self.incrementLightSpeed()
-        filepath = "#{Config::pathToDataCenter()}/NxWTimeCommitment-DayTimeLoads/speedOfLight.json"
-        data = JSON.parse(IO.read(filepath))
-        data["speed"] = data["speed"] + 0.1
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(data)) }
-    end
-end
-
 class NxWTCDataForListing
 
     # NxWTCDataForListing::listingItems()
     def self.listingItems()
-        if NxWTCSpeedOfLight::getDaySpeedOfLightOrNull().nil? then
-            return [LambdX1s::make("f8cb8290-3ba0-48e0-b482-8f9c26aad869", "configure speed of light", lambda { NxWTCSpeedOfLight::interactivelySetSpeedOfLightAndTimeloadsForTheDay() })]
+        if TheSpeedOfLight::getDaySpeedOfLightOrNull().nil? then
+            return [LambdX1s::make("f8cb8290-3ba0-48e0-b482-8f9c26aad869", "configure speed of light", lambda { TheSpeedOfLight::interactivelySetSpeedOfLightAndTimeloadsForTheDay() })]
         end
         NxWTCTodayTimeLoads::itemsThatShouldBeListed()
             .sort{|i1, i2| NxWTCTodayTimeLoads::itemPendingTimeInSeconds(i1) <=> NxWTCTodayTimeLoads::itemPendingTimeInSeconds(i2) }

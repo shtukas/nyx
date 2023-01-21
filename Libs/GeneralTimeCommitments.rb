@@ -16,7 +16,7 @@ class GeneralTimeCommitments
     def self.summaryLine(totalEstimatedTimeInSeconds)
         total = GeneralTimeCommitments::pendingTimeInHours()
         purelyEstimated = totalEstimatedTimeInSeconds.to_f/3600 - total
-        "> total estimated: #{(totalEstimatedTimeInSeconds.to_f/3600).round(2)} hours; time commitment pending: #{"%5.2f" % total} hours, purely estimated: #{purelyEstimated.round(2)} hours, projected end: #{Time.at( Time.new.to_i + totalEstimatedTimeInSeconds ).to_s}, light speed: #{NxWTCSpeedOfLight::getDaySpeedOfLightOrNull().round(2)}"
+        "> total estimated: #{(totalEstimatedTimeInSeconds.to_f/3600).round(2)} hours; time commitment pending: #{"%5.2f" % total} hours, purely estimated: #{purelyEstimated.round(2)} hours, projected end: #{Time.at( Time.new.to_i + totalEstimatedTimeInSeconds ).to_s}, light speed: #{TheSpeedOfLight::getDaySpeedOfLightOrNull().round(2)}"
     end
 
     # GeneralTimeCommitments::itemPendingTimeInSeconds(item)
@@ -37,7 +37,7 @@ class GeneralTimeCommitments
 
     # GeneralTimeCommitments::reportItemsX()
     def self.reportItemsX()
-        return [] if NxWTCSpeedOfLight::getDaySpeedOfLightOrNull().nil?
+        return [] if TheSpeedOfLight::getDaySpeedOfLightOrNull().nil?
         GeneralTimeCommitments::items()
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
