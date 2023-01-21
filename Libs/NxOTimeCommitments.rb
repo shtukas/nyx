@@ -75,7 +75,24 @@ class NxOTimeCommitments
 
     # NxOTimeCommitments::toString(item)
     def self.toString(item)
-        "(otc) (pending: #{"%5.2f" % (item["hours"]-NxBalls::itemRealisedAndUnrealsedTimeInSeconds(item))}) #{item["description"]} (done: #{NxBalls::itemRealisedAndUnrealsedTimeInSeconds(item)} hours of #{item["hours"]})"
+        pending = item["hours"]-NxBalls::itemRealisedAndUnrealsedTimeInSeconds(item).to_f/3600
+        "(otc) (pending: #{"%5.2f" % (pending.round(2))}) #{item["description"]} (done: #{(NxBalls::itemRealisedAndUnrealsedTimeInSeconds(item).to_f/3600).round(2)} hours of #{item["hours"]})"
+    end
+
+    # NxOTimeCommitments::runningItems()
+    def self.runningItems()
+        NxOTimeCommitments::items()
+            .select{|otc| NxBalls::getNxBallForItemOrNull(otc) }
+    end
+
+    # NxOTimeCommitments::numbers(otc)
+    def self.numbers(otc)
+        pendingTimeInSeconds = NxOTimeCommitments::itemPendingTimeInSeconds(otc)
+        shouldListing = (NxBalls::getNxBallForItemOrNull(otc) or pendingTimeInSeconds > 0)
+        {
+            "shouldListing"      => shouldListing,
+            "pendingTimeInHours" => pendingTimeInSeconds.to_f/3600
+        }
     end
 
     # NxOTimeCommitments::itemPendingTimeInSeconds(item)

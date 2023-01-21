@@ -174,7 +174,7 @@ class NxWTimeCommitments
     # NxWTimeCommitments::pendingTimeInSeconds()
     def self.pendingTimeInSeconds()
         NxWTimeCommitments::items()
-            .map{|item| NxWTimeCommitments::numbers(item)["missingHoursForToday"] }
+            .map{|item| NxWTimeCommitments::numbers(item)["pendingTimeInHours"] }
             .inject(0, :+)
     end
 
@@ -308,7 +308,7 @@ class NxWTCTodayTimeLoads
     def self.getTimeLoadInSeconds(item)
         speed = NxWTCSpeedOfLight::getDaySpeedOfLightOrNull()
         return 0 if speed.nil?
-        NxWTimeCommitments::numbers(item)["missingHoursForToday"]*3600*speed
+        NxWTimeCommitments::numbers(item)["pendingTimeInHours"]*3600*speed
     end
 
     # NxWTCTodayTimeLoads::itemPendingTimeInSeconds(item)

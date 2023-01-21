@@ -536,6 +536,7 @@ class CatalystListing
         timecommitments = GeneralTimeCommitments::reportItemsX()
         if timecommitments.size > 0 then
             puts ""
+            puts "time commitments".green
             vspaceleft = vspaceleft - 1
             timecommitments.each{|item|
                 store.register(item, false)
@@ -554,8 +555,6 @@ class CatalystListing
             puts "INTERNET IS OFF".green
             vspaceleft = vspaceleft - 2
         end
-
-        timecommitments = NxWTCTodayTimeLoads::itemsThatShouldBeListed()
 
         floats = TxFloats::listingItems()
         if floats.size > 0 then

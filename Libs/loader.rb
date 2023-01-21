@@ -265,6 +265,13 @@ if $RunNonEssentialThreads then
                     CommonUtils::onScreenNotification("catalyst", "wtc is overflowing")
                 end
             }
+
+            NxOTimeCommitments::runningItems().each{|item|
+                numbers = NxOTimeCommitments::numbers(item)
+                if !numbers["shouldListing"] then
+                    CommonUtils::onScreenNotification("catalyst", "otc is overflowing")
+                end
+            }
         }
     }
 end

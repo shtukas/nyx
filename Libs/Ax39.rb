@@ -85,16 +85,16 @@ class Ax39
     # Ax39::numbers(uuid, ax39, hasNxBall, unrealisedTimespan = nil)
     def self.numbers(uuid, ax39, hasNxBall, unrealisedTimespan = nil)
 
-        # We return {shouldListing, missingHoursForToday}
+        # We return {shouldListing, pendingTimeInHours}
 
         if ax39["type"] == "daily-provision-fillable" then
             doneTodayInSeconds = Bank::valueAtDate(uuid, CommonUtils::today(), unrealisedTimespan)
             requiredTodayInSeconds = ax39["hours"]*3600
             shouldListing = doneTodayInSeconds < requiredTodayInSeconds
-            missingHoursForToday = [requiredTodayInSeconds - doneTodayInSeconds, 0].max.to_f/3600
+            pendingTimeInHours = [requiredTodayInSeconds - doneTodayInSeconds, 0].max.to_f/3600
             return {
                 "shouldListing"         => shouldListing,
-                "missingHoursForToday"  => missingHoursForToday
+                "pendingTimeInHours"  => pendingTimeInHours
             }
         end
 
@@ -114,17 +114,17 @@ class Ax39
         numberOfDaysLeft                        = 7 - dates.size + 1
         timeWeShouldDoTodayInSeconds            = missingTimeThisWeekBeforeTodayInSeconds.to_f/numberOfDaysLeft
         timeWeDidTodayInSeconds                 = Bank::valueAtDate(uuid, CommonUtils::today(), unrealisedTimespan)
-        missingTimeForTodayInSeconds            = [timeWeShouldDoTodayInSeconds - timeWeDidTodayInSeconds, 0].max
+        pendingTimeInSeconds                    = [timeWeShouldDoTodayInSeconds - timeWeDidTodayInSeconds, 0].max
 
-        shouldListing = (hasNxBall or (missingTimeForTodayInSeconds > 0))
+        shouldListing = (hasNxBall or (pendingTimeInSeconds > 0))
 
         {
-            "shouldListing"         => shouldListing,
-            "missingHoursForToday"  => missingTimeForTodayInSeconds.to_f/3600
+            "shouldListing"       => shouldListing,
+            "pendingTimeInHours"  => pendingTimeInSeconds.to_f/3600
         }
     end
 
-    # Ax39::standardAx39CarrierNumbers(item) # {shouldListing, missingHoursForToday}
+    # Ax39::standardAx39CarrierNumbers(item) # {shouldListing, pendingTimeInHours}
     def self.standardAx39CarrierNumbers(item)
         uuid = item["uuid"]
         ax39 = item["ax39"]
