@@ -69,14 +69,14 @@ class NxTimeCommitments
     # NxTimeCommitments::toStringWithDetails(item, shouldFormat)
     def self.toStringWithDetails(item, shouldFormat)
         descriptionPadding = 
-        if shouldFormat then
-            (XCache::getOrNull("NxTimeCommitment-Description-Padding-DDBBF46A-2D56-4931-BE11-AF66F97F738E") || 0).to_i
-        else
-            0
-        end
+            if shouldFormat then
+                (XCache::getOrNull("NxTimeCommitment-Description-Padding-DDBBF46A-2D56-4931-BE11-AF66F97F738E") || 0).to_i
+            else
+                0
+            end
 
-        data = Ax39::standardAx39CarrierNumbers(item) # {shouldListing, missingHoursForToday}
-        dataStr = " (pending today: #{"%5.2f" % data["missingHoursForToday"]})"
+        timeload = NxTCTimeLoads::getTimeLoadInSeconds(item["uuid"]).to_f/3600
+        dataStr = " (pending today: #{"%5.2f" % timeload})"
 
         datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
         dnsustr  = datetimeOpt ? ", (do not show until: #{datetimeOpt})" : ""
@@ -139,29 +139,9 @@ class NxTimeCommitments
         ([0] + NxTodos::itemsForNxTimeCommitment(tcId).map{|todo| todo["projectposition"] }).max + 1
     end
 
-    # NxTimeCommitments::totalHoursPerWeek()
-    def self.totalHoursPerWeek()
-        NxTimeCommitments::items().map{|item| item["ax39"]["hours"] }.inject(0, :+)
-    end
-
     # NxTimeCommitments::numbers(project)
     def self.numbers(project)
         Ax39::standardAx39CarrierNumbers(project)
-    end
-
-    # NxTimeCommitments::totalMissingHours()
-    def self.totalMissingHours()
-        NxTimeCommitments::items()
-            .map{|item| NxTimeCommitments::numbers(item)["missingHoursForToday"] }
-            .inject(0, :+)
-    end
-
-    # NxTimeCommitments::itemsThatShouldBeListed()
-    def self.itemsThatShouldBeListed()
-        NxTimeCommitments::items()
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-            .select{|project| Ax39::standardAx39CarrierNumbers(project)["shouldListing"] }
     end
 
     # NxTimeCommitments::itemWithToAllAssociatedListingItems(project)
@@ -186,30 +166,13 @@ class NxTimeCommitments
         end
     end
 
-    # NxTimeCommitments::listingItems()
-    def self.listingItems()
-        NxTimeCommitments::itemsThatShouldBeListed()
-            .map{|project| NxTimeCommitments::itemWithToAllAssociatedListingItems(project) }
-            .flatten
+    # NxTimeCommitments::totalMissingHoursForToday()
+    def self.totalMissingHoursForToday()
+        NxTimeCommitments::items()
+            .map{|item| NxTimeCommitments::numbers(item)["missingHoursForToday"] }
+            .inject(0, :+)
     end
 
-    # NxTimeCommitments::reportItemsX()
-    def self.reportItemsX()
-        items = NxTimeCommitments::items()
-            .select{|item| NxBalls::itemIsRunning(item) or NxTimeCommitments::numbers(item)["missingHoursForToday"] > 0 }
-            .sort{|i1, i2| NxTimeCommitments::numbers(i1)["missingHoursForToday"] <=> NxTimeCommitments::numbers(i2)["missingHoursForToday"] }
-        isMidDay = Time.new.hour >= 9 and Time.new.hour < 16
-        if isMidDay then
-            items = items.reverse # higher demand first as they usually correspond to work
-        end
-        items
-    end
-
-    # NxTimeCommitments::summaryLine()
-    def self.summaryLine()
-        todayMissingInHours = NxTimeCommitments::totalMissingHours()
-        "> pending today: #{"%5.2f" % todayMissingInHours} hours, projected end: #{Time.at( Time.new.to_i + todayMissingInHours*3600 ).to_s}"
-    end
 
     # --------------------------------------------
     # Ops
@@ -312,7 +275,6 @@ class NxTimeCommitments
     def self.mainprobe()
         loop {
             system("clear")
-            puts "Total hours (daily): #{(NxTimeCommitments::totalHoursPerWeek().to_f/7).round(2)}"
             project = NxTimeCommitments::interactivelySelectNxTimeCommitmentOrNull()
             return if project.nil?
             NxTimeCommitments::probe(project)
@@ -333,5 +295,108 @@ class NxTimeCommitments
         else
             NxTimeCommitments::nextPositionForItem(tcId)
         end
+    end
+end
+
+class NxTCTimeLoads
+
+    # NxTCTimeLoads::getTimeLoadInSeconds(tcuuid)
+    def self.getTimeLoadInSeconds(tcuuid)
+        filepath = "#{Config::pathToDataCenter()}/NxTimeCommitment-DayTimeLoads/TimeLoads/#{tcuuid}.txt"
+        return 0 if !File.exists?(filepath)
+        IO.read(filepath).strip.to_f
+    end
+
+    # NxTCTimeLoads::setTimeLoadInSeconds(tcuuid, value)
+    def self.setTimeLoadInSeconds(tcuuid, value)
+        filepath = "#{Config::pathToDataCenter()}/NxTimeCommitment-DayTimeLoads/TimeLoads/#{tcuuid}.txt"
+        File.open(filepath, "w"){|f| f.puts(value) }
+    end
+
+    # NxTCTimeLoads::itemIsFullToday(item)
+    def self.itemIsFullToday(item)
+        Bank::valueAtDate(item["uuid"], CommonUtils::today(), NxBalls::itemUnrealisedRunTimeInSecondsOrNull(item)) >= NxTCTimeLoads::getTimeLoadInSeconds(item["uuid"])
+    end
+
+    # NxTCTimeLoads::totalMissingHoursForToday()
+    def self.totalMissingHoursForToday()
+        NxTimeCommitments::items()
+            .map{|item| NxTCTimeLoads::getTimeLoadInSeconds(item["uuid"]) }
+            .inject(0, :+)
+            .to_f/3600
+    end
+
+    # NxTCTimeLoads::itemsThatShouldBeListed()
+    def self.itemsThatShouldBeListed()
+        NxTimeCommitments::items()
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+            .select{|item| !NxTCTimeLoads::itemIsFullToday(item) }
+    end
+end
+
+class NxTCSpeedOfLight
+
+    # NxTCSpeedOfLight::getDaySpeedOfLightOrNull()
+    def self.getDaySpeedOfLightOrNull()
+        filepath = "#{Config::pathToDataCenter()}/NxTimeCommitment-DayTimeLoads/speedOfLight.json"
+        return nil if !File.exists?(filepath)
+        data = JSON.parse(IO.read(filepath))
+        # data: {date, value}
+        return nil if data["date"] != CommonUtils::today()
+        data["speed"]
+    end
+
+    # NxTCSpeedOfLight::issueSpeedOfLightForTheDay(timeInHours)
+    def self.issueSpeedOfLightForTheDay(timeInHours)
+        total = NxTimeCommitments::totalMissingHoursForToday()
+        speed = 
+            if total > 0 then
+                available = timeInHours
+                available.to_f/total
+            else
+                1
+            end
+        data = { "date" => CommonUtils::today(), "speed" => speed }
+        filepath = "#{Config::pathToDataCenter()}/NxTimeCommitment-DayTimeLoads/speedOfLight.json"
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(data)) }
+        speed
+    end
+
+    # NxTCSpeedOfLight::interactivelySetSpeedOfLightAndTimeloadsForTheDay()
+    def self.interactivelySetSpeedOfLightAndTimeloadsForTheDay()
+        timeInHours = LucilleCore::askQuestionAnswerAsString("Time available in hours: ").to_f
+        speed = NxTCSpeedOfLight::issueSpeedOfLightForTheDay(timeInHours)
+        NxTimeCommitments::items()
+            .each{|item| 
+                numbers = NxTimeCommitments::numbers(item)
+                NxTCTimeLoads::setTimeLoadInSeconds(item["uuid"], numbers["missingHoursForToday"]*3600*speed)
+            }
+    end
+end
+
+class NxTCDataForListing
+
+    # NxTCDataForListing::summaryLine()
+    def self.summaryLine()
+        todayMissingInHours = NxTCTimeLoads::totalMissingHoursForToday()
+        "> pending today: #{"%5.2f" % todayMissingInHours} hours, projected end: #{Time.at( Time.new.to_i + todayMissingInHours*3600 ).to_s}"
+    end
+
+    # NxTCDataForListing::reportItemsX()
+    def self.reportItemsX()
+        return [] if NxTCSpeedOfLight::getDaySpeedOfLightOrNull().nil?
+        NxTCTimeLoads::itemsThatShouldBeListed()
+            .sort{|i1, i2| NxTCTimeLoads::getTimeLoadInSeconds(i1["uuid"]) <=>  NxTCTimeLoads::getTimeLoadInSeconds(i2["uuid"]) }
+    end
+
+    # NxTCDataForListing::listingItems()
+    def self.listingItems()
+        if NxTCSpeedOfLight::getDaySpeedOfLightOrNull().nil? then
+            return [LambdX1s::make("f8cb8290-3ba0-48e0-b482-8f9c26aad869", "configure speed of light", lambda { NxTCSpeedOfLight::interactivelySetSpeedOfLightAndTimeloadsForTheDay() })]
+        end
+        NxTCTimeLoads::itemsThatShouldBeListed()
+            .map{|project| NxTimeCommitments::itemWithToAllAssociatedListingItems(project) }
+            .flatten
     end
 end

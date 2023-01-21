@@ -11,12 +11,4 @@ class LambdX1s
             "lambda"   => l
         }
     end
-
-    # LambdX1s::listingItems()
-    def self.listingItems()
-        items = []
-
-        items
-    end
-
 end

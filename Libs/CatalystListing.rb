@@ -381,16 +381,16 @@ class CatalystListing
                 "lambda" => lambda { NxTriages::items() }
             },
             {
-                "name" => "NxTimeCommitments::listingItems()",
-                "lambda" => lambda { NxTimeCommitments::listingItems() }
+                "name" => "NxTCDataForListing::listingItems()",
+                "lambda" => lambda { NxTCDataForListing::listingItems() }
             },
             {
                 "name" => "source code trace generation",
                 "lambda" => lambda { CommonUtils::stargateTraceCode() }
             },
             {
-                "name" => "NxTimeCommitments::reportItemsX()",
-                "lambda" => lambda { NxTimeCommitments::reportItemsX() }
+                "name" => "NxTCDataForListing::reportItemsX()",
+                "lambda" => lambda { NxTCDataForListing::reportItemsX() }
             },
             {
                 "name" => "The99Percent::getCurrentCount()",
@@ -466,7 +466,7 @@ class CatalystListing
             NxOndates::listingItems(),
             TxManualCountDowns::listingItems(),
             Waves::listingItems("ns:time-important"),
-            NxTimeCommitments::listingItems(),
+            NxTCDataForListing::listingItems(),
             Waves::listingItems("ns:beach")
         ]
             .flatten
@@ -520,11 +520,11 @@ class CatalystListing
         end
 
         # TimeCommitment total
-        puts NxTimeCommitments::summaryLine()
+        puts NxTCDataForListing::summaryLine()
         vspaceleft = vspaceleft - 1
 
         # TimeCommitment report
-        timecommitments = NxTimeCommitments::reportItemsX()
+        timecommitments = NxTCDataForListing::reportItemsX()
         if timecommitments.size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
@@ -546,7 +546,7 @@ class CatalystListing
             vspaceleft = vspaceleft - 2
         end
 
-        timecommitments = NxTimeCommitments::itemsThatShouldBeListed()
+        timecommitments = NxTCTimeLoads::itemsThatShouldBeListed()
 
         listingItems = CatalystListing::listingItems()
 
