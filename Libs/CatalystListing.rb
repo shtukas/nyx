@@ -6,9 +6,9 @@ class CatalystListing
     def self.listingCommands()
         [
             "[listing interaction] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | >> skip default | destroy",
-            "[makers] wave | anniversary | today | ondate | todo | time commitment | manual countdown | top",
+            "[makers] wave | anniversary | today | ondate | todo | one time commitment | wave time commitment | manual countdown | top",
             "[nxballs] start (<n>) | stop <n> | pause <n> | pursue <n>",
-            "[divings] anniversaries | ondates | waves | time commitments | todos | float",
+            "[divings] anniversaries | ondates | waves | wave time commitments | todos | float",
             "[transmutations] >todo (ondates and triages)",
             "[misc] require internet",
             "[misc] search | speed | commands | lock (<n>)",
@@ -203,13 +203,8 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("time commitment", input) then
-            NxTimeCommitments::interactivelyIssueNewOrNull()
-            return
-        end
-
-        if Interpreting::match("time commitments", input) then
-            NxTimeCommitments::mainprobe()
+        if Interpreting::match("one time commitment", input) then
+            NxOTimeCommitments::interactivelyIssueNewOrNull()
             return
         end
 
@@ -358,6 +353,16 @@ class CatalystListing
             return
         end
 
+        if Interpreting::match("wave time commitment", input) then
+            NxWTimeCommitments::interactivelyIssueNewOrNull()
+            return
+        end
+
+        if Interpreting::match("wave time commitments", input) then
+            NxWTimeCommitments::mainprobe()
+            return
+        end
+
         if Interpreting::match("speed", input) then
             CatalystListing::runSpeedTest()
             LucilleCore::pressEnterToContinue()
@@ -373,6 +378,10 @@ class CatalystListing
                 "lambda" => lambda { Anniversaries::listingItems() }
             },
             {
+                "name" => "GeneralTimeCommitments::reportItemsX()",
+                "lambda" => lambda { GeneralTimeCommitments::reportItemsX() }
+            },
+            {
                 "name" => "NxOndates::listingItems()",
                 "lambda" => lambda { NxOndates::listingItems() }
             },
@@ -381,16 +390,16 @@ class CatalystListing
                 "lambda" => lambda { NxTriages::items() }
             },
             {
-                "name" => "NxTCDataForListing::listingItems()",
-                "lambda" => lambda { NxTCDataForListing::listingItems() }
+                "name" => "NxWTCDataForListing::listingItems()",
+                "lambda" => lambda { NxWTCDataForListing::listingItems() }
+            },
+            {
+                "name" => "NxOTimeCommitments::listingItems()",
+                "lambda" => lambda { NxOTimeCommitments::listingItems() }
             },
             {
                 "name" => "source code trace generation",
                 "lambda" => lambda { CommonUtils::stargateTraceCode() }
-            },
-            {
-                "name" => "NxTCDataForListing::reportItemsX()",
-                "lambda" => lambda { NxTCDataForListing::reportItemsX() }
             },
             {
                 "name" => "The99Percent::getCurrentCount()",
@@ -466,7 +475,7 @@ class CatalystListing
             NxOndates::listingItems(),
             TxManualCountDowns::listingItems(),
             Waves::listingItems("ns:time-important"),
-            NxTCDataForListing::listingItems(),
+            GeneralTimeCommitments::listingItems(),
             Waves::listingItems("ns:beach")
         ]
             .flatten
@@ -487,8 +496,8 @@ class CatalystListing
 
             store.register(item, canBeDefault)
 
-            tc = NxTimeCommitments::getOrNull(item["tcId"])
-            tcStr = tc ? " (NxTimeCommitment: #{tc["description"]})" : ""
+            tc = NxWTimeCommitments::getOrNull(item["tcId"])
+            tcStr = tc ? " (NxWTimeCommitment: #{tc["description"]})" : ""
             line = "(#{store.prefixString()}) #{PolyFunctions::toStringForCatalystListing(item)}#{tcStr.green}"
 
             nxball = NxBalls::getNxBallForItemOrNull(item)
@@ -520,17 +529,17 @@ class CatalystListing
         end
 
         # TimeCommitment total
-        puts NxTCDataForListing::summaryLine()
+        puts GeneralTimeCommitments::summaryLine()
         vspaceleft = vspaceleft - 1
 
         # TimeCommitment report
-        timecommitments = NxTCDataForListing::reportItemsX()
+        timecommitments = GeneralTimeCommitments::reportItemsX()
         if timecommitments.size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
             timecommitments.each{|item|
                 store.register(item, false)
-                line = "(#{store.prefixString()}) #{NxTimeCommitments::toStringWithDetails(item, true)}"
+                line = "(#{store.prefixString()}) #{GeneralTimeCommitments::toString(item)}"
                 nxball = NxBalls::getNxBallForItemOrNull(item)
                 if nxball then
                     line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
@@ -546,7 +555,7 @@ class CatalystListing
             vspaceleft = vspaceleft - 2
         end
 
-        timecommitments = NxTCTimeLoads::itemsThatShouldBeListed()
+        timecommitments = NxWTCTodayTimeLoads::itemsThatShouldBeListed()
 
         listingItems = CatalystListing::listingItems()
 

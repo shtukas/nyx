@@ -270,7 +270,7 @@ class Waves
         loop {
             item = Waves::getOrNull(item["uuid"])
             puts Waves::toString(item)
-            actions = ["access", "update description", "update wave pattern", "perform done", "set project", "set days of the week", "destroy"]
+            actions = ["access", "update description", "update wave pattern", "perform done", "set wave time commitment", "set days of the week", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "access" then
@@ -290,10 +290,10 @@ class Waves
                 Waves::performWaveNx46WaveDone(item)
                 next
             end
-            if action == "set project" then
-                project = NxTimeCommitments::interactivelySelectNxTimeCommitmentOrNull()
-                next if project.nil?
-                item["tcId"] = project["uuid"]
+            if action == "set wave time commitment" then
+                wtc = NxWTimeCommitments::interactivelySelectNxWTimeCommitmentOrNull()
+                next if wtc.nil?
+                item["tcId"] = wtc["uuid"]
                 Waves::commit(item)
                 next
             end

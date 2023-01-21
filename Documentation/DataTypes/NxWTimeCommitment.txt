@@ -1,9 +1,10 @@
 
-NxTimeCommitment {
+NxWTimeCommitment {
     "uuid"         : String
-    "mikuType"     : "NxTimeCommitment"
+    "mikuType"     : "NxWTimeCommitment"
     "unixtime"     : Float
     "datetime"     : DateTime Iso 8601 UTC Zulu
     "description"  : String
     "ax39"         : Ax39
+    "isWork"       : Boolean, decide if to display '(-vx-) Main focus'
 }

@@ -1,0 +1,9 @@
+
+NxOTimeCommitment
+    "uuid"        => String
+    "mikuType"    => "NxOTimeCommitment"
+    "unixtime"    => Unixtime
+    "description" => String
+    "hours"       => Float
+    "tcId"        : 
+

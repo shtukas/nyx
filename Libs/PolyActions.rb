@@ -10,8 +10,8 @@ class PolyActions
 
         # types in alphabetical order
 
-        if item["mikuType"] == "NxTimeCommitment" then
-            NxTimeCommitments::probe(item)
+        if item["mikuType"] == "NxWTimeCommitment" then
+            NxWTimeCommitments::probe(item)
             return
         end
 
@@ -60,8 +60,8 @@ class PolyActions
     # PolyActions::commit(item)
     def self.commit(item)
 
-        if item["mikuType"] == "NxTimeCommitment" then
-            NxTimeCommitments::items()
+        if item["mikuType"] == "NxWTimeCommitment" then
+            NxWTimeCommitments::items()
             return
         end
 
@@ -109,7 +109,7 @@ class PolyActions
 
         # order: alphabetical order
 
-        if item["mikuType"] == "NxTimeCommitment" then
+        if item["mikuType"] == "NxWTimeCommitment" then
             return
         end
 
@@ -235,7 +235,7 @@ class PolyActions
             NxBalls::issue(accounts, item["uuid"])
         }
 
-        if item["mikuType"] == "NxTimeCommitment" then
+        if item["mikuType"] == "NxWTimeCommitment" then
             PolyActions::start(item)
             return
         end
@@ -375,8 +375,8 @@ class PolyActions
 
         # order: alphabetical order
 
-        if item["mikuType"] == "NxTimeCommitment" then
-            NxTimeCommitments::probe(item)
+        if item["mikuType"] == "NxWTimeCommitment" then
+            NxWTimeCommitments::probe(item)
             return
         end
 

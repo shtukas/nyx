@@ -63,11 +63,16 @@ class DoNotShowUntil
     # DoNotShowUntil::setUnixtime(uuid, unixtime)
     def self.setUnixtime(uuid, unixtime)
         DNSUIO::setUnixtime(uuid, unixtime)
+        InMemoryStore::set("d7fe8a8c-b7ea-4a98-8542-e7cd875c1c64:#{uuid}", unixtime)
     end
 
     # DoNotShowUntil::getUnixtimeOrNull(uuid)
     def self.getUnixtimeOrNull(uuid)
-        DNSUIO::unixtimeOrNull(uuid)
+        value = InMemoryStore::getOrNull("d7fe8a8c-b7ea-4a98-8542-e7cd875c1c64:#{uuid}")
+        return value if value
+        value = DNSUIO::unixtimeOrNull(uuid)
+        InMemoryStore::set("d7fe8a8c-b7ea-4a98-8542-e7cd875c1c64:#{uuid}", value || 0)
+        value
     end
 
     # DoNotShowUntil::getDateTimeOrNull(uuid)

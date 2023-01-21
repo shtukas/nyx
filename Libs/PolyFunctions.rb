@@ -11,33 +11,42 @@ class PolyFunctions
             "number"      => item["uuid"]
         }
 
+        if item["mikuType"] == "NxOTimeCommitment" then
+            tcId = item["tcId"]
+            wtc = NxWTimeCommitments::getOrNull(tcId)
+            accounts << {
+                "description" => PolyFunctions::genericDescription(wtc),
+                "number"      => wtc["uuid"]
+            }
+        end
+
         if item["mikuType"] == "NxTodo" then
             tcId = item["tcId"]
-            project = NxTimeCommitments::getOrNull(tcId)
+            wtc = NxWTimeCommitments::getOrNull(tcId)
             accounts << {
-                "description" => PolyFunctions::genericDescription(project),
-                "number"      => project["uuid"]
+                "description" => PolyFunctions::genericDescription(wtc),
+                "number"      => wtc["uuid"]
             }
         end
 
         if item["mikuType"] == "Vx01" then
             tcId = item["tcId"]
-            project = NxTimeCommitments::getOrNull(tcId)
-            if project then
+            wtc = NxWTimeCommitments::getOrNull(tcId)
+            if wtc then
                 accounts << {
-                    "description" => PolyFunctions::genericDescription(project),
-                    "number"      => project["uuid"]
+                    "description" => PolyFunctions::genericDescription(wtc),
+                    "number"      => wtc["uuid"]
                 }
             end
         end
 
         if item["mikuType"] == "Wave" then
             tcId = item["tcId"]
-            project = NxTimeCommitments::getOrNull(tcId)
-            if project then
+            wtc = NxWTimeCommitments::getOrNull(tcId)
+            if wtc then
                 accounts << {
-                    "description" => PolyFunctions::genericDescription(project),
-                    "number"      => project["uuid"]
+                    "description" => PolyFunctions::genericDescription(wtc),
+                    "number"      => wtc["uuid"]
                 }
             end
         end
@@ -142,9 +151,6 @@ class PolyFunctions
 
         # ordering: alphabetical order
 
-        if item["mikuType"] == "NxTimeCommitment" then
-            return item["description"]
-        end
         if item["mikuType"] == "InboxItem" then
             return item["description"]
         end
@@ -155,6 +161,12 @@ class PolyFunctions
             return item["description"]
         end
         if item["mikuType"] == "NxIced" then
+            return item["description"]
+        end
+        if item["mikuType"] == "NxOTimeCommitment" then
+            return item["description"]
+        end
+        if item["mikuType"] == "NxWTimeCommitment" then
             return item["description"]
         end
         if item["mikuType"] == "NxOndate" then
@@ -189,9 +201,6 @@ class PolyFunctions
 
         # order: lexicographic
 
-        if item["mikuType"] == "NxTimeCommitment" then
-            return NxTimeCommitments::toString(item)
-        end
         if item["mikuType"] == "LambdX1" then
             return "(lambda) #{item["announce"]}"
         end
@@ -203,6 +212,12 @@ class PolyFunctions
         end
         if item["mikuType"] == "NxOndate" then
             return NxOndates::toString(item)
+        end
+        if item["mikuType"] == "NxOTimeCommitment" then
+            return NxOTimeCommitments::toString(item)
+        end
+        if item["mikuType"] == "NxWTimeCommitment" then
+            return NxWTimeCommitments::toString(item)
         end
         if item["mikuType"] == "NxTodo" then
             return NxTodos::toString(item)
@@ -228,8 +243,8 @@ class PolyFunctions
 
     # PolyFunctions::toStringForCatalystListing(item)
     def self.toStringForCatalystListing(item)
-        if item["mikuType"] == "NxTimeCommitment" then
-            return NxTimeCommitments::toStringWithDetails(item, true)
+        if item["mikuType"] == "NxWTimeCommitment" then
+            return NxWTimeCommitments::toStringWithDetails(item, true)
         end
         PolyFunctions::toString(item)
     end

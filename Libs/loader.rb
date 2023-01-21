@@ -157,11 +157,10 @@ require_relative "Dx8Units.rb"
 require_relative "DatablobStore.rb"
 require_relative "Database1.rb"
 
-require_relative "EnergyGrid.rb"
-
 require_relative "Locks.rb"
 
 require_relative "Galaxy.rb"
+require_relative "GeneralTimeCommitments.rb"
 
 require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"
@@ -181,7 +180,8 @@ require_relative "NxOndates.rb"
 require_relative "NxBalls.rb"
 require_relative "NxNetwork.rb"
 require_relative "NxNodes.rb"
-require_relative "NxTimeCommitments.rb"
+require_relative "NxWTimeCommitments.rb"
+require_relative "NxOTimeCommitments.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"
@@ -258,10 +258,10 @@ if $RunNonEssentialThreads then
                 end
             }
 
-            NxTimeCommitments::runningItems().each{|item|
-                numbers = NxTimeCommitments::numbers(item)
+            NxWTimeCommitments::runningItems().each{|item|
+                numbers = NxWTimeCommitments::numbers(item)
                 if !numbers["shouldListing"] then
-                    CommonUtils::onScreenNotification("catalyst", "project is overflowing")
+                    CommonUtils::onScreenNotification("catalyst", "wtc is overflowing")
                 end
             }
         }

@@ -40,8 +40,8 @@ class NxTodos
         end
     end
 
-    # NxTodos::itemsForNxTimeCommitment(tcId)
-    def self.itemsForNxTimeCommitment(tcId)
+    # NxTodos::itemsForNxWTimeCommitment(tcId)
+    def self.itemsForNxWTimeCommitment(tcId)
         NxTodos::itemsEnumerator()
             .select{|item|
                 item["tcId"] == tcId
@@ -65,8 +65,8 @@ class NxTodos
         return nil if description == ""
         uuid  = CommonUtils::timeStringL22()
         nx113 = Nx113Make::interactivelyMakeNx113OrNull()
-        tcId = NxTimeCommitments::interactivelySelectProject()["uuid"]
-        projectposition = NxTimeCommitments::interactivelyDecideProjectPosition(tcId)
+        tcId = NxWTimeCommitments::interactivelySelectItem()["uuid"]
+        tcPos = NxWTimeCommitments::interactivelyDecideProjectPosition(tcId)
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
@@ -75,7 +75,7 @@ class NxTodos
             "description" => description,
             "nx113"       => nx113,
             "tcId"       => tcId,
-            "projectposition" => projectposition
+            "tcPos" => tcPos
         }
         NxTodos::commit(item)
         item
@@ -84,12 +84,12 @@ class NxTodos
     # NxTodos::issueConsumingNxOndate(nxondate)
     def self.issueConsumingNxOndate(nxondate)
         item = nxondate.clone
-        project = NxTimeCommitments::interactivelySelectProject()
-        projectposition = NxTimeCommitments::nextPositionForItem(project["uuid"])
+        wtc = NxWTimeCommitments::interactivelySelectItem()
+        tcPos = NxWTimeCommitments::nextPositionForItem(wtc["uuid"])
         item["uuid"] = CommonUtils::timeStringL22()
         item["mikuType"] = "NxTodo"
-        item["tcId"] = project["uuid"]
-        item["projectposition"] = projectposition
+        item["tcId"] = wtc["uuid"]
+        item["tcPos"] = tcPos
         NxTodos::commit(item)
         NxOndates::destroy(nxondate["uuid"])
         item
@@ -108,13 +108,13 @@ class NxTodos
         end
 
         item = nxtriage.clone
-        project = NxTimeCommitments::interactivelySelectProject()
-        projectposition = NxTimeCommitments::interactivelyDecideProjectPosition(project["uuid"])
+        wtc = NxWTimeCommitments::interactivelySelectItem()
+        tcPos = NxWTimeCommitments::interactivelyDecideProjectPosition(wtc["uuid"])
         item["uuid"] = CommonUtils::timeStringL22()
         item["description"] = description
         item["mikuType"] = "NxTodo"
-        item["tcId"] = project["uuid"]
-        item["projectposition"] = projectposition
+        item["tcId"] = wtc["uuid"]
+        item["tcPos"] = tcPos
         NxTodos::commit(item)
         NxTriages::destroy(nxtriage["uuid"])
         item

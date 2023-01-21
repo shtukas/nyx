@@ -8,4 +8,4 @@ NxTodo:
     "description" : String
     "tcId"   : String
     "nx113"       : null or Nx113
-    "projectposition" : Float
+    "tcPos" : Float
