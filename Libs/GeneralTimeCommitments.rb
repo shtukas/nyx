@@ -12,10 +12,11 @@ class GeneralTimeCommitments
         todayMissingInHours1 + hours2
     end
 
-    # GeneralTimeCommitments::summaryLine()
-    def self.summaryLine()
+    # GeneralTimeCommitments::summaryLine(totalEstimatedTimeInSeconds)
+    def self.summaryLine(totalEstimatedTimeInSeconds)
         total = GeneralTimeCommitments::pendingTimeInHours()
-        "> pending: #{"%5.2f" % total} hours, projected end: #{Time.at( Time.new.to_i + total*3600 ).to_s}"
+        purelyEstimated = totalEstimatedTimeInSeconds.to_f/3600 - total
+        "> total estimated: #{(totalEstimatedTimeInSeconds.to_f/3600).round(2)} hours; time commitment pending: #{"%5.2f" % total} hours, purely estimated: #{purelyEstimated.round(2)} hours, projected end: #{Time.at( Time.new.to_i + totalEstimatedTimeInSeconds ).to_s}"
     end
 
     # GeneralTimeCommitments::itemPendingTimeInSeconds(item)

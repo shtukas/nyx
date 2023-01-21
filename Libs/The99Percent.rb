@@ -54,6 +54,6 @@ class The99Percent
         return nil if reference.nil?
         current = The99Percent::getCurrentCount()
         ratio   = current.to_f/reference["count"]
-        "> 👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
+        "> #{current}, #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
     end
 end

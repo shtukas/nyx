@@ -197,6 +197,7 @@ require_relative "Skips.rb"
 require_relative "TxManualCountDowns.rb"
 require_relative "The99Percent.rb"
 require_relative "TxFloats.rb"
+require_relative "TimeEstimations.rb"
 
 require_relative "Waves.rb"
 

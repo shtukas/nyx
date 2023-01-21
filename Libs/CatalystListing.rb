@@ -483,8 +483,8 @@ class CatalystListing
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
     end
 
-    # CatalystListing::displayListing()
-    def self.displayListing()
+    # CatalystListing::displayListing(listingItems, totalEstimatedTimeInSeconds)
+    def self.displayListing(listingItems, totalEstimatedTimeInSeconds)
 
         nxballHasAnItemInThere = lambda {|nxball, listingItems|
             itemuuid = nxball["itemuuid"]
@@ -521,16 +521,16 @@ class CatalystListing
         puts ""
         vspaceleft = vspaceleft - 1
 
+        # TimeCommitment total
+        puts GeneralTimeCommitments::summaryLine(totalEstimatedTimeInSeconds)
+        vspaceleft = vspaceleft - 1
+
         # The99 Percent
         line = The99Percent::lineOrNull()
         if line then
             puts The99Percent::lineOrNull()
             vspaceleft = vspaceleft - 1
         end
-
-        # TimeCommitment total
-        puts GeneralTimeCommitments::summaryLine()
-        vspaceleft = vspaceleft - 1
 
         # TimeCommitment report
         timecommitments = GeneralTimeCommitments::reportItemsX()
@@ -556,8 +556,6 @@ class CatalystListing
         end
 
         timecommitments = NxWTCTodayTimeLoads::itemsThatShouldBeListed()
-
-        listingItems = CatalystListing::listingItems()
 
         floats = TxFloats::listingItems()
         if floats.size > 0 then
@@ -666,7 +664,11 @@ class CatalystListing
                     LucilleCore::removeFileSystemLocation(location)
                 }
 
-            CatalystListing::displayListing()
+            listingItems = CatalystListing::listingItems()
+
+            totalEstimatedTimeInSeconds = listingItems.map{|item| TimeEstimations::itemToEstimationInSeconds(item) }.inject(0,:+)
+
+            CatalystListing::displayListing(listingItems, totalEstimatedTimeInSeconds)
         }
     end
 end
