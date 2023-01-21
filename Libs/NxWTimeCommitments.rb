@@ -77,7 +77,7 @@ class NxWTimeCommitments
                 0
             end
 
-        timeload = NxWTCTodayTimeLoads::getStoredTimeLoadInSeconds(item["uuid"]).to_f/3600
+        timeload = NxWTCTodayTimeLoads::getTimeLoadInSeconds(item).to_f/3600
 
         datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
         dnsustr  = datetimeOpt ? ", (do not show until: #{datetimeOpt})" : ""
@@ -304,22 +304,16 @@ end
 
 class NxWTCTodayTimeLoads
 
-    # NxWTCTodayTimeLoads::getStoredTimeLoadInSeconds(tcuuid)
-    def self.getStoredTimeLoadInSeconds(tcuuid)
-        filepath = "#{Config::pathToDataCenter()}/NxWTimeCommitment-DayTimeLoads/TimeLoads/#{tcuuid}.txt"
-        return 0 if !File.exists?(filepath)
-        IO.read(filepath).strip.to_f
-    end
-
-    # NxWTCTodayTimeLoads::setStoredTimeLoadInSeconds(tcuuid, value)
-    def self.setStoredTimeLoadInSeconds(tcuuid, value)
-        filepath = "#{Config::pathToDataCenter()}/NxWTimeCommitment-DayTimeLoads/TimeLoads/#{tcuuid}.txt"
-        File.open(filepath, "w"){|f| f.puts(value) }
+    # NxWTCTodayTimeLoads::getTimeLoadInSeconds(item)
+    def self.getTimeLoadInSeconds(item)
+        speed = NxWTCSpeedOfLight::getDaySpeedOfLightOrNull()
+        return 0 if speed.nil?
+        NxWTimeCommitments::numbers(item)["missingHoursForToday"]*3600*speed
     end
 
     # NxWTCTodayTimeLoads::itemPendingTimeInSeconds(item)
     def self.itemPendingTimeInSeconds(item)
-        NxWTCTodayTimeLoads::getStoredTimeLoadInSeconds(item["uuid"]) - NxBalls::itemRealisedAndUnrealsedTimeInSeconds(item)
+        NxWTCTodayTimeLoads::getTimeLoadInSeconds(item) - NxBalls::itemRealisedAndUnrealsedTimeInSeconds(item)
     end
 
     # NxWTCTodayTimeLoads::itemIsFullToday(item)
@@ -374,12 +368,23 @@ class NxWTCSpeedOfLight
     # NxWTCSpeedOfLight::interactivelySetSpeedOfLightAndTimeloadsForTheDay()
     def self.interactivelySetSpeedOfLightAndTimeloadsForTheDay()
         timeInHours = LucilleCore::askQuestionAnswerAsString("Time available in hours: ").to_f
-        speed = NxWTCSpeedOfLight::issueSpeedOfLightForTheDay(timeInHours)
-        NxWTimeCommitments::items()
-            .each{|item| 
-                numbers = NxWTimeCommitments::numbers(item)
-                NxWTCTodayTimeLoads::setStoredTimeLoadInSeconds(item["uuid"], numbers["missingHoursForToday"]*3600*speed)
-            }
+        NxWTCSpeedOfLight::issueSpeedOfLightForTheDay(timeInHours)
+    end
+
+    # NxWTCSpeedOfLight::decrementLightSpeed()
+    def self.decrementLightSpeed()
+        filepath = "#{Config::pathToDataCenter()}/NxWTimeCommitment-DayTimeLoads/speedOfLight.json"
+        data = JSON.parse(IO.read(filepath))
+        data["speed"] = [data["speed"] - 0.1, 0].max
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(data)) }
+    end
+
+    # NxWTCSpeedOfLight::incrementLightSpeed()
+    def self.incrementLightSpeed()
+        filepath = "#{Config::pathToDataCenter()}/NxWTimeCommitment-DayTimeLoads/speedOfLight.json"
+        data = JSON.parse(IO.read(filepath))
+        data["speed"] = data["speed"] + 0.1
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(data)) }
     end
 end
 

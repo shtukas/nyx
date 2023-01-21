@@ -16,4 +16,20 @@ class TimeEstimations
         return NxWTCTodayTimeLoads::itemPendingTimeInSeconds(item) if item["mikuType"] == "NxWTimeCommitment"
         TimeEstimations::timesForItem(item).inject(0, :+)
     end
+
+    # TimeEstimations::manageSpeedOfLight(totalEstimatedTimeInSeconds)
+    def self.manageSpeedOfLight(totalEstimatedTimeInSeconds)
+        unixtime = CommonUtils::unixtimeAtComingMidnightAtGivenTimeZone(CommonUtils::getLocalTimeZone())
+        timeToMidnight = unixtime - Time.new.to_i
+        if totalEstimatedTimeInSeconds > (timeToMidnight-3600) then
+            puts "light speed decrease"
+            sleep 1
+            NxWTCSpeedOfLight::decrementLightSpeed()
+        end
+        if totalEstimatedTimeInSeconds < (timeToMidnight-3600*3) then
+            puts "light speed increase"
+            sleep 1
+            NxWTCSpeedOfLight::incrementLightSpeed()
+        end
+    end
 end

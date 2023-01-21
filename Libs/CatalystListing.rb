@@ -668,6 +668,8 @@ class CatalystListing
 
             totalEstimatedTimeInSeconds = listingItems.map{|item| TimeEstimations::itemToEstimationInSeconds(item) }.inject(0,:+)
 
+            TimeEstimations::manageSpeedOfLight(totalEstimatedTimeInSeconds)
+
             CatalystListing::displayListing(listingItems, totalEstimatedTimeInSeconds)
         }
     end
