@@ -1,78 +1,80 @@
 # encoding: UTF-8
 
-class DNSUIO
+class DoNotShowUntilAgent
+    def initialize()
+        @mapping = {}
+        Thread.new {
+            loop {
+                sleep 120
+                loadFromDisk()
+            }
+        }
+    end
 
-    # DNSUIO::filepaths()
-    def self.filepaths()
+    def filepaths()
         LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/DoNotShowUntil2")
             .select{|filepath| filepath[-5, 5] == ".json" }
     end
 
-    # DNSUIO::filepathsForUuid(uuid) # filepaths for this uuid (possibly empty)
-    def self.filepathsForUuid(uuid)
-        DNSUIO::filepaths()
+    # filepathsForUuid(uuid) # filepaths for this uuid (possibly empty)
+    def filepathsForUuid(uuid)
+        filepaths()
             .select{|filepath|
                 data = JSON.parse(IO.read(filepath))
                 data["uuid"] == uuid
             }
     end
 
-    # DNSUIO::unixtimeOrNull(uuid)
-    def self.unixtimeOrNull(uuid)
-
-        key1 = "26f5a1eb-3568-4e77-87a9-b29d56732fbd:#{DNSUIO::filepaths().join(":")}:#{uuid}"
-        unixtime = XCache::getOrNull(key1)
-        return unixtime.to_f if unixtime
-
-        unixtime = DNSUIO::filepathsForUuid(uuid).reduce(nil){|m, u|
-            u = JSON.parse(IO.read(u))["unixtime"]
-            if m then
-                [m, u].max
-            else
-                u
-            end
-        }
-
-        if unixtime then
-            XCache::set(key1, unixtime)
-        end
-
-        unixtime
-    end
-
-    # DNSUIO::setUnixtime(uuid, unixtime)
-    def self.setUnixtime(uuid, unixtime)
-        DNSUIO::filepathsForUuid(uuid)
+    def setUnixtime(uuid, unixtime)
+        filepathsForUuid(uuid)
             .each{|filepath| FileUtils.rm(filepath)}
 
         data = {
             "uuid"     => uuid,
-            "unixtime" => unixtime,
-            "random"   => SecureRandom.hex
+            "unixtime" => unixtime
         }
         contents = JSON.generate(data)
         filename = "#{Digest::SHA1.hexdigest(contents)}.json"
         filepath = "#{Config::pathToDataCenter()}/DoNotShowUntil2/#{filename}"
         File.open(filepath, "w") {|f| f.puts(contents) }
+
+        @mapping[uuid] = unixtime
     end
 
+    def loadFromDisk()
+        filepaths().each{|filepath|
+            data = JSON.parse(IO.read(filepath))
+            if data["unixtime"] > Time.new.to_i then
+                @mapping[data["uuid"]] = data["unixtime"]
+            else
+                FileUtils.rm(filepath)
+            end
+        }
+    end
+
+    def unixtimeOrNull(uuid)
+        return @mapping[uuid] if @mapping[uuid]
+        loadFromDisk()
+        return @mapping[uuid] if @mapping[uuid]
+        @mapping[uuid] = 0 # technically we should be returning null but we set 0 to avoid reloading from disk for the same uuid later
+        0
+    end
 end
+
+$DoNotShowUntilAgent = nil
 
 class DoNotShowUntil
 
     # DoNotShowUntil::setUnixtime(uuid, unixtime)
     def self.setUnixtime(uuid, unixtime)
-        DNSUIO::setUnixtime(uuid, unixtime)
-        InMemoryStore::set("d7fe8a8c-b7ea-4a98-8542-e7cd875c1c64:#{uuid}", unixtime)
+        agent = $DoNotShowUntilAgent || DoNotShowUntilAgent.new()
+        agent.setUnixtime(uuid, unixtime)
     end
 
     # DoNotShowUntil::getUnixtimeOrNull(uuid)
     def self.getUnixtimeOrNull(uuid)
-        value = InMemoryStore::getOrNull("d7fe8a8c-b7ea-4a98-8542-e7cd875c1c64:#{uuid}")
-        return value if value
-        value = DNSUIO::unixtimeOrNull(uuid)
-        InMemoryStore::set("d7fe8a8c-b7ea-4a98-8542-e7cd875c1c64:#{uuid}", value || 0)
-        value
+        agent = $DoNotShowUntilAgent || DoNotShowUntilAgent.new()
+        agent.unixtimeOrNull(uuid)
     end
 
     # DoNotShowUntil::getDateTimeOrNull(uuid)
