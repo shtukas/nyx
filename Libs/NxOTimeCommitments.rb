@@ -67,7 +67,7 @@ class NxOTimeCommitments
 
     # NxOTimeCommitments::toString(item)
     def self.toString(item)
-        pending = item["hours"]-NxBalls::itemRealisedAndUnrealsedTimeInSeconds(item).to_f/3600
+        pending = [item["hours"]-NxBalls::itemRealisedAndUnrealsedTimeInSeconds(item).to_f/3600, 0].max
         "(otc) (pending: #{"%5.2f" % (pending.round(2))}) #{item["description"]} (done: #{(NxBalls::itemRealisedAndUnrealsedTimeInSeconds(item).to_f/3600).round(2)} hours of #{item["hours"]})"
     end
 

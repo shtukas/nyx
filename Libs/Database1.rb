@@ -1,6 +1,6 @@
 
 # Database
-# create table objects (uuid text, mikuType text, unixtime float, datetime text, description text, tcId text, doNotShowUntil float, skippedUntil float, field1 text, field2 text, field3 text, field4 text, field5 text, field6 text, field7 text)
+# create table objects (uuid text, mikuType text, unixtime float, datetime text, description text, doNotShowUntil float, skippedUntil float, field1 text, field2 text, field3 text, field4 text, field5 text, field6 text, field7 text)
 
 class Database1
 
