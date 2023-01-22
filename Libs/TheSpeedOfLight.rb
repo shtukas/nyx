@@ -38,7 +38,7 @@ class TheSpeedOfLight
         unixtime = CommonUtils::unixtimeAtComingMidnightAtGivenTimeZone(CommonUtils::getLocalTimeZone())
         timeToMidnight = unixtime - Time.new.to_i
         pendingTimeTodayInSeconds = GeneralTimeCommitments::livePendingTimeTodayInHours()*3600
-        if pendingTimeTodayInSeconds > timeToMidnight then
+        if pendingTimeTodayInSeconds > (timeToMidnight-3600*1) then
             TheSpeedOfLight::decrementLightSpeed()
         end
         if pendingTimeTodayInSeconds < (timeToMidnight-3600*2) then
