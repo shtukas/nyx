@@ -477,7 +477,7 @@ class CatalystListing
             TxManualCountDowns::listingItems(),
             Waves::listingItems("ns:time-important"),
             GeneralTimeCommitments::listingItems(),
-            (light and light >= 1) ? Waves::listingItems("ns:beach") : []
+            Waves::listingItems("ns:beach")
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
