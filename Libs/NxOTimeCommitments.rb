@@ -12,7 +12,7 @@ class NxOTimeCommitments
             .select{|filepath| filepath[-5, 5] == ".json" }
             .map{|filepath| 
                 item = JSON.parse(IO.read(filepath)) 
-                if NxOTimeCommitments::itemLivePendingTimeTodayInSeconds(item) <= 0 then
+                if NxOTimeCommitments::itemLiveTimeThatShouldBeDoneTodayInHours(item) <= 0 then
                     FileUtils.rm(filepath)
                     nil
                 else
@@ -85,23 +85,23 @@ class NxOTimeCommitments
             .select{|otc| NxBalls::getNxBallForItemOrNull(otc) }
     end
 
-    # NxOTimeCommitments::itemLivePendingTimeTodayInSeconds(item)
-    def self.itemLivePendingTimeTodayInSeconds(item)
+    # NxOTimeCommitments::itemLiveTimeThatShouldBeDoneTodayInHours(item)
+    def self.itemLiveTimeThatShouldBeDoneTodayInHours(item)
         [item["hours"]*3600 - NxBalls::itemRealisedAndUnrealsedTimeInSeconds(item), 0].max
     end
 
-    # NxOTimeCommitments::numbers(otc)
-    def self.numbers(otc)
-        pendingTimeTodayInSeconds = NxOTimeCommitments::itemLivePendingTimeTodayInSeconds(otc)
+    # NxOTimeCommitments::liveNumbers(otc)
+    def self.liveNumbers(otc)
+        pendingTimeTodayInSeconds = NxOTimeCommitments::itemLiveTimeThatShouldBeDoneTodayInHours(otc)
         {
-            "pendingTimeTodayInHours" => pendingTimeTodayInSeconds.to_f/3600
+            "timeThatShouldBeDoneTodayInHours" => pendingTimeTodayInSeconds.to_f/3600
         }
     end
 
-    # NxOTimeCommitments::livePendingTimeTodayInSeconds()
-    def self.livePendingTimeTodayInSeconds()
+    # NxOTimeCommitments::typeLiveTimeThatShouldBeDoneTodayInHours()
+    def self.typeLiveTimeThatShouldBeDoneTodayInHours()
         NxOTimeCommitments::items()
-            .map{|item| NxOTimeCommitments::itemLivePendingTimeTodayInSeconds(item) }
+            .map{|item| NxOTimeCommitments::itemLiveTimeThatShouldBeDoneTodayInHours(item) }
             .inject(0, :+)
     end
 end
