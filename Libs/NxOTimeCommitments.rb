@@ -10,15 +10,7 @@ class NxOTimeCommitments
     def self.items()
         LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxOTimeCommitment")
             .select{|filepath| filepath[-5, 5] == ".json" }
-            .map{|filepath| 
-                item = JSON.parse(IO.read(filepath)) 
-                if NxOTimeCommitments::itemLiveTimeThatShouldBeDoneTodayInHours(item) <= 0 then
-                    FileUtils.rm(filepath)
-                    nil
-                else
-                    item
-                end
-            }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
 
     # NxOTimeCommitments::commit(item)
