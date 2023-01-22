@@ -1,10 +1,5 @@
 class GeneralTimeCommitments
 
-    # GeneralTimeCommitments::items()
-    def self.items()
-        NxWTimeCommitments::items() + NxOTimeCommitments::items()
-    end
-
     # GeneralTimeCommitments::livePendingTimeTodayInHours()
     def self.livePendingTimeTodayInHours()
         todayMissingInHours1 = NxWTCTodayTimeLoads::livePendingTimeTodayInSeconds().to_f/3600
@@ -31,7 +26,7 @@ class GeneralTimeCommitments
 
     # GeneralTimeCommitments::reportItemsX()
     def self.reportItemsX()
-        GeneralTimeCommitments::items()
+        (NxWTimeCommitments::items() + NxOTimeCommitments::items())
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
             .select{|item| NxBalls::itemIsRunning(item) or GeneralTimeCommitments::itemLivePendingTimeTodayInSeconds(item) > 1 }
@@ -40,17 +35,21 @@ class GeneralTimeCommitments
 
     # GeneralTimeCommitments::listingItems()
     def self.listingItems()
-        GeneralTimeCommitments::reportItemsX().map{|item|
-            (lambda{|item|
-                if item["mikuType"] == "NxWTimeCommitment" then
-                    return NxWTimeCommitments::itemWithToAllAssociatedListingItems(item)
-                end
-                if item["mikuType"] == "NxOTimeCommitment" then
-                    return item
-                end
-            }).call(item)
-        }
-        .flatten
+        (NxOTimeCommitments::items() + NxWTimeCommitments::items())
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+            .select{|item| NxBalls::itemIsRunning(item) or GeneralTimeCommitments::itemLivePendingTimeTodayInSeconds(item) > 1 }
+            .map{|item|
+                (lambda{|item|
+                    if item["mikuType"] == "NxWTimeCommitment" then
+                        return NxWTimeCommitments::itemWithToAllAssociatedListingItems(item)
+                    end
+                    if item["mikuType"] == "NxOTimeCommitment" then
+                        return item
+                    end
+                }).call(item)
+            }
+            .flatten
     end
 
     # GeneralTimeCommitments::toString(item)

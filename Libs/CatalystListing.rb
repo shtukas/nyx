@@ -378,8 +378,8 @@ class CatalystListing
                 "lambda" => lambda { Anniversaries::listingItems() }
             },
             {
-                "name" => "GeneralTimeCommitments::reportItemsX()",
-                "lambda" => lambda { GeneralTimeCommitments::reportItemsX() }
+                "name" => "GeneralTimeCommitments::listingItems()",
+                "lambda" => lambda { GeneralTimeCommitments::listingItems() }
             },
             {
                 "name" => "NxOndates::listingItems()",
