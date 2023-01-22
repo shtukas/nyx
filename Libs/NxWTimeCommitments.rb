@@ -323,7 +323,6 @@ class NxWTCTodayTimeLoads
         pendingInHours = [hours - timeDoneInSeconds.to_f/3600, 0].max
         {
             "pendingTimeTodayInHours" => pendingInHours,
-            "shouldListing"           => pendingInHours > 0,
         }
     end
 
@@ -335,7 +334,7 @@ class NxWTCTodayTimeLoads
         return numbers["pendingTimeTodayInHours"]*3600 if numbers
 
         # This does use speed of light, is live
-        NxWTimeCommitments::numbers(item)["pendingTimeTodayInHours"]*3600
+        TheSpeedOfLight::getDaySpeedOfLight()*NxWTimeCommitments::numbers(item)["pendingTimeTodayInHours"]*3600
     end
 
     # NxWTCTodayTimeLoads::livePendingTimeTodayInSeconds()

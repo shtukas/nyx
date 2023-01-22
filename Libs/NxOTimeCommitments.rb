@@ -93,10 +93,8 @@ class NxOTimeCommitments
     # NxOTimeCommitments::numbers(otc)
     def self.numbers(otc)
         pendingTimeTodayInSeconds = NxOTimeCommitments::itemLivePendingTimeTodayInSeconds(otc)
-        shouldListing = pendingTimeTodayInSeconds > 0
         {
-            "pendingTimeTodayInHours" => pendingTimeTodayInSeconds.to_f/3600,
-            "shouldListing"           => shouldListing,
+            "pendingTimeTodayInHours" => pendingTimeTodayInSeconds.to_f/3600
         }
     end
 

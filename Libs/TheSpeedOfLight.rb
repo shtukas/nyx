@@ -16,7 +16,7 @@ class TheSpeedOfLight
         speed = TheSpeedOfLight::getDaySpeedOfLight()
         data = {
             "date"  => CommonUtils::today(),
-            "speed" => speed-0.1*rand
+            "speed" => [speed-0.1*rand, 0].max
         }
         filepath = "#{Config::pathToDataCenter()}/TheSpeedOfLight.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(data)) }

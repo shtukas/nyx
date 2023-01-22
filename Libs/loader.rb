@@ -260,15 +260,13 @@ if $RunNonEssentialThreads then
             }
 
             NxWTimeCommitments::runningItems().each{|item|
-                numbers = NxWTimeCommitments::numbers(item)
-                if !numbers["shouldListing"] then
+                if NxWTCTodayTimeLoads::itemLivePendingTimeTodayInSeconds(item) == 0 then
                     CommonUtils::onScreenNotification("catalyst", "wtc is overflowing")
                 end
             }
 
             NxOTimeCommitments::runningItems().each{|item|
-                numbers = NxOTimeCommitments::numbers(item)
-                if !numbers["shouldListing"] then
+                if NxOTimeCommitments::itemLivePendingTimeTodayInSeconds(item) == 0 then
                     CommonUtils::onScreenNotification("catalyst", "otc is overflowing")
                 end
             }

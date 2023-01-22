@@ -85,17 +85,14 @@ class Ax39
     # Ax39::numbers(uuid, ax39, hasNxBall, unrealisedTimespan = nil)
     def self.numbers(uuid, ax39, hasNxBall, unrealisedTimespan = nil)
 
-        # We return {shouldListing, pendingTimeTodayInHours}
+        # return {pendingTimeTodayInHours}
 
         if ax39["type"] == "daily-provision-fillable" then
             doneTodayInSeconds = Bank::valueAtDate(uuid, CommonUtils::today(), unrealisedTimespan)
             requiredTodayInSeconds = ax39["hours"]*3600
-            shouldListing = doneTodayInSeconds < requiredTodayInSeconds
             pendingTimeTodayInHours = [requiredTodayInSeconds - doneTodayInSeconds, 0].max.to_f/3600
-
             return {
-                "pendingTimeTodayInHours"  => pendingTimeTodayInHours,
-                "shouldListing"            => shouldListing,
+                "pendingTimeTodayInHours"  => pendingTimeTodayInHours
             }
         end
 
@@ -119,15 +116,12 @@ class Ax39
         timeWeDidTodayInSeconds                 = Bank::valueAtDate(uuid, CommonUtils::today(), unrealisedTimespan)
         pendingTimeTodayInSeconds               = [timeWeShouldDoTodayInSeconds - timeWeDidTodayInSeconds, 0].max
 
-        shouldListing = (hasNxBall or (pendingTimeTodayInSeconds > 0))
-
         {
             "pendingTimeTodayInHours" => pendingTimeTodayInSeconds.to_f/3600,
-            "shouldListing"           => shouldListing,
         }
     end
 
-    # Ax39::standardAx39CarrierNumbers(item) # {shouldListing, pendingTimeTodayInHours}
+    # Ax39::standardAx39CarrierNumbers(item) # {pendingTimeTodayInHours}
     def self.standardAx39CarrierNumbers(item)
         uuid = item["uuid"]
         ax39 = item["ax39"]
