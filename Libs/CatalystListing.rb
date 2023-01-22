@@ -667,7 +667,7 @@ class CatalystListing
             GeneralTimeManagement::manageSpeedOfLight(totalInSeconds)
 
             timeparameters = [
-                "> time commitment pending : #{(tcsPendingTimeInSeconds.to_f/3600).round(2)} hours, light speed: #{TheSpeedOfLight::getDaySpeedOfLight()}",
+                "> time commitment pending : #{(tcsPendingTimeInSeconds.to_f/3600).round(2)} hours, light speed: #{TheSpeedOfLight::getDaySpeedOfLight().to_s.green}",
                 "> time estimation (others): #{(timeEstimationOthersInSeconds.to_f/3600).round(2)} hours",
                 "> projected end           : #{Time.at( Time.new.to_i + totalInSeconds ).to_s}",
             ]
