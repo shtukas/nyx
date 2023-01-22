@@ -390,10 +390,6 @@ class CatalystListing
                 "lambda" => lambda { NxTriages::items() }
             },
             {
-                "name" => "NxWTCDataForListing::listingItems()",
-                "lambda" => lambda { NxWTCDataForListing::listingItems() }
-            },
-            {
                 "name" => "NxOTimeCommitments::listingItems()",
                 "lambda" => lambda { NxOTimeCommitments::listingItems() }
             },
@@ -468,16 +464,15 @@ class CatalystListing
 
     # CatalystListing::listingItems()
     def self.listingItems()
-        light = TheSpeedOfLight::getDaySpeedOfLightOrNull()
         items = [
             NxTriages::items(),
             Anniversaries::listingItems(),
-            Waves::listingItems("ns:mandatory-today"),
+            Waves::listingItems("ns:mandatory-today").take(1),
             NxOndates::listingItems(),
             TxManualCountDowns::listingItems(),
-            Waves::listingItems("ns:time-important"),
+            Waves::listingItems("ns:time-important").take(1),
             GeneralTimeCommitments::listingItems(),
-            Waves::listingItems("ns:beach")
+            Waves::listingItems("ns:beach").take(1)
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }

@@ -85,16 +85,17 @@ class Ax39
     # Ax39::numbers(uuid, ax39, hasNxBall, unrealisedTimespan = nil)
     def self.numbers(uuid, ax39, hasNxBall, unrealisedTimespan = nil)
 
-        # We return {shouldListing, pendingTimeInHours}
+        # We return {shouldListing, pendingTimeTodayInHours}
 
         if ax39["type"] == "daily-provision-fillable" then
             doneTodayInSeconds = Bank::valueAtDate(uuid, CommonUtils::today(), unrealisedTimespan)
             requiredTodayInSeconds = ax39["hours"]*3600
             shouldListing = doneTodayInSeconds < requiredTodayInSeconds
-            pendingTimeInHours = [requiredTodayInSeconds - doneTodayInSeconds, 0].max.to_f/3600
+            pendingTimeTodayInHours = [requiredTodayInSeconds - doneTodayInSeconds, 0].max.to_f/3600
             return {
-                "shouldListing"         => shouldListing,
-                "pendingTimeInHours"  => pendingTimeInHours
+                "pendingTimeTodayInHours"  => pendingTimeTodayInHours,
+                "pendingTimeTotalInHours"  => pendingTimeTodayInHours,
+                "shouldListing"            => shouldListing,
             }
         end
 
@@ -110,21 +111,25 @@ class Ax39
 
         totalTimeForWeekInSeconds               = ax39["hours"]*3600
         doneTimeThisWeekBeforeTodayInSeconds    = Bank::combinedValueOnThoseDays(uuid, dates - [CommonUtils::today()], unrealisedTimespan)
+        pendingTimeTotalInSeconds               = [totalTimeForWeekInSeconds - doneTimeThisWeekBeforeTodayInSeconds, 0].max
+
         missingTimeThisWeekBeforeTodayInSeconds = [totalTimeForWeekInSeconds - doneTimeThisWeekBeforeTodayInSeconds, 0].max # We count the time before today to avoid this to change during today [1]
         numberOfDaysLeft                        = 7 - dates.size + 1
+
         timeWeShouldDoTodayInSeconds            = missingTimeThisWeekBeforeTodayInSeconds.to_f/numberOfDaysLeft
         timeWeDidTodayInSeconds                 = Bank::valueAtDate(uuid, CommonUtils::today(), unrealisedTimespan)
-        pendingTimeInSeconds                    = [timeWeShouldDoTodayInSeconds - timeWeDidTodayInSeconds, 0].max
+        pendingTimeTodayInSeconds                    = [timeWeShouldDoTodayInSeconds - timeWeDidTodayInSeconds, 0].max
 
-        shouldListing = (hasNxBall or (pendingTimeInSeconds > 0))
+        shouldListing = (hasNxBall or (pendingTimeTodayInSeconds > 0))
 
         {
-            "shouldListing"       => shouldListing,
-            "pendingTimeInHours"  => pendingTimeInSeconds.to_f/3600
+            "pendingTimeTotalInHours" => pendingTimeTotalInSeconds.to_f/3600,
+            "pendingTimeTodayInHours" => pendingTimeTodayInSeconds.to_f/3600,
+            "shouldListing"           => shouldListing,
         }
     end
 
-    # Ax39::standardAx39CarrierNumbers(item) # {shouldListing, pendingTimeInHours}
+    # Ax39::standardAx39CarrierNumbers(item) # {shouldListing, pendingTimeTodayInHours}
     def self.standardAx39CarrierNumbers(item)
         uuid = item["uuid"]
         ax39 = item["ax39"]

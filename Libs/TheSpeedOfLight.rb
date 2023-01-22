@@ -1,56 +1,35 @@
 
 class TheSpeedOfLight
  
-    # TheSpeedOfLight::getDaySpeedOfLightOrNull()
-    def self.getDaySpeedOfLightOrNull()
-        filepath = "#{Config::pathToDataCenter()}/NxWTimeCommitment-DayTimeLoads/speedOfLight.json"
-        return nil if !File.exists?(filepath)
+    # TheSpeedOfLight::getDaySpeedOfLight()
+    def self.getDaySpeedOfLight()
+        filepath = "#{Config::pathToDataCenter()}/TheSpeedOfLight.json"
+        return 1 if !File.exists?(filepath)
         data = JSON.parse(IO.read(filepath))
         # data: {date, value}
-        return nil if data["date"] != CommonUtils::today()
+        return 1 if data["date"] != CommonUtils::today()
         data["speed"]
     end
 
-    # TheSpeedOfLight::getDaySpeedOfLightOrZero()
-    def self.getDaySpeedOfLightOrZero()
-        TheSpeedOfLight::getDaySpeedOfLightOrNull() || 0
-    end
- 
-    # TheSpeedOfLight::issueSpeedOfLightForTheDay(timeInHours)
-    def self.issueSpeedOfLightForTheDay(timeInHours)
-        total = NxWTimeCommitments::pendingTimeInSeconds()
-        speed = 
-            if total > 0 then
-                available = timeInHours
-                available.to_f/total
-            else
-                1
-            end
-        data = { "date" => CommonUtils::today(), "speed" => speed }
-        filepath = "#{Config::pathToDataCenter()}/NxWTimeCommitment-DayTimeLoads/speedOfLight.json"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(data)) }
-        speed
-    end
- 
-    # TheSpeedOfLight::interactivelySetSpeedOfLightAndTimeloadsForTheDay()
-    def self.interactivelySetSpeedOfLightAndTimeloadsForTheDay()
-        timeInHours = LucilleCore::askQuestionAnswerAsString("Time available in hours: ").to_f
-        TheSpeedOfLight::issueSpeedOfLightForTheDay(timeInHours)
-    end
- 
     # TheSpeedOfLight::decrementLightSpeed()
     def self.decrementLightSpeed()
-        filepath = "#{Config::pathToDataCenter()}/NxWTimeCommitment-DayTimeLoads/speedOfLight.json"
-        data = JSON.parse(IO.read(filepath))
-        data["speed"] = [data["speed"] - 0.1, 0].max
+        speed = TheSpeedOfLight::getDaySpeedOfLight()
+        data = {
+            "date"  => CommonUtils::today(),
+            "speed" => speed-0.1*rand
+        }
+        filepath = "#{Config::pathToDataCenter()}/TheSpeedOfLight.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(data)) }
     end
  
     # TheSpeedOfLight::incrementLightSpeed()
     def self.incrementLightSpeed()
-        filepath = "#{Config::pathToDataCenter()}/NxWTimeCommitment-DayTimeLoads/speedOfLight.json"
-        data = JSON.parse(IO.read(filepath))
-        data["speed"] = data["speed"] + 0.1
+        speed = TheSpeedOfLight::getDaySpeedOfLight()
+        data = {
+            "date"  => CommonUtils::today(),
+            "speed" => speed+0.1*rand
+        }
+        filepath = "#{Config::pathToDataCenter()}/TheSpeedOfLight.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(data)) }
     end
 
@@ -58,11 +37,11 @@ class TheSpeedOfLight
     def self.manageSpeedOfLight()
         unixtime = CommonUtils::unixtimeAtComingMidnightAtGivenTimeZone(CommonUtils::getLocalTimeZone())
         timeToMidnight = unixtime - Time.new.to_i
-        pendingTimeInSeconds = GeneralTimeCommitments::pendingTimeInHours()*3600
-        if pendingTimeInSeconds > timeToMidnight then
+        pendingTimeTodayInSeconds = GeneralTimeCommitments::pendingTimeTodayInHours()*3600
+        if pendingTimeTodayInSeconds > timeToMidnight then
             TheSpeedOfLight::decrementLightSpeed()
         end
-        if pendingTimeInSeconds < (timeToMidnight-3600*2) then
+        if pendingTimeTodayInSeconds < (timeToMidnight-3600*2) then
             TheSpeedOfLight::incrementLightSpeed()
         end
     end

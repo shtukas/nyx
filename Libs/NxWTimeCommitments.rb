@@ -77,7 +77,7 @@ class NxWTimeCommitments
                 0
             end
 
-        timeload = NxWTCTodayTimeLoads::getSpeedOfLightedTimeLoadInSeconds(item).to_f/3600
+        timeload = NxWTCTodayTimeLoads::getSpeedOfLightedPendingTimeTodayInSeconds(item).to_f/3600
 
         datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
         dnsustr  = datetimeOpt ? ", (do not show until: #{datetimeOpt})" : ""
@@ -171,10 +171,10 @@ class NxWTimeCommitments
         end
     end
 
-    # NxWTimeCommitments::pendingTimeInSeconds()
-    def self.pendingTimeInSeconds()
+    # NxWTimeCommitments::pendingTimeTodayInSeconds()
+    def self.pendingTimeTodayInSeconds()
         NxWTimeCommitments::items()
-            .map{|item| NxWTimeCommitments::numbers(item)["pendingTimeInHours"] }
+            .map{|item| NxWTimeCommitments::numbers(item)["pendingTimeTodayInHours"] }
             .inject(0, :+)
     end
 
@@ -304,25 +304,25 @@ end
 
 class NxWTCTodayTimeLoads
 
-    # NxWTCTodayTimeLoads::getSpeedOfLightedTimeLoadInSeconds(item)
-    def self.getSpeedOfLightedTimeLoadInSeconds(item)
-        TheSpeedOfLight::getDaySpeedOfLightOrZero() * NxWTimeCommitments::numbers(item)["pendingTimeInHours"]*3600
+    # NxWTCTodayTimeLoads::getSpeedOfLightedPendingTimeTodayInSeconds(item)
+    def self.getSpeedOfLightedPendingTimeTodayInSeconds(item)
+        TheSpeedOfLight::getDaySpeedOfLight()*NxWTimeCommitments::numbers(item)["pendingTimeTodayInHours"]*3600
     end
 
-    # NxWTCTodayTimeLoads::itemPendingTimeInSeconds(item)
-    def self.itemPendingTimeInSeconds(item)
-        [NxWTCTodayTimeLoads::getSpeedOfLightedTimeLoadInSeconds(item) - NxBalls::itemRealisedAndUnrealsedTimeInSeconds(item), 0].max
+    # NxWTCTodayTimeLoads::itemPendingTimeTodayInSeconds(item)
+    def self.itemPendingTimeTodayInSeconds(item)
+        [NxWTCTodayTimeLoads::getSpeedOfLightedPendingTimeTodayInSeconds(item) - NxBalls::itemRealisedAndUnrealsedTimeInSeconds(item), 0].max
     end
 
     # NxWTCTodayTimeLoads::itemIsFullToday(item)
     def self.itemIsFullToday(item)
-        NxWTCTodayTimeLoads::itemPendingTimeInSeconds(item) <= 0
+        NxWTCTodayTimeLoads::itemPendingTimeTodayInSeconds(item) <= 0
     end
 
-    # NxWTCTodayTimeLoads::pendingTimeInSeconds()
-    def self.pendingTimeInSeconds()
+    # NxWTCTodayTimeLoads::pendingTimeTodayInSeconds()
+    def self.pendingTimeTodayInSeconds()
         NxWTimeCommitments::items()
-            .map{|item| NxWTCTodayTimeLoads::itemPendingTimeInSeconds(item) }
+            .map{|item| NxWTCTodayTimeLoads::itemPendingTimeTodayInSeconds(item) }
             .inject(0, :+)
     end
 
@@ -332,19 +332,5 @@ class NxWTCTodayTimeLoads
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
             .select{|item| !NxWTCTodayTimeLoads::itemIsFullToday(item) }
-    end
-end
-
-class NxWTCDataForListing
-
-    # NxWTCDataForListing::listingItems()
-    def self.listingItems()
-        if TheSpeedOfLight::getDaySpeedOfLightOrNull().nil? then
-            return [LambdX1s::make("f8cb8290-3ba0-48e0-b482-8f9c26aad869", "configure speed of light", lambda { TheSpeedOfLight::interactivelySetSpeedOfLightAndTimeloadsForTheDay() })]
-        end
-        NxWTCTodayTimeLoads::itemsThatShouldBeListed()
-            .sort{|i1, i2| NxWTCTodayTimeLoads::itemPendingTimeInSeconds(i1) <=> NxWTCTodayTimeLoads::itemPendingTimeInSeconds(i2) }
-            .map{|wtc| NxWTimeCommitments::itemWithToAllAssociatedListingItems(wtc) }
-            .flatten
     end
 end

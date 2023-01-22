@@ -5,26 +5,27 @@ class GeneralTimeCommitments
         NxWTCTodayTimeLoads::itemsThatShouldBeListed() + NxOTimeCommitments::items()
     end
 
-    # GeneralTimeCommitments::pendingTimeInHours()
-    def self.pendingTimeInHours()
-        todayMissingInHours1 = NxWTCTodayTimeLoads::pendingTimeInSeconds().to_f/3600
-        hours2 = NxOTimeCommitments::pendingTimeInSeconds().to_f/3600
+    # GeneralTimeCommitments::pendingTimeTodayInHours()
+    def self.pendingTimeTodayInHours()
+        todayMissingInHours1 = NxWTCTodayTimeLoads::pendingTimeTodayInSeconds().to_f/3600
+        hours2 = NxOTimeCommitments::pendingTimeTodayInSeconds().to_f/3600
         todayMissingInHours1 + hours2
     end
 
     # GeneralTimeCommitments::summaryLine()
     def self.summaryLine()
-        total = GeneralTimeCommitments::pendingTimeInHours()
-        "> time commitment pending: #{"%5.2f" % total} hours, projected end: #{Time.at( Time.new.to_i + total*3600 ).to_s}, light speed: #{TheSpeedOfLight::getDaySpeedOfLightOrNull().round(2)}"
+        speed = TheSpeedOfLight::getDaySpeedOfLight()
+        total = GeneralTimeCommitments::pendingTimeTodayInHours()
+        "> time commitment pending: #{"%5.2f" % total} hours, projected end: #{Time.at( Time.new.to_i + total*3600 ).to_s}, light speed: #{speed}"
     end
 
-    # GeneralTimeCommitments::itemPendingTimeInSeconds(item)
-    def self.itemPendingTimeInSeconds(item)
+    # GeneralTimeCommitments::itemPendingTimeTodayInSeconds(item)
+    def self.itemPendingTimeTodayInSeconds(item)
         if item["mikuType"] == "NxWTimeCommitment" then
-            return NxWTCTodayTimeLoads::itemPendingTimeInSeconds(item)
+            return NxWTCTodayTimeLoads::itemPendingTimeTodayInSeconds(item)
         end
         if item["mikuType"] == "NxOTimeCommitment" then
-            return NxOTimeCommitments::itemPendingTimeInSeconds(item)
+            return NxOTimeCommitments::itemPendingTimeTodayInSeconds(item)
         end
         raise "(error: 037e7af4-e182-4130-9c11-cc27b966d973)"
     end
@@ -34,8 +35,8 @@ class GeneralTimeCommitments
         GeneralTimeCommitments::items()
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-            .select{|item| GeneralTimeCommitments::itemPendingTimeInSeconds(item) > 1 }
-            .sort{|i1, i2| GeneralTimeCommitments::itemPendingTimeInSeconds(i1) <=>  GeneralTimeCommitments::itemPendingTimeInSeconds(i2) }
+            .select{|item| GeneralTimeCommitments::itemPendingTimeTodayInSeconds(item) > 1 }
+            .sort{|i1, i2| GeneralTimeCommitments::itemPendingTimeTodayInSeconds(i1) <=>  GeneralTimeCommitments::itemPendingTimeTodayInSeconds(i2) }
     end
 
     # GeneralTimeCommitments::listingItems()
