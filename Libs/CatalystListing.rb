@@ -512,19 +512,15 @@ class CatalystListing
 
         system("clear")
         store = ItemStore.new()
-        vspaceleft = CommonUtils::screenHeight() - 3
+        vspaceleft = CommonUtils::screenHeight() - 4
 
         puts ""
         vspaceleft = vspaceleft - 1
 
         # The99 Percent
-        line = The99Percent::lineOrNull()
-        if line then
-            puts The99Percent::lineOrNull()
-            vspaceleft = vspaceleft - 1
-        end
-
-        # TimeCommitment total
+        line = The99Percent::line()
+        puts line
+        vspaceleft = vspaceleft - 1
         puts timeparameters.join("\n")
         vspaceleft = vspaceleft - timeparameters.size
 

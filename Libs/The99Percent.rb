@@ -48,10 +48,9 @@ class The99Percent
         ratio
     end
 
-    # The99Percent::lineOrNull()
-    def self.lineOrNull()
+    # The99Percent::line()
+    def self.line()
         reference = The99Percent::getReference()
-        return nil if reference.nil?
         current = The99Percent::getCurrentCount()
         ratio   = The99Percent::ratio()
         "> inventory: #{current}, differential: #{ratio}, reference: #{reference["count"]} @ #{reference["datetime"]}"
