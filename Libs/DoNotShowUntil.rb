@@ -66,16 +66,22 @@ $DoNotShowUntilAgent = nil
 
 class DoNotShowUntil
 
+    # DoNotShowUntil::agent()
+    def self.agent()
+        if $DoNotShowUntilAgent.nil? then
+            $DoNotShowUntilAgent = DoNotShowUntilAgent.new()
+        end
+        $DoNotShowUntilAgent
+    end
+
     # DoNotShowUntil::setUnixtime(uuid, unixtime)
     def self.setUnixtime(uuid, unixtime)
-        agent = $DoNotShowUntilAgent || DoNotShowUntilAgent.new()
-        agent.setUnixtime(uuid, unixtime)
+        DoNotShowUntil::agent().setUnixtime(uuid, unixtime)
     end
 
     # DoNotShowUntil::getUnixtimeOrNull(uuid)
     def self.getUnixtimeOrNull(uuid)
-        agent = $DoNotShowUntilAgent || DoNotShowUntilAgent.new()
-        agent.unixtimeOrNull(uuid)
+        DoNotShowUntil::agent().unixtimeOrNull(uuid)
     end
 
     # DoNotShowUntil::getDateTimeOrNull(uuid)
