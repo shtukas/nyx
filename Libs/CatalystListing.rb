@@ -598,7 +598,7 @@ class CatalystListing
             puts "tops".green
             vspaceleft = vspaceleft - 2
             tops.each{|item|
-                store.register(item, !Skips::isSkipped(item["uuid"]))
+                store.register(item, false)
                 line = "(#{store.prefixString()}) (line) #{item["line"]}"
                 nxball = NxBalls::getNxBallForItemOrNull(item)
                 if nxball then
