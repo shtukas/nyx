@@ -73,4 +73,16 @@ class TxManualCountDowns
             .select{|item| item["lastUpdatedUnixtime"].nil? or (Time.new.to_i - item["lastUpdatedUnixtime"]) > 3600 }
     end
 
+    # Ops
+
+    # TxManualCountDowns::performUpdate(item)
+    def self.performUpdate(item)
+        puts item["description"]
+        count = LucilleCore::askQuestionAnswerAsString("#{item["description"]}: done count: ").to_i
+        item["counter"] = item["counter"] - count
+        item["lastUpdatedUnixtime"] = Time.new.to_i
+        puts JSON.pretty_generate(item)
+        TxManualCountDowns::commit(item)
+    end
+
 end

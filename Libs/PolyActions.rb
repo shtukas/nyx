@@ -202,8 +202,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "TxManualCountDown" then
-            puts "You cannot done a TxManualCountDown, you need to double dot it"
-            LucilleCore::pressEnterToContinue()
+            TxManualCountDowns::performUpdate(item)
             return
         end
 
@@ -331,12 +330,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "TxManualCountDown" then
-            puts item["description"]
-            count = LucilleCore::askQuestionAnswerAsString("#{item["description"]}: done count: ").to_i
-            item["counter"] = item["counter"] - count
-            item["lastUpdatedUnixtime"] = Time.new.to_i
-            puts JSON.pretty_generate(item)
-            TxManualCountDowns::commit(item)
+            TxManualCountDowns::performUpdate(item)
             return
         end
 
