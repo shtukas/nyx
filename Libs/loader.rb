@@ -160,7 +160,7 @@ require_relative "Database1.rb"
 require_relative "Locks.rb"
 
 require_relative "Galaxy.rb"
-require_relative "GeneralTimeCommitments.rb"
+require_relative "GeneralTimeManagement.rb"
 
 require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"
@@ -170,6 +170,8 @@ require_relative "InMemoryStore.rb"
 require_relative "FileSystemCheck.rb"
 
 require_relative "LambdX1s.rb"
+
+require_relative "MiscTypesTimeCommitments.rb"
 
 require_relative "NsTopLines.rb"
 require_relative "Nyx.rb"

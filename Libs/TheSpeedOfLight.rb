@@ -32,17 +32,4 @@ class TheSpeedOfLight
         filepath = "#{Config::pathToDataCenter()}/TheSpeedOfLight.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(data)) }
     end
-
-    # TheSpeedOfLight::manageSpeedOfLight()
-    def self.manageSpeedOfLight()
-        unixtime = CommonUtils::unixtimeAtComingMidnightAtGivenTimeZone(CommonUtils::getLocalTimeZone())
-        timeToMidnight = unixtime - Time.new.to_i
-        pendingTimeTodayInSeconds = GeneralTimeCommitments::livePendingTimeTodayInHours()*3600
-        if pendingTimeTodayInSeconds > (timeToMidnight-3600*1) then
-            TheSpeedOfLight::decrementLightSpeed()
-        end
-        if pendingTimeTodayInSeconds < (timeToMidnight-3600*2) then
-            TheSpeedOfLight::incrementLightSpeed()
-        end
-    end
 end

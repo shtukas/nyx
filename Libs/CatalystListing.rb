@@ -378,8 +378,8 @@ class CatalystListing
                 "lambda" => lambda { Anniversaries::listingItems() }
             },
             {
-                "name" => "GeneralTimeCommitments::listingItems()",
-                "lambda" => lambda { GeneralTimeCommitments::listingItems() }
+                "name" => "MiscTypesTimeCommitments::listingItems()",
+                "lambda" => lambda { MiscTypesTimeCommitments::listingItems() }
             },
             {
                 "name" => "NxOndates::listingItems()",
@@ -467,20 +467,20 @@ class CatalystListing
         items = [
             NxTriages::items(),
             Anniversaries::listingItems(),
-            Waves::listingItems("ns:mandatory-today").take(1),
+            Waves::listingItems("ns:mandatory-today"),
             NxOndates::listingItems(),
             TxManualCountDowns::listingItems(),
-            Waves::listingItems("ns:time-important").take(1),
-            GeneralTimeCommitments::listingItems(),
-            Waves::listingItems("ns:beach").take(1)
+            Waves::listingItems("ns:time-important"),
+            MiscTypesTimeCommitments::listingItems(),
+            Waves::listingItems("ns:beach")
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
     end
 
-    # CatalystListing::displayListing(listingItems)
-    def self.displayListing(listingItems)
+    # CatalystListing::displayListing(listingItems, timeparameters)
+    def self.displayListing(listingItems, timeparameters)
 
         nxballHasAnItemInThere = lambda {|nxball, listingItems|
             itemuuid = nxball["itemuuid"]
@@ -517,10 +517,6 @@ class CatalystListing
         puts ""
         vspaceleft = vspaceleft - 1
 
-        # TimeCommitment total
-        puts GeneralTimeCommitments::summaryLine()
-        vspaceleft = vspaceleft - 1
-
         # The99 Percent
         line = The99Percent::lineOrNull()
         if line then
@@ -528,15 +524,19 @@ class CatalystListing
             vspaceleft = vspaceleft - 1
         end
 
+        # TimeCommitment total
+        puts timeparameters.join("\n")
+        vspaceleft = vspaceleft - timeparameters.size
+
         # TimeCommitment report
-        timecommitments = GeneralTimeCommitments::reportItemsX()
+        timecommitments = MiscTypesTimeCommitments::reportItemsX()
         if timecommitments.size > 0 then
             puts ""
             puts "time commitments".green
             vspaceleft = vspaceleft - 1
             timecommitments.each{|item|
                 store.register(item, false)
-                line = "(#{store.prefixString()}) #{GeneralTimeCommitments::toString(item)}"
+                line = "(#{store.prefixString()}) #{MiscTypesTimeCommitments::toString(item)}"
                 nxball = NxBalls::getNxBallForItemOrNull(item)
                 if nxball then
                     line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
@@ -661,9 +661,22 @@ class CatalystListing
 
             listingItems = CatalystListing::listingItems()
 
-            TheSpeedOfLight::manageSpeedOfLight()
+            tcsPendingTimeInSeconds = MiscTypesTimeCommitments::livePendingTimeTodayInHours()*3600
+            timeEstimationOthersInSeconds = listingItems
+                .select{|item| ["NxOTimeCommitment", "NxWTimeCommitment", "NxTodo"].include?(item["mikuType"]) } # tcsPendingTimeInSeconds include "NxOTimeCommitment" and "NxWTimeCommitment". "NxTodo" is in the shaddow of "NxWTimeCommitment"
+                .map{|item| GeneralTimeManagement::bankTimeEstimationInSeconds(item) }
+                .inject(0, :+)
+            totalInSeconds = tcsPendingTimeInSeconds + timeEstimationOthersInSeconds
 
-            CatalystListing::displayListing(listingItems)
+            GeneralTimeManagement::manageSpeedOfLight(totalInSeconds)
+
+            timeparameters = [
+                "> time commitment pending : #{(tcsPendingTimeInSeconds.to_f/3600).round(2)} hours, light speed: #{TheSpeedOfLight::getDaySpeedOfLight()}",
+                "> time estimation (others): #{(timeEstimationOthersInSeconds.to_f/3600).round(2)} hours",
+                "> projected end           : #{Time.at( Time.new.to_i + totalInSeconds ).to_s}",
+            ]
+
+            CatalystListing::displayListing(listingItems, timeparameters)
         }
     end
 end

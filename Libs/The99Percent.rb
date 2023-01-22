@@ -54,6 +54,6 @@ class The99Percent
         return nil if reference.nil?
         current = The99Percent::getCurrentCount()
         ratio   = The99Percent::ratio()
-        "> #{current}, #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
+        "> inventory: #{current}, differential: #{ratio}, reference: #{reference["count"]} @ #{reference["datetime"]}"
     end
 end
