@@ -156,7 +156,6 @@ class NxOndates
             end
             if action == "destroy" then
                 NxOndates::destroy(item["uuid"])
-                PolyActions::garbageCollectionAfterItemDeletion(item)
                 return
             end
         }

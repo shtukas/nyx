@@ -66,7 +66,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxTodo" then
-            NxTodos::commit(item)
+            NxTodosIO::commit(item)
             return
         end
 
@@ -81,14 +81,17 @@ class PolyActions
     # PolyActions::destroy(item)
     def self.destroy(item)
         if item["mikuType"] == "NxTodo" then
-            NxTodos::destroy(item["uuid"])
-            PolyActions::garbageCollectionAfterItemDeletion(item)
+            NxTodosIO::destroy(item["uuid"])
             return
         end
 
         if item["mikuType"] == "Wave" then
             Waves::destroy(item["uuid"])
-            PolyActions::garbageCollectionAfterItemDeletion(item)
+            return
+        end
+
+        if item["mikuType"] == "NxWTimeCommitment" then
+            NxWTimeCommitments::destroy(item["uuid"])
             return
         end
 
@@ -158,7 +161,7 @@ class PolyActions
                     return if option == ""
                     if option == "destroy" then
                         NxBalls::closeNxBallForItemOrNothing(item)
-                        NxTodos::destroy(item["uuid"])
+                        NxTodosIO::destroy(item["uuid"])
                         return
                     end
                     if option == "exit" then
@@ -167,7 +170,7 @@ class PolyActions
                     return
                 else
                     NxBalls::closeNxBallForItemOrNothing(item)
-                    NxTodos::destroy(item["uuid"])
+                    NxTodosIO::destroy(item["uuid"])
                 end
             end
             return
@@ -310,7 +313,7 @@ class PolyActions
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["done", "stop", "run in background", "update description"])
             return if option.nil?
             if option == "done" then
-                NxTodos::destroy(item["uuid"])
+                NxTodosIO::destroy(item["uuid"])
                 NxBalls::close(nxball) if nxball
             end
             if option == "stop" then
@@ -323,7 +326,7 @@ class PolyActions
             if option == "update description" then
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
                 item["description"] = description
-                NxTodos::commit(item)
+                NxTodosIO::commit(item)
                 return
             end
             return
@@ -366,17 +369,6 @@ class PolyActions
 
         puts "I do not know how to PolyActions::doubleDotAccess(#{JSON.pretty_generate(item)})"
         raise "(error: 9CD4B61D-8B13-4075-A560-7F3D801DD0D6)"
-    end
-
-    # PolyActions::garbageCollectionAfterItemDeletion(item)
-    def self.garbageCollectionAfterItemDeletion(item)
-        return if item.nil?
-        if item["nx113"] then
-            nx113 = item["nx113"]
-            if nx113["type"] == "Dx8Unit" then
-                Nx113Dx33s::issue(nx113["unitId"])
-            end
-        end
     end
 
     # PolyActions::probe(item)

@@ -103,7 +103,6 @@ class NxTriages
             end
             if action == "destroy" then
                 NxTriages::destroy(item["uuid"])
-                PolyActions::garbageCollectionAfterItemDeletion(item)
                 return
             end
         }

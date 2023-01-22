@@ -35,10 +35,7 @@ class MiscTypesTimeCommitments
 
     # MiscTypesTimeCommitments::listingItems()
     def self.listingItems()
-        (NxOTimeCommitments::items() + NxWTimeCommitments::items())
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-            .select{|item| NxBalls::itemIsRunning(item) or MiscTypesTimeCommitments::itemLiveTimeThatShouldBeDoneTodayInHours(item) > 1 }
+        MiscTypesTimeCommitments::reportItemsX()
             .map{|item|
                 (lambda{|item|
                     if item["mikuType"] == "NxWTimeCommitment" then
