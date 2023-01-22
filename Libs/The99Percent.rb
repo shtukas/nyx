@@ -9,7 +9,20 @@ class The99Percent
 
     # The99Percent::getCurrentCount()
     def self.getCurrentCount()
-        [ LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTodo").size, 1 ].max # It should not be 0, because we divide by it.
+        count = NxTodosDatabase1::filepaths()
+                    .reduce(0){|sum, filepath|
+                        count = nil
+                        db = SQLite3::Database.new(filepath)
+                        db.busy_timeout = 117
+                        db.busy_handler { |count| true }
+                        db.results_as_hash = true
+                        db.execute("select count(*) as _count_ from objects", []) do |row|
+                            count = row["_count_"]
+                        end
+                        db.close
+                        sum + count
+                    }
+        [count, 1].max # It should not be 0, because we divide by it.
     end
 
     # The99Percent::issueNewReference()

@@ -303,7 +303,7 @@ class FileSystemCheck
             Anniversaries::items(),
             NxWTimeCommitments::items(),
             NxOndates::items(),
-            NxTodos::itemsEnumerator(),
+            NxTodosIO::items(),
             NxTriages::items(),
             TxFloats::items(),
             TxManualCountDowns::items(),

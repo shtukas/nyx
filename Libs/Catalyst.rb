@@ -4,7 +4,7 @@ class Catalyst
 
     # Catalyst::catalystItems()
     def self.catalystItems()
-        NxTodos::itemsEnumerator().to_a + Waves::items()
+        NxTodosIO::items() + Waves::items()
     end
 
     # Catalyst::getCatalystItemOrNull(uuid)
@@ -19,7 +19,7 @@ class Catalyst
         item = Waves::getOrNull(uuid)
         return item if item
 
-        item = NxTodos::getOrNull(uuid)
+        item = NxTodosIO::getOrNull(uuid)
         return item if item
 
         nil

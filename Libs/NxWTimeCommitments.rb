@@ -99,7 +99,7 @@ class NxWTimeCommitments
             return nil if !File.exists?(filepath)
             packet = JSON.parse(IO.read(filepath))
             packet["uuids"]
-                .map{|uuid| NxTodos::getOrNull(uuid) }
+                .map{|uuid| NxTodosIO::getOrNull(uuid) }
                 .compact
         }
 
@@ -108,7 +108,7 @@ class NxWTimeCommitments
             packet = JSON.parse(IO.read(filepath))
             return nil if (Time.new.to_i - packet["unixtime"]) > 3600
             packet["uuids"]
-                .map{|uuid| NxTodos::getOrNull(uuid) }
+                .map{|uuid| NxTodosIO::getOrNull(uuid) }
                 .compact
         }
 
@@ -195,7 +195,7 @@ class NxWTimeCommitments
             # We do not recompute all the items but we recall the ones we had to get the new 
             # tcPoss
             items = items
-                        .map{|item| NxTodos::getOrNull(item["uuid"]) }
+                        .map{|item| NxTodosIO::getOrNull(item["uuid"]) }
                         .sort{|i1, i2| i1["tcPos"] <=> i2["tcPos"] }
             store = ItemStore.new()
             puts ""
@@ -219,7 +219,7 @@ class NxWTimeCommitments
                 #puts item
                 next if item.nil?
                 item["tcPos"] = position
-                NxTodos::commit(item)
+                NxTodosIO::commit(item)
             end
         }
     end
