@@ -14,9 +14,8 @@ class GeneralTimeCommitments
 
     # GeneralTimeCommitments::summaryLine()
     def self.summaryLine()
-        speed = TheSpeedOfLight::getDaySpeedOfLight()
         total = GeneralTimeCommitments::pendingTimeTodayInHours()
-        "> time commitment pending: #{"%5.2f" % total} hours, projected end: #{Time.at( Time.new.to_i + total*3600 ).to_s}, light speed: #{speed}"
+        "> time commitment pending: #{"%5.2f" % total} hours, projected end: #{Time.at( Time.new.to_i + total*3600 ).to_s}, light speed: #{TheSpeedOfLight::getDaySpeedOfLightOrNull()}"
     end
 
     # GeneralTimeCommitments::itemPendingTimeTodayInSeconds(item)
