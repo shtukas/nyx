@@ -92,9 +92,9 @@ class Ax39
             requiredTodayInSeconds = ax39["hours"]*3600
             shouldListing = doneTodayInSeconds < requiredTodayInSeconds
             pendingTimeTodayInHours = [requiredTodayInSeconds - doneTodayInSeconds, 0].max.to_f/3600
+
             return {
                 "pendingTimeTodayInHours"  => pendingTimeTodayInHours,
-                "pendingTimeTotalInHours"  => pendingTimeTodayInHours,
                 "shouldListing"            => shouldListing,
             }
         end
@@ -111,19 +111,17 @@ class Ax39
 
         totalTimeForWeekInSeconds               = ax39["hours"]*3600
         doneTimeThisWeekBeforeTodayInSeconds    = Bank::combinedValueOnThoseDays(uuid, dates - [CommonUtils::today()], unrealisedTimespan)
-        pendingTimeTotalInSeconds               = [totalTimeForWeekInSeconds - doneTimeThisWeekBeforeTodayInSeconds, 0].max
 
         missingTimeThisWeekBeforeTodayInSeconds = [totalTimeForWeekInSeconds - doneTimeThisWeekBeforeTodayInSeconds, 0].max # We count the time before today to avoid this to change during today [1]
         numberOfDaysLeft                        = 7 - dates.size + 1
 
         timeWeShouldDoTodayInSeconds            = missingTimeThisWeekBeforeTodayInSeconds.to_f/numberOfDaysLeft
         timeWeDidTodayInSeconds                 = Bank::valueAtDate(uuid, CommonUtils::today(), unrealisedTimespan)
-        pendingTimeTodayInSeconds                    = [timeWeShouldDoTodayInSeconds - timeWeDidTodayInSeconds, 0].max
+        pendingTimeTodayInSeconds               = [timeWeShouldDoTodayInSeconds - timeWeDidTodayInSeconds, 0].max
 
         shouldListing = (hasNxBall or (pendingTimeTodayInSeconds > 0))
 
         {
-            "pendingTimeTotalInHours" => pendingTimeTotalInSeconds.to_f/3600,
             "pendingTimeTodayInHours" => pendingTimeTodayInSeconds.to_f/3600,
             "shouldListing"           => shouldListing,
         }

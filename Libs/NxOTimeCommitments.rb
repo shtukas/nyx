@@ -12,7 +12,7 @@ class NxOTimeCommitments
             .select{|filepath| filepath[-5, 5] == ".json" }
             .map{|filepath| 
                 item = JSON.parse(IO.read(filepath)) 
-                if NxOTimeCommitments::itemPendingTimeTodayInSeconds(item) <= 0 then
+                if NxOTimeCommitments::itemLivePendingTimeTodayInSeconds(item) <= 0 then
                     FileUtils.rm(filepath)
                     nil
                 else
@@ -85,26 +85,25 @@ class NxOTimeCommitments
             .select{|otc| NxBalls::getNxBallForItemOrNull(otc) }
     end
 
+    # NxOTimeCommitments::itemLivePendingTimeTodayInSeconds(item)
+    def self.itemLivePendingTimeTodayInSeconds(item)
+        [item["hours"]*3600 - NxBalls::itemRealisedAndUnrealsedTimeInSeconds(item), 0].max
+    end
+
     # NxOTimeCommitments::numbers(otc)
     def self.numbers(otc)
-        pendingTimeTodayInSeconds = NxOTimeCommitments::itemPendingTimeTodayInSeconds(otc)
-        shouldListing = (NxBalls::getNxBallForItemOrNull(otc) or pendingTimeTodayInSeconds > 0)
+        pendingTimeTodayInSeconds = NxOTimeCommitments::itemLivePendingTimeTodayInSeconds(otc)
+        shouldListing = pendingTimeTodayInSeconds > 0
         {
             "pendingTimeTodayInHours" => pendingTimeTodayInSeconds.to_f/3600,
-            "pendingTimeTotalInHours" => pendingTimeTodayInSeconds.to_f/3600,
             "shouldListing"           => shouldListing,
         }
     end
 
-    # NxOTimeCommitments::itemPendingTimeTodayInSeconds(item)
-    def self.itemPendingTimeTodayInSeconds(item)
-        [item["hours"]*3600 - NxBalls::itemRealisedAndUnrealsedTimeInSeconds(item), 0].max
-    end
-
-    # NxOTimeCommitments::pendingTimeTodayInSeconds()
-    def self.pendingTimeTodayInSeconds()
+    # NxOTimeCommitments::livePendingTimeTodayInSeconds()
+    def self.livePendingTimeTodayInSeconds()
         NxOTimeCommitments::items()
-            .map{|item| NxOTimeCommitments::itemPendingTimeTodayInSeconds(item) }
+            .map{|item| NxOTimeCommitments::itemLivePendingTimeTodayInSeconds(item) }
             .inject(0, :+)
     end
 end

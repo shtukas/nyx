@@ -1,6 +1,7 @@
 # encoding: UTF-8
 
 class DoNotShowUntilAgent
+
     def initialize()
         @mapping = {}
         Thread.new {

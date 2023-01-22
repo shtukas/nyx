@@ -77,12 +77,12 @@ class NxWTimeCommitments
                 0
             end
 
-        timeload = NxWTCTodayTimeLoads::getSpeedOfLightedPendingTimeTodayInSeconds(item).to_f/3600
+        pending = NxWTCTodayTimeLoads::itemLivePendingTimeTodayInSeconds(item).to_f/3600
 
         datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
         dnsustr  = datetimeOpt ? ", (do not show until: #{datetimeOpt})" : ""
 
-        "(wtc) (pending: #{"%5.2f" % timeload}) #{item["description"].ljust(descriptionPadding)} (#{Ax39::toStringFormatted(item["ax39"])})#{dnsustr}"
+        "(wtc) (pending: #{"%5.2f" % pending}) #{item["description"].ljust(descriptionPadding)} (#{Ax39::toStringFormatted(item["ax39"])})#{dnsustr}"
     end
 
     # NxWTimeCommitments::runningItems()
@@ -171,13 +171,6 @@ class NxWTimeCommitments
         end
     end
 
-    # NxWTimeCommitments::pendingTimeTodayInSeconds()
-    def self.pendingTimeTodayInSeconds()
-        NxWTimeCommitments::items()
-            .map{|item| NxWTimeCommitments::numbers(item)["pendingTimeTodayInHours"] }
-            .inject(0, :+)
-    end
-
     # --------------------------------------------
     # Ops
 
@@ -236,7 +229,7 @@ class NxWTimeCommitments
         loop {
             puts NxWTimeCommitments::toStringWithDetails(wtc, false)
             puts "data: #{Ax39::standardAx39CarrierNumbers(wtc)}"
-            actions = ["start", "add time", "do not show until", "set Ax39", "expose", "items dive", "destroy"]
+            actions = ["start", "add time", "do not show until", "provision today time", "set Ax39", "expose", "items dive", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "start" then
@@ -252,6 +245,10 @@ class NxWTimeCommitments
                 unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
                 next if unixtime.nil?
                 DoNotShowUntil::setUnixtime(wtc["uuid"], unixtime)
+            end
+            if action == "provision today time" then
+                timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
+                NxWTCTodayTimeLoads::commitTodayManuallySubmittedTimeProvision(wtc, timeInHours)
             end
             if action == "set Ax39" then
                 wtc["ax39"] = Ax39::interactivelyCreateNewAx()
@@ -304,33 +301,47 @@ end
 
 class NxWTCTodayTimeLoads
 
-    # NxWTCTodayTimeLoads::getSpeedOfLightedPendingTimeTodayInSeconds(item)
-    def self.getSpeedOfLightedPendingTimeTodayInSeconds(item)
-        TheSpeedOfLight::getDaySpeedOfLight()*NxWTimeCommitments::numbers(item)["pendingTimeTodayInHours"]*3600
+    # NxWTCTodayTimeLoads::commitTodayManuallySubmittedTimeProvision(wtc, hours)
+    def self.commitTodayManuallySubmittedTimeProvision(wtc, hours)
+        data = {
+            "date"  => CommonUtils::today(),
+            "hours" => timeInHours
+        }
+        puts JSON.pretty_generate(data)
+        filepath = "#{Config::pathToDataCenter()}/NxWTimeCommitment-DayTimeLoads/#{wtc["uuid"]}.json"
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(data)) }
     end
 
-    # NxWTCTodayTimeLoads::itemPendingTimeTodayInSeconds(item)
-    def self.itemPendingTimeTodayInSeconds(item)
-        [NxWTCTodayTimeLoads::getSpeedOfLightedPendingTimeTodayInSeconds(item) - NxBalls::itemRealisedAndUnrealsedTimeInSeconds(item), 0].max
+    # NxWTCTodayTimeLoads::liveNumbersUsingManuallySubmittedTimeProvisionIfExistsOrNull(wtc)
+    def self.liveNumbersUsingManuallySubmittedTimeProvisionIfExistsOrNull(wtc)
+        filepath = "#{Config::pathToDataCenter()}/NxWTimeCommitment-DayTimeLoads/#{wtc["uuid"]}.json"
+        return nil if !File.exists?(filepath)
+        data = JSON.parse(IO.read(filepath))
+        return nil if data["date"] != CommonUtils::today()
+        hours = data["hours"]
+        timeDoneInSeconds = Bank::valueAtDate(wtc["uuid"], CommonUtils::today(), NxBalls::itemUnrealisedRunTimeInSecondsOrNull(wtc))
+        pendingInHours = [hours - timeDoneInSeconds.to_f/3600, 0].max
+        {
+            "pendingTimeTodayInHours" => pendingInHours,
+            "shouldListing"           => pendingInHours > 0,
+        }
     end
 
-    # NxWTCTodayTimeLoads::itemIsFullToday(item)
-    def self.itemIsFullToday(item)
-        NxWTCTodayTimeLoads::itemPendingTimeTodayInSeconds(item) <= 0
+    # NxWTCTodayTimeLoads::itemLivePendingTimeTodayInSeconds(item)
+    def self.itemLivePendingTimeTodayInSeconds(item)
+
+        # This doesn't take speed of light account, is live
+        numbers = NxWTCTodayTimeLoads::liveNumbersUsingManuallySubmittedTimeProvisionIfExistsOrNull(item)
+        return numbers["pendingTimeTodayInHours"]*3600 if numbers
+
+        # This does use speed of light, is live
+        NxWTimeCommitments::numbers(item)["pendingTimeTodayInHours"]*3600
     end
 
-    # NxWTCTodayTimeLoads::pendingTimeTodayInSeconds()
-    def self.pendingTimeTodayInSeconds()
+    # NxWTCTodayTimeLoads::livePendingTimeTodayInSeconds()
+    def self.livePendingTimeTodayInSeconds()
         NxWTimeCommitments::items()
-            .map{|item| NxWTCTodayTimeLoads::itemPendingTimeTodayInSeconds(item) }
+            .map{|item| NxWTCTodayTimeLoads::itemLivePendingTimeTodayInSeconds(item) }
             .inject(0, :+)
-    end
-
-    # NxWTCTodayTimeLoads::itemsThatShouldBeListed()
-    def self.itemsThatShouldBeListed()
-        NxWTimeCommitments::items()
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-            .select{|item| !NxWTCTodayTimeLoads::itemIsFullToday(item) }
     end
 end
