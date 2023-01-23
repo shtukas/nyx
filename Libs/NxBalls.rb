@@ -108,25 +108,37 @@ class NxBalls
 
     # NxBalls::close(nxball)
     def self.close(nxball)
-        timespan = Time.new.to_i - nxball["unixtime"]
-        nxball["accounts"].each{|account|
-            puts "Bank: putting #{timespan} seconds into '#{account["description"]}', account: #{account["number"]}"
-            Bank::put(account["number"], timespan)
-        }
+        # We only perform bank update if the ball was active.
+        if nxball["isActive"] then
+            timespan = Time.new.to_i - nxball["unixtime"]
+            nxball["accounts"].each{|account|
+                puts "Bank: putting #{timespan} seconds into '#{account["description"]}', account: #{account["number"]}"
+                Bank::put(account["number"], timespan)
+            }
+        end
         NxBalls::destroy(nxball["uuid"])
     end
 
     # NxBalls::pause(nxball)
     def self.pause(nxball)
-        NxBalls::close(nxball)
-        NxBalls::issue(nxball["accounts"], nxball["itemuuid"], nil, false)
+        if nxball["isActive"] then
+            # Closing the existing one, and issuing
+            # a non active one
+            NxBalls::close(nxball)
+            NxBalls::issue(nxball["accounts"], nxball["itemuuid"], nil, false)
+        else
+            puts JSON.pretty_generate(nxball)
+            puts "This NxBall is not active, it cannot be paused"
+            LucilleCore::pressEnterToContinue()
+        end
     end
 
     # NxBalls::pursue(nxball)
     def self.pursue(nxball)
+        # We can pursue both active and inactive balls. The only difference is that pursuing an active ball sets the sequence start
         # We close the existing ball and issue a new one with the same payload (and it doesn't need to have the same uuid)
         NxBalls::close(nxball)
-        NxBalls::issue(nxball["accounts"], nxball["itemuuid"], nxball["isActive"] ? nxball["unixtime"] : nil)
+        NxBalls::issue(nxball["accounts"], nxball["itemuuid"], nxball["isActive"] ? nxball["unixtime"] : nil, true)
     end
 
     # NxBalls::closeNxBallForItemOrNothing(item)
