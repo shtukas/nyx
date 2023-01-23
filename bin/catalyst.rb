@@ -7,4 +7,4 @@ require_relative "../Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
-CatalystListing::mainListingProgram()
+CatalystListing::mainProgram1Classic()
