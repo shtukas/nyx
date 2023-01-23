@@ -260,7 +260,7 @@ class FileSystemCheck
             return
         end
 
-        if mikuType == "TxFloat" then
+        if mikuType == "TxStratosphere" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
             FileSystemCheck::ensureAttribute(item, "mikuType", "String")
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
@@ -305,7 +305,7 @@ class FileSystemCheck
             NxOndates::items(),
             NxTodosIO::items(),
             NxTriages::items(),
-            TxFloats::items(),
+            TxStratospheres::items(),
             TxManualCountDowns::items(),
             Waves::items()
         ]

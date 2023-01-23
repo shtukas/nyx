@@ -1,36 +1,36 @@
 # encoding: UTF-8
 
-class TxFloats
+class TxStratospheres
 
-    # TxFloats::filepath(uuid)
+    # TxStratospheres::filepath(uuid)
     def self.filepath(uuid)
-        "#{Config::pathToDataCenter()}/TxFloat/#{uuid}.json"
+        "#{Config::pathToDataCenter()}/TxStratosphere/#{uuid}.json"
     end
 
-    # TxFloats::items()
+    # TxStratospheres::items()
     def self.items()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/TxFloat")
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/TxStratosphere")
             .select{|filepath| filepath[-5, 5] == ".json" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
 
-    # TxFloats::commit(item)
+    # TxStratospheres::commit(item)
     def self.commit(item)
         FileSystemCheck::fsck_MikuTypedItem(item, false)
-        filepath = TxFloats::filepath(item["uuid"])
+        filepath = TxStratospheres::filepath(item["uuid"])
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
-    # TxFloats::getOrNull(uuid)
+    # TxStratospheres::getOrNull(uuid)
     def self.getOrNull(uuid)
-        filepath = TxFloats::filepath(uuid)
+        filepath = TxStratospheres::filepath(uuid)
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
-    # TxFloats::destroy(uuid)
+    # TxStratospheres::destroy(uuid)
     def self.destroy(uuid)
-        filepath = TxFloats::filepath(uuid)
+        filepath = TxStratospheres::filepath(uuid)
         if File.exists?(filepath) then
             FileUtils.rm(filepath)
         end
@@ -39,32 +39,34 @@ class TxFloats
     # --------------------------------------------------
     # Makers
 
-    # TxFloats::interactivelyIssueOrNull()
+    # TxStratospheres::interactivelyIssueOrNull()
     def self.interactivelyIssueOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
+        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
         uuid  = SecureRandom.uuid
         item = {
             "uuid"        => uuid,
-            "mikuType"    => "TxFloat",
+            "mikuType"    => "TxStratosphere",
             "unixtime"    => Time.new.to_i,
-            "description" => description
+            "description" => description,
+            "ordinal"     => ordinal
         }
-        TxFloats::commit(item)
+        TxStratospheres::commit(item)
         item
     end
 
     # --------------------------------------------------
     # Data
 
-    # TxFloats::toString(item)
+    # TxStratospheres::toString(item)
     def self.toString(item)
-        "(float) #{item["description"]}"
+        "(strat) (#{"%5.2f" % item["ordinal"]}) #{item["description"]}"
     end
 
-    # TxFloats::listingItems()
+    # TxStratospheres::listingItems()
     def self.listingItems()
-        TxFloats::items()
-            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+        TxStratospheres::items()
+            .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
     end
 end

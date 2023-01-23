@@ -175,7 +175,7 @@ class PolyFunctions
         if item["mikuType"] == "NxTodo" then
             return item["description"]
         end
-        if item["mikuType"] == "TxFloat" then
+        if item["mikuType"] == "TxStratosphere" then
             return item["description"]
         end
         if item["mikuType"] == "TxManualCountDown" then
@@ -228,8 +228,8 @@ class PolyFunctions
         if item["mikuType"] == "NxTriage" then
             return NxTriages::toString(item)
         end
-        if item["mikuType"] == "TxFloat" then
-            return TxFloats::toString(item)
+        if item["mikuType"] == "TxStratosphere" then
+            return TxStratospheres::toString(item)
         end
         if item["mikuType"] == "TxManualCountDown" then
             return "(countdown) #{item["description"]}: #{item["counter"]}"

@@ -6,11 +6,11 @@ class CatalystListing
     def self.listingCommands()
         [
             "[listing interaction] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | >> skip default | destroy",
-            "[makers] wave | anniversary | today | ondate | todo | one time commitment | wave time commitment | manual countdown | top",
+            "[makers] wave | anniversary | today | ondate | todo | one time commitment | wave time commitment | manual countdown | top | strat",
             "[nxballs] start (<n>) | stop <n> | pause <n> | pursue <n>",
-            "[divings] anniversaries | ondates | waves | wave time commitments | todos | float",
+            "[divings] anniversaries | ondates | waves | wave time commitments | todos",
             "[transmutations] >todo (ondates and triages)",
-            "[misc] require internet | search | speed | commands | lock (<n>) | pure",
+            "[misc] require internet | search | speed | commands | lock (<n>) | backend",
         ].join("\n")
     end
 
@@ -75,6 +75,11 @@ class CatalystListing
 
         if Interpreting::match("anniversaries", input) then
             Anniversaries::mainprobe()
+            return
+        end
+
+        if Interpreting::match("backend", input) then
+            CatalystListing::displayBackend()
             return
         end
 
@@ -162,8 +167,8 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("float", input) then
-            TxFloats::interactivelyIssueOrNull()
+        if Interpreting::match("strat", input) then
+            TxStratospheres::interactivelyIssueOrNull()
             return
         end
 
@@ -235,11 +240,6 @@ class CatalystListing
                 NxBalls::pause(nxball)
                 return
             end
-            return
-        end
-
-        if Interpreting::match("pure", input) then
-            CatalystListing::mainProgram2Pure()
             return
         end
 
@@ -469,6 +469,7 @@ class CatalystListing
     # CatalystListing::listingItems()
     def self.listingItems()
         items = [
+
             NxTriages::items(),
             Anniversaries::listingItems(),
             Waves::listingItems("ns:mandatory-today"),
@@ -498,22 +499,48 @@ class CatalystListing
         CommonUtils::verticalSize(line)
     end
 
-    # CatalystListing::doDisplayListing1Classic(listingItems, timeparameters)
-    def self.doDisplayListing1Classic(listingItems, timeparameters)
+    # CatalystListing::getItemFromItemsOrNull(items, uuid)
+    def self.getItemFromItemsOrNull(items, uuid)
+        items.select{|item| item["uuid"] == uuid }.first
+    end
 
-        nxballHasAnItemInThere = lambda {|nxball, listingItems|
-            itemuuid = nxball["itemuuid"]
-            return false if itemuuid.nil?
-            listingItems.any?{|item| item["uuid"] == itemuuid }
-        }
+    # CatalystListing::nxballHasAnItemInThere(nxball, listingItems)
+    def self.nxballHasAnItemInThere(nxball, listingItems)
+        itemuuid = nxball["itemuuid"]
+        return false if itemuuid.nil?
+        listingItems.any?{|item| item["uuid"] == itemuuid }
+    end
 
-        getItemFromListingItemsOrNull = lambda {|items, uuid|
-            items.select{|item| item["uuid"] == uuid }.first
-        }
+    # CatalystListing::displayBackend()
+    def self.displayBackend()
+
+        listingItems = CatalystListing::listingItems()
+
+        tcsPendingTimeInSeconds = MiscTypesTimeCommitments::livePendingTimeTodayInHours()*3600
+        timeEstimationOthersInSeconds = listingItems
+            .select{|item| ["NxOTimeCommitment", "NxWTimeCommitment", "NxTodo"].include?(item["mikuType"]) } # tcsPendingTimeInSeconds include "NxOTimeCommitment" and "NxWTimeCommitment". "NxTodo" is in the shaddow of "NxWTimeCommitment"
+            .map{|item| GeneralTimeManagement::bankTimeEstimationInSeconds(item) }
+            .inject(0, :+)
+        totalInSeconds = tcsPendingTimeInSeconds + timeEstimationOthersInSeconds
+
+        GeneralTimeManagement::manageSpeedOfLight(totalInSeconds)
+
+        timeparameters = [
+            "> time commitment pending : #{(tcsPendingTimeInSeconds.to_f/3600).round(2)} hours, light speed: #{TheSpeedOfLight::getDaySpeedOfLight().to_s.green}",
+            "> time estimation (others): #{(timeEstimationOthersInSeconds.to_f/3600).round(2)} hours",
+            "> projected end           : #{Time.at( Time.new.to_i + totalInSeconds ).to_s}",
+        ]
+
 
         system("clear")
         store = ItemStore.new()
         vspaceleft = CommonUtils::screenHeight() - 4
+
+        # Display stratification
+        #   - 99%
+        #   = Time parameters
+        #   - time commitments report
+        #   - nsballs
 
         puts ""
         vspaceleft = vspaceleft - 1
@@ -522,6 +549,7 @@ class CatalystListing
         line = The99Percent::line()
         puts line
         vspaceleft = vspaceleft - 1
+
         puts timeparameters.join("\n")
         vspaceleft = vspaceleft - timeparameters.size
 
@@ -543,44 +571,8 @@ class CatalystListing
             }
         end
 
-        if !InternetStatus::internetIsActive() then
-            puts ""
-            puts "INTERNET IS OFF".green
-            vspaceleft = vspaceleft - 2
-        end
-
-        floats = TxFloats::listingItems()
-        if floats.size > 0 then
-            puts ""
-            puts "floats".yellow
-            vspaceleft = vspaceleft - 2
-            floats.each{|item|
-                linecount = CatalystListing::printItem(store, item, false, "")
-                vspaceleft = vspaceleft - linecount
-            }
-        end
-
-        shelves = Locks::shelves()
-        domains = shelves.map{|datum| datum["domain"] }.uniq
-        domains.each{|domain|
-            items = shelves
-                        .select{|datum| datum["domain"] == domain }
-                        .map{|datum| getItemFromListingItemsOrNull.call(listingItems, datum["uuid"]) }
-                        .compact
-            next if items.empty?
-            puts ""
-            puts "#{domain}".yellow
-            vspaceleft = vspaceleft - 2
-            items.each{|item|
-                linecount = CatalystListing::printItem(store, item, false, "")
-                vspaceleft = vspaceleft - linecount
-            }
-        }
-
-        tops = NsTopLines::listingItems()
-
         nxballs = NxBalls::items()
-                    .select{|nxball| !nxballHasAnItemInThere.call(nxball, timecommitments + listingItems + tops) }
+                    .select{|nxball| !CatalystListing::nxballHasAnItemInThere(nxball, timecommitments + listingItems) }
 
         if nxballs.size > 0 then
             puts ""
@@ -593,36 +585,6 @@ class CatalystListing
                 }
         end
 
-        tops = NsTopLines::listingItems()
-        if tops.size > 0 then
-            puts ""
-            puts "tops".green
-            vspaceleft = vspaceleft - 2
-            tops.each{|item|
-                store.register(item, false)
-                line = "(#{store.prefixString()}) (line) #{item["line"]}"
-                nxball = NxBalls::getNxBallForItemOrNull(item)
-                if nxball then
-                    line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
-                end
-                puts line
-                vspaceleft = vspaceleft - 1
-            }
-        end
-
-        puts ""
-        vspaceleft = vspaceleft - 1
-
-        items1, items2 = listingItems.partition{|item| NxBalls::getNxBallForItemOrNull(item) }
-        (items1 + items2)
-            .each{|item|
-                next if Locks::isLocked(item["uuid"])
-                cbdf = (item["mikuType"] != "TxFloat") and !Skips::isSkipped(item["uuid"])
-                linecount = CatalystListing::printItem(store, item, cbdf, "")
-                vspaceleft = vspaceleft - linecount
-                break if vspaceleft <= 0
-            }
-
         puts ""
         input = LucilleCore::askQuestionAnswerAsString("> ")
         return if input == ""
@@ -632,46 +594,31 @@ class CatalystListing
     # CatalystListing::doDisplayListing2Pure(listingItems)
     def self.doDisplayListing2Pure(listingItems)
 
-        nxballHasAnItemInThere = lambda {|nxball, listingItems|
-            itemuuid = nxball["itemuuid"]
-            return false if itemuuid.nil?
-            listingItems.any?{|item| item["uuid"] == itemuuid }
-        }
-
-        printItem = lambda {|store, item, canBeDefault|
-
-            store.register(item, canBeDefault)
-
-            tc = NxWTimeCommitments::getOrNull(item["tcId"])
-            tcStr = tc ? " (NxWTimeCommitment: #{tc["description"]})" : ""
-            line = "(#{store.prefixString()}) #{PolyFunctions::toStringForCatalystListing(item)}#{tcStr.green}"
-
-            nxball = NxBalls::getNxBallForItemOrNull(item)
-
-            if nxball then
-                line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
-            end
-
-            puts line
-            return CommonUtils::verticalSize(line)
-        }
-
-        getItemFromListingItemsOrNull = lambda {|items, uuid|
-            items.select{|item| item["uuid"] == uuid }.first
-        }
-
         system("clear")
         store = ItemStore.new()
         vspaceleft = CommonUtils::screenHeight() - 4
 
-        puts ""
+        # Display stratification
+        #   - strats
+        #   - shelves
+        #   - nsballs
+        #   - tops
+        #   - NxTriage
+        #   - Anniversary
+        #   - Wave  / ns:mandatory-today
+        #   - NxOndate
+        #   - TxManualCountDown
+        #   - Wave  / ns:time-important
+        #   - MiscTypesTimeCommitment
+        #   - Waves / ns:beach
+
+        puts "#{" " * (CommonUtils::screenWidth()-40)}light speed: #{TheSpeedOfLight::getDaySpeedOfLight().to_s.green}"
         vspaceleft = vspaceleft - 1
 
-        floats = TxFloats::listingItems()
-        if floats.size > 0 then
-            vspaceleft = vspaceleft - 2
-            floats.each{|item|
-                linecount = CatalystListing::printItem(store, item, false, "")
+        strats = TxStratospheres::listingItems()
+        if strats.size > 0 then
+            strats.each{|item|
+                linecount = CatalystListing::printItem(store, item, true, "")
                 vspaceleft = vspaceleft - linecount
             }
         end
@@ -681,10 +628,9 @@ class CatalystListing
         domains.each{|domain|
             items = shelves
                         .select{|datum| datum["domain"] == domain }
-                        .map{|datum| getItemFromListingItemsOrNull.call(listingItems, datum["uuid"]) }
+                        .map{|datum| CatalystListing::getItemFromItemsOrNull(listingItems, datum["uuid"]) }
                         .compact
             next if items.empty?
-            vspaceleft = vspaceleft - 2
             items.each{|item|
                 linecount = CatalystListing::printItem(store, item, false, "#{domain} ".yellow)
                 vspaceleft = vspaceleft - linecount
@@ -694,7 +640,7 @@ class CatalystListing
         tops = NsTopLines::listingItems()
 
         nxballs = NxBalls::items()
-                    .select{|nxball| !nxballHasAnItemInThere.call(nxball, listingItems + tops) }
+                    .select{|nxball| !CatalystListing::nxballHasAnItemInThere(nxball, listingItems + tops) }
 
         if nxballs.size > 0 then
             nxballs
@@ -707,10 +653,10 @@ class CatalystListing
 
         tops = NsTopLines::listingItems()
         if tops.size > 0 then
-            vspaceleft = vspaceleft - 2
             tops.each{|item|
-                store.register(item, false)
-                line = "(#{store.prefixString()}) (line) #{item["line"]}"
+                break if store.getDefault()
+                store.register(item, !Skips::isSkipped(item["uuid"]))
+                line = "(#{store.prefixString()}) (top) #{item["line"]}"
                 nxball = NxBalls::getNxBallForItemOrNull(item)
                 if nxball then
                     line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
@@ -723,9 +669,9 @@ class CatalystListing
         items1, items2 = listingItems.partition{|item| NxBalls::getNxBallForItemOrNull(item) }
         (items1 + items2)
             .each{|item|
+                break if store.getDefault()
                 next if Locks::isLocked(item["uuid"])
-                cbdf = (item["mikuType"] != "TxFloat") and !Skips::isSkipped(item["uuid"])
-                linecount = CatalystListing::printItem(store, item, cbdf, "")
+                linecount = CatalystListing::printItem(store, item, !Skips::isSkipped(item["uuid"]), "")
                 vspaceleft = vspaceleft - linecount
                 break if vspaceleft <= 0
             }
@@ -733,55 +679,9 @@ class CatalystListing
         puts ""
         input = LucilleCore::askQuestionAnswerAsString("> ")
         return if input == ""
+        return "exit" if input == "exit"
+
         CatalystListing::listingCommandInterpreter(input, store)
-    end
-
-    # CatalystListing::mainProgram1Classic()
-    def self.mainProgram1Classic()
-
-        initialCodeTrace = CommonUtils::stargateTraceCode()
-
-        $SyncConflictInterruptionFilepath = nil
-
-        loop {
-
-            if CommonUtils::stargateTraceCode() != initialCodeTrace then
-                puts "Code change detected"
-                break
-            end
-
-            if $SyncConflictInterruptionFilepath then
-                puts "$SyncConflictInterruptionFilepath: #{$SyncConflictInterruptionFilepath}"
-                exit
-            end
-
-            LucilleCore::locationsAtFolder("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")
-                .each{|location|
-                    next if File.basename(location).start_with?(".")
-                    item = NxTriages::bufferInImport(location)
-                    puts "Picked up from NxTodos-BufferIn: #{JSON.pretty_generate(item)}"
-                    LucilleCore::removeFileSystemLocation(location)
-                }
-
-            listingItems = CatalystListing::listingItems()
-
-            tcsPendingTimeInSeconds = MiscTypesTimeCommitments::livePendingTimeTodayInHours()*3600
-            timeEstimationOthersInSeconds = listingItems
-                .select{|item| ["NxOTimeCommitment", "NxWTimeCommitment", "NxTodo"].include?(item["mikuType"]) } # tcsPendingTimeInSeconds include "NxOTimeCommitment" and "NxWTimeCommitment". "NxTodo" is in the shaddow of "NxWTimeCommitment"
-                .map{|item| GeneralTimeManagement::bankTimeEstimationInSeconds(item) }
-                .inject(0, :+)
-            totalInSeconds = tcsPendingTimeInSeconds + timeEstimationOthersInSeconds
-
-            GeneralTimeManagement::manageSpeedOfLight(totalInSeconds)
-
-            timeparameters = [
-                "> time commitment pending : #{(tcsPendingTimeInSeconds.to_f/3600).round(2)} hours, light speed: #{TheSpeedOfLight::getDaySpeedOfLight().to_s.green}",
-                "> time estimation (others): #{(timeEstimationOthersInSeconds.to_f/3600).round(2)} hours",
-                "> projected end           : #{Time.at( Time.new.to_i + totalInSeconds ).to_s}",
-            ]
-
-            CatalystListing::doDisplayListing1Classic(listingItems, timeparameters)
-        }
     end
 
     # CatalystListing::mainProgram2Pure()
@@ -821,7 +721,6 @@ class CatalystListing
             totalInSeconds = tcsPendingTimeInSeconds + timeEstimationOthersInSeconds
 
             GeneralTimeManagement::manageSpeedOfLight(totalInSeconds)
-
 
             CatalystListing::doDisplayListing2Pure(listingItems)
         }

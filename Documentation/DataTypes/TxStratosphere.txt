@@ -1,6 +1,7 @@
 
-TxFloat:
+TxStratosphere:
     "uuid"        : String
-    "mikuType"    : "TxFloat"
+    "mikuType"    : "TxStratosphere"
     "unixtime"    : Float
     "description" : String
+    "ordinal"     : Float

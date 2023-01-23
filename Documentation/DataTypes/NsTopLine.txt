@@ -2,4 +2,4 @@ NsTopLine
     "uuid"        : String
     "mikuType"    : "NsTopLine"
     "unixtime"    : Float
-    "line"        : String  
+    "line"        : String
