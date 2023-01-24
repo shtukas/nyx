@@ -492,12 +492,12 @@ class CatalystListing
         store.register(item, canBeDefault)
         tc = NxWTimeCommitments::getOrNull(item["tcId"])
         tcStr = tc ? " (NxWTimeCommitment: #{tc["description"]})" : ""
-        line = "(#{store.prefixString()}) #{PolyFunctions::toStringForCatalystListing(item)}#{tcStr.green}"
+        line = "(#{store.prefixString()}) #{prefix}#{PolyFunctions::toStringForCatalystListing(item)}#{tcStr.green}"
         nxball = NxBalls::getNxBallForItemOrNull(item)
         if nxball then
             line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
         end
-        line = "#{prefix}#{line}"
+        line = "#{line}"
         puts line
         CommonUtils::verticalSize(line)
     end
