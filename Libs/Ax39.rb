@@ -85,6 +85,8 @@ class Ax39
     # Ax39::liveNumbers(uuid, ax39, hasNxBall, unrealisedTimespan = nil)
     def self.liveNumbers(uuid, ax39, hasNxBall, unrealisedTimespan = nil)
 
+        ax39 = ax39.clone # freaking references
+
         # This is the only place where the speed of light is used in a computation
         # We override the hours of the Ax39
         ax39["hours"] = ax39["hours"] * TheSpeedOfLight::getDaySpeedOfLight()

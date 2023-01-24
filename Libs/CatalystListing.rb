@@ -515,11 +515,11 @@ class CatalystListing
         listingItems.any?{|item| item["uuid"] == itemuuid }
     end
 
-    # CatalystListing::livePendingTimeTodayInHours()
-    def self.livePendingTimeTodayInHours()
-        todayMissingInHours1 = NxTimeFibers::allPendingTimeTodayInHoursLive().to_f/3600
-        hours2 = NxTimeDrops::allPendingTimeTodayInHoursLive().to_f/3600
-        todayMissingInHours1 + hours2
+    # CatalystListing::fibersAndDropsTimePendingInSeconds()
+    def self.fibersAndDropsTimePendingInSeconds()
+        hours1 = NxTimeFibers::allPendingTimeTodayInHoursLive()*3600
+        hours2 = NxTimeDrops::allPendingTimeTodayInHoursLive()*3600
+        hours1 + hours2
     end
 
     # CatalystListing::displayBackend()
@@ -527,18 +527,16 @@ class CatalystListing
 
         listingItems = CatalystListing::listingItems()
 
-        tcsPendingTimeInSeconds = CatalystListing::livePendingTimeTodayInHours()*3600
-        timeEstimationOthersInSeconds = listingItems
-            .select{|item| ["NxTimeDrop", "NxTimeFiber", "NxTodo"].include?(item["mikuType"]) } # tcsPendingTimeInSeconds include "NxTimeDrop" and "NxTimeFiber". "NxTodo" is in the shaddow of "NxTimeFiber"
+        fibersAndDropsTimeInSeconds = CatalystListing::fibersAndDropsTimePendingInSeconds()
+        timeMiscInSeconds = listingItems
+            .select{|item| ["NxTimeDrop", "NxTimeFiber", "NxTodo"].include?(item["mikuType"]) } # fibersAndDropsTimeInSeconds include "NxTimeDrop" and "NxTimeFiber". "NxTodo" is in the shaddow of "NxTimeFiber"
             .map{|item| BankEstimations::itemsEstimationInSeconds(item) }
             .inject(0, :+)
-        totalInSeconds = tcsPendingTimeInSeconds + timeEstimationOthersInSeconds
-
-        TheSpeedOfLight::performAdjustements(totalInSeconds)
+        totalInSeconds = fibersAndDropsTimeInSeconds + timeMiscInSeconds
 
         timeparameters = [
-            "> time commitment pending : #{(tcsPendingTimeInSeconds.to_f/3600).round(2)} hours, light speed: #{TheSpeedOfLight::getDaySpeedOfLight().to_s.green}",
-            "> time estimation (others): #{(timeEstimationOthersInSeconds.to_f/3600).round(2)} hours",
+            "> time commitment pending : #{(fibersAndDropsTimeInSeconds.to_f/3600).round(2)} hours, light speed: #{TheSpeedOfLight::getDaySpeedOfLight().to_s.green}",
+            "> time estimation (others): #{(timeMiscInSeconds.to_f/3600).round(2)} hours",
             "> projected end           : #{Time.at( Time.new.to_i + totalInSeconds ).to_s}",
         ]
 
@@ -601,8 +599,8 @@ class CatalystListing
         CatalystListing::listingCommandInterpreter(input, store)
     end
 
-    # CatalystListing::doDisplayListing2Pure(listingItems)
-    def self.doDisplayListing2Pure(listingItems)
+    # CatalystListing::doDisplayListing2Pure(listingItems, totalInSeconds)
+    def self.doDisplayListing2Pure(listingItems, totalInSeconds)
 
         system("clear")
         store = ItemStore.new()
@@ -625,7 +623,7 @@ class CatalystListing
         #   - Waves / ns:beach
         #   - NxBlock (6)
 
-        puts "#{" " * (CommonUtils::screenWidth()-40)}light speed: #{TheSpeedOfLight::getDaySpeedOfLight().to_s.green}"
+        puts "#{" " * (CommonUtils::screenWidth()-70)}light speed: #{TheSpeedOfLight::getDaySpeedOfLight().round(3).to_s.green}, projected end: #{Time.at( Time.new.to_i + totalInSeconds ).to_s}"
         vspaceleft = vspaceleft - 1
 
         strats = TxStratospheres::listingItems()
@@ -724,16 +722,16 @@ class CatalystListing
 
             listingItems = CatalystListing::listingItems()
 
-            tcsPendingTimeInSeconds = CatalystListing::livePendingTimeTodayInHours()*3600
-            timeEstimationOthersInSeconds = listingItems
-                .select{|item| ["NxTimeDrop", "NxTimeFiber", "NxTodo"].include?(item["mikuType"]) } # tcsPendingTimeInSeconds include "NxTimeDrop" and "NxTimeFiber". "NxTodo" is in the shaddow of "NxTimeFiber"
-                .map{|item| BankEstimations::itemsEstimationInSeconds(item) }
+            fibersAndDropsTimeInSeconds = CatalystListing::fibersAndDropsTimePendingInSeconds()
+            timeMiscInSeconds = listingItems
+                .select{|item| ["NxTimeDrop", "NxTimeFiber", "NxTodo"].include?(item["mikuType"]) } # fibersAndDropsTimeInSeconds include "NxTimeDrop" and "NxTimeFiber". "NxTodo" is in the shaddow of "NxTimeFiber"
+                .map{|item| BankEstimations::itemsEstimationInSeconds(item)}
                 .inject(0, :+)
-            totalInSeconds = tcsPendingTimeInSeconds + timeEstimationOthersInSeconds
+            totalInSeconds = fibersAndDropsTimeInSeconds + timeMiscInSeconds
 
             TheSpeedOfLight::performAdjustements(totalInSeconds)
 
-            CatalystListing::doDisplayListing2Pure(listingItems)
+            CatalystListing::doDisplayListing2Pure(listingItems, totalInSeconds)
         }
     end
 end

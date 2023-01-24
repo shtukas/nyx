@@ -3,9 +3,11 @@ class TheSpeedOfLight
 
     # TheSpeedOfLight::getFilepath()
     def self.getFilepath()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/TheSpeedOfLight")
+        filepaths = LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/TheSpeedOfLight")
             .select{|filepath| filepath[-5, 5] == ".json" }
-            .first
+        filepath = filepaths.first
+        filepaths.drop(1).each{|fp| FileUtils.rm(fp) }
+        filepath
     end
 
     # TheSpeedOfLight::getDaySpeedOfLight()
@@ -50,12 +52,14 @@ class TheSpeedOfLight
     # TheSpeedOfLight::performAdjustements(pendingTimeTodayInSeconds)
     def self.performAdjustements(pendingTimeTodayInSeconds)
         unixtime = CommonUtils::unixtimeAtComingMidnightAtGivenTimeZone(CommonUtils::getLocalTimeZone())
-        timeToMidnight = unixtime - Time.new.to_i
-        if pendingTimeTodayInSeconds > (timeToMidnight-3600*1) then
+        timeToMidnightInSeconds = unixtime - Time.new.to_i
+        if pendingTimeTodayInSeconds > (timeToMidnightInSeconds-3600*1) then
             TheSpeedOfLight::decrementLightSpeed()
+            return
         end
-        if pendingTimeTodayInSeconds < (timeToMidnight-3600*2) then
+        if pendingTimeTodayInSeconds < (timeToMidnightInSeconds-3600*2) then
             TheSpeedOfLight::incrementLightSpeed()
+            return
         end
     end
 end
