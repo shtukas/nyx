@@ -237,7 +237,7 @@ class FileSystemCheck
             return
         end
 
-        if mikuType == "NxProject" then
+        if mikuType == "NxBlock" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
             FileSystemCheck::ensureAttribute(item, "mikuType", "String")
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")

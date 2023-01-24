@@ -1,8 +1,8 @@
 
-NxProject:
+NxBlock:
 
     "uuid"        : String
-    "mikuType"    : "NxProject"
+    "mikuType"    : "NxBlock"
     "unixtime"    : Float
     "description" : String
     "tcId"        : null or String

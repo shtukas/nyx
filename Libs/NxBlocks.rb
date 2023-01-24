@@ -1,36 +1,36 @@
 # encoding: UTF-8
 
-class NxProjects
+class NxBlocks
 
-    # NxProjects::filepath(uuid)
+    # NxBlocks::filepath(uuid)
     def self.filepath(uuid)
-        "#{Config::pathToDataCenter()}/NxProject/#{uuid}.json"
+        "#{Config::pathToDataCenter()}/NxBlock/#{uuid}.json"
     end
 
-    # NxProjects::items()
+    # NxBlocks::items()
     def self.items()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxProject")
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxBlock")
             .select{|filepath| filepath[-5, 5] == ".json" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
 
-    # NxProjects::commit(item)
+    # NxBlocks::commit(item)
     def self.commit(item)
         FileSystemCheck::fsck_MikuTypedItem(item, false)
-        filepath = NxProjects::filepath(item["uuid"])
+        filepath = NxBlocks::filepath(item["uuid"])
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
-    # NxProjects::getOrNull(uuid)
+    # NxBlocks::getOrNull(uuid)
     def self.getOrNull(uuid)
-        filepath = NxProjects::filepath(uuid)
+        filepath = NxBlocks::filepath(uuid)
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
-    # NxProjects::destroy(uuid)
+    # NxBlocks::destroy(uuid)
     def self.destroy(uuid)
-        filepath = NxProjects::filepath(uuid)
+        filepath = NxBlocks::filepath(uuid)
         if File.exists?(filepath) then
             FileUtils.rm(filepath)
         end
@@ -39,7 +39,7 @@ class NxProjects
     # --------------------------------------------------
     # Makers
 
-    # NxProjects::interactivelyIssueOrNull()
+    # NxBlocks::interactivelyIssueOrNull()
     def self.interactivelyIssueOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
@@ -49,27 +49,27 @@ class NxProjects
         uuid  = SecureRandom.uuid
         item = {
             "uuid"        => uuid,
-            "mikuType"    => "NxProject",
+            "mikuType"    => "NxBlock",
             "unixtime"    => Time.new.to_i,
             "description" => description,
             "tcId"        => tcId,
             "ordinal"     => ordinal
         }
-        NxProjects::commit(item)
+        NxBlocks::commit(item)
         item
     end
 
     # --------------------------------------------------
     # Data
 
-    # NxProjects::toString(item)
+    # NxBlocks::toString(item)
     def self.toString(item)
-        "(project) (#{"%5.2f" % item["ordinal"]}) #{item["description"]}"
+        "(block) (#{"%5.2f" % item["ordinal"]}) #{item["description"]}"
     end
 
-    # NxProjects::listingItems(cardinal)
+    # NxBlocks::listingItems(cardinal)
     def self.listingItems(cardinal)
-        NxProjects::items()
+        NxBlocks::items()
             .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
             .take(cardinal)
             .select{|item| BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < 0.5 }
