@@ -144,6 +144,7 @@ class NxTimeFibers
         NxTimeFibers::items()
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+            .select{|item| NxBalls::itemIsRunning(item) or item["doneForDay"] != CommonUtils::today() }
             .select{|item| NxBalls::itemIsRunning(item) or NxTimeFibers::liveNumbers(item)["pendingTimeTodayInHoursLive"] > 0 }
             .sort{|i1, i2| NxTimeFibers::liveNumbers(i1)["pendingTimeTodayInHoursLive"] <=>  NxTimeFibers::liveNumbers(i2)["pendingTimeTodayInHoursLive"] }
     end
@@ -295,6 +296,8 @@ class NxTimeFibers
                 timeInHours = numbers["pendingTimeTodayInHoursLive"]
                 puts "adding #{timeInHours} hours to '#{NxTimeFibers::toString(fiber)}'"
                 Bank::put(fiber["uuid"], timeInHours*3600)
+                fiber["doneForDay"] = CommonUtils::today()
+                NxTimeFibers::commit(fiber)
             end
             if action == "set Ax39" then
                 fiber["ax39"] = Ax39::interactivelyCreateNewAx()

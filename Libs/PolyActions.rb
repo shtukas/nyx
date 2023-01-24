@@ -10,11 +10,6 @@ class PolyActions
 
         # types in alphabetical order
 
-        if item["mikuType"] == "NxTimeFiber" then
-            NxTimeFibers::probe(item)
-            return
-        end
-
         if item["mikuType"] == "LambdX1" then
             item["lambda"].call()
             return
@@ -25,13 +20,18 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxTodo" then
-            NxTodos::access(item)
+        if item["mikuType"] == "NxOndate" then
+            NxOndates::access(item)
             return
         end
 
-        if item["mikuType"] == "NxOndate" then
-            NxOndates::access(item)
+        if item["mikuType"] == "NxTimeFiber" then
+            NxTimeFibers::probe(item)
+            return
+        end
+
+        if item["mikuType"] == "NxTodo" then
+            NxTodos::access(item)
             return
         end
 

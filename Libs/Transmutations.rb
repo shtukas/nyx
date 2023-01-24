@@ -69,6 +69,16 @@ class Transmutations
             return
         end
 
+        if sourceType == "NxTriage" and targetType == "NxOndate" then
+            uuid1 = item["uuid"]
+            item["uuid"] = SecureRandom.uuid
+            item["mikuType"] = "NxOndate"
+            item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
+            NxOndates::commit(item)
+            NxTriages::destroy(uuid1)
+            return
+        end
+
         puts "transmutation: I do not know how to transmute '#{sourceType}' to '#{targetType}'"
         LucilleCore::pressEnterToContinue()
     end
@@ -83,7 +93,12 @@ class Transmutations
             targetTypes = ["NxTodo", "NxOndate"]
             return LucilleCore::selectEntityFromListOfEntitiesOrNull("targetType", targetTypes)
         end
-        nil
+        if item["mikuType"] == "NxTriage" then
+            targetTypes = ["NxTodo", "NxOndate"]
+            return LucilleCore::selectEntityFromListOfEntitiesOrNull("targetType", targetTypes)
+        end
+
+        raise "(error: 0f3b30e2-91ea-4c6f-a846-f2fdeefbf28b)"
     end
 
     # Transmutations::transmute2(item)
