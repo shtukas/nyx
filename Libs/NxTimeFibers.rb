@@ -273,7 +273,7 @@ class NxTimeFibers
         loop {
             puts NxTimeFibers::toStringWithDetails(fiber, false)
             puts "data: #{Ax39::standardAx39CarrierLiveNumbers(fiber)}"
-            actions = ["start", "add time", "do not show until", "set override day load", "fill for holiday", "set Ax39", "expose", "items dive", "destroy"]
+            actions = ["start", "add time", "do not show until", "show hours", "set override day load", "fill for holiday", "set Ax39", "expose", "items dive", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "start" then
@@ -289,6 +289,13 @@ class NxTimeFibers
                 unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
                 next if unixtime.nil?
                 DoNotShowUntil::setUnixtime(fiber["uuid"], unixtime)
+            end
+            if action == "show hours" then
+                (-6..0).each{|i|
+                    date = CommonUtils::nDaysInTheFuture(i)
+                    puts "date: #{date}, hours: #{Bank::valueAtDate(fiber["uuid"], date).to_f/3600}"
+                }
+                LucilleCore::pressEnterToContinue()
             end
             if action == "set override day load" then
                 timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f

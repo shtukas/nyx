@@ -8,7 +8,7 @@ class CatalystListing
             "[listing interaction] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | >> skip default | destroy",
             "[makers] wave | anniversary | today | ondate | todo | timedrop | fiber | manual countdown | top | strat | block",
             "[nxballs] start (<n>) | stop <n> | pause <n> | pursue <n>",
-            "[divings] anniversaries | ondates | waves | wtcs | todos",
+            "[divings] anniversaries | ondates | waves | fibers | todos",
             "[transmutations] '' (transmute)",
             "[misc] require internet | search | speed | commands | lock (<n>) | backend",
         ].join("\n")
@@ -363,7 +363,7 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("wtcs", input) then
+        if Interpreting::match("fibers", input) then
             NxTimeFibers::mainprobe()
             return
         end

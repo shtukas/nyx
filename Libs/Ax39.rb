@@ -85,17 +85,11 @@ class Ax39
     # Ax39::liveNumbers(uuid, ax39, hasNxBall, unrealisedTimespan = nil)
     def self.liveNumbers(uuid, ax39, hasNxBall, unrealisedTimespan = nil)
 
-        ax39 = ax39.clone # freaking references
-
-        # This is the only place where the speed of light is used in a computation
-        # We override the hours of the Ax39
-        ax39["hours"] = ax39["hours"] * TheSpeedOfLight::getDaySpeedOfLight()
-
         # return {pendingTimeTodayInHoursLive}
 
         if ax39["type"] == "daily-provision-fillable" then
             doneTodayInSeconds = Bank::valueAtDate(uuid, CommonUtils::today(), unrealisedTimespan)
-            requiredTodayInSeconds = ax39["hours"]*3600
+            requiredTodayInSeconds = ax39["hours"]*3600*TheSpeedOfLight::getDaySpeedOfLight()
             pendingTimeTodayInHoursLive = [requiredTodayInSeconds - doneTodayInSeconds, 0].max.to_f/3600
             return {
                 "pendingTimeTodayInHoursLive"  => pendingTimeTodayInHoursLive
@@ -118,7 +112,7 @@ class Ax39
         missingTimeThisWeekBeforeTodayInSeconds = [totalTimeForWeekInSeconds - doneTimeThisWeekBeforeTodayInSeconds, 0].max # We count the time before today to avoid this to change during today [1]
         numberOfDaysLeft                        = 7 - dates.size + 1
 
-        timeWeShouldDoTodayInSeconds            = missingTimeThisWeekBeforeTodayInSeconds.to_f/numberOfDaysLeft
+        timeWeShouldDoTodayInSeconds            = (missingTimeThisWeekBeforeTodayInSeconds.to_f/numberOfDaysLeft)*TheSpeedOfLight::getDaySpeedOfLight()
         timeWeDidTodayInSeconds                 = Bank::valueAtDate(uuid, CommonUtils::today(), unrealisedTimespan)
         pendingTimeTodayInSeconds               = [timeWeShouldDoTodayInSeconds - timeWeDidTodayInSeconds, 0].max
 
