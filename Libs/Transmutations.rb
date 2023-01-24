@@ -20,7 +20,7 @@ class Transmutations
         if sourceType == "NxTop" and targetType == "NxOndate" then
             uuid1 = item["uuid"]
             item["uuid"] = SecureRandom.uuid
-            item["mikuType"] = "NxTodo"
+            item["mikuType"] = "NxOndate"
             item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
             NxOndates::commit(item)
             NxTops::destroy(uuid1)
