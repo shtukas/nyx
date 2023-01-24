@@ -383,8 +383,12 @@ class CatalystListing
                 "lambda" => lambda { Anniversaries::listingItems() }
             },
             {
-                "name" => "NxTimeFibers::listingElements()",
-                "lambda" => lambda { NxTimeFibers::listingElements() }
+                "name" => "NxTimeFibers::listingElements(true)",
+                "lambda" => lambda { NxTimeFibers::listingElements(true) }
+            },
+            {
+                "name" => "NxTimeFibers::listingElements(false)",
+                "lambda" => lambda { NxTimeFibers::listingElements(false) }
             },
             {
                 "name" => "NxOndates::listingItems()",
@@ -470,15 +474,15 @@ class CatalystListing
     # CatalystListing::listingItems()
     def self.listingItems()
         items = [
-
             NxTriages::items(),
             Anniversaries::listingItems(),
             Waves::listingItems("ns:mandatory-today"),
             NxOndates::listingItems(),
             TxManualCountDowns::listingItems(),
             NxTimeDrops::items(),
-            NxTimeFibers::listingElements(),
+            NxTimeFibers::listingElements(true),
             Waves::listingItems("ns:time-important"),
+            NxTimeFibers::listingElements(false),
             NxBlocks::listingItems(3),
             Waves::listingItems("ns:beach"),
             NxBlocks::listingItems(6),

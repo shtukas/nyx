@@ -176,9 +176,12 @@ class NxTimeFibers
         end
     end
 
-    # NxTimeFibers::listingElements()
-    def self.listingElements()
+    # NxTimeFibers::listingElements(isWork)
+    def self.listingElements(isWork)
+        xor = lambda{|b1, b2| (b1 or b2) and !(b1 and b2) }
+
         NxTimeFibers::itemsForListing()
+            .select{|item| xor.call(!isWork, item["isWork"]) }
             .map{|item| NxTimeFibers::itemWithToAllAssociatedListingItems(item) }
             .flatten
     end
