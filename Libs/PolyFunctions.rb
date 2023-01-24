@@ -282,6 +282,9 @@ class PolyFunctions
         if item["mikuType"] == "NxTimeFiber" then
             return NxTimeFibers::toStringWithDetails(item, true)
         end
+        if item["mikuType"] == "NxTodo" then
+            return item["description"]
+        end
         PolyFunctions::toString(item)
     end
 

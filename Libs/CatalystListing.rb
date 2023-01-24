@@ -493,7 +493,7 @@ class CatalystListing
         store.register(item, canBeDefault)
         tc = NxTimeFibers::getOrNull(item["tcId"])
         tcStr = tc ? " (NxTimeFiber: #{tc["description"]})" : ""
-        line = "(#{store.prefixString()}) #{prefix}#{PolyFunctions::toStringForCatalystListing(item)}#{tcStr.green}"
+        line = "(#{store.prefixString()})#{tcStr.green} #{prefix}#{PolyFunctions::toStringForCatalystListing(item)}"
         nxball = NxBalls::getNxBallForItemOrNull(item)
         if nxball then
             line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green

@@ -176,14 +176,14 @@ class NxTimeFibers
         NxTimeFibers::items()
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-            .select{|item| NxBalls::itemIsRunning(item) or NxWTCTodayTimeLoads::itemLiveTimeThatShouldBeDoneTodayInHours(item) > 1 }
+            .select{|item| NxBalls::itemIsRunning(item) or NxWTCTodayTimeLoads::itemLiveTimeThatShouldBeDoneTodayInHours(item) > 0 }
             .sort{|i1, i2| NxWTCTodayTimeLoads::itemLiveTimeThatShouldBeDoneTodayInHours(i1) <=>  NxWTCTodayTimeLoads::itemLiveTimeThatShouldBeDoneTodayInHours(i2) }
     end
 
     # NxTimeFibers::listingElements()
     def self.listingElements()
         NxTimeFibers::itemsForListing()
-            .map{|item| return NxTimeFibers::itemWithToAllAssociatedListingItems(item) }
+            .map{|item| NxTimeFibers::itemWithToAllAssociatedListingItems(item) }
             .flatten
     end
 
