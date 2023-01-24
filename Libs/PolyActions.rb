@@ -172,7 +172,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxTop" then
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTop '#{NxTops::toString(item).green} ? '") then
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTop '#{NxTops::toString(item).green} ? '", true) then
                 NxBalls::closeNxBallForItemOrNothing(item)
                 NxTops::destroy(item["uuid"])
             end
@@ -181,7 +181,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxTriage" then
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTriage '#{NxTriages::toString(item).green} ? '") then
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTriage '#{NxTriages::toString(item).green} ? '", true) then
                 NxBalls::closeNxBallForItemOrNothing(item)
                 NxTriages::destroy(item["uuid"])
             end
@@ -202,7 +202,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "TxStratosphere" then
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy TxStratosphere '#{NxTriages::toString(item).green} ? '") then
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy TxStratosphere '#{NxTriages::toString(item).green} ? '", true) then
                 TxStratospheres::destroy(item["uuid"])
             end
             return
