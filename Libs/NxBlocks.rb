@@ -39,11 +39,23 @@ class NxBlocks
     # --------------------------------------------------
     # Makers
 
+    # NxBlocks::interactivelyDecideOrdinal()
+    def self.interactivelyDecideOrdinal()
+        NxBlocks::items()
+            .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
+            .first(20)
+            .each{|item| 
+                puts NxBlocks::toString(item)
+            }
+        puts ""
+        LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+    end
+
     # NxBlocks::interactivelyIssueOrNull()
     def self.interactivelyIssueOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+        ordinal = NxBlocks::interactivelyDecideOrdinal()
         uuid  = SecureRandom.uuid
         item = {
             "uuid"        => uuid,
