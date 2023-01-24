@@ -623,7 +623,7 @@ class CatalystListing
         #   - Waves / ns:beach
         #   - NxBlock (6)
 
-        puts "#{" " * (CommonUtils::screenWidth()-70)}light speed: #{TheSpeedOfLight::getDaySpeedOfLight().round(3).to_s.green}, projected end: #{Time.at( Time.new.to_i + totalInSeconds ).to_s}"
+        puts "#{" " * (CommonUtils::screenWidth()-65)}light speed: #{TheSpeedOfLight::getDaySpeedOfLight().round(3).to_s.green}, projected end: #{Time.at( Time.new.to_i + totalInSeconds ).to_s}"
         vspaceleft = vspaceleft - 1
 
         strats = TxStratospheres::listingItems()
