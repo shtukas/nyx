@@ -183,6 +183,7 @@ require_relative "NxNetwork.rb"
 require_relative "NxNodes.rb"
 require_relative "NxWTimeCommitments.rb"
 require_relative "NxOTimeCommitments.rb"
+require_relative "NxProjects.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"

@@ -6,7 +6,7 @@ class CatalystListing
     def self.listingCommands()
         [
             "[listing interaction] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | >> skip default | destroy",
-            "[makers] wave | anniversary | today | ondate | todo | one time commitment | wave time commitment | manual countdown | top | strat",
+            "[makers] wave | anniversary | today | ondate | todo | one time commitment | wave time commitment | manual countdown | top | strat | project",
             "[nxballs] start (<n>) | stop <n> | pause <n> | pursue <n>",
             "[divings] anniversaries | ondates | waves | wave time commitments | todos",
             "[transmutations] >todo (ondates and triages)",
@@ -240,6 +240,13 @@ class CatalystListing
                 NxBalls::pause(nxball)
                 return
             end
+            return
+        end
+
+        if Interpreting::match("project", input) then
+            item = NxProjects::interactivelyIssueOrNull()
+            return if item.nil?
+            puts JSON.pretty_generate(item)
             return
         end
 
@@ -477,7 +484,9 @@ class CatalystListing
             TxManualCountDowns::listingItems(),
             Waves::listingItems("ns:time-important"),
             MiscTypesTimeCommitments::listingItems(),
-            Waves::listingItems("ns:beach")
+            NxProjects::listingItems(3),
+            Waves::listingItems("ns:beach"),
+            NxProjects::listingItems(6),
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -610,7 +619,9 @@ class CatalystListing
         #   - TxManualCountDown
         #   - Wave  / ns:time-important
         #   - MiscTypesTimeCommitment
+        #   - NxProject (3)
         #   - Waves / ns:beach
+        #   - NxProject (6)
 
         puts "#{" " * (CommonUtils::screenWidth()-40)}light speed: #{TheSpeedOfLight::getDaySpeedOfLight().to_s.green}"
         vspaceleft = vspaceleft - 1

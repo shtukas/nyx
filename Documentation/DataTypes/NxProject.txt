@@ -1,0 +1,10 @@
+
+NxProject:
+
+    "uuid"        : String
+    "mikuType"    : "NxProject"
+    "unixtime"    : Float
+    "description" : String
+    "tcId"        : String
+    "ordinal"     : Float
+
