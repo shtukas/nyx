@@ -179,7 +179,7 @@ require_relative "NxBalls.rb"
 require_relative "NxNetwork.rb"
 require_relative "NxNodes.rb"
 require_relative "NxTimeFibers.rb"
-require_relative "NxTimeLoads.rb"
+require_relative "NxTimeDrops.rb"
 require_relative "NxBlocks.rb"
 
 require_relative "PrimitiveFiles.rb"
@@ -260,13 +260,13 @@ if $RunNonEssentialThreads then
             }
 
             NxTimeFibers::runningItems().each{|item|
-                if NxWTCTodayTimeLoads::itemLiveTimeThatShouldBeDoneTodayInHours(item) == 0 then
+                if NxTimeFibers::liveNumbers(item)["pendingTimeTodayInHoursLive"] == 0 then
                     CommonUtils::onScreenNotification("catalyst", "wtc is overflowing")
                 end
             }
 
-            NxTimeLoads::runningItems().each{|item|
-                if NxTimeLoads::itemLiveTimeThatShouldBeDoneTodayInHours(item) == 0 then
+            NxTimeDrops::runningItems().each{|item|
+                if NxTimeDrops::liveNumbers(item)["pendingTimeTodayInHoursLive"] == 0 then
                     CommonUtils::onScreenNotification("catalyst", "otc is overflowing")
                 end
             }

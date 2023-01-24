@@ -1,7 +1,7 @@
 
-NxTimeLoad
+NxTimeDrop
     "uuid"        : String
-    "mikuType"    : "NxTimeLoad"
+    "mikuType"    : "NxTimeDrop"
     "unixtime"    : Unixtime
     "description" : String
     "hours"       : Float

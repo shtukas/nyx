@@ -65,7 +65,7 @@ class NxTimeFibers
 
     # NxTimeFibers::toString(item)
     def self.toString(item)
-        "(wtc) #{item["description"]}"
+        "(fiber) #{item["description"]}"
     end
 
     # NxTimeFibers::toStringWithDetails(item, shouldFormat)
@@ -77,18 +77,18 @@ class NxTimeFibers
                 0
             end
 
-        pending = NxWTCTodayTimeLoads::itemLiveTimeThatShouldBeDoneTodayInHours(item).to_f/3600
+        pending = NxTimeFibers::liveNumbers(item)["pendingTimeTodayInHoursLive"].to_f/3600
 
         datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
         dnsustr  = datetimeOpt ? ", (do not show until: #{datetimeOpt})" : ""
 
-        "(wtc) (pending: #{"%5.2f" % pending}) #{item["description"].ljust(descriptionPadding)} (#{Ax39::toStringFormatted(item["ax39"])})#{dnsustr}"
+        "(fiber) (pending: #{"%5.2f" % pending}) #{item["description"].ljust(descriptionPadding)} (#{Ax39::toStringFormatted(item["ax39"])})#{dnsustr}"
     end
 
     # NxTimeFibers::runningItems()
     def self.runningItems()
         NxTimeFibers::items()
-            .select{|wtc| NxBalls::getNxBallForItemOrNull(wtc) }
+            .select{|fiber| NxBalls::getNxBallForItemOrNull(fiber) }
     end
 
     # NxTimeFibers::firstNxTodoItemsForNxTimeFiber(tcId)
@@ -139,34 +139,29 @@ class NxTimeFibers
         ([0] + NxTodos::itemsForNxTimeFiber(tcId).map{|todo| todo["tcPos"] }).max + 1
     end
 
-    # NxTimeFibers::liveNumbers(wtc)
-    def self.liveNumbers(wtc)
-        Ax39::standardAx39CarrierLiveNumbers(wtc)
-    end
+    # NxTimeFibers::itemWithToAllAssociatedListingItems(fiber)
+    def self.itemWithToAllAssociatedListingItems(fiber)
 
-    # NxTimeFibers::itemWithToAllAssociatedListingItems(wtc)
-    def self.itemWithToAllAssociatedListingItems(wtc)
-
-        makeVx01 = lambda {|wtc|
+        makeVx01 = lambda {|fiber|
             uuid = Digest::SHA1.hexdigest("0BCED4BA-4FCC-405A-8B06-EB5359CBFC75")
             {
                 "uuid"        => uuid,
                 "mikuType"    => "Vx01",
                 "unixtime"    => Time.new.to_f,
-                "description" => "Main focus for wtc '#{NxTimeFibers::toString(wtc)}'",
-                "tcId"        => wtc["uuid"]
+                "description" => "Main focus for fiber '#{NxTimeFibers::toString(fiber)}'",
+                "tcId"        => fiber["uuid"]
             }
         }
 
-        items = NxTimeFibers::firstNxTodoItemsForNxTimeFiber(wtc["uuid"])
+        items = NxTimeFibers::firstNxTodoItemsForNxTimeFiber(fiber["uuid"])
 
-        if wtc["isWork"] then
-            [makeVx01.call(wtc)] + items
+        if fiber["isWork"] then
+            [makeVx01.call(fiber)] + items
         else
             if items.size > 0 then
                 items
             else
-                [wtc]
+                [fiber]
             end
         end
     end
@@ -176,8 +171,8 @@ class NxTimeFibers
         NxTimeFibers::items()
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-            .select{|item| NxBalls::itemIsRunning(item) or NxWTCTodayTimeLoads::itemLiveTimeThatShouldBeDoneTodayInHours(item) > 0 }
-            .sort{|i1, i2| NxWTCTodayTimeLoads::itemLiveTimeThatShouldBeDoneTodayInHours(i1) <=>  NxWTCTodayTimeLoads::itemLiveTimeThatShouldBeDoneTodayInHours(i2) }
+            .select{|item| NxBalls::itemIsRunning(item) or NxTimeFibers::liveNumbers(item)["pendingTimeTodayInHoursLive"] > 0 }
+            .sort{|i1, i2| NxTimeFibers::liveNumbers(i1)["pendingTimeTodayInHoursLive"] <=>  NxTimeFibers::liveNumbers(i2)["pendingTimeTodayInHoursLive"] }
     end
 
     # NxTimeFibers::listingElements()
@@ -187,25 +182,54 @@ class NxTimeFibers
             .flatten
     end
 
+    # NxTimeFibers::liveNumbers(item)
+    def self.liveNumbers(item)
+        numbersFromDayTimeLoadsOrNull = lambda {|item|
+            filepath = "#{Config::pathToDataCenter()}/NxTimeFiber-DayTimeLoads/#{item["uuid"]}.json"
+            return nil if !File.exists?(filepath)
+            data = JSON.parse(IO.read(filepath))
+            if data["date"] != CommonUtils::today() then
+                FileUtils.rm(filepath)
+                return nil 
+            end
+            hours = data["hours"]
+            timeDoneInSeconds = Bank::valueAtDate(item["uuid"], CommonUtils::today(), NxBalls::itemUnrealisedRunTimeInSecondsOrNull(item))
+            pendingInHours = [hours - timeDoneInSeconds.to_f/3600, 0].max
+            {
+                "pendingTimeTodayInHoursLive" => pendingInHours,
+            }
+        }
+        numbers = numbersFromDayTimeLoadsOrNull.call(item)
+        return numbers if numbers
+        Ax39::standardAx39CarrierLiveNumbers(item)
+    end
+
+    # NxTimeFibers::allPendingTimeTodayInHoursLive()
+    def self.allPendingTimeTodayInHoursLive()
+        NxTimeFibers::items()
+            .map{|item| NxTimeFibers::liveNumbers(item)["pendingTimeTodayInHoursLive"] }
+            .inject(0, :+)
+    end
+
     # --------------------------------------------
     # Ops
 
     # NxTimeFibers::interactivelySelectItemOrNull()
     def self.interactivelySelectItemOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("wtc", NxTimeFibers::items(), lambda{|wtc| NxTimeFibers::toStringWithDetails(wtc, true)})
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("fiber", NxTimeFibers::items(), lambda{|fiber| NxTimeFibers::toStringWithDetails(fiber, true)})
     end
 
     # NxTimeFibers::interactivelySelectItem()
     def self.interactivelySelectItem()
         loop {
-            wtc = NxTimeFibers::interactivelySelectItemOrNull()
-            return wtc if wtc
+            fiber = NxTimeFibers::interactivelySelectItemOrNull()
+            return fiber if fiber
         }
     end
 
-    # NxTimeFibers::presentProjectItems(wtc)
-    def self.presentProjectItems(wtc)
-        items = NxTodos::itemsForNxTimeFiber(wtc["uuid"])
+    # NxTimeFibers::presentProjectItems(fiber)
+    def self.presentProjectItems(fiber)
+        items = NxTodos::itemsForNxTimeFiber(fiber["uuid"])
         loop {
             system("clear")
             # We do not recompute all the items but we recall the ones we had to get the new 
@@ -240,53 +264,53 @@ class NxTimeFibers
         }
     end
 
-    # NxTimeFibers::probe(wtc)
-    def self.probe(wtc)
+    # NxTimeFibers::probe(fiber)
+    def self.probe(fiber)
         loop {
-            puts NxTimeFibers::toStringWithDetails(wtc, false)
-            puts "data: #{Ax39::standardAx39CarrierLiveNumbers(wtc)}"
+            puts NxTimeFibers::toStringWithDetails(fiber, false)
+            puts "data: #{Ax39::standardAx39CarrierLiveNumbers(fiber)}"
             actions = ["start", "add time", "do not show until", "set override day load", "fill for holiday", "set Ax39", "expose", "items dive", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "start" then
-                PolyActions::start(wtc)
+                PolyActions::start(fiber)
                 return
             end
             if action == "add time" then
                 timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
-                puts "adding #{timeInHours} hours to '#{NxTimeFibers::toString(wtc)}'"
-                Bank::put(wtc["uuid"], timeInHours*3600)
+                puts "adding #{timeInHours} hours to '#{NxTimeFibers::toString(fiber)}'"
+                Bank::put(fiber["uuid"], timeInHours*3600)
             end
             if action == "do not show until" then
                 unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
                 next if unixtime.nil?
-                DoNotShowUntil::setUnixtime(wtc["uuid"], unixtime)
+                DoNotShowUntil::setUnixtime(fiber["uuid"], unixtime)
             end
             if action == "set override day load" then
                 timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
-                NxWTCTodayTimeLoads::commitTodayManuallySubmittedTimeProvision(wtc, timeInHours)
+                NxTimeFibers::commitTodayTimeLoadOverride(fiber, timeInHours)
             end
             if action == "fill for holiday" then
-                numbers = NxTimeFibers::liveNumbers(wtc)
-                timeInHours = numbers["timeThatShouldBeDoneTodayInHours"]
-                puts "adding #{timeInHours} hours to '#{NxTimeFibers::toString(wtc)}'"
-                Bank::put(wtc["uuid"], timeInHours*3600)
+                numbers = NxTimeFibers::liveNumbers(fiber)
+                timeInHours = numbers["pendingTimeTodayInHoursLive"]
+                puts "adding #{timeInHours} hours to '#{NxTimeFibers::toString(fiber)}'"
+                Bank::put(fiber["uuid"], timeInHours*3600)
             end
             if action == "set Ax39" then
-                wtc["ax39"] = Ax39::interactivelyCreateNewAx()
-                FileSystemCheck::fsck_NxTimeFiber(wtc, true)
-                NxTimeFibers::commit(wtc)
+                fiber["ax39"] = Ax39::interactivelyCreateNewAx()
+                FileSystemCheck::fsck_NxTimeFiber(fiber, true)
+                NxTimeFibers::commit(fiber)
             end
             if action == "expose" then
-                puts JSON.pretty_generate(wtc)
+                puts JSON.pretty_generate(fiber)
                 LucilleCore::pressEnterToContinue()
             end
             if action == "items dive" then
-                NxTimeFibers::presentProjectItems(wtc)
+                NxTimeFibers::presentProjectItems(fiber)
             end
             if action == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTimeFiber '#{NxTimeFibers::toString(wtc)}' ? ") then
-                    filepath = "#{Config::pathToDataCenter()}/NxTimeFiber/#{wtc["uuid"]}.json"
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTimeFiber '#{NxTimeFibers::toString(fiber)}' ? ") then
+                    filepath = "#{Config::pathToDataCenter()}/NxTimeFiber/#{fiber["uuid"]}.json"
                     FileUtils.rm(filepath)
                     return
                 end
@@ -298,9 +322,9 @@ class NxTimeFibers
     def self.mainprobe()
         loop {
             system("clear")
-            wtc = NxTimeFibers::interactivelySelectItemOrNull()
-            return if wtc.nil?
-            NxTimeFibers::probe(wtc)
+            fiber = NxTimeFibers::interactivelySelectItemOrNull()
+            return if fiber.nil?
+            NxTimeFibers::probe(fiber)
         }
     end
 
@@ -319,50 +343,15 @@ class NxTimeFibers
             NxTimeFibers::nextPositionForItem(tcId)
         end
     end
-end
 
-class NxWTCTodayTimeLoads
-
-    # NxWTCTodayTimeLoads::commitTodayManuallySubmittedTimeProvision(wtc, hours)
-    def self.commitTodayManuallySubmittedTimeProvision(wtc, hours)
+    # NxTimeFibers::commitTodayTimeLoadOverride(fiber, hours)
+    def self.commitTodayTimeLoadOverride(fiber, hours)
         data = {
             "date"  => CommonUtils::today(),
             "hours" => timeInHours
         }
         puts JSON.pretty_generate(data)
-        filepath = "#{Config::pathToDataCenter()}/NxTimeFiber-DayTimeLoads/#{wtc["uuid"]}.json"
+        filepath = "#{Config::pathToDataCenter()}/NxTimeFiber-DayTimeLoads/#{fiber["uuid"]}.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(data)) }
-    end
-
-    # NxWTCTodayTimeLoads::itemLiveNumbersUsingManuallySubmittedTimeProvisionIfExistsOrNull(wtc)
-    def self.itemLiveNumbersUsingManuallySubmittedTimeProvisionIfExistsOrNull(wtc)
-        filepath = "#{Config::pathToDataCenter()}/NxTimeFiber-DayTimeLoads/#{wtc["uuid"]}.json"
-        return nil if !File.exists?(filepath)
-        data = JSON.parse(IO.read(filepath))
-        return nil if data["date"] != CommonUtils::today()
-        hours = data["hours"]
-        timeDoneInSeconds = Bank::valueAtDate(wtc["uuid"], CommonUtils::today(), NxBalls::itemUnrealisedRunTimeInSecondsOrNull(wtc))
-        pendingInHours = [hours - timeDoneInSeconds.to_f/3600, 0].max
-        {
-            "timeThatShouldBeDoneTodayInHours" => pendingInHours,
-        }
-    end
-
-    # NxWTCTodayTimeLoads::itemLiveTimeThatShouldBeDoneTodayInHours(item)
-    def self.itemLiveTimeThatShouldBeDoneTodayInHours(item)
-
-        # This doesn't take speed of light account, is live
-        numbers = NxWTCTodayTimeLoads::itemLiveNumbersUsingManuallySubmittedTimeProvisionIfExistsOrNull(item)
-        return numbers["timeThatShouldBeDoneTodayInHours"]*3600 if numbers
-
-        # This does use speed of light, is live
-        TheSpeedOfLight::getDaySpeedOfLight()*NxTimeFibers::liveNumbers(item)["timeThatShouldBeDoneTodayInHours"]*3600
-    end
-
-    # NxWTCTodayTimeLoads::typeLiveTimeThatShouldBeDoneTodayInHours()
-    def self.typeLiveTimeThatShouldBeDoneTodayInHours()
-        NxTimeFibers::items()
-            .map{|item| NxWTCTodayTimeLoads::itemLiveTimeThatShouldBeDoneTodayInHours(item) }
-            .inject(0, :+)
     end
 end

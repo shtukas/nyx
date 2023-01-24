@@ -85,14 +85,18 @@ class Ax39
     # Ax39::liveNumbers(uuid, ax39, hasNxBall, unrealisedTimespan = nil)
     def self.liveNumbers(uuid, ax39, hasNxBall, unrealisedTimespan = nil)
 
-        # return {timeThatShouldBeDoneTodayInHours}
+        # This is the only place where the speed of light is used in a computation
+        # We override the hours of the Ax39
+        ax39["hours"] = ax39["hours"] * TheSpeedOfLight::getDaySpeedOfLight()
+
+        # return {pendingTimeTodayInHoursLive}
 
         if ax39["type"] == "daily-provision-fillable" then
             doneTodayInSeconds = Bank::valueAtDate(uuid, CommonUtils::today(), unrealisedTimespan)
             requiredTodayInSeconds = ax39["hours"]*3600
-            timeThatShouldBeDoneTodayInHours = [requiredTodayInSeconds - doneTodayInSeconds, 0].max.to_f/3600
+            pendingTimeTodayInHoursLive = [requiredTodayInSeconds - doneTodayInSeconds, 0].max.to_f/3600
             return {
-                "timeThatShouldBeDoneTodayInHours"  => timeThatShouldBeDoneTodayInHours
+                "pendingTimeTodayInHoursLive"  => pendingTimeTodayInHoursLive
             }
         end
 
@@ -117,11 +121,11 @@ class Ax39
         pendingTimeTodayInSeconds               = [timeWeShouldDoTodayInSeconds - timeWeDidTodayInSeconds, 0].max
 
         {
-            "timeThatShouldBeDoneTodayInHours" => pendingTimeTodayInSeconds.to_f/3600,
+            "pendingTimeTodayInHoursLive" => pendingTimeTodayInSeconds.to_f/3600,
         }
     end
 
-    # Ax39::standardAx39CarrierLiveNumbers(item) # {timeThatShouldBeDoneTodayInHours}
+    # Ax39::standardAx39CarrierLiveNumbers(item) # {pendingTimeTodayInHoursLive}
     def self.standardAx39CarrierLiveNumbers(item)
         uuid = item["uuid"]
         ax39 = item["ax39"]

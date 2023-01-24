@@ -20,7 +20,7 @@ class PolyFunctions
             }
         end
 
-        if item["mikuType"] == "NxTimeLoad" then
+        if item["mikuType"] == "NxTimeDrop" then
             tcId = item["tcId"]
             wtc = NxTimeFibers::getOrNull(tcId)
             accounts << {
@@ -190,7 +190,7 @@ class PolyFunctions
         if item["mikuType"] == "NxIced" then
             return item["description"]
         end
-        if item["mikuType"] == "NxTimeLoad" then
+        if item["mikuType"] == "NxTimeDrop" then
             return item["description"]
         end
         if item["mikuType"] == "NxTimeFiber" then
@@ -246,8 +246,8 @@ class PolyFunctions
         if item["mikuType"] == "NxOndate" then
             return NxOndates::toString(item)
         end
-        if item["mikuType"] == "NxTimeLoad" then
-            return NxTimeLoads::toString(item)
+        if item["mikuType"] == "NxTimeDrop" then
+            return NxTimeDrops::toString(item)
         end
         if item["mikuType"] == "NxBlock" then
             return NxBlocks::toString(item)

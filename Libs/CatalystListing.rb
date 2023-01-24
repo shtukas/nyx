@@ -202,7 +202,7 @@ class CatalystListing
         end
 
         if Interpreting::match("one time commitment", input) then
-            NxTimeLoads::interactivelyIssueNewOrNull()
+            NxTimeDrops::interactivelyIssueNewOrNull()
             return
         end
 
@@ -395,8 +395,8 @@ class CatalystListing
                 "lambda" => lambda { NxTriages::items() }
             },
             {
-                "name" => "NxTimeLoads::listingItems()",
-                "lambda" => lambda { NxTimeLoads::listingItems() }
+                "name" => "NxTimeDrops::listingItems()",
+                "lambda" => lambda { NxTimeDrops::listingItems() }
             },
             {
                 "name" => "source code trace generation",
@@ -476,7 +476,7 @@ class CatalystListing
             Waves::listingItems("ns:mandatory-today"),
             NxOndates::listingItems(),
             TxManualCountDowns::listingItems(),
-            NxTimeLoads::items(),
+            NxTimeDrops::items(),
             NxTimeFibers::listingElements(),
             Waves::listingItems("ns:time-important"),
             NxBlocks::listingItems(3),
@@ -517,8 +517,8 @@ class CatalystListing
 
     # CatalystListing::livePendingTimeTodayInHours()
     def self.livePendingTimeTodayInHours()
-        todayMissingInHours1 = NxWTCTodayTimeLoads::typeLiveTimeThatShouldBeDoneTodayInHours().to_f/3600
-        hours2 = NxTimeLoads::typeLiveTimeThatShouldBeDoneTodayInHours().to_f/3600
+        todayMissingInHours1 = NxTimeFibers::allPendingTimeTodayInHoursLive().to_f/3600
+        hours2 = NxTimeDrops::allPendingTimeTodayInHoursLive().to_f/3600
         todayMissingInHours1 + hours2
     end
 
@@ -529,7 +529,7 @@ class CatalystListing
 
         tcsPendingTimeInSeconds = CatalystListing::livePendingTimeTodayInHours()*3600
         timeEstimationOthersInSeconds = listingItems
-            .select{|item| ["NxTimeLoad", "NxTimeFiber", "NxTodo"].include?(item["mikuType"]) } # tcsPendingTimeInSeconds include "NxTimeLoad" and "NxTimeFiber". "NxTodo" is in the shaddow of "NxTimeFiber"
+            .select{|item| ["NxTimeDrop", "NxTimeFiber", "NxTodo"].include?(item["mikuType"]) } # tcsPendingTimeInSeconds include "NxTimeDrop" and "NxTimeFiber". "NxTodo" is in the shaddow of "NxTimeFiber"
             .map{|item| BankEstimations::itemsEstimationInSeconds(item) }
             .inject(0, :+)
         totalInSeconds = tcsPendingTimeInSeconds + timeEstimationOthersInSeconds
@@ -618,7 +618,7 @@ class CatalystListing
         #   - Wave  / ns:mandatory-today
         #   - NxOndate
         #   - TxManualCountDown
-        #   - NxTimeLoads
+        #   - NxTimeDrops
         #   - Wave  / ns:time-important
         #   - MiscTypesTimeCommitment
         #   - NxBlock (3)
@@ -726,7 +726,7 @@ class CatalystListing
 
             tcsPendingTimeInSeconds = CatalystListing::livePendingTimeTodayInHours()*3600
             timeEstimationOthersInSeconds = listingItems
-                .select{|item| ["NxTimeLoad", "NxTimeFiber", "NxTodo"].include?(item["mikuType"]) } # tcsPendingTimeInSeconds include "NxTimeLoad" and "NxTimeFiber". "NxTodo" is in the shaddow of "NxTimeFiber"
+                .select{|item| ["NxTimeDrop", "NxTimeFiber", "NxTodo"].include?(item["mikuType"]) } # tcsPendingTimeInSeconds include "NxTimeDrop" and "NxTimeFiber". "NxTodo" is in the shaddow of "NxTimeFiber"
                 .map{|item| BankEstimations::itemsEstimationInSeconds(item) }
                 .inject(0, :+)
             totalInSeconds = tcsPendingTimeInSeconds + timeEstimationOthersInSeconds
