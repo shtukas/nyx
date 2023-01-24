@@ -172,7 +172,7 @@ require_relative "LambdX1s.rb"
 
 require_relative "MiscTypesTimeCommitments.rb"
 
-require_relative "NsTopLines.rb"
+require_relative "NxTops.rb"
 require_relative "Nyx.rb"
 require_relative "Nx113.rb"
 require_relative "NxTodos.rb"

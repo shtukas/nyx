@@ -11,7 +11,7 @@ class PolyFunctions
             "number"      => item["uuid"]
         }
 
-        if item["mikuType"] == "NsTopLine" then
+        if item["mikuType"] == "NxTop" then
             tcId = item["tcId"]
             wtc = NxWTimeCommitments::getOrNull(tcId)
             accounts << {
@@ -181,7 +181,7 @@ class PolyFunctions
         if item["mikuType"] == "InboxItem" then
             return item["description"]
         end
-        if item["mikuType"] == "NsTopLine" then
+        if item["mikuType"] == "NxTop" then
             return item["line"]
         end
         if item["mikuType"] == "NxAnniversary" then

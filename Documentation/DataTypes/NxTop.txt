@@ -1,6 +1,6 @@
-NsTopLine
+NxTop
     "uuid"     : String
-    "mikuType" : "NsTopLine"
+    "mikuType" : "NxTop"
     "unixtime" : Float
     "line"     : String
     "tcId"     : null or String # There is an attempt to set it when the item is started

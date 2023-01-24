@@ -116,8 +116,8 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NsTopLine" then
-            NsTopLines::destroy(item["uuid"])
+        if item["mikuType"] == "NxTop" then
+            NxTops::destroy(item["uuid"])
             return
         end
 
@@ -414,7 +414,7 @@ class PolyActions
 
     # PolyActions::start(item) # null or NxBall
     def self.start(item)
-        if item["mikuType"] == "NsTopLine" then
+        if item["mikuType"] == "NxTop" then
             if item["tcId"].nil? then
                 wtc = NxWTimeCommitments::interactivelySelectItemOrNull()
                 if wtc then

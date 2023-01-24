@@ -1,34 +1,34 @@
 
-class NsTopLines
+class NxTops
 
-    # NsTopLines::filepath(uuid)
+    # NxTops::filepath(uuid)
     def self.filepath(uuid)
-        "#{Config::pathToDataCenter()}/NsTopLine/#{uuid}.json"
+        "#{Config::pathToDataCenter()}/NxTop/#{uuid}.json"
     end
 
-    # NsTopLines::items()
+    # NxTops::items()
     def self.items()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NsTopLine")
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTop")
             .select{|filepath| filepath[-5, 5] == ".json" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
 
-    # NsTopLines::commit(item)
+    # NxTops::commit(item)
     def self.commit(item)
-        filepath = NsTopLines::filepath(item["uuid"])
+        filepath = NxTops::filepath(item["uuid"])
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
-    # NsTopLines::getOrNull(uuid)
+    # NxTops::getOrNull(uuid)
     def self.getOrNull(uuid)
-        filepath = NsTopLines::filepath(uuid)
+        filepath = NxTops::filepath(uuid)
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
-    # NsTopLines::destroy(uuid)
+    # NxTops::destroy(uuid)
     def self.destroy(uuid)
-        filepath = NsTopLines::filepath(uuid)
+        filepath = NxTops::filepath(uuid)
         if File.exists?(filepath) then
             FileUtils.rm(filepath)
         end
@@ -37,24 +37,24 @@ class NsTopLines
     # --------------------------------------------------
     # Makers
 
-    # NsTopLines::interactivelyIssueNewOrNull()
+    # NxTops::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
         line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
         return nil if line == ""
         uuid  = SecureRandom.uuid
         item = {
             "uuid"      => uuid,
-            "mikuType"  => "NsTopLine",
+            "mikuType"  => "NxTop",
             "unixtime"  => Time.new.to_i,
             "line"      => line
         }
-        NsTopLines::commit(item)
+        NxTops::commit(item)
         item
     end
     
-    # NsTopLines::listingItems()
+    # NxTops::listingItems()
     def self.listingItems()
-        NsTopLines::items()
+        NxTops::items()
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 end

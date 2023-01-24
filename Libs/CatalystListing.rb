@@ -348,7 +348,7 @@ class CatalystListing
         end
 
         if Interpreting::match("top", input) then
-            item = NsTopLines::interactivelyIssueNewOrNull()
+            item = NxTops::interactivelyIssueNewOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
             return
@@ -648,7 +648,7 @@ class CatalystListing
             }
         }
 
-        tops = NsTopLines::listingItems()
+        tops = NxTops::listingItems()
 
         nxballs = NxBalls::items()
                     .select{|nxball| !CatalystListing::nxballHasAnItemInThere(nxball, listingItems + tops) }
@@ -662,7 +662,7 @@ class CatalystListing
                 }
         end
 
-        tops = NsTopLines::listingItems()
+        tops = NxTops::listingItems()
         if tops.size > 0 then
             tops.each{|item|
                 store.register(item, !Skips::isSkipped(item["uuid"]))
