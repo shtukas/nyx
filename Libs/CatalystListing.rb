@@ -197,7 +197,7 @@ class CatalystListing
         end
 
         if Interpreting::match("ondates", input) then
-            NxOndates::dive()
+            NxOndates::report()
             return
         end
 

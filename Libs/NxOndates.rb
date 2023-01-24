@@ -160,4 +160,14 @@ class NxOndates
             end
         }
     end
+
+    # NxOndates::report()
+    def self.report()
+        system("clear")
+        puts "ondates:"
+        NxOndates::items()
+            .sort{|i1, i2| i1["datetime"] <=> i2["datetime"]}
+            .each{|item| puts NxOndates::toString(item) }
+        LucilleCore::pressEnterToContinue()
+    end
 end
