@@ -159,7 +159,6 @@ require_relative "DatablobStore.rb"
 require_relative "Locks.rb"
 
 require_relative "Galaxy.rb"
-require_relative "GeneralTimeManagement.rb"
 
 require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"

@@ -97,3 +97,12 @@ class BankExtended
         (BankExtended::bestTimeRatioWithinDayCount(setuuid, 7, unrealisedTimespan)*86400).to_f/3600
     end
 end
+
+class BankEstimations
+
+    # BankEstimations::itemsEstimationInSeconds(item)
+    def self.itemsEstimationInSeconds(item)
+        numbers = (-6..-1).map{|i| Bank::valueAtDate(item["uuid"], CommonUtils::nDaysInTheFuture(i), nil)}
+        numbers.sum.to_f/6
+    end
+end

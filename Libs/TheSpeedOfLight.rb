@@ -45,4 +45,17 @@ class TheSpeedOfLight
         }
         TheSpeedOfLight::putData(data)
     end
+
+
+    # TheSpeedOfLight::performAdjustements(pendingTimeTodayInSeconds)
+    def self.manageSpeedOfLight(pendingTimeTodayInSeconds)
+        unixtime = CommonUtils::unixtimeAtComingMidnightAtGivenTimeZone(CommonUtils::getLocalTimeZone())
+        timeToMidnight = unixtime - Time.new.to_i
+        if pendingTimeTodayInSeconds > (timeToMidnight-3600*1) then
+            TheSpeedOfLight::decrementLightSpeed()
+        end
+        if pendingTimeTodayInSeconds < (timeToMidnight-3600*2) then
+            TheSpeedOfLight::incrementLightSpeed()
+        end
+    end
 end

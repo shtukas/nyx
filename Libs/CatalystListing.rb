@@ -522,11 +522,11 @@ class CatalystListing
         tcsPendingTimeInSeconds = MiscTypesTimeCommitments::livePendingTimeTodayInHours()*3600
         timeEstimationOthersInSeconds = listingItems
             .select{|item| ["NxOTimeCommitment", "NxWTimeCommitment", "NxTodo"].include?(item["mikuType"]) } # tcsPendingTimeInSeconds include "NxOTimeCommitment" and "NxWTimeCommitment". "NxTodo" is in the shaddow of "NxWTimeCommitment"
-            .map{|item| GeneralTimeManagement::bankTimeEstimationInSeconds(item) }
+            .map{|item| BankEstimations::itemsEstimationInSeconds(item) }
             .inject(0, :+)
         totalInSeconds = tcsPendingTimeInSeconds + timeEstimationOthersInSeconds
 
-        GeneralTimeManagement::manageSpeedOfLight(totalInSeconds)
+        TheSpeedOfLight::performAdjustements(totalInSeconds)
 
         timeparameters = [
             "> time commitment pending : #{(tcsPendingTimeInSeconds.to_f/3600).round(2)} hours, light speed: #{TheSpeedOfLight::getDaySpeedOfLight().to_s.green}",
@@ -718,11 +718,11 @@ class CatalystListing
             tcsPendingTimeInSeconds = MiscTypesTimeCommitments::livePendingTimeTodayInHours()*3600
             timeEstimationOthersInSeconds = listingItems
                 .select{|item| ["NxOTimeCommitment", "NxWTimeCommitment", "NxTodo"].include?(item["mikuType"]) } # tcsPendingTimeInSeconds include "NxOTimeCommitment" and "NxWTimeCommitment". "NxTodo" is in the shaddow of "NxWTimeCommitment"
-                .map{|item| GeneralTimeManagement::bankTimeEstimationInSeconds(item) }
+                .map{|item| BankEstimations::itemsEstimationInSeconds(item) }
                 .inject(0, :+)
             totalInSeconds = tcsPendingTimeInSeconds + timeEstimationOthersInSeconds
 
-            GeneralTimeManagement::manageSpeedOfLight(totalInSeconds)
+            TheSpeedOfLight::performAdjustements(totalInSeconds)
 
             CatalystListing::doDisplayListing2Pure(listingItems)
         }
