@@ -200,6 +200,7 @@ require_relative "TxManualCountDowns.rb"
 require_relative "The99Percent.rb"
 require_relative "TxStratospheres.rb"
 require_relative "TheSpeedOfLight.rb"
+require_relative "Transmutations.rb"
 
 require_relative "Waves.rb"
 
