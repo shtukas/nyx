@@ -11,6 +11,15 @@ class PolyFunctions
             "number"      => item["uuid"]
         }
 
+        if item["mikuType"] == "NsTopLine" then
+            tcId = item["tcId"]
+            wtc = NxWTimeCommitments::getOrNull(tcId)
+            accounts << {
+                "description" => PolyFunctions::genericDescription(wtc),
+                "number"      => wtc["uuid"]
+            }
+        end
+
         if item["mikuType"] == "NxOTimeCommitment" then
             tcId = item["tcId"]
             wtc = NxWTimeCommitments::getOrNull(tcId)

@@ -414,6 +414,15 @@ class PolyActions
 
     # PolyActions::start(item) # null or NxBall
     def self.start(item)
+        if item["mikuType"] == "NsTopLine" then
+            if item["tcId"].nil? then
+                wtc = NxWTimeCommitments::interactivelySelectItemOrNull()
+                if wtc then
+                    item["tcId"] = wtc["uuid"]
+                    TxStratospheres::commit(item)
+                end
+            end
+        end
         if item["mikuType"] == "TxStratosphere" then
             if item["tcId"].nil? then
                 wtc = NxWTimeCommitments::interactivelySelectItemOrNull()

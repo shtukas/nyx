@@ -5,4 +5,4 @@ TxStratosphere:
     "unixtime"    : Float
     "description" : String
     "ordinal"     : Float
-    "tcIds"       : null or String
+    "tcIds"       : null or String # There is an attempt to set it when the item is started
