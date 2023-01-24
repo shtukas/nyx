@@ -19,12 +19,14 @@ class InternetStatus
 
     # InternetStatus::markIdAsRequiringInternet(id)
     def self.markIdAsRequiringInternet(id)
-        XCache::set("29f7d6a5-91ed-4623-9f52-543684881f33:#{id}", "require")
+        filepath = "#{Config::pathToDataCenter()}/RequireInternet/#{id}"
+        FileUtils.touch(filepath)
     end
 
     # InternetStatus::trueIfElementRequiresInternet(id)
     def self.trueIfElementRequiresInternet(id)
-        XCache::getOrNull("29f7d6a5-91ed-4623-9f52-543684881f33:#{id}") == "require"
+        filepath = "#{Config::pathToDataCenter()}/RequireInternet/#{id}"
+        File.exists?(filepath)
     end
 
     # InternetStatus::itemShouldShow(id)
