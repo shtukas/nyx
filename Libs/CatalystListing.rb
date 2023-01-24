@@ -605,7 +605,7 @@ class CatalystListing
         vspaceleft = CommonUtils::screenHeight() - 5
 
         puts ""
-        puts "strat | lock | top | fiber/todo | timedrop | wave | block"
+        puts "> strat | lock | top | ondate | fiber/todo | timedrop | wave | block".yellow
         puts "#{" " * (CommonUtils::screenWidth()-65)}light speed: #{TheSpeedOfLight::getDaySpeedOfLight().round(3).to_s.green}, projected end: #{Time.at( Time.new.to_i + totalInSeconds ).to_s}"
         vspaceleft = vspaceleft - 1
 
