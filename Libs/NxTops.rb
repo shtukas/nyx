@@ -52,7 +52,15 @@ class NxTops
         NxTops::commit(item)
         item
     end
-    
+
+    # --------------------------------------------------
+    # Data
+
+    # NxTops::toString(item)
+    def self.toString(item)
+        "(top) #{item["description"]}"
+    end
+
     # NxTops::listingItems()
     def self.listingItems()
         NxTops::items()

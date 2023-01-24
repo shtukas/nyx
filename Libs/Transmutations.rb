@@ -17,6 +17,16 @@ class Transmutations
             return
         end
 
+        if sourceType == "NxTop" and targetType == "NxOndate" then
+            uuid1 = item["uuid"]
+            item["uuid"] = SecureRandom.uuid
+            item["mikuType"] = "NxTodo"
+            item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
+            NxTodosIO::commit(item)
+            NxOndates::destroy(uuid1)
+            return
+        end
+
         if sourceType == "NxTop" and targetType == "NxTodo" then
             uuid1 = item["uuid"]
             puts "description: #{item["description"].green}"
@@ -70,7 +80,7 @@ class Transmutations
             return LucilleCore::selectEntityFromListOfEntitiesOrNull("targetType", targetTypes)
         end
         if item["mikuType"] == "NxTop" then
-            targetTypes = ["NxTodo"]
+            targetTypes = ["NxTodo", "NxOndate"]
             return LucilleCore::selectEntityFromListOfEntitiesOrNull("targetType", targetTypes)
         end
         nil

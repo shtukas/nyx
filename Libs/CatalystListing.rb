@@ -9,7 +9,7 @@ class CatalystListing
             "[makers] wave | anniversary | today | ondate | todo | one time commitment | wave time commitment | manual countdown | top | strat | project",
             "[nxballs] start (<n>) | stop <n> | pause <n> | pursue <n>",
             "[divings] anniversaries | ondates | waves | wtcs | todos",
-            "[transmutations] transmute",
+            "[transmutations] '' (transmute)",
             "[misc] require internet | search | speed | commands | lock (<n>) | backend",
         ].join("\n")
     end
@@ -39,7 +39,7 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("transmute", input) then
+        if Interpreting::match("''", input) then
             item = store.getDefault()
             return if item.nil?
             puts JSON.pretty_generate(item)
@@ -659,7 +659,7 @@ class CatalystListing
         if tops.size > 0 then
             tops.each{|item|
                 store.register(item, !Skips::isSkipped(item["uuid"]))
-                line = "(#{store.prefixString()}) (top) #{item["description"]}"
+                line = "(#{store.prefixString()}) #{NxTops::toString(item)}"
                 nxball = NxBalls::getNxBallForItemOrNull(item)
                 if nxball then
                     line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green

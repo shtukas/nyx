@@ -116,11 +116,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxTop" then
-            NxTops::destroy(item["uuid"])
-            return
-        end
-
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::done(item["uuid"])
             return
@@ -173,6 +168,15 @@ class PolyActions
                     NxTodosIO::destroy(item["uuid"])
                 end
             end
+            return
+        end
+
+        if item["mikuType"] == "NxTop" then
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTop '#{NxTops::toString(item).green} ? '") then
+                NxBalls::closeNxBallForItemOrNothing(item)
+                NxTops::destroy(item["uuid"])
+            end
+            
             return
         end
 
