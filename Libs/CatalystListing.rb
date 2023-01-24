@@ -383,8 +383,8 @@ class CatalystListing
                 "lambda" => lambda { Anniversaries::listingItems() }
             },
             {
-                "name" => "MiscTypesTimeCommitments::listingItems()",
-                "lambda" => lambda { MiscTypesTimeCommitments::listingItems() }
+                "name" => "NxWTimeCommitments::listingElements()",
+                "lambda" => lambda { NxWTimeCommitments::listingElements() }
             },
             {
                 "name" => "NxOndates::listingItems()",
@@ -476,8 +476,9 @@ class CatalystListing
             Waves::listingItems("ns:mandatory-today"),
             NxOndates::listingItems(),
             TxManualCountDowns::listingItems(),
+            NxOTimeCommitments::items(),
+            NxWTimeCommitments::listingElements(),
             Waves::listingItems("ns:time-important"),
-            MiscTypesTimeCommitments::listingItems(),
             NxProjects::listingItems(3),
             Waves::listingItems("ns:beach"),
             NxProjects::listingItems(6),
@@ -514,12 +515,19 @@ class CatalystListing
         listingItems.any?{|item| item["uuid"] == itemuuid }
     end
 
+    # CatalystListing::livePendingTimeTodayInHours()
+    def self.livePendingTimeTodayInHours()
+        todayMissingInHours1 = NxWTCTodayTimeLoads::typeLiveTimeThatShouldBeDoneTodayInHours().to_f/3600
+        hours2 = NxOTimeCommitments::typeLiveTimeThatShouldBeDoneTodayInHours().to_f/3600
+        todayMissingInHours1 + hours2
+    end
+
     # CatalystListing::displayBackend()
     def self.displayBackend()
 
         listingItems = CatalystListing::listingItems()
 
-        tcsPendingTimeInSeconds = MiscTypesTimeCommitments::livePendingTimeTodayInHours()*3600
+        tcsPendingTimeInSeconds = CatalystListing::livePendingTimeTodayInHours()*3600
         timeEstimationOthersInSeconds = listingItems
             .select{|item| ["NxOTimeCommitment", "NxWTimeCommitment", "NxTodo"].include?(item["mikuType"]) } # tcsPendingTimeInSeconds include "NxOTimeCommitment" and "NxWTimeCommitment". "NxTodo" is in the shaddow of "NxWTimeCommitment"
             .map{|item| BankEstimations::itemsEstimationInSeconds(item) }
@@ -556,14 +564,14 @@ class CatalystListing
         vspaceleft = vspaceleft - timeparameters.size
 
         # TimeCommitment report
-        timecommitments = MiscTypesTimeCommitments::reportItemsX()
+        timecommitments = NxWTimeCommitments::itemsForListing()
         if timecommitments.size > 0 then
             puts ""
             puts "time commitments".green
             vspaceleft = vspaceleft - 1
             timecommitments.each{|item|
                 store.register(item, false)
-                line = "(#{store.prefixString()}) #{MiscTypesTimeCommitments::toString(item)}"
+                line = "(#{store.prefixString()}) #{NxWTimeCommitments::toStringWithDetails(item, true)}"
                 nxball = NxBalls::getNxBallForItemOrNull(item)
                 if nxball then
                     line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
@@ -610,6 +618,7 @@ class CatalystListing
         #   - Wave  / ns:mandatory-today
         #   - NxOndate
         #   - TxManualCountDown
+        #   - NxOTimeCommitments
         #   - Wave  / ns:time-important
         #   - MiscTypesTimeCommitment
         #   - NxProject (3)
@@ -715,7 +724,7 @@ class CatalystListing
 
             listingItems = CatalystListing::listingItems()
 
-            tcsPendingTimeInSeconds = MiscTypesTimeCommitments::livePendingTimeTodayInHours()*3600
+            tcsPendingTimeInSeconds = CatalystListing::livePendingTimeTodayInHours()*3600
             timeEstimationOthersInSeconds = listingItems
                 .select{|item| ["NxOTimeCommitment", "NxWTimeCommitment", "NxTodo"].include?(item["mikuType"]) } # tcsPendingTimeInSeconds include "NxOTimeCommitment" and "NxWTimeCommitment". "NxTodo" is in the shaddow of "NxWTimeCommitment"
                 .map{|item| BankEstimations::itemsEstimationInSeconds(item) }

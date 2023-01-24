@@ -171,6 +171,22 @@ class NxWTimeCommitments
         end
     end
 
+    # NxWTimeCommitments::itemsForListing()
+    def self.itemsForListing()
+        NxWTimeCommitments::items()
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+            .select{|item| NxBalls::itemIsRunning(item) or NxWTCTodayTimeLoads::itemLiveTimeThatShouldBeDoneTodayInHours(item) > 1 }
+            .sort{|i1, i2| NxWTCTodayTimeLoads::itemLiveTimeThatShouldBeDoneTodayInHours(i1) <=>  NxWTCTodayTimeLoads::itemLiveTimeThatShouldBeDoneTodayInHours(i2) }
+    end
+
+    # NxWTimeCommitments::listingElements()
+    def self.listingElements()
+        NxWTimeCommitments::itemsForListing()
+            .map{|item| return NxWTimeCommitments::itemWithToAllAssociatedListingItems(item) }
+            .flatten
+    end
+
     # --------------------------------------------
     # Ops
 

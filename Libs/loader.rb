@@ -169,8 +169,6 @@ require_relative "FileSystemCheck.rb"
 
 require_relative "LambdX1s.rb"
 
-require_relative "MiscTypesTimeCommitments.rb"
-
 require_relative "NxTops.rb"
 require_relative "Nyx.rb"
 require_relative "Nx113.rb"
