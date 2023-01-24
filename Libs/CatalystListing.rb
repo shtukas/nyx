@@ -8,7 +8,7 @@ class CatalystListing
             "[listing interaction] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | >> skip default | destroy",
             "[makers] wave | anniversary | today | ondate | todo | one time commitment | wave time commitment | manual countdown | top | strat | project",
             "[nxballs] start (<n>) | stop <n> | pause <n> | pursue <n>",
-            "[divings] anniversaries | ondates | waves | wave time commitments | todos",
+            "[divings] anniversaries | ondates | waves | wtcs | todos",
             "[transmutations] >todo (ondates and triages)",
             "[misc] require internet | search | speed | commands | lock (<n>) | backend",
         ].join("\n")
@@ -369,7 +369,7 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("wave time commitments", input) then
+        if Interpreting::match("wtcs", input) then
             NxWTimeCommitments::mainprobe()
             return
         end

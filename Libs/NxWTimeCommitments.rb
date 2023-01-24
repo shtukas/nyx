@@ -251,7 +251,7 @@ class NxWTimeCommitments
                 NxWTCTodayTimeLoads::commitTodayManuallySubmittedTimeProvision(wtc, timeInHours)
             end
             if action == "fill for holiday" then
-                numbers = NxWTimeCommitments::liveNumbers(item)
+                numbers = NxWTimeCommitments::liveNumbers(wtc)
                 timeInHours = numbers["timeThatShouldBeDoneTodayInHours"]
                 puts "adding #{timeInHours} hours to '#{NxWTimeCommitments::toString(wtc)}'"
                 Bank::put(wtc["uuid"], timeInHours*3600)
