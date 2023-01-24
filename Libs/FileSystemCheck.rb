@@ -97,15 +97,15 @@ class FileSystemCheck
         raise "Unsupported Nx113 type: #{type}"
     end
 
-    # FileSystemCheck::fsck_NxWTimeCommitment(item, verbose)
-    def self.fsck_NxWTimeCommitment(item, verbose)
+    # FileSystemCheck::fsck_NxTimeFiber(item, verbose)
+    def self.fsck_NxTimeFiber(item, verbose)
         return if item.nil?
 
         if verbose then
-            puts "FileSystemCheck::fsck_NxWTimeCommitment(#{JSON.pretty_generate(item)}, #{verbose})"
+            puts "FileSystemCheck::fsck_NxTimeFiber(#{JSON.pretty_generate(item)}, #{verbose})"
         end
 
-        if item["mikuType"] != "NxWTimeCommitment" then
+        if item["mikuType"] != "NxTimeFiber" then
             raise "Incorrect Miku type for function"
         end
 
@@ -168,8 +168,8 @@ class FileSystemCheck
 
         mikuType = item["mikuType"]
 
-        if mikuType == "NxWTimeCommitment" then
-            FileSystemCheck::fsck_NxWTimeCommitment(item, verbose)
+        if mikuType == "NxTimeFiber" then
+            FileSystemCheck::fsck_NxTimeFiber(item, verbose)
             return
         end
 
@@ -202,14 +202,6 @@ class FileSystemCheck
         if mikuType == "NxDoNotShowUntil" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-            return
-        end
-
-        if mikuType == "NxNetworkLocalView" then
-            FileSystemCheck::ensureAttribute(item, "center", "String")
-            FileSystemCheck::ensureAttribute(item, "parents", "Array")
-            FileSystemCheck::ensureAttribute(item, "related", "Array")
-            FileSystemCheck::ensureAttribute(item, "children", "Array")
             return
         end
 
@@ -311,7 +303,7 @@ class FileSystemCheck
     def self.fsckErrorAtFirstFailure()
         [
             Anniversaries::items(),
-            NxWTimeCommitments::items(),
+            NxTimeFibers::items(),
             NxOndates::items(),
             NxTodosIO::items(),
             NxTriages::items(),

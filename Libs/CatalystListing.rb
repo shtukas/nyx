@@ -359,12 +359,12 @@ class CatalystListing
         end
 
         if Interpreting::match("wave time commitment", input) then
-            NxWTimeCommitments::interactivelyIssueNewOrNull()
+            NxTimeFibers::interactivelyIssueNewOrNull()
             return
         end
 
         if Interpreting::match("wtcs", input) then
-            NxWTimeCommitments::mainprobe()
+            NxTimeFibers::mainprobe()
             return
         end
 
@@ -383,8 +383,8 @@ class CatalystListing
                 "lambda" => lambda { Anniversaries::listingItems() }
             },
             {
-                "name" => "NxWTimeCommitments::listingElements()",
-                "lambda" => lambda { NxWTimeCommitments::listingElements() }
+                "name" => "NxTimeFibers::listingElements()",
+                "lambda" => lambda { NxTimeFibers::listingElements() }
             },
             {
                 "name" => "NxOndates::listingItems()",
@@ -477,7 +477,7 @@ class CatalystListing
             NxOndates::listingItems(),
             TxManualCountDowns::listingItems(),
             NxTimeLoads::items(),
-            NxWTimeCommitments::listingElements(),
+            NxTimeFibers::listingElements(),
             Waves::listingItems("ns:time-important"),
             NxProjects::listingItems(3),
             Waves::listingItems("ns:beach"),
@@ -491,8 +491,8 @@ class CatalystListing
     # CatalystListing::printItem(store, item, canBeDefault, prefix)
     def self.printItem(store, item, canBeDefault, prefix)
         store.register(item, canBeDefault)
-        tc = NxWTimeCommitments::getOrNull(item["tcId"])
-        tcStr = tc ? " (NxWTimeCommitment: #{tc["description"]})" : ""
+        tc = NxTimeFibers::getOrNull(item["tcId"])
+        tcStr = tc ? " (NxTimeFiber: #{tc["description"]})" : ""
         line = "(#{store.prefixString()}) #{prefix}#{PolyFunctions::toStringForCatalystListing(item)}#{tcStr.green}"
         nxball = NxBalls::getNxBallForItemOrNull(item)
         if nxball then
@@ -529,7 +529,7 @@ class CatalystListing
 
         tcsPendingTimeInSeconds = CatalystListing::livePendingTimeTodayInHours()*3600
         timeEstimationOthersInSeconds = listingItems
-            .select{|item| ["NxTimeLoad", "NxWTimeCommitment", "NxTodo"].include?(item["mikuType"]) } # tcsPendingTimeInSeconds include "NxTimeLoad" and "NxWTimeCommitment". "NxTodo" is in the shaddow of "NxWTimeCommitment"
+            .select{|item| ["NxTimeLoad", "NxTimeFiber", "NxTodo"].include?(item["mikuType"]) } # tcsPendingTimeInSeconds include "NxTimeLoad" and "NxTimeFiber". "NxTodo" is in the shaddow of "NxTimeFiber"
             .map{|item| BankEstimations::itemsEstimationInSeconds(item) }
             .inject(0, :+)
         totalInSeconds = tcsPendingTimeInSeconds + timeEstimationOthersInSeconds
@@ -564,14 +564,14 @@ class CatalystListing
         vspaceleft = vspaceleft - timeparameters.size
 
         # TimeCommitment report
-        timecommitments = NxWTimeCommitments::itemsForListing()
+        timecommitments = NxTimeFibers::itemsForListing()
         if timecommitments.size > 0 then
             puts ""
             puts "time commitments".green
             vspaceleft = vspaceleft - 1
             timecommitments.each{|item|
                 store.register(item, false)
-                line = "(#{store.prefixString()}) #{NxWTimeCommitments::toStringWithDetails(item, true)}"
+                line = "(#{store.prefixString()}) #{NxTimeFibers::toStringWithDetails(item, true)}"
                 nxball = NxBalls::getNxBallForItemOrNull(item)
                 if nxball then
                     line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
@@ -726,7 +726,7 @@ class CatalystListing
 
             tcsPendingTimeInSeconds = CatalystListing::livePendingTimeTodayInHours()*3600
             timeEstimationOthersInSeconds = listingItems
-                .select{|item| ["NxTimeLoad", "NxWTimeCommitment", "NxTodo"].include?(item["mikuType"]) } # tcsPendingTimeInSeconds include "NxTimeLoad" and "NxWTimeCommitment". "NxTodo" is in the shaddow of "NxWTimeCommitment"
+                .select{|item| ["NxTimeLoad", "NxTimeFiber", "NxTodo"].include?(item["mikuType"]) } # tcsPendingTimeInSeconds include "NxTimeLoad" and "NxTimeFiber". "NxTodo" is in the shaddow of "NxTimeFiber"
                 .map{|item| BankEstimations::itemsEstimationInSeconds(item) }
                 .inject(0, :+)
             totalInSeconds = tcsPendingTimeInSeconds + timeEstimationOthersInSeconds

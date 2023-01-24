@@ -1,0 +1,9 @@
+
+NxTimeLoad
+    "uuid"        : String
+    "mikuType"    : "NxTimeLoad"
+    "unixtime"    : Unixtime
+    "description" : String
+    "hours"       : Float
+    "tcId"        : 
+

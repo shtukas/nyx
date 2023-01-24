@@ -1,2 +1,0 @@
-network-local-views.sqlite3
-create table _localviews_ (_center_ text, _NxNetworkLocalView_ text);

@@ -42,7 +42,7 @@ class NxTimeLoads
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         hours = LucilleCore::askQuestionAnswerAsString("hours: ").to_f
-        tcId = NxWTimeCommitments::interactivelySelectItem()["uuid"]
+        tcId = NxTimeFibers::interactivelySelectItem()["uuid"]
         uuid  = SecureRandom.uuid
         item = {
             "uuid"        => uuid,

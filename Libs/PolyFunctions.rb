@@ -13,7 +13,7 @@ class PolyFunctions
 
         if item["mikuType"] == "NxTop" then
             tcId = item["tcId"]
-            wtc = NxWTimeCommitments::getOrNull(tcId)
+            wtc = NxTimeFibers::getOrNull(tcId)
             accounts << {
                 "description" => PolyFunctions::genericDescription(wtc),
                 "number"      => wtc["uuid"]
@@ -22,7 +22,7 @@ class PolyFunctions
 
         if item["mikuType"] == "NxTimeLoad" then
             tcId = item["tcId"]
-            wtc = NxWTimeCommitments::getOrNull(tcId)
+            wtc = NxTimeFibers::getOrNull(tcId)
             accounts << {
                 "description" => PolyFunctions::genericDescription(wtc),
                 "number"      => wtc["uuid"]
@@ -31,7 +31,7 @@ class PolyFunctions
 
         if item["mikuType"] == "NxProject" then
             tcId = item["tcId"]
-            wtc = NxWTimeCommitments::getOrNull(tcId)
+            wtc = NxTimeFibers::getOrNull(tcId)
             accounts << {
                 "description" => PolyFunctions::genericDescription(wtc),
                 "number"      => wtc["uuid"]
@@ -40,7 +40,7 @@ class PolyFunctions
 
         if item["mikuType"] == "NxTodo" then
             tcId = item["tcId"]
-            wtc = NxWTimeCommitments::getOrNull(tcId)
+            wtc = NxTimeFibers::getOrNull(tcId)
             accounts << {
                 "description" => PolyFunctions::genericDescription(wtc),
                 "number"      => wtc["uuid"]
@@ -49,7 +49,7 @@ class PolyFunctions
 
         if item["mikuType"] == "TxStratosphere" then
             tcId = item["tcId"]
-            wtc = NxWTimeCommitments::getOrNull(tcId)
+            wtc = NxTimeFibers::getOrNull(tcId)
             accounts << {
                 "description" => PolyFunctions::genericDescription(wtc),
                 "number"      => wtc["uuid"]
@@ -58,7 +58,7 @@ class PolyFunctions
 
         if item["mikuType"] == "Vx01" then
             tcId = item["tcId"]
-            wtc = NxWTimeCommitments::getOrNull(tcId)
+            wtc = NxTimeFibers::getOrNull(tcId)
             if wtc then
                 accounts << {
                     "description" => PolyFunctions::genericDescription(wtc),
@@ -69,7 +69,7 @@ class PolyFunctions
 
         if item["mikuType"] == "Wave" then
             tcId = item["tcId"]
-            wtc = NxWTimeCommitments::getOrNull(tcId)
+            wtc = NxTimeFibers::getOrNull(tcId)
             if wtc then
                 accounts << {
                     "description" => PolyFunctions::genericDescription(wtc),
@@ -193,7 +193,7 @@ class PolyFunctions
         if item["mikuType"] == "NxTimeLoad" then
             return item["description"]
         end
-        if item["mikuType"] == "NxWTimeCommitment" then
+        if item["mikuType"] == "NxTimeFiber" then
             return item["description"]
         end
         if item["mikuType"] == "NxOndate" then
@@ -252,8 +252,8 @@ class PolyFunctions
         if item["mikuType"] == "NxProject" then
             return NxProjects::toString(item)
         end
-        if item["mikuType"] == "NxWTimeCommitment" then
-            return NxWTimeCommitments::toString(item)
+        if item["mikuType"] == "NxTimeFiber" then
+            return NxTimeFibers::toString(item)
         end
         if item["mikuType"] == "NxTodo" then
             return NxTodos::toString(item)
@@ -279,8 +279,8 @@ class PolyFunctions
 
     # PolyFunctions::toStringForCatalystListing(item)
     def self.toStringForCatalystListing(item)
-        if item["mikuType"] == "NxWTimeCommitment" then
-            return NxWTimeCommitments::toStringWithDetails(item, true)
+        if item["mikuType"] == "NxTimeFiber" then
+            return NxTimeFibers::toStringWithDetails(item, true)
         end
         PolyFunctions::toString(item)
     end

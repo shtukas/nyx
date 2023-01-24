@@ -178,7 +178,7 @@ require_relative "NxOndates.rb"
 require_relative "NxBalls.rb"
 require_relative "NxNetwork.rb"
 require_relative "NxNodes.rb"
-require_relative "NxWTimeCommitments.rb"
+require_relative "NxTimeFibers.rb"
 require_relative "NxTimeLoads.rb"
 require_relative "NxProjects.rb"
 
@@ -259,7 +259,7 @@ if $RunNonEssentialThreads then
                 end
             }
 
-            NxWTimeCommitments::runningItems().each{|item|
+            NxTimeFibers::runningItems().each{|item|
                 if NxWTCTodayTimeLoads::itemLiveTimeThatShouldBeDoneTodayInHours(item) == 0 then
                     CommonUtils::onScreenNotification("catalyst", "wtc is overflowing")
                 end

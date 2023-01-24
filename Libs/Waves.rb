@@ -291,7 +291,7 @@ class Waves
                 next
             end
             if action == "set wave time commitment" then
-                wtc = NxWTimeCommitments::interactivelySelectItemOrNull()
+                wtc = NxTimeFibers::interactivelySelectItemOrNull()
                 next if wtc.nil?
                 item["tcId"] = wtc["uuid"]
                 Waves::commit(item)

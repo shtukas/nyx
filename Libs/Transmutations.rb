@@ -6,8 +6,8 @@ class Transmutations
 
         if sourceType == "NxOndate" and targetType == "NxTodo" then
             uuid1 = item["uuid"]
-            wtc = NxWTimeCommitments::interactivelySelectItem()
-            tcPos = NxWTimeCommitments::nextPositionForItem(wtc["uuid"])
+            wtc = NxTimeFibers::interactivelySelectItem()
+            tcPos = NxTimeFibers::nextPositionForItem(wtc["uuid"])
             item["uuid"] = SecureRandom.uuid
             item["mikuType"] = "NxTodo"
             item["tcId"] = wtc["uuid"]
@@ -36,8 +36,8 @@ class Transmutations
             else
                 description = d
             end
-            wtc = NxWTimeCommitments::interactivelySelectItem()
-            tcPos = NxWTimeCommitments::interactivelyDecideProjectPosition(wtc["uuid"])
+            wtc = NxTimeFibers::interactivelySelectItem()
+            tcPos = NxTimeFibers::interactivelyDecideProjectPosition(wtc["uuid"])
             item["uuid"] = SecureRandom.uuid
             item["description"] = description
             item["mikuType"] = "NxTodo"
@@ -57,8 +57,8 @@ class Transmutations
             else
                 description = d
             end
-            wtc = NxWTimeCommitments::interactivelySelectItem()
-            tcPos = NxWTimeCommitments::interactivelyDecideProjectPosition(wtc["uuid"])
+            wtc = NxTimeFibers::interactivelySelectItem()
+            tcPos = NxTimeFibers::interactivelyDecideProjectPosition(wtc["uuid"])
             item["uuid"] = SecureRandom.uuid
             item["description"] = description
             item["mikuType"] = "NxTodo"

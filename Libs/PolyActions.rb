@@ -10,8 +10,8 @@ class PolyActions
 
         # types in alphabetical order
 
-        if item["mikuType"] == "NxWTimeCommitment" then
-            NxWTimeCommitments::probe(item)
+        if item["mikuType"] == "NxTimeFiber" then
+            NxTimeFibers::probe(item)
             return
         end
 
@@ -60,8 +60,8 @@ class PolyActions
     # PolyActions::commit(item)
     def self.commit(item)
 
-        if item["mikuType"] == "NxWTimeCommitment" then
-            NxWTimeCommitments::items()
+        if item["mikuType"] == "NxTimeFiber" then
+            NxTimeFibers::items()
             return
         end
 
@@ -90,8 +90,8 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxWTimeCommitment" then
-            NxWTimeCommitments::destroy(item["uuid"])
+        if item["mikuType"] == "NxTimeFiber" then
+            NxTimeFibers::destroy(item["uuid"])
             return
         end
 
@@ -188,7 +188,7 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxWTimeCommitment" then
+        if item["mikuType"] == "NxTimeFiber" then
             return
         end
 
@@ -250,7 +250,7 @@ class PolyActions
             NxBalls::issue(accounts, item["uuid"])
         }
 
-        if item["mikuType"] == "NxWTimeCommitment" then
+        if item["mikuType"] == "NxTimeFiber" then
             PolyActions::start(item)
             return
         end
@@ -378,8 +378,8 @@ class PolyActions
 
         # order: alphabetical order
 
-        if item["mikuType"] == "NxWTimeCommitment" then
-            NxWTimeCommitments::probe(item)
+        if item["mikuType"] == "NxTimeFiber" then
+            NxTimeFibers::probe(item)
             return
         end
 
@@ -420,7 +420,7 @@ class PolyActions
     def self.start(item)
         if item["mikuType"] == "NxTop" then
             if item["tcId"].nil? then
-                wtc = NxWTimeCommitments::interactivelySelectItemOrNull()
+                wtc = NxTimeFibers::interactivelySelectItemOrNull()
                 if wtc then
                     item["tcId"] = wtc["uuid"]
                     TxStratospheres::commit(item)
@@ -429,7 +429,7 @@ class PolyActions
         end
         if item["mikuType"] == "TxStratosphere" then
             if item["tcId"].nil? then
-                wtc = NxWTimeCommitments::interactivelySelectItemOrNull()
+                wtc = NxTimeFibers::interactivelySelectItemOrNull()
                 if wtc then
                     item["tcId"] = wtc["uuid"]
                     TxStratospheres::commit(item)

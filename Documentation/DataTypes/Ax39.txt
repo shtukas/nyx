@@ -1,6 +1,6 @@
 Ax39 represents a wave time commitment, either daily or weekly.
 
-It is carried by NxWTimeCommitments
+It is carried by NxTimeFibers
 
 {
     "type"  => "daily-provision-fillable"

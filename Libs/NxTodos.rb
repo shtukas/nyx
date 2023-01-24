@@ -254,8 +254,8 @@ class NxTodos
         return nil if description == ""
         uuid  = CommonUtils::timeStringL22()
         nx113 = Nx113Make::interactivelyMakeNx113OrNull()
-        tcId = NxWTimeCommitments::interactivelySelectItem()["uuid"]
-        tcPos = NxWTimeCommitments::interactivelyDecideProjectPosition(tcId)
+        tcId = NxTimeFibers::interactivelySelectItem()["uuid"]
+        tcPos = NxTimeFibers::interactivelyDecideProjectPosition(tcId)
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
@@ -284,8 +284,8 @@ class NxTodos
         "(todo) #{item["description"]}"
     end
 
-    # NxTodos::itemsForNxWTimeCommitment(tcId)
-    def self.itemsForNxWTimeCommitment(tcId)
+    # NxTodos::itemsForNxTimeFiber(tcId)
+    def self.itemsForNxTimeFiber(tcId)
         NxTodosIO::items()
             .select{|item|
                 item["tcId"] == tcId
