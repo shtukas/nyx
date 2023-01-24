@@ -5,6 +5,6 @@ NxProject:
     "mikuType"    : "NxProject"
     "unixtime"    : Float
     "description" : String
-    "tcId"        : String
+    "tcId"        : null or String
     "ordinal"     : Float
 

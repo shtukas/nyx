@@ -44,7 +44,8 @@ class NxProjects
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-        tcId = NxWTimeCommitments::interactivelySelectItem()["uuid"]
+        wtc = NxWTimeCommitments::interactivelySelectItemOrNull()
+        tcId = wtc ? wtc["uuid"] : nil
         uuid  = SecureRandom.uuid
         item = {
             "uuid"        => uuid,
