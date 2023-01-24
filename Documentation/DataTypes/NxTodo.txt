@@ -6,7 +6,9 @@ NxTodo:
     "unixtime"    : Float
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : String
-    "tcId"        : String
     "nx113"       : null or Nx113
+    "tcId"        : String
     "tcPos"       : Float
+
+
 

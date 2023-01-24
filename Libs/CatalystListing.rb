@@ -9,7 +9,7 @@ class CatalystListing
             "[makers] wave | anniversary | today | ondate | todo | one time commitment | wave time commitment | manual countdown | top | strat | project",
             "[nxballs] start (<n>) | stop <n> | pause <n> | pursue <n>",
             "[divings] anniversaries | ondates | waves | wtcs | todos",
-            "[transmutations] >todo (ondates and triages)",
+            "[transmutations] transmute",
             "[misc] require internet | search | speed | commands | lock (<n>) | backend",
         ].join("\n")
     end
@@ -39,17 +39,11 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match(">todo", input) then
+        if Interpreting::match("transmute", input) then
             item = store.getDefault()
             return if item.nil?
-            if item["mikuType"] == "NxOndate" then
-                NxTodos::issueConsumingNxOndate(item)
-                return
-            end
-            if item["mikuType"] == "NxTriage" then
-                NxTodos::issueConsumingNxTriage(item)
-                return
-            end
+            puts JSON.pretty_generate(item)
+            Transmutations::transmute2(item)
             return
         end
 
@@ -540,7 +534,6 @@ class CatalystListing
             "> projected end           : #{Time.at( Time.new.to_i + totalInSeconds ).to_s}",
         ]
 
-
         system("clear")
         store = ItemStore.new()
         vspaceleft = CommonUtils::screenHeight() - 4
@@ -666,7 +659,7 @@ class CatalystListing
         if tops.size > 0 then
             tops.each{|item|
                 store.register(item, !Skips::isSkipped(item["uuid"]))
-                line = "(#{store.prefixString()}) (top) #{item["line"]}"
+                line = "(#{store.prefixString()}) (top) #{item["description"]}"
                 nxball = NxBalls::getNxBallForItemOrNull(item)
                 if nxball then
                     line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green

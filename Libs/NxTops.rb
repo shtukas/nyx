@@ -39,14 +39,15 @@ class NxTops
 
     # NxTops::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
-        line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
-        return nil if line == ""
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
         uuid  = SecureRandom.uuid
         item = {
-            "uuid"      => uuid,
-            "mikuType"  => "NxTop",
-            "unixtime"  => Time.new.to_i,
-            "line"      => line
+            "uuid"        => uuid,
+            "mikuType"    => "NxTop",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description
         }
         NxTops::commit(item)
         item

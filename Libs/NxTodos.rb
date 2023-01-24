@@ -270,45 +270,6 @@ class NxTodos
         item
     end
 
-    # NxTodos::issueConsumingNxOndate(nxondate)
-    def self.issueConsumingNxOndate(nxondate)
-        item = nxondate.clone
-        wtc = NxWTimeCommitments::interactivelySelectItem()
-        tcPos = NxWTimeCommitments::nextPositionForItem(wtc["uuid"])
-        item["uuid"] = CommonUtils::timeStringL22()
-        item["mikuType"] = "NxTodo"
-        item["tcId"] = wtc["uuid"]
-        item["tcPos"] = tcPos
-        NxTodosIO::commit(item)
-        NxOndates::destroy(nxondate["uuid"])
-        item
-    end
-
-    # NxTodos::issueConsumingNxTriage(nxtriage)
-    def self.issueConsumingNxTriage(nxtriage)
-
-        puts "description: #{nxtriage["description"].green}"
-        d = LucilleCore::askQuestionAnswerAsString("description (empty to confirm existing): ")
-
-        if d == "" then
-            description = nxtriage["description"]
-        else
-            description = d
-        end
-
-        item = nxtriage.clone
-        wtc = NxWTimeCommitments::interactivelySelectItem()
-        tcPos = NxWTimeCommitments::interactivelyDecideProjectPosition(wtc["uuid"])
-        item["uuid"] = CommonUtils::timeStringL22()
-        item["description"] = description
-        item["mikuType"] = "NxTodo"
-        item["tcId"] = wtc["uuid"]
-        item["tcPos"] = tcPos
-        NxTodosIO::commit(item)
-        NxTriages::destroy(nxtriage["uuid"])
-        item
-    end
-
     # --------------------------------------------------
     # Data
 

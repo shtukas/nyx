@@ -138,15 +138,15 @@ class NxOndates
     def self.probe(item)
         loop {
             item = NxOndates::getOrNull(item["uuid"])
-            actions = ["access", "redate", "convert to NxTodo", "destroy"]
+            actions = ["access", "redate", "transmute", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "access" then
                 NxOndates::access(item)
                 next
             end
-            if action == "convert to NxTodo" then
-                item2 = NxTodos::issueConsumingNxOndate(item)
+            if action == "transmute" then
+                Transmutations::transmute2(item)
                 return
             end
             if action == "redate" then
