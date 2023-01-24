@@ -48,7 +48,7 @@ class TheSpeedOfLight
 
 
     # TheSpeedOfLight::performAdjustements(pendingTimeTodayInSeconds)
-    def self.manageSpeedOfLight(pendingTimeTodayInSeconds)
+    def self.performAdjustements(pendingTimeTodayInSeconds)
         unixtime = CommonUtils::unixtimeAtComingMidnightAtGivenTimeZone(CommonUtils::getLocalTimeZone())
         timeToMidnight = unixtime - Time.new.to_i
         if pendingTimeTodayInSeconds > (timeToMidnight-3600*1) then
