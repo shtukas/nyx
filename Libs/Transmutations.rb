@@ -22,8 +22,8 @@ class Transmutations
             item["uuid"] = SecureRandom.uuid
             item["mikuType"] = "NxTodo"
             item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
-            NxTodosIO::commit(item)
-            NxOndates::destroy(uuid1)
+            NxOndates::commit(item)
+            NxTops::destroy(uuid1)
             return
         end
 
