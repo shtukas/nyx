@@ -5,3 +5,4 @@ TxStratosphere:
     "unixtime"    : Float
     "description" : String
     "ordinal"     : Float
+    "tcIds"       : null or String

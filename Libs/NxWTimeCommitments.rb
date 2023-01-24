@@ -174,15 +174,15 @@ class NxWTimeCommitments
     # --------------------------------------------
     # Ops
 
-    # NxWTimeCommitments::interactivelySelectNxWTimeCommitmentOrNull()
-    def self.interactivelySelectNxWTimeCommitmentOrNull()
+    # NxWTimeCommitments::interactivelySelectItemOrNull()
+    def self.interactivelySelectItemOrNull()
         LucilleCore::selectEntityFromListOfEntitiesOrNull("wtc", NxWTimeCommitments::items(), lambda{|wtc| NxWTimeCommitments::toStringWithDetails(wtc, true)})
     end
 
     # NxWTimeCommitments::interactivelySelectItem()
     def self.interactivelySelectItem()
         loop {
-            wtc = NxWTimeCommitments::interactivelySelectNxWTimeCommitmentOrNull()
+            wtc = NxWTimeCommitments::interactivelySelectItemOrNull()
             return wtc if wtc
         }
     end
@@ -276,7 +276,7 @@ class NxWTimeCommitments
     def self.mainprobe()
         loop {
             system("clear")
-            wtc = NxWTimeCommitments::interactivelySelectNxWTimeCommitmentOrNull()
+            wtc = NxWTimeCommitments::interactivelySelectItemOrNull()
             return if wtc.nil?
             NxWTimeCommitments::probe(wtc)
         }

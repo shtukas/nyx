@@ -338,9 +338,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "TxStratosphere" then
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy TxStratosphere '#{TxStratospheres::toString(item)}' ? ") then
-                TxStratospheres::destroy(item["uuid"])
-            end
+            PolyActions::start(item)
             return
         end
 
@@ -416,6 +414,15 @@ class PolyActions
 
     # PolyActions::start(item) # null or NxBall
     def self.start(item)
+        if item["mikuType"] == "TxStratosphere" then
+            if item["tcId"].nil? then
+                wtc = NxWTimeCommitments::interactivelySelectItemOrNull()
+                if wtc then
+                    item["tcId"] = wtc["uuid"]
+                    TxStratospheres::commit(item)
+                end
+            end
+        end
         accounts = PolyFunctions::bankAccountsForItem(item)
         return nil if accounts.empty?
         announce = accounts.map{|account| account["description"] }.join("; ")

@@ -654,7 +654,6 @@ class CatalystListing
         tops = NsTopLines::listingItems()
         if tops.size > 0 then
             tops.each{|item|
-                break if store.getDefault()
                 store.register(item, !Skips::isSkipped(item["uuid"]))
                 line = "(#{store.prefixString()}) (top) #{item["line"]}"
                 nxball = NxBalls::getNxBallForItemOrNull(item)
@@ -669,7 +668,6 @@ class CatalystListing
         items1, items2 = listingItems.partition{|item| NxBalls::getNxBallForItemOrNull(item) }
         (items1 + items2)
             .each{|item|
-                break if store.getDefault()
                 next if Locks::isLocked(item["uuid"])
                 linecount = CatalystListing::printItem(store, item, !Skips::isSkipped(item["uuid"]), "")
                 vspaceleft = vspaceleft - linecount

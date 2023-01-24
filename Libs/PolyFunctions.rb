@@ -29,6 +29,15 @@ class PolyFunctions
             }
         end
 
+        if item["mikuType"] == "TxStratosphere" then
+            tcId = item["tcId"]
+            wtc = NxWTimeCommitments::getOrNull(tcId)
+            accounts << {
+                "description" => PolyFunctions::genericDescription(wtc),
+                "number"      => wtc["uuid"]
+            }
+        end
+
         if item["mikuType"] == "Vx01" then
             tcId = item["tcId"]
             wtc = NxWTimeCommitments::getOrNull(tcId)
