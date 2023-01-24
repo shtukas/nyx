@@ -44,15 +44,12 @@ class NxBlocks
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-        wtc = NxTimeFibers::interactivelySelectItemOrNull()
-        tcId = wtc ? wtc["uuid"] : nil
         uuid  = SecureRandom.uuid
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxBlock",
             "unixtime"    => Time.new.to_i,
             "description" => description,
-            "tcId"        => tcId,
             "ordinal"     => ordinal
         }
         NxBlocks::commit(item)

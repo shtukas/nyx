@@ -242,7 +242,6 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "mikuType", "String")
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "description", "String")
-            FileSystemCheck::ensureAttribute(item, "tcId", "String")
             FileSystemCheck::ensureAttribute(item, "ordinal", "Number")
             return
         end
