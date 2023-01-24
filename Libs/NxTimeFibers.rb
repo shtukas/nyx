@@ -139,6 +139,15 @@ class NxTimeFibers
         ([0] + NxTodos::itemsForNxTimeFiber(tcId).map{|todo| todo["tcPos"] }).max + 1
     end
 
+    # NxTimeFibers::itemsForListing()
+    def self.itemsForListing()
+        NxTimeFibers::items()
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+            .select{|item| NxBalls::itemIsRunning(item) or NxTimeFibers::liveNumbers(item)["pendingTimeTodayInHoursLive"] > 0 }
+            .sort{|i1, i2| NxTimeFibers::liveNumbers(i1)["pendingTimeTodayInHoursLive"] <=>  NxTimeFibers::liveNumbers(i2)["pendingTimeTodayInHoursLive"] }
+    end
+
     # NxTimeFibers::itemWithToAllAssociatedListingItems(fiber)
     def self.itemWithToAllAssociatedListingItems(fiber)
 
@@ -164,15 +173,6 @@ class NxTimeFibers
                 [fiber]
             end
         end
-    end
-
-    # NxTimeFibers::itemsForListing()
-    def self.itemsForListing()
-        NxTimeFibers::items()
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-            .select{|item| NxBalls::itemIsRunning(item) or NxTimeFibers::liveNumbers(item)["pendingTimeTodayInHoursLive"] > 0 }
-            .sort{|i1, i2| NxTimeFibers::liveNumbers(i1)["pendingTimeTodayInHoursLive"] <=>  NxTimeFibers::liveNumbers(i2)["pendingTimeTodayInHoursLive"] }
     end
 
     # NxTimeFibers::listingElements()
