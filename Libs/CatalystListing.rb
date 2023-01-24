@@ -629,7 +629,7 @@ class CatalystListing
         strats = TxStratospheres::listingItems()
         if strats.size > 0 then
             strats.each{|item|
-                linecount = CatalystListing::printItem(store, item, true, "")
+                linecount = CatalystListing::printItem(store, item, !Skips::isSkipped(item["uuid"]), "")
                 vspaceleft = vspaceleft - linecount
             }
         end
