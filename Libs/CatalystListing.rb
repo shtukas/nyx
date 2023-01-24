@@ -636,7 +636,7 @@ class CatalystListing
                         .compact
             next if items.empty?
             items.each{|item|
-                linecount = CatalystListing::printItem(store, item, false, "#{domain} ".yellow)
+                linecount = CatalystListing::printItem(store, item, false, "[#{domain}] ".yellow)
                 vspaceleft = vspaceleft - linecount
             }
         }
