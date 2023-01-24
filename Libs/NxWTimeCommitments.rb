@@ -229,7 +229,7 @@ class NxWTimeCommitments
         loop {
             puts NxWTimeCommitments::toStringWithDetails(wtc, false)
             puts "data: #{Ax39::standardAx39CarrierLiveNumbers(wtc)}"
-            actions = ["start", "add time", "do not show until", "provision today time", "set Ax39", "expose", "items dive", "destroy"]
+            actions = ["start", "add time", "do not show until", "set override day load", "fill for holiday", "set Ax39", "expose", "items dive", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "start" then
@@ -246,9 +246,15 @@ class NxWTimeCommitments
                 next if unixtime.nil?
                 DoNotShowUntil::setUnixtime(wtc["uuid"], unixtime)
             end
-            if action == "provision today time" then
+            if action == "set override day load" then
                 timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
                 NxWTCTodayTimeLoads::commitTodayManuallySubmittedTimeProvision(wtc, timeInHours)
+            end
+            if action == "fill for holiday" then
+                numbers = NxWTimeCommitments::liveNumbers(item)
+                timeInHours = numbers["timeThatShouldBeDoneTodayInHours"]
+                puts "adding #{timeInHours} hours to '#{NxWTimeCommitments::toString(wtc)}'"
+                Bank::put(wtc["uuid"], timeInHours*3600)
             end
             if action == "set Ax39" then
                 wtc["ax39"] = Ax39::interactivelyCreateNewAx()
