@@ -598,7 +598,7 @@ class CatalystListing
 
         system("clear")
         store = ItemStore.new()
-        vspaceleft = CommonUtils::screenHeight() - 4
+        vspaceleft = CommonUtils::screenHeight() - 3
 
         # Display stratification
         #   - strats
