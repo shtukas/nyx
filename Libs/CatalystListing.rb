@@ -6,7 +6,7 @@ class CatalystListing
     def self.listingCommands()
         [
             "[listing interaction] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | >> skip default | destroy",
-            "[makers] wave | anniversary | today | ondate | todo | one time commitment | wave time commitment | manual countdown | top | strat | block",
+            "[makers] wave | anniversary | today | ondate | todo | timedrop | fiber | manual countdown | top | strat | block",
             "[nxballs] start (<n>) | stop <n> | pause <n> | pursue <n>",
             "[divings] anniversaries | ondates | waves | wtcs | todos",
             "[transmutations] '' (transmute)",
@@ -201,7 +201,7 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("one time commitment", input) then
+        if Interpreting::match("timedrop", input) then
             NxTimeDrops::interactivelyIssueNewOrNull()
             return
         end
@@ -358,7 +358,7 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("wave time commitment", input) then
+        if Interpreting::match("fiber", input) then
             NxTimeFibers::interactivelyIssueNewOrNull()
             return
         end
@@ -548,12 +548,6 @@ class CatalystListing
         store = ItemStore.new()
         vspaceleft = CommonUtils::screenHeight() - 4
 
-        # Display stratification
-        #   - 99%
-        #   = Time parameters
-        #   - time commitments report
-        #   - nsballs
-
         puts ""
         vspaceleft = vspaceleft - 1
 
@@ -608,25 +602,10 @@ class CatalystListing
 
         system("clear")
         store = ItemStore.new()
-        vspaceleft = CommonUtils::screenHeight() - 3
+        vspaceleft = CommonUtils::screenHeight() - 5
 
-        # Display stratification
-        #   - strats
-        #   - shelves
-        #   - nsballs
-        #   - tops
-        #   - NxTriage
-        #   - Anniversary
-        #   - Wave  / ns:mandatory-today
-        #   - NxOndate
-        #   - TxManualCountDown
-        #   - NxTimeDrops
-        #   - Wave  / ns:time-important
-        #   - MiscTypesTimeCommitment
-        #   - NxBlock (3)
-        #   - Waves / ns:beach
-        #   - NxBlock (6)
-
+        puts ""
+        puts "strat | lock | top | fiber/todo | timedrop | wave | block"
         puts "#{" " * (CommonUtils::screenWidth()-65)}light speed: #{TheSpeedOfLight::getDaySpeedOfLight().round(3).to_s.green}, projected end: #{Time.at( Time.new.to_i + totalInSeconds ).to_s}"
         vspaceleft = vspaceleft - 1
 
