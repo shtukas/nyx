@@ -1,7 +1,7 @@
 
-NxOTimeCommitment
+NxTimeLoad
     "uuid"        => String
-    "mikuType"    => "NxOTimeCommitment"
+    "mikuType"    => "NxTimeLoad"
     "unixtime"    => Unixtime
     "description" => String
     "hours"       => Float

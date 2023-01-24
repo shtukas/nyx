@@ -20,7 +20,7 @@ class PolyFunctions
             }
         end
 
-        if item["mikuType"] == "NxOTimeCommitment" then
+        if item["mikuType"] == "NxTimeLoad" then
             tcId = item["tcId"]
             wtc = NxWTimeCommitments::getOrNull(tcId)
             accounts << {
@@ -190,7 +190,7 @@ class PolyFunctions
         if item["mikuType"] == "NxIced" then
             return item["description"]
         end
-        if item["mikuType"] == "NxOTimeCommitment" then
+        if item["mikuType"] == "NxTimeLoad" then
             return item["description"]
         end
         if item["mikuType"] == "NxWTimeCommitment" then
@@ -246,8 +246,8 @@ class PolyFunctions
         if item["mikuType"] == "NxOndate" then
             return NxOndates::toString(item)
         end
-        if item["mikuType"] == "NxOTimeCommitment" then
-            return NxOTimeCommitments::toString(item)
+        if item["mikuType"] == "NxTimeLoad" then
+            return NxTimeLoads::toString(item)
         end
         if item["mikuType"] == "NxProject" then
             return NxProjects::toString(item)

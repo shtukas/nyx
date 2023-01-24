@@ -192,11 +192,11 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxOTimeCommitment" then
-            puts "You can't done a NxOTimeCommitment per se, but we can stop it and destroy it"
+        if item["mikuType"] == "NxTimeLoad" then
+            puts "You can't done a NxTimeLoad per se, but we can stop it and destroy it"
             if LucilleCore::askQuestionAnswerAsBoolean("Confirm ? ") then
                 NxBalls::closeNxBallForItemOrNothing(item)
-                NxOTimeCommitments::destroy(item["uuid"])
+                NxTimeLoads::destroy(item["uuid"])
             end
             return
         end

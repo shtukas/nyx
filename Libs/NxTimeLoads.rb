@@ -1,34 +1,34 @@
 
-class NxOTimeCommitments
+class NxTimeLoads
 
-    # NxOTimeCommitments::filepath(uuid)
+    # NxTimeLoads::filepath(uuid)
     def self.filepath(uuid)
-        "#{Config::pathToDataCenter()}/NxOTimeCommitment/#{uuid}.json"
+        "#{Config::pathToDataCenter()}/NxTimeLoad/#{uuid}.json"
     end
 
-    # NxOTimeCommitments::items()
+    # NxTimeLoads::items()
     def self.items()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxOTimeCommitment")
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTimeLoad")
             .select{|filepath| filepath[-5, 5] == ".json" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
 
-    # NxOTimeCommitments::commit(item)
+    # NxTimeLoads::commit(item)
     def self.commit(item)
-        filepath = NxOTimeCommitments::filepath(item["uuid"])
+        filepath = NxTimeLoads::filepath(item["uuid"])
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
-    # NxOTimeCommitments::getOrNull(uuid)
+    # NxTimeLoads::getOrNull(uuid)
     def self.getOrNull(uuid)
-        filepath = NxOTimeCommitments::filepath(uuid)
+        filepath = NxTimeLoads::filepath(uuid)
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
-    # NxOTimeCommitments::destroy(uuid)
+    # NxTimeLoads::destroy(uuid)
     def self.destroy(uuid)
-        filepath = NxOTimeCommitments::filepath(uuid)
+        filepath = NxTimeLoads::filepath(uuid)
         if File.exists?(filepath) then
             FileUtils.rm(filepath)
         end
@@ -37,7 +37,7 @@ class NxOTimeCommitments
     # --------------------------------------------------
     # Makers
 
-    # NxOTimeCommitments::interactivelyIssueNewOrNull()
+    # NxTimeLoads::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
@@ -46,54 +46,54 @@ class NxOTimeCommitments
         uuid  = SecureRandom.uuid
         item = {
             "uuid"        => uuid,
-            "mikuType"    => "NxOTimeCommitment",
+            "mikuType"    => "NxTimeLoad",
             "unixtime"    => Time.new.to_i,
             "description" => description,
             "hours"       => hours,
             "tcId"        => tcId
         }
-        NxOTimeCommitments::commit(item)
+        NxTimeLoads::commit(item)
         item
     end
     
-    # NxOTimeCommitments::listingItems()
+    # NxTimeLoads::listingItems()
     def self.listingItems()
-        NxOTimeCommitments::items()
+        NxTimeLoads::items()
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 
     # --------------------------------------------------
     # Data
 
-    # NxOTimeCommitments::toString(item)
+    # NxTimeLoads::toString(item)
     def self.toString(item)
         pending = [item["hours"]-NxBalls::itemRealisedAndUnrealsedTimeInSeconds(item).to_f/3600, 0].max
         "(otc) (pending: #{"%5.2f" % (pending.round(2))}) #{item["description"]} (done: #{(NxBalls::itemRealisedAndUnrealsedTimeInSeconds(item).to_f/3600).round(2)} hours of #{item["hours"]})"
     end
 
-    # NxOTimeCommitments::runningItems()
+    # NxTimeLoads::runningItems()
     def self.runningItems()
-        NxOTimeCommitments::items()
+        NxTimeLoads::items()
             .select{|otc| NxBalls::getNxBallForItemOrNull(otc) }
     end
 
-    # NxOTimeCommitments::itemLiveTimeThatShouldBeDoneTodayInHours(item)
+    # NxTimeLoads::itemLiveTimeThatShouldBeDoneTodayInHours(item)
     def self.itemLiveTimeThatShouldBeDoneTodayInHours(item)
         [item["hours"]*3600 - NxBalls::itemRealisedAndUnrealsedTimeInSeconds(item), 0].max
     end
 
-    # NxOTimeCommitments::liveNumbers(otc)
+    # NxTimeLoads::liveNumbers(otc)
     def self.liveNumbers(otc)
-        pendingTimeTodayInSeconds = NxOTimeCommitments::itemLiveTimeThatShouldBeDoneTodayInHours(otc)
+        pendingTimeTodayInSeconds = NxTimeLoads::itemLiveTimeThatShouldBeDoneTodayInHours(otc)
         {
             "timeThatShouldBeDoneTodayInHours" => pendingTimeTodayInSeconds.to_f/3600
         }
     end
 
-    # NxOTimeCommitments::typeLiveTimeThatShouldBeDoneTodayInHours()
+    # NxTimeLoads::typeLiveTimeThatShouldBeDoneTodayInHours()
     def self.typeLiveTimeThatShouldBeDoneTodayInHours()
-        NxOTimeCommitments::items()
-            .map{|item| NxOTimeCommitments::itemLiveTimeThatShouldBeDoneTodayInHours(item) }
+        NxTimeLoads::items()
+            .map{|item| NxTimeLoads::itemLiveTimeThatShouldBeDoneTodayInHours(item) }
             .inject(0, :+)
     end
 end
