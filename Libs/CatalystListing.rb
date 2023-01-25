@@ -10,7 +10,7 @@ class CatalystListing
             "[nxballs] start (<n>) | stop <n> | pause <n> | pursue <n>",
             "[divings] anniversaries | ondates | waves | fibers | todos",
             "[transmutations] '' (transmute)",
-            "[misc] require internet | search | speed | commands | lock (<n>) | backend",
+            "[misc] require internet | search | speed | commands | lock (<n>) | numberss",
         ].join("\n")
     end
 
@@ -72,8 +72,8 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("backend", input) then
-            CatalystListing::displayBackend()
+        if Interpreting::match("numbers", input) then
+            CatalystListing::displayNumbers()
             return
         end
 
@@ -526,8 +526,8 @@ class CatalystListing
         hours1 + hours2
     end
 
-    # CatalystListing::displayBackend()
-    def self.displayBackend()
+    # CatalystListing::displayNumbers()
+    def self.displayNumbers()
 
         listingItems = CatalystListing::listingItems()
 

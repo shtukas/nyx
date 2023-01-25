@@ -214,8 +214,10 @@ class PolyActions
         end
 
         if item["mikuType"] == "Vx01" then
-            unixtime = CommonUtils::unixtimeAtComingMidnightAtGivenTimeZone(CommonUtils::getLocalTimeZone())
-            DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+            if LucilleCore::askQuestionAnswerAsBoolean("Confirm Vx01 done for today ? ", true) then
+                unixtime = CommonUtils::unixtimeAtComingMidnightAtGivenTimeZone(CommonUtils::getLocalTimeZone())
+                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+            end
             return
         end
 
