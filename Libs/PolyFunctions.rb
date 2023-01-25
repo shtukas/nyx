@@ -81,29 +81,6 @@ class PolyFunctions
         accounts
     end
 
-    # PolyFunctions::edit(item) # item
-    def self.edit(item)
-
-        puts "PolyFunctions::edit(#{JSON.pretty_generate(item)})"
-
-        # order: by mikuType
-
-        if item["mikuType"] == "NxTodo" then
-            return NxTodos::edit(item)
-        end
-
-        if item["mikuType"] == "Wave" then
-            return Waves::edit(item)
-        end
-
-        if item["mikuType"] == "NxTodo" then
-            return NxTodos::edit(item)
-        end
-
-        puts "I do not know how to PolyFunctions::edit(#{JSON.pretty_generate(item)})"
-        raise "(error: 628167a9-f6c9-4560-bdb0-4b0eb9579c86)"
-    end
-
     # PolyFunctions::foxTerrierAtItem(item)
     def self.foxTerrierAtItem(item)
         loop {

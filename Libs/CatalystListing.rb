@@ -10,7 +10,7 @@ class CatalystListing
             "[nxballs] start (<n>) | stop <n> | pause <n> | pursue <n>",
             "[divings] anniversaries | ondates | waves | fibers | todos",
             "[transmutations] '' (transmute)",
-            "[misc] require internet | search | speed | commands | lock (<n>) | numberss",
+            "[misc] require internet | search | speed | commands | lock (<n>) | numbers",
         ].join("\n")
     end
 
@@ -128,7 +128,7 @@ class CatalystListing
         if Interpreting::match("edit", input) then
             item = store.getDefault()
             return if item.nil?
-            PolyFunctions::edit(item)
+            PolyActions::edit(item)
             return
         end
 
@@ -136,7 +136,7 @@ class CatalystListing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyFunctions::edit(item)
+            PolyActions::edit(item)
             return
         end
 
