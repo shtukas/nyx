@@ -153,7 +153,7 @@ class NxTimeFibers
     def self.itemWithToAllAssociatedListingItems(fiber)
 
         makeVx01 = lambda {|fiber|
-            uuid = Digest::SHA1.hexdigest("0BCED4BA-4FCC-405A-8B06-EB5359CBFC75")
+            uuid = Digest::SHA1.hexdigest("0BCED4BA-4FCC-405A-8B06-EB5359CBFC75:#{fiber["uuid"]}")
             {
                 "uuid"        => uuid,
                 "mikuType"    => "Vx01",
