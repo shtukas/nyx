@@ -1,4 +1,5 @@
 #!/bin/zsh
 
 cd ~/Galaxy/Software/github.com/shtukas/stargate
+rbenv local 3.2.0
 ruby bin/nyx.rb
