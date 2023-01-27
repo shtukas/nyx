@@ -71,7 +71,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "Wave" then
-            Database2::commit_item(item)
+            TodoDatabase2::commit_item(item)
             return
         end
 
@@ -86,7 +86,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "Wave" then
-            Database2::destroy(item["uuid"])
+            TodoDatabase2::destroy(item["uuid"])
             return
         end
 

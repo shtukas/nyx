@@ -9,7 +9,7 @@ class The99Percent
 
     # The99Percent::getCurrentCount()
     def self.getCurrentCount()
-        count = Database2::filepaths()
+        count = TodoDatabase2::filepaths()
                     .reduce(0){|sum, filepath|
                         count = nil
                         db = SQLite3::Database.new(filepath)

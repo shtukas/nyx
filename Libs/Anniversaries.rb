@@ -124,7 +124,7 @@ class Anniversaries
             "repeatType"          => repeatType,
             "lastCelebrationDate" => lastCelebrationDate
         }
-        Database2::commit_item(item)
+        TodoDatabase2::commit_item(item)
         item
     end
 
@@ -146,7 +146,7 @@ class Anniversaries
 
     # Anniversaries::listingItems()
     def self.listingItems()
-        Database2::itemsForMikuType("NxAnniversary")
+        TodoDatabase2::itemsForMikuType("NxAnniversary")
             .select{|anniversary| Anniversaries::isOpenToAcknowledgement(anniversary) }
     end
 
@@ -155,10 +155,10 @@ class Anniversaries
 
     # Anniversaries::done(uuid)
     def self.done(uuid)
-        item = Database2::getObjectByUUIDOrNull(uuid)
+        item = TodoDatabase2::getObjectByUUIDOrNull(uuid)
         return if item.nil?
         item["lastCelebrationDate"] = Time.new.to_s[0, 10]
-        Database2::commit_item(item)
+        TodoDatabase2::commit_item(item)
     end
 
     # Anniversaries::accessAndDone(anniversary)
@@ -166,7 +166,7 @@ class Anniversaries
         puts Anniversaries::toString(anniversary)
         if LucilleCore::askQuestionAnswerAsBoolean("done ? : ", true) then
             anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
-            Database2::commit_item(anniversary)
+            TodoDatabase2::commit_item(anniversary)
         end
     end
 
@@ -180,13 +180,13 @@ class Anniversaries
                 description = CommonUtils::editTextSynchronously(anniversary["description"]).strip
                 next if description == ""
                 anniversary["description"] = description
-                Database2::commit_item(anniversary)
+                TodoDatabase2::commit_item(anniversary)
             end
             if action == "update start date" then
                 startdate = CommonUtils::editTextSynchronously(anniversary["startdate"])
                 next if startdate == ""
                 anniversary["startdate"] = startdate
-                Database2::commit_item(anniversary)
+                TodoDatabase2::commit_item(anniversary)
             end
             if action == "destroy" then
                 filepath = "#{Config::pathToDataCenter()}/Anniversaries/#{anniversary["uuid"]}.json"
@@ -200,7 +200,7 @@ class Anniversaries
     # Anniversaries::mainprobe()
     def self.mainprobe()
         loop {
-            anniversaries = Database2::itemsForMikuType("NxAnniversary")
+            anniversaries = TodoDatabase2::itemsForMikuType("NxAnniversary")
                         .sort{|i1, i2| Anniversaries::nextDateOrdinal(i1)[0] <=> Anniversaries::nextDateOrdinal(i2)[0] }
             anniversary = LucilleCore::selectEntityFromListOfEntitiesOrNull("anniversary", anniversaries, lambda{|item| Anniversaries::toString(item) })
             return if anniversary.nil?

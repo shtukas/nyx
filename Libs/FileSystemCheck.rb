@@ -117,26 +117,6 @@ class FileSystemCheck
         FileSystemCheck::ensureAttribute(item, "ax39", "Hash")
     end
 
-    # FileSystemCheck::fsck_Dx33(item, verbose)
-    def self.fsck_Dx33(item, verbose)
-        return if item.nil?
-
-        if verbose then
-            puts "FileSystemCheck::fsck_Dx33(#{JSON.pretty_generate(item)}, #{verbose})"
-        end
-
-        if item["mikuType"] != "Dx33" then
-            raise "Incorrect Miku type for function"
-        end
-
-        FileSystemCheck::ensureAttribute(item, "uuid", "String")
-        FileSystemCheck::ensureAttribute(item, "mikuType", "String")
-        FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-        FileSystemCheck::ensureAttribute(item, "datetime", "String")
-
-        FileSystemCheck::ensureAttribute(item, "unitId", "String")
-    end
-
     # FileSystemCheck::fsck_NxNode(item, verbose)
     def self.fsck_NxNode(item, verbose)
 
@@ -170,11 +150,6 @@ class FileSystemCheck
 
         if mikuType == "NxTimeFiber" then
             FileSystemCheck::fsck_NxTimeFiber(item, verbose)
-            return
-        end
-
-        if mikuType == "Dx33" then
-            FileSystemCheck::fsck_Dx33(item, verbose)
             return
         end
 
@@ -301,14 +276,14 @@ class FileSystemCheck
     # FileSystemCheck::fsckErrorAtFirstFailure()
     def self.fsckErrorAtFirstFailure()
         [
-            Database2::itemsForMikuType("NxAnniversary"),
+            TodoDatabase2::itemsForMikuType("NxAnniversary"),
             NxTimeFibers::items(),
             NxOndates::items(),
             NxTodosIO::items(),
             NxTriages::items(),
             TxStratospheres::items(),
             TxManualCountDowns::items(),
-            Database2::itemsForMikuType("Wave")
+            TodoDatabase2::itemsForMikuType("Wave")
         ]
             .flatten
             .each{|item|

@@ -1,8 +1,8 @@
 # encoding: UTF-8
 
-class Database2Adaptation
+class TodoDatabase2Adaptation
 
-    # Database2Adaptation::databaseObjectToItem(object)
+    # TodoDatabase2Adaptation::databaseObjectToItem(object)
     def self.databaseObjectToItem(object)
         if object["mikuType"] == "NxTodo" then
             object["nx113"] = JSON.parse(object["field1"])
@@ -29,7 +29,7 @@ class Database2Adaptation
         raise "(error: 002d8744-e34d-4307-b573-73a195a9c7ac)"
     end
 
-    # Database2Adaptation::itemToDatabaseObject(item)
+    # TodoDatabase2Adaptation::itemToDatabaseObject(item)
     def self.itemToDatabaseObject(item)
         if item["mikuType"] == "NxTodo" then
             item["field1"] = JSON.generate(item["nx113"])
@@ -58,54 +58,54 @@ class Database2Adaptation
 
 end
 
-class Database2
+class TodoDatabase2
 
     # ----------------------------------
     # Interface
 
-    # Database2::itemsForMikuType(mikuType)
+    # TodoDatabase2::itemsForMikuType(mikuType)
     def self.itemsForMikuType(mikuType)
-        Database2::database_objects()
+        TodoDatabase2::database_objects()
             .select{|object| object["mikuType"] == mikuType }
-            .map{|object| Database2Adaptation::databaseObjectToItem(object) }
+            .map{|object| TodoDatabase2Adaptation::databaseObjectToItem(object) }
     end
 
-    # Database2::commit_item(item)
+    # TodoDatabase2::commit_item(item)
     def self.commit_item(item)
-        database_object = Database2Adaptation::itemToDatabaseObject(item)
-        Database2::commit_object(database_object)
+        database_object = TodoDatabase2Adaptation::itemToDatabaseObject(item)
+        TodoDatabase2::commit_object(database_object)
     end
 
-    # Database2::getObjectByUUIDOrNull(uuid)
+    # TodoDatabase2::getObjectByUUIDOrNull(uuid)
     def self.getObjectByUUIDOrNull(uuid)
         object = nil
-        Database2::filepaths().each{|filepath|
-            object = Database2::getObjectFromFilepathByUUIDOrNull(filepath, uuid)
+        TodoDatabase2::filepaths().each{|filepath|
+            object = TodoDatabase2::getObjectFromFilepathByUUIDOrNull(filepath, uuid)
             break if !object.nil?
         }
         object
     end
 
-    # Database2::destroy(uuid)
+    # TodoDatabase2::destroy(uuid)
     def self.destroy(uuid)
-        Database2::filepaths().each{|filepath|
-            Database2::deleteObjectInFile(filepath, uuid)
+        TodoDatabase2::filepaths().each{|filepath|
+            TodoDatabase2::deleteObjectInFile(filepath, uuid)
         }
     end
 
     # ----------------------------------
     # Private
 
-    # Database2::database_objects()
+    # TodoDatabase2::database_objects()
     def self.database_objects()
         objects = {}
-        Database2::filepaths().each{|filepath|
+        TodoDatabase2::filepaths().each{|filepath|
             db = SQLite3::Database.new(filepath)
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.results_as_hash = true
             db.execute("select * from objects", []) do |row|
-                objects[row["uuid"]] = Database2::rowToObject(row)
+                objects[row["uuid"]] = TodoDatabase2::rowToObject(row)
             end
             db.close
         }
@@ -114,14 +114,14 @@ class Database2
         objects.values
     end
 
-    # Database2::commit_object(object)
+    # TodoDatabase2::commit_object(object)
     def self.commit_object(object)
         # If we want to commit an object, we need to rewrite all the files in which it is (meaning deleting the object and renaming the file)
         # and put it into a new file.
 
-        filepaths = Database2::filepaths()
+        filepaths = TodoDatabase2::filepaths()
 
-        filepath0 = Database2::spawnNewDatabase()
+        filepath0 = TodoDatabase2::spawnNewDatabase()
 
         db = SQLite3::Database.new(filepath0)
         db.busy_timeout = 117
@@ -132,26 +132,26 @@ class Database2
 
         # Note that we made filepaths, before creating filepath0, so we are not going to delete the object that is being saved from the fie that was just created  
         filepaths.each{|filepath|
-            Database2::deleteObjectInFile(filepath, object["uuid"])
+            TodoDatabase2::deleteObjectInFile(filepath, object["uuid"])
         }
 
-        while Database2::filepaths().size > Database2::cardinality() do
-            filepath1, filepath2 = Database2::filepaths()
-            Database2::mergeFiles(filepath1, filepath2)
+        while TodoDatabase2::filepaths().size > TodoDatabase2::cardinality() do
+            filepath1, filepath2 = TodoDatabase2::filepaths()
+            TodoDatabase2::mergeFiles(filepath1, filepath2)
         end
     end
 
-    # Database2::cardinality()
+    # TodoDatabase2::cardinality()
     def self.cardinality()
         200
     end
 
-    # Database2::foldername()
+    # TodoDatabase2::foldername()
     def self.foldername()
-        "Database2"
+        "TodoDatabase2"
     end
 
-    # Database2::rowToObject(row)
+    # TodoDatabase2::rowToObject(row)
     def self.rowToObject(row)
         {
             "uuid"           => row["uuid"],
@@ -172,9 +172,9 @@ class Database2
         }
     end
 
-    # Database2::spawnNewDatabase()
+    # TodoDatabase2::spawnNewDatabase()
     def self.spawnNewDatabase()
-        filepath = "#{Config::pathToDataCenter()}/#{Database2::foldername()}/#{CommonUtils::timeStringL22()}.sqlite3"
+        filepath = "#{Config::pathToDataCenter()}/#{TodoDatabase2::foldername()}/#{CommonUtils::timeStringL22()}.sqlite3"
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -184,13 +184,13 @@ class Database2
         filepath
     end
 
-    # Database2::filepaths()
+    # TodoDatabase2::filepaths()
     def self.filepaths()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/#{Database2::foldername()}")
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/#{TodoDatabase2::foldername()}")
             .select{|filepath| filepath[-8, 8] == ".sqlite3" }
     end
 
-    # Database2::getObjectFromFilepathByUUIDOrNull(filepath, uuid)
+    # TodoDatabase2::getObjectFromFilepathByUUIDOrNull(filepath, uuid)
     def self.getObjectFromFilepathByUUIDOrNull(filepath, uuid)
         object = nil
         db = SQLite3::Database.new(filepath)
@@ -198,18 +198,18 @@ class Database2
         db.busy_handler { |count| true }
         db.results_as_hash = true
         db.execute("select * from objects where uuid=?", [uuid]) do |row|
-            object = Database2::rowToObject(row)
+            object = TodoDatabase2::rowToObject(row)
         end
         db.close
         object
     end
 
-    # Database2::fileHasObject(filepath, uuid)
+    # TodoDatabase2::fileHasObject(filepath, uuid)
     def self.fileHasObject(filepath, uuid)
-        !Database2::getObjectFromFilepathByUUIDOrNull(filepath, uuid).nil?
+        !TodoDatabase2::getObjectFromFilepathByUUIDOrNull(filepath, uuid).nil?
     end
 
-    # Database2::fileIsEmpty(filepath)
+    # TodoDatabase2::fileIsEmpty(filepath)
     def self.fileIsEmpty(filepath)
         count = nil
         db = SQLite3::Database.new(filepath)
@@ -223,10 +223,10 @@ class Database2
         count == 0
     end
 
-    # Database2::deleteObjectInFile(filepath, uuid)
+    # TodoDatabase2::deleteObjectInFile(filepath, uuid)
     def self.deleteObjectInFile(filepath, uuid)
-        if !Database2::fileHasObject(filepath, uuid) then
-            if Database2::fileIsEmpty(filepath) then
+        if !TodoDatabase2::fileHasObject(filepath, uuid) then
+            if TodoDatabase2::fileIsEmpty(filepath) then
                 FileUtils.rm(filepath)
             end
             return
@@ -237,17 +237,17 @@ class Database2
         db.results_as_hash = true
         db.execute "delete from objects where uuid=?", [uuid]
         db.close
-        if Database2::fileIsEmpty(filepath) then
+        if TodoDatabase2::fileIsEmpty(filepath) then
             FileUtils.rm(filepath)
         else
             # Now we need to rename the file since it's contents have changed
-            filepath2 = "#{Config::pathToDataCenter()}/#{Database2::foldername()}/#{CommonUtils::timeStringL22()}.sqlite3"
+            filepath2 = "#{Config::pathToDataCenter()}/#{TodoDatabase2::foldername()}/#{CommonUtils::timeStringL22()}.sqlite3"
             FileUtils.mv(filepath, filepath2)
         end
         nil
     end
 
-    # Database2::mergeFiles(filepath1, filepath2)
+    # TodoDatabase2::mergeFiles(filepath1, filepath2)
     def self.mergeFiles(filepath1, filepath2)
         db1 = SQLite3::Database.new(filepath1)
         db2 = SQLite3::Database.new(filepath2)
@@ -269,7 +269,7 @@ class Database2
 
 
         # And rename the second one
-        filepath3 = "#{Config::pathToDataCenter()}/#{Database2::foldername()}/#{CommonUtils::timeStringL22()}.sqlite3"
+        filepath3 = "#{Config::pathToDataCenter()}/#{TodoDatabase2::foldername()}/#{CommonUtils::timeStringL22()}.sqlite3"
         FileUtils.mv(filepath2, filepath3)
     end
 

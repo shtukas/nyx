@@ -18,22 +18,22 @@ class NxTodosIO
 
     # NxTodosIO::commit(object)
     def self.commit(object)
-        Database2::commit_item(object)
+        TodoDatabase2::commit_item(object)
     end
 
     # NxTodosIO::getOrNull(uuid)
     def self.getOrNull(uuid)
-        Database2::getObjectByUUIDOrNull(uuid)
+        TodoDatabase2::getObjectByUUIDOrNull(uuid)
     end
 
     # NxTodosIO::items()
     def self.items()
-        Database2::itemsForMikuType("NxTodo")
+        TodoDatabase2::itemsForMikuType("NxTodo")
     end
 
     # NxTodosIO::destroy(uuid)
     def self.destroy(uuid)
-        Database2::destroy(uuid)
+        TodoDatabase2::destroy(uuid)
     end
 end
 

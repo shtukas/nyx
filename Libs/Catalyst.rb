@@ -4,7 +4,7 @@ class Catalyst
 
     # Catalyst::catalystItems()
     def self.catalystItems()
-        NxTodosIO::items() + Database2::itemsForMikuType("Wave")
+        NxTodosIO::items() + TodoDatabase2::itemsForMikuType("Wave")
     end
 
     # Catalyst::getCatalystItemOrNull(uuid)
@@ -16,7 +16,7 @@ class Catalyst
         item = NxOndates::getOrNull(uuid)
         return item if item
 
-        item = Database2::getObjectByUUIDOrNull(uuid)
+        item = TodoDatabase2::getObjectByUUIDOrNull(uuid)
         return item if item
 
         item = NxTodosIO::getOrNull(uuid)
