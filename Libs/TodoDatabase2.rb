@@ -93,6 +93,31 @@ class TodoDatabase2
         }
     end
 
+    # TodoDatabase2::updateAttribute(uuid, attname, attvalue)
+    def self.updateAttribute(uuid, attname, attvalue)
+        TodoDatabase2::filepaths().each{|filepath|
+            db = SQLite3::Database.new(filepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute "update objects set #{attname}=? where uuid=?", [attvalue, uuid]
+            db.close
+        }
+    end
+
+    # ----------------------------------
+    # Config
+
+    # TodoDatabase2::cardinality()
+    def self.cardinality()
+        200
+    end
+
+    # TodoDatabase2::foldername()
+    def self.foldername()
+        "TodoDatabase2"
+    end
+
     # ----------------------------------
     # Private
 
@@ -139,16 +164,6 @@ class TodoDatabase2
             filepath1, filepath2 = TodoDatabase2::filepaths()
             TodoDatabase2::mergeFiles(filepath1, filepath2)
         end
-    end
-
-    # TodoDatabase2::cardinality()
-    def self.cardinality()
-        200
-    end
-
-    # TodoDatabase2::foldername()
-    def self.foldername()
-        "TodoDatabase2"
     end
 
     # TodoDatabase2::rowToObject(row)
