@@ -308,7 +308,7 @@ class FileSystemCheck
             NxTriages::items(),
             TxStratospheres::items(),
             TxManualCountDowns::items(),
-            Waves::items()
+            Database2::itemsForMikuType("Wave")
         ]
             .flatten
             .each{|item|

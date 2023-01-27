@@ -71,7 +71,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "Wave" then
-            Waves::commit(item)
+            Database2::commit_item(item)
             return
         end
 
@@ -86,7 +86,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "Wave" then
-            Waves::destroy(item["uuid"])
+            Database2::destroy(item["uuid"])
             return
         end
 

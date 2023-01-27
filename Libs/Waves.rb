@@ -14,39 +14,6 @@ class Waves
             .first
     end
 
-    # Waves::items()
-    def self.items()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Wave")
-            .select{|filepath| filepath[-5, 5] == ".json" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
-    end
-
-    # Waves::commit(item)
-    def self.commit(item)
-        FileSystemCheck::fsck_MikuTypedItem(item, false)
-        filepath1 = Waves::getExistingFilepathForUUIDOrNull(item["uuid"])
-        filepath2 = "#{Config::pathToDataCenter()}/Wave/#{Digest::SHA1.hexdigest(JSON.generate(item))}.json"
-        return if filepath1 == filepath2
-        File.open(filepath2, "w"){|f| f.puts(JSON.pretty_generate(item)) }
-        if filepath1 then
-            FileUtils.rm(filepath1)
-        end
-    end
-
-    # Waves::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        filepath = Waves::getExistingFilepathForUUIDOrNull(uuid)
-        return nil if filepath.nil?
-        JSON.parse(IO.read(filepath))
-    end
-
-    # Waves::destroy(uuid)
-    def self.destroy(uuid)
-        filepath = Waves::getExistingFilepathForUUIDOrNull(uuid)
-        return if filepath.nil?
-        FileUtils.rm(filepath)
-    end
-
     # --------------------------------------------------
     # Making
 
@@ -187,7 +154,7 @@ class Waves
             "nx113"            => nx113,
             "lastDoneDateTime" => "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         }
-        Waves::commit(item)
+        Database2::commit_item(item)
         item
     end
 
@@ -209,7 +176,7 @@ class Waves
 
     # Waves::listingItems(priority)
     def self.listingItems(priority)
-        Waves::items()
+        Database2::itemsForMikuType("Wave")
             .select{|item| 
                 b1 = (item["priority"] == priority) 
                 b2 = (item["onlyOnDays"].nil? or item["onlyOnDays"].include?(CommonUtils::todayAsLowercaseEnglishWeekDayName()))
@@ -224,7 +191,7 @@ class Waves
     def self.performWaveNx46WaveDone(item)
         puts "done-ing: #{Waves::toString(item)}"
         item["lastDoneDateTime"] = Time.now.utc.iso8601
-        Waves::commit(item)
+        Database2::commit_item(item)
 
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
         puts "not shown until: #{Time.at(unixtime).to_s}"
@@ -234,7 +201,7 @@ class Waves
     # Waves::dive()
     def self.dive()
         loop {
-            items = Waves::items().sort{|w1, w2| w1["description"] <=> w2["description"] }
+            items = Database2::itemsForMikuType("Wave").sort{|w1, w2| w1["description"] <=> w2["description"] }
             wave = LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", items, lambda{|wave| wave["description"] })
             return if wave.nil?
             Waves::probe(wave)
@@ -256,19 +223,19 @@ class Waves
             status = LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit the description instead ? ")
             if status then
                 PolyActions::editDescription(item)
-                return Waves::getOrNull(item["uuid"])
+                return Database2::getObjectByUUIDOrNull(item["uuid"])
             else
                 return item
             end
         end
         Nx113Edit::editNx113Carrier(item)
-        Waves::getOrNull(item["uuid"])
+        Database2::getObjectByUUIDOrNull(item["uuid"])
     end
 
     # Waves::probe(item)
     def self.probe(item)
         loop {
-            item = Waves::getOrNull(item["uuid"])
+            item = Database2::getObjectByUUIDOrNull(item["uuid"])
             puts Waves::toString(item)
             actions = ["access", "update description", "update wave pattern", "perform done", "set fiber", "set days of the week", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
@@ -278,12 +245,12 @@ class Waves
             end
             if action == "update description" then
                 item["description"] = CommonUtils::editTextSynchronously(item["description"])
-                Waves::commit(item)
+                Database2::commit_item(item)
                 next
             end
             if action == "update wave pattern" then
                 item["nx46"] = Waves::makeNx46InteractivelyOrNull()
-                Waves::commit(item)
+                Database2::commit_item(item)
                 next
             end
             if action == "perform done" then
@@ -294,13 +261,13 @@ class Waves
                 wtc = NxTimeFibers::interactivelySelectItemOrNull()
                 next if wtc.nil?
                 item["tcId"] = wtc["uuid"]
-                Waves::commit(item)
+                Database2::commit_item(item)
                 next
             end
             if action == "set days of the week" then
                 days, _ = CommonUtils::interactivelySelectSomeDaysOfTheWeekLowercaseEnglish()
                 item["onlyOnDays"] = days
-                Waves::commit(item)
+                Database2::commit_item(item)
             end
             if action == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of '#{Waves::toString(item)}' ? ") then

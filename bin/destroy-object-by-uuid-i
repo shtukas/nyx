@@ -15,5 +15,5 @@ LucilleCore::pressEnterToContinue()
 
 NxTriages::destroy(uuid)
 NxOndates::destroy(uuid)
-Waves::destroy(uuid)
+Database2::destroy(uuid)
 NxTodosIO::destroy(uuid)

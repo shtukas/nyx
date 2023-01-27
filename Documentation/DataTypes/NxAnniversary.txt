@@ -11,7 +11,7 @@ NxAnniversary
     "repeatType"          : "field2" : "weekly" | "monthly" | "yearly"
     "lastCelebrationDate" : "field3" : Date
 
-NxTodo:
+NxAnniversary:
     "uuid"           : UUID
     "mikuType"       : mikuType
     "unixtime"       : Float
