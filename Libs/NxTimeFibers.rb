@@ -80,7 +80,7 @@ class NxTimeFibers
         pendingInHours = NxTimeFibers::liveNumbers(item)["pendingTimeTodayInHoursLive"]
 
         datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
-        dnsustr  = datetimeOpt ? ", (do not show until: #{datetimeOpt})" : ""
+        dnsustr  = datetimeOpt ? " (do not show until: #{datetimeOpt})" : ""
 
         "(fiber) (pending: #{"%5.2f" % pendingInHours}) #{item["description"].ljust(descriptionPadding)} (#{Ax39::toStringFormatted(item["ax39"])})#{dnsustr}"
     end
@@ -188,7 +188,7 @@ class NxTimeFibers
 
     # NxTimeFibers::liveNumbers(item)
     def self.liveNumbers(item)
-        numbersFromDayTimeLoadsOrNull = lambda {|item|
+        numbersUsingDayTimeLoadsOrNull = lambda {|item|
             filepath = "#{Config::pathToDataCenter()}/NxTimeFiber-DayTimeLoads/#{item["uuid"]}.json"
             return nil if !File.exists?(filepath)
             data = JSON.parse(IO.read(filepath))
@@ -203,7 +203,7 @@ class NxTimeFibers
                 "pendingTimeTodayInHoursLive" => pendingInHours,
             }
         }
-        numbers = numbersFromDayTimeLoadsOrNull.call(item)
+        numbers = numbersUsingDayTimeLoadsOrNull.call(item)
         return numbers if numbers
         Ax39::standardAx39CarrierLiveNumbers(item)
     end

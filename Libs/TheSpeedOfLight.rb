@@ -1,10 +1,11 @@
 
 class TheSpeedOfLight
 
-    # TheSpeedOfLight::getFilepath()
-    def self.getFilepath()
+    # TheSpeedOfLight::getFilepathOrNull()
+    def self.getFilepathOrNull()
         filepaths = LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/TheSpeedOfLight")
             .select{|filepath| filepath[-5, 5] == ".json" }
+        return nil if filepaths.empty?
         filepath = filepaths.first
         filepaths.drop(1).each{|fp| FileUtils.rm(fp) }
         filepath
@@ -12,7 +13,8 @@ class TheSpeedOfLight
 
     # TheSpeedOfLight::getDaySpeedOfLight()
     def self.getDaySpeedOfLight()
-        filepath = TheSpeedOfLight::getFilepath()
+        filepath = TheSpeedOfLight::getFilepathOrNull()
+        return 1 if filepath.nil?
         return 1 if !File.exists?(filepath)
         data = JSON.parse(IO.read(filepath))
         # data: {date, value}
@@ -22,10 +24,12 @@ class TheSpeedOfLight
 
     # TheSpeedOfLight::putData(data)
     def self.putData(data)
-        filepath1 = TheSpeedOfLight::getFilepath()
+        filepath1 = TheSpeedOfLight::getFilepathOrNull()
         filepath2 = "#{Config::pathToDataCenter()}/TheSpeedOfLight/#{CommonUtils::timeStringL22()}.json"
         File.open(filepath2, "w"){|f| f.puts(JSON.pretty_generate(data)) }
-        FileUtils.rm(filepath1)
+        if filepath1 then
+            FileUtils.rm(filepath1)
+        end
     end
 
     # TheSpeedOfLight::decrementLightSpeed()
