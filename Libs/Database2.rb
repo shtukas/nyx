@@ -68,7 +68,7 @@ class Database2
             Database2::deleteObjectInFile(filepath, object["uuid"])
         }
 
-        while Database2::filepaths().size > 100 do
+        while Database2::filepaths().size > Database2::cardinality() do
             filepath1, filepath2 = Database2::filepaths()
             Database2::mergeFiles(filepath1, filepath2)
         end
@@ -106,6 +106,11 @@ class Database2
 
     # ----------------------------------
     # Private
+
+    # Database2::cardinality()
+    def self.cardinality()
+        200
+    end
 
     # Database2::foldername()
     def self.foldername()
