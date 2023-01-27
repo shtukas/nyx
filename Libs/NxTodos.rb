@@ -332,8 +332,8 @@ class NxTodos
                 NxTodos::access(item)
             end
             if action == "update description" then
-                description = LucilleCore::askQuestionAnswerAsString("description: ")
-                item["description"] = description
+                puts "edit description:"
+                item["description"] = CommonUtils::editTextSynchronously(item["description"])
                 NxTodosIO::commit(item)
             end
             if action == "destroy" then

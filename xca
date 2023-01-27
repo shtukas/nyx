@@ -1,5 +1,0 @@
-#!/bin/zsh
-
-cd ~/Galaxy/Software/github.com/shtukas/stargate
-ruby --version
-

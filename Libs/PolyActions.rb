@@ -214,8 +214,10 @@ class PolyActions
         end
 
         if item["mikuType"] == "Vx01" then
-            unixtime = CommonUtils::unixtimeAtComingMidnightAtGivenTimeZone(CommonUtils::getLocalTimeZone())
-            DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+            if LucilleCore::askQuestionAnswerAsBoolean("Confirm Vx01 done for today ? ", true) then
+                unixtime = CommonUtils::unixtimeAtComingMidnightAtGivenTimeZone(CommonUtils::getLocalTimeZone())
+                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+            end
             return
         end
 
@@ -371,6 +373,25 @@ class PolyActions
 
         puts "I do not know how to PolyActions::doubleDotAccess(#{JSON.pretty_generate(item)})"
         raise "(error: 9CD4B61D-8B13-4075-A560-7F3D801DD0D6)"
+    end
+
+    # PolyActions::edit(item)
+    def self.edit(item)
+
+        if item["mikuType"] == "NxTodo" then
+            NxTodos::edit(item)
+        end
+
+        if item["mikuType"] == "Wave" then
+            Waves::edit(item)
+        end
+
+        if item["mikuType"] == "NxTodo" then
+            NxTodos::edit(item)
+        end
+
+        puts "PolyActions Edit has not yet been implemented for miku type #{item["mikuType"]}"
+        LucilleCore::pressEnterToContinue()
     end
 
     # PolyActions::probe(item)
