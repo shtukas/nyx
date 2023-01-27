@@ -9,14 +9,14 @@ class The99Percent
 
     # The99Percent::getCurrentCount()
     def self.getCurrentCount()
-        count = NxTodosDatabase1::filepaths()
+        count = Database2::filepaths()
                     .reduce(0){|sum, filepath|
                         count = nil
                         db = SQLite3::Database.new(filepath)
                         db.busy_timeout = 117
                         db.busy_handler { |count| true }
                         db.results_as_hash = true
-                        db.execute("select count(*) as _count_ from objects", []) do |row|
+                        db.execute("select count(*) as _count_ from objects where mikuType=?", ["NxTodo"]) do |row|
                             count = row["_count_"]
                         end
                         db.close

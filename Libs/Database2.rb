@@ -1,12 +1,36 @@
 # encoding: UTF-8
 
+class Database2Adaptation
+
+    # Database2Adaptation::databaseObjectToItem(object)
+    def self.databaseObjectToItem(object)
+        if object["mikuType"] == "NxTodo" then
+            object["nx113"] = JSON.parse(object["field1"])
+            object["tcId"] = object["field2"]
+            object["tcPos"] = object["field3"]
+        end
+        return object
+    end
+
+    # Database2Adaptation::itemToDatabaseObject(item)
+    def self.itemToDatabaseObject(item)
+        if item["mikuType"] == "NxTodo" then
+            item["field1"] = JSON.generate(item["nx113"])
+            item["field2"] = item["tcId"]
+            item["field3"] = item["tcPos"]
+        end
+        return item
+    end
+
+end
+
 class Database2
 
     # ----------------------------------
     # Interface
 
-    # Database2::objects()
-    def self.objects()
+    # Database2::database_objects()
+    def self.database_objects()
         objects = {}
         Database2::filepaths().each{|filepath|
             db = SQLite3::Database.new(filepath)
@@ -23,8 +47,8 @@ class Database2
         objects.values
     end
 
-    # Database2::commit(object)
-    def self.commit(object)
+    # Database2::commit_object(object)
+    def self.commit_object(object)
         # If we want to commit an object, we need to rewrite all the files in which it is (meaning deleting the object and renaming the file)
         # and put it into a new file.
 
@@ -48,6 +72,19 @@ class Database2
             filepath1, filepath2 = Database2::filepaths()
             Database2::mergeFiles(filepath1, filepath2)
         end
+    end
+
+    # Database2::itemsForMikuType(mikuType)
+    def self.itemsForMikuType(mikuType)
+        Database2::database_objects()
+            .select{|object| object["mikuType"] == mikuType }
+            .map{|object| Database2Adaptation::databaseObjectToItem(object) }
+    end
+
+    # Database2::commit_item(item)
+    def self.commit_item(item)
+        database_object = Database2Adaptation::itemToDatabaseObject(item)
+        Database2::commit_object(database_object)
     end
 
     # Database2::getObjectByUUIDOrNull(uuid)
