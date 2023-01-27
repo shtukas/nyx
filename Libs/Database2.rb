@@ -6,10 +6,17 @@ class Database2Adaptation
     def self.databaseObjectToItem(object)
         if object["mikuType"] == "NxTodo" then
             object["nx113"] = JSON.parse(object["field1"])
-            object["tcId"] = object["field2"]
+            object["tcId"]  = object["field2"]
             object["tcPos"] = object["field3"]
+            return object
         end
-        return object
+        if object["mikuType"] == "NxAnniversary" then
+            object["startdate"]           = object["field1"]
+            object["repeatType"]          = object["field2"]
+            object["lastCelebrationDate"] = object["field3"]
+            return object
+        end
+        raise "(error: 002d8744-e34d-4307-b573-73a195a9c7ac)"
     end
 
     # Database2Adaptation::itemToDatabaseObject(item)
@@ -18,8 +25,15 @@ class Database2Adaptation
             item["field1"] = JSON.generate(item["nx113"])
             item["field2"] = item["tcId"]
             item["field3"] = item["tcPos"]
+            return item
         end
-        return item
+        if item["mikuType"] == "NxAnniversary" then
+            item["field1"] = item["startdate"]
+            item["field2"] = item["repeatType"]
+            item["field3"] = item["lastCelebrationDate"]
+            return item
+        end
+        raise "(error: 34432491-c0a8-45a2-a93c-8a7b132d027e)"
     end
 
 end
@@ -28,6 +42,39 @@ class Database2
 
     # ----------------------------------
     # Interface
+
+    # Database2::itemsForMikuType(mikuType)
+    def self.itemsForMikuType(mikuType)
+        Database2::database_objects()
+            .select{|object| object["mikuType"] == mikuType }
+            .map{|object| Database2Adaptation::databaseObjectToItem(object) }
+    end
+
+    # Database2::commit_item(item)
+    def self.commit_item(item)
+        database_object = Database2Adaptation::itemToDatabaseObject(item)
+        Database2::commit_object(database_object)
+    end
+
+    # Database2::getObjectByUUIDOrNull(uuid)
+    def self.getObjectByUUIDOrNull(uuid)
+        object = nil
+        Database2::filepaths().each{|filepath|
+            object = Database2::getObjectFromFilepathByUUIDOrNull(filepath, uuid)
+            break if !object.nil?
+        }
+        object
+    end
+
+    # Database2::destroy(uuid)
+    def self.destroy(uuid)
+        Database2::filepaths().each{|filepath|
+            Database2::deleteObjectInFile(filepath, uuid)
+        }
+    end
+
+    # ----------------------------------
+    # Private
 
     # Database2::database_objects()
     def self.database_objects()
@@ -73,39 +120,6 @@ class Database2
             Database2::mergeFiles(filepath1, filepath2)
         end
     end
-
-    # Database2::itemsForMikuType(mikuType)
-    def self.itemsForMikuType(mikuType)
-        Database2::database_objects()
-            .select{|object| object["mikuType"] == mikuType }
-            .map{|object| Database2Adaptation::databaseObjectToItem(object) }
-    end
-
-    # Database2::commit_item(item)
-    def self.commit_item(item)
-        database_object = Database2Adaptation::itemToDatabaseObject(item)
-        Database2::commit_object(database_object)
-    end
-
-    # Database2::getObjectByUUIDOrNull(uuid)
-    def self.getObjectByUUIDOrNull(uuid)
-        object = nil
-        Database2::filepaths().each{|filepath|
-            object = Database2::getObjectFromFilepathByUUIDOrNull(filepath, uuid)
-            break if !object.nil?
-        }
-        object
-    end
-
-    # Database2::destroy(uuid)
-    def self.destroy(uuid)
-        Database2::filepaths().each{|filepath|
-            Database2::deleteObjectInFile(filepath, uuid)
-        }
-    end
-
-    # ----------------------------------
-    # Private
 
     # Database2::cardinality()
     def self.cardinality()

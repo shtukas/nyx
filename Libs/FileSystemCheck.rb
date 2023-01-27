@@ -301,7 +301,7 @@ class FileSystemCheck
     # FileSystemCheck::fsckErrorAtFirstFailure()
     def self.fsckErrorAtFirstFailure()
         [
-            Anniversaries::items(),
+            Database2::itemsForMikuType("NxAnniversary"),
             NxTimeFibers::items(),
             NxOndates::items(),
             NxTodosIO::items(),

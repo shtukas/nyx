@@ -22,10 +22,10 @@ NxTodo:
     "field1"         : "nx113"  : Nx113, JSON serialised
     "field2"         : "tcId"   : String
     "field3"         : "tcPos"  : Float
-    "field4"         : 
-    "field5"         : 
-    "field6"         : 
-    "field7"         : 
-    "field8"         : 
+    "field4"         :
+    "field5"         :
+    "field6"         :
+    "field7"         :
+    "field8"         :
 
 
