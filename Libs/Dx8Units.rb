@@ -10,10 +10,10 @@ class Dx8Units
 
     # Dx8Units::attemptRepository()
     def self.attemptRepository() # Boolean # Indicates whether we got there or not
-        return true if File.exists?(Dx8Units::repository())
+        return true if File.exist?(Dx8Units::repository())
         puts "I need Orbital1. Please plug".green
         LucilleCore::pressEnterToContinue()
-        File.exists?(Dx8Units::repository())
+        File.exist?(Dx8Units::repository())
     end
 
     # Dx8Units::acquireUnitFolderPathOrNull(dx8UnitId)
@@ -27,7 +27,7 @@ class Dx8Units
         end
 
         location = "#{Dx8Units::repository()}/#{dx8UnitId}"
-        if File.exists?(location) then
+        if File.exist?(location) then
             return location
         end
 

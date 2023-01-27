@@ -7,7 +7,7 @@ class Galaxy
     def self.locationEnumerator(roots)
         Enumerator.new do |filepaths|
             roots.each{|root|
-                if File.exists?(root) then
+                if File.exist?(root) then
                     begin
                         Find.find(root) do |path|
                             next if File.basename(path)[0, 1] == "."

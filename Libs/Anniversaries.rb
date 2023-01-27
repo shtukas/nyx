@@ -23,14 +23,14 @@ class Anniversaries
     # Anniversaries::getOrNull(uuid)
     def self.getOrNull(uuid)
         filepath = Anniversaries::filepath(uuid)
-        return nil if !File.exists?(filepath)
+        return nil if !File.exist?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
     # Anniversaries::destroy(uuid)
     def self.destroy(uuid)
         filepath = Anniversaries::filepath(uuid)
-        if File.exists?(filepath) then
+        if File.exist?(filepath) then
             FileUtils.rm(filepath)
         end
     end
@@ -219,7 +219,7 @@ class Anniversaries
             end
             if action == "destroy" then
                 filepath = "#{Config::pathToDataCenter()}/Anniversaries/#{anniversary["uuid"]}.json"
-                return nil if !File.exists?(filepath)
+                return nil if !File.exist?(filepath)
                 FileUtils.rm(filepath)
                 return
             end

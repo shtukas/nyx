@@ -24,14 +24,14 @@ class NxOndates
     # NxOndates::getOrNull(uuid)
     def self.getOrNull(uuid)
         filepath = NxOndates::filepath(uuid)
-        return nil if !File.exists?(filepath)
+        return nil if !File.exist?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
     # NxOndates::destroy(uuid)
     def self.destroy(uuid)
         filepath = NxOndates::filepath(uuid)
-        if File.exists?(filepath) then
+        if File.exist?(filepath) then
             FileUtils.rm(filepath)
         end
     end

@@ -309,7 +309,7 @@ class CommonUtils
 
     # CommonUtils::locationTrace(location)
     def self.locationTrace(location)
-        raise "(error: 4d172723-3748-4f0b-a309-3944e4f352d9)" if !File.exists?(location)
+        raise "(error: 4d172723-3748-4f0b-a309-3944e4f352d9)" if !File.exist?(location)
         if File.file?(location) then
             Digest::SHA256.hexdigest("#{File.basename(location)}:#{Digest::SHA256.file(location).hexdigest}")
         else
@@ -331,7 +331,7 @@ class CommonUtils
 
     # CommonUtils::locationTraceCode(location)
     def self.locationTraceCode(location)
-        raise "(error: 4d172723-3748-4f0b-a309-3944e4f352d9)" if !File.exists?(location)
+        raise "(error: 4d172723-3748-4f0b-a309-3944e4f352d9)" if !File.exist?(location)
         if File.file?(location) then
             Digest::SHA1.hexdigest("#{File.basename(location)}:#{Digest::SHA1.file(location).hexdigest}")
         else
@@ -544,7 +544,7 @@ class CommonUtils
 
     # CommonUtils::moveFileToBinTimeline(location)
     def self.moveFileToBinTimeline(location)
-        return if !File.exists?(location)
+        return if !File.exist?(location)
         directory = "#{Config::userHomeDirectory()}/x-space/bin-timeline/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
         FileUtils.mkpath(directory)
         FileUtils.mv(location, directory)

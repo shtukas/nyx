@@ -25,14 +25,14 @@ class TxManualCountDowns
     # TxManualCountDowns::getOrNull(uuid)
     def self.getOrNull(uuid)
         filepath = TxManualCountDowns::filepath(uuid)
-        return nil if !File.exists?(filepath)
+        return nil if !File.exist?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
     # TxManualCountDowns::destroy(uuid)
     def self.destroy(uuid)
         filepath = TxManualCountDowns::filepath(uuid)
-        if File.exists?(filepath) then
+        if File.exist?(filepath) then
             FileUtils.rm(filepath)
         end
     end

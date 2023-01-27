@@ -5,7 +5,7 @@ class Bank
     # Bank::databaseFilepath(instanceId)
     def self.databaseFilepath(instanceId)
         filepath = "#{Config::pathToDataCenter()}/Bank/bank-#{instanceId}.sqlite"
-        if !File.exists?(filepath) then
+        if !File.exist?(filepath) then
             db = SQLite3::Database.new(filepath)
             db.busy_timeout = 117
             db.busy_handler { |count| true }

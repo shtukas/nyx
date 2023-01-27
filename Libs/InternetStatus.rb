@@ -26,7 +26,7 @@ class InternetStatus
     # InternetStatus::trueIfElementRequiresInternet(id)
     def self.trueIfElementRequiresInternet(id)
         filepath = "#{Config::pathToDataCenter()}/RequireInternet/#{id}"
-        File.exists?(filepath)
+        File.exist?(filepath)
     end
 
     # InternetStatus::itemShouldShow(id)

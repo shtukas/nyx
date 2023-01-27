@@ -217,7 +217,7 @@ class NxTodosIO
     # NxTodosIO::getOrNull(uuid)
     def self.getOrNull(uuid)
         #filepath = "#{NxTodosIO::repositoryFolderPath()}/#{uuid}.json"
-        #return nil if !File.exists?(filepath)
+        #return nil if !File.exist?(filepath)
         #JSON.parse(IO.read(filepath))
 
         NxTodosDatabase1::getObjectByUUIDOrNull(uuid)
@@ -235,7 +235,7 @@ class NxTodosIO
     # NxTodosIO::destroy(uuid)
     def self.destroy(uuid)
         #filepath = NxTodosIO::filepath(uuid)
-        #if File.exists?(filepath) then
+        #if File.exist?(filepath) then
         #    FileUtils.rm(filepath)
         #end
 

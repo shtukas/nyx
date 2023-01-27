@@ -6,7 +6,7 @@ require_relative "../Libs/loader.rb"
 
 puts "process-Dx33s"
 Nx113Dx33s::getItems().each{|item|
-    next if !File.exists?("/Volumes/EnergyGrid1/Stargate/Data/Dx8Units")
+    next if !File.exist?("/Volumes/EnergyGrid1/Stargate/Data/Dx8Units")
     location = Dx8Units::acquireUnitFolderPathOrNull(item["unitId"])
     if location.nil? then
         Nx113Dx33s::destroy(item["uuid"])

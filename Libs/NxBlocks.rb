@@ -24,14 +24,14 @@ class NxBlocks
     # NxBlocks::getOrNull(uuid)
     def self.getOrNull(uuid)
         filepath = NxBlocks::filepath(uuid)
-        return nil if !File.exists?(filepath)
+        return nil if !File.exist?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
     # NxBlocks::destroy(uuid)
     def self.destroy(uuid)
         filepath = NxBlocks::filepath(uuid)
-        if File.exists?(filepath) then
+        if File.exist?(filepath) then
             FileUtils.rm(filepath)
         end
     end

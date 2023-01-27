@@ -23,7 +23,7 @@ class Nx113Make
 
     # Nx113Make::file(filepath) # Nx113
     def self.file(filepath)
-        raise "(error: d3539fc0-5615-46ff-809b-85ac34850070)" if !File.exists?(filepath)
+        raise "(error: d3539fc0-5615-46ff-809b-85ac34850070)" if !File.exist?(filepath)
         dottedExtension, nhash, parts = PrimitiveFiles::commitFileReturnDataElements(filepath) # [dottedExtension, nhash, parts]
 
         {
@@ -37,7 +37,7 @@ class Nx113Make
 
     # Nx113Make::aionpoint(location) # Nx113
     def self.aionpoint(location)
-        raise "(error: 93590239-f8e0-4f35-af47-d7f1407e21f2)" if !File.exists?(location)
+        raise "(error: 93590239-f8e0-4f35-af47-d7f1407e21f2)" if !File.exist?(location)
         rootnhash = AionCore::commitLocationReturnHash(DatablobStoreElizabeth.new(), location)
         {
             "mikuType"  => "Nx113",
@@ -133,7 +133,7 @@ class Nx113Access
 
     # Nx113Access::accessAionPointAtExportDirectory(rootnhash, parentLocation)
     def self.accessAionPointAtExportDirectory(rootnhash, parentLocation)
-        if !File.exists?(parentLocation) then
+        if !File.exist?(parentLocation) then
             FileUtils.mkdir(parentLocation)
         end
         AionCore::exportHashAtFolder(DatablobStoreElizabeth.new(), rootnhash, parentLocation)
@@ -331,7 +331,7 @@ class Nx113Dx33s
     # Nx113Dx33s::destroy(uuid)
     def self.destroy(uuid)
         filepath = "#{Config::pathToDataCenter()}/Dx33/#{item["uuid"]}.json"
-        return if !File.exists?(filepath)
+        return if !File.exist?(filepath)
         FileUtils.rm(filepath)
     end
 end

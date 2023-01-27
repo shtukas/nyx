@@ -4,7 +4,7 @@ class PrimitiveFiles
 
     # PrimitiveFiles::commitFileReturnDataElements(filepath) # [dottedExtension, nhash, parts]
     def self.commitFileReturnDataElements(filepath)
-        raise "[4b23d843-1960-4c19-b0bb-4bf4ea9f14b4, filepath: #{filepath}]" if !File.exists?(filepath)
+        raise "[4b23d843-1960-4c19-b0bb-4bf4ea9f14b4, filepath: #{filepath}]" if !File.exist?(filepath)
         raise "[43d2b5e1-06d5-4dc9-844c-c04bf353dfba, filepath: #{filepath}]" if !File.file?(filepath)
 
         dottedExtension = File.extname(filepath)

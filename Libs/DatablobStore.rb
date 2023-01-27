@@ -14,7 +14,7 @@ class DatablobStore
         nhash = "SHA256-#{Digest::SHA256.hexdigest(datablob)}"
         filename = "#{nhash}.data"
         folderpath = "#{DatablobStore::repositoryFolderPath()}/#{nhash[7, 2]}"
-        if !File.exists?(folderpath) then
+        if !File.exist?(folderpath) then
             FileUtils.mkdir(folderpath)
         end
         filepath = "#{folderpath}/#{filename}"
@@ -35,7 +35,7 @@ class DatablobStore
         filename = "#{nhash}.data"
         folderpath = "#{DatablobStore::repositoryFolderPath()}/#{nhash[7, 2]}"
         filepath = "#{folderpath}/#{filename}"
-        return nil if !File.exists?(filepath)
+        return nil if !File.exist?(filepath)
         blob = IO.read(filepath)
 
         # -------------------------------------

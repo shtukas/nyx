@@ -237,7 +237,7 @@ class PolyActions
     def self.doubleDotAccess(item)
 
         filepath = "#{Config::pathToDataCenter()}/Locks/#{item["uuid"]}.lock"
-        if File.exists?(filepath) then
+        if File.exist?(filepath) then
             FileUtils.touch(filepath)
         end
 

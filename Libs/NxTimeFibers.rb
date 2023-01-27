@@ -25,14 +25,14 @@ class NxTimeFibers
     # NxTimeFibers::getOrNull(uuid)
     def self.getOrNull(uuid)
         filepath = NxTimeFibers::filepath(uuid)
-        return nil if !File.exists?(filepath)
+        return nil if !File.exist?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
     # NxTimeFibers::destroy(uuid)
     def self.destroy(uuid)
         filepath = NxTimeFibers::filepath(uuid)
-        if File.exists?(filepath) then
+        if File.exist?(filepath) then
             FileUtils.rm(filepath)
         end
     end
@@ -96,7 +96,7 @@ class NxTimeFibers
         filepath = "#{Config::pathToDataCenter()}/NxTimeFiber-to-FirstItems/#{tcId}.json"
 
         getDataOrNull = lambda {|filepath|
-            return nil if !File.exists?(filepath)
+            return nil if !File.exist?(filepath)
             packet = JSON.parse(IO.read(filepath))
             packet["uuids"]
                 .map{|uuid| NxTodosIO::getOrNull(uuid) }
@@ -104,7 +104,7 @@ class NxTimeFibers
         }
 
         getRecentDataOrNull = lambda {|filepath|
-            return nil if !File.exists?(filepath)
+            return nil if !File.exist?(filepath)
             packet = JSON.parse(IO.read(filepath))
             return nil if (Time.new.to_i - packet["unixtime"]) > 3600
             packet["uuids"]
@@ -190,7 +190,7 @@ class NxTimeFibers
     def self.liveNumbers(item)
         numbersUsingDayTimeLoadsOrNull = lambda {|item|
             filepath = "#{Config::pathToDataCenter()}/NxTimeFiber-DayTimeLoads/#{item["uuid"]}.json"
-            return nil if !File.exists?(filepath)
+            return nil if !File.exist?(filepath)
             data = JSON.parse(IO.read(filepath))
             if data["date"] != CommonUtils::today() then
                 FileUtils.rm(filepath)

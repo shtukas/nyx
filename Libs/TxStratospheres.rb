@@ -24,14 +24,14 @@ class TxStratospheres
     # TxStratospheres::getOrNull(uuid)
     def self.getOrNull(uuid)
         filepath = TxStratospheres::filepath(uuid)
-        return nil if !File.exists?(filepath)
+        return nil if !File.exist?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
     # TxStratospheres::destroy(uuid)
     def self.destroy(uuid)
         filepath = TxStratospheres::filepath(uuid)
-        if File.exists?(filepath) then
+        if File.exist?(filepath) then
             FileUtils.rm(filepath)
         end
     end

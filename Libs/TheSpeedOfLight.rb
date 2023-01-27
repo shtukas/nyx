@@ -15,7 +15,7 @@ class TheSpeedOfLight
     def self.getDaySpeedOfLight()
         filepath = TheSpeedOfLight::getFilepathOrNull()
         return 1 if filepath.nil?
-        return 1 if !File.exists?(filepath)
+        return 1 if !File.exist?(filepath)
         data = JSON.parse(IO.read(filepath))
         # data: {date, value}
         return 1 if data["date"] != CommonUtils::today()
