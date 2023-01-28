@@ -203,7 +203,7 @@ class PolyActions
 
         if item["mikuType"] == "TxStratosphere" then
             if LucilleCore::askQuestionAnswerAsBoolean("destroy TxStratosphere '#{NxTriages::toString(item).green} ? '", true) then
-                TxStratospheres::destroy(item["uuid"])
+                TodoDatabase2::destroy(item["uuid"])
             end
             return
         end
@@ -444,7 +444,7 @@ class PolyActions
                 wtc = NxTimeFibers::interactivelySelectItemOrNull()
                 if wtc then
                     item["tcId"] = wtc["uuid"]
-                    TxStratospheres::commit(item)
+                    TodoDatabase2::commit_item(item)
                 end
             end
         end
@@ -453,7 +453,7 @@ class PolyActions
                 wtc = NxTimeFibers::interactivelySelectItemOrNull()
                 if wtc then
                     item["tcId"] = wtc["uuid"]
-                    TxStratospheres::commit(item)
+                    TodoDatabase2::commit_item(item)
                 end
             end
         end

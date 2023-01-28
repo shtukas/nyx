@@ -1,8 +1,12 @@
 
 TxStratosphere:
-    "uuid"        : String
-    "mikuType"    : "TxStratosphere"
-    "unixtime"    : Float
-    "description" : String
-    "ordinal"     : Float
-    "tcIds"       : null or String # There is an attempt to set it when the item is started
+    "uuid"             : UUID
+    "mikuType"         : mikuType
+    "unixtime"         : Float
+    "datetime"         : DateTime Iso 8601 UTC Zulu
+    "description"      : String
+    "payload"          : 
+    "doNotShowUntil"   : Unixtime
+
+    "ordinal" "field1" : Float
+    "tcId"    "field2" : String

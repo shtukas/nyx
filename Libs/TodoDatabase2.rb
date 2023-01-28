@@ -1,63 +1,5 @@
 # encoding: UTF-8
 
-class TodoDatabase2Adaptation
-
-    # TodoDatabase2Adaptation::databaseObjectToItem(object)
-    def self.databaseObjectToItem(object)
-        if object["mikuType"] == "NxTodo" then
-            object["nx113"] = JSON.parse(object["field1"])
-            object["tcId"]  = object["field2"]
-            object["tcPos"] = object["field3"]
-            return object
-        end
-        if object["mikuType"] == "NxAnniversary" then
-            object["startdate"]           = object["field1"]
-            object["repeatType"]          = object["field2"]
-            object["lastCelebrationDate"] = object["field3"]
-            return object
-        end
-        if object["mikuType"] == "Wave" then
-            object["nx46"]                = JSON.parse(object["field1"])
-            object["priority"]            = object["field2"]
-            object["tcId"]                = object["field3"]
-            object["lastDoneDateTime"]    = object["field4"]
-            object["nx113"]               = JSON.parse(object["field5"])
-            object["onlyOnDays"]          = JSON.parse(object["field6"])
-            return object
-        end
-        puts JSON.pretty_generate(object)
-        raise "(error: 002d8744-e34d-4307-b573-73a195a9c7ac)"
-    end
-
-    # TodoDatabase2Adaptation::itemToDatabaseObject(item)
-    def self.itemToDatabaseObject(item)
-        if item["mikuType"] == "NxTodo" then
-            item["field1"] = JSON.generate(item["nx113"])
-            item["field2"] = item["tcId"]
-            item["field3"] = item["tcPos"]
-            return item
-        end
-        if item["mikuType"] == "NxAnniversary" then
-            item["field1"] = item["startdate"]
-            item["field2"] = item["repeatType"]
-            item["field3"] = item["lastCelebrationDate"]
-            return item
-        end
-        if item["mikuType"] == "Wave" then
-            item["field1"] = JSON.generate(item["nx46"])
-            item["field2"] = item["priority"]
-            item["field3"] = item["tcId"]
-            item["field4"] = item["lastDoneDateTime"]
-            item["field5"] = JSON.generate(item["nx113"])
-            item["field6"] = JSON.generate(item["onlyOnDays"])
-            return item
-        end
-        puts JSON.pretty_generate(item)
-        raise "(error: 34432491-c0a8-45a2-a93c-8a7b132d027e)"
-    end
-
-end
-
 class TodoDatabase2
 
     # ----------------------------------
@@ -72,6 +14,7 @@ class TodoDatabase2
 
     # TodoDatabase2::commit_item(item)
     def self.commit_item(item)
+        FileSystemCheck::fsck_MikuTypedItem(item, true)
         database_object = TodoDatabase2Adaptation::itemToDatabaseObject(item)
         TodoDatabase2::commit_object(database_object)
     end
@@ -286,6 +229,74 @@ class TodoDatabase2
         # And rename the second one
         filepath3 = "#{Config::pathToDataCenter()}/#{TodoDatabase2::foldername()}/#{CommonUtils::timeStringL22()}.sqlite3"
         FileUtils.mv(filepath2, filepath3)
+    end
+
+end
+
+class TodoDatabase2Adaptation
+
+    # TodoDatabase2Adaptation::databaseObjectToItem(object)
+    def self.databaseObjectToItem(object)
+        if object["mikuType"] == "NxTodo" then
+            object["nx113"] = JSON.parse(object["field1"])
+            object["tcId"]  = object["field2"]
+            object["tcPos"] = object["field3"]
+            return object
+        end
+        if object["mikuType"] == "NxAnniversary" then
+            object["startdate"]           = object["field1"]
+            object["repeatType"]          = object["field2"]
+            object["lastCelebrationDate"] = object["field3"]
+            return object
+        end
+        if object["mikuType"] == "Wave" then
+            object["nx46"]                = JSON.parse(object["field1"])
+            object["priority"]            = object["field2"]
+            object["tcId"]                = object["field3"]
+            object["lastDoneDateTime"]    = object["field4"]
+            object["nx113"]               = JSON.parse(object["field5"])
+            object["onlyOnDays"]          = JSON.parse(object["field6"])
+            return object
+        end
+        if object["mikuType"] == "TxStratosphere" then
+            object["ordinal"] = object["field1"]
+            object["tcId"]    = object["field2"]
+            return object
+        end
+        puts JSON.pretty_generate(object)
+        raise "(error: 002d8744-e34d-4307-b573-73a195a9c7ac)"
+    end
+
+    # TodoDatabase2Adaptation::itemToDatabaseObject(item)
+    def self.itemToDatabaseObject(item)
+        if item["mikuType"] == "NxTodo" then
+            item["field1"] = JSON.generate(item["nx113"])
+            item["field2"] = item["tcId"]
+            item["field3"] = item["tcPos"]
+            return item
+        end
+        if item["mikuType"] == "NxAnniversary" then
+            item["field1"] = item["startdate"]
+            item["field2"] = item["repeatType"]
+            item["field3"] = item["lastCelebrationDate"]
+            return item
+        end
+        if item["mikuType"] == "Wave" then
+            item["field1"] = JSON.generate(item["nx46"])
+            item["field2"] = item["priority"]
+            item["field3"] = item["tcId"]
+            item["field4"] = item["lastDoneDateTime"]
+            item["field5"] = JSON.generate(item["nx113"])
+            item["field6"] = JSON.generate(item["onlyOnDays"])
+            return item
+        end
+        if item["mikuType"] == "TxStratosphere" then
+            item["field1"] = item["ordinal"]
+            item["field2"] = item["tcId"]
+            return item
+        end
+        puts JSON.pretty_generate(item)
+        raise "(error: 34432491-c0a8-45a2-a93c-8a7b132d027e)"
     end
 
 end

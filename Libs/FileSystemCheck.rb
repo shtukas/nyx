@@ -239,8 +239,8 @@ class FileSystemCheck
         if mikuType == "TxStratosphere" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
             FileSystemCheck::ensureAttribute(item, "mikuType", "String")
-            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-            FileSystemCheck::ensureAttribute(item, "description", "String")
+            FileSystemCheck::ensureAttribute(item, "ordinal", "Number")
+            FileSystemCheck::ensureAttribute(item, "tcId", "String")
             return
         end
 
@@ -275,19 +275,10 @@ class FileSystemCheck
 
     # FileSystemCheck::fsckErrorAtFirstFailure()
     def self.fsckErrorAtFirstFailure()
-        [
-            TodoDatabase2::itemsForMikuType("NxAnniversary"),
-            NxTimeFibers::items(),
-            NxOndates::items(),
-            NxTodosIO::items(),
-            NxTriages::items(),
-            TxStratospheres::items(),
-            TxManualCountDowns::items(),
-            TodoDatabase2::itemsForMikuType("Wave")
-        ]
-            .flatten
-            .each{|item|
+        TodoDatabase2::database_objects()
+            .each{|object|
                 FileSystemCheck::exitIfMissingCanary()
+                item = TodoDatabase2Adaptation::databaseObjectToItem(object)
                 FileSystemCheck::fsck_MikuTypedItem(item, true)
             }
         puts "fsck completed successfully".green

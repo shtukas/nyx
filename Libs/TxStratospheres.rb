@@ -2,40 +2,6 @@
 
 class TxStratospheres
 
-    # TxStratospheres::filepath(uuid)
-    def self.filepath(uuid)
-        "#{Config::pathToDataCenter()}/TxStratosphere/#{uuid}.json"
-    end
-
-    # TxStratospheres::items()
-    def self.items()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/TxStratosphere")
-            .select{|filepath| filepath[-5, 5] == ".json" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
-    end
-
-    # TxStratospheres::commit(item)
-    def self.commit(item)
-        FileSystemCheck::fsck_MikuTypedItem(item, false)
-        filepath = TxStratospheres::filepath(item["uuid"])
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
-    end
-
-    # TxStratospheres::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        filepath = TxStratospheres::filepath(uuid)
-        return nil if !File.exist?(filepath)
-        JSON.parse(IO.read(filepath))
-    end
-
-    # TxStratospheres::destroy(uuid)
-    def self.destroy(uuid)
-        filepath = TxStratospheres::filepath(uuid)
-        if File.exist?(filepath) then
-            FileUtils.rm(filepath)
-        end
-    end
-
     # --------------------------------------------------
     # Makers
 
@@ -52,7 +18,7 @@ class TxStratospheres
             "description" => description,
             "ordinal"     => ordinal
         }
-        TxStratospheres::commit(item)
+        TodoDatabase2::commit_item(item)
         item
     end
 
@@ -66,7 +32,7 @@ class TxStratospheres
 
     # TxStratospheres::listingItems()
     def self.listingItems()
-        TxStratospheres::items()
+        TodoDatabase2::itemsForMikuType("TxStratosphere")
             .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
     end
 end
