@@ -90,6 +90,7 @@ class TodoDatabase2
 
     # TodoDatabase2::destroy(uuid)
     def self.destroy(uuid)
+        puts "TodoDatabase2::destroy(#{uuid})"
         TodoDatabase2::filepaths().each{|filepath|
             TodoDatabase2::deleteObjectInFile(filepath, uuid)
         }
@@ -320,7 +321,6 @@ class TodoDatabase2ItemObjectsTranslation
         if object["mikuType"] == "NxTimeDrop" then
             object["field1"] = object["field1"].to_f
             object["field2"] = object["field2"].to_f
-            object["field3"] = object["field3"].to_f
             return object
         end
         puts JSON.pretty_generate(object)
@@ -492,7 +492,6 @@ class Database2Engine
                         "description" => "TimeDrop (1 hour): #{item["description"]}",
                         "field1"      => hoursOne,
                         "field2"      => nil,
-                        "field3"      => 0,
                         "field4"      => item["uuid"]
                     }
                     puts JSON.pretty_generate(drop)

@@ -5,7 +5,8 @@ NxTimeDrop:
     "unixtime"     : Float
     "datetime"     : DateTime Iso 8601 UTC Zulu
     "description"  : String
-    "field1"       : Float, load in hours
+    "field1"       : Float, load in hours, we remove from it, so it's algebraic [1]
     "field2"       : nil or unixtime, run start unixtime
-    "field3"       : Float, done in seconds
     "field4"       : reference time commitment uuid
+
+[1] When it becomes negative, we sum it with another one.s

@@ -234,7 +234,6 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "description", "String")
             FileSystemCheck::ensureAttribute(item, "field1", "Number")
-            FileSystemCheck::ensureAttribute(item, "field3", "Number")
             FileSystemCheck::ensureAttribute(item, "field4", "String")
             return
         end

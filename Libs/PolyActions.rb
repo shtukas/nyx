@@ -81,15 +81,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxTimeDrop" then
-            unrealisedTime = item["field2"] ? Time.new.to_i - item["field2"] : 0
-            totalTimeInSeconds = item["field3"] + unrealisdTime
-            if totalTimeInSeconds > item["field1"]*3600 then
-                TodoDatabase2::destroy(item["uuid"])
-            else
-                item["field3"] = item["field3"] + unrealisedTime
-                item["field2"] = nil
-                TodoDatabase2::commitItem(item)
-            end
+            NxTimeDrops::stop(item)
             return
         end
 
@@ -162,7 +154,7 @@ class PolyActions
         if item["mikuType"] == "NxTimeDrop" then
             NxTimeDrops::start(item)
             if LucilleCore::askQuestionAnswerAsBoolean("> stop ? ", true) then
-                NxTimeDrops::stopAndPossiblyDestroy(item)
+                NxTimeDrops::stop(item)
             end
             return
         end

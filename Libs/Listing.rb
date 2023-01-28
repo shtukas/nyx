@@ -218,12 +218,21 @@ class Listing
         end
 
         if Interpreting::match("start", input) then
+            if item["mikuType"] != "NxTimeDrop" then
+                puts "> the start command is only available for NxTimeDrops"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
             NxTimeDrops::start(item)
             return
         end
 
         if Interpreting::match("stop", input) then
-            NxTimeDrops::stopAndPossiblyDestroy(item)
+            if item["mikuType"] != "NxTimeDrop" then
+                puts "> the stop command is only available for NxTimeDrops"
+                LucilleCore::pressEnterToContinue()
+            end
+            NxTimeDrops::stop(item)
             return
         end
 
@@ -274,6 +283,14 @@ class Listing
             LucilleCore::pressEnterToContinue()
             return
         end
+    end
+
+    # Listing::isNxTimeDropAndCompleted(item)
+    def self.isNxTimeDropAndCompleted(item)
+        return false if item["mikuType"] != "NxTimeDrop"
+        return false if (item["field2"] and item["field2"] > 0)
+        return false if item["field1"] > 0
+        true
     end
 
     # Listing::mainProgram2Pure()
@@ -353,6 +370,7 @@ class Listing
                 .sort{|i1, i2| i1["listing:position"] <=> i2["listing:position"] }
                 .reverse
                 .each{|item|
+                    next if Listing::isNxTimeDropAndCompleted(item)
                     store.register(item, !Skips::isSkipped(item) && !Locks::isLocked(item))
                     line = "(#{store.prefixString()}) #{PolyFunctions::toStringForListing(item)}"
                     if Locks::isLocked(item) then
