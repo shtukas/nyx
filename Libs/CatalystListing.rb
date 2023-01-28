@@ -10,7 +10,7 @@ class CatalystListing
             "[nxballs] start (<n>) | stop <n> | pause <n> | pursue <n>",
             "[divings] anniversaries | ondates | waves | fibers | todos",
             "[transmutations] '' (transmute)",
-            "[misc] require internet | search | speed | commands | lock (<n>) | numbers",
+            "[misc] require internet | search | speed | commands | lock (<n>)",
         ].join("\n")
     end
 
@@ -69,11 +69,6 @@ class CatalystListing
 
         if Interpreting::match("anniversaries", input) then
             Anniversaries::mainprobe()
-            return
-        end
-
-        if Interpreting::match("numbers", input) then
-            CatalystListing::displayNumbers()
             return
         end
 
@@ -369,123 +364,26 @@ class CatalystListing
         end
 
         if Interpreting::match("speed", input) then
-            CatalystListing::runSpeedTest()
             LucilleCore::pressEnterToContinue()
             return
         end
     end
 
-    # CatalystListing::runSpeedTest()
-    def self.runSpeedTest()
-        tests = [
-            {
-                "name" => "Anniversaries::listingItems()",
-                "lambda" => lambda { Anniversaries::listingItems() }
-            },
-            {
-                "name" => "NxTimeFibers::listingElements(true)",
-                "lambda" => lambda { NxTimeFibers::listingElements(true) }
-            },
-            {
-                "name" => "NxTimeFibers::listingElements(false)",
-                "lambda" => lambda { NxTimeFibers::listingElements(false) }
-            },
-            {
-                "name" => "NxOndates::listingItems()",
-                "lambda" => lambda { NxOndates::listingItems() }
-            },
-            {
-                "name" => "TodoDatabase2::itemsForMikuType(NxTriage)",
-                "lambda" => lambda { TodoDatabase2::itemsForMikuType("NxTriage") }
-            },
-            {
-                "name" => "NxTimeDrops::listingItems()",
-                "lambda" => lambda { NxTimeDrops::listingItems() }
-            },
-            {
-                "name" => "source code trace generation",
-                "lambda" => lambda { CommonUtils::stargateTraceCode() }
-            },
-            {
-                "name" => "The99Percent::getCurrentCount()",
-                "lambda" => lambda { The99Percent::getCurrentCount() }
-            },
-            {
-                "name" => "TxManualCountDowns::listingItems()",
-                "lambda" => lambda { TxManualCountDowns::listingItems() }
-            },
-            {
-                "name" => "Waves::listingItems(ns:beach)",
-                "lambda" => lambda { Waves::listingItems("ns:beach") }
-            },
-            {
-                "name" => "Waves::listingItems(ns:mandatory-today)",
-                "lambda" => lambda { Waves::listingItems("ns:mandatory-today") }
-            },
-            {
-                "name" => "Waves::listingItems(ns:time-important)",
-                "lambda" => lambda { Waves::listingItems("ns:time-important") }
-            },
-        ]
-
-        runTest = lambda {|test|
-            t1 = Time.new.to_f
-            (1..3).each{ test["lambda"].call() }
-            t2 = Time.new.to_f
-            {
-                "name" => test["name"],
-                "runtime" => (t2 - t1).to_f/3
-            }
-        }
-
-        printTestResults = lambda{|result, padding|
-            puts "- #{result["name"].ljust(padding)} : #{"%6.3f" % result["runtime"]}"
-        }
-
-        padding = tests.map{|test| test["name"].size }.max
-
-        # dry run to initialise things
-        tests
-            .each{|test|
-                test["lambda"].call()
-            }
-
-        results = tests
-                    .map{|test|
-                        puts "running: #{test["name"]}"
-                        runTest.call(test)
-                    }
-                    .sort{|r1, r2| r1["runtime"] <=> r2["runtime"] }
-                    .reverse
-
-        puts ""
-        results
-            .each{|result|
-                printTestResults.call(result, padding)
-            }
-
-        puts ""
-        printTestResults.call(runTest.call({
-            "name" => "CatalystListing::listingItems()",
-            "lambda" => lambda { CatalystListing::listingItems() }
-        }), padding)
-    end
-
     # CatalystListing::listingItems()
     def self.listingItems()
         items = [
-            TodoDatabase2::itemsForMikuType("NxTriage"),
-            Anniversaries::listingItems(),
-            Waves::listingItems("ns:mandatory-today"),
-            NxOndates::listingItems(),
-            TxManualCountDowns::listingItems(),
-            TodoDatabase2::itemsForMikuType("NxTimeDrop"),
-            NxTimeFibers::listingElements(true),
+            #TodoDatabase2::itemsForMikuType("NxTriage"),
+            #Anniversaries::listingItems(),
+            #Waves::listingItems("ns:mandatory-today"),
+            #NxOndates::listingItems(),
+            #TxManualCountDowns::listingItems(),
+            #TodoDatabase2::itemsForMikuType("NxTimeDrop"),
+            #NxTimeFibers::listingElements(true),
             Waves::listingItems("ns:time-important"),
-            NxTimeFibers::listingElements(false),
-            NxBlocks::listingItems(3),
-            Waves::listingItems("ns:beach"),
-            NxBlocks::listingItems(6),
+            #NxTimeFibers::listingElements(false),
+            #NxBlocks::listingItems(3),
+            #Waves::listingItems("ns:beach"),
+            #NxBlocks::listingItems(6),
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -524,77 +422,6 @@ class CatalystListing
         hours1 = NxTimeFibers::allPendingTimeTodayInHoursLive()*3600
         hours2 = NxTimeDrops::allPendingTimeTodayInHoursLive()*3600
         hours1 + hours2
-    end
-
-    # CatalystListing::displayNumbers()
-    def self.displayNumbers()
-
-        listingItems = CatalystListing::listingItems()
-
-        fibersAndDropsTimeInSeconds = CatalystListing::fibersAndDropsTimePendingInSeconds()
-        timeMiscInSeconds = listingItems
-            .select{|item| ["NxTimeDrop", "NxTimeFiber", "NxTodo"].include?(item["mikuType"]) } # fibersAndDropsTimeInSeconds include "NxTimeDrop" and "NxTimeFiber". "NxTodo" is in the shaddow of "NxTimeFiber"
-            .map{|item| BankEstimations::itemsEstimationInSeconds(item) }
-            .inject(0, :+)
-        totalInSeconds = fibersAndDropsTimeInSeconds + timeMiscInSeconds
-
-        timeparameters = [
-            "> time commitment pending : #{(fibersAndDropsTimeInSeconds.to_f/3600).round(2)} hours, light speed: #{TheSpeedOfLight::getDaySpeedOfLight().to_s.green}",
-            "> time estimation (others): #{(timeMiscInSeconds.to_f/3600).round(2)} hours",
-            "> projected end           : #{Time.at( Time.new.to_i + totalInSeconds ).to_s}",
-        ]
-
-        system("clear")
-        store = ItemStore.new()
-        vspaceleft = CommonUtils::screenHeight() - 4
-
-        puts ""
-        vspaceleft = vspaceleft - 1
-
-        # The99 Percent
-        line = The99Percent::line()
-        puts line
-        vspaceleft = vspaceleft - 1
-
-        puts timeparameters.join("\n")
-        vspaceleft = vspaceleft - timeparameters.size
-
-        # TimeCommitment report
-        timecommitments = NxTimeFibers::itemsForListing()
-        if timecommitments.size > 0 then
-            puts ""
-            puts "time commitments".green
-            vspaceleft = vspaceleft - 1
-            timecommitments.each{|item|
-                store.register(item, false)
-                line = "(#{store.prefixString()}) #{NxTimeFibers::toStringWithDetails(item, true)}"
-                nxball = NxBalls::getNxBallForItemOrNull(item)
-                if nxball then
-                    line = "#{line} #{NxBalls::toRunningStatement(nxball)}".green
-                end
-                puts line
-                vspaceleft = vspaceleft - 1
-            }
-        end
-
-        nxballs = NxBalls::items()
-                    .select{|nxball| !CatalystListing::nxballHasAnItemInThere(nxball, timecommitments + listingItems) }
-
-        if nxballs.size > 0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-            nxballs
-                .each{|nxball|
-                    store.register(nxball, false)
-                    puts "(#{store.prefixString()}) #{NxBalls::toString(nxball)}".green
-                    vspaceleft = vspaceleft - 1
-                }
-        end
-
-        puts ""
-        input = LucilleCore::askQuestionAnswerAsString("> ")
-        return if input == ""
-        CatalystListing::listingCommandInterpreter(input, store)
     end
 
     # CatalystListing::doDisplayListing2Pure(listingItems, totalInSeconds)

@@ -8,12 +8,12 @@ Type:
     "payload"        : 
     "doNotShowUntil" : Unixtime
 
-    "field1"         : (misc)
-    "field2"         : (misc)
-    "field3"         : (misc)
-    "field4"         : (misc)
-    "field5"         : (misc)
-    "field6"         : (misc)
+    "field1"         : (used)
+    "field2"         : (used)
+    "field3"         : (used)
+    "field4"         : (used)
+    "field5"         : (used)
+    "field6"         : (used)
     "field7"         : skipped until # unixtime
     "field8"         : lockname      # string
     "field9"         : 

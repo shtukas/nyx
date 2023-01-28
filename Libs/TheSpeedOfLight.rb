@@ -3,7 +3,7 @@ class TheSpeedOfLight
 
     # TheSpeedOfLight::getFilepathOrNull()
     def self.getFilepathOrNull()
-        filepaths = LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/TheSpeedOfLight")
+        filepaths = LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Ops-Data/TheSpeedOfLight")
             .select{|filepath| filepath[-5, 5] == ".json" }
         return nil if filepaths.empty?
         filepath = filepaths.first

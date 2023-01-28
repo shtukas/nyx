@@ -9,7 +9,7 @@ class NxBalls
 
     # NxBalls::items()
     def self.items()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxBall")
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Ops-Data/NxBall")
             .select{|filepath| filepath[-5, 5] == ".json" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
