@@ -44,7 +44,7 @@ class PolyActions
             puts item["description"]
             count = LucilleCore::askQuestionAnswerAsString("done count: ").to_i
             item["counter"] = item["counter"] - count
-            TxManualCountDowns::commit(item)
+            TodoDatabase2::commit_item(item)
             return
         end
 

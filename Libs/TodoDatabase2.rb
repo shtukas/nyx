@@ -263,6 +263,13 @@ class TodoDatabase2Adaptation
             object["tcId"]    = object["field2"]
             return object
         end
+        if object["mikuType"] == "TxManualCountDown" then
+            object["dailyTarget"]         = object["field1"]
+            object["date"]                = object["field2"]
+            object["counter"]             = object["field3"]
+            object["lastUpdatedUnixtime"] = object["field4"]
+            return object
+        end
         puts JSON.pretty_generate(object)
         raise "(error: 002d8744-e34d-4307-b573-73a195a9c7ac)"
     end
@@ -293,6 +300,13 @@ class TodoDatabase2Adaptation
         if item["mikuType"] == "TxStratosphere" then
             item["field1"] = item["ordinal"]
             item["field2"] = item["tcId"]
+            return item
+        end
+        if item["mikuType"] == "TxManualCountDown" then
+            item["field1"] = item["dailyTarget"]
+            item["field2"] = item["date"]
+            item["field3"] = item["counter"]
+            item["field4"] = item["lastUpdatedUnixtime"]
             return item
         end
         puts JSON.pretty_generate(item)

@@ -1,0 +1,18 @@
+
+Type:
+    "uuid"           : UUID
+    "mikuType"       : mikuType
+    "unixtime"       : Float
+    "datetime"       : DateTime Iso 8601 UTC Zulu
+    "description"    : String
+    "payload"        : 
+    "doNotShowUntil" : Unixtime
+
+    "field1"         : (misc)
+    "field2"         : (misc)
+    "field3"         : (misc)
+    "field4"         : (misc)
+    "field5"         : (misc)
+    "field6"         : (misc)
+    "field7"         : skipped until # unixtime
+    "field8"         : 

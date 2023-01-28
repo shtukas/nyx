@@ -3,40 +3,6 @@
 
 class TxManualCountDowns
 
-    # TxManualCountDowns::filepath(uuid)
-    def self.filepath(uuid)
-        "#{Config::pathToDataCenter()}/TxManualCountDown/#{uuid}.json"
-    end
-
-    # TxManualCountDowns::items()
-    def self.items()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/TxManualCountDown")
-            .select{|filepath| filepath[-5, 5] == ".json" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
-    end
-
-    # TxManualCountDowns::commit(item)
-    def self.commit(item)
-        FileSystemCheck::fsck_MikuTypedItem(item, false)
-        filepath = TxManualCountDowns::filepath(item["uuid"])
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
-    end
-
-    # TxManualCountDowns::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        filepath = TxManualCountDowns::filepath(uuid)
-        return nil if !File.exist?(filepath)
-        JSON.parse(IO.read(filepath))
-    end
-
-    # TxManualCountDowns::destroy(uuid)
-    def self.destroy(uuid)
-        filepath = TxManualCountDowns::filepath(uuid)
-        if File.exist?(filepath) then
-            FileUtils.rm(filepath)
-        end
-    end
-
     # TxManualCountDowns::issueNewOrNull()
     def self.issueNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
@@ -53,7 +19,7 @@ class TxManualCountDowns
             "counter"     => dailyTarget,
             "lastUpdatedUnixtime" => nil
         }
-        TxManualCountDowns::commit(item)
+        TodoDatabase2::commit_item(item)
         item
     end
 
@@ -61,14 +27,14 @@ class TxManualCountDowns
 
     # TxManualCountDowns::listingItems()
     def self.listingItems()
-        TxManualCountDowns::items().each{|item|
+        TodoDatabase2::itemsForMikuType("TxManualCountDown").each{|item|
             if item["date"] != CommonUtils::today() then
                 item["date"] = CommonUtils::today()
                 item["counter"] = item["dailyTarget"]
-                TxManualCountDowns::commit(item)
+                TodoDatabase2::commit_item(item)
             end
         }
-        TxManualCountDowns::items()
+        TodoDatabase2::itemsForMikuType("TxManualCountDown")
             .select{|item| item["counter"] > 0 }
             .select{|item| item["lastUpdatedUnixtime"].nil? or (Time.new.to_i - item["lastUpdatedUnixtime"]) > 3600 }
     end
@@ -82,7 +48,7 @@ class TxManualCountDowns
         item["counter"] = item["counter"] - count
         item["lastUpdatedUnixtime"] = Time.new.to_i
         puts JSON.pretty_generate(item)
-        TxManualCountDowns::commit(item)
+        TodoDatabase2::commit_item(item)
     end
 
 end
