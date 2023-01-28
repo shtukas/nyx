@@ -9,4 +9,3 @@ NxTimeDrop:
     "field2"       : nil or unixtime, run start unixtime
     "field3"       : Float, done in seconds
     "field4"       : reference time commitment uuid
-

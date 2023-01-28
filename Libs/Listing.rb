@@ -360,7 +360,8 @@ class Listing
                     end
                     if item["mikuType"] == "NxTimeDrop" then
                         if item["field2"] and item["field2"] > 0 then
-                            line = line.green
+                            runningFor = (Time.new.to_i - item["field2"]).to_f/3600
+                            line = "#{line} (running for #{runningFor.round(2)} hours)".green
                         end
                     end
                     puts line
