@@ -9,4 +9,3 @@ NxTodo:
     "nx113" "field1" : null or Nx113, json encoded if set
 
     "field10"        : tcId  # string
-    "field11"        : tcPos # float

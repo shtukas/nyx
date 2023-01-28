@@ -21,7 +21,7 @@ Type:
     "field9"         : string, (not used)
 
     "field10"        : string, tcId   # string
-    "field11"        : string, tcPos  # float
+    "field11"        : string, (not used)
 
     "field12"        : string, "true" if listed
     "field13"        : float , listing ordinal

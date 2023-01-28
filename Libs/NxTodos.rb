@@ -12,7 +12,6 @@ class NxTodos
         uuid  = SecureRandom.uuid
         nx113 = Nx113Make::interactivelyMakeNx113OrNull()
         tcId = NxTimeFibers::interactivelySelectItem()["uuid"]
-        tcPos = NxTimeFibers::interactivelyDecideProjectPosition(tcId)
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
@@ -21,7 +20,6 @@ class NxTodos
             "description" => description,
             "nx113"       => nx113,
             "field10"     => tcId,
-            "field11"     => tcPos
         }
         TodoDatabase2::commitItem(item)
         item

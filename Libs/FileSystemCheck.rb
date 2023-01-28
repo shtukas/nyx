@@ -188,7 +188,6 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "description", "String")
             FileSystemCheck::fsck_Nx113(item["nx113"], verbose)
             FileSystemCheck::ensureAttribute(item, "field10", "String")
-            FileSystemCheck::ensureAttribute(item, "field11", "Number")
             return
         end
 

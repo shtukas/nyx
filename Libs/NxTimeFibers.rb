@@ -45,15 +45,13 @@ class NxTimeFibers
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         ax39 = Ax39::interactivelyCreateNewAx()
-        isWork = LucilleCore::askQuestionAnswerAsBoolean("is work? : ")
         item = {
             "uuid"        => SecureRandom.uuid,
             "mikuType"    => "NxTimeFiber",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "ax39"        => ax39,
-            "isWork"      => isWork
+            "ax39"        => ax39
         }
         FileSystemCheck::fsck_NxTimeFiber(item, true)
         NxTimeFibers::commit(item)
@@ -82,11 +80,6 @@ class NxTimeFibers
         "(fiber) (pending: #{"%5.2f" % pendingInHours}) #{item["description"].ljust(descriptionPadding)} (#{Ax39::toStringFormatted(item["ax39"])})"
     end
 
-    # NxTimeFibers::nextPositionForItem(tcId)
-    def self.nextPositionForItem(tcId)
-        ([0] + Database2Data::itemsForTimeFiber(tcId).map{|todo| todo["tcPos"] }).max + 1
-    end
-
     # NxTimeFibers::itemWithToAllAssociatedListingItems(fiber)
     def self.itemWithToAllAssociatedListingItems(fiber)
 
@@ -103,14 +96,10 @@ class NxTimeFibers
 
         items = Database2Data::itemsForTimeFiber(fiber["uuid"])
 
-        if fiber["isWork"] then
-            [makeVx01.call(fiber)] + items
+        if items.size > 0 then
+            items.first(3)
         else
-            if items.size > 0 then
-                items
-            else
-                [fiber]
-            end
+            [fiber]
         end
     end
 
@@ -137,48 +126,11 @@ class NxTimeFibers
         }
     end
 
-    # NxTimeFibers::presentProjectItems(fiber)
-    def self.presentProjectItems(fiber)
-        items = Database2Data::itemsForTimeFiber(fiber["uuid"])
-        loop {
-            system("clear")
-            # We do not recompute all the items but we recall the ones we had to get the new 
-            # tcPoss
-            items = items
-                        .map{|item| TodoDatabase2::getItemByUUIDOrNull(item["uuid"]) }
-                        .sort{|i1, i2| i1["tcPos"] <=> i2["tcPos"] }
-            store = ItemStore.new()
-            puts ""
-            items
-                .first(CommonUtils::screenHeight() - 4)
-                .each{|item|
-                    store.register(item, false)
-                    puts "- (#{store.prefixString().to_s.rjust(2)}, #{"%7.3f" % item["tcPos"]}) #{NxTodos::toString(item)}"
-                }
-            puts ""
-            puts "set position <index> <position>"
-            command = LucilleCore::askQuestionAnswerAsString("> ")
-            break if command == ""
-            if command.start_with?("set position") then
-                command = command.strip[12, command.size]
-                elements = command.split(" ")
-                #puts JSON.generate(elements)
-                indx = elements[0].to_i
-                position = elements[1].to_f
-                item = store.get(indx)
-                #puts item
-                next if item.nil?
-                item["tcPos"] = position
-                TodoDatabase2::commitItem(item)
-            end
-        }
-    end
-
     # NxTimeFibers::probe(fiber)
     def self.probe(fiber)
         loop {
             puts NxTimeFibers::toStringWithDetails(fiber, false)
-            actions = ["do not show until", "set Ax39", "expose", "items dive", "destroy"]
+            actions = ["do not show until", "set Ax39", "expose", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "do not show until" then
@@ -194,9 +146,6 @@ class NxTimeFibers
             if action == "expose" then
                 puts JSON.pretty_generate(fiber)
                 LucilleCore::pressEnterToContinue()
-            end
-            if action == "items dive" then
-                NxTimeFibers::presentProjectItems(fiber)
             end
             if action == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTimeFiber '#{NxTimeFibers::toString(fiber)}' ? ") then
@@ -216,21 +165,5 @@ class NxTimeFibers
             return if fiber.nil?
             NxTimeFibers::probe(fiber)
         }
-    end
-
-    # NxTimeFibers::interactivelyDecideProjectPosition(tcId)
-    def self.interactivelyDecideProjectPosition(tcId)
-        Database2Data::itemsForTimeFiber(tcId)
-            .sort{|i1, i2| i1["tcPos"] <=> i2["tcPos"] }
-            .first(CommonUtils::screenHeight() - 2)
-            .each{|item|
-                puts "- (#{"%7.3f" % item["tcPos"]}) #{NxTodos::toString(item)}"
-            }
-        position = LucilleCore::askQuestionAnswerAsString("position (default to next): ")
-        if position then
-            position.to_f
-        else
-            NxTimeFibers::nextPositionForItem(tcId)
-        end
     end
 end

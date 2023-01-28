@@ -7,11 +7,9 @@ class Transmutations
         if sourceType == "NxOndate" and targetType == "NxTodo" then
             uuid1 = item["uuid"]
             wtc = NxTimeFibers::interactivelySelectItem()
-            tcPos = NxTimeFibers::nextPositionForItem(wtc["uuid"])
             item["uuid"] = SecureRandom.uuid
             item["mikuType"] = "NxTodo"
             item["tcId"] = wtc["uuid"]
-            item["tcPos"] = tcPos
             TodoDatabase2::commitItem(item)
             TodoDatabase2::destroy(uuid1)
             return
@@ -37,12 +35,10 @@ class Transmutations
                 description = d
             end
             wtc = NxTimeFibers::interactivelySelectItem()
-            tcPos = NxTimeFibers::interactivelyDecideProjectPosition(wtc["uuid"])
             item["uuid"] = SecureRandom.uuid
             item["description"] = description
             item["mikuType"] = "NxTodo"
             item["tcId"] = wtc["uuid"]
-            item["tcPos"] = tcPos
             TodoDatabase2::commitItem(item)
             TodoDatabase2::destroy(uuid1)
             return
@@ -58,12 +54,10 @@ class Transmutations
                 description = d
             end
             wtc = NxTimeFibers::interactivelySelectItem()
-            tcPos = NxTimeFibers::interactivelyDecideProjectPosition(wtc["uuid"])
             item["uuid"] = SecureRandom.uuid
             item["description"] = description
             item["mikuType"] = "NxTodo"
             item["tcId"] = wtc["uuid"]
-            item["tcPos"] = tcPos
             TodoDatabase2::commitItem(item)
             TodoDatabase2::destroy(uuid1)
             return

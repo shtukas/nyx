@@ -267,7 +267,6 @@ class TodoDatabase2ItemObjectsTranslation
         if object["mikuType"] == "NxTodo" then
             object["nx113"] = JSON.parse(object["field1"])
             object["tcId"]  = object["field2"]
-            object["tcPos"] = object["field3"].to_f
             return object
         end
         if object["mikuType"] == "NxAnniversary" then
@@ -318,7 +317,6 @@ class TodoDatabase2ItemObjectsTranslation
         if item["mikuType"] == "NxTodo" then
             item["field1"] = JSON.generate(item["nx113"])
             item["field2"] = item["tcId"]
-            item["field3"] = item["tcPos"]
             return item
         end
         if item["mikuType"] == "NxAnniversary" then
