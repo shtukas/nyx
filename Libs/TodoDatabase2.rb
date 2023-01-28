@@ -48,6 +48,7 @@ class TodoDatabase2
         item = nil
         TodoDatabase2::filepaths().each{|filepath|
             object = TodoDatabase2::getObjectFromFilepathByUUIDOrNull(filepath, uuid)
+            next if object.nil?
             item = TodoDatabase2ItemObjectsTranslation::databaseObjectToItem(object)
             break if !item.nil?
         }
@@ -314,6 +315,8 @@ class TodoDatabase2ItemObjectsTranslation
             return object
         end
         if object["mikuType"] == "NxTimeDrop" then
+            object["field1"] = object["field1"].to_f
+            object["field3"] = object["field3"].to_f
             return object
         end
         puts JSON.pretty_generate(object)
@@ -428,21 +431,18 @@ class Database2Engine
                 next if Database2Data::itemIsListed(item)
                 next if !DoNotShowUntil::isVisible(item)
                 Database2Engine::activateItemForListing(item)
-                return
             }
         Database2Data::itemsForMikuType("NxTop")
             .each{|item|
                 next if Database2Data::itemIsListed(item)
                 next if !DoNotShowUntil::isVisible(item)
                 Database2Engine::activateItemForListing(item)
-                return
             }
         Database2Data::itemsForMikuType("NxTriage")
             .each{|item|
                 next if Database2Data::itemIsListed(item)
                 next if !DoNotShowUntil::isVisible(item)
                 Database2Engine::activateItemForListing(item)
-                return
             }
 
         NxOndates::listingItems()
@@ -450,7 +450,6 @@ class Database2Engine
                 next if Database2Data::itemIsListed(item)
                 next if !DoNotShowUntil::isVisible(item)
                 Database2Engine::activateItemForListing(item)
-                return
             }
 
         TxManualCountDowns::listingItems()
@@ -458,7 +457,6 @@ class Database2Engine
                 next if Database2Data::itemIsListed(item)
                 next if !DoNotShowUntil::isVisible(item)
                 Database2Engine::activateItemForListing(item)
-                return
             }
 
         Database2Data::itemsForMikuType("Wave")
@@ -469,12 +467,10 @@ class Database2Engine
                 next if Database2Data::itemIsListed(item)
                 next if !DoNotShowUntil::isVisible(item)
                 Database2Engine::activateItemForListing(item)
-                return
             }
 
         Database2Data::itemsForMikuType("NxTimeCommitment")
             .each{|item|
-                next if (item["resetTime"] and Time.new.to_i < (item["resetTime"] + 86400*7))
                 next if Database2Data::itemsForMikuType("NxTimeDrop").select{|drop| drop["field4"] == item["uuid"] }.size > 0
 
                 hoursLeft = item["hours"]
@@ -497,7 +493,7 @@ class Database2Engine
                     hoursLeft = hoursLeft - hoursOne
                 end
 
-                item["resetTime"] = Time.new.to_i + 86400*7
+                item["resetTime"] = Time.new.to_i
 
                 TodoDatabase2::commitItem(item)
             }
@@ -507,7 +503,6 @@ class Database2Engine
                 next if Database2Data::itemIsListed(item)
                 next if !DoNotShowUntil::isVisible(item)
                 Database2Engine::activateItemForListing(item)
-                return
             }
     end
 end

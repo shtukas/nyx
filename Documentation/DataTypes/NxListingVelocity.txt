@@ -1,0 +1,7 @@
+
+NxListingVelocity:
+    "activationunixtime"              : Float
+    "activationdatetime"              : DateTime Iso 8601 UTC Zulu
+    "expectedTimeToCompletionInHours" : Float
+
+

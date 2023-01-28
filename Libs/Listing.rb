@@ -8,7 +8,6 @@ class Listing
             "[listing interaction] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | >> skip default | destroy",
             "[makers] wave | anniversary | today | ondate | todo | manual countdown | top | strat | block",
             "[divings] anniversaries | ondates | waves | todos",
-            "[divings] anniversaries | ondates | waves | todos",
             "[misc] search | speed | commands | lock (<n>)",
         ].join("\n")
     end
@@ -306,16 +305,33 @@ class Listing
             vspaceleft = CommonUtils::screenHeight() - 3
 
             puts ""
+            vspaceleft = vspaceleft - 1
+
+            drops = Database2Data::itemsForMikuType("NxTimeDrop")
+
+            Database2Data::itemsForMikuType("NxTimeCommitment")
+                .each{|item|
+                    store.register(item, false)
+                    hours = drops.select{|drop| drop["field4"] == item["uuid"] }.map{|drop| drop["field1"] - drop["field3"] }.inject(0, :+)
+                    puts "(#{store.prefixString()}) #{item["description"].ljust(10)} (left: #{("%5.2f" % hours).to_s.green} hours, out of #{"%5.2f" % item["hours"]}) reset #{"%5.2f" %  ((Time.new.to_i - item["resetTime"]).to_f/86400)} days ago"
+                    vspaceleft = vspaceleft - 1
+                }
+
+
+            puts ""
+            vspaceleft = vspaceleft - 1
+
+
             puts "> strat | lock | top | ondate | todo | wave | block".yellow
             puts ""
-            vspaceleft = vspaceleft - 3
+            vspaceleft = vspaceleft - 2
+
 
             Database2Data::listingItems()
                 .each{|item|
                     next if Locks::isLocked(item)
                     store.register(item, !Skips::isSkipped(item))
                     line = "(#{store.prefixString()}) #{PolyFunctions::toStringForListing(item)}"
-                    next if line.include?("(wave)")
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                     break if vspaceleft <= 0

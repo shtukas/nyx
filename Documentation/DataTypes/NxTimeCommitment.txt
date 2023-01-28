@@ -6,5 +6,5 @@ NxTimeCommitment:
     "unixtime"           : Float
     "datetime"           : DateTime Iso 8601 UTC Zulu
     "description"        : String
-    "resetTime" "field2" : Float Time in the future when we issue new TimeDrops
+    "resetTime" "field2" : Float, Time a which we issued the last TimeDrops
     "hours"     "field3" : Float
