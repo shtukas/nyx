@@ -184,7 +184,6 @@ require_relative "PolyFunctions.rb"
 require_relative "SectionsType0141.rb"
 require_relative "Search.rb"
 require_relative "Stargate.rb"
-require_relative "SyncConflicts.rb"
 require_relative "Skips.rb"
 
 require_relative "TxManualCountDowns.rb"
@@ -221,15 +220,6 @@ if $RunNonEssentialThreads then
         }
     }
 
-    Thread.new {
-        loop {
-            filepath = SyncConflicts::getConflictFileOrNull()
-            if filepath then
-                $SyncConflictInterruptionFilepath = filepath
-            end
-            sleep 600
-        }
-    }
 end
 
 # ------------------------------------------------------------
