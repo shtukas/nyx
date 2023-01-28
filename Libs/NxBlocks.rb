@@ -7,7 +7,7 @@ class NxBlocks
 
     # NxBlocks::interactivelyDecideOrdinal()
     def self.interactivelyDecideOrdinal()
-        TodoDatabase2::itemsForMikuType("NxBlock")
+        Database2Data::itemsForMikuType("NxBlock")
             .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
             .first(20)
             .each{|item| 
@@ -30,7 +30,7 @@ class NxBlocks
             "description" => description,
             "ordinal"     => ordinal
         }
-        TodoDatabase2::commit_item(item)
+        TodoDatabase2::commitItem(item)
         item
     end
 
@@ -44,7 +44,7 @@ class NxBlocks
 
     # NxBlocks::listingItems(cardinal)
     def self.listingItems(cardinal)
-        TodoDatabase2::itemsForMikuType("NxBlock")
+        Database2Data::itemsForMikuType("NxBlock")
             .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
             .take(cardinal)
             .select{|item| BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < 0.5 }

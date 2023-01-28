@@ -1,9 +1,0 @@
-
-NxTimeDrop
-    "uuid"        : String
-    "mikuType"    : "NxTimeDrop"
-    "unixtime"    : Unixtime
-    "description" : String
-    "hours"       : Float
-    "tcId"        : 
-

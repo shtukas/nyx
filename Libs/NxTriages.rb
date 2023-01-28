@@ -18,7 +18,7 @@ class NxTriages
             "description" => description,
             "nx113"       => nx113,
         }
-        TodoDatabase2::commit_item(item)
+        TodoDatabase2::commitItem(item)
         item
     end
 
@@ -49,13 +49,13 @@ class NxTriages
             status = LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit the description instead ? ")
             if status then
                 PolyActions::editDescription(item)
-                return TodoDatabase2::getObjectByUUIDOrNull(item["uuid"])
+                return TodoDatabase2::getItemByUUIDOrNull(item["uuid"])
             else
                 return item
             end
         end
         Nx113Edit::editNx113Carrier(item)
-        TodoDatabase2::getObjectByUUIDOrNull(item["uuid"])
+        TodoDatabase2::getItemByUUIDOrNull(item["uuid"])
     end
 
     # NxTriages::probe(item)

@@ -1,3 +1,0 @@
-### Banking
-
-create table _bank_ (_recorduuid_ text primary key, _setuuid_ text, _unixtime_ float, _date_ text, _weight_ float);

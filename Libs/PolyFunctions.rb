@@ -20,15 +20,6 @@ class PolyFunctions
             }
         end
 
-        if item["mikuType"] == "NxTimeDrop" then
-            tcId = item["tcId"]
-            wtc = NxTimeFibers::getOrNull(tcId)
-            accounts << {
-                "description" => PolyFunctions::genericDescription(wtc),
-                "number"      => wtc["uuid"]
-            }
-        end
-
         if item["mikuType"] == "NxBlock" then
             tcId = item["tcId"]
             wtc = NxTimeFibers::getOrNull(tcId)
@@ -167,9 +158,6 @@ class PolyFunctions
         if item["mikuType"] == "NxIced" then
             return item["description"]
         end
-        if item["mikuType"] == "NxTimeDrop" then
-            return item["description"]
-        end
         if item["mikuType"] == "NxTimeFiber" then
             return item["description"]
         end
@@ -223,9 +211,6 @@ class PolyFunctions
         if item["mikuType"] == "NxOndate" then
             return NxOndates::toString(item)
         end
-        if item["mikuType"] == "NxTimeDrop" then
-            return NxTimeDrops::toString(item)
-        end
         if item["mikuType"] == "NxBlock" then
             return NxBlocks::toString(item)
         end
@@ -254,8 +239,8 @@ class PolyFunctions
         raise "(error: 820ce38d-e9db-4182-8e14-69551f58671c)"
     end
 
-    # PolyFunctions::toStringForCatalystListing(item)
-    def self.toStringForCatalystListing(item)
+    # PolyFunctions::toStringForListing(item)
+    def self.toStringForListing(item)
         if item["mikuType"] == "NxTimeFiber" then
             return NxTimeFibers::toStringWithDetails(item, true)
         end

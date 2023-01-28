@@ -44,7 +44,7 @@ class PolyActions
             puts item["description"]
             count = LucilleCore::askQuestionAnswerAsString("done count: ").to_i
             item["counter"] = item["counter"] - count
-            TodoDatabase2::commit_item(item)
+            TodoDatabase2::commitItem(item)
             return
         end
 
@@ -71,7 +71,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "Wave" then
-            TodoDatabase2::commit_item(item)
+            TodoDatabase2::commitItem(item)
             return
         end
 
@@ -137,19 +137,6 @@ class PolyActions
         if item["mikuType"] == "NxTodo" then
             puts PolyFunctions::toString(item)
             if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
-
-                # If the item didn't have a running ball, let's add 5 mins to the accounts
-                if NxBalls::getNxBallForItemOrNull(item).nil? then
-                    PolyFunctions::bankAccountsForItem(item).each{|account|
-                        #{
-                        #    "description"
-                        #    "number"
-                        #}
-                        puts "[bank] adding 300 seconds to account #{account["number"]}"
-                        Bank::put(account["number"], 300)
-                    }
-                end
-
                 if item["nx113"] then
                     puts "You are attempting to done a NxTodo which carries some contents (Nx113)"
                     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["destroy", "exit"])
@@ -189,15 +176,6 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxTimeFiber" then
-            return
-        end
-
-        if item["mikuType"] == "NxTimeDrop" then
-            puts "You can't done a NxTimeDrop per se, but we can stop it and destroy it"
-            if LucilleCore::askQuestionAnswerAsBoolean("Confirm ? ") then
-                NxBalls::closeNxBallForItemOrNothing(item)
-                TodoDatabase2::destroy(item["uuid"])
-            end
             return
         end
 
@@ -301,7 +279,7 @@ class PolyActions
             end
             if option == "redate" then
                 item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
-                TodoDatabase2::commit_item(item)
+                TodoDatabase2::commitItem(item)
                 NxBalls::close(nxball)
             end
             if option == "stop" then
@@ -444,7 +422,7 @@ class PolyActions
                 wtc = NxTimeFibers::interactivelySelectItemOrNull()
                 if wtc then
                     item["tcId"] = wtc["uuid"]
-                    TodoDatabase2::commit_item(item)
+                    TodoDatabase2::commitItem(item)
                 end
             end
         end
@@ -453,7 +431,7 @@ class PolyActions
                 wtc = NxTimeFibers::interactivelySelectItemOrNull()
                 if wtc then
                     item["tcId"] = wtc["uuid"]
-                    TodoDatabase2::commit_item(item)
+                    TodoDatabase2::commitItem(item)
                 end
             end
         end

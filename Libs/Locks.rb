@@ -7,9 +7,9 @@ class Locks
         TodoDatabase2::set(uuid, "field8", domain)
     end
 
-    # Locks::isLocked(uuid)
-    def self.isLocked(uuid)
-        TodoDatabase2::getOrNull(uuid, "field8").to_s.size > 0
+    # Locks::isLocked(item)
+    def self.isLocked(item)
+        item["field8"] and item["field8"].size > 0
     end
 
     # Locks::unlock(uuid)

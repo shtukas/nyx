@@ -22,7 +22,7 @@ class Transmutations
             item["uuid"] = SecureRandom.uuid
             item["mikuType"] = "NxOndate"
             item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
-            TodoDatabase2::commit_item(item)
+            TodoDatabase2::commitItem(item)
             TodoDatabase2::destroy(uuid1)
             return
         end
@@ -74,7 +74,7 @@ class Transmutations
             item["uuid"] = SecureRandom.uuid
             item["mikuType"] = "NxOndate"
             item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
-            TodoDatabase2::commit_item(item)
+            TodoDatabase2::commitItem(item)
             TodoDatabase2::getOrNull(uuid1)
             return
         end

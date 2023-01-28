@@ -7,4 +7,4 @@ require_relative "../Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
-CatalystListing::mainProgram2Pure()
+Listing::mainProgram2Pure()

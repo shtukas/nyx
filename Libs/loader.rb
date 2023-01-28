@@ -143,10 +143,8 @@ require "#{Config::userHomeDirectory()}/Galaxy/LucilleOS/Libraries/Ruby-Librarie
 require_relative "Anniversaries.rb"
 require_relative "Ax39.rb"
 
-require_relative "Bank.rb"
-
 require_relative "Catalyst.rb"
-require_relative "CatalystListing.rb"
+require_relative "Listing.rb"
 require_relative "CommonUtils.rb"
 require_relative "CompositeElizabeth.rb"
 
@@ -176,11 +174,9 @@ require_relative "Nx113.rb"
 require_relative "NxTodos.rb"
 require_relative "NxTriages.rb"
 require_relative "NxOndates.rb"
-require_relative "NxBalls.rb"
 require_relative "NxNetwork.rb"
 require_relative "NxNodes.rb"
 require_relative "NxTimeFibers.rb"
-require_relative "NxTimeDrops.rb"
 require_relative "NxBlocks.rb"
 
 require_relative "PrimitiveFiles.rb"
@@ -197,7 +193,6 @@ require_relative "Skips.rb"
 require_relative "TxManualCountDowns.rb"
 require_relative "The99Percent.rb"
 require_relative "TxStratospheres.rb"
-require_relative "TheSpeedOfLight.rb"
 require_relative "Transmutations.rb"
 
 require_relative "Waves.rb"
@@ -223,15 +218,6 @@ if $RunNonEssentialThreads then
         }
     end
 
-    if Config::getOrNull("isLeaderInstance") then
-        Thread.new {
-            loop {
-                sleep 3600
-                CatalystListing::listingItems()
-            }
-        }
-    end
-
     Thread.new {
         loop {
             sleep 12
@@ -247,30 +233,6 @@ if $RunNonEssentialThreads then
                 $SyncConflictInterruptionFilepath = filepath
             end
             sleep 600
-        }
-    }
-
-    Thread.new {
-        loop {
-            sleep 120
-
-            NxBalls::items().each{|nxball|
-                if (Time.new.to_i - nxball["unixtime"]) > 3600 then
-                    CommonUtils::onScreenNotification("catalyst", "NxBall over 1 hour")
-                end
-            }
-
-            NxTimeFibers::runningItems().each{|item|
-                if NxTimeFibers::liveNumbers(item)["pendingTimeTodayInHoursLive"] == 0 then
-                    CommonUtils::onScreenNotification("catalyst", "wtc is overflowing")
-                end
-            }
-
-            NxTimeDrops::runningItems().each{|item|
-                if NxTimeDrops::liveNumbers(item)["pendingTimeTodayInHoursLive"] == 0 then
-                    CommonUtils::onScreenNotification("catalyst", "otc is overflowing")
-                end
-            }
         }
     }
 end

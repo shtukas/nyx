@@ -20,7 +20,7 @@ class NxOndates
             "description" => description,
             "nx113"       => nx113,
         }
-        TodoDatabase2::commit_item(item)
+        TodoDatabase2::commitItem(item)
         item
     end
 
@@ -38,7 +38,7 @@ class NxOndates
             "description" => description,
             "nx113"       => nx113,
         }
-        TodoDatabase2::commit_item(item)
+        TodoDatabase2::commitItem(item)
         item
     end
 
@@ -55,7 +55,7 @@ class NxOndates
             "description" => description,
             "nx113"       => nx113,
         }
-        TodoDatabase2::commit_item(item)
+        TodoDatabase2::commitItem(item)
         item
     end
 
@@ -70,7 +70,7 @@ class NxOndates
 
     # NxOndates::listingItems()
     def self.listingItems()
-        TodoDatabase2::itemsForMikuType("NxOndate").select{|item| item["datetime"][0, 10] <= Time.new.to_s[0, 10] }
+        Database2Data::itemsForMikuType("NxOndate").select{|item| item["datetime"][0, 10] <= Time.new.to_s[0, 10] }
     end
 
     # --------------------------------------------------
@@ -91,19 +91,19 @@ class NxOndates
             status = LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit the description instead ? ")
             if status then
                 PolyActions::editDescription(item)
-                return TodoDatabase2::getObjectByUUIDOrNull(item["uuid"])
+                return TodoDatabase2::getItemByUUIDOrNull(item["uuid"])
             else
                 return item
             end
         end
         Nx113Edit::editNx113Carrier(item)
-        TodoDatabase2::getObjectByUUIDOrNull(item["uuid"])
+        TodoDatabase2::getItemByUUIDOrNull(item["uuid"])
     end
 
     # NxOndates::probe(item)
     def self.probe(item)
         loop {
-            item = TodoDatabase2::getObjectByUUIDOrNull(item["uuid"])
+            item = TodoDatabase2::getItemByUUIDOrNull(item["uuid"])
             actions = ["access", "redate", "transmute", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
@@ -117,7 +117,7 @@ class NxOndates
             end
             if action == "redate" then
                 item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
-                TodoDatabase2::commit_item(item)
+                TodoDatabase2::commitItem(item)
                 next
             end
             if action == "destroy" then
@@ -131,7 +131,7 @@ class NxOndates
     def self.report()
         system("clear")
         puts "ondates:"
-        TodoDatabase2::itemsForMikuType("NxOndate")
+        Database2Data::itemsForMikuType("NxOndate")
             .sort{|i1, i2| i1["datetime"] <=> i2["datetime"]}
             .each{|item| puts NxOndates::toString(item) }
         LucilleCore::pressEnterToContinue()

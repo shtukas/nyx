@@ -18,7 +18,7 @@ class TxStratospheres
             "description" => description,
             "ordinal"     => ordinal
         }
-        TodoDatabase2::commit_item(item)
+        TodoDatabase2::commitItem(item)
         item
     end
 
@@ -32,7 +32,7 @@ class TxStratospheres
 
     # TxStratospheres::listingItems()
     def self.listingItems()
-        TodoDatabase2::itemsForMikuType("TxStratosphere")
+        Database2Data::itemsForMikuType("TxStratosphere")
             .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
     end
 end

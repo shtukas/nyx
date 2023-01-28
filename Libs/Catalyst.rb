@@ -4,6 +4,6 @@ class Catalyst
 
     # Catalyst::catalystItems()
     def self.catalystItems()
-        NxTodosIO::items() + TodoDatabase2::itemsForMikuType("Wave")
+        NxTodosIO::items() + Database2Data::itemsForMikuType("Wave")
     end
 end

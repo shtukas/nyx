@@ -7,10 +7,8 @@ class Skips
         TodoDatabase2::set(uuid, "field7", unixtime)
     end
 
-    # Skips::isSkipped(uuid)
-    def self.isSkipped(uuid)
-        unixtime = TodoDatabase2::getOrNull(uuid, "field7")
-        return false if unixtime.nil?
-        Time.new.to_i < unixtime
+    # Skips::isSkipped(item)
+    def self.isSkipped(item)
+        item["field7"] and Time.new.to_i < item["field7"]
     end
 end

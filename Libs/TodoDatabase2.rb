@@ -3,30 +3,55 @@
 class TodoDatabase2
 
     # ----------------------------------
+    # Config
+
+    # TodoDatabase2::cardinality()
+    def self.cardinality()
+        200
+    end
+
+    # TodoDatabase2::foldername()
+    def self.foldername()
+        "TodoDatabase2"
+    end
+
+    # ----------------------------------
     # Interface
 
-    # TodoDatabase2::itemsForMikuType(mikuType)
-    def self.itemsForMikuType(mikuType)
-        TodoDatabase2::database_objects()
-            .select{|object| object["mikuType"] == mikuType }
-            .map{|object| TodoDatabase2Adaptation::databaseObjectToItem(object) }
+    # TodoDatabase2::databaseQuery(querystring, bindings)
+    def self.databaseQuery(querystring, bindings)
+        objects = {}
+        TodoDatabase2::filepaths().each{|filepath|
+            db = SQLite3::Database.new(filepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute(querystring, bindings) do |row|
+                objects[row["uuid"]] = TodoDatabase2::rowToObject(row)
+            end
+            db.close
+        }
+        # Note that we used a hash instead of an array because we could easily have the same object appearing several times
+        # It's one of the ways the multi instance distributed database can misbehave
+        objects.values
     end
 
-    # TodoDatabase2::commit_item(item)
-    def self.commit_item(item)
+    # TodoDatabase2::commitItem(item)
+    def self.commitItem(item)
         FileSystemCheck::fsck_MikuTypedItem(item, true)
-        database_object = TodoDatabase2Adaptation::itemToDatabaseObject(item)
-        TodoDatabase2::commit_object(database_object)
+        database_object = TodoDatabase2ItemObjectsTranslation::itemToDatabaseObject(item)
+        TodoDatabase2::commitObject(database_object)
     end
 
-    # TodoDatabase2::getObjectByUUIDOrNull(uuid)
-    def self.getObjectByUUIDOrNull(uuid)
-        object = nil
+    # TodoDatabase2::getItemByUUIDOrNull(uuid)
+    def self.getItemByUUIDOrNull(uuid)
+        item = nil
         TodoDatabase2::filepaths().each{|filepath|
             object = TodoDatabase2::getObjectFromFilepathByUUIDOrNull(filepath, uuid)
-            break if !object.nil?
+            item = TodoDatabase2ItemObjectsTranslation::databaseObjectToItem(object)
+            break if !item.nil?
         }
-        object
+        item
     end
 
     # TodoDatabase2::set(uuid, attname, attvalue)
@@ -68,41 +93,16 @@ class TodoDatabase2
     end
 
     # ----------------------------------
-    # Config
-
-    # TodoDatabase2::cardinality()
-    def self.cardinality()
-        200
-    end
-
-    # TodoDatabase2::foldername()
-    def self.foldername()
-        "TodoDatabase2"
-    end
-
-    # ----------------------------------
     # Private
 
-    # TodoDatabase2::database_objects()
-    def self.database_objects()
-        objects = {}
-        TodoDatabase2::filepaths().each{|filepath|
-            db = SQLite3::Database.new(filepath)
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute("select * from objects", []) do |row|
-                objects[row["uuid"]] = TodoDatabase2::rowToObject(row)
-            end
-            db.close
-        }
-        # Note that we used a hash instead of an array because we could easily have the same object appearing several times
-        # It's one of the ways the multi instance distributed database can misbehave
-        objects.values
+    # TodoDatabase2::databaseItems()
+    def self.databaseItems()
+        TodoDatabase2::databaseQuery("select * from objects", [])
+            .map{|object| TodoDatabase2ItemObjectsTranslation::databaseObjectToItem(object) }
     end
 
-    # TodoDatabase2::commit_object(object)
-    def self.commit_object(object)
+    # TodoDatabase2::commitObject(object)
+    def self.commitObject(object)
         # If we want to commit an object, we need to rewrite all the files in which it is (meaning deleting the object and renaming the file)
         # and put it into a new file.
 
@@ -146,6 +146,10 @@ class TodoDatabase2
             "field6"         => row["field6"],
             "field7"         => row["field7"],
             "field8"         => row["field8"],
+            "field9"         => row["field9"],
+            "field10"        => row["field10"],
+            "field11"        => row["field11"],
+            "field12"        => row["field12"],
         }
     end
 
@@ -249,12 +253,11 @@ class TodoDatabase2
         filepath3 = "#{Config::pathToDataCenter()}/#{TodoDatabase2::foldername()}/#{CommonUtils::timeStringL22()}.sqlite3"
         FileUtils.mv(filepath2, filepath3)
     end
-
 end
 
-class TodoDatabase2Adaptation
+class TodoDatabase2ItemObjectsTranslation
 
-    # TodoDatabase2Adaptation::databaseObjectToItem(object)
+    # TodoDatabase2ItemObjectsTranslation::databaseObjectToItem(object)
     def self.databaseObjectToItem(object)
         if object["mikuType"] == "NxTodo" then
             object["nx113"] = JSON.parse(object["field1"])
@@ -289,10 +292,6 @@ class TodoDatabase2Adaptation
             object["lastUpdatedUnixtime"] = object["field4"].to_i
             return object
         end
-        if object["mikuType"] == "NxTimeDrop" then
-            object["tcId"] = object["field1"]
-            return object
-        end
         if object["mikuType"] == "NxTriage" then
             object["nx113"] = JSON.parse(object["field1"])
             return object
@@ -313,7 +312,7 @@ class TodoDatabase2Adaptation
         raise "(error: 002d8744-e34d-4307-b573-73a195a9c7ac)"
     end
 
-    # TodoDatabase2Adaptation::itemToDatabaseObject(item)
+    # TodoDatabase2ItemObjectsTranslation::itemToDatabaseObject(item)
     def self.itemToDatabaseObject(item)
         if item["mikuType"] == "NxTodo" then
             item["field1"] = JSON.generate(item["nx113"])
@@ -348,10 +347,6 @@ class TodoDatabase2Adaptation
             item["field4"] = item["lastUpdatedUnixtime"]
             return item
         end
-        if item["mikuType"] == "NxTimeDrop" then
-            item["field1"] = item["tcId"]
-            return item
-        end
         if item["mikuType"] == "NxTriage" then
             item["field1"] = JSON.generate(item["nx113"])
             return item
@@ -371,5 +366,37 @@ class TodoDatabase2Adaptation
         puts JSON.pretty_generate(item)
         raise "(error: 34432491-c0a8-45a2-a93c-8a7b132d027e)"
     end
+end
+
+class Database2Data
+
+    # Database2Data::itemsForMikuType(mikuType)
+    def self.itemsForMikuType(mikuType)
+        TodoDatabase2::databaseQuery("select * from objects where mikuType=?", [mikuType])
+            .map{|object| TodoDatabase2ItemObjectsTranslation::databaseObjectToItem(object) }
+    end
+
+    # Database2Data::listingItems()
+    def self.listingItems()
+        items = [
+            #NxTops::listingItems(),
+            #Database2Data::itemsForMikuType("NxTriage"),
+            #Anniversaries::listingItems(),
+            #Waves::listingItems("ns:mandatory-today"),
+            #NxOndates::listingItems(),
+            #TxManualCountDowns::listingItems(),
+            #NxTimeFibers::listingElements(true),
+            #Waves::listingItems("ns:time-important"),
+            #NxTimeFibers::listingElements(false),
+            #NxBlocks::listingItems(3),
+            #Waves::listingItems("ns:beach"),
+            #NxBlocks::listingItems(6),
+        ]
+        TodoDatabase2::databaseQuery("select * from objects limit 1", [])
+            .map{|object| TodoDatabase2ItemObjectsTranslation::databaseObjectToItem(object) }
+    end
+end
+
+class Database2Actions
 
 end

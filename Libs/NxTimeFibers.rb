@@ -143,11 +143,6 @@ class NxTimeFibers
             .flatten
     end
 
-    # NxTimeFibers::liveNumbers(item)
-    def self.liveNumbers(item)
-        Ax39::standardAx39CarrierLiveNumbers(item)
-    end
-
     # NxTimeFibers::allPendingTimeTodayInHoursLive()
     def self.allPendingTimeTodayInHoursLive()
         NxTimeFibers::items()
@@ -212,38 +207,17 @@ class NxTimeFibers
     def self.probe(fiber)
         loop {
             puts NxTimeFibers::toStringWithDetails(fiber, false)
-            puts "data: #{Ax39::standardAx39CarrierLiveNumbers(fiber)}"
-            actions = ["start", "add time", "do not show until", "show hours", "fill for holiday", "set Ax39", "expose", "items dive", "destroy"]
+            actions = ["start", "do not show until", "set Ax39", "expose", "items dive", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "start" then
                 PolyActions::start(fiber)
                 return
             end
-            if action == "add time" then
-                timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
-                puts "adding #{timeInHours} hours to '#{NxTimeFibers::toString(fiber)}'"
-                Bank::put(fiber["uuid"], timeInHours*3600)
-            end
             if action == "do not show until" then
                 unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
                 next if unixtime.nil?
                 DoNotShowUntil::setUnixtime(fiber["uuid"], unixtime)
-            end
-            if action == "show hours" then
-                (-6..0).each{|i|
-                    date = CommonUtils::nDaysInTheFuture(i)
-                    puts "date: #{date}, hours: #{Bank::valueAtDate(fiber["uuid"], date).to_f/3600}"
-                }
-                LucilleCore::pressEnterToContinue()
-            end
-            if action == "fill for holiday" then
-                numbers = NxTimeFibers::liveNumbers(fiber)
-                timeInHours = numbers["pendingTimeTodayInHoursLive"]
-                puts "adding #{timeInHours} hours to '#{NxTimeFibers::toString(fiber)}'"
-                Bank::put(fiber["uuid"], timeInHours*3600)
-                fiber["doneForDay"] = CommonUtils::today()
-                NxTimeFibers::commit(fiber)
             end
             if action == "set Ax39" then
                 fiber["ax39"] = Ax39::interactivelyCreateNewAx()

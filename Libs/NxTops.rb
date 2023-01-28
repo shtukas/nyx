@@ -16,7 +16,7 @@ class NxTops
             "datetime"    => Time.new.utc.iso8601,
             "description" => description
         }
-        TodoDatabase2::commit_item(item)
+        TodoDatabase2::commitItem(item)
         item
     end
 
@@ -30,7 +30,7 @@ class NxTops
 
     # NxTops::listingItems()
     def self.listingItems()
-        TodoDatabase2::itemsForMikuType("NxTop")
+        Database2Data::itemsForMikuType("NxTop")
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 end

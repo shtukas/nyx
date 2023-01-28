@@ -5,7 +5,7 @@
 require_relative "../Libs/loader.rb"
 
 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-item = TodoDatabase2::getObjectByUUIDOrNull(uuid)
+item = TodoDatabase2::getItemByUUIDOrNull(uuid)
 if item.nil? then
     puts "Could not determine an item for this uuid"
     exit

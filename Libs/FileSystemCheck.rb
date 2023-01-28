@@ -284,10 +284,9 @@ class FileSystemCheck
 
     # FileSystemCheck::fsckErrorAtFirstFailure()
     def self.fsckErrorAtFirstFailure()
-        TodoDatabase2::database_objects()
+        TodoDatabase2::databaseItems()
             .each{|object|
                 FileSystemCheck::exitIfMissingCanary()
-                item = TodoDatabase2Adaptation::databaseObjectToItem(object)
                 FileSystemCheck::fsck_MikuTypedItem(item, true)
             }
         puts "fsck completed successfully".green
