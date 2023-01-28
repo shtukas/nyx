@@ -19,7 +19,7 @@ class PolyFunctions
             return NxTimeCommitments::toString(item)
         end
         if item["mikuType"] == "NxTimeDrop" then
-            return item["description"]
+            return "#{item["description"]} (#{item["field1"].round(2)} hours left)"
         end
         if item["mikuType"] == "NxTodo" then
             return NxTodos::toString(item)

@@ -13,7 +13,7 @@ class NxTimeDrops
         raise "(error: b515455a-d9b9-4241-8839-ffe3a42025bd)" if item["mikuType"] != "NxTimeDrop"
         return if !(item["field2"] and item["field2"] > 0) # We are not running
         unrealisedTimeInHours = (Time.new.to_i - item["field2"]).to_f/3600
-        item["field1"] = item["field1"] - unrealisedTime # possibly became negative
+        item["field1"] = item["field1"] - unrealisedTimeInHours # field1 then possibly became negative
         item["field2"] = nil
         TodoDatabase2::commitItem(item)
     end
