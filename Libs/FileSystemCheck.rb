@@ -175,12 +175,6 @@ class FileSystemCheck
             return
         end
 
-        if mikuType == "NxDoNotShowUntil" then
-            FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-            return
-        end
-
         if mikuType == "NxTodo" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
             FileSystemCheck::ensureAttribute(item, "mikuType", "String")

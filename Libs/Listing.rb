@@ -333,6 +333,7 @@ class Listing
             }
 
             Database2Data::listingItems()
+                .select{|item| DoNotShowUntil::isVisible(item) }
                 .map{|item|
                     item["listing:position"] = trajectoryToNumber.call(item["field13"])
                     item
@@ -350,8 +351,7 @@ class Listing
 
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
-            return if input == ""
-            return "exit" if input == "exit"
+            next if input == ""
 
             Listing::listingCommandInterpreter(input, store)
         }

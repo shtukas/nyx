@@ -38,6 +38,7 @@ class TodoDatabase2
 
     # TodoDatabase2::commitItem(item)
     def self.commitItem(item)
+        puts "TodoDatabase2::commitItem(#{JSON.pretty_generate(item)})"
         FileSystemCheck::fsck_MikuTypedItem(item, true)
         database_object = TodoDatabase2ItemObjectsTranslation::itemToDatabaseObject(item)
         TodoDatabase2::commitObject(database_object)
@@ -57,6 +58,7 @@ class TodoDatabase2
 
     # TodoDatabase2::set(uuid, attname, attvalue)
     def self.set(uuid, attname, attvalue)
+        puts "TodoDatabase2::set(#{uuid}, #{attname}, #{attvalue})"
         TodoDatabase2::filepaths().each{|filepath|
             db = SQLite3::Database.new(filepath)
             db.busy_timeout = 117

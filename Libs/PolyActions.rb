@@ -60,7 +60,7 @@ class PolyActions
     # PolyActions::done(item)
     def self.done(item)
 
-        Locks::done(item["uuid"])
+        Locks::unlock(item["uuid"])
 
         # order: alphabetical order
 
