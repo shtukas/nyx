@@ -169,13 +169,19 @@ class Waves
 
     # Waves::performWaveNx46WaveDone(item)
     def self.performWaveNx46WaveDone(item)
+
+        # Marking the item as being done 
         puts "done-ing: #{Waves::toString(item)}"
         item["lastDoneDateTime"] = Time.now.utc.iso8601
         TodoDatabase2::commitItem(item)
 
+        # We control display using DoNotShowUntil
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
         puts "not shown until: #{Time.at(unixtime).to_s}"
         DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+
+        # Database Listing update
+        Database2Engine::disactivateListing(item)
     end
 
     # Waves::dive()

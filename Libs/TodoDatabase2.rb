@@ -405,6 +405,12 @@ class Database2Engine
         TodoDatabase2::set(item["uuid"], "field13", Database2Data::nextListingOrdinal())
     end
 
+    # Database2Engine::disactivateListing(item)
+    def self.disactivateListing(item)
+        TodoDatabase2::set(item["uuid"], "field12", "")
+        TodoDatabase2::set(item["uuid"], "field13", 0)
+    end
+
     # Database2Engine::activationsForListingOrNothing()
     def self.activationsForListingOrNothing()
 
