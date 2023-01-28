@@ -7,5 +7,6 @@ NxTodo:
     "datetime"       : DateTime Iso 8601 UTC Zulu
     "description"    : String
     "nx113" "field1" : null or Nx113, json encoded if set
-    "tcId"  "field2" : String
-    "tcPos" "field3" : Float
+
+    "field10"        : tcId  # string
+    "field11"        : tcPos # float

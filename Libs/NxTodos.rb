@@ -9,7 +9,7 @@ class NxTodos
     def self.interactivelyIssueNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-        uuid  = CommonUtils::timeStringL22()
+        uuid  = SecureRandom.uuid
         nx113 = Nx113Make::interactivelyMakeNx113OrNull()
         tcId = NxTimeFibers::interactivelySelectItem()["uuid"]
         tcPos = NxTimeFibers::interactivelyDecideProjectPosition(tcId)
@@ -20,8 +20,8 @@ class NxTodos
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
             "nx113"       => nx113,
-            "tcId"       => tcId,
-            "tcPos" => tcPos
+            "field10"     => tcId,
+            "field11"     => tcPos
         }
         TodoDatabase2::commitItem(item)
         item
@@ -39,14 +39,6 @@ class NxTodos
     # NxTodos::toStringForSearch(item)
     def self.toStringForSearch(item)
         "(todo) #{item["description"]}"
-    end
-
-    # NxTodos::itemsForNxTimeFiber(tcId)
-    def self.itemsForNxTimeFiber(tcId)
-        Database2Data::itemsForMikuType("NxTodo")
-            .select{|item|
-                item["tcId"] == tcId
-            }
     end
 
     # --------------------------------------------------

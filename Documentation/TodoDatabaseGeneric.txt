@@ -17,10 +17,12 @@ Type:
 
     "field7"         : skipped until # unixtime
     "field8"         : lockname      # string
-    "field9"         : fiberId       # string
 
-    "field10"        : (not used)
-    "field11"        : (not used)
+    "field9"         : (not used)
+
+    "field10"        : tcId   # string
+    "field11"        : tcPos  # float
+
     "field12"        : (not used)
 
 ```

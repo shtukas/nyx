@@ -85,25 +85,9 @@ class NxTimeFibers
         "(fiber) (pending: #{"%5.2f" % pendingInHours}) #{item["description"].ljust(descriptionPadding)} (#{Ax39::toStringFormatted(item["ax39"])})#{dnsustr}"
     end
 
-    # NxTimeFibers::runningItems()
-    def self.runningItems()
-        NxTimeFibers::items()
-            .select{|fiber| NxBalls::getNxBallForItemOrNull(fiber) }
-    end
-
     # NxTimeFibers::nextPositionForItem(tcId)
     def self.nextPositionForItem(tcId)
-        ([0] + NxTodos::itemsForNxTimeFiber(tcId).map{|todo| todo["tcPos"] }).max + 1
-    end
-
-    # NxTimeFibers::itemsForListing()
-    def self.itemsForListing()
-        NxTimeFibers::items()
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-            .select{|item| NxBalls::itemIsRunning(item) or item["doneForDay"] != CommonUtils::today() }
-            .select{|item| NxBalls::itemIsRunning(item) or NxTimeFibers::liveNumbers(item)["pendingTimeTodayInHoursLive"] > 0 }
-            .sort{|i1, i2| NxTimeFibers::liveNumbers(i1)["pendingTimeTodayInHoursLive"] <=>  NxTimeFibers::liveNumbers(i2)["pendingTimeTodayInHoursLive"] }
+        ([0] + Database2Data::itemsForTimeFiber(tcId).map{|todo| todo["tcPos"] }).max + 1
     end
 
     # NxTimeFibers::itemWithToAllAssociatedListingItems(fiber)
@@ -120,7 +104,7 @@ class NxTimeFibers
             }
         }
 
-        items = NxTodos::itemsForNxTimeFiber(fiber["uuid"])
+        items = Database2Data::itemsForTimeFiber(fiber["uuid"])
 
         if fiber["isWork"] then
             [makeVx01.call(fiber)] + items
@@ -131,16 +115,6 @@ class NxTimeFibers
                 [fiber]
             end
         end
-    end
-
-    # NxTimeFibers::listingElements(isWork)
-    def self.listingElements(isWork)
-        xor = lambda{|b1, b2| (b1 or b2) and !(b1 and b2) }
-
-        NxTimeFibers::itemsForListing()
-            .select{|item| xor.call(!isWork, item["isWork"]) }
-            .map{|item| NxTimeFibers::itemWithToAllAssociatedListingItems(item) }
-            .flatten
     end
 
     # NxTimeFibers::allPendingTimeTodayInHoursLive()
@@ -168,7 +142,7 @@ class NxTimeFibers
 
     # NxTimeFibers::presentProjectItems(fiber)
     def self.presentProjectItems(fiber)
-        items = NxTodos::itemsForNxTimeFiber(fiber["uuid"])
+        items = Database2Data::itemsForTimeFiber(fiber["uuid"])
         loop {
             system("clear")
             # We do not recompute all the items but we recall the ones we had to get the new 
@@ -207,13 +181,9 @@ class NxTimeFibers
     def self.probe(fiber)
         loop {
             puts NxTimeFibers::toStringWithDetails(fiber, false)
-            actions = ["start", "do not show until", "set Ax39", "expose", "items dive", "destroy"]
+            actions = ["do not show until", "set Ax39", "expose", "items dive", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
-            if action == "start" then
-                PolyActions::start(fiber)
-                return
-            end
             if action == "do not show until" then
                 unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
                 next if unixtime.nil?
@@ -253,7 +223,7 @@ class NxTimeFibers
 
     # NxTimeFibers::interactivelyDecideProjectPosition(tcId)
     def self.interactivelyDecideProjectPosition(tcId)
-        NxTodos::itemsForNxTimeFiber(tcId)
+        Database2Data::itemsForTimeFiber(tcId)
             .sort{|i1, i2| i1["tcPos"] <=> i2["tcPos"] }
             .first(CommonUtils::screenHeight() - 2)
             .each{|item|

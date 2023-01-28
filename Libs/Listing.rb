@@ -80,7 +80,9 @@ class Listing
         if Interpreting::match("destroy", input) then
             item = store.getDefault()
             return if item.nil?
-            PolyActions::destroyWithPrompt(item)
+            if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{PolyFunctions::toString(item).green}' ") then
+                TodoDatabase2::destroy(item["uuid"])
+            end
             return
         end
 
@@ -88,7 +90,9 @@ class Listing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyActions::destroyWithPrompt(item)
+            if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{PolyFunctions::toString(item).green}' ") then
+                TodoDatabase2::destroy(item["uuid"])
+            end
             return
         end
 
@@ -283,16 +287,6 @@ class Listing
         end
     end
 
-    # Listing::printItem(store, item, canBeDefault, prefix)
-    def self.printItem(store, item, canBeDefault, prefix)
-        store.register(item, canBeDefault)
-        tc = NxTimeFibers::getOrNull(item["tcId"])
-        tcStr = tc ? " [#{"fiber:".green} #{tc["description"]}]" : ""
-        line = "(#{store.prefixString()})#{tcStr} #{prefix}#{PolyFunctions::toStringForListing(item)}"
-        puts line
-        CommonUtils::verticalSize(line)
-    end
-
     # Listing::mainProgram2Pure()
     def self.mainProgram2Pure()
 
@@ -335,7 +329,7 @@ class Listing
                     store.register(item, !Skips::isSkipped(item))
                     tc = NxTimeFibers::getOrNull(item["tcId"])
                     tcStr = tc ? " [#{"fiber:".green} #{tc["description"]}]" : ""
-                    line = "(#{store.prefixString()})#{tcStr} #{PolyFunctions::toStringForListing(item)}"
+                    line = "(#{store.prefixString()}) #{PolyFunctions::toStringForListing(item)}#{tcStr}"
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                     break if vspaceleft <= 0

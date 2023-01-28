@@ -101,6 +101,7 @@ class TodoDatabase2
             .map{|object| TodoDatabase2ItemObjectsTranslation::databaseObjectToItem(object) }
     end
 
+    # *Database Schema*
     # TodoDatabase2::commitObject(object)
     def self.commitObject(object)
         # If we want to commit an object, we need to rewrite all the files in which it is (meaning deleting the object and renaming the file)
@@ -114,7 +115,7 @@ class TodoDatabase2
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        db.execute "insert into objects (uuid, mikuType, unixtime, datetime, description, payload, doNotShowUntil, field1, field2, field3, field4, field5, field6, field7, field8) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [object["uuid"], object["mikuType"], object["unixtime"], object["datetime"], object["description"], object["payload"], object["doNotShowUntil"], object["field1"], object["field2"], object["field3"], object["field4"], object["field5"], object["field6"], object["field7"], object["field8"]]
+        db.execute "insert into objects (uuid, mikuType, unixtime, datetime, description, payload, doNotShowUntil, field1, field2, field3, field4, field5, field6, field7, field8, field9, field10, field11, field12) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [object["uuid"], object["mikuType"], object["unixtime"], object["datetime"], object["description"], object["payload"], object["doNotShowUntil"], object["field1"], object["field2"], object["field3"], object["field4"], object["field5"], object["field6"], object["field7"], object["field8"], object["field9"], object["field10"], object["field11"], object["field12"]]
         db.close
 
         # Note that we made filepaths, before creating filepath0, so we are not going to delete the object that is being saved from the fie that was just created  
@@ -128,6 +129,7 @@ class TodoDatabase2
         end
     end
 
+    # *Database Schema*
     # TodoDatabase2::rowToObject(row)
     def self.rowToObject(row)
         {
@@ -153,6 +155,7 @@ class TodoDatabase2
         }
     end
 
+    # *Database Schema*
     # TodoDatabase2::spawnNewDatabase()
     def self.spawnNewDatabase()
         filepath = "#{Config::pathToDataCenter()}/#{TodoDatabase2::foldername()}/#{CommonUtils::timeStringL22()}.sqlite3"
@@ -228,6 +231,7 @@ class TodoDatabase2
         nil
     end
 
+    # *Database Schema*
     # TodoDatabase2::mergeFiles(filepath1, filepath2)
     def self.mergeFiles(filepath1, filepath2)
         db1 = SQLite3::Database.new(filepath1)
@@ -239,7 +243,7 @@ class TodoDatabase2
         db1.busy_handler { |count| true }
         db1.results_as_hash = true
         db1.execute("select * from objects", []) do |row|
-            db2.execute "insert into objects (uuid, mikuType, unixtime, datetime, description, payload, doNotShowUntil, field1, field2, field3, field4, field5, field6, field7, field8) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [row["uuid"], row["mikuType"], row["unixtime"], row["datetime"], row["description"], row["payload"], row["doNotShowUntil"], row["field1"], row["field2"], row["field3"], row["field4"], row["field5"], row["field6"], row["field7"], row["field8"]]
+            db2.execute "insert into objects (uuid, mikuType, unixtime, datetime, description, payload, doNotShowUntil, field1, field2, field3, field4, field5, field6, field7, field8, field9, field10, field11, field12) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [row["uuid"], row["mikuType"], row["unixtime"], row["datetime"], row["description"], row["payload"], row["doNotShowUntil"], row["field1"], row["field2"], row["field3"], row["field4"], row["field5"], row["field6"], row["field7"], row["field8"], row["field9"], row["field10"], row["field11"], row["field12"]]
         end
 
         db1.close
@@ -262,7 +266,7 @@ class TodoDatabase2ItemObjectsTranslation
         if object["mikuType"] == "NxTodo" then
             object["nx113"] = JSON.parse(object["field1"])
             object["tcId"]  = object["field2"]
-            object["tcPos"] = object["field3"]
+            object["tcPos"] = object["field3"].to_f
             return object
         end
         if object["mikuType"] == "NxAnniversary" then
@@ -274,15 +278,13 @@ class TodoDatabase2ItemObjectsTranslation
         if object["mikuType"] == "Wave" then
             object["nx46"]                = JSON.parse(object["field1"])
             object["priority"]            = object["field2"]
-            object["tcId"]                = object["field3"]
             object["lastDoneDateTime"]    = object["field4"]
             object["nx113"]               = JSON.parse(object["field5"])
             object["onlyOnDays"]          = JSON.parse(object["field6"])
             return object
         end
         if object["mikuType"] == "TxStratosphere" then
-            object["ordinal"] = object["field1"]
-            object["tcId"]    = object["field2"]
+            object["ordinal"] = object["field1"].to_f
             return object
         end
         if object["mikuType"] == "TxManualCountDown" then
@@ -297,7 +299,6 @@ class TodoDatabase2ItemObjectsTranslation
             return object
         end
         if object["mikuType"] == "NxTop" then
-            object["tcId"] = object["field1"]
             return object
         end
         if object["mikuType"] == "NxOndate" then
@@ -305,7 +306,7 @@ class TodoDatabase2ItemObjectsTranslation
             return object
         end
         if object["mikuType"] == "NxBlock" then
-            object["ordinal"] = object["field1"]
+            object["ordinal"] = object["field1"].to_f
             return object
         end
         puts JSON.pretty_generate(object)
@@ -329,7 +330,6 @@ class TodoDatabase2ItemObjectsTranslation
         if item["mikuType"] == "Wave" then
             item["field1"] = JSON.generate(item["nx46"])
             item["field2"] = item["priority"]
-            item["field3"] = item["tcId"]
             item["field4"] = item["lastDoneDateTime"]
             item["field5"] = JSON.generate(item["nx113"])
             item["field6"] = JSON.generate(item["onlyOnDays"])
@@ -337,7 +337,6 @@ class TodoDatabase2ItemObjectsTranslation
         end
         if item["mikuType"] == "TxStratosphere" then
             item["field1"] = item["ordinal"]
-            item["field2"] = item["tcId"]
             return item
         end
         if item["mikuType"] == "TxManualCountDown" then
@@ -352,7 +351,6 @@ class TodoDatabase2ItemObjectsTranslation
             return item
         end
         if item["mikuType"] == "NxTop" then
-            item["field1"] = item["tcId"]
             return item
         end
         if item["mikuType"] == "NxOndate" then
@@ -376,6 +374,12 @@ class Database2Data
             .map{|object| TodoDatabase2ItemObjectsTranslation::databaseObjectToItem(object) }
     end
 
+    # Database2Data::itemsForTimeFiber(tcId)
+    def self.itemsForTimeFiber(tcId)
+        TodoDatabase2::databaseQuery("select * from objects where field10=?", [tcId])
+            .map{|object| TodoDatabase2ItemObjectsTranslation::databaseObjectToItem(object) }
+    end
+
     # Database2Data::listingItems()
     def self.listingItems()
         items = [
@@ -385,9 +389,7 @@ class Database2Data
             #Waves::listingItems("ns:mandatory-today"),
             #NxOndates::listingItems(),
             #TxManualCountDowns::listingItems(),
-            #NxTimeFibers::listingElements(true),
             #Waves::listingItems("ns:time-important"),
-            #NxTimeFibers::listingElements(false),
             #NxBlocks::listingItems(3),
             #Waves::listingItems("ns:beach"),
             #NxBlocks::listingItems(6),

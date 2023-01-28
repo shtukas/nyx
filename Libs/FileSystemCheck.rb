@@ -186,9 +186,9 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
-            FileSystemCheck::ensureAttribute(item, "tcId", "String")
-            FileSystemCheck::ensureAttribute(item, "tcPos", "Number")
             FileSystemCheck::fsck_Nx113(item["nx113"], verbose)
+            FileSystemCheck::ensureAttribute(item, "field10", "String")
+            FileSystemCheck::ensureAttribute(item, "field11", "Number")
             return
         end
 
@@ -249,7 +249,6 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
             FileSystemCheck::ensureAttribute(item, "mikuType", "String")
             FileSystemCheck::ensureAttribute(item, "ordinal", "Number")
-            FileSystemCheck::ensureAttribute(item, "tcId", "String")
             return
         end
 
