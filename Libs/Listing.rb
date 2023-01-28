@@ -326,8 +326,19 @@ class Listing
             puts ""
             vspaceleft = vspaceleft - 2
 
+            trajectoryToNumber = lambda{|trajectory|
+                return 0.8 if trajectory.nil?
+                return 0 if Time.new.to_i < trajectory["activationunixtime"]
+                [1, (Time.new.to_i - trajectory["activationunixtime"]).to_f/(trajectory["expectedTimeToCompletionInHours"]*3600)].min
+            }
 
             Database2Data::listingItems()
+                .map{|item|
+                    item["listing:position"] = trajectoryToNumber.call(item["field13"])
+                    item
+                }
+                .sort{|i1, i2| i1["listing:position"] <=> i2["listing:position"] }
+                .reverse
                 .each{|item|
                     next if Locks::isLocked(item)
                     store.register(item, !Skips::isSkipped(item))

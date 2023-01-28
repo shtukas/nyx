@@ -265,6 +265,7 @@ class TodoDatabase2ItemObjectsTranslation
 
     # TodoDatabase2ItemObjectsTranslation::databaseObjectToItem(object)
     def self.databaseObjectToItem(object)
+        object["field13"] = JSON.parse(object["field13"] || "null")
         if object["mikuType"] == "NxTodo" then
             object["nx113"] = JSON.parse(object["field1"])
             object["tcId"]  = object["field2"]
@@ -288,7 +289,7 @@ class TodoDatabase2ItemObjectsTranslation
             return object
         end
         if object["mikuType"] == "TxManualCountDown" then
-            object["dailyTarget"]         = object["field1"]
+            object["dailyTarget"]         = object["field1"].to_i
             object["date"]                = object["field2"]
             object["counter"]             = object["field3"].to_i
             object["lastUpdatedUnixtime"] = object["field4"].to_i
@@ -325,6 +326,7 @@ class TodoDatabase2ItemObjectsTranslation
 
     # TodoDatabase2ItemObjectsTranslation::itemToDatabaseObject(item)
     def self.itemToDatabaseObject(item)
+        item["field13"] = JSON.generate(item["field13"])
         if item["mikuType"] == "NxTodo" then
             item["field1"] = JSON.generate(item["nx113"])
             item["field2"] = item["tcId"]
@@ -392,7 +394,7 @@ class Database2Data
 
     # Database2Data::listingItems()
     def self.listingItems()
-        TodoDatabase2::databaseQuery("select * from objects where field12=? order by field13", ["true"])
+        TodoDatabase2::databaseQuery("select * from objects where field12=?", ["true"])
             .map{|object| TodoDatabase2ItemObjectsTranslation::databaseObjectToItem(object) }
     end
 
@@ -409,11 +411,11 @@ end
 
 class Database2Engine
 
-    # Database2Engine::activateItemForListing(item)
-    def self.activateItemForListing(item)
+    # Database2Engine::activateItemForListing(item, trajectory)
+    def self.activateItemForListing(item, trajectory)
         return if TodoDatabase2::getOrNull(item["uuid"], "field12") == "true"
         TodoDatabase2::set(item["uuid"], "field12", "true")
-        TodoDatabase2::set(item["uuid"], "field13", Database2Data::nextListingOrdinal())
+        TodoDatabase2::set(item["uuid"], "field13", JSON.generate(trajectory))
     end
 
     # Database2Engine::disactivateListing(item)
@@ -430,33 +432,33 @@ class Database2Engine
             .each{|item|
                 next if Database2Data::itemIsListed(item)
                 next if !DoNotShowUntil::isVisible(item)
-                Database2Engine::activateItemForListing(item)
+                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_i, 6))
             }
         Database2Data::itemsForMikuType("NxTop")
             .each{|item|
                 next if Database2Data::itemIsListed(item)
                 next if !DoNotShowUntil::isVisible(item)
-                Database2Engine::activateItemForListing(item)
+                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_i, 6))
             }
         Database2Data::itemsForMikuType("NxTriage")
             .each{|item|
                 next if Database2Data::itemIsListed(item)
                 next if !DoNotShowUntil::isVisible(item)
-                Database2Engine::activateItemForListing(item)
+                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_i, 24))
             }
 
         NxOndates::listingItems()
             .each{|item|
                 next if Database2Data::itemIsListed(item)
                 next if !DoNotShowUntil::isVisible(item)
-                Database2Engine::activateItemForListing(item)
+                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_i, 6))
             }
 
         TxManualCountDowns::listingItems()
             .each{|item|
                 next if Database2Data::itemIsListed(item)
                 next if !DoNotShowUntil::isVisible(item)
-                Database2Engine::activateItemForListing(item)
+                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_i, 2))
             }
 
         Database2Data::itemsForMikuType("Wave")
@@ -466,16 +468,20 @@ class Database2Engine
             .each{|item|
                 next if Database2Data::itemIsListed(item)
                 next if !DoNotShowUntil::isVisible(item)
-                Database2Engine::activateItemForListing(item)
+                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_i, 18))
             }
 
         Database2Data::itemsForMikuType("NxTimeCommitment")
             .each{|item|
                 next if Database2Data::itemsForMikuType("NxTimeDrop").select{|drop| drop["field4"] == item["uuid"] }.size > 0
+                next if item["hours"] == 0 # to avoid dividing by zero
 
                 hoursLeft = item["hours"]
+                spread    = 24*6.to_f/(item["hours"])
+                indx      = -1 # This causes the first value of { Time.new.to_i + indx*spread } to be now.
 
                 while hoursLeft > 0 do
+                    indx = indx + 1
                     hoursOne = [hoursLeft, 1].min
                     drop = {
                         "uuid"        => SecureRandom.uuid,
@@ -490,6 +496,7 @@ class Database2Engine
                     }
                     puts JSON.pretty_generate(drop)
                     TodoDatabase2::commitItem(drop)
+                    Database2Engine::activateItemForListing(drop, Database2Engine::trajectory(Time.new.to_i + indx*spread, 24))
                     hoursLeft = hoursLeft - hoursOne
                 end
 
@@ -502,7 +509,18 @@ class Database2Engine
             .each{|item|
                 next if Database2Data::itemIsListed(item)
                 next if !DoNotShowUntil::isVisible(item)
+                # Time drops are issued by NxTimeCommitment, and they are actived then
+                # This exists in case we create one manually.
                 Database2Engine::activateItemForListing(item)
             }
+    end
+
+    # Database2Engine::trajectory(activationunixtime, expectedTimeToCompletionInHours)
+    def self.trajectory(activationunixtime, expectedTimeToCompletionInHours)
+        {
+            "activationunixtime" => activationunixtime,
+            "activationdatetime" => Time.at(activationunixtime).to_s,
+            "expectedTimeToCompletionInHours" => expectedTimeToCompletionInHours
+        }
     end
 end

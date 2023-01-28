@@ -24,7 +24,8 @@ Type:
     "field11"        : string, (not used)
 
     "field12"        : string, "true" if listed
-    "field13"        : float , listing ordinal
+    "field13"        : trajectory, null or NxListingVelocity
+
 
 ```
 TodoDatabase2::filepaths().each{|filepath|
