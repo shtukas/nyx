@@ -11,7 +11,6 @@ class NxTodos
         return nil if description == ""
         uuid  = SecureRandom.uuid
         nx113 = Nx113Make::interactivelyMakeNx113OrNull()
-        tcId = NxTimeFibers::interactivelySelectItem()["uuid"]
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
@@ -19,7 +18,6 @@ class NxTodos
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
             "nx113"       => nx113,
-            "field10"     => tcId,
         }
         TodoDatabase2::commitItem(item)
         item

@@ -6,9 +6,9 @@ class Listing
     def self.listingCommands()
         [
             "[listing interaction] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | >> skip default | destroy",
-            "[makers] wave | anniversary | today | ondate | todo | fiber | manual countdown | top | strat | block",
-            "[divings] anniversaries | ondates | waves | fibers | todos",
-            "[transmutations] '' (transmute)",
+            "[makers] wave | anniversary | today | ondate | todo | manual countdown | top | strat | block",
+            "[divings] anniversaries | ondates | waves | todos",
+            "[divings] anniversaries | ondates | waves | todos",
             "[misc] search | speed | commands | lock (<n>)",
         ].join("\n")
     end
@@ -35,14 +35,6 @@ class Listing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::doubleDotAccess(item)
-            return
-        end
-
-        if Interpreting::match("''", input) then
-            item = store.getDefault()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
-            Transmutations::transmute2(item)
             return
         end
 
@@ -211,6 +203,19 @@ class Listing
             return
         end
 
+        if Interpreting::match("redate", input) then
+            item = store.getDefault()
+            return if item.nil?
+            if item["mikuType"] != "NxOndate" then
+                puts "command redate is only for NxOndates"
+                LucilleCore::pressEnterToContinue
+                return
+            end
+            item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
+            TodoDatabase2::commitItem(item)
+            return
+        end
+
         if Interpreting::match("search", input) then
             SearchCatalyst::run()
             return
@@ -254,16 +259,6 @@ class Listing
             return
         end
 
-        if Interpreting::match("fiber", input) then
-            NxTimeFibers::interactivelyIssueNewOrNull()
-            return
-        end
-
-        if Interpreting::match("fibers", input) then
-            NxTimeFibers::mainprobe()
-            return
-        end
-
         if Interpreting::match("speed", input) then
             LucilleCore::pressEnterToContinue()
             return
@@ -276,6 +271,8 @@ class Listing
         initialCodeTrace = CommonUtils::stargateTraceCode()
 
         $SyncConflictInterruptionFilepath = nil
+
+        Database2Engine::activationsForListingOrNothing()
 
         Thread.new {
             loop {
@@ -309,7 +306,7 @@ class Listing
             vspaceleft = CommonUtils::screenHeight() - 3
 
             puts ""
-            puts "> strat | lock | top | ondate | fiber/todo | wave | block".yellow
+            puts "> strat | lock | top | ondate | todo | wave | block".yellow
             puts ""
             vspaceleft = vspaceleft - 3
 
@@ -317,9 +314,8 @@ class Listing
                 .each{|item|
                     next if Locks::isLocked(item)
                     store.register(item, !Skips::isSkipped(item))
-                    tc = NxTimeFibers::getOrNull(item["tcId"])
-                    tcStr = tc ? " [#{"fiber:".green} #{tc["description"]}]" : ""
-                    line = "(#{store.prefixString()}) #{PolyFunctions::toStringForListing(item)}#{tcStr}"
+                    line = "(#{store.prefixString()}) #{PolyFunctions::toStringForListing(item)}"
+                    next if line.include?("(wave)")
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                     break if vspaceleft <= 0

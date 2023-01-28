@@ -97,15 +97,15 @@ class FileSystemCheck
         raise "Unsupported Nx113 type: #{type}"
     end
 
-    # FileSystemCheck::fsck_NxTimeFiber(item, verbose)
-    def self.fsck_NxTimeFiber(item, verbose)
+    # FileSystemCheck::fsck_NxTimeCommitment(item, verbose)
+    def self.fsck_NxTimeCommitment(item, verbose)
         return if item.nil?
 
         if verbose then
-            puts "FileSystemCheck::fsck_NxTimeFiber(#{JSON.pretty_generate(item)}, #{verbose})"
+            puts "FileSystemCheck::fsck_NxTimeCommitment(#{JSON.pretty_generate(item)}, #{verbose})"
         end
 
-        if item["mikuType"] != "NxTimeFiber" then
+        if item["mikuType"] != "NxTimeCommitment" then
             raise "Incorrect Miku type for function"
         end
 
@@ -114,7 +114,8 @@ class FileSystemCheck
         FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
         FileSystemCheck::ensureAttribute(item, "datetime", "String")
         FileSystemCheck::ensureAttribute(item, "description", "String")
-        FileSystemCheck::ensureAttribute(item, "ax39", "Hash")
+        FileSystemCheck::ensureAttribute(item, "resetTime", "Number")
+        FileSystemCheck::ensureAttribute(item, "hours", "Number")
     end
 
     # FileSystemCheck::fsck_NxNode(item, verbose)
@@ -148,8 +149,8 @@ class FileSystemCheck
 
         mikuType = item["mikuType"]
 
-        if mikuType == "NxTimeFiber" then
-            FileSystemCheck::fsck_NxTimeFiber(item, verbose)
+        if mikuType == "NxTimeCommitment" then
+            FileSystemCheck::fsck_NxTimeCommitment(item, verbose)
             return
         end
 
@@ -187,7 +188,6 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
             FileSystemCheck::fsck_Nx113(item["nx113"], verbose)
-            FileSystemCheck::ensureAttribute(item, "field10", "String")
             return
         end
 
@@ -231,6 +231,17 @@ class FileSystemCheck
 
         if mikuType == "NxNode" then
             FileSystemCheck::fsck_NxNode(item, verbose)
+            return
+        end
+
+        if mikuType == "NxTimeDrop" then
+            FileSystemCheck::ensureAttribute(item, "uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
+            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+            FileSystemCheck::ensureAttribute(item, "description", "String")
+            FileSystemCheck::ensureAttribute(item, "field1", "Number")
+            FileSystemCheck::ensureAttribute(item, "field3", "Number")
+            FileSystemCheck::ensureAttribute(item, "field4", "String")
             return
         end
 

@@ -3,8 +3,6 @@ class PolyFunctions
     # PolyFunctions::toString(item)
     def self.toString(item)
 
-        # order: lexicographic
-
         if item["mikuType"] == "LambdX1" then
             return "(lambda) #{item["announce"]}"
         end
@@ -20,11 +18,17 @@ class PolyFunctions
         if item["mikuType"] == "NxBlock" then
             return NxBlocks::toString(item)
         end
-        if item["mikuType"] == "NxTimeFiber" then
-            return NxTimeFibers::toString(item)
+        if item["mikuType"] == "NxTimeCommitment" then
+            return NxTimeCommitments::toString(item)
+        end
+        if item["mikuType"] == "NxTimeDrop" then
+            return item["description"]
         end
         if item["mikuType"] == "NxTodo" then
             return NxTodos::toString(item)
+        end
+        if item["mikuType"] == "NxTop" then
+            return NxTops::toString(item)
         end
         if item["mikuType"] == "NxTriage" then
             return NxTriages::toString(item)
@@ -35,9 +39,6 @@ class PolyFunctions
         if item["mikuType"] == "TxManualCountDown" then
             return "(countdown) #{item["description"]}: #{item["counter"]}"
         end
-        if item["mikuType"] == "Vx01" then
-            return "(-vx-) #{item["description"]}"
-        end
         if item["mikuType"] == "Wave" then
             return Waves::toString(item)
         end
@@ -47,8 +48,8 @@ class PolyFunctions
 
     # PolyFunctions::toStringForListing(item)
     def self.toStringForListing(item)
-        if item["mikuType"] == "NxTimeFiber" then
-            return NxTimeFibers::toStringWithDetails(item, true)
+        if item["mikuType"] == "NxTimeCommitment" then
+            return NxTimeCommitments::toStringWithDetails(item, true)
         end
         if item["mikuType"] == "NxTodo" then
             return item["description"]

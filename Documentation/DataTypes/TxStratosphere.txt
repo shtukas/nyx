@@ -9,4 +9,3 @@ TxStratosphere:
     "doNotShowUntil"   : Unixtime
 
     "ordinal" "field1" : Float
-    "field10"          : tcId, nil or String

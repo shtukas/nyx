@@ -308,6 +308,14 @@ class TodoDatabase2ItemObjectsTranslation
             object["ordinal"] = object["field1"].to_f
             return object
         end
+        if object["mikuType"] == "NxTimeCommitment" then
+            object["resetTime"] = object["field2"].to_i
+            object["hours"]     = object["field3"].to_f
+            return object
+        end
+        if object["mikuType"] == "NxTimeDrop" then
+            return object
+        end
         puts JSON.pretty_generate(object)
         raise "(error: 002d8744-e34d-4307-b573-73a195a9c7ac)"
     end
@@ -358,6 +366,14 @@ class TodoDatabase2ItemObjectsTranslation
             item["field1"] = item["ordinal"]
             return item
         end
+        if item["mikuType"] == "NxTimeCommitment" then
+            item["field2"] = item["resetTime"]
+            item["field3"] = item["hours"]
+            return item
+        end
+        if item["mikuType"] == "NxTimeDrop" then
+            return item
+        end
         puts JSON.pretty_generate(item)
         raise "(error: 34432491-c0a8-45a2-a93c-8a7b132d027e)"
     end
@@ -368,12 +384,6 @@ class Database2Data
     # Database2Data::itemsForMikuType(mikuType)
     def self.itemsForMikuType(mikuType)
         TodoDatabase2::databaseQuery("select * from objects where mikuType=?", [mikuType])
-            .map{|object| TodoDatabase2ItemObjectsTranslation::databaseObjectToItem(object) }
-    end
-
-    # Database2Data::itemsForTimeFiber(tcId)
-    def self.itemsForTimeFiber(tcId)
-        TodoDatabase2::databaseQuery("select * from objects where field10=?", [tcId])
             .map{|object| TodoDatabase2ItemObjectsTranslation::databaseObjectToItem(object) }
     end
 
@@ -462,6 +472,42 @@ class Database2Engine
                 return
             }
 
-    end
+        Database2Data::itemsForMikuType("NxTimeCommitment")
+            .each{|item|
+                next if (item["resetTime"] and Time.new.to_i < (item["resetTime"] + 86400*7))
+                next if Database2Data::itemsForMikuType("NxTimeDrop").select{|drop| drop["field4"] == item["uuid"] }.size > 0
 
+                hoursLeft = item["hours"]
+
+                while hoursLeft > 0 do
+                    hoursOne = [hoursLeft, 1].min
+                    drop = {
+                        "uuid"        => SecureRandom.uuid,
+                        "mikuType"    => "NxTimeDrop",
+                        "unixtime"    => Time.new.to_i,
+                        "datetime"    => Time.new.utc.iso8601,
+                        "description" => "TimeDrop (1 hour): #{item["description"]}",
+                        "field1"      => hoursOne,
+                        "field2"      => nil,
+                        "field3"      => 0,
+                        "field4"      => item["uuid"]
+                    }
+                    puts JSON.pretty_generate(drop)
+                    TodoDatabase2::commitItem(drop)
+                    hoursLeft = hoursLeft - hoursOne
+                end
+
+                item["resetTime"] = Time.new.to_i + 86400*7
+
+                TodoDatabase2::commitItem(item)
+            }
+
+        Database2Data::itemsForMikuType("NxTimeDrop")
+            .each{|item|
+                next if Database2Data::itemIsListed(item)
+                next if !DoNotShowUntil::isVisible(item)
+                Database2Engine::activateItemForListing(item)
+                return
+            }
+    end
 end

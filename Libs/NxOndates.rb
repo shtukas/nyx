@@ -84,33 +84,6 @@ class NxOndates
         end
     end
 
-    # NxOndates::probe(item)
-    def self.probe(item)
-        loop {
-            item = TodoDatabase2::getItemByUUIDOrNull(item["uuid"])
-            actions = ["access", "redate", "transmute", "destroy"]
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
-            return if action.nil?
-            if action == "access" then
-                NxOndates::access(item)
-                next
-            end
-            if action == "transmute" then
-                Transmutations::transmute2(item)
-                return
-            end
-            if action == "redate" then
-                item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
-                TodoDatabase2::commitItem(item)
-                next
-            end
-            if action == "destroy" then
-                TodoDatabase2::destroy(item["uuid"])
-                return
-            end
-        }
-    end
-
     # NxOndates::report()
     def self.report()
         system("clear")

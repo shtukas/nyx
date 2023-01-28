@@ -4,5 +4,3 @@ NxTop
     "unixtime"     : Float
     "datetime"     : 
     "description"  : String
-
-    "field10"          : tcId, nil or String

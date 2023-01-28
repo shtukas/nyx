@@ -25,8 +25,8 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxTimeFiber" then
-            NxTimeFibers::probe(item)
+        if item["mikuType"] == "NxTimeCommitment" then
+            NxTimeCommitments::probe(item)
             return
         end
 
@@ -117,7 +117,7 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxTimeFiber" then
+        if item["mikuType"] == "NxTimeCommitment" then
             return
         end
 
@@ -130,14 +130,6 @@ class PolyActions
 
         if item["mikuType"] == "TxManualCountDown" then
             TxManualCountDowns::performUpdate(item)
-            return
-        end
-
-        if item["mikuType"] == "Vx01" then
-            if LucilleCore::askQuestionAnswerAsBoolean("Confirm Vx01 done for today ? ", true) then
-                unixtime = CommonUtils::unixtimeAtComingMidnightAtGivenTimeZone(CommonUtils::getLocalTimeZone())
-                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-            end
             return
         end
 
@@ -163,8 +155,8 @@ class PolyActions
 
         # order: alphabetical order
 
-        if item["mikuType"] == "NxTimeFiber" then
-            NxTimeFibers::probe(item)
+        if item["mikuType"] == "NxTimeCommitment" then
+            NxTimeCommitments::probe(item)
             return
         end
 
@@ -179,11 +171,6 @@ class PolyActions
 
         if item["mikuType"] == "NxTriage" then
             NxTriages::probe(item)
-            return
-        end
-
-        if item["mikuType"] == "NxOndate" then
-            NxOndates::probe(item)
             return
         end
 

@@ -1,0 +1,12 @@
+
+NxTimeDrop:
+    "uuid"         : String
+    "mikuType"     : "NxTimeDrop"
+    "unixtime"     : Float
+    "datetime"     : DateTime Iso 8601 UTC Zulu
+    "description"  : String
+    "field1"       : Float, load in hours
+    "field2"       : nil or unixtime, run start unixtime
+    "field3"       : Float, done in seconds
+    "field4"       : reference time commitment uuid
+

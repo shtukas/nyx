@@ -207,7 +207,7 @@ class Waves
         loop {
             item = TodoDatabase2::getItemByUUIDOrNull(item["uuid"])
             puts Waves::toString(item)
-            actions = ["access", "update description", "update wave pattern", "perform done", "set fiber", "set days of the week", "destroy"]
+            actions = ["access", "update description", "update wave pattern", "perform done", "set days of the week", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "access" then
@@ -225,13 +225,6 @@ class Waves
             end
             if action == "perform done" then
                 Waves::performWaveNx46WaveDone(item)
-                next
-            end
-            if action == "set fiber" then
-                wtc = NxTimeFibers::interactivelySelectItemOrNull()
-                next if wtc.nil?
-                item["tcId"] = wtc["uuid"]
-                TodoDatabase2::commitItem(item)
                 next
             end
             if action == "set days of the week" then

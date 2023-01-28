@@ -20,7 +20,7 @@ Type:
 
     "field9"         : string, (not used)
 
-    "field10"        : string, tcId   # string
+    "field10"        : string, (not used)
     "field11"        : string, (not used)
 
     "field12"        : string, "true" if listed
