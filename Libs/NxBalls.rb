@@ -4,7 +4,7 @@ class NxBalls
 
     # NxBalls::filepath(uuid)
     def self.filepath(uuid)
-        "#{Config::pathToDataCenter()}/NxBall/#{uuid}.json"
+        "#{Config::pathToDataCenter()}/Ops-Data/NxBall/#{uuid}.json"
     end
 
     # NxBalls::items()

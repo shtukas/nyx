@@ -25,7 +25,7 @@ class TheSpeedOfLight
     # TheSpeedOfLight::putData(data)
     def self.putData(data)
         filepath1 = TheSpeedOfLight::getFilepathOrNull()
-        filepath2 = "#{Config::pathToDataCenter()}/TheSpeedOfLight/#{CommonUtils::timeStringL22()}.json"
+        filepath2 = "#{Config::pathToDataCenter()}/Ops-Data/TheSpeedOfLight/#{CommonUtils::timeStringL22()}.json"
         File.open(filepath2, "w"){|f| f.puts(JSON.pretty_generate(data)) }
         if filepath1 then
             FileUtils.rm(filepath1)

@@ -91,49 +91,6 @@ class NxTimeFibers
             .select{|fiber| NxBalls::getNxBallForItemOrNull(fiber) }
     end
 
-    # NxTimeFibers::firstNxTodoItemsForNxTimeFiber(tcId)
-    def self.firstNxTodoItemsForNxTimeFiber(tcId)
-        filepath = "#{Config::pathToDataCenter()}/NxTimeFiber-to-FirstItems/#{tcId}.json"
-
-        getDataOrNull = lambda {|filepath|
-            return nil if !File.exist?(filepath)
-            packet = JSON.parse(IO.read(filepath))
-            packet["uuids"]
-                .map{|uuid| NxTodosIO::getOrNull(uuid) }
-                .compact
-        }
-
-        getRecentDataOrNull = lambda {|filepath|
-            return nil if !File.exist?(filepath)
-            packet = JSON.parse(IO.read(filepath))
-            return nil if (Time.new.to_i - packet["unixtime"]) > 3600
-            packet["uuids"]
-                .map{|uuid| NxTodosIO::getOrNull(uuid) }
-                .compact
-        }
-
-        issueNewFile = lambda {|filepath, tcId|
-            items = NxTodos::itemsForNxTimeFiber(tcId)
-                        .sort{|i1, i2| i1["tcPos"] <=> i2["tcPos"] }
-                        .first(10)
-            uuids = items.map{|item| item["uuid"] }
-            packet = {
-                "unixtime" => Time.new.to_i,
-                "uuids"    => uuids
-            }
-            File.open(filepath,  "w"){|f| f.puts(JSON.pretty_generate(packet)) }
-            items
-        }
-
-        if Config::getOrNull("isLeaderInstance") then
-            items = getRecentDataOrNull.call(filepath)
-            return items if items
-            return issueNewFile.call(filepath, tcId)
-        else
-            return (getDataOrNull.call(filepath) || [])
-        end
-    end
-
     # NxTimeFibers::nextPositionForItem(tcId)
     def self.nextPositionForItem(tcId)
         ([0] + NxTodos::itemsForNxTimeFiber(tcId).map{|todo| todo["tcPos"] }).max + 1
@@ -163,7 +120,7 @@ class NxTimeFibers
             }
         }
 
-        items = NxTimeFibers::firstNxTodoItemsForNxTimeFiber(fiber["uuid"])
+        items = NxTodos::itemsForNxTimeFiber(fiber["uuid"])
 
         if fiber["isWork"] then
             [makeVx01.call(fiber)] + items
@@ -188,23 +145,6 @@ class NxTimeFibers
 
     # NxTimeFibers::liveNumbers(item)
     def self.liveNumbers(item)
-        numbersUsingDayTimeLoadsOrNull = lambda {|item|
-            filepath = "#{Config::pathToDataCenter()}/NxTimeFiber-DayTimeLoads/#{item["uuid"]}.json"
-            return nil if !File.exist?(filepath)
-            data = JSON.parse(IO.read(filepath))
-            if data["date"] != CommonUtils::today() then
-                FileUtils.rm(filepath)
-                return nil 
-            end
-            hours = data["hours"]
-            timeDoneInSeconds = Bank::valueAtDate(item["uuid"], CommonUtils::today(), NxBalls::itemUnrealisedRunTimeInSecondsOrNull(item))
-            pendingInHours = [hours - timeDoneInSeconds.to_f/3600, 0].max
-            {
-                "pendingTimeTodayInHoursLive" => pendingInHours,
-            }
-        }
-        numbers = numbersUsingDayTimeLoadsOrNull.call(item)
-        return numbers if numbers
         Ax39::standardAx39CarrierLiveNumbers(item)
     end
 
@@ -273,7 +213,7 @@ class NxTimeFibers
         loop {
             puts NxTimeFibers::toStringWithDetails(fiber, false)
             puts "data: #{Ax39::standardAx39CarrierLiveNumbers(fiber)}"
-            actions = ["start", "add time", "do not show until", "show hours", "set override day load", "fill for holiday", "set Ax39", "expose", "items dive", "destroy"]
+            actions = ["start", "add time", "do not show until", "show hours", "fill for holiday", "set Ax39", "expose", "items dive", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "start" then
@@ -296,10 +236,6 @@ class NxTimeFibers
                     puts "date: #{date}, hours: #{Bank::valueAtDate(fiber["uuid"], date).to_f/3600}"
                 }
                 LucilleCore::pressEnterToContinue()
-            end
-            if action == "set override day load" then
-                timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
-                NxTimeFibers::commitTodayTimeLoadOverride(fiber, timeInHours)
             end
             if action == "fill for holiday" then
                 numbers = NxTimeFibers::liveNumbers(fiber)
@@ -355,16 +291,5 @@ class NxTimeFibers
         else
             NxTimeFibers::nextPositionForItem(tcId)
         end
-    end
-
-    # NxTimeFibers::commitTodayTimeLoadOverride(fiber, hours)
-    def self.commitTodayTimeLoadOverride(fiber, hours)
-        data = {
-            "date"  => CommonUtils::today(),
-            "hours" => timeInHours
-        }
-        puts JSON.pretty_generate(data)
-        filepath = "#{Config::pathToDataCenter()}/NxTimeFiber-DayTimeLoads/#{fiber["uuid"]}.json"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(data)) }
     end
 end
