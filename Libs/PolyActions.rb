@@ -80,6 +80,19 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NxTimeDrop" then
+            unrealisedTime = item["field2"] ? Time.new.to_i - item["field2"] : 0
+            totalTimeInSeconds = item["field3"] + unrealisdTime
+            if totalTimeInSeconds > item["field1"]*3600 then
+                TodoDatabase2::destroy(item["uuid"])
+            else
+                item["field3"] = item["field3"] + unrealisedTime
+                item["field2"] = nil
+                TodoDatabase2::commitItem(item)
+            end
+            return
+        end
+
         if item["mikuType"] == "NxTodo" then
             puts PolyFunctions::toString(item)
             if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
@@ -142,6 +155,23 @@ class PolyActions
 
         puts "I do not know how to PolyActions::done(#{JSON.pretty_generate(item)})"
         raise "(error: f278f3e4-3f49-4f79-89d2-e5d3b8f728e6)"
+    end
+
+    # PolyActions::doubleDot(item)
+    def self.doubleDot(item)
+        if item["mikuType"] == "NxTimeDrop" then
+            NxTimeDrops::start(item)
+            if LucilleCore::askQuestionAnswerAsBoolean("> stop ? ", true) then
+                NxTimeDrops::stopAndPossiblyDestroy(item)
+            end
+            return
+        end
+
+        PolyActions::access(item)
+
+        if LucilleCore::askQuestionAnswerAsBoolean("> done ? ", true) then
+            PolyActions::done(item)
+        end
     end
 
     # PolyActions::edit(item)

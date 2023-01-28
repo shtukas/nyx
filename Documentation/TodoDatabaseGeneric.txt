@@ -8,23 +8,23 @@ Type:
     "payload"        : 
     "doNotShowUntil" : Unixtime
 
-    "field1"         : string, (used, miku type specific)
-    "field2"         : string, (used, miku type specific)
-    "field3"         : string, (used, miku type specific)
-    "field4"         : string, (used, miku type specific)
-    "field5"         : string, (used, miku type specific)
-    "field6"         : string, (used, miku type specific)
+    "field1"         : string (used, miku type specific)
+    "field2"         : string (used, miku type specific)
+    "field3"         : string (used, miku type specific)
+    "field4"         : string (used, miku type specific)
+    "field5"         : string (used, miku type specific)
+    "field6"         : string (used, miku type specific)
 
-    "field7"         : string, skipped until # unixtime
-    "field8"         : string, lockname      # string
+    "field7"         : string used as float, unixtime, skipped until
+    "field8"         : string lockname # string
 
-    "field9"         : string, (not used)
+    "field9"         : string (not used)
 
-    "field10"        : string, (not used)
-    "field11"        : string, (not used)
+    "field10"        : string (not used)
+    "field11"        : string (not used)
 
-    "field12"        : string, "true" if listed
-    "field13"        : trajectory, null or NxListingVelocity
+    "field12"        : string "true" if listed
+    "field13"        : float used as string, trajectory, null or NxListingVelocity, json encoded
 
 
 ```

@@ -329,6 +329,7 @@ class TodoDatabase2ItemObjectsTranslation
     # TodoDatabase2ItemObjectsTranslation::itemToDatabaseObject(item)
     def self.itemToDatabaseObject(item)
         item["field13"] = JSON.generate(item["field13"])
+        item["field7"] = (item["field7"] || 0).to_f
         if item["mikuType"] == "NxTodo" then
             item["field1"] = JSON.generate(item["nx113"])
             item["field2"] = item["tcId"]
@@ -400,11 +401,6 @@ class Database2Data
             .map{|object| TodoDatabase2ItemObjectsTranslation::databaseObjectToItem(object) }
     end
 
-    # Database2Data::nextListingOrdinal()
-    def self.nextListingOrdinal()
-        (Database2Data::listingItems().map{|item| item["field13"] || 0 } + [0]).max + 1
-    end
-
     # Database2Data::itemIsListed(item)
     def self.itemIsListed(item)
         TodoDatabase2::getOrNull(item["uuid"], "field12") == "true"
@@ -422,8 +418,10 @@ class Database2Engine
 
     # Database2Engine::disactivateListing(item)
     def self.disactivateListing(item)
-        TodoDatabase2::set(item["uuid"], "field12", "")
-        TodoDatabase2::set(item["uuid"], "field13", 0)
+        TodoDatabase2::set(item["uuid"], "field7", 0)       # reset skipped until
+        TodoDatabase2::set(item["uuid"], "field8", "")      # remove any lock
+        TodoDatabase2::set(item["uuid"], "field12", "")     # remove listing flag
+        TodoDatabase2::set(item["uuid"], "field13", "null") # remove trajectory
     end
 
     # Database2Engine::activationsForListingOrNothing()

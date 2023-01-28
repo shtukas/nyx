@@ -9,6 +9,6 @@ class Skips
 
     # Skips::isSkipped(item)
     def self.isSkipped(item)
-        item["field7"] and Time.new.to_i < item["field7"]
+        item["field7"] and Time.new.to_i < item["field7"].to_i
     end
 end

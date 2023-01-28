@@ -5,10 +5,12 @@ class Listing
     # Listing::listingCommands()
     def self.listingCommands()
         [
-            "[listing interaction] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | >> skip default | destroy",
+            "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | >> skip default | lock (<n>) | destroy",
             "[makers] wave | anniversary | today | ondate | todo | manual countdown | top | strat | block",
             "[divings] anniversaries | ondates | waves | todos",
-            "[misc] search | speed | commands | lock (<n>)",
+            "[NxOndate] redate",
+            "[NxTimeDrops] start | stop",
+            "[misc] search | speed | commands",
         ].join("\n")
     end
 
@@ -25,7 +27,7 @@ class Listing
         if Interpreting::match("..", input) then
             item = store.getDefault()
             return if item.nil?
-            PolyActions::doubleDotAccess(item)
+            PolyActions::doubleDot(item)
             return
         end
 
@@ -33,7 +35,7 @@ class Listing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyActions::doubleDotAccess(item)
+            PolyActions::doubleDot(item)
             return
         end
 
@@ -215,6 +217,16 @@ class Listing
             return
         end
 
+        if Interpreting::match("start", input) then
+            NxTimeDrops::start(item)
+            return
+        end
+
+        if Interpreting::match("stop", input) then
+            NxTimeDrops::stopAndPossiblyDestroy(item)
+            return
+        end
+
         if Interpreting::match("search", input) then
             SearchCatalyst::run()
             return
@@ -341,9 +353,11 @@ class Listing
                 .sort{|i1, i2| i1["listing:position"] <=> i2["listing:position"] }
                 .reverse
                 .each{|item|
-                    next if Locks::isLocked(item)
-                    store.register(item, !Skips::isSkipped(item))
+                    store.register(item, !Skips::isSkipped(item) && !Locks::isLocked(item))
                     line = "(#{store.prefixString()}) #{PolyFunctions::toStringForListing(item)}"
+                    if Locks::isLocked(item) then
+                        line = "#{line} [lock: #{item["field8"]}]"
+                    end
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                     break if vspaceleft <= 0
