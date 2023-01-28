@@ -15,4 +15,4 @@ Type:
     "field5"         : (misc)
     "field6"         : (misc)
     "field7"         : skipped until # unixtime
-    "field8"         : 
+    "field8"         : lockname

@@ -617,20 +617,6 @@ class CatalystListing
             }
         end
 
-        shelves = Locks::shelves()
-        domains = shelves.map{|datum| datum["domain"] }.uniq
-        domains.each{|domain|
-            items = shelves
-                        .select{|datum| datum["domain"] == domain }
-                        .map{|datum| CatalystListing::getItemFromItemsOrNull(listingItems, datum["uuid"]) }
-                        .compact
-            next if items.empty?
-            items.each{|item|
-                linecount = CatalystListing::printItem(store, item, false, "[#{domain}] ".yellow)
-                vspaceleft = vspaceleft - linecount
-            }
-        }
-
         tops = NxTops::listingItems()
 
         nxballs = NxBalls::items()

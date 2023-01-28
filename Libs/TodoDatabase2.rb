@@ -36,8 +36,8 @@ class TodoDatabase2
         }
     end
 
-    # TodoDatabase2::updateAttribute(uuid, attname, attvalue)
-    def self.updateAttribute(uuid, attname, attvalue)
+    # TodoDatabase2::set(uuid, attname, attvalue)
+    def self.set(uuid, attname, attvalue)
         TodoDatabase2::filepaths().each{|filepath|
             db = SQLite3::Database.new(filepath)
             db.busy_timeout = 117
@@ -46,6 +46,25 @@ class TodoDatabase2
             db.execute "update objects set #{attname}=? where uuid=?", [attvalue, uuid]
             db.close
         }
+    end
+
+    # TodoDatabase2::getOrNull(uuid, attname)
+    def self.getOrNull(uuid, attname)
+        answer = nil
+        TodoDatabase2::filepaths().each{|filepath|
+            db = SQLite3::Database.new(filepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("select * from objects where uuid=?", [uuid]) do |row|
+                answer = row[attname]
+            end
+            db.close
+            if answer then
+                return answer
+            end
+        }
+        nil
     end
 
     # ----------------------------------
