@@ -289,6 +289,10 @@ class TodoDatabase2Adaptation
             object["lastUpdatedUnixtime"] = object["field4"].to_i
             return object
         end
+        if object["mikuType"] == "NxTriage" then
+            object["nx113"] = JSON.parse(object["field1"])
+            return object
+        end
         puts JSON.pretty_generate(object)
         raise "(error: 002d8744-e34d-4307-b573-73a195a9c7ac)"
     end
@@ -326,6 +330,10 @@ class TodoDatabase2Adaptation
             item["field2"] = item["date"]
             item["field3"] = item["counter"]
             item["field4"] = item["lastUpdatedUnixtime"]
+            return item
+        end
+        if item["mikuType"] == "NxTriage" then
+            item["field1"] = JSON.generate(item["nx113"])
             return item
         end
         puts JSON.pretty_generate(item)
