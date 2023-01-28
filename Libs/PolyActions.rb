@@ -183,7 +183,7 @@ class PolyActions
         if item["mikuType"] == "NxTriage" then
             if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTriage '#{NxTriages::toString(item).green} ? '", true) then
                 NxBalls::closeNxBallForItemOrNothing(item)
-                NxTriages::destroy(item["uuid"])
+                TodoDatabase2::destroy(item["uuid"])
             end
             return
         end
@@ -278,7 +278,7 @@ class PolyActions
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["done", "transmute", "exit"])
             return if option.nil?
             if option == "done" then
-                NxTriages::destroy(item["uuid"])
+               TodoDatabase2::destroy(item["uuid"])
             end
             if option == "transmute" then
                 Transmutations::transmute2(item)

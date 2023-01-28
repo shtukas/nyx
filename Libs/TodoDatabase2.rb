@@ -29,13 +29,6 @@ class TodoDatabase2
         object
     end
 
-    # TodoDatabase2::destroy(uuid)
-    def self.destroy(uuid)
-        TodoDatabase2::filepaths().each{|filepath|
-            TodoDatabase2::deleteObjectInFile(filepath, uuid)
-        }
-    end
-
     # TodoDatabase2::set(uuid, attname, attvalue)
     def self.set(uuid, attname, attvalue)
         TodoDatabase2::filepaths().each{|filepath|
@@ -65,6 +58,13 @@ class TodoDatabase2
             end
         }
         nil
+    end
+
+    # TodoDatabase2::destroy(uuid)
+    def self.destroy(uuid)
+        TodoDatabase2::filepaths().each{|filepath|
+            TodoDatabase2::deleteObjectInFile(filepath, uuid)
+        }
     end
 
     # ----------------------------------
@@ -285,8 +285,8 @@ class TodoDatabase2Adaptation
         if object["mikuType"] == "TxManualCountDown" then
             object["dailyTarget"]         = object["field1"]
             object["date"]                = object["field2"]
-            object["counter"]             = object["field3"]
-            object["lastUpdatedUnixtime"] = object["field4"]
+            object["counter"]             = object["field3"].to_i
+            object["lastUpdatedUnixtime"] = object["field4"].to_i
             return object
         end
         puts JSON.pretty_generate(object)

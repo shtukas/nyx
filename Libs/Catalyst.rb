@@ -10,7 +10,7 @@ class Catalyst
     # Catalyst::getCatalystItemOrNull(uuid)
     def self.getCatalystItemOrNull(uuid)
 
-        item = NxTriages::getOrNull(uuid)
+        item = TodoDatabase2::getObjectByUUIDOrNull(uuid)
         return item if item
 
         item = NxOndates::getOrNull(uuid)

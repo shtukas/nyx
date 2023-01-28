@@ -395,8 +395,8 @@ class CatalystListing
                 "lambda" => lambda { NxOndates::listingItems() }
             },
             {
-                "name" => "NxTriages::items()",
-                "lambda" => lambda { NxTriages::items() }
+                "name" => "TodoDatabase2::itemsForMikuType(NxTriage)",
+                "lambda" => lambda { TodoDatabase2::itemsForMikuType("NxTriage") }
             },
             {
                 "name" => "NxTimeDrops::listingItems()",
@@ -474,7 +474,7 @@ class CatalystListing
     # CatalystListing::listingItems()
     def self.listingItems()
         items = [
-            NxTriages::items(),
+            TodoDatabase2::itemsForMikuType("NxTriage"),
             Anniversaries::listingItems(),
             Waves::listingItems("ns:mandatory-today"),
             NxOndates::listingItems(),

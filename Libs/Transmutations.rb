@@ -65,7 +65,7 @@ class Transmutations
             item["tcId"] = wtc["uuid"]
             item["tcPos"] = tcPos
             NxTodosIO::commit(item)
-            NxTriages::destroy(uuid1)
+            TodoDatabase2::destroy(uuid1)
             return
         end
 
@@ -75,7 +75,7 @@ class Transmutations
             item["mikuType"] = "NxOndate"
             item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
             NxOndates::commit(item)
-            NxTriages::destroy(uuid1)
+            TodoDatabase2::getOrNull(uuid1)
             return
         end
 

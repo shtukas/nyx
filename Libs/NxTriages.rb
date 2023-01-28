@@ -7,35 +7,6 @@ class NxTriages
         "#{Config::pathToDataCenter()}/NxTriage/#{uuid}.json"
     end
 
-    # NxTriages::items()
-    def self.items()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTriage")
-            .select{|filepath| filepath[-5, 5] == ".json" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
-    end
-
-    # NxTriages::commit(item)
-    def self.commit(item)
-        FileSystemCheck::fsck_MikuTypedItem(item, false)
-        filepath = NxTriages::filepath(item["uuid"])
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
-    end
-
-    # NxTriages::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        filepath = NxTriages::filepath(uuid)
-        return nil if !File.exist?(filepath)
-        JSON.parse(IO.read(filepath))
-    end
-
-    # NxTriages::destroy(uuid)
-    def self.destroy(uuid)
-        filepath = NxTriages::filepath(uuid)
-        if File.exist?(filepath) then
-            FileUtils.rm(filepath)
-        end
-    end
-
     # --------------------------------------------------
     # Makers
 
@@ -52,7 +23,7 @@ class NxTriages
             "description" => description,
             "nx113"       => nx113,
         }
-        NxTriages::commit(item)
+        TodoDatabase2::commit_item(item)
         item
     end
 
@@ -83,13 +54,13 @@ class NxTriages
             status = LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit the description instead ? ")
             if status then
                 PolyActions::editDescription(item)
-                return NxTriages::getOrNull(item["uuid"])
+                return TodoDatabase2::getObjectByUUIDOrNull(item["uuid"])
             else
                 return item
             end
         end
         Nx113Edit::editNx113Carrier(item)
-        NxTriages::getOrNull(item["uuid"])
+        TodoDatabase2::getObjectByUUIDOrNull(item["uuid"])
     end
 
     # NxTriages::probe(item)
@@ -102,7 +73,7 @@ class NxTriages
                 NxTriages::access(item)
             end
             if action == "destroy" then
-                NxTriages::destroy(item["uuid"])
+                TodoDatabase2::destroy(item["uuid"])
                 return
             end
         }
