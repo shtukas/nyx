@@ -4,14 +4,14 @@ class NxTimeDrops
     # NxTimeDrops::start(item)
     def self.start(item)
         raise "(error: e1a10f12-5c9e-46e2-9527-3b4f6eff3dc6)" if item["mikuType"] != "NxTimeDrop"
-        return if item["field2"] # We are already running
+        return if (item["field2"] and item["field2"] > 0) # We are already running
         TodoDatabase2::set(item["uuid"], "field2", Time.new.to_i)
     end
 
     # NxTimeDrops::stop(item)
     def self.stop(item)
         raise "(error: b515455a-d9b9-4241-8839-ffe3a42025bd)" if item["mikuType"] != "NxTimeDrop"
-        return if item["field2"].nil? # We are not running
+        return if !(item["field2"] and item["field2"] > 0) # We are not running
         unrealisedTimeInHours = (Time.new.to_i - item["field2"]).to_f/3600
         item["field1"] = item["field1"] - unrealisedTime # possibly became negative
         item["field2"] = nil

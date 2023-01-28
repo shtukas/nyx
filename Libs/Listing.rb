@@ -208,6 +208,8 @@ class Listing
         end
 
         if Interpreting::match("start", input) then
+            item = store.getDefault()
+            return if item.nil?
             if item["mikuType"] != "NxTimeDrop" then
                 puts "> the start command is only available for NxTimeDrops"
                 LucilleCore::pressEnterToContinue()
@@ -218,6 +220,8 @@ class Listing
         end
 
         if Interpreting::match("stop", input) then
+            item = store.getDefault()
+            return if item.nil?
             if item["mikuType"] != "NxTimeDrop" then
                 puts "> the stop command is only available for NxTimeDrops"
                 LucilleCore::pressEnterToContinue()
@@ -284,6 +288,8 @@ class Listing
         $SyncConflictInterruptionFilepath = nil
 
         Database2Engine::activationsForListingOrNothing()
+
+        NxTimeDrops::garbageCollection()
 
         Thread.new {
             loop {
