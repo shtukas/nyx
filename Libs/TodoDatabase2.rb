@@ -287,10 +287,6 @@ class TodoDatabase2ItemObjectsTranslation
             object["onlyOnDays"]          = JSON.parse(object["field6"])
             return object
         end
-        if object["mikuType"] == "TxStratosphere" then
-            object["ordinal"] = object["field1"].to_f
-            return object
-        end
         if object["mikuType"] == "TxManualCountDown" then
             object["dailyTarget"]         = object["field1"].to_i
             object["date"]                = object["field2"]
@@ -302,15 +298,8 @@ class TodoDatabase2ItemObjectsTranslation
             object["nx113"] = JSON.parse(object["field1"])
             return object
         end
-        if object["mikuType"] == "NxTop" then
-            return object
-        end
         if object["mikuType"] == "NxOndate" then
             object["nx113"] = JSON.parse(object["field1"])
-            return object
-        end
-        if object["mikuType"] == "NxBlock" then
-            object["ordinal"] = object["field1"].to_f
             return object
         end
         if object["mikuType"] == "NxTimeCommitment" then
@@ -349,10 +338,6 @@ class TodoDatabase2ItemObjectsTranslation
             item["field6"] = JSON.generate(item["onlyOnDays"])
             return item
         end
-        if item["mikuType"] == "TxStratosphere" then
-            item["field1"] = item["ordinal"]
-            return item
-        end
         if item["mikuType"] == "TxManualCountDown" then
             item["field1"] = item["dailyTarget"]
             item["field2"] = item["date"]
@@ -364,15 +349,8 @@ class TodoDatabase2ItemObjectsTranslation
             item["field1"] = JSON.generate(item["nx113"])
             return item
         end
-        if item["mikuType"] == "NxTop" then
-            return item
-        end
         if item["mikuType"] == "NxOndate" then
             item["field1"] = JSON.generate(item["nx113"])
-            return item
-        end
-        if item["mikuType"] == "NxBlock" then
-            item["field1"] = item["ordinal"]
             return item
         end
         if item["mikuType"] == "NxTimeCommitment" then
@@ -400,6 +378,24 @@ class Database2Data
     def self.listingItems()
         TodoDatabase2::databaseQuery("select * from objects where field12=?", ["true"])
             .map{|object| TodoDatabase2ItemObjectsTranslation::databaseObjectToItem(object) }
+    end
+
+    # Database2Data::the99Count()
+    def self.the99Count()
+        TodoDatabase2::filepaths()
+            .map{|filepath|
+                count = nil
+                db = SQLite3::Database.new(filepath)
+                db.busy_timeout = 117
+                db.busy_handler { |count| true }
+                db.results_as_hash = true
+                db.execute("select count(*) as count from objects where mikuType=?", ["NxTodo"]) do |row|
+                    count = row["count"]
+                end
+                db.close
+                count
+            }
+            .inject(0, :+)
     end
 
     # Database2Data::itemIsListed(item)
@@ -430,12 +426,6 @@ class Database2Engine
 
         Database2Data::itemsForMikuType("NxAnniversary")
             .select{|anniversary| Anniversaries::isOpenToAcknowledgement(anniversary) }
-            .each{|item|
-                next if Database2Data::itemIsListed(item)
-                next if !DoNotShowUntil::isVisible(item)
-                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_f, 6))
-            }
-        Database2Data::itemsForMikuType("NxTop")
             .each{|item|
                 next if Database2Data::itemIsListed(item)
                 next if !DoNotShowUntil::isVisible(item)

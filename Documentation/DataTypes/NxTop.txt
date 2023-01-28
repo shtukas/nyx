@@ -1,6 +1,0 @@
-NxTop
-    "uuid"         : String
-    "mikuType"     : "NxTop"
-    "unixtime"     : Float
-    "datetime"     : 
-    "description"  : String

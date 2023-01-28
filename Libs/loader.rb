@@ -166,7 +166,6 @@ require_relative "FileSystemCheck.rb"
 
 require_relative "LambdX1s.rb"
 
-require_relative "NxTops.rb"
 require_relative "Nyx.rb"
 require_relative "Nx113.rb"
 require_relative "NxTodos.rb"
@@ -175,7 +174,6 @@ require_relative "NxOndates.rb"
 require_relative "NxNetwork.rb"
 require_relative "NxNodes.rb"
 require_relative "NxTimeCommitments.rb"
-require_relative "NxBlocks.rb"
 require_relative "NxTimeDrops.rb"
 
 require_relative "PrimitiveFiles.rb"
@@ -191,7 +189,6 @@ require_relative "Skips.rb"
 
 require_relative "TxManualCountDowns.rb"
 require_relative "The99Percent.rb"
-require_relative "TxStratospheres.rb"
 
 require_relative "Waves.rb"
 

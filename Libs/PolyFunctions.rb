@@ -15,9 +15,6 @@ class PolyFunctions
         if item["mikuType"] == "NxOndate" then
             return NxOndates::toString(item)
         end
-        if item["mikuType"] == "NxBlock" then
-            return NxBlocks::toString(item)
-        end
         if item["mikuType"] == "NxTimeCommitment" then
             return NxTimeCommitments::toString(item)
         end
@@ -27,14 +24,8 @@ class PolyFunctions
         if item["mikuType"] == "NxTodo" then
             return NxTodos::toString(item)
         end
-        if item["mikuType"] == "NxTop" then
-            return NxTops::toString(item)
-        end
         if item["mikuType"] == "NxTriage" then
             return NxTriages::toString(item)
-        end
-        if item["mikuType"] == "TxStratosphere" then
-            return TxStratospheres::toString(item)
         end
         if item["mikuType"] == "TxManualCountDown" then
             return "(countdown) #{item["description"]}: #{item["counter"]}"

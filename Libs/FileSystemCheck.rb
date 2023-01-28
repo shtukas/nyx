@@ -185,15 +185,6 @@ class FileSystemCheck
             return
         end
 
-        if mikuType == "NxTop" then
-            FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
-            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-            FileSystemCheck::ensureAttribute(item, "datetime", "String")
-            FileSystemCheck::ensureAttribute(item, "description", "String")
-            return
-        end
-
         if mikuType == "NxTriage" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
             FileSystemCheck::ensureAttribute(item, "mikuType", "String")
@@ -211,15 +202,6 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
             FileSystemCheck::fsck_Nx113(item["nx113"], verbose)
-            return
-        end
-
-        if mikuType == "NxBlock" then
-            FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
-            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-            FileSystemCheck::ensureAttribute(item, "description", "String")
-            FileSystemCheck::ensureAttribute(item, "ordinal", "Number")
             return
         end
 
@@ -245,13 +227,6 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "dailyTarget", "Number")
             FileSystemCheck::ensureAttribute(item, "date", "String")
             FileSystemCheck::ensureAttribute(item, "counter", "Number")
-            return
-        end
-
-        if mikuType == "TxStratosphere" then
-            FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
-            FileSystemCheck::ensureAttribute(item, "ordinal", "Number")
             return
         end
 

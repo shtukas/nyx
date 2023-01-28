@@ -6,7 +6,7 @@ class Listing
     def self.listingCommands()
         [
             "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | >> skip default | lock (<n>) | destroy",
-            "[makers] wave | anniversary | today | ondate | todo | manual countdown | top | strat | block",
+            "[makers] wave | anniversary | today | ondate | todo | manual countdown | block",
             "[divings] anniversaries | ondates | waves | todos",
             "[NxOndate] redate",
             "[NxTimeDrops] start | stop",
@@ -152,11 +152,6 @@ class Listing
             return
         end
 
-        if Interpreting::match("strat", input) then
-            TxStratospheres::interactivelyIssueOrNull()
-            return
-        end
-
         if Interpreting::match("lock", input) then
             item = store.getDefault()
             return if item.nil?
@@ -194,13 +189,6 @@ class Listing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::probe(item)
-            return
-        end
-
-        if Interpreting::match("block", input) then
-            item = NxBlocks::interactivelyIssueOrNull()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
             return
         end
 
@@ -259,13 +247,6 @@ class Listing
 
         if Interpreting::match("todo", input) then
             item = NxTodos::interactivelyIssueNewOrNull()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
-            return
-        end
-
-        if Interpreting::match("top", input) then
-            item = NxTops::interactivelyIssueNewOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
             return
@@ -336,10 +317,11 @@ class Listing
             vspaceleft = CommonUtils::screenHeight() - 3
 
             puts ""
-            vspaceleft = vspaceleft - 1
+            puts The99Percent::line()
+            vspaceleft = vspaceleft - 2
 
+            puts ""
             drops = Database2Data::itemsForMikuType("NxTimeDrop")
-
             Database2Data::itemsForMikuType("NxTimeCommitment")
                 .each{|item|
                     store.register(item, false)
@@ -347,14 +329,10 @@ class Listing
                     puts "(#{store.prefixString()}) #{item["description"].ljust(10)} (left: #{("%5.2f" % hours).to_s.green} hours, out of #{"%5.2f" % item["hours"]}) reset #{"%5.2f" %  ((Time.new.to_i - item["resetTime"]).to_f/86400)} days ago"
                     vspaceleft = vspaceleft - 1
                 }
-
+            vspaceleft = vspaceleft - 3
 
             puts ""
-            vspaceleft = vspaceleft - 1
-
-
-            puts "> strat | lock | top | ondate | todo | wave | block".yellow
-            puts ""
+            puts "> lock | wave | ondate | todo".yellow
             vspaceleft = vspaceleft - 2
 
             trajectoryToNumber = lambda{|trajectory|
@@ -363,6 +341,8 @@ class Listing
                 [1, (Time.new.to_i - trajectory["activationunixtime"]).to_f/(trajectory["expectedTimeToCompletionInHours"]*3600)].min
             }
 
+            puts ""
+            vspaceleft = vspaceleft - 1
             Database2Data::listingItems()
                 .select{|item| DoNotShowUntil::isVisible(item) }
                 .map{|item|

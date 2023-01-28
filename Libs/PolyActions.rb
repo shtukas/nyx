@@ -107,14 +107,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxTop" then
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTop '#{NxTops::toString(item).green} ? '", true) then
-                TodoDatabase2::destroy(item["uuid"])
-            end
-            
-            return
-        end
-
         if item["mikuType"] == "NxTriage" then
             if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTriage '#{NxTriages::toString(item).green} ? '", true) then
                 TodoDatabase2::destroy(item["uuid"])
@@ -123,13 +115,6 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxTimeCommitment" then
-            return
-        end
-
-        if item["mikuType"] == "TxStratosphere" then
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy TxStratosphere '#{NxTriages::toString(item).green} ? '", true) then
-                TodoDatabase2::destroy(item["uuid"])
-            end
             return
         end
 

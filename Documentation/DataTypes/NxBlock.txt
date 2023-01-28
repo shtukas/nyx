@@ -1,9 +1,0 @@
-
-NxBlock:
-
-    "uuid"        : String
-    "mikuType"    : "NxBlock"
-    "unixtime"    : Float
-    "description" : String
-    "ordinal"     : Float
-
