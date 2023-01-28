@@ -212,7 +212,9 @@ class Listing
                 LucilleCore::pressEnterToContinue
                 return
             end
-            item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
+            unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
+            item["doNotShowUntil"] = unixtime
+            item["datetime"] = Time.at(unixtime).utc.iso8601
             TodoDatabase2::commitItem(item)
             return
         end
