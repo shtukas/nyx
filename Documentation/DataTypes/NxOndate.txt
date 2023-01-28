@@ -6,4 +6,4 @@ NxOndate:
     "unixtime"     : Float
     "datetime"     : DateTime Iso 8601 UTC Zulu
     "description"  : String
-    "nx113"        : Nx113
+    "nx113" , "field1", json encoded : Nx113

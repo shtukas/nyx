@@ -15,4 +15,19 @@ Type:
     "field5"         : (misc)
     "field6"         : (misc)
     "field7"         : skipped until # unixtime
-    "field8"         : lockname
+    "field8"         : lockname      # string
+    "field9"         : 
+    "field10"        : 
+    "field11"        : 
+    "field12"        :
+
+```
+TodoDatabase2::filepaths().each{|filepath|
+    db = SQLite3::Database.new(filepath)
+    db.busy_timeout = 117
+    db.busy_handler { |count| true }
+    db.results_as_hash = true
+    db.execute "alter table objects add column field12 text", []
+    db.close
+}
+```

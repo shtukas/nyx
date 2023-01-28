@@ -479,7 +479,7 @@ class CatalystListing
             Waves::listingItems("ns:mandatory-today"),
             NxOndates::listingItems(),
             TxManualCountDowns::listingItems(),
-            NxTimeDrops::items(),
+            TodoDatabase2::itemsForMikuType("NxTimeDrop"),
             NxTimeFibers::listingElements(true),
             Waves::listingItems("ns:time-important"),
             NxTimeFibers::listingElements(false),

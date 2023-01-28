@@ -1,39 +1,6 @@
 
 class NxTops
 
-    # NxTops::filepath(uuid)
-    def self.filepath(uuid)
-        "#{Config::pathToDataCenter()}/NxTop/#{uuid}.json"
-    end
-
-    # NxTops::items()
-    def self.items()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTop")
-            .select{|filepath| filepath[-5, 5] == ".json" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
-    end
-
-    # NxTops::commit(item)
-    def self.commit(item)
-        filepath = NxTops::filepath(item["uuid"])
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
-    end
-
-    # NxTops::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        filepath = NxTops::filepath(uuid)
-        return nil if !File.exist?(filepath)
-        JSON.parse(IO.read(filepath))
-    end
-
-    # NxTops::destroy(uuid)
-    def self.destroy(uuid)
-        filepath = NxTops::filepath(uuid)
-        if File.exist?(filepath) then
-            FileUtils.rm(filepath)
-        end
-    end
-
     # --------------------------------------------------
     # Makers
 
@@ -49,7 +16,7 @@ class NxTops
             "datetime"    => Time.new.utc.iso8601,
             "description" => description
         }
-        NxTops::commit(item)
+        TodoDatabase2::commit_item(item)
         item
     end
 
@@ -63,7 +30,7 @@ class NxTops
 
     # NxTops::listingItems()
     def self.listingItems()
-        NxTops::items()
+        TodoDatabase2::itemsForMikuType("NxTop")
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 end

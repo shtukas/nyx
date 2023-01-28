@@ -1,39 +1,6 @@
 
 class NxTimeDrops
 
-    # NxTimeDrops::filepath(uuid)
-    def self.filepath(uuid)
-        "#{Config::pathToDataCenter()}/NxTimeDrop/#{uuid}.json"
-    end
-
-    # NxTimeDrops::items()
-    def self.items()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxTimeDrop")
-            .select{|filepath| filepath[-5, 5] == ".json" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
-    end
-
-    # NxTimeDrops::commit(item)
-    def self.commit(item)
-        filepath = NxTimeDrops::filepath(item["uuid"])
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
-    end
-
-    # NxTimeDrops::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        filepath = NxTimeDrops::filepath(uuid)
-        return nil if !File.exist?(filepath)
-        JSON.parse(IO.read(filepath))
-    end
-
-    # NxTimeDrops::destroy(uuid)
-    def self.destroy(uuid)
-        filepath = NxTimeDrops::filepath(uuid)
-        if File.exist?(filepath) then
-            FileUtils.rm(filepath)
-        end
-    end
-
     # --------------------------------------------------
     # Makers
 
@@ -52,13 +19,13 @@ class NxTimeDrops
             "hours"       => hours,
             "tcId"        => tcId
         }
-        NxTimeDrops::commit(item)
+        TodoDatabase2::commit_item(item)
         item
     end
     
     # NxTimeDrops::listingItems()
     def self.listingItems()
-        NxTimeDrops::items()
+        TodoDatabase2::itemsForMikuType("NxTimeDrop")
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 
@@ -73,7 +40,7 @@ class NxTimeDrops
 
     # NxTimeDrops::runningItems()
     def self.runningItems()
-        NxTimeDrops::items()
+        TodoDatabase2::itemsForMikuType("NxTimeDrop")
             .select{|otc| NxBalls::getNxBallForItemOrNull(otc) }
     end
 
@@ -87,7 +54,7 @@ class NxTimeDrops
 
     # NxTimeDrops::allPendingTimeTodayInHoursLive()
     def self.allPendingTimeTodayInHoursLive()
-        NxTimeDrops::items()
+        TodoDatabase2::itemsForMikuType("NxTimeDrop")
             .map{|item| NxTimeDrops::liveNumbers(item)["pendingTimeTodayInHoursLive"] }
             .inject(0, :+)
     end

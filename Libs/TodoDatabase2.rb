@@ -289,7 +289,19 @@ class TodoDatabase2Adaptation
             object["lastUpdatedUnixtime"] = object["field4"].to_i
             return object
         end
+        if object["mikuType"] == "NxTimeDrop" then
+            object["tcId"] = object["field1"]
+            return object
+        end
         if object["mikuType"] == "NxTriage" then
+            object["nx113"] = JSON.parse(object["field1"])
+            return object
+        end
+        if object["mikuType"] == "NxTop" then
+            object["tcId"] = object["field1"]
+            return object
+        end
+        if object["mikuType"] == "NxOndate" then
             object["nx113"] = JSON.parse(object["field1"])
             return object
         end
@@ -332,7 +344,19 @@ class TodoDatabase2Adaptation
             item["field4"] = item["lastUpdatedUnixtime"]
             return item
         end
+        if item["mikuType"] == "NxTimeDrop" then
+            item["field1"] = item["tcId"]
+            return item
+        end
         if item["mikuType"] == "NxTriage" then
+            item["field1"] = JSON.generate(item["nx113"])
+            return item
+        end
+        if item["mikuType"] == "NxTop" then
+            item["field1"] = item["tcId"]
+            return item
+        end
+        if item["mikuType"] == "NxOndate" then
             item["field1"] = JSON.generate(item["nx113"])
             return item
         end

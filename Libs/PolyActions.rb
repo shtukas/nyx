@@ -129,7 +129,7 @@ class PolyActions
         if item["mikuType"] == "NxOndate" then
             if LucilleCore::askQuestionAnswerAsBoolean("destroy NxOndate '#{item["description"].green}' ? ", true) then
                 NxBalls::closeNxBallForItemOrNothing(item)
-                NxOndates::destroy(item["uuid"])
+                TodoDatabase2::destroy(item["uuid"])
             end
             return
         end
@@ -174,7 +174,7 @@ class PolyActions
         if item["mikuType"] == "NxTop" then
             if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTop '#{NxTops::toString(item).green} ? '", true) then
                 NxBalls::closeNxBallForItemOrNothing(item)
-                NxTops::destroy(item["uuid"])
+                TodoDatabase2::destroy(item["uuid"])
             end
             
             return
@@ -196,7 +196,7 @@ class PolyActions
             puts "You can't done a NxTimeDrop per se, but we can stop it and destroy it"
             if LucilleCore::askQuestionAnswerAsBoolean("Confirm ? ") then
                 NxBalls::closeNxBallForItemOrNothing(item)
-                NxTimeDrops::destroy(item["uuid"])
+                TodoDatabase2::destroy(item["uuid"])
             end
             return
         end
@@ -296,12 +296,12 @@ class PolyActions
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["done", "redate", "stop", "run in background"])
             return if option.nil?
             if option == "done" then
-                NxOndates::destroy(item["uuid"])
+                TodoDatabase2::destroy(item["uuid"])
                 NxBalls::close(nxball) if nxball
             end
             if option == "redate" then
                 item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
-                NxOndates::commit(item)
+                TodoDatabase2::commit_item(item)
                 NxBalls::close(nxball)
             end
             if option == "stop" then

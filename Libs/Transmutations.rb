@@ -13,7 +13,7 @@ class Transmutations
             item["tcId"] = wtc["uuid"]
             item["tcPos"] = tcPos
             NxTodosIO::commit(item)
-            NxOndates::destroy(uuid1)
+            TodoDatabase2::destroy(uuid1)
             return
         end
 
@@ -22,8 +22,8 @@ class Transmutations
             item["uuid"] = SecureRandom.uuid
             item["mikuType"] = "NxOndate"
             item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
-            NxOndates::commit(item)
-            NxTops::destroy(uuid1)
+            TodoDatabase2::commit_item(item)
+            TodoDatabase2::destroy(uuid1)
             return
         end
 
@@ -44,7 +44,7 @@ class Transmutations
             item["tcId"] = wtc["uuid"]
             item["tcPos"] = tcPos
             NxTodosIO::commit(item)
-            NxTops::destroy(uuid1)
+            TodoDatabase2::destroy(uuid1)
             return
         end
 
@@ -74,7 +74,7 @@ class Transmutations
             item["uuid"] = SecureRandom.uuid
             item["mikuType"] = "NxOndate"
             item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
-            NxOndates::commit(item)
+            TodoDatabase2::commit_item(item)
             TodoDatabase2::getOrNull(uuid1)
             return
         end

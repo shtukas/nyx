@@ -2,40 +2,6 @@
 
 class NxOndates
 
-    # NxOndates::filepath(uuid)
-    def self.filepath(uuid)
-        "#{Config::pathToDataCenter()}/NxOndate/#{uuid}.json"
-    end
-
-    # NxOndates::items()
-    def self.items()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxOndate")
-            .select{|filepath| filepath[-5, 5] == ".json" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
-    end
-
-    # NxOndates::commit(item)
-    def self.commit(item)
-        FileSystemCheck::fsck_MikuTypedItem(item, false)
-        filepath = NxOndates::filepath(item["uuid"])
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
-    end
-
-    # NxOndates::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        filepath = NxOndates::filepath(uuid)
-        return nil if !File.exist?(filepath)
-        JSON.parse(IO.read(filepath))
-    end
-
-    # NxOndates::destroy(uuid)
-    def self.destroy(uuid)
-        filepath = NxOndates::filepath(uuid)
-        if File.exist?(filepath) then
-            FileUtils.rm(filepath)
-        end
-    end
-
     # --------------------------------------------------
     # Makers
 
@@ -54,7 +20,7 @@ class NxOndates
             "description" => description,
             "nx113"       => nx113,
         }
-        NxOndates::commit(item)
+        TodoDatabase2::commit_item(item)
         item
     end
 
@@ -72,7 +38,7 @@ class NxOndates
             "description" => description,
             "nx113"       => nx113,
         }
-        NxOndates::commit(item)
+        TodoDatabase2::commit_item(item)
         item
     end
 
@@ -89,7 +55,7 @@ class NxOndates
             "description" => description,
             "nx113"       => nx113,
         }
-        NxOndates::commit(item)
+        TodoDatabase2::commit_item(item)
         item
     end
 
@@ -104,7 +70,7 @@ class NxOndates
 
     # NxOndates::listingItems()
     def self.listingItems()
-        NxOndates::items().select{|item| item["datetime"][0, 10] <= Time.new.to_s[0, 10] }
+        TodoDatabase2::itemsForMikuType("NxOndate").select{|item| item["datetime"][0, 10] <= Time.new.to_s[0, 10] }
     end
 
     # --------------------------------------------------
@@ -125,19 +91,19 @@ class NxOndates
             status = LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit the description instead ? ")
             if status then
                 PolyActions::editDescription(item)
-                return NxOndates::getOrNull(item["uuid"])
+                return TodoDatabase2::getObjectByUUIDOrNull(item["uuid"])
             else
                 return item
             end
         end
         Nx113Edit::editNx113Carrier(item)
-        NxOndates::getOrNull(item["uuid"])
+        TodoDatabase2::getObjectByUUIDOrNull(item["uuid"])
     end
 
     # NxOndates::probe(item)
     def self.probe(item)
         loop {
-            item = NxOndates::getOrNull(item["uuid"])
+            item = TodoDatabase2::getObjectByUUIDOrNull(item["uuid"])
             actions = ["access", "redate", "transmute", "destroy"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
@@ -151,11 +117,11 @@ class NxOndates
             end
             if action == "redate" then
                 item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
-                NxOndates::commit(item)
+                TodoDatabase2::commit_item(item)
                 next
             end
             if action == "destroy" then
-                NxOndates::destroy(item["uuid"])
+                TodoDatabase2::destroy(item["uuid"])
                 return
             end
         }
@@ -165,7 +131,7 @@ class NxOndates
     def self.report()
         system("clear")
         puts "ondates:"
-        NxOndates::items()
+        TodoDatabase2::itemsForMikuType("NxOndate")
             .sort{|i1, i2| i1["datetime"] <=> i2["datetime"]}
             .each{|item| puts NxOndates::toString(item) }
         LucilleCore::pressEnterToContinue()
