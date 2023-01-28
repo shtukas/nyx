@@ -2,46 +2,12 @@
 
 class NxBlocks
 
-    # NxBlocks::filepath(uuid)
-    def self.filepath(uuid)
-        "#{Config::pathToDataCenter()}/NxBlock/#{uuid}.json"
-    end
-
-    # NxBlocks::items()
-    def self.items()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NxBlock")
-            .select{|filepath| filepath[-5, 5] == ".json" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
-    end
-
-    # NxBlocks::commit(item)
-    def self.commit(item)
-        FileSystemCheck::fsck_MikuTypedItem(item, false)
-        filepath = NxBlocks::filepath(item["uuid"])
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
-    end
-
-    # NxBlocks::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        filepath = NxBlocks::filepath(uuid)
-        return nil if !File.exist?(filepath)
-        JSON.parse(IO.read(filepath))
-    end
-
-    # NxBlocks::destroy(uuid)
-    def self.destroy(uuid)
-        filepath = NxBlocks::filepath(uuid)
-        if File.exist?(filepath) then
-            FileUtils.rm(filepath)
-        end
-    end
-
     # --------------------------------------------------
     # Makers
 
     # NxBlocks::interactivelyDecideOrdinal()
     def self.interactivelyDecideOrdinal()
-        NxBlocks::items()
+        TodoDatabase2::itemsForMikuType("NxBlock")
             .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
             .first(20)
             .each{|item| 
@@ -64,7 +30,7 @@ class NxBlocks
             "description" => description,
             "ordinal"     => ordinal
         }
-        NxBlocks::commit(item)
+        TodoDatabase2::commit_item(item)
         item
     end
 
@@ -78,7 +44,7 @@ class NxBlocks
 
     # NxBlocks::listingItems(cardinal)
     def self.listingItems(cardinal)
-        NxBlocks::items()
+        TodoDatabase2::itemsForMikuType("NxBlock")
             .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
             .take(cardinal)
             .select{|item| BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < 0.5 }
