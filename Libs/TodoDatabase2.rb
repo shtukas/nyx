@@ -115,7 +115,7 @@ class TodoDatabase2
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        db.execute "insert into objects (uuid, mikuType, unixtime, datetime, description, payload, doNotShowUntil, field1, field2, field3, field4, field5, field6, field7, field8, field9, field10, field11, field12) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [object["uuid"], object["mikuType"], object["unixtime"], object["datetime"], object["description"], object["payload"], object["doNotShowUntil"], object["field1"], object["field2"], object["field3"], object["field4"], object["field5"], object["field6"], object["field7"], object["field8"], object["field9"], object["field10"], object["field11"], object["field12"]]
+        db.execute "insert into objects (uuid, mikuType, unixtime, datetime, description, payload, doNotShowUntil, field1, field2, field3, field4, field5, field6, field7, field8, field9, field10, field11, field12, field13) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [object["uuid"], object["mikuType"], object["unixtime"], object["datetime"], object["description"], object["payload"], object["doNotShowUntil"], object["field1"], object["field2"], object["field3"], object["field4"], object["field5"], object["field6"], object["field7"], object["field8"], object["field9"], object["field10"], object["field11"], object["field12"], object["field13"]]
         db.close
 
         # Note that we made filepaths, before creating filepath0, so we are not going to delete the object that is being saved from the fie that was just created  
@@ -152,6 +152,7 @@ class TodoDatabase2
             "field10"        => row["field10"],
             "field11"        => row["field11"],
             "field12"        => row["field12"],
+            "field13"        => row["field13"],
         }
     end
 
@@ -163,7 +164,7 @@ class TodoDatabase2
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        db.execute("create table objects (uuid text primary key, mikuType text, unixtime float, datetime text, description text, payload text, doNotShowUntil float, field1 text, field2 text, field3 text, field4 text, field5 text, field6 text, field7 text, field8 text, field9 text, field10 text, field11 text, field12 text)", [])
+        db.execute("create table objects (uuid text primary key, mikuType text, unixtime float, datetime text, description text, payload text, doNotShowUntil float, field1 text, field2 text, field3 text, field4 text, field5 text, field6 text, field7 text, field8 text, field9 text, field10 text, field11 text, field12 text, field13 float)", [])
         db.close
         filepath
     end
@@ -243,7 +244,7 @@ class TodoDatabase2
         db1.busy_handler { |count| true }
         db1.results_as_hash = true
         db1.execute("select * from objects", []) do |row|
-            db2.execute "insert into objects (uuid, mikuType, unixtime, datetime, description, payload, doNotShowUntil, field1, field2, field3, field4, field5, field6, field7, field8, field9, field10, field11, field12) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [row["uuid"], row["mikuType"], row["unixtime"], row["datetime"], row["description"], row["payload"], row["doNotShowUntil"], row["field1"], row["field2"], row["field3"], row["field4"], row["field5"], row["field6"], row["field7"], row["field8"], row["field9"], row["field10"], row["field11"], row["field12"]]
+            db2.execute "insert into objects (uuid, mikuType, unixtime, datetime, description, payload, doNotShowUntil, field1, field2, field3, field4, field5, field6, field7, field8, field9, field10, field11, field12, field13) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [row["uuid"], row["mikuType"], row["unixtime"], row["datetime"], row["description"], row["payload"], row["doNotShowUntil"], row["field1"], row["field2"], row["field3"], row["field4"], row["field5"], row["field6"], row["field7"], row["field8"], row["field9"], row["field10"], row["field11"], row["field12"], row["field13"]]
         end
 
         db1.close
@@ -277,7 +278,6 @@ class TodoDatabase2ItemObjectsTranslation
         end
         if object["mikuType"] == "Wave" then
             object["nx46"]                = JSON.parse(object["field1"])
-            object["priority"]            = object["field2"]
             object["lastDoneDateTime"]    = object["field4"]
             object["nx113"]               = JSON.parse(object["field5"])
             object["onlyOnDays"]          = JSON.parse(object["field6"])
@@ -329,7 +329,6 @@ class TodoDatabase2ItemObjectsTranslation
         end
         if item["mikuType"] == "Wave" then
             item["field1"] = JSON.generate(item["nx46"])
-            item["field2"] = item["priority"]
             item["field4"] = item["lastDoneDateTime"]
             item["field5"] = JSON.generate(item["nx113"])
             item["field6"] = JSON.generate(item["onlyOnDays"])
@@ -382,23 +381,83 @@ class Database2Data
 
     # Database2Data::listingItems()
     def self.listingItems()
-        items = [
-            #NxTops::listingItems(),
-            #Database2Data::itemsForMikuType("NxTriage"),
-            #Anniversaries::listingItems(),
-            #Waves::listingItems("ns:mandatory-today"),
-            #NxOndates::listingItems(),
-            #TxManualCountDowns::listingItems(),
-            #Waves::listingItems("ns:time-important"),
-            #NxBlocks::listingItems(3),
-            #Waves::listingItems("ns:beach"),
-            #NxBlocks::listingItems(6),
-        ]
-        TodoDatabase2::databaseQuery("select * from objects where field9=?", ["true"])
+        TodoDatabase2::databaseQuery("select * from objects where field12=? order by field13", ["true"])
             .map{|object| TodoDatabase2ItemObjectsTranslation::databaseObjectToItem(object) }
+    end
+
+    # Database2Data::nextListingOrdinal()
+    def self.nextListingOrdinal()
+        (Database2Data::listingItems().map{|item| item["field13"] || 0 } + [0]).max + 1
+    end
+
+    # Database2Data::itemIsListed(item)
+    def self.itemIsListed(item)
+        TodoDatabase2::getOrNull(item["uuid"], "field12") == "true"
     end
 end
 
-class Database2Actions
+class Database2Engine
+
+    # Database2Engine::activateItemForListing(item)
+    def self.activateItemForListing(item)
+        return if TodoDatabase2::getOrNull(item["uuid"], "field12") == "true"
+        TodoDatabase2::set(item["uuid"], "field12", "true")
+        TodoDatabase2::set(item["uuid"], "field13", Database2Data::nextListingOrdinal())
+    end
+
+    # Database2Engine::activationsForListingOrNothing()
+    def self.activationsForListingOrNothing()
+
+        Database2Data::itemsForMikuType("NxAnniversary")
+            .select{|anniversary| Anniversaries::isOpenToAcknowledgement(anniversary) }
+            .each{|item|
+                next if Database2Data::itemIsListed(item)
+                next if !DoNotShowUntil::isVisible(item)
+                Database2Engine::activateItemForListing(item)
+                return
+            }
+        Database2Data::itemsForMikuType("NxTop")
+            .each{|item|
+                next if Database2Data::itemIsListed(item)
+                next if !DoNotShowUntil::isVisible(item)
+                Database2Engine::activateItemForListing(item)
+                return
+            }
+        Database2Data::itemsForMikuType("NxTriage")
+            .each{|item|
+                next if Database2Data::itemIsListed(item)
+                next if !DoNotShowUntil::isVisible(item)
+                Database2Engine::activateItemForListing(item)
+                return
+            }
+
+        NxOndates::listingItems()
+            .each{|item|
+                next if Database2Data::itemIsListed(item)
+                next if !DoNotShowUntil::isVisible(item)
+                Database2Engine::activateItemForListing(item)
+                return
+            }
+
+        TxManualCountDowns::listingItems()
+            .each{|item|
+                next if Database2Data::itemIsListed(item)
+                next if !DoNotShowUntil::isVisible(item)
+                Database2Engine::activateItemForListing(item)
+                return
+            }
+
+        Database2Data::itemsForMikuType("Wave")
+            .select{|item| 
+                (item["onlyOnDays"].nil? or item["onlyOnDays"].include?(CommonUtils::todayAsLowercaseEnglishWeekDayName()))
+            }
+            .each{|item|
+                next if Database2Data::itemIsListed(item)
+                next if !DoNotShowUntil::isVisible(item)
+                Database2Engine::activateItemForListing(item)
+                return
+            }
+
+    end
 
 end

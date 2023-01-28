@@ -8,22 +8,23 @@ Type:
     "payload"        : 
     "doNotShowUntil" : Unixtime
 
-    "field1"         : (used, miku type specific)
-    "field2"         : (used, miku type specific)
-    "field3"         : (used, miku type specific)
-    "field4"         : (used, miku type specific)
-    "field5"         : (used, miku type specific)
-    "field6"         : (used, miku type specific)
+    "field1"         : string, (used, miku type specific)
+    "field2"         : string, (used, miku type specific)
+    "field3"         : string, (used, miku type specific)
+    "field4"         : string, (used, miku type specific)
+    "field5"         : string, (used, miku type specific)
+    "field6"         : string, (used, miku type specific)
 
-    "field7"         : skipped until # unixtime
-    "field8"         : lockname      # string
+    "field7"         : string, skipped until # unixtime
+    "field8"         : string, lockname      # string
 
-    "field9"         : (not used)
+    "field9"         : string, (not used)
 
-    "field10"        : tcId   # string
-    "field11"        : tcPos  # float
+    "field10"        : string, tcId   # string
+    "field11"        : string, tcPos  # float
 
-    "field12"        : (not used)
+    "field12"        : string, "true" if listed
+    "field13"        : float , listing ordinal
 
 ```
 TodoDatabase2::filepaths().each{|filepath|

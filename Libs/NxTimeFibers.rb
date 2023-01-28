@@ -79,10 +79,7 @@ class NxTimeFibers
 
         pendingInHours = NxTimeFibers::liveNumbers(item)["pendingTimeTodayInHoursLive"]
 
-        datetimeOpt = DoNotShowUntil::getDateTimeOrNull(item["uuid"])
-        dnsustr  = datetimeOpt ? " (do not show until: #{datetimeOpt})" : ""
-
-        "(fiber) (pending: #{"%5.2f" % pendingInHours}) #{item["description"].ljust(descriptionPadding)} (#{Ax39::toStringFormatted(item["ax39"])})#{dnsustr}"
+        "(fiber) (pending: #{"%5.2f" % pendingInHours}) #{item["description"].ljust(descriptionPadding)} (#{Ax39::toStringFormatted(item["ax39"])})"
     end
 
     # NxTimeFibers::nextPositionForItem(tcId)

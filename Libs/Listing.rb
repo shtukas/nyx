@@ -294,6 +294,13 @@ class Listing
 
         $SyncConflictInterruptionFilepath = nil
 
+        Thread.new {
+            loop {
+                sleep 300
+                Database2Engine::activationsForListingOrNothing()
+            }
+        }
+
         loop {
 
             if CommonUtils::stargateTraceCode() != initialCodeTrace then

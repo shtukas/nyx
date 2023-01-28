@@ -7,7 +7,6 @@ Wave:
     "description"      : description
 
     "nx46"             : "field1", JSON.parsed : Nx46 # Wave pattern
-    "priority"         : "field2"              : "ns:mandatory-today" | "ns:time-important" | "ns:beach"
 
     "lastDoneDateTime" : "field4"              : DateTime Iso 8601 UTC Zulu
     "nx113"            : "field5", JSON.parsed : Nx113

@@ -23,14 +23,6 @@ class Waves
         LucilleCore::selectEntityFromListOfEntitiesOrNull("priority:", prioritys)
     end
 
-    # Waves::interactivelySelectPriority()
-    def self.interactivelySelectPriority()
-        loop {
-            priority = Waves::interactivelySelectPriorityOrNull()
-            return priority if priority
-        }
-    end
-
     # Waves::makeNx46InteractivelyOrNull()
     def self.makeNx46InteractivelyOrNull()
 
@@ -142,7 +134,6 @@ class Waves
         return nil if nx46.nil?
         uuid = SecureRandom.uuid
         nx113 = Nx113Make::interactivelyMakeNx113OrNull()
-        priority = Waves::interactivelySelectPriority()
         item = {
             "uuid"             => uuid,
             "mikuType"         => "Wave",
@@ -150,7 +141,6 @@ class Waves
             "datetime"         => Time.new.utc.iso8601,
             "description"      => description,
             "nx46"             => nx46,
-            "priority"         => priority,
             "nx113"            => nx113,
             "lastDoneDateTime" => "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         }
@@ -172,16 +162,6 @@ class Waves
         ago = "#{((Time.new.to_i - DateTime.parse(item["lastDoneDateTime"]).to_time.to_i).to_f/86400).round(2)} days ago"
         isPendingStr = DoNotShowUntil::isVisible(item["uuid"]) ? " (pending)".green : ""
         "(wave) #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")} (#{Waves::nx46ToString(item["nx46"])}) (#{ago})#{isPendingStr} 🌊 [#{item["priority"]}]"
-    end
-
-    # Waves::listingItems(priority)
-    def self.listingItems(priority)
-        Database2Data::itemsForMikuType("Wave")
-            .select{|item| 
-                b1 = (item["priority"] == priority) 
-                b2 = (item["onlyOnDays"].nil? or item["onlyOnDays"].include?(CommonUtils::todayAsLowercaseEnglishWeekDayName()))
-                b1 and b2
-            }
     end
 
     # -------------------------------------------------------------------------

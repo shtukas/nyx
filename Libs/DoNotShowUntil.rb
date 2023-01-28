@@ -11,18 +11,8 @@ class DoNotShowUntil
         TodoDatabase2::getOrNull(uuid, "doNotShowUntil")
     end
 
-    # DoNotShowUntil::getDateTimeOrNull(uuid)
-    def self.getDateTimeOrNull(uuid)
-        unixtime = DoNotShowUntil::getUnixtimeOrNull(uuid)
-        return nil if unixtime.nil?
-        return nil if Time.new.to_i >= unixtime.to_i
-        Time.at(unixtime).utc.iso8601
-    end
-
-    # DoNotShowUntil::isVisible(uuid)
-    def self.isVisible(uuid)
-        unixtime = DoNotShowUntil::getUnixtimeOrNull(uuid)
-        return true if unixtime.nil?
-        Time.new.to_i >= unixtime.to_i
+    # DoNotShowUntil::isVisible(item)
+    def self.isVisible(item)
+        Time.new.to_i >= (item["doNotShowUntil"] || 0)
     end
 end
