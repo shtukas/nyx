@@ -432,33 +432,33 @@ class Database2Engine
             .each{|item|
                 next if Database2Data::itemIsListed(item)
                 next if !DoNotShowUntil::isVisible(item)
-                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_i, 6))
+                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_f, 6))
             }
         Database2Data::itemsForMikuType("NxTop")
             .each{|item|
                 next if Database2Data::itemIsListed(item)
                 next if !DoNotShowUntil::isVisible(item)
-                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_i, 6))
+                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_f, 6))
             }
         Database2Data::itemsForMikuType("NxTriage")
             .each{|item|
                 next if Database2Data::itemIsListed(item)
                 next if !DoNotShowUntil::isVisible(item)
-                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_i, 24))
+                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_f, 24))
             }
 
         NxOndates::listingItems()
             .each{|item|
                 next if Database2Data::itemIsListed(item)
                 next if !DoNotShowUntil::isVisible(item)
-                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_i, 6))
+                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_f, 6))
             }
 
         TxManualCountDowns::listingItems()
             .each{|item|
                 next if Database2Data::itemIsListed(item)
                 next if !DoNotShowUntil::isVisible(item)
-                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_i, 2))
+                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_f, 2))
             }
 
         Database2Data::itemsForMikuType("Wave")
@@ -468,7 +468,7 @@ class Database2Engine
             .each{|item|
                 next if Database2Data::itemIsListed(item)
                 next if !DoNotShowUntil::isVisible(item)
-                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_i, 18))
+                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_f, 18))
             }
 
         Database2Data::itemsForMikuType("NxTimeCommitment")
@@ -496,7 +496,7 @@ class Database2Engine
                     }
                     puts JSON.pretty_generate(drop)
                     TodoDatabase2::commitItem(drop)
-                    Database2Engine::activateItemForListing(drop, Database2Engine::trajectory(Time.new.to_i + indx*spread, 24))
+                    Database2Engine::activateItemForListing(drop, Database2Engine::trajectory(Time.new.to_f + indx*spread, 24))
                     hoursLeft = hoursLeft - hoursOne
                 end
 
