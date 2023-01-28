@@ -60,13 +60,8 @@ class PolyActions
     # PolyActions::commit(item)
     def self.commit(item)
 
-        if item["mikuType"] == "NxTimeFiber" then
-            NxTimeFibers::items()
-            return
-        end
-
         if item["mikuType"] == "NxTodo" then
-            NxTodosIO::commit(item)
+            TodoDatabase2::commitItem(item)
             return
         end
 
@@ -81,7 +76,7 @@ class PolyActions
     # PolyActions::destroy(item)
     def self.destroy(item)
         if item["mikuType"] == "NxTodo" then
-            NxTodosIO::destroy(item["uuid"])
+            TodoDatabase2::destroy(item["uuid"])
             return
         end
 
@@ -143,7 +138,7 @@ class PolyActions
                     return if option == ""
                     if option == "destroy" then
                         NxBalls::closeNxBallForItemOrNothing(item)
-                        NxTodosIO::destroy(item["uuid"])
+                        TodoDatabase2::destroy(item["uuid"])
                         return
                     end
                     if option == "exit" then
@@ -152,7 +147,7 @@ class PolyActions
                     return
                 else
                     NxBalls::closeNxBallForItemOrNothing(item)
-                    NxTodosIO::destroy(item["uuid"])
+                    TodoDatabase2::destroy(item["uuid"])
                 end
             end
             return
@@ -297,7 +292,7 @@ class PolyActions
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["done", "stop", "run in background", "update description"])
             return if option.nil?
             if option == "done" then
-                NxTodosIO::destroy(item["uuid"])
+                TodoDatabase2::destroy(item["uuid"])
                 NxBalls::close(nxball) if nxball
             end
             if option == "stop" then
@@ -310,7 +305,7 @@ class PolyActions
             if option == "update description" then
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
                 item["description"] = description
-                NxTodosIO::commit(item)
+                TodoDatabase2::commitItem(item)
                 return
             end
             return
@@ -355,19 +350,6 @@ class PolyActions
 
     # PolyActions::edit(item)
     def self.edit(item)
-
-        if item["mikuType"] == "NxTodo" then
-            NxTodos::edit(item)
-        end
-
-        if item["mikuType"] == "Wave" then
-            Waves::edit(item)
-        end
-
-        if item["mikuType"] == "NxTodo" then
-            NxTodos::edit(item)
-        end
-
         puts "PolyActions Edit has not yet been implemented for miku type #{item["mikuType"]}"
         LucilleCore::pressEnterToContinue()
     end

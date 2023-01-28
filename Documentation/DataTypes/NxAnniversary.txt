@@ -1,30 +1,14 @@
 
 NxAnniversary
 
-    "uuid"           : String
-    "mikuType"       : "NxAnniversary"
-    "unixtime"       : Float
-    "datetime"       : DateTime Iso 8601 UTC Zulu
-
+    "uuid"                : String
+    "mikuType"            : "NxAnniversary"
+    "unixtime"            : Float
+    "datetime"            : DateTime Iso 8601 UTC Zulu
     "description"         : String
+    "payload"             : 
+    "doNotShowUntil"      : Unixtime
+
     "startdate"           : "field1" : Date # YYYY-MM-DD
     "repeatType"          : "field2" : "weekly" | "monthly" | "yearly"
     "lastCelebrationDate" : "field3" : Date
-
-NxAnniversary:
-    "uuid"           : UUID
-    "mikuType"       : mikuType
-    "unixtime"       : Float
-    "datetime"       : DateTime Iso 8601 UTC Zulu
-    "description"    : String
-    "payload"        : 
-    "doNotShowUntil" : Unixtime,
-
-    "field1"         : "startdate"           : Date # YYYY-MM-DD
-    "field2"         : "repeatType"          : "weekly" | "monthly" | "yearly"
-    "field3"         : "lastCelebrationDate" : Date
-    "field4"         :
-    "field5"         :
-    "field6"         :
-    "field7"         :
-    "field8"         :

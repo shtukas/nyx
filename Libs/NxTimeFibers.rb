@@ -174,7 +174,7 @@ class NxTimeFibers
             # We do not recompute all the items but we recall the ones we had to get the new 
             # tcPoss
             items = items
-                        .map{|item| NxTodosIO::getOrNull(item["uuid"]) }
+                        .map{|item| TodoDatabase2::getItemByUUIDOrNull(item["uuid"]) }
                         .sort{|i1, i2| i1["tcPos"] <=> i2["tcPos"] }
             store = ItemStore.new()
             puts ""
@@ -198,7 +198,7 @@ class NxTimeFibers
                 #puts item
                 next if item.nil?
                 item["tcPos"] = position
-                NxTodosIO::commit(item)
+                TodoDatabase2::commitItem(item)
             end
         }
     end

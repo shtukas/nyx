@@ -1,7 +1,0 @@
-
-NxDoNotShowUntil:
-    "uuid"        : String
-    "mikuType"    : "NxDoNotShowUntil"
-    "unixtime"    : Float
-
-

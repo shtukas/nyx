@@ -12,7 +12,7 @@ class Transmutations
             item["mikuType"] = "NxTodo"
             item["tcId"] = wtc["uuid"]
             item["tcPos"] = tcPos
-            NxTodosIO::commit(item)
+            TodoDatabase2::commitItem(item)
             TodoDatabase2::destroy(uuid1)
             return
         end
@@ -43,7 +43,7 @@ class Transmutations
             item["mikuType"] = "NxTodo"
             item["tcId"] = wtc["uuid"]
             item["tcPos"] = tcPos
-            NxTodosIO::commit(item)
+            TodoDatabase2::commitItem(item)
             TodoDatabase2::destroy(uuid1)
             return
         end
@@ -64,7 +64,7 @@ class Transmutations
             item["mikuType"] = "NxTodo"
             item["tcId"] = wtc["uuid"]
             item["tcPos"] = tcPos
-            NxTodosIO::commit(item)
+            TodoDatabase2::commitItem(item)
             TodoDatabase2::destroy(uuid1)
             return
         end

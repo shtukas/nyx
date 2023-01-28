@@ -9,5 +9,3 @@ NxTimeFiber {
     "isWork"      : Boolean, decide if to display '(-vx-) Main focus'
     "doneForDay"  : Date [1]
 }
-
-[1] When we 'fill for holiday' a time fiber for the day time is added to the item, but we should also mark it as such. The reason is that light speed recomputation (and notably light speed increase), may cause it to show up later. 

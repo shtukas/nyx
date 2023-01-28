@@ -1,6 +1,4 @@
-Ax39 represents a fiber, either daily or weekly.
-
-It is carried by NxTimeFibers
+Ax39 is carried by NxTimeFibers, represents a daily or weekly time commitment
 
 {
     "type"  => "daily-provision-fillable"

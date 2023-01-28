@@ -1,7 +1,7 @@
 NxTop
-    "uuid"        : String
-    "mikuType"    : "NxTop"
-    "unixtime"    : Float
-    "datetime"    : 
-    "description" : String
-    "tcId"        : null or String # There is an attempt to set it when the item is started
+    "uuid"         : String
+    "mikuType"     : "NxTop"
+    "unixtime"     : Float
+    "datetime"     : 
+    "description"  : String
+    "tcId", field1 : null or String # There is an attempt to set it when the item is started

@@ -286,14 +286,4 @@ class Nx113Edit
             return nil
         end
     end
-
-    # Nx113Edit::editNx113Carrier(item)
-    def self.editNx113Carrier(item)
-        return if item["nx113"].nil?
-        nx113 = item["nx113"]
-        nx113v2 = Nx113Edit::editNx113(DatablobStoreElizabeth.new(), nx113)
-        return if nx113v2.nil?
-        item["nx113"] = nx113v2
-        PolyActions::commit(item)
-    end
 end

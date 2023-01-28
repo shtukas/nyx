@@ -160,7 +160,7 @@ class TodoDatabase2
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        db.execute("create table objects (uuid text primary key, mikuType text, unixtime float, datetime text, description text, payload text, doNotShowUntil float, field1 text, field2 text, field3 text, field4 text, field5 text, field6 text, field7 text, field8 text)", [])
+        db.execute("create table objects (uuid text primary key, mikuType text, unixtime float, datetime text, description text, payload text, doNotShowUntil float, field1 text, field2 text, field3 text, field4 text, field5 text, field6 text, field7 text, field8 text, field9 text, field10 text, field11 text, field12 text)", [])
         db.close
         filepath
     end
@@ -392,7 +392,7 @@ class Database2Data
             #Waves::listingItems("ns:beach"),
             #NxBlocks::listingItems(6),
         ]
-        TodoDatabase2::databaseQuery("select * from objects limit 1", [])
+        TodoDatabase2::databaseQuery("select * from objects where field9=?", ["true"])
             .map{|object| TodoDatabase2ItemObjectsTranslation::databaseObjectToItem(object) }
     end
 end

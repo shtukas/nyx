@@ -84,22 +84,6 @@ class NxOndates
         end
     end
 
-    # NxOndates::edit(item) # item
-    def self.edit(item)
-        if item["nx113"].nil? then
-            puts "This item doesn't have a Nx113 attached to it"
-            status = LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit the description instead ? ")
-            if status then
-                PolyActions::editDescription(item)
-                return TodoDatabase2::getItemByUUIDOrNull(item["uuid"])
-            else
-                return item
-            end
-        end
-        Nx113Edit::editNx113Carrier(item)
-        TodoDatabase2::getItemByUUIDOrNull(item["uuid"])
-    end
-
     # NxOndates::probe(item)
     def self.probe(item)
         loop {

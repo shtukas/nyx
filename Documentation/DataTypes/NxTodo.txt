@@ -6,26 +6,6 @@ NxTodo:
     "unixtime"       : Float
     "datetime"       : DateTime Iso 8601 UTC Zulu
     "description"    : String
-    "nx113"          : "field1" -> JSON.parse : null or Nx113
-    "tcId"           : "field2" : String
-    "tcPos"          : "field3" : Float
-
-NxTodo:
-    "uuid"           : UUID
-    "mikuType"       : mikuType
-    "unixtime"       : Float
-    "datetime"       : DateTime Iso 8601 UTC Zulu
-    "description"    : String
-    "payload"        : 
-    "doNotShowUntil" : Unixtime,
-
-    "field1"         : "nx113"  : Nx113, JSON serialised
-    "field2"         : "tcId"   : String
-    "field3"         : "tcPos"  : Float
-    "field4"         :
-    "field5"         :
-    "field6"         :
-    "field7"         :
-    "field8"         :
-
-
+    "nx113" "field1" : null or Nx113, json encoded if set
+    "tcId"  "field2" : String
+    "tcPos" "field3" : Float
