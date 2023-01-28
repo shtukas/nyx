@@ -42,8 +42,7 @@ loop {
     link = viennaLinkFeeder.next()
     break if link.nil?
     #puts "vienna: #{link}"
-    itemuuid = NxOndates::viennaUrlForToday(link)
-    InternetStatus::markIdAsRequiringInternet(itemuuid)
+    NxOndates::viennaUrlForToday(link)
     viennaLinkFeeder.done(link)
     sleep 1
 }

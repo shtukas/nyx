@@ -9,7 +9,7 @@ class Listing
             "[makers] wave | anniversary | today | ondate | todo | fiber | manual countdown | top | strat | block",
             "[divings] anniversaries | ondates | waves | fibers | todos",
             "[transmutations] '' (transmute)",
-            "[misc] require internet | search | speed | commands | lock (<n>)",
+            "[misc] search | speed | commands | lock (<n>)",
         ].join("\n")
     end
 
@@ -164,16 +164,6 @@ class Listing
             return
         end
 
-        if Interpreting::match("internet off", input) then
-            InternetStatus::setInternetOff()
-            return
-        end
-
-        if Interpreting::match("internet on", input) then
-            InternetStatus::setInternetOn()
-            return
-        end
-
         if Interpreting::match("lock", input) then
             item = store.getDefault()
             return if item.nil?
@@ -218,13 +208,6 @@ class Listing
             item = NxBlocks::interactivelyIssueOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
-            return
-        end
-
-        if Interpreting::match("require internet", input) then
-            item = store.getDefault()
-            return if item.nil?
-            InternetStatus::markIdAsRequiringInternet(item["uuid"])
             return
         end
 
