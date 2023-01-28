@@ -219,8 +219,33 @@ class Listing
             return
         end
 
+        if Interpreting::match("start *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            if item["mikuType"] != "NxTimeDrop" then
+                puts "> the start command is only available for NxTimeDrops"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            NxTimeDrops::start(item)
+            return
+        end
+
         if Interpreting::match("stop", input) then
             item = store.getDefault()
+            return if item.nil?
+            if item["mikuType"] != "NxTimeDrop" then
+                puts "> the stop command is only available for NxTimeDrops"
+                LucilleCore::pressEnterToContinue()
+            end
+            NxTimeDrops::stop(item)
+            return
+        end
+
+        if Interpreting::match("stop *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
             return if item.nil?
             if item["mikuType"] != "NxTimeDrop" then
                 puts "> the stop command is only available for NxTimeDrops"
