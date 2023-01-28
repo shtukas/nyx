@@ -319,6 +319,7 @@ class TodoDatabase2ItemObjectsTranslation
         end
         if object["mikuType"] == "NxTimeDrop" then
             object["field1"] = object["field1"].to_f
+            object["field2"] = object["field2"].to_f
             object["field3"] = object["field3"].to_f
             return object
         end

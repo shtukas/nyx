@@ -358,6 +358,11 @@ class Listing
                     if Locks::isLocked(item) then
                         line = "#{line} [lock: #{item["field8"]}]"
                     end
+                    if item["mikuType"] == "NxTimeDrop" then
+                        if item["field2"] and item["field2"] > 0 then
+                            line = line.green
+                        end
+                    end
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                     break if vspaceleft <= 0
