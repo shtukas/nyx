@@ -341,7 +341,7 @@ class Listing
             Database2Data::itemsForMikuType("NxTimeCommitment")
                 .each{|item|
                     store.register(item, false)
-                    hours = drops.select{|drop| drop["field4"] == item["uuid"] }.map{|drop| drop["field1"] - drop["field3"] }.inject(0, :+)
+                    hours = drops.select{|drop| drop["field4"] == item["uuid"] }.map{|drop| drop["field1"] }.inject(0, :+)
                     puts "(#{store.prefixString()}) #{item["description"].ljust(10)} (left: #{("%5.2f" % hours).to_s.green} hours, out of #{"%5.2f" % item["hours"]}) reset #{"%5.2f" %  ((Time.new.to_i - item["resetTime"]).to_f/86400)} days ago"
                     vspaceleft = vspaceleft - 1
                 }
