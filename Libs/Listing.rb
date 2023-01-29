@@ -357,7 +357,15 @@ class Listing
                 .each{|item|
                     store.register(item, false)
                     hours = drops.select{|drop| drop["field4"] == item["uuid"] }.map{|drop| drop["field1"] }.inject(0, :+)
-                    puts "(#{store.prefixString()}) #{item["description"].ljust(10)} (left: #{("%5.2f" % hours).to_s.green} hours, out of #{"%5.2f" % item["hours"]}) reset #{"%5.2f" %  ((Time.new.to_i - item["resetTime"]).to_f/86400)} days ago"
+                    sinceResetInSeconds = Time.new.to_i - item["resetTime"]
+                    sinceResetInDays = sinceResetInSeconds.to_f/86400
+                    str1 = 
+                        if sinceResetInDays < 7 then
+                            " (#{(7 - sinceResetInDays).round(2)} days left)"
+                        else
+                            " (late by #{(7 - sinceResetInDays).round(2)} days)"
+                        end
+                    puts "(#{store.prefixString()}) #{item["description"].ljust(10)} (left: #{("%5.2f" % hours).to_s.green} hours, out of #{"%5.2f" % item["hours"]})#{str1}"
                     vspaceleft = vspaceleft - 1
                 }
             vspaceleft = vspaceleft - 3
