@@ -1,11 +1,14 @@
 
 Catalyst:
-    NxAnniversary    (self contained)
-    Wave             (Nx113)
+    NxAnniversary    (no payload)
+    NxOndate         (Nx113)
     NxTodo           (Nx113)
+    NxTimeDrop       (no payload)
+    NxTriage         (Nx113)
+    TxManualPayload  (no payload)
+    Wave             (Nx113)
 
 Nyx Networks:
-
     NxNode           (Nx113)
 
 Misc:

@@ -4,6 +4,16 @@ NxNode
     "unixtime"     : Float
     "datetime"     : DateTime Iso 8601 UTC Zulu
     "description"  : String
+    "payload"      : nil or String
+
+
+We have 4 kinds of payload
+
+    - null (when the node doesn't have one, for instance navigation nodes)
+    - "nyx-directory:<directory Id>"
+      The directory Id if the name of the directory in { Galaxy/Nyx/Directories }
+
+-- (ignore below) ---------------------------------------------
 
 We have distinct types of contents (or payloads) for Nyx Nodes.
 

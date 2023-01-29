@@ -5,14 +5,14 @@ class NxNodeContentService
 
     # --------------------------------------------------------
 
-    # NxNodeContentService::dataDirectoryPath(uuid)
-    def self.dataDirectoryPath(uuid)
-        "#{Nyx::pathToNyx()}/Data/#{uuid}"
+    # NxNodeContentService::nyxDirectoriesPath(uuid)
+    def self.nyxDirectoriesPath(uuid)
+        "#{Nyx::pathToNyx()}/Directories/#{uuid}"
     end
 
     # NxNodeContentService::ensureNyxDataDirectory(uuid)
     def self.ensureNyxDataDirectory(uuid)
-        folderpath = NxNodeContentService::dataDirectoryPath(uuid)
+        folderpath = NxNodeContentService::nyxDirectoriesPath(uuid)
         if !File.exist?(folderpath) then
             FileUtils.mkdir(folderpath)
         end
@@ -176,7 +176,7 @@ class NxNodes
             end
 
             if command == "access" then
-                if !File.exist?(NxNodeContentService::dataDirectoryPath(item["uuid"])) then
+                if !File.exist?(NxNodeContentService::nyxDirectoriesPath(item["uuid"])) then
                     puts "data directory doesn't exist"
                     if LucilleCore::askQuestionAnswerAsBoolean("create and access data directory ? ") then
                         NxNodeContentService::accessNyxDirectory(item["uuid"])
