@@ -310,6 +310,9 @@ class TodoDatabase2ItemObjectsTranslation
         if object["mikuType"] == "NxTimeDrop" then
             object["field1"] = object["field1"].to_f
             object["field2"] = object["field2"].to_f
+            if object["field2"] == 0 then
+                object["field2"] = nil
+            end
             return object
         end
         puts JSON.pretty_generate(object)

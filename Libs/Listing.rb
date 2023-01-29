@@ -297,11 +297,11 @@ class Listing
         end
     end
 
-    # Listing::isNxTimeDropAndCompleted(item)
-    def self.isNxTimeDropAndCompleted(item)
+    # Listing::isNxTimeDropStoppedAndCompleted(item)
+    def self.isNxTimeDropStoppedAndCompleted(item)
         return false if item["mikuType"] != "NxTimeDrop"
-        return false if (item["field2"] and item["field2"] > 0)
-        return false if item["field1"] > 0
+        return false if item["field2"]     # we are running
+        return false if item["field1"] > 0 # we are still positive
         true
     end
 
@@ -383,14 +383,14 @@ class Listing
                 .sort{|i1, i2| i1["listing:position"] <=> i2["listing:position"] }
                 .reverse
                 .each{|item|
-                    next if Listing::isNxTimeDropAndCompleted(item)
+                    next if Listing::isNxTimeDropStoppedAndCompleted(item)
                     store.register(item, !Skips::isSkipped(item) && !Locks::isLocked(item))
                     line = "(#{store.prefixString()}) #{PolyFunctions::toStringForListing(item)}"
                     if Locks::isLocked(item) then
                         line = "#{line} [lock: #{item["field8"]}]"
                     end
                     if item["mikuType"] == "NxTimeDrop" then
-                        if item["field2"] and item["field2"] > 0 then
+                        if item["field2"] then
                             runningFor = (Time.new.to_i - item["field2"]).to_f/3600
                             line = "#{line} (running for #{runningFor.round(2)} hours)".green
                         end
