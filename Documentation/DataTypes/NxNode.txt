@@ -10,8 +10,10 @@ NxNode
 We have 4 kinds of payload
 
     - null (when the node doesn't have one, for instance navigation nodes)
-    - "nyx-directory:<directory Id>"
-      The directory Id if the name of the directory in { Galaxy/Nyx/Directories }
+
+    - "nyx-directory"
+      The directory Id is the uuid of the node and the name of the directory in { Galaxy/Nyx/Directories }
+
 
 -- (ignore below) ---------------------------------------------
 

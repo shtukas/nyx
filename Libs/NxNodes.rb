@@ -1,78 +1,6 @@
 
 # encoding: UTF-8
 
-class NxNodeContentService
-
-    # --------------------------------------------------------
-
-    # NxNodeContentService::nyxDirectoriesPath(uuid)
-    def self.nyxDirectoriesPath(uuid)
-        "#{Nyx::pathToNyx()}/Directories/#{uuid}"
-    end
-
-    # NxNodeContentService::ensureNyxDataDirectory(uuid)
-    def self.ensureNyxDataDirectory(uuid)
-        folderpath = NxNodeContentService::nyxDirectoriesPath(uuid)
-        if !File.exist?(folderpath) then
-            FileUtils.mkdir(folderpath)
-        end
-        folderpath
-    end
-
-    # NxNodeContentService::accessNyxDirectory(uuid)
-    def self.accessNyxDirectory(uuid)
-        folderpath = NxNodeContentService::ensureNyxDataDirectory(uuid)
-        system("open '#{folderpath}'")
-        LucilleCore::pressEnterToContinue()
-    end
-
-    # --------------------------------------------------------
-
-    # NxNodeContentService::contentTypes()
-    def self.contentTypes()
-        ["directory", "text", "url"]
-    end
-
-    # NxNodeContentService::interactivelySelectContentTypeOrNull()
-    def self.interactivelySelectContentTypeOrNull()
-        types = NxNodeContentService::contentTypes()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("content type", types)
-    end
-
-    # NxNodeContentService::installContentType(type, uuid)
-    def self.installContentType(type, uuid)
-        if type == "directory" then
-            NxNodeContentService::accessNyxDirectory(uuid)
-            return
-        end
-        if type == "text" then
-            # Here we get the text and write it in a TEXT.txt file
-            folderpath = NxNodeContentService::ensureNyxDataDirectory(uuid)
-            filepath = "#{folderpath}/TEXT.txt"
-            text = CommonUtils::editTextSynchronously("")
-            File.open(filepath, "w"){|f| f.puts(text) }
-            return
-        end
-        if type == "url" then
-            # Here we get the url and write it in a URL.txt file
-            folderpath = NxNodeContentService::ensureNyxDataDirectory(uuid)
-            filepath = "#{folderpath}/URL.txt"
-            url = LucilleCore::askQuestionAnswerAsString("url: ")
-            File.open(filepath, "w"){|f| f.puts(url) }
-            return
-        end
-        raise "(error: unsupported type: #{type})"
-    end
-
-    # NxNodeContentService::installContentOrNothing(uuid)
-    def self.installContentOrNothing(uuid)
-        type = NxNodeContentService::interactivelySelectContentTypeOrNull()
-        return if type.nil?
-        NxNodeContentService::installContentType(type, uuid)
-    end
-
-end
-
 class NxNodes
 
     # --------------------------------------
@@ -120,15 +48,16 @@ class NxNodes
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid  = SecureRandom.uuid
+        payload = NyxNodePayloads::issuePayload(uuid)
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxNode",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
+            "payload"     => payload
         }
         NxNodes::commit(item)
-        NxNodeContentService::installContentOrNothing(uuid)
         item
     end
 
@@ -150,6 +79,7 @@ class NxNodes
             system('clear')
 
             puts NxNodes::toString(item).green
+            puts "> payload: #{item["payload"]}"
 
             store = ItemStore.new()
 
@@ -176,15 +106,15 @@ class NxNodes
             end
 
             if command == "access" then
-                if !File.exist?(NxNodeContentService::nyxDirectoriesPath(item["uuid"])) then
-                    puts "data directory doesn't exist"
-                    if LucilleCore::askQuestionAnswerAsBoolean("create and access data directory ? ") then
-                        NxNodeContentService::accessNyxDirectory(item["uuid"])
-                    else
-                        next
-                    end
+                if item["payload"].nil? then
+                    puts "This nyx node doesn't have a payload"
+                    LucilleCore::pressEnterToContinue()
+                    next
                 end
-                NxNodeContentService::accessNyxDirectory(item["uuid"])
+                if item["payload"] == "nyx-directory" then
+                    NyxDirectories::accessNyxDirectory(item["uuid"])
+                    next
+                end
                 next
             end
 
