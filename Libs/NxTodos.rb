@@ -142,4 +142,26 @@ class NxTodos
             }
         LucilleCore::pressEnterToContinue()
     end
+
+    # NxTodos::doneprocess(item)
+    def self.doneprocess(item)
+        puts PolyFunctions::toString(item)
+        if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
+            if item["nx113"] then
+                puts "You are attempting to done a NxTodo which carries some contents (Nx113)"
+                option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["destroy", "exit"])
+                return if option == ""
+                if option == "destroy" then
+                    TodoDatabase2::destroy(item["uuid"])
+                    return
+                end
+                if option == "exit" then
+                    return
+                end
+                return
+            else
+                TodoDatabase2::destroy(item["uuid"])
+            end
+        end
+    end
 end

@@ -84,24 +84,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxTodo" then
-            puts PolyFunctions::toString(item)
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
-                if item["nx113"] then
-                    puts "You are attempting to done a NxTodo which carries some contents (Nx113)"
-                    option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["destroy", "exit"])
-                    return if option == ""
-                    if option == "destroy" then
-                        TodoDatabase2::destroy(item["uuid"])
-                        return
-                    end
-                    if option == "exit" then
-                        return
-                    end
-                    return
-                else
-                    TodoDatabase2::destroy(item["uuid"])
-                end
-            end
+            NxTodos::doneprocess(item)
             return
         end
 
@@ -151,6 +134,12 @@ class PolyActions
             if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
                 Waves::performWaveNx46WaveDone(item)
             end
+            return
+        end
+
+        if item["mikuType"] == "NxTodo" then
+            NxTodos::access(item)
+            NxTodos::doneprocess(item)
             return
         end
 
