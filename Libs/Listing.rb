@@ -331,13 +331,6 @@ class Listing
 
         NxTimeDrops::garbageCollection()
 
-        Thread.new {
-            loop {
-                sleep 300
-                Database2Engine::activationsForListingOrNothing()
-            }
-        }
-
         loop {
 
             if CommonUtils::stargateTraceCode() != initialCodeTrace then
@@ -357,6 +350,11 @@ class Listing
                     puts "Picked up from NxTodos-BufferIn: #{JSON.pretty_generate(item)}"
                     LucilleCore::removeFileSystemLocation(location)
                 }
+
+            if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("2bf15677-bac8-4467-b7cc-e313113df3a9", 3600) then
+                puts "Database2Engine::listingActivations()"
+                Database2Engine::listingActivations()
+            end
 
             system("clear")
             store = ItemStore.new()

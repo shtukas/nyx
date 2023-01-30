@@ -406,8 +406,8 @@ class Database2Engine
         TodoDatabase2::set(item["uuid"], "field13", "null") # remove trajectory
     end
 
-    # Database2Engine::activationsForListingOrNothing()
-    def self.activationsForListingOrNothing()
+    # Database2Engine::listingActivations()
+    def self.listingActivations()
 
         Database2Data::itemsForMikuType("NxAnniversary")
             .select{|anniversary| Anniversaries::isOpenToAcknowledgement(anniversary) }
