@@ -362,7 +362,7 @@ class Listing
                     str1 = 
                         if sinceResetInDays < 7 then
                             daysLeft = 7 - sinceResetInDays
-                            " (#{(daysLeft).round(2)} days left, #{(hours.to_f/daysLeft).round(2)} hours per day)"
+                            " (#{"%4.2f" % daysLeft} days left, #{"%4.2f" % (hours.to_f/daysLeft)} hours per day)"
                         else
                             " (late by #{(sinceResetInDays - 7).round(2)} days)"
                         end
