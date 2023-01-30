@@ -79,11 +79,7 @@ class PolyActions
 
         if item["mikuType"] == "NxTimeDrop" then
             puts "You cannot done a NxTimeDrop, only start and stop"
-            if item["field2"] then
-                if LucilleCore::askQuestionAnswerAsBoolean("Would you like to stop ? : ", true) then
-                    NxTimeDrops::stop(item)
-                end
-            end
+            LucilleCore::pressEnterToContinue()
             return
         end
 
