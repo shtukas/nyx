@@ -361,9 +361,10 @@ class Listing
                     sinceResetInDays = sinceResetInSeconds.to_f/86400
                     str1 = 
                         if sinceResetInDays < 7 then
-                            " (#{(7 - sinceResetInDays).round(2)} days left)"
+                            daysLeft = 7 - sinceResetInDays
+                            " (#{(daysLeft).round(2)} days left, #{(hours.to_f/daysLeft).round(2)} hours per day)"
                         else
-                            " (late by #{(7 - sinceResetInDays).round(2)} days)"
+                            " (late by #{(sinceResetInDays - 7).round(2)} days)"
                         end
                     puts "(#{store.prefixString()}) #{item["description"].ljust(10)} (left: #{("%5.2f" % hours).to_s.green} hours, out of #{"%5.2f" % item["hours"]})#{str1}"
                     vspaceleft = vspaceleft - 1
