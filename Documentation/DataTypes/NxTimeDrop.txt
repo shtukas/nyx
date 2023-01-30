@@ -9,4 +9,4 @@ NxTimeDrop:
     "field2"       : nil or unixtime, run start unixtime
     "field4"       : reference time commitment uuid
 
-[1] When it becomes negative, we sum it with another one.s
+[1] When it becomes negative, we sum it with another one.

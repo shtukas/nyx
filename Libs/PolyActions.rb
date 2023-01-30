@@ -20,6 +20,10 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NxDrop" then
+            return
+        end
+
         if item["mikuType"] == "NxTimeCommitment" then
             puts NxTimeCommitments::toStringWithDetails(item, false)
             actions = ["set hours"]
@@ -38,10 +42,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "TxManualCountDown" then
-            puts item["description"]
-            count = LucilleCore::askQuestionAnswerAsString("done count: ").to_i
-            item["counter"] = item["counter"] - count
-            TodoDatabase2::commitItem(item)
+            TxManualCountDowns::access(item)
             return
         end
 
@@ -67,6 +68,12 @@ class PolyActions
 
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::done(item["uuid"])
+            return
+        end
+
+        if item["mikuType"] == "NxDrop" then
+            NxDrop::stop(item)
+            NxDrop::destroy(item["uuid"])
             return
         end
 
@@ -138,12 +145,25 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "TxManualCountDown" then
+            TxManualCountDowns::access(item)
+            return
+        end
+
+        if item["mikuType"] == "Wave" then
+            PolyActions::access(item)
+            if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
+                Waves::performWaveNx46WaveDone(item)
+            end
+            return
+        end
+
         puts "I don't know how to doubleDot '#{item["mikuType"]}'"
         LucilleCore::pressEnterToContinue()
     end
 
-    # PolyActions::touch(item)
-    def self.touch(item)
+    # PolyActions::landing(item)
+    def self.landing(item)
 
         if item["mikuType"] == "NxAnniversary" then
             loop {
@@ -222,7 +242,35 @@ class PolyActions
             return
         end
 
-        puts "PolyActions::touch has not yet been implemented for miku type #{item["mikuType"]}"
+        puts "PolyActions::landing has not yet been implemented for miku type #{item["mikuType"]}"
+        LucilleCore::pressEnterToContinue()
+    end
+
+    # PolyActions::start(item)
+    def self.start(item)
+        if item["mikuType"] == "NxTimeDrop" then
+            NxTimeDrops::start(item)
+            return
+        end
+        if item["mikuType"] == "NxDrop" then
+            NxDrop::start(item)
+            return
+        end
+        puts "start is only defined for NxTimeDrop and NxDrop"
+        LucilleCore::pressEnterToContinue()
+    end
+
+    # PolyActions::stop(item)
+    def self.stop(item)
+        if item["mikuType"] == "NxTimeDrop" then
+            NxTimeDrops::stop(item)
+            return
+        end
+        if item["mikuType"] == "NxDrop" then
+            NxDrop::stop(item)
+            return
+        end
+        puts "stop is only defined for NxTimeDrop and NxDrop"
         LucilleCore::pressEnterToContinue()
     end
 end

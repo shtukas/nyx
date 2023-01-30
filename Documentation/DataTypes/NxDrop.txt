@@ -1,0 +1,9 @@
+NxDrop
+    "uuid"             : String
+    "mikuType"         : "NxDrop"
+    "unixtime"         : Float
+    "datetime"         : DateTime Iso 8601 UTC Zulu
+    "description"      : String
+    "tcId"             : null or String
+    "tcName"           : null or String
+    "runStartUnixtime" : null or String

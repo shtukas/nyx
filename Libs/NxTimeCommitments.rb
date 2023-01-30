@@ -28,12 +28,17 @@ class NxTimeCommitments
 
     # NxTimeCommitments::toString(item)
     def self.toString(item)
-        "(timecommitment) #{item["description"]}"
+        "(tc) #{item["description"]}"
     end
 
     # NxTimeCommitments::toStringWithDetails(item, shouldFormat)
     def self.toStringWithDetails(item, shouldFormat)
-        "(timecommitment) (hours: #{item["hours"]}) #{item["description"]}"
+        "(tc) (hours: #{item["hours"]}) #{item["description"]}"
     end
 
+    # NxTimeCommitments::interactivelySelectOneOrNull()
+    def self.interactivelySelectOneOrNull()
+        items = Database2Data::itemsForMikuType("NxTimeCommitment")
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("time commitment", items, lambda{|item| NxTimeCommitments::toString(item) })
+    end
 end

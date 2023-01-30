@@ -5,8 +5,8 @@ class Listing
     # Listing::listingCommands()
     def self.listingCommands()
         [
-            "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | touch (<n>) | expose (<n>) | >> skip default | lock (<n>) | push | destroy",
-            "[makers] anniversary | manual countdown | wave | today | ondate | todo",
+            "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | landing (<n>) | expose (<n>) | >> skip default | lock (<n>) | push | destroy",
+            "[makers] anniversary | manual countdown | wave | today | ondate | todo | drop",
             "[divings] anniversaries | ondates | waves | todos",
             "[NxTodo] redate",
             "[NxTimeDrops] start | stop",
@@ -142,6 +142,10 @@ class Listing
             return
         end
 
+        if Interpreting::match("drop", input) then
+            NxDrop::issue()
+        end
+
         if Interpreting::match("exit", input) then
             exit
         end
@@ -219,12 +223,7 @@ class Listing
         if Interpreting::match("start", input) then
             item = store.getDefault()
             return if item.nil?
-            if item["mikuType"] != "NxTimeDrop" then
-                puts "> the start command is only available for NxTimeDrops"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            NxTimeDrops::start(item)
+            PolyActions::start(item)
             return
         end
 
@@ -232,23 +231,14 @@ class Listing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            if item["mikuType"] != "NxTimeDrop" then
-                puts "> the start command is only available for NxTimeDrops"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            NxTimeDrops::start(item)
+            PolyActions::start(item)
             return
         end
 
         if Interpreting::match("stop", input) then
             item = store.getDefault()
             return if item.nil?
-            if item["mikuType"] != "NxTimeDrop" then
-                puts "> the stop command is only available for NxTimeDrops"
-                LucilleCore::pressEnterToContinue()
-            end
-            NxTimeDrops::stop(item)
+            PolyActions::stop(item)
             return
         end
 
@@ -256,11 +246,7 @@ class Listing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            if item["mikuType"] != "NxTimeDrop" then
-                puts "> the stop command is only available for NxTimeDrops"
-                LucilleCore::pressEnterToContinue()
-            end
-            NxTimeDrops::stop(item)
+            PolyActions::stop(item)
             return
         end
 
@@ -269,18 +255,18 @@ class Listing
             return
         end
 
-        if Interpreting::match("touch", input) then
+        if Interpreting::match("landing", input) then
             item = store.getDefault()
             return if item.nil?
-            PolyActions::touch(item)
+            PolyActions::landing(item)
             return
         end
 
-        if Interpreting::match("touch *", input) then
+        if Interpreting::match("landing *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyActions::touch(item)
+            PolyActions::landing(item)
             return
         end
 
@@ -384,8 +370,23 @@ class Listing
                 }
 
             puts ""
-            puts "> access | done | touch | todo | today | ondate | wave | lock | >>".yellow
+            puts "> drop | todo | today | ondate | wave | access | done | landing | lock | >>".yellow
             vspaceleft = vspaceleft - 2
+
+            drops = NxDrop::drops()
+            if drops.size > 0 then
+                puts ""
+                vspaceleft = vspaceleft - 1
+                drops.each{|item|
+                    store.register(item, false)
+                    line = "(#{store.prefixString()}) #{NxDrop::toString(item)}"
+                    if line. include?("running") then
+                        line = line.green
+                    end
+                    puts line
+                    vspaceleft = vspaceleft - 1
+                }
+            end
 
             trajectoryToNumber = lambda{|trajectory|
                 return 0.8 if trajectory.nil?
@@ -406,7 +407,7 @@ class Listing
                 .each{|item|
                     next if Listing::isNxTimeDropStoppedAndCompleted(item)
                     store.register(item, !Skips::isSkipped(item) && !Locks::isLocked(item))
-                    line = "(#{"%5.2f" % item["listing:position"]}) (#{store.prefixString()}) #{PolyFunctions::toStringForListing(item)}"
+                    line = "(#{store.prefixString()}) (#{"%5.2f" % item["listing:position"]}) #{PolyFunctions::toStringForListing(item)}"
                     if Locks::isLocked(item) then
                         line = "#{line} [lock: #{item["field8"]}]"
                     end

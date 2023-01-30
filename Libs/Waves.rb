@@ -190,7 +190,7 @@ class Waves
             items = Database2Data::itemsForMikuType("Wave").sort{|w1, w2| w1["description"] <=> w2["description"] }
             wave = LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", items, lambda{|wave| wave["description"] })
             return if wave.nil?
-            PolyActions::touch(wave)
+            PolyActions::landing(wave)
         }
     end
 

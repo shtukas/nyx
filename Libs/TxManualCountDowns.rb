@@ -51,4 +51,13 @@ class TxManualCountDowns
         TodoDatabase2::commitItem(item)
     end
 
+    # TxManualCountDowns::access(item)
+    def self.access(item)
+        puts "> #{item["description"]}"
+        donecount = LucilleCore::askQuestionAnswerAsString("done count: ").to_i
+        remaincount = item["counter"] - donecount
+        TodoDatabase2::set(item["uuid"], "field3", remaincount)
+        trajectory = Database2Engine::trajectory(Time.new.to_f, 2)
+        TodoDatabase2::set(item["uuid"], "field13", JSON.generate(trajectory))
+    end
 end
