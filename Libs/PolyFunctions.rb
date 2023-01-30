@@ -12,9 +12,6 @@ class PolyFunctions
         if item["mikuType"] == "NxNode" then
             return NxNodes::toString(item)
         end
-        if item["mikuType"] == "NxOndate" then
-            return NxOndates::toString(item)
-        end
         if item["mikuType"] == "NxTimeCommitment" then
             return NxTimeCommitments::toString(item)
         end
@@ -23,9 +20,6 @@ class PolyFunctions
         end
         if item["mikuType"] == "NxTodo" then
             return NxTodos::toString(item)
-        end
-        if item["mikuType"] == "NxTriage" then
-            return NxTriages::toString(item)
         end
         if item["mikuType"] == "TxManualCountDown" then
             return "(countdown) #{item["description"]}: #{item["counter"]}"
@@ -41,9 +35,6 @@ class PolyFunctions
     def self.toStringForListing(item)
         if item["mikuType"] == "NxTimeCommitment" then
             return NxTimeCommitments::toStringWithDetails(item, true)
-        end
-        if item["mikuType"] == "NxTodo" then
-            return item["description"]
         end
         PolyFunctions::toString(item)
     end

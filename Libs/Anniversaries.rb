@@ -170,41 +170,14 @@ class Anniversaries
         end
     end
 
-    # Anniversaries::probe(anniversary)
-    def self.probe(anniversary)
-        loop {
-            actions = ["update description", "update start date", "destroy"]
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
-            return if action.nil?
-            if action == "update description" then
-                description = CommonUtils::editTextSynchronously(anniversary["description"]).strip
-                next if description == ""
-                anniversary["description"] = description
-                TodoDatabase2::commitItem(anniversary)
-            end
-            if action == "update start date" then
-                startdate = CommonUtils::editTextSynchronously(anniversary["startdate"])
-                next if startdate == ""
-                anniversary["startdate"] = startdate
-                TodoDatabase2::commitItem(anniversary)
-            end
-            if action == "destroy" then
-                filepath = "#{Config::pathToDataCenter()}/Anniversaries/#{anniversary["uuid"]}.json"
-                return nil if !File.exist?(filepath)
-                FileUtils.rm(filepath)
-                return
-            end
-        }
-    end
-
-    # Anniversaries::mainprobe()
-    def self.mainprobe()
+    # Anniversaries::dive()
+    def self.dive()
         loop {
             anniversaries = Database2Data::itemsForMikuType("NxAnniversary")
                         .sort{|i1, i2| Anniversaries::nextDateOrdinal(i1)[0] <=> Anniversaries::nextDateOrdinal(i2)[0] }
             anniversary = LucilleCore::selectEntityFromListOfEntitiesOrNull("anniversary", anniversaries, lambda{|item| Anniversaries::toString(item) })
             return if anniversary.nil?
-            Anniversaries::probe(anniversary)
+            PolyActions::touch(anniversary)
         }
     end
 end

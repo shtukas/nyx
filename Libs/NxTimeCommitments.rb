@@ -36,29 +36,4 @@ class NxTimeCommitments
         "(timecommitment) (hours: #{item["hours"]}) #{item["description"]}"
     end
 
-    # --------------------------------------------
-    # Ops
-
-    # NxTimeCommitments::probe(timecommitment)
-    def self.probe(timecommitment)
-        loop {
-            puts NxTimeCommitments::toStringWithDetails(timecommitment, false)
-            actions = ["do not show until", "set hours", "expose"]
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
-            return if action.nil?
-            if action == "do not show until" then
-                unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
-                next if unixtime.nil?
-                DoNotShowUntil::setUnixtime(timecommitment["uuid"], unixtime)
-            end
-            if action == "set hours" then
-                timecommitment["hours"] = LucilleCore::askQuestionAnswerAsString("hours (weekly): ").to_f
-                TodoDatabase2::commitItem(timecommitment)
-            end
-            if action == "expose" then
-                puts JSON.pretty_generate(timecommitment)
-                LucilleCore::pressEnterToContinue()
-            end
-        }
-    end
 end

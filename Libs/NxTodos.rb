@@ -5,8 +5,8 @@ class NxTodos
     # --------------------------------------------------
     # Makers
 
-    # NxTodos::interactivelyIssueNewOrNull()
-    def self.interactivelyIssueNewOrNull()
+    # NxTodos::interactivelyIssueNewRegularOrNull()
+    def self.interactivelyIssueNewRegularOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid  = SecureRandom.uuid
@@ -18,6 +18,82 @@ class NxTodos
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
             "nx113"       => nx113,
+            "field2"      => "regular"
+        }
+        TodoDatabase2::commitItem(item)
+        item
+    end
+
+    # NxTodos::interactivelyIssueNewOndateOrNull()
+    def self.interactivelyIssueNewOndateOrNull()
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
+        uuid  = SecureRandom.uuid
+        nx113 = Nx113Make::interactivelyMakeNx113OrNull()
+        datetime = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NxTodo",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => datetime,
+            "description" => description,
+            "nx113"       => nx113,
+            "field2"      => "ondate"
+        }
+        TodoDatabase2::commitItem(item)
+        item
+    end
+
+    # NxTodos::interactivelyIssueNewTodayOrNull()
+    def self.interactivelyIssueNewTodayOrNull()
+        description = LucilleCore::askQuestionAnswerAsString("today (empty to abort): ")
+        return nil if description == ""
+        uuid  = SecureRandom.uuid
+        nx113 = Nx113Make::interactivelyMakeNx113OrNull()
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NxTodo",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "nx113"       => nx113,
+            "field2"      => "ondate"
+        }
+        TodoDatabase2::commitItem(item)
+        item
+    end
+
+    # NxTodos::viennaUrlForToday(url)
+    def self.viennaUrlForToday(url)
+        description = "(vienna) #{url}"
+        uuid  = SecureRandom.uuid
+        nx113 = Nx113Make::url(url)
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NxTodo",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "nx113"       => nx113,
+            "field2"      => "ondate"
+        }
+        TodoDatabase2::commitItem(item)
+        item
+    end
+
+    # NxTodos::bufferInImport(location)
+    def self.bufferInImport(location)
+        description = File.basename(location)
+        uuid = SecureRandom.uuid
+        nx113 = Nx113Make::aionpoint(location)
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NxTodo",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "nx113"       => nx113,
+            "field2"      => "triage"
         }
         TodoDatabase2::commitItem(item)
         item
@@ -28,8 +104,14 @@ class NxTodos
 
     # NxTodos::toString(item)
     def self.toString(item)
+        flavour = (lambda {|item|
+            return "" if item["field2"] == "regular"
+            return ", ondate #{item["datetime"][0, 10]}" if item["field2"] == "ondate"
+            return ", triage" if item["field2"] == "triage"
+            raise "(error: ca9b365a-2e14-4523-8df9-fe2d6a6dd5f4) #{item}"
+        }).call(item)
         nx113str = Nx113Access::toStringOrNull(" ", item["nx113"], "")
-        "(todo) #{item["description"]}#{nx113str}"
+        "(todo#{flavour}) #{item["description"]}#{nx113str}"
     end
 
     # NxTodos::toStringForSearch(item)
@@ -48,29 +130,16 @@ class NxTodos
         end
     end
 
-    # NxTodos::probe(item)
-    def self.probe(item)
-        loop {
-            system("clear")
-            item = TodoDatabase2::getItemByUUIDOrNull(item["uuid"])
-            puts NxTodos::toString(item)
-            actions = ["access", "update description", "destroy"]
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
-            return if action.nil?
-            if action == "access" then
-                NxTodos::access(item)
-            end
-            if action == "update description" then
-                puts "edit description:"
-                item["description"] = CommonUtils::editTextSynchronously(item["description"])
-                TodoDatabase2::commitItem(item)
-            end
-            if action == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of NxTodo '#{NxTodos::toString(item)}' ? ") then
-                    TodoDatabase2::destroy(item["uuid"])
-                    return
-                end
-            end
-        }
+    # NxTodos::ondateReport()
+    def self.ondateReport()
+        system("clear")
+        puts "ondates:"
+        Database2Data::itemsForMikuType("NxTodo")
+            .select{|item| item["field2"] == "ondate" }
+            .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
+            .each{|item|
+                puts NxTodos::toString(item)
+            }
+        LucilleCore::pressEnterToContinue()
     end
 end

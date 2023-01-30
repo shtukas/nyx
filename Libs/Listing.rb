@@ -5,10 +5,10 @@ class Listing
     # Listing::listingCommands()
     def self.listingCommands()
         [
-            "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | edit (<n>) | expose (<n>) | probe (<n>) | >> skip default | lock (<n>) | destroy",
-            "[makers] wave | anniversary | today | ondate | todo | manual countdown | block",
+            "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | touch (<n>) | expose (<n>) | >> skip default | lock (<n>) | push | destroy",
+            "[makers] anniversary | manual countdown | wave | today | ondate | todo",
             "[divings] anniversaries | ondates | waves | todos",
-            "[NxOndate] redate",
+            "[NxTodo] redate",
             "[NxTimeDrops] start | stop",
             "[misc] search | speed | commands",
         ].join("\n")
@@ -39,6 +39,13 @@ class Listing
             return
         end
 
+        if Interpreting::match(">>", input) then
+            item = store.getDefault()
+            return if item.nil?
+            Skips::skip(item["uuid"], Time.new.to_f + 3600*1.5)
+            return
+        end
+
         if Interpreting::match("access", input) then
             item = store.getDefault()
             return if item.nil?
@@ -60,13 +67,32 @@ class Listing
         end
 
         if Interpreting::match("anniversaries", input) then
-            Anniversaries::mainprobe()
+            Anniversaries::dive()
             return
         end
 
         if Interpreting::match("commands", input) then
             puts Listing::listingCommands().yellow
             LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if Interpreting::match("description", input) then
+            item = store.getDefault()
+            return if item.nil?
+            puts "edit description:"
+            item["description"] = CommonUtils::editTextSynchronously(item["description"])
+            TodoDatabase2::commitItem(item)
+            return
+        end
+
+        if Interpreting::match("description *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            puts "edit description:"
+            item["description"] = CommonUtils::editTextSynchronously(item["description"])
+            TodoDatabase2::commitItem(item)
             return
         end
 
@@ -116,21 +142,6 @@ class Listing
             return
         end
 
-        if Interpreting::match("edit", input) then
-            item = store.getDefault()
-            return if item.nil?
-            PolyActions::edit(item)
-            return
-        end
-
-        if Interpreting::match("edit *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            PolyActions::edit(item)
-            return
-        end
-
         if Interpreting::match("exit", input) then
             exit
         end
@@ -166,38 +177,36 @@ class Listing
         end
 
         if Interpreting::match("ondate", input) then
-            item = NxOndates::interactivelyIssueNewOrNull()
+            item = NxTodos::interactivelyIssueNewOndateOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
             return
         end
 
         if Interpreting::match("ondates", input) then
-            NxOndates::report()
+            NxTodos::ondateReport()
             return
         end
 
-        if Interpreting::match("probe", input) then
+        if Interpreting::match("push", input) then
             item = store.getDefault()
             return if item.nil?
-            PolyActions::probe(item)
-            return
-        end
-
-        if Interpreting::match("probe *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            PolyActions::probe(item)
+            trajectory = Database2Engine::trajectory(Time.new.to_f + 3600*6, 24)
+            TodoDatabase2::set(item["uuid"], "field13", JSON.generate(trajectory))
             return
         end
 
         if Interpreting::match("redate", input) then
             item = store.getDefault()
             return if item.nil?
-            if item["mikuType"] != "NxOndate" then
-                puts "command redate is only for NxOndates"
-                LucilleCore::pressEnterToContinue
+            if item["mikuType"] != "NxTodo" then
+                puts "redate is reserved for NxTodos"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            if item["field2"] != "ondate" then
+                puts "redate is reserved for NxTodos with ondate"
+                LucilleCore::pressEnterToContinue()
                 return
             end
             unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
@@ -260,22 +269,30 @@ class Listing
             return
         end
 
-        if Interpreting::match(">>", input) then
+        if Interpreting::match("touch", input) then
             item = store.getDefault()
             return if item.nil?
-            Skips::skip(item["uuid"], Time.new.to_f + 3600*1.5)
+            PolyActions::touch(item)
+            return
+        end
+
+        if Interpreting::match("touch *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            PolyActions::touch(item)
             return
         end
 
         if Interpreting::match("today", input) then
-            item = NxOndates::interactivelyIssueNewTodayOrNull()
+            item = NxTodos::interactivelyIssueNewTodayOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
             return
         end
 
         if Interpreting::match("todo", input) then
-            item = NxTodos::interactivelyIssueNewOrNull()
+            item = NxTodos::interactivelyIssueNewRegularOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
             return
@@ -312,8 +329,6 @@ class Listing
 
         $SyncConflictInterruptionFilepath = nil
 
-        Database2Engine::activationsForListingOrNothing()
-
         NxTimeDrops::garbageCollection()
 
         Thread.new {
@@ -338,7 +353,7 @@ class Listing
             LucilleCore::locationsAtFolder("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")
                 .each{|location|
                     next if File.basename(location).start_with?(".")
-                    item = NxTriages::bufferInImport(location)
+                    item = NxTodos::bufferInImport(location)
                     puts "Picked up from NxTodos-BufferIn: #{JSON.pretty_generate(item)}"
                     LucilleCore::removeFileSystemLocation(location)
                 }
@@ -352,6 +367,7 @@ class Listing
             vspaceleft = vspaceleft - 2
 
             puts ""
+            vspaceleft = vspaceleft - 1
             drops = Database2Data::itemsForMikuType("NxTimeDrop")
             Database2Data::itemsForMikuType("NxTimeCommitment")
                 .each{|item|
@@ -368,16 +384,14 @@ class Listing
                     puts "(#{store.prefixString()}) #{item["description"].ljust(10)} (left: #{("%5.2f" % hours).to_s.green} hours, out of #{"%5.2f" % item["hours"]})#{str1}"
                     vspaceleft = vspaceleft - 1
                 }
-            vspaceleft = vspaceleft - 3
 
             puts ""
-            puts "> lock | wave | ondate | todo".yellow
+            puts "> access | done | touch | todo | today | ondate | wave | lock | >>".yellow
             vspaceleft = vspaceleft - 2
 
             trajectoryToNumber = lambda{|trajectory|
                 return 0.8 if trajectory.nil?
-                return 0 if Time.new.to_i < trajectory["activationunixtime"]
-                [1, (Time.new.to_i - trajectory["activationunixtime"]).to_f/(trajectory["expectedTimeToCompletionInHours"]*3600)].min
+                (Time.new.to_i - trajectory["activationunixtime"]).to_f/(trajectory["expectedTimeToCompletionInHours"]*3600)
             }
 
             puts ""
@@ -388,12 +402,13 @@ class Listing
                     item["listing:position"] = trajectoryToNumber.call(item["field13"])
                     item
                 }
+                .select{|item| item["listing:position"] > 0 }
                 .sort{|i1, i2| i1["listing:position"] <=> i2["listing:position"] }
                 .reverse
                 .each{|item|
                     next if Listing::isNxTimeDropStoppedAndCompleted(item)
                     store.register(item, !Skips::isSkipped(item) && !Locks::isLocked(item))
-                    line = "(#{store.prefixString()}) #{PolyFunctions::toStringForListing(item)}"
+                    line = "(#{"%5.2f" % item["listing:position"]}) (#{store.prefixString()}) #{PolyFunctions::toStringForListing(item)}"
                     if Locks::isLocked(item) then
                         line = "#{line} [lock: #{item["field8"]}]"
                     end

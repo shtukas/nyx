@@ -271,7 +271,6 @@ class TodoDatabase2ItemObjectsTranslation
         object["field13"] = JSON.parse(object["field13"] || "null")
         if object["mikuType"] == "NxTodo" then
             object["nx113"] = JSON.parse(object["field1"])
-            object["tcId"]  = object["field2"]
             return object
         end
         if object["mikuType"] == "NxAnniversary" then
@@ -292,14 +291,6 @@ class TodoDatabase2ItemObjectsTranslation
             object["date"]                = object["field2"]
             object["counter"]             = object["field3"].to_i
             object["lastUpdatedUnixtime"] = object["field4"].to_i
-            return object
-        end
-        if object["mikuType"] == "NxTriage" then
-            object["nx113"] = JSON.parse(object["field1"])
-            return object
-        end
-        if object["mikuType"] == "NxOndate" then
-            object["nx113"] = JSON.parse(object["field1"])
             return object
         end
         if object["mikuType"] == "NxTimeCommitment" then
@@ -325,7 +316,6 @@ class TodoDatabase2ItemObjectsTranslation
         item["field7"] = (item["field7"] || 0).to_f
         if item["mikuType"] == "NxTodo" then
             item["field1"] = JSON.generate(item["nx113"])
-            item["field2"] = item["tcId"]
             return item
         end
         if item["mikuType"] == "NxAnniversary" then
@@ -346,14 +336,6 @@ class TodoDatabase2ItemObjectsTranslation
             item["field2"] = item["date"]
             item["field3"] = item["counter"]
             item["field4"] = item["lastUpdatedUnixtime"]
-            return item
-        end
-        if item["mikuType"] == "NxTriage" then
-            item["field1"] = JSON.generate(item["nx113"])
-            return item
-        end
-        if item["mikuType"] == "NxOndate" then
-            item["field1"] = JSON.generate(item["nx113"])
             return item
         end
         if item["mikuType"] == "NxTimeCommitment" then
@@ -403,7 +385,7 @@ class Database2Data
 
     # Database2Data::itemIsListed(item)
     def self.itemIsListed(item)
-        TodoDatabase2::getOrNull(item["uuid"], "field12") == "true"
+        item["field12"] == "true"
     end
 end
 
@@ -434,19 +416,39 @@ class Database2Engine
                 next if !DoNotShowUntil::isVisible(item)
                 Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_f, 6))
             }
-        Database2Data::itemsForMikuType("NxTriage")
+
+        Database2Data::itemsForMikuType("NxTodo")
             .each{|item|
                 next if Database2Data::itemIsListed(item)
                 next if !DoNotShowUntil::isVisible(item)
+                next if item["field2"] != "ondate"
+                next if Time.new.to_s[0, 10] < item["datetime"][0, 10]
+                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_f, 6))
+            }
+
+        Database2Data::itemsForMikuType("NxTodo")
+            .each{|item|
+                next if Database2Data::itemIsListed(item)
+                next if !DoNotShowUntil::isVisible(item)
+                next if item["field2"] != "triage"
                 Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_f, 24))
             }
 
-        NxOndates::listingItems()
-            .each{|item|
-                next if Database2Data::itemIsListed(item)
-                next if !DoNotShowUntil::isVisible(item)
-                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_f, 6))
-            }
+        listedTodoSize = lambda {
+            Database2Data::listingItems()
+                .select{|item| item["mikuType"] == "NxTodo" }
+                .size
+        }
+        if listedTodoSize.call() < 6 then
+            item = Database2Data::itemsForMikuType("NxTodo")
+                        .select{|item| !Database2Data::itemIsListed(item) }
+                        .select{|item| DoNotShowUntil::isVisible(item) }
+                        .select{|item| item["field2"] == "regular" }
+                        .sample
+            if item then
+                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_f, 48))
+            end
+        end
 
         TxManualCountDowns::listingItems()
             .each{|item|

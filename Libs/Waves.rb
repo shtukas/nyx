@@ -190,7 +190,7 @@ class Waves
             items = Database2Data::itemsForMikuType("Wave").sort{|w1, w2| w1["description"] <=> w2["description"] }
             wave = LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", items, lambda{|wave| wave["description"] })
             return if wave.nil?
-            Waves::probe(wave)
+            PolyActions::touch(wave)
         }
     end
 
@@ -200,44 +200,5 @@ class Waves
         if item["nx113"] then
             Nx113Access::access(item["nx113"])
         end
-    end
-
-    # Waves::probe(item)
-    def self.probe(item)
-        loop {
-            item = TodoDatabase2::getItemByUUIDOrNull(item["uuid"])
-            puts Waves::toString(item)
-            actions = ["access", "update description", "update wave pattern", "perform done", "set days of the week", "destroy"]
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
-            return if action.nil?
-            if action == "access" then
-                Waves::access(item)
-            end
-            if action == "update description" then
-                item["description"] = CommonUtils::editTextSynchronously(item["description"])
-                TodoDatabase2::commitItem(item)
-                next
-            end
-            if action == "update wave pattern" then
-                item["nx46"] = Waves::makeNx46InteractivelyOrNull()
-                TodoDatabase2::commitItem(item)
-                next
-            end
-            if action == "perform done" then
-                Waves::performWaveNx46WaveDone(item)
-                next
-            end
-            if action == "set days of the week" then
-                days, _ = CommonUtils::interactivelySelectSomeDaysOfTheWeekLowercaseEnglish()
-                item["onlyOnDays"] = days
-                TodoDatabase2::commitItem(item)
-            end
-            if action == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of '#{Waves::toString(item)}' ? ") then
-                    Waves::destroy(item["uuid"])
-                end
-                return
-            end
-        }
     end
 end

@@ -182,26 +182,10 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
             FileSystemCheck::fsck_Nx113(item["nx113"], verbose)
-            return
-        end
-
-        if mikuType == "NxTriage" then
-            FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
-            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-            FileSystemCheck::ensureAttribute(item, "datetime", "String")
-            FileSystemCheck::ensureAttribute(item, "description", "String")
-            FileSystemCheck::fsck_Nx113(item["nx113"], verbose)
-            return
-        end
-
-        if mikuType == "NxOndate" then
-            FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
-            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-            FileSystemCheck::ensureAttribute(item, "datetime", "String")
-            FileSystemCheck::ensureAttribute(item, "description", "String")
-            FileSystemCheck::fsck_Nx113(item["nx113"], verbose)
+            FileSystemCheck::ensureAttribute(item, "field2", "String")
+            if !["regular", "ondate", "triage"].include?(item["field2"]) then
+                raise "error: #{item["field2"]} is not supported"
+            end
             return
         end
 

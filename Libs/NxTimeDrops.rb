@@ -20,9 +20,10 @@ class NxTimeDrops
 
     # NxTimeDrops::garbageCollection()
     def self.garbageCollection()
-        drops = Database2Data::itemsForMikuType("NxTimeDrop")
         Database2Data::itemsForMikuType("NxTimeCommitment")
             .each{|item|
+
+                drops = Database2Data::itemsForMikuType("NxTimeDrop")
 
                 dropnegative = drops
                                 .select{|drop| drop["field4"] == item["uuid"] }
@@ -45,8 +46,6 @@ class NxTimeDrops
                 sum = droppositive["field1"] + dropnegative["field1"]
                 TodoDatabase2::set(droppositive["uuid"], "field1", sum)
                 TodoDatabase2::destroy(dropnegative["uuid"])
-                exit
             }
     end
-
 end
