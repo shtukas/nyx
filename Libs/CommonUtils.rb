@@ -4,6 +4,15 @@
 class CommonUtils
 
     # ----------------------------------------------------
+    # Array Utilities
+
+    # CommonUtils::putFirst(array, lbd)
+    def self.putFirst(array, lbd)
+        a1, a2 = array.partition{|e| lbd.call(e) }
+        a1 + a2
+    end
+
+    # ----------------------------------------------------
     # String Utilities
 
     # CommonUtils::sanitiseStringForFilenaming(str)

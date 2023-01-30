@@ -308,6 +308,12 @@ class Listing
         true
     end
 
+    # Listing::isPriorityItem(item)
+    def self.isPriorityItem(item)
+        return true if PolyFunctions::toStringForListing(item).include?("sticky")
+        false
+    end
+
     # Listing::mainProgram2Pure()
     def self.mainProgram2Pure()
 
@@ -396,6 +402,8 @@ class Listing
 
             puts ""
             vspaceleft = vspaceleft - 1
+
+            items = 
             Database2Data::listingItems()
                 .select{|item| DoNotShowUntil::isVisible(item) }
                 .map{|item|
@@ -405,6 +413,8 @@ class Listing
                 .select{|item| item["listing:position"] > 0 }
                 .sort{|i1, i2| i1["listing:position"] <=> i2["listing:position"] }
                 .reverse
+
+            CommonUtils::putFirst(items, lambda{|e| Listing::isPriorityItem(e) })
                 .each{|item|
                     next if Listing::isNxTimeDropStoppedAndCompleted(item)
                     store.register(item, !Skips::isSkipped(item) && !Locks::isLocked(item))
