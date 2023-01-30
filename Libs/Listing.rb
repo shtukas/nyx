@@ -315,8 +315,6 @@ class Listing
 
         $SyncConflictInterruptionFilepath = nil
 
-        NxTimeDrops::garbageCollection()
-
         loop {
 
             if CommonUtils::stargateTraceCode() != initialCodeTrace then
@@ -336,6 +334,8 @@ class Listing
                     puts "Picked up from NxTodos-BufferIn: #{JSON.pretty_generate(item)}"
                     LucilleCore::removeFileSystemLocation(location)
                 }
+
+            NxTimeDrops::garbageCollection()
 
             if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("2bf15677-bac8-4467-b7cc-e313113df3a9", 3600) then
                 puts "Database2Engine::listingActivations()"
@@ -410,7 +410,7 @@ class Listing
                     store.register(item, !Skips::isSkipped(item) && !Locks::isLocked(item))
                     line = "(#{store.prefixString()}) (#{"%5.2f" % item["listing:position"]}) #{PolyFunctions::toStringForListing(item)}"
                     if Locks::isLocked(item) then
-                        line = "#{line} [lock: #{item["field8"]}]"
+                        line = "#{line} [lock: #{item["field8"]}]".yellow
                     end
                     if item["mikuType"] == "NxTimeDrop" then
                         if item["field2"] then
