@@ -51,7 +51,7 @@ class NxBalls
         return item if !NxBalls::itemIsBallFree(item)
 
         nxball =
-            if item["mikuType"] == "NxTimeDrop" then
+            if item["mikuType"] == "NxTimeCapsule" then
                 {
                     "type"          => "running",
                     "startunixtime" => Time.new.to_i,

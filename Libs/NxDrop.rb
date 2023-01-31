@@ -97,7 +97,7 @@ class NxDrop
             timespanInHours = (Time.new.to_i - item["runStartUnixtime"]).to_f/3600
             tdrop = {
                 "uuid"         => SecureRandom.uuid,
-                "mikuType"     => "NxTimeDrop",
+                "mikuType"     => "NxTimeCapsule",
                 "unixtime"     => Time.new.to_i,
                 "datetime"     => Time.new.utc.iso8601,
                 "description"  => "automatically generated using: #{item["description"]}",

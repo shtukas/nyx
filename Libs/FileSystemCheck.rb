@@ -194,7 +194,7 @@ class FileSystemCheck
             return
         end
 
-        if mikuType == "NxTimeDrop" then
+        if mikuType == "NxTimeCapsule" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
             FileSystemCheck::ensureAttribute(item, "mikuType", "String")
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")

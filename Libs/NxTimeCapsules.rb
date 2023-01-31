@@ -1,9 +1,9 @@
 
-class NxTimeDrops
+class NxTimeCapsules
 
-    # NxTimeDrops::stop(item)
+    # NxTimeCapsules::stop(item)
     def self.stop(item)
-        raise "(error: b515455a-d9b9-4241-8839-ffe3a42025bd)" if item["mikuType"] != "NxTimeDrop"
+        raise "(error: b515455a-d9b9-4241-8839-ffe3a42025bd)" if item["mikuType"] != "NxTimeCapsule"
         return if item["field2"].nil? # We are not running
         unrealisedTimeInHours = (Time.new.to_i - item["field2"]).to_f/3600
         item["field1"] = item["field1"] - unrealisedTimeInHours # field1 then possibly became negative
@@ -11,12 +11,12 @@ class NxTimeDrops
         TodoDatabase2::commitItem(item)
     end
 
-    # NxTimeDrops::garbageCollection()
+    # NxTimeCapsules::garbageCollection()
     def self.garbageCollection()
         Database2Data::itemsForMikuType("NxTimeCommitment")
             .each{|item|
 
-                drops = Database2Data::itemsForMikuType("NxTimeDrop")
+                drops = Database2Data::itemsForMikuType("NxTimeCapsule")
 
                 dropnegative = drops
                                 .select{|drop| drop["field4"] == item["uuid"] }
@@ -32,7 +32,7 @@ class NxTimeDrops
                                 .first
                 next if droppositive.nil?
 
-                puts "NxTimeDrops::garbageCollection()"
+                puts "NxTimeCapsules::garbageCollection()"
                 puts "Processing: NxTimeCommitment: #{item["description"]}"
                 puts "Found: drop negative (#{dropnegative["uuid"]}): #{dropnegative["field1"]}"
                 puts "Found: drop positive (#{droppositive["uuid"]}): #{droppositive["field1"]}"

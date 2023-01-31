@@ -2,7 +2,7 @@
 Catalyst:
     NxAnniversary    (no payload)
     NxTodo           (Nx113)
-    NxTimeDrop       (no payload)
+    NxTimeCapsule    (no payload)
     TxManualPayload  (no payload)
     Wave             (Nx113)
 

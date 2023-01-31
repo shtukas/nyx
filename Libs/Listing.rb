@@ -10,7 +10,6 @@ class Listing
             "[divings] anniversaries | ondates | waves | todos",
             "[NxBalls] start | start * | stop | stop * | pause | pursue",
             "[NxTodo] redate",
-            "[NxTimeDrops] start | stop",
             "[misc] search | speed | commands",
         ].join("\n")
     end
@@ -331,9 +330,9 @@ class Listing
         end
     end
 
-    # Listing::isNxTimeDropStoppedAndCompleted(item)
-    def self.isNxTimeDropStoppedAndCompleted(item)
-        return false if item["mikuType"] != "NxTimeDrop"
+    # Listing::isNxTimeCapsuleStoppedAndCompleted(item)
+    def self.isNxTimeCapsuleStoppedAndCompleted(item)
+        return false if item["mikuType"] != "NxTimeCapsule"
         return false if item["field2"]     # we are running
         return false if item["field1"] > 0 # we are still positive
         true
@@ -373,7 +372,7 @@ class Listing
                     LucilleCore::removeFileSystemLocation(location)
                 }
 
-            NxTimeDrops::garbageCollection()
+            NxTimeCapsules::garbageCollection()
 
             if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("2bf15677-bac8-4467-b7cc-e313113df3a9", 3600) then
                 puts "Database2Engine::listingActivations()"
@@ -390,7 +389,7 @@ class Listing
 
             puts ""
             vspaceleft = vspaceleft - 1
-            drops = Database2Data::itemsForMikuType("NxTimeDrop")
+            drops = Database2Data::itemsForMikuType("NxTimeCapsule")
             Database2Data::itemsForMikuType("NxTimeCommitment")
                 .each{|item|
                     store.register(item, false)
@@ -448,7 +447,7 @@ class Listing
 
             CommonUtils::putFirst(items, lambda{|e| Listing::isPriorityItem(e) })
                 .each{|item|
-                    next if Listing::isNxTimeDropStoppedAndCompleted(item)
+                    next if Listing::isNxTimeCapsuleStoppedAndCompleted(item)
                     store.register(item, !Skips::isSkipped(item) && !Locks::isLocked(item))
                     line = "(#{store.prefixString()}) (#{"%5.2f" % item["listing:position"]}) #{PolyFunctions::toStringForListing(item)}#{NxBalls::nxballSuffixStatus(item["field9"])}"
                     if Locks::isLocked(item) then

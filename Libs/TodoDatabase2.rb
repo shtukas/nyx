@@ -315,7 +315,7 @@ class TodoDatabase2ItemObjectsTranslation
             object["hours"]     = object["field3"].to_f
             return object
         end
-        if object["mikuType"] == "NxTimeDrop" then
+        if object["mikuType"] == "NxTimeCapsule" then
             object["field1"] = object["field1"].to_f
             return object
         end
@@ -363,7 +363,10 @@ class TodoDatabase2ItemObjectsTranslation
             item["field3"] = item["hours"]
             return item
         end
-        if item["mikuType"] == "NxTimeDrop" then
+        if item["mikuType"] == "NxTimeCapsule" then
+            return item
+        end
+        if item["mikuType"] == "NxTimeCapsule" then
             return item
         end
         puts JSON.pretty_generate(item)
@@ -489,7 +492,7 @@ class Database2Engine
 
         Database2Data::itemsForMikuType("NxTimeCommitment")
             .each{|item|
-                next if Database2Data::itemsForMikuType("NxTimeDrop").select{|drop| drop["field4"] == item["uuid"] }.size > 0
+                next if Database2Data::itemsForMikuType("NxTimeCapsule").select{|drop| drop["field4"] == item["uuid"] }.size > 0
                 next if item["hours"] == 0 # to avoid dividing by zero
 
                 hoursLeft = item["hours"]
@@ -501,7 +504,7 @@ class Database2Engine
                     hoursOne = [hoursLeft, 1].min
                     drop = {
                         "uuid"        => SecureRandom.uuid,
-                        "mikuType"    => "NxTimeDrop",
+                        "mikuType"    => "NxTimeCapsule",
                         "unixtime"    => Time.new.to_i,
                         "datetime"    => Time.new.utc.iso8601,
                         "description" => item["description"],
@@ -520,7 +523,7 @@ class Database2Engine
                 TodoDatabase2::commitItem(item)
             }
 
-        Database2Data::itemsForMikuType("NxTimeDrop")
+        Database2Data::itemsForMikuType("NxTimeCapsule")
             .each{|item|
                 next if Database2Data::itemIsListed(item)
                 next if !DoNotShowUntil::isVisible(item)

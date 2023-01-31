@@ -77,8 +77,8 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxTimeDrop" then
-            puts "You cannot done a NxTimeDrop, only start and stop"
+        if item["mikuType"] == "NxTimeCapsule" then
+            puts "You cannot done a NxTimeCapsule, only start and stop"
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -111,11 +111,11 @@ class PolyActions
     # PolyActions::doubleDot(item)
     def self.doubleDot(item)
 
-        if item["mikuType"] == "NxTimeDrop" then
+        if item["mikuType"] == "NxTimeCapsule" then
             if item["field2"] then
-                NxTimeDrops::stop(item)
+                NxTimeCapsules::stop(item)
             else
-                NxTimeDrops::start(item)
+                NxTimeCapsules::start(item)
             end
             return
         end
@@ -185,7 +185,7 @@ class PolyActions
                     timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
                     drop = {
                         "uuid"        => SecureRandom.uuid,
-                        "mikuType"    => "NxTimeDrop",
+                        "mikuType"    => "NxTimeCapsule",
                         "unixtime"    => Time.new.to_i,
                         "datetime"    => Time.new.utc.iso8601,
                         "description" => "TimeDrop for #{item["description"]}",
@@ -243,7 +243,7 @@ class PolyActions
         if tcId then
             drop = {
                 "uuid"        => SecureRandom.uuid,
-                "mikuType"    => "NxTimeDrop",
+                "mikuType"    => "NxTimeCapsule",
                 "unixtime"    => Time.new.to_i,
                 "datetime"    => Time.new.utc.iso8601,
                 "description" => "nxball secondary",
@@ -262,7 +262,7 @@ class PolyActions
         if tcId then
             drop = {
                 "uuid"        => SecureRandom.uuid,
-                "mikuType"    => "NxTimeDrop",
+                "mikuType"    => "NxTimeCapsule",
                 "unixtime"    => Time.new.to_i,
                 "datetime"    => Time.new.utc.iso8601,
                 "description" => "nxball secondary",
