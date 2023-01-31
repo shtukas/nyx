@@ -112,10 +112,10 @@ class PolyActions
     def self.doubleDot(item)
 
         if item["mikuType"] == "NxTimeCapsule" then
-            if item["field2"] then
-                NxTimeCapsules::stop(item)
+            if NxBalls::itemIsRunning(item) then
+                NxBalls::stop(item)
             else
-                NxTimeCapsules::start(item)
+                NxBalls::start(item)
             end
             return
         end
@@ -188,7 +188,7 @@ class PolyActions
                         "mikuType"    => "NxTimeCapsule",
                         "unixtime"    => Time.new.to_i,
                         "datetime"    => Time.new.utc.iso8601,
-                        "description" => "TimeDrop for #{item["description"]}",
+                        "description" => "capsule for #{item["description"]}",
                         "field1"      => -timeInHours,
                         "field2"      => nil,
                         "field4"      => item["uuid"]

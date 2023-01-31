@@ -16,7 +16,7 @@ class NxTimeCommitments
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
             "resetTime"   => 0,
-            "hours"       => hours
+            "field3"      => hours
         }
         FileSystemCheck::fsck_NxTimeCommitment(item, true)
         TodoDatabase2::commitItem(item)
@@ -33,7 +33,7 @@ class NxTimeCommitments
 
     # NxTimeCommitments::toStringWithDetails(item, shouldFormat)
     def self.toStringWithDetails(item, shouldFormat)
-        "(tc) (hours: #{item["hours"]}) #{item["description"]}"
+        "(tc) (hours: #{item["field3"]}) #{item["description"]}"
     end
 
     # NxTimeCommitments::interactivelySelectOneOrNull()

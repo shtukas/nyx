@@ -5,7 +5,5 @@ NxTimeCapsule:
     "unixtime"     : Float
     "datetime"     : DateTime Iso 8601 UTC Zulu
     "description"  : String
-    "field1"       : Float, load in hours, we remove from it, so it's algebraic [1]
+    "field1"       : Float, algebraic load in hours
     "field4"       : reference time commitment uuid
-
-[1] When it becomes negative, we sum it with another one.

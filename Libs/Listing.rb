@@ -403,7 +403,7 @@ class Listing
                         else
                             " (late by #{(sinceResetInDays - 7).round(2)} days)"
                         end
-                    puts "(#{store.prefixString()}) #{item["description"].ljust(10)} (left: #{("%5.2f" % hours).to_s.green} hours, out of #{"%5.2f" % item["hours"]})#{str1}"
+                    puts "(#{store.prefixString()}) #{item["description"].ljust(10)} (left: #{("%5.2f" % hours).to_s.green} hours, out of #{"%5.2f" % item["field3"]})#{str1}"
                     vspaceleft = vspaceleft - 1
                 }
 

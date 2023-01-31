@@ -115,7 +115,7 @@ class FileSystemCheck
         FileSystemCheck::ensureAttribute(item, "datetime", "String")
         FileSystemCheck::ensureAttribute(item, "description", "String")
         FileSystemCheck::ensureAttribute(item, "resetTime", "Number")
-        FileSystemCheck::ensureAttribute(item, "hours", "Number")
+        FileSystemCheck::ensureAttribute(item, "field3", "Number")
     end
 
     # FileSystemCheck::fsck_NxNode(item, verbose)

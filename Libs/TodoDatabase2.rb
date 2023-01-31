@@ -312,7 +312,7 @@ class TodoDatabase2ItemObjectsTranslation
         end
         if object["mikuType"] == "NxTimeCommitment" then
             object["resetTime"] = object["field2"].to_i
-            object["hours"]     = object["field3"].to_f
+            object["field3"]    = object["field3"].to_f
             return object
         end
         if object["mikuType"] == "NxTimeCapsule" then
@@ -360,7 +360,6 @@ class TodoDatabase2ItemObjectsTranslation
         end
         if item["mikuType"] == "NxTimeCommitment" then
             item["field2"] = item["resetTime"]
-            item["field3"] = item["hours"]
             return item
         end
         if item["mikuType"] == "NxTimeCapsule" then
@@ -493,30 +492,21 @@ class Database2Engine
         Database2Data::itemsForMikuType("NxTimeCommitment")
             .each{|item|
                 next if Database2Data::itemsForMikuType("NxTimeCapsule").select{|drop| drop["field4"] == item["uuid"] }.size > 0
-                next if item["hours"] == 0 # to avoid dividing by zero
 
-                hoursLeft = item["hours"]
-                spread    = 24*6.to_f/(item["hours"])
-                indx      = -1 # This causes the first value of { Time.new.to_i + indx*spread } to be now.
-
-                while hoursLeft > 0 do
-                    indx = indx + 1
-                    hoursOne = [hoursLeft, 1].min
+                (0..6).each{|indx|
                     drop = {
                         "uuid"        => SecureRandom.uuid,
                         "mikuType"    => "NxTimeCapsule",
                         "unixtime"    => Time.new.to_i,
                         "datetime"    => Time.new.utc.iso8601,
                         "description" => item["description"],
-                        "field1"      => hoursOne,
-                        "field2"      => nil,
+                        "field1"      => item["field3"].to_f/7,
                         "field4"      => item["uuid"]
                     }
                     puts JSON.pretty_generate(drop)
                     TodoDatabase2::commitItem(drop)
-                    Database2Engine::activateItemForListing(drop, Database2Engine::trajectory(Time.new.to_f + indx*spread, 24))
-                    hoursLeft = hoursLeft - hoursOne
-                end
+                    Database2Engine::activateItemForListing(drop, Database2Engine::trajectory(Time.new.to_f + indx*86400, 24))
+                }
 
                 item["resetTime"] = Time.new.to_i
 
