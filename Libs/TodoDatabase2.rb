@@ -480,10 +480,8 @@ class Database2Engine
             }
 
         Database2Data::itemsForMikuType("Wave")
-            .select{|item| 
-                (item["onlyOnDays"].nil? or item["onlyOnDays"].include?(CommonUtils::todayAsLowercaseEnglishWeekDayName()))
-            }
             .each{|item|
+                next if (item["onlyOnDays"] and !item["onlyOnDays"].include?(CommonUtils::todayAsLowercaseEnglishWeekDayName()))
                 next if Database2Data::itemIsListed(item)
                 next if !DoNotShowUntil::isVisible(item)
                 Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_f, 18))
@@ -517,7 +515,7 @@ class Database2Engine
             .each{|item|
                 next if Database2Data::itemIsListed(item)
                 next if !DoNotShowUntil::isVisible(item)
-                # Time drops are issued by NxTimeCommitment, and they are actived then
+                # Time drops are issued by NxTimeCommitment, and are actived at that moment
                 # This exists in case we create one manually.
                 Database2Engine::activateItemForListing(item)
             }
@@ -526,8 +524,7 @@ class Database2Engine
     # Database2Engine::trajectory(activationunixtime, expectedTimeToCompletionInHours)
     def self.trajectory(activationunixtime, expectedTimeToCompletionInHours)
         {
-            "activationunixtime" => activationunixtime,
-            "activationdatetime" => Time.at(activationunixtime).to_s,
+            "activationunixtime"              => activationunixtime,
             "expectedTimeToCompletionInHours" => expectedTimeToCompletionInHours
         }
     end
