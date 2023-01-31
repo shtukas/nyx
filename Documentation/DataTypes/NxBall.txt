@@ -1,0 +1,13 @@
+NxBall
+{
+    "type"          : "running"
+    "startunixtime" : Unixtime
+    "tcId"          : null or String
+    "tcName"        : null or String  
+    "sequencestart" : null or Unixtime
+}
+{
+    "type"          : "paused"
+    "tcId"          : null or String
+    "tcName"        : null or String
+}

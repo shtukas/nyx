@@ -8,6 +8,7 @@ class Listing
             "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | landing (<n>) | expose (<n>) | >> skip default | lock (<n>) | push | destroy",
             "[makers] anniversary | manual countdown | wave | today | ondate | todo | drop",
             "[divings] anniversaries | ondates | waves | todos",
+            "[NxBalls] start | start * | stop | stop * | pause | pursue",
             "[NxTodo] redate",
             "[NxTimeDrops] start | stop",
             "[misc] search | speed | commands",
@@ -197,6 +198,36 @@ class Listing
             return if item.nil?
             trajectory = Database2Engine::trajectory(Time.new.to_f + 3600*6, 24)
             TodoDatabase2::set(item["uuid"], "field13", JSON.generate(trajectory))
+            return
+        end
+
+        if Interpreting::match("pause", input) then
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::pause(item)
+            return
+        end
+
+        if Interpreting::match("pause *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            PolyActions::pause(item)
+            return
+        end
+
+        if Interpreting::match("pursue", input) then
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::pursue(item)
+            return
+        end
+
+        if Interpreting::match("pursue *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            PolyActions::pursue(item)
             return
         end
 
@@ -418,15 +449,12 @@ class Listing
                 .each{|item|
                     next if Listing::isNxTimeDropStoppedAndCompleted(item)
                     store.register(item, !Skips::isSkipped(item) && !Locks::isLocked(item))
-                    line = "(#{store.prefixString()}) (#{"%5.2f" % item["listing:position"]}) #{PolyFunctions::toStringForListing(item)}"
+                    line = "(#{store.prefixString()}) (#{"%5.2f" % item["listing:position"]}) #{PolyFunctions::toStringForListing(item)}#{NxBalls::nxballSuffixStatus(item["field9"])}"
                     if Locks::isLocked(item) then
                         line = "#{line} [lock: #{item["field8"]}]".yellow
                     end
-                    if item["mikuType"] == "NxTimeDrop" then
-                        if item["field2"] then
-                            runningFor = (Time.new.to_i - item["field2"]).to_f/3600
-                            line = "#{line} (running for #{runningFor.round(2)} hours)".green
-                        end
+                    if NxBalls::itemIsRunning(item) or NxBalls::itemIsPaused(item) then
+                        line = line.green
                     end
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)

@@ -18,7 +18,7 @@ Type:
     "field7"         : string used as float, unixtime, skipped until
     "field8"         : string lockname # string
 
-    "field9"         : string (not used)
+    "field9"         : string (null | "") or NxBall, json encoded
 
     "field10"        : string (not used)
     "field11"        : string (not used)

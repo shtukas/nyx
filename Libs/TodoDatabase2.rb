@@ -268,7 +268,24 @@ class TodoDatabase2ItemObjectsTranslation
 
     # TodoDatabase2ItemObjectsTranslation::databaseObjectToItem(object)
     def self.databaseObjectToItem(object)
+
+        # ------------------------------------
+        # field9, NxBalls
+
+        if object["field9"] == "" then
+            object["field9"] = nil
+        end
+        if object["field9"] then
+            object["field9"] = JSON.parse(object["field9"])
+        end
+
+        # ------------------------------------
+        # field9, NxBalls
+
         object["field13"] = JSON.parse(object["field13"] || "null")
+
+        # ------------------------------------
+
         if object["mikuType"] == "NxTodo" then
             object["nx113"] = JSON.parse(object["field1"])
             return object
@@ -300,10 +317,6 @@ class TodoDatabase2ItemObjectsTranslation
         end
         if object["mikuType"] == "NxTimeDrop" then
             object["field1"] = object["field1"].to_f
-            object["field2"] = object["field2"].to_f
-            if object["field2"] == 0 then
-                object["field2"] = nil
-            end
             return object
         end
         puts JSON.pretty_generate(object)
@@ -312,8 +325,15 @@ class TodoDatabase2ItemObjectsTranslation
 
     # TodoDatabase2ItemObjectsTranslation::itemToDatabaseObject(item)
     def self.itemToDatabaseObject(item)
-        item["field13"] = JSON.generate(item["field13"])
+
         item["field7"] = (item["field7"] || 0).to_f
+
+        if item["field9"] then
+            item["field9"] = JSON.generate(item["field9"])
+        end
+
+        item["field13"] = JSON.generate(item["field13"])
+
         if item["mikuType"] == "NxTodo" then
             item["field1"] = JSON.generate(item["nx113"])
             return item

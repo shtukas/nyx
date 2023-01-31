@@ -233,29 +233,51 @@ class PolyActions
 
     # PolyActions::start(item)
     def self.start(item)
-        if item["mikuType"] == "NxTimeDrop" then
-            NxTimeDrops::start(item)
-            return
-        end
-        if item["mikuType"] == "NxDrop" then
-            NxDrop::start(item)
-            return
-        end
-        puts "start is only defined for NxTimeDrop and NxDrop"
-        LucilleCore::pressEnterToContinue()
+        item = NxBalls::start(item)
+        TodoDatabase2::commitItem(item)
     end
 
     # PolyActions::stop(item)
     def self.stop(item)
-        if item["mikuType"] == "NxTimeDrop" then
-            NxTimeDrops::stop(item)
-            return
+        item, timespanInSeconds, tcId = NxBalls::stop(item)
+        if tcId then
+            drop = {
+                "uuid"        => SecureRandom.uuid,
+                "mikuType"    => "NxTimeDrop",
+                "unixtime"    => Time.new.to_i,
+                "datetime"    => Time.new.utc.iso8601,
+                "description" => "nxball secondary",
+                "field1"      => -timespanInSeconds.to_f/3600,
+                "field4"      => tcId
+            }
+            puts JSON.pretty_generate(drop)
+            TodoDatabase2::commitItem(drop)
         end
-        if item["mikuType"] == "NxDrop" then
-            NxDrop::stop(item)
-            return
+        TodoDatabase2::commitItem(item)
+    end
+
+    # PolyActions::pause(item)
+    def self.pause(item)
+        item, timespanInSeconds, tcId = NxBalls::pause(item)
+        if tcId then
+            drop = {
+                "uuid"        => SecureRandom.uuid,
+                "mikuType"    => "NxTimeDrop",
+                "unixtime"    => Time.new.to_i,
+                "datetime"    => Time.new.utc.iso8601,
+                "description" => "nxball secondary",
+                "field1"      => -timespanInSeconds.to_f/3600,
+                "field4"      => tcId
+            }
+            puts JSON.pretty_generate(drop)
+            TodoDatabase2::commitItem(drop)
         end
-        puts "stop is only defined for NxTimeDrop and NxDrop"
-        LucilleCore::pressEnterToContinue()
+        TodoDatabase2::commitItem(item)
+    end
+
+    # PolyActions::pursue(item)
+    def self.pursue(item)
+        item = NxBalls::pursue(item)
+        TodoDatabase2::commitItem(item)
     end
 end

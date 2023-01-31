@@ -175,6 +175,7 @@ require_relative "NxTimeCommitments.rb"
 require_relative "NxTimeDrops.rb"
 require_relative "NyxNodePayloads.rb"
 require_relative "NxDrop.rb"
+require_relative "NxBalls.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"
