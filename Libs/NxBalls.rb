@@ -49,7 +49,20 @@ class NxBalls
     # NxBalls::start(item) # item
     def self.start(item)
         return item if !NxBalls::itemIsBallFree(item)
-        nxball = NxBalls::makeNxBall()
+
+        nxball =
+            if item["mikuType"] == "NxTimeDrop" then
+                {
+                    "type"          => "running",
+                    "startunixtime" => Time.new.to_i,
+                    "tcId"          => item["field4"],
+                    "tcName"        => item["description"],
+                    "sequencestart" => nil
+                }
+            else
+                NxBalls::makeNxBall()
+            end
+
         item["field9"] = nxball
         item
     end

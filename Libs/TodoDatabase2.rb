@@ -504,7 +504,7 @@ class Database2Engine
                         "mikuType"    => "NxTimeDrop",
                         "unixtime"    => Time.new.to_i,
                         "datetime"    => Time.new.utc.iso8601,
-                        "description" => "TimeDrop for #{item["description"]}",
+                        "description" => item["description"],
                         "field1"      => hoursOne,
                         "field2"      => nil,
                         "field4"      => item["uuid"]
