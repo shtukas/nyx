@@ -7,10 +7,12 @@ Issuing another storage unit corresponds to a different reference being generate
 
 We have 4 kinds of payload
 
-    - null (when the node doesn't have one, for instance navigation nodes)
+    - "null" (when the node doesn't have one, for instance navigation nodes)
 
-    - "nyx-directory"
-      The directory Id is the uuid of the node and the name of the directory in { Galaxy/Nyx/Directories }
+    - "nyx-directory:{directoryId}"
+      The directory Id is the name of the directory in { Galaxy/Nyx/Directories }
+
+    - unique-string:#{uniquestring}
 
 
 -- (ignore below) ---------------------------------------------
