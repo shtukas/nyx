@@ -6,7 +6,7 @@ class Listing
     def self.listingCommands()
         [
             "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | landing (<n>) | expose (<n>) | >> skip default | lock (<n>) | push | destroy",
-            "[makers] anniversary | manual countdown | wave | today | ondate | todo | drop",
+            "[makers] anniversary | manual countdown | wave | today | ondate | todo | drop | top",
             "[divings] anniversaries | ondates | waves | todos",
             "[NxBalls] start | start * | stop | stop * | pause | pursue",
             "[NxTodo] redate",
@@ -167,6 +167,21 @@ class Listing
             return
         end
 
+        if Interpreting::match("landing", input) then
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::landing(item)
+            return
+        end
+
+        if Interpreting::match("landing *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            PolyActions::landing(item)
+            return
+        end
+
         if Interpreting::match("lock", input) then
             item = store.getDefault()
             return if item.nil?
@@ -285,19 +300,8 @@ class Listing
             return
         end
 
-        if Interpreting::match("landing", input) then
-            item = store.getDefault()
-            return if item.nil?
-            PolyActions::landing(item)
-            return
-        end
-
-        if Interpreting::match("landing *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            PolyActions::landing(item)
-            return
+        if Interpreting::match("top", input) then
+            NxTop::issue()
         end
 
         if Interpreting::match("today", input) then
