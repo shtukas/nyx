@@ -41,4 +41,20 @@ class NxTimeCommitments
         items = Database2Data::itemsForMikuType("NxTimeCommitment")
         LucilleCore::selectEntityFromListOfEntitiesOrNull("time commitment", items, lambda{|item| NxTimeCommitments::toString(item) })
     end
+
+    # NxTimeCommitments::toStringForListing(store, item)
+    def self.toStringForListing(store, item)
+        capsule = Database2Data::itemsForMikuType("NxTimeCapsule")
+        hours = capsule.select{|drop| drop["field4"] == item["uuid"] }.map{|drop| drop["field1"] }.inject(0, :+)
+        sinceResetInSeconds = Time.new.to_i - item["resetTime"]
+        sinceResetInDays = sinceResetInSeconds.to_f/86400
+        str1 =
+            if sinceResetInDays < 7 then
+                daysLeft = 7 - sinceResetInDays
+                " (#{"%4.2f" % daysLeft} days left, #{"%4.2f" % (hours.to_f/daysLeft)} hours per day)"
+            else
+                " (late by #{(sinceResetInDays - 7).round(2)} days)"
+            end
+        "(#{store.prefixString()}) #{item["description"].ljust(10)} (left: #{("%5.2f" % hours).to_s.green} hours, out of #{"%5.2f" % item["field3"]})#{str1}"
+    end
 end

@@ -389,21 +389,11 @@ class Listing
 
             puts ""
             vspaceleft = vspaceleft - 1
-            drops = Database2Data::itemsForMikuType("NxTimeCapsule")
+            
             Database2Data::itemsForMikuType("NxTimeCommitment")
                 .each{|item|
                     store.register(item, false)
-                    hours = drops.select{|drop| drop["field4"] == item["uuid"] }.map{|drop| drop["field1"] }.inject(0, :+)
-                    sinceResetInSeconds = Time.new.to_i - item["resetTime"]
-                    sinceResetInDays = sinceResetInSeconds.to_f/86400
-                    str1 = 
-                        if sinceResetInDays < 7 then
-                            daysLeft = 7 - sinceResetInDays
-                            " (#{"%4.2f" % daysLeft} days left, #{"%4.2f" % (hours.to_f/daysLeft)} hours per day)"
-                        else
-                            " (late by #{(sinceResetInDays - 7).round(2)} days)"
-                        end
-                    puts "(#{store.prefixString()}) #{item["description"].ljust(10)} (left: #{("%5.2f" % hours).to_s.green} hours, out of #{"%5.2f" % item["field3"]})#{str1}"
+                    puts NxTimeCommitments::toStringForListing(store, item)
                     vspaceleft = vspaceleft - 1
                 }
 
