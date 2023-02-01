@@ -143,7 +143,7 @@ class Listing
         end
 
         if Interpreting::match("drop", input) then
-            NxDrop::issue()
+            NxDrops::issue()
         end
 
         if Interpreting::match("exit", input) then
@@ -301,7 +301,7 @@ class Listing
         end
 
         if Interpreting::match("top", input) then
-            NxTop::issue()
+            NxTops::issue()
         end
 
         if Interpreting::match("today", input) then
@@ -405,13 +405,13 @@ class Listing
             puts "> drop | todo | today | ondate | wave | access | done | landing | lock | >>".yellow
             vspaceleft = vspaceleft - 2
 
-            drops = NxDrop::drops()
-            if drops.size > 0 then
+            tops = NxTops::tops()
+            if tops.size > 0 then
                 puts ""
                 vspaceleft = vspaceleft - 1
-                drops.each{|item|
+                tops.each{|item|
                     store.register(item, false)
-                    line = "(#{store.prefixString()}) #{NxDrop::toString(item)}"
+                    line = "(#{store.prefixString()}) #{NxDrops::toString(item)}"
                     if line. include?("running") then
                         line = line.green
                     end
@@ -428,8 +428,8 @@ class Listing
             puts ""
             vspaceleft = vspaceleft - 1
 
-            items = 
-            Database2Data::listingItems()
+            items =
+            (Database2Data::listingItems() + NxDrops::drops())
                 .select{|item| DoNotShowUntil::isVisible(item) }
                 .map{|item|
                     item["listing:position"] = trajectoryToNumber.call(item["field13"])

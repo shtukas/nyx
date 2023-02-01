@@ -1,19 +1,19 @@
 
-class NxDrop
+class NxDrops
 
-    # NxDrop::directory()
+    # NxDrops::directory()
     def self.directory()
         "#{Config::pathToDataCenter()}/NxDrops"
     end
 
-    # NxDrop::filepaths()
+    # NxDrops::filepaths()
     def self.filepaths()
-        LucilleCore::locationsAtFolder(NxDrop::directory()).select{|filepath| filepath[-5, 5] == ".json" }
+        LucilleCore::locationsAtFolder(NxDrops::directory()).select{|filepath| filepath[-5, 5] == ".json" }
     end
 
-    # NxDrop::filepathsForUUID(uuid)
+    # NxDrops::filepathsForUUID(uuid)
     def self.filepathsForUUID(uuid)
-        NxDrop::filepaths()
+        NxDrops::filepaths()
             .select{|filepath|
                 (lambda{
                     item = JSON.parse(IO.read(filepath))
@@ -23,9 +23,9 @@ class NxDrop
             }
     end
 
-    # NxDrop::filepathOrNull(uuid)
+    # NxDrops::filepathOrNull(uuid)
     def self.filepathOrNull(uuid)
-        filepaths = NxDrop::filepathsForUUID(uuid)
+        filepaths = NxDrops::filepathsForUUID(uuid)
         return nil if filepaths.size == 0
         return filepaths.first if filepaths.size == 1
         filepath = filepaths.first
@@ -33,22 +33,22 @@ class NxDrop
         filepath
     end
 
-    # NxDrop::getItemByUUIDOrNull(uuid)
+    # NxDrops::getItemByUUIDOrNull(uuid)
     def self.getItemByUUIDOrNull(uuid)
-        filepath = NxDrop::filepathOrNull(uuid)
+        filepath = NxDrops::filepathOrNull(uuid)
         return nil if filepath.nil?
         JSON.parse(IO.read(filepath))
     end
 
-    # NxDrop::commit(item)
+    # NxDrops::commit(item)
     def self.commit(item)
-        filepaths = NxDrop::filepathsForUUID(item["uuid"])
-        filepath = "#{NxDrop::directory()}/#{(1000*Time.new.to_f).to_i.to_s}.json"
+        filepaths = NxDrops::filepathsForUUID(item["uuid"])
+        filepath = "#{NxDrops::directory()}/#{(1000*Time.new.to_f).to_i.to_s}.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
         filepaths.each{|fp| FileUtils.rm(fp) }
     end
 
-    # NxDrop::issue()
+    # NxDrops::issue()
     def self.issue()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return if description == ""
@@ -62,35 +62,36 @@ class NxDrop
             "description"   => description,
             "tcId"             => tc ? tc["uuid"] : nil,
             "tcName"           => tc ? tc["description"] : nil,
-            "runStartUnixtime" => nil
+            "runStartUnixtime" => nil,
+            "field13"       => Database2Engine::trajectory(Time.new.to_f, 48)
         }
         puts JSON.pretty_generate(item)
-        NxDrop::commit(item)
+        NxDrops::commit(item)
     end
 
-    # NxDrop::drops()
+    # NxDrops::drops()
     def self.drops()
-        NxDrop::filepaths().map{|filepath| JSON.parse(IO.read(filepath)) }
+        NxDrops::filepaths().map{|filepath| JSON.parse(IO.read(filepath)) }
     end
 
-    # NxDrop::toString(item)
+    # NxDrops::toString(item)
     def self.toString(item)
         namex = item["tcName"] ? " (tc: #{item["tcName"]})" : ""
         runningx = item["runStartUnixtime"] ? " (running for #{((Time.new.to_i - item["runStartUnixtime"]).to_f/3600).round(2)} hours)" : ""
         "(drop) #{item["description"]}#{namex}#{runningx}"
     end
 
-    # NxDrop::start(item)
+    # NxDrops::start(item)
     def self.start(item)
-        item = NxDrop::getItemByUUIDOrNull(item["uuid"])
+        item = NxDrops::getItemByUUIDOrNull(item["uuid"])
         return if item.nil?
         return if item["runStartUnixtime"] # already running
         item["runStartUnixtime"] = Time.new.to_i
         puts JSON.pretty_generate(item)
-        NxDrop::commit(item)
+        NxDrops::commit(item)
     end
 
-    # NxDrop::stop(item)
+    # NxDrops::stop(item)
     def self.stop(item)
         return if item["runStartUnixtime"].nil?
         if item["tcId"] then
@@ -110,11 +111,11 @@ class NxDrop
         end
         item["runStartUnixtime"] = nil?
         puts JSON.pretty_generate(item)
-        NxDrop::commit(item)
+        NxDrops::commit(item)
     end
 
-    # NxDrop::destroy(uuid)
+    # NxDrops::destroy(uuid)
     def self.destroy(uuid)
-        NxDrop::filepathsForUUID(uuid).each{|fp| FileUtils.rm(fp) }
+        NxDrops::filepathsForUUID(uuid).each{|fp| FileUtils.rm(fp) }
     end
 end

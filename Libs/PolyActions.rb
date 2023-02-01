@@ -72,8 +72,8 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxDrop" then
-            NxDrop::stop(item)
-            NxDrop::destroy(item["uuid"])
+            NxDrops::stop(item)
+            NxDrops::destroy(item["uuid"])
             return
         end
 

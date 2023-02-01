@@ -9,6 +9,9 @@ class PolyFunctions
         if item["mikuType"] == "NxAnniversary" then
             return Anniversaries::toString(item)
         end
+        if item["mikuType"] == "NxDrop" then
+            return NxDrops::toString(item)
+        end
         if item["mikuType"] == "NxNode" then
             return NxNodes::toString(item)
         end
@@ -20,6 +23,9 @@ class PolyFunctions
         end
         if item["mikuType"] == "NxTodo" then
             return NxTodos::toString(item)
+        end
+        if item["mikuType"] == "NxTop" then
+            return NxTops::toString(item)
         end
         if item["mikuType"] == "TxManualCountDown" then
             return "(countdown) #{item["description"]}: #{item["counter"]}"
