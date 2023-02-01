@@ -517,7 +517,7 @@ class Database2Engine
                 next if !DoNotShowUntil::isVisible(item)
                 # Time drops are issued by NxTimeCommitment, and are actived at that moment
                 # This exists in case we create one manually.
-                Database2Engine::activateItemForListing(item)
+                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_f, 24))
             }
     end
 
