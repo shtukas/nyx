@@ -80,39 +80,6 @@ class NxTops
         "(top) #{item["description"]}#{namex}#{runningx}"
     end
 
-    # NxTops::start(item)
-    def self.start(item)
-        item = NxTops::getItemByUUIDOrNull(item["uuid"])
-        return if item.nil?
-        return if item["runStartUnixtime"] # already running
-        item["runStartUnixtime"] = Time.new.to_i
-        puts JSON.pretty_generate(item)
-        NxTops::commit(item)
-    end
-
-    # NxTops::stop(item)
-    def self.stop(item)
-        return if item["runStartUnixtime"].nil?
-        if item["tcId"] then
-            timespanInHours = (Time.new.to_i - item["runStartUnixtime"]).to_f/3600
-            ttop = {
-                "uuid"         => SecureRandom.uuid,
-                "mikuType"     => "NxTimeCapsule",
-                "unixtime"     => Time.new.to_i,
-                "datetime"     => Time.new.utc.iso8601,
-                "description"  => "automatically generated using: #{item["description"]}",
-                "field1"       => -timespanInHours,
-                "field2"       => nil,
-                "field4"       => item["tcId"]
-            }
-            puts JSON.pretty_generate(ttop)
-            TodoDatabase2::commitItem(ttop)
-        end
-        item["runStartUnixtime"] = nil?
-        puts JSON.pretty_generate(item)
-        NxTops::commit(item)
-    end
-
     # NxTops::destroy(uuid)
     def self.destroy(uuid)
         NxTops::filepathsForUUID(uuid).each{|fp| FileUtils.rm(fp) }

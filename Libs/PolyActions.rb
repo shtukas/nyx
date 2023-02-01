@@ -41,6 +41,10 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NxTop" then
+            return
+        end
+
         if item["mikuType"] == "TxManualCountDown" then
             TxManualCountDowns::access(item)
             return
@@ -72,8 +76,12 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxDrop" then
-            NxDrops::stop(item)
             NxDrops::destroy(item["uuid"])
+            return
+        end
+
+        if item["mikuType"] == "NxTop" then
+            NxTops::destroy(item["uuid"])
             return
         end
 
@@ -234,7 +242,7 @@ class PolyActions
     # PolyActions::start(item)
     def self.start(item)
         item = NxBalls::start(item)
-        TodoDatabase2::commitItem(item)
+        PolyActions::commitToDisk(item)
     end
 
     # PolyActions::stop(item)
@@ -253,7 +261,7 @@ class PolyActions
             puts JSON.pretty_generate(drop)
             TodoDatabase2::commitItem(drop)
         end
-        TodoDatabase2::commitItem(item)
+        PolyActions::commitToDisk(item)
     end
 
     # PolyActions::pause(item)
@@ -272,12 +280,25 @@ class PolyActions
             puts JSON.pretty_generate(drop)
             TodoDatabase2::commitItem(drop)
         end
-        TodoDatabase2::commitItem(item)
+        PolyActions::commitToDisk(item)
     end
 
     # PolyActions::pursue(item)
     def self.pursue(item)
         item = NxBalls::pursue(item)
+        PolyActions::commitToDisk(item)
+    end
+
+    # PolyActions::commitToDisk(item)
+    def self.commitToDisk(item)
+        if item["mikuType"] == "NxDrop" then
+            NxDrops::commit(item)
+            return
+        end
+        if item["mikuType"] == "NxTop" then
+            NxTops::commit(item)
+            return
+        end
         TodoDatabase2::commitItem(item)
     end
 end

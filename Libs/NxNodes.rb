@@ -48,14 +48,14 @@ class NxNodes
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid  = SecureRandom.uuid
-        payload = CoreData::issuePayload(uuid)
+        coredataref = CoreData::referenceString(uuid)
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxNode",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "payload"     => payload
+            "coredataref" => coredataref
         }
         NxNodes::commit(item)
         item
@@ -79,7 +79,7 @@ class NxNodes
             system('clear')
 
             puts NxNodes::toString(item).green
-            puts "> payload: #{item["payload"]}"
+            puts "> coredataref: #{item["coredataref"]}"
 
             store = ItemStore.new()
 
@@ -106,12 +106,12 @@ class NxNodes
             end
 
             if command == "access" then
-                if item["payload"].nil? then
-                    puts "This nyx node doesn't have a payload"
+                if item["coredataref"].nil? then
+                    puts "This nyx node doesn't have a coredataref"
                     LucilleCore::pressEnterToContinue()
                     next
                 end
-                if item["payload"] == "nyx-directory" then
+                if item["coredataref"] == "nyx-directory" then
                     NyxDirectories::accessNyxDirectory(item["uuid"])
                     next
                 end

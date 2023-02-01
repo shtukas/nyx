@@ -81,39 +81,6 @@ class NxDrops
         "(drop) #{item["description"]}#{namex}#{runningx}"
     end
 
-    # NxDrops::start(item)
-    def self.start(item)
-        item = NxDrops::getItemByUUIDOrNull(item["uuid"])
-        return if item.nil?
-        return if item["runStartUnixtime"] # already running
-        item["runStartUnixtime"] = Time.new.to_i
-        puts JSON.pretty_generate(item)
-        NxDrops::commit(item)
-    end
-
-    # NxDrops::stop(item)
-    def self.stop(item)
-        return if item["runStartUnixtime"].nil?
-        if item["tcId"] then
-            timespanInHours = (Time.new.to_i - item["runStartUnixtime"]).to_f/3600
-            tdrop = {
-                "uuid"         => SecureRandom.uuid,
-                "mikuType"     => "NxTimeCapsule",
-                "unixtime"     => Time.new.to_i,
-                "datetime"     => Time.new.utc.iso8601,
-                "description"  => "automatically generated using: #{item["description"]}",
-                "field1"       => -timespanInHours,
-                "field2"       => nil,
-                "field4"       => item["tcId"]
-            }
-            puts JSON.pretty_generate(tdrop)
-            TodoDatabase2::commitItem(tdrop)
-        end
-        item["runStartUnixtime"] = nil?
-        puts JSON.pretty_generate(item)
-        NxDrops::commit(item)
-    end
-
     # NxDrops::destroy(uuid)
     def self.destroy(uuid)
         NxDrops::filepathsForUUID(uuid).each{|fp| FileUtils.rm(fp) }
