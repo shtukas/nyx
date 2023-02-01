@@ -173,7 +173,7 @@ require_relative "NxNetwork.rb"
 require_relative "NxNodes.rb"
 require_relative "NxTimeCommitments.rb"
 require_relative "NxTimeCapsules.rb"
-require_relative "NyxNodePayloads.rb"
+require_relative "CoreData.rb"
 require_relative "NxDrop.rb"
 require_relative "NxBalls.rb"
 

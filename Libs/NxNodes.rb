@@ -48,7 +48,7 @@ class NxNodes
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid  = SecureRandom.uuid
-        payload = NyxNodePayloads::issuePayload(uuid)
+        payload = CoreData::issuePayload(uuid)
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxNode",

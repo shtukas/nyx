@@ -1,24 +1,28 @@
 
 # encoding: UTF-8
 
-class NyxNodePayloads
+class CoreData
 
-    # NyxNodePayloads::payloadTypes()
+    # The principal design idea of CoreData is that we refer to specific storage units by 
+    # a single string and mutations of the storage unit are transparent to the holder.
+    # Issuing another storage unit corresponds to a different string
+
+    # CoreData::payloadTypes()
     def self.payloadTypes()
         ["nyx-directory"]
     end
 
-    # NyxNodePayloads::interactivelySelectNyxPayloadType()
+    # CoreData::interactivelySelectNyxPayloadType()
     def self.interactivelySelectNyxPayloadType()
-        types = NyxNodePayloads::payloadTypes()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("payload type", types)
+        types = CoreData::payloadTypes()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("coredata type", types)
     end
 
-    # NyxNodePayloads::issuePayload(uuid) # payload string
+    # CoreData::issuePayload(uuid) # payload string
     def self.issuePayload(uuid)
         # This function is called during the making of a new node (or when we are issuing a new payload of an existing node)
         # It does stuff and returns a payload string or null
-        payloadType = NyxNodePayloads::interactivelySelectNyxPayloadType()
+        payloadType = CoreData::interactivelySelectNyxPayloadType()
         return nil if payloadType.nil?
         if payloadType == "nyx-directory" then
             folderpath = NyxDirectories::makeNewDirectory(uuid)
