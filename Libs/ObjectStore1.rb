@@ -1,33 +1,33 @@
 # encoding: UTF-8
 
-class TodoDatabase2
+class ObjectStore1
 
     # ----------------------------------
     # Config
 
-    # TodoDatabase2::cardinality()
+    # ObjectStore1::cardinality()
     def self.cardinality()
         200
     end
 
-    # TodoDatabase2::foldername()
+    # ObjectStore1::foldername()
     def self.foldername()
-        "TodoDatabase2"
+        "ObjectStore1"
     end
 
     # ----------------------------------
     # Interface
 
-    # TodoDatabase2::databaseQuery(querystring, bindings)
+    # ObjectStore1::databaseQuery(querystring, bindings)
     def self.databaseQuery(querystring, bindings)
         objects = {}
-        TodoDatabase2::filepaths().each{|filepath|
+        ObjectStore1::filepaths().each{|filepath|
             db = SQLite3::Database.new(filepath)
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.results_as_hash = true
             db.execute(querystring, bindings) do |row|
-                objects[row["uuid"]] = TodoDatabase2::rowToObject(row)
+                objects[row["uuid"]] = ObjectStore1::rowToObject(row)
             end
             db.close
         }
@@ -36,30 +36,30 @@ class TodoDatabase2
         objects.values
     end
 
-    # TodoDatabase2::commitItem(item)
+    # ObjectStore1::commitItem(item)
     def self.commitItem(item)
-        puts "TodoDatabase2::commitItem(#{JSON.pretty_generate(item)})"
+        puts "ObjectStore1::commitItem(#{JSON.pretty_generate(item)})"
         FileSystemCheck::fsck_MikuTypedItem(item, true)
-        database_object = TodoDatabase2ItemObjectsTranslation::itemToDatabaseObject(item)
-        TodoDatabase2::commitObject(database_object)
+        database_object = ObjectStore1ItemObjectsTranslation::itemToDatabaseObject(item)
+        ObjectStore1::commitObject(database_object)
     end
 
-    # TodoDatabase2::getItemByUUIDOrNull(uuid)
+    # ObjectStore1::getItemByUUIDOrNull(uuid)
     def self.getItemByUUIDOrNull(uuid)
         item = nil
-        TodoDatabase2::filepaths().each{|filepath|
-            object = TodoDatabase2::getObjectFromFilepathByUUIDOrNull(filepath, uuid)
+        ObjectStore1::filepaths().each{|filepath|
+            object = ObjectStore1::getObjectFromFilepathByUUIDOrNull(filepath, uuid)
             next if object.nil?
-            item = TodoDatabase2ItemObjectsTranslation::databaseObjectToItem(object)
+            item = ObjectStore1ItemObjectsTranslation::databaseObjectToItem(object)
             break if !item.nil?
         }
         item
     end
 
-    # TodoDatabase2::set(uuid, attname, attvalue)
+    # ObjectStore1::set(uuid, attname, attvalue)
     def self.set(uuid, attname, attvalue)
-        puts "TodoDatabase2::set(#{uuid}, #{attname}, #{attvalue})"
-        TodoDatabase2::filepaths().each{|filepath|
+        puts "ObjectStore1::set(#{uuid}, #{attname}, #{attvalue})"
+        ObjectStore1::filepaths().each{|filepath|
             db = SQLite3::Database.new(filepath)
             db.busy_timeout = 117
             db.busy_handler { |count| true }
@@ -69,10 +69,10 @@ class TodoDatabase2
         }
     end
 
-    # TodoDatabase2::getOrNull(uuid, attname)
+    # ObjectStore1::getOrNull(uuid, attname)
     def self.getOrNull(uuid, attname)
         answer = nil
-        TodoDatabase2::filepaths().each{|filepath|
+        ObjectStore1::filepaths().each{|filepath|
             db = SQLite3::Database.new(filepath)
             db.busy_timeout = 117
             db.busy_handler { |count| true }
@@ -88,32 +88,32 @@ class TodoDatabase2
         nil
     end
 
-    # TodoDatabase2::destroy(uuid)
+    # ObjectStore1::destroy(uuid)
     def self.destroy(uuid)
-        puts "TodoDatabase2::destroy(#{uuid})"
-        TodoDatabase2::filepaths().each{|filepath|
-            TodoDatabase2::deleteObjectInFile(filepath, uuid)
+        puts "ObjectStore1::destroy(#{uuid})"
+        ObjectStore1::filepaths().each{|filepath|
+            ObjectStore1::deleteObjectInFile(filepath, uuid)
         }
     end
 
     # ----------------------------------
     # Private
 
-    # TodoDatabase2::databaseItems()
+    # ObjectStore1::databaseItems()
     def self.databaseItems()
-        TodoDatabase2::databaseQuery("select * from objects", [])
-            .map{|object| TodoDatabase2ItemObjectsTranslation::databaseObjectToItem(object) }
+        ObjectStore1::databaseQuery("select * from objects", [])
+            .map{|object| ObjectStore1ItemObjectsTranslation::databaseObjectToItem(object) }
     end
 
     # *Database Schema*
-    # TodoDatabase2::commitObject(object)
+    # ObjectStore1::commitObject(object)
     def self.commitObject(object)
         # If we want to commit an object, we need to rewrite all the files in which it is (meaning deleting the object and renaming the file)
         # and put it into a new file.
 
-        filepaths = TodoDatabase2::filepaths()
+        filepaths = ObjectStore1::filepaths()
 
-        filepath0 = TodoDatabase2::spawnNewDatabase()
+        filepath0 = ObjectStore1::spawnNewDatabase()
 
         db = SQLite3::Database.new(filepath0)
         db.busy_timeout = 117
@@ -124,17 +124,17 @@ class TodoDatabase2
 
         # Note that we made filepaths, before creating filepath0, so we are not going to delete the object that is being saved from the fie that was just created  
         filepaths.each{|filepath|
-            TodoDatabase2::deleteObjectInFile(filepath, object["uuid"])
+            ObjectStore1::deleteObjectInFile(filepath, object["uuid"])
         }
 
-        while TodoDatabase2::filepaths().size > TodoDatabase2::cardinality() do
-            filepath1, filepath2 = TodoDatabase2::filepaths()
-            TodoDatabase2::mergeFiles(filepath1, filepath2)
+        while ObjectStore1::filepaths().size > ObjectStore1::cardinality() do
+            filepath1, filepath2 = ObjectStore1::filepaths()
+            ObjectStore1::mergeFiles(filepath1, filepath2)
         end
     end
 
     # *Database Schema*
-    # TodoDatabase2::rowToObject(row)
+    # ObjectStore1::rowToObject(row)
     def self.rowToObject(row)
         {
             "uuid"           => row["uuid"],
@@ -161,9 +161,9 @@ class TodoDatabase2
     end
 
     # *Database Schema*
-    # TodoDatabase2::spawnNewDatabase()
+    # ObjectStore1::spawnNewDatabase()
     def self.spawnNewDatabase()
-        filepath = "#{Config::pathToDataCenter()}/#{TodoDatabase2::foldername()}/#{CommonUtils::timeStringL22()}.sqlite3"
+        filepath = "#{Config::pathToDataCenter()}/#{ObjectStore1::foldername()}/#{CommonUtils::timeStringL22()}.sqlite3"
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -173,13 +173,13 @@ class TodoDatabase2
         filepath
     end
 
-    # TodoDatabase2::filepaths()
+    # ObjectStore1::filepaths()
     def self.filepaths()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/#{TodoDatabase2::foldername()}")
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/#{ObjectStore1::foldername()}")
             .select{|filepath| filepath[-8, 8] == ".sqlite3" }
     end
 
-    # TodoDatabase2::getObjectFromFilepathByUUIDOrNull(filepath, uuid)
+    # ObjectStore1::getObjectFromFilepathByUUIDOrNull(filepath, uuid)
     def self.getObjectFromFilepathByUUIDOrNull(filepath, uuid)
         object = nil
         db = SQLite3::Database.new(filepath)
@@ -187,18 +187,18 @@ class TodoDatabase2
         db.busy_handler { |count| true }
         db.results_as_hash = true
         db.execute("select * from objects where uuid=?", [uuid]) do |row|
-            object = TodoDatabase2::rowToObject(row)
+            object = ObjectStore1::rowToObject(row)
         end
         db.close
         object
     end
 
-    # TodoDatabase2::fileHasObject(filepath, uuid)
+    # ObjectStore1::fileHasObject(filepath, uuid)
     def self.fileHasObject(filepath, uuid)
-        !TodoDatabase2::getObjectFromFilepathByUUIDOrNull(filepath, uuid).nil?
+        !ObjectStore1::getObjectFromFilepathByUUIDOrNull(filepath, uuid).nil?
     end
 
-    # TodoDatabase2::fileIsEmpty(filepath)
+    # ObjectStore1::fileIsEmpty(filepath)
     def self.fileIsEmpty(filepath)
         count = nil
         db = SQLite3::Database.new(filepath)
@@ -212,10 +212,10 @@ class TodoDatabase2
         count == 0
     end
 
-    # TodoDatabase2::deleteObjectInFile(filepath, uuid)
+    # ObjectStore1::deleteObjectInFile(filepath, uuid)
     def self.deleteObjectInFile(filepath, uuid)
-        if !TodoDatabase2::fileHasObject(filepath, uuid) then
-            if TodoDatabase2::fileIsEmpty(filepath) then
+        if !ObjectStore1::fileHasObject(filepath, uuid) then
+            if ObjectStore1::fileIsEmpty(filepath) then
                 FileUtils.rm(filepath)
             end
             return
@@ -226,18 +226,18 @@ class TodoDatabase2
         db.results_as_hash = true
         db.execute "delete from objects where uuid=?", [uuid]
         db.close
-        if TodoDatabase2::fileIsEmpty(filepath) then
+        if ObjectStore1::fileIsEmpty(filepath) then
             FileUtils.rm(filepath)
         else
             # Now we need to rename the file since it's contents have changed
-            filepath2 = "#{Config::pathToDataCenter()}/#{TodoDatabase2::foldername()}/#{CommonUtils::timeStringL22()}.sqlite3"
+            filepath2 = "#{Config::pathToDataCenter()}/#{ObjectStore1::foldername()}/#{CommonUtils::timeStringL22()}.sqlite3"
             FileUtils.mv(filepath, filepath2)
         end
         nil
     end
 
     # *Database Schema*
-    # TodoDatabase2::mergeFiles(filepath1, filepath2)
+    # ObjectStore1::mergeFiles(filepath1, filepath2)
     def self.mergeFiles(filepath1, filepath2)
         db1 = SQLite3::Database.new(filepath1)
         db2 = SQLite3::Database.new(filepath2)
@@ -259,14 +259,14 @@ class TodoDatabase2
 
 
         # And rename the second one
-        filepath3 = "#{Config::pathToDataCenter()}/#{TodoDatabase2::foldername()}/#{CommonUtils::timeStringL22()}.sqlite3"
+        filepath3 = "#{Config::pathToDataCenter()}/#{ObjectStore1::foldername()}/#{CommonUtils::timeStringL22()}.sqlite3"
         FileUtils.mv(filepath2, filepath3)
     end
 end
 
-class TodoDatabase2ItemObjectsTranslation
+class ObjectStore1ItemObjectsTranslation
 
-    # TodoDatabase2ItemObjectsTranslation::databaseObjectToItem(object)
+    # ObjectStore1ItemObjectsTranslation::databaseObjectToItem(object)
     def self.databaseObjectToItem(object)
 
         # ------------------------------------
@@ -329,7 +329,7 @@ class TodoDatabase2ItemObjectsTranslation
         raise "(error: 002d8744-e34d-4307-b573-73a195a9c7ac)"
     end
 
-    # TodoDatabase2ItemObjectsTranslation::itemToDatabaseObject(item)
+    # ObjectStore1ItemObjectsTranslation::itemToDatabaseObject(item)
     def self.itemToDatabaseObject(item)
 
         item["field7"] = (item["field7"] || 0).to_f
@@ -382,162 +382,5 @@ class TodoDatabase2ItemObjectsTranslation
         end
         puts JSON.pretty_generate(item)
         raise "(error: 34432491-c0a8-45a2-a93c-8a7b132d027e)"
-    end
-end
-
-class Database2Data
-
-    # Database2Data::itemsForMikuType(mikuType)
-    def self.itemsForMikuType(mikuType)
-        TodoDatabase2::databaseQuery("select * from objects where mikuType=?", [mikuType])
-            .map{|object| TodoDatabase2ItemObjectsTranslation::databaseObjectToItem(object) }
-    end
-
-    # Database2Data::listingItems()
-    def self.listingItems()
-        TodoDatabase2::databaseQuery("select * from objects where field12=?", ["true"])
-            .map{|object| TodoDatabase2ItemObjectsTranslation::databaseObjectToItem(object) }
-    end
-
-    # Database2Data::the99Count()
-    def self.the99Count()
-        TodoDatabase2::filepaths()
-            .map{|filepath|
-                count = nil
-                db = SQLite3::Database.new(filepath)
-                db.busy_timeout = 117
-                db.busy_handler { |count| true }
-                db.results_as_hash = true
-                db.execute("select count(*) as count from objects where mikuType=?", ["NxTodo"]) do |row|
-                    count = row["count"]
-                end
-                db.close
-                count
-            }
-            .inject(0, :+)
-    end
-
-    # Database2Data::itemIsListed(item)
-    def self.itemIsListed(item)
-        item["field12"] == "true"
-    end
-end
-
-class Database2Engine
-
-    # Database2Engine::activateItemForListing(item, trajectory)
-    def self.activateItemForListing(item, trajectory)
-        return if TodoDatabase2::getOrNull(item["uuid"], "field12") == "true"
-        TodoDatabase2::set(item["uuid"], "field12", "true")
-        TodoDatabase2::set(item["uuid"], "field13", JSON.generate(trajectory))
-    end
-
-    # Database2Engine::disactivateListing(item)
-    def self.disactivateListing(item)
-        TodoDatabase2::set(item["uuid"], "field7", 0)       # reset skipped until
-        TodoDatabase2::set(item["uuid"], "field8", "")      # remove any lock
-        TodoDatabase2::set(item["uuid"], "field12", "")     # remove listing flag
-        TodoDatabase2::set(item["uuid"], "field13", "null") # remove trajectory
-    end
-
-    # Database2Engine::listingActivations()
-    def self.listingActivations()
-
-        Database2Data::itemsForMikuType("NxAnniversary")
-            .select{|anniversary| Anniversaries::isOpenToAcknowledgement(anniversary) }
-            .each{|item|
-                next if Database2Data::itemIsListed(item)
-                next if !DoNotShowUntil::isVisible(item)
-                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_f, 6))
-            }
-
-        Database2Data::itemsForMikuType("NxTodo")
-            .each{|item|
-                next if Database2Data::itemIsListed(item)
-                next if !DoNotShowUntil::isVisible(item)
-                next if item["field2"] != "ondate"
-                next if Time.new.to_s[0, 10] < item["datetime"][0, 10]
-                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_f, 6))
-            }
-
-        Database2Data::itemsForMikuType("NxTodo")
-            .each{|item|
-                next if Database2Data::itemIsListed(item)
-                next if !DoNotShowUntil::isVisible(item)
-                next if item["field2"] != "triage"
-                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_f, 24))
-            }
-
-        listedTodoSize = lambda {
-            Database2Data::listingItems()
-                .select{|item| item["mikuType"] == "NxTodo" }
-                .size
-        }
-        if listedTodoSize.call() < 6 then
-            item = Database2Data::itemsForMikuType("NxTodo")
-                        .select{|item| !Database2Data::itemIsListed(item) }
-                        .select{|item| DoNotShowUntil::isVisible(item) }
-                        .select{|item| item["field2"] == "regular" }
-                        .sample
-            if item then
-                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_f, 48))
-            end
-        end
-
-        TxManualCountDowns::listingItems()
-            .each{|item|
-                next if Database2Data::itemIsListed(item)
-                next if !DoNotShowUntil::isVisible(item)
-                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_f, 2))
-            }
-
-        Database2Data::itemsForMikuType("Wave")
-            .each{|item|
-                next if (item["onlyOnDays"] and !item["onlyOnDays"].include?(CommonUtils::todayAsLowercaseEnglishWeekDayName()))
-                next if Database2Data::itemIsListed(item)
-                next if !DoNotShowUntil::isVisible(item)
-                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_f, 18))
-            }
-
-        Database2Data::itemsForMikuType("NxTimeCommitment")
-            .each{|item|
-                next if Database2Data::itemsForMikuType("NxTimeCapsule").select{|capsule| capsule["field10"] == item["uuid"] }.size > 0
-                next if (Time.new.to_i - item["resetTime"]) < 86400*7
-
-                (0..6).each{|indx|
-                    capsule = {
-                        "uuid"        => SecureRandom.uuid,
-                        "mikuType"    => "NxTimeCapsule",
-                        "unixtime"    => Time.new.to_i,
-                        "datetime"    => Time.new.utc.iso8601,
-                        "field1"      => item["field3"].to_f/7,
-                        "field10"     => item["uuid"]
-                    }
-                    puts JSON.pretty_generate(capsule)
-                    TodoDatabase2::commitItem(capsule)
-                    Database2Engine::activateItemForListing(capsule, Database2Engine::trajectory(Time.new.to_f + indx*86400, 24))
-                }
-
-                item["resetTime"] = Time.new.to_i
-
-                TodoDatabase2::commitItem(item)
-            }
-
-        Database2Data::itemsForMikuType("NxTimeCapsule")
-            .each{|item|
-                next if Database2Data::itemIsListed(item)
-                next if !DoNotShowUntil::isVisible(item)
-                # Time capsules are issued by NxTimeCommitment, and are actived at that moment
-                # This exists in case we create one manually.
-                Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_f, 24))
-            }
-    end
-
-    # Database2Engine::trajectory(activationunixtime, expectedTimeToCompletionInHours)
-    def self.trajectory(activationunixtime, expectedTimeToCompletionInHours)
-        {
-            "activationunixtime"              => activationunixtime,
-            "expectedTimeToCompletionInHours" => expectedTimeToCompletionInHours
-        }
     end
 end

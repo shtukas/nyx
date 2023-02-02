@@ -243,7 +243,7 @@ class FileSystemCheck
 
     # FileSystemCheck::fsckErrorAtFirstFailure()
     def self.fsckErrorAtFirstFailure()
-        TodoDatabase2::databaseItems()
+        ObjectStore1::databaseItems()
             .each{|object|
                 FileSystemCheck::exitIfMissingCanary()
                 FileSystemCheck::fsck_MikuTypedItem(item, true)

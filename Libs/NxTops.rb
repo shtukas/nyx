@@ -16,7 +16,7 @@ class NxTops
             "field10"       => tc ? tc["uuid"] : nil,
         }
         puts JSON.pretty_generate(item)
-        TodoDatabase2::commitItem(item)
+        ObjectStore1::commitItem(item)
     end
 
     # NxTops::toString(item)

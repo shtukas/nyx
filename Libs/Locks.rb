@@ -4,7 +4,7 @@ class Locks
 
     # Locks::lock(domain, uuid)
     def self.lock(domain, uuid)
-        TodoDatabase2::set(uuid, "field8", domain)
+        ObjectStore1::set(uuid, "field8", domain)
     end
 
     # Locks::isLocked(item)
@@ -14,6 +14,6 @@ class Locks
 
     # Locks::unlock(uuid)
     def self.unlock(uuid)
-        TodoDatabase2::set(uuid, "field8", "")
+        ObjectStore1::set(uuid, "field8", "")
     end
 end

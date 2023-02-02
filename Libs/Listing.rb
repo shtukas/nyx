@@ -90,7 +90,7 @@ class Listing
                 "field1"      => hours,
                 "field10"     => tc["uuid"]
             }
-            TodoDatabase2::commitObject(capsule)
+            ObjectStore1::commitObject(capsule)
             return
         end
 
@@ -99,7 +99,7 @@ class Listing
             return if item.nil?
             puts "edit description:"
             item["description"] = CommonUtils::editTextSynchronously(item["description"])
-            TodoDatabase2::commitItem(item)
+            ObjectStore1::commitItem(item)
             return
         end
 
@@ -109,7 +109,7 @@ class Listing
             return if item.nil?
             puts "edit description:"
             item["description"] = CommonUtils::editTextSynchronously(item["description"])
-            TodoDatabase2::commitItem(item)
+            ObjectStore1::commitItem(item)
             return
         end
 
@@ -117,7 +117,7 @@ class Listing
             item = store.getDefault()
             return if item.nil?
             if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{PolyFunctions::toString(item).green}' ") then
-                TodoDatabase2::destroy(item["uuid"])
+                ObjectStore1::destroy(item["uuid"])
             end
             return
         end
@@ -127,7 +127,7 @@ class Listing
             item = store.get(ordinal.to_i)
             return if item.nil?
             if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{PolyFunctions::toString(item).green}' ") then
-                TodoDatabase2::destroy(item["uuid"])
+                ObjectStore1::destroy(item["uuid"])
             end
             return
         end
@@ -227,8 +227,8 @@ class Listing
         if Interpreting::match("push", input) then
             item = store.getDefault()
             return if item.nil?
-            trajectory = Database2Engine::trajectory(Time.new.to_f + 3600*6, 24)
-            TodoDatabase2::set(item["uuid"], "field13", JSON.generate(trajectory))
+            trajectory = Engine::trajectory(Time.new.to_f + 3600*6, 24)
+            ObjectStore1::set(item["uuid"], "field13", JSON.generate(trajectory))
             return
         end
 
@@ -278,7 +278,7 @@ class Listing
             unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
             item["doNotShowUntil"] = unixtime
             item["datetime"] = Time.at(unixtime).utc.iso8601
-            TodoDatabase2::commitItem(item)
+            ObjectStore1::commitItem(item)
             return
         end
 
@@ -289,7 +289,7 @@ class Listing
             tc = NxTimeCommitments::interactivelySelectOneOrNull()
             return if tc.nil?
             item["field10"] = tc["uuid"]
-            TodoDatabase2::commitItem(item)
+            ObjectStore1::commitItem(item)
             return
         end
 
@@ -407,8 +407,8 @@ class Listing
             NxTimeCapsules::garbageCollection()
 
             if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("2bf15677-bac8-4467-b7cc-e313113df3a9", 3600) then
-                puts "Database2Engine::listingActivations()"
-                Database2Engine::listingActivations()
+                puts "Engine::listingActivations()"
+                Engine::listingActivations()
             end
 
             system("clear")
@@ -422,7 +422,7 @@ class Listing
             puts ""
             vspaceleft = vspaceleft - 1
             
-            Database2Data::itemsForMikuType("NxTimeCommitment")
+            Engine::itemsForMikuType("NxTimeCommitment")
                 .each{|item|
                     store.register(item, false)
                     puts NxTimeCommitments::toStringForListing(store, item)
@@ -433,7 +433,7 @@ class Listing
             puts "> drop | todo | today | ondate | wave | access | done | landing | lock | >>".yellow
             vspaceleft = vspaceleft - 2
 
-            tops = Database2Data::itemsForMikuType("NxTop")
+            tops = Engine::itemsForMikuType("NxTop")
             if tops.size > 0 then
                 puts ""
                 vspaceleft = vspaceleft - 1
@@ -457,7 +457,7 @@ class Listing
             vspaceleft = vspaceleft - 1
 
             items =
-            (Database2Data::listingItems() + Database2Data::itemsForMikuType("NxDrop"))
+            Engine::listingItems()
                 .select{|item| DoNotShowUntil::isVisible(item) }
                 .map{|item|
                     item["listing:position"] = trajectoryToNumber.call(item["field13"])

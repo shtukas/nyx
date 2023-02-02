@@ -9,7 +9,7 @@ class The99Percent
 
     # The99Percent::getCurrentCount()
     def self.getCurrentCount()
-        [Database2Data::the99Count(), 1].max # It should not be 0, because we divide by it.
+        [Engine::the99Count(), 1].max # It should not be 0, because we divide by it.
     end
 
     # The99Percent::issueNewReference()

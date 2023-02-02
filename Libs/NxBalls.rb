@@ -10,7 +10,7 @@ class NxBalls
     def self.makeNxBallOrNull(item)
         tc = nil
         if item["field10"] then
-            tc = TodoDatabase2::getItemByUUIDOrNull(item["field10"])
+            tc = ObjectStore1::getItemByUUIDOrNull(item["field10"])
         end
         if tc.nil? then
             tc = NxTimeCommitments::interactivelySelectOneOrNull()

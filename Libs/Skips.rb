@@ -4,7 +4,7 @@ class Skips
 
     # Skips::skip(uuid, unixtime)
     def self.skip(uuid, unixtime)
-        TodoDatabase2::set(uuid, "field7", unixtime)
+        ObjectStore1::set(uuid, "field7", unixtime)
     end
 
     # Skips::isSkipped(item)

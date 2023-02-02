@@ -4,6 +4,6 @@ class Catalyst
 
     # Catalyst::catalystItems()
     def self.catalystItems()
-        Database2Data::itemsForMikuType("NxTodo") + Database2Data::itemsForMikuType("Wave")
+        Engine::itemsForMikuType("NxTodo") + Engine::itemsForMikuType("Wave")
     end
 end

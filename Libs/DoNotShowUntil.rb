@@ -3,12 +3,12 @@ class DoNotShowUntil
 
     # DoNotShowUntil::setUnixtime(uuid, unixtime)
     def self.setUnixtime(uuid, unixtime)
-        TodoDatabase2::set(uuid, "doNotShowUntil", unixtime)
+        ObjectStore1::set(uuid, "doNotShowUntil", unixtime)
     end
 
     # DoNotShowUntil::getUnixtimeOrNull(uuid)
     def self.getUnixtimeOrNull(uuid)
-        TodoDatabase2::getOrNull(uuid, "doNotShowUntil")
+        ObjectStore1::getOrNull(uuid, "doNotShowUntil")
     end
 
     # DoNotShowUntil::isVisible(item)

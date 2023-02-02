@@ -19,7 +19,7 @@ class NxTimeCommitments
             "field3"      => hours
         }
         FileSystemCheck::fsck_NxTimeCommitment(item, true)
-        TodoDatabase2::commitItem(item)
+        ObjectStore1::commitItem(item)
         item
     end
 
@@ -38,13 +38,13 @@ class NxTimeCommitments
 
     # NxTimeCommitments::interactivelySelectOneOrNull()
     def self.interactivelySelectOneOrNull()
-        items = Database2Data::itemsForMikuType("NxTimeCommitment")
+        items = Engine::itemsForMikuType("NxTimeCommitment")
         LucilleCore::selectEntityFromListOfEntitiesOrNull("time commitment", items, lambda{|item| NxTimeCommitments::toString(item) })
     end
 
     # NxTimeCommitments::toStringForListing(store, item)
     def self.toStringForListing(store, item)
-        capsule = Database2Data::itemsForMikuType("NxTimeCapsule")
+        capsule = Engine::itemsForMikuType("NxTimeCapsule")
         hours = capsule.select{|drop| drop["field10"] == item["uuid"] }.map{|drop| drop["field1"] }.inject(0, :+)
         sinceResetInSeconds = Time.new.to_i - item["resetTime"]
         sinceResetInDays = sinceResetInSeconds.to_f/86400
@@ -62,7 +62,7 @@ class NxTimeCommitments
     def self.uuidToDescription(uuid)
         description = XCache::getOrNull("364347df-1724-47d6-928c-c5a5da999015:#{CommonUtils::today()}:#{uuid}")
         return description if description
-        description = Database2Data::itemsForMikuType("NxTimeCommitment").select{|tc| tc["uuid"] == uuid }.map{|tc| tc["description"] }.first
+        description = Engine::itemsForMikuType("NxTimeCommitment").select{|tc| tc["uuid"] == uuid }.map{|tc| tc["description"] }.first
         if description then
             XCache::set("364347df-1724-47d6-928c-c5a5da999015:#{CommonUtils::today()}:#{uuid}", description)
         end
