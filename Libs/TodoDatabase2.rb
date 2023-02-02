@@ -319,6 +319,12 @@ class TodoDatabase2ItemObjectsTranslation
             object["field1"] = object["field1"].to_f
             return object
         end
+        if object["mikuType"] == "NxDrop" then
+            return object
+        end
+        if object["mikuType"] == "NxTop" then
+            return object
+        end
         puts JSON.pretty_generate(object)
         raise "(error: 002d8744-e34d-4307-b573-73a195a9c7ac)"
     end
@@ -366,6 +372,12 @@ class TodoDatabase2ItemObjectsTranslation
             return item
         end
         if item["mikuType"] == "NxTimeCapsule" then
+            return item
+        end
+        if item["mikuType"] == "NxDrop" then
+            return item
+        end
+        if item["mikuType"] == "NxTop" then
             return item
         end
         puts JSON.pretty_generate(item)

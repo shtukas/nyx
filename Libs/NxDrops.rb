@@ -1,55 +1,8 @@
 
 class NxDrops
 
-    # NxDrops::directory()
-    def self.directory()
-        "#{Config::pathToDataCenter()}/NxDrops"
-    end
-
-    # NxDrops::filepaths()
-    def self.filepaths()
-        LucilleCore::locationsAtFolder(NxDrops::directory()).select{|filepath| filepath[-5, 5] == ".json" }
-    end
-
-    # NxDrops::filepathsForUUID(uuid)
-    def self.filepathsForUUID(uuid)
-        NxDrops::filepaths()
-            .select{|filepath|
-                (lambda{
-                    item = JSON.parse(IO.read(filepath))
-                    return false if item.nil?
-                    item["uuid"] == uuid
-                }).call()
-            }
-    end
-
-    # NxDrops::filepathOrNull(uuid)
-    def self.filepathOrNull(uuid)
-        filepaths = NxDrops::filepathsForUUID(uuid)
-        return nil if filepaths.size == 0
-        return filepaths.first if filepaths.size == 1
-        filepath = filepaths.first
-        filepaths.drop(1).each{|fp| FileUtils.rm(fp) }
-        filepath
-    end
-
-    # NxDrops::getItemByUUIDOrNull(uuid)
-    def self.getItemByUUIDOrNull(uuid)
-        filepath = NxDrops::filepathOrNull(uuid)
-        return nil if filepath.nil?
-        JSON.parse(IO.read(filepath))
-    end
-
-    # NxDrops::commit(item)
-    def self.commit(item)
-        filepaths = NxDrops::filepathsForUUID(item["uuid"])
-        filepath = "#{NxDrops::directory()}/#{(1000*Time.new.to_f).to_i.to_s}.json"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
-        filepaths.each{|fp| FileUtils.rm(fp) }
-    end
-
-    # NxDrops::issue()
-    def self.issue()
+    # NxDrops::interactivelyIssueNewOrNull()
+    def self.interactivelyIssueNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return if description == ""
         uuid  = SecureRandom.uuid
@@ -60,28 +13,16 @@ class NxDrops
             "unixtime"         => Time.new.to_i,
             "datetime"         => Time.new.utc.iso8601,
             "description"      => description,
-            "field10"          => tc ? tc["uuid"] : nil,
-            "runStartUnixtime" => nil,
-            "field13"          => Database2Engine::trajectory(Time.new.to_f, 48)
+            "field10"          => tc ? tc["uuid"] : nil, # tc uuid
+            "field13"          => Database2Engine::trajectory(Time.new.to_f, 48) # trajectory
         }
         puts JSON.pretty_generate(item)
-        NxDrops::commit(item)
-    end
-
-    # NxDrops::drops()
-    def self.drops()
-        NxDrops::filepaths().map{|filepath| JSON.parse(IO.read(filepath)) }
+        TodoDatabase2::commitItem(item)
     end
 
     # NxDrops::toString(item)
     def self.toString(item)
-        namex = item["tcName"] ? " (tc: #{NxTimeCommitments::uuidToDescription(item["field10"])})" : ""
-        runningx = item["runStartUnixtime"] ? " (running for #{((Time.new.to_i - item["runStartUnixtime"]).to_f/3600).round(2)} hours)" : ""
-        "(drop) #{item["description"]}#{namex}#{runningx}"
+        "(drop) #{item["description"]} (tc: #{NxTimeCommitments::uuidToDescription(item["field10"])})"
     end
 
-    # NxDrops::destroy(uuid)
-    def self.destroy(uuid)
-        NxDrops::filepathsForUUID(uuid).each{|fp| FileUtils.rm(fp) }
-    end
 end

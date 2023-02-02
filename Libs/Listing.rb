@@ -160,7 +160,7 @@ class Listing
         end
 
         if Interpreting::match("drop", input) then
-            NxDrops::issue()
+            NxDrops::interactivelyIssueNewOrNull()
         end
 
         if Interpreting::match("exit", input) then
@@ -329,7 +329,7 @@ class Listing
         end
 
         if Interpreting::match("top", input) then
-            NxTops::issue()
+            NxTops::interactivelyIssueNullOrNull()
         end
 
         if Interpreting::match("today", input) then
@@ -433,7 +433,7 @@ class Listing
             puts "> drop | todo | today | ondate | wave | access | done | landing | lock | >>".yellow
             vspaceleft = vspaceleft - 2
 
-            tops = NxTops::tops()
+            tops = Database2Data::itemsForMikuType("NxTop")
             if tops.size > 0 then
                 puts ""
                 vspaceleft = vspaceleft - 1
@@ -457,7 +457,7 @@ class Listing
             vspaceleft = vspaceleft - 1
 
             items =
-            (Database2Data::listingItems() + NxDrops::drops())
+            (Database2Data::listingItems() + Database2Data::itemsForMikuType("NxDrop"))
                 .select{|item| DoNotShowUntil::isVisible(item) }
                 .map{|item|
                     item["listing:position"] = trajectoryToNumber.call(item["field13"])

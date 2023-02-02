@@ -138,8 +138,6 @@ class FileSystemCheck
         FileSystemCheck::ensureAttribute(item, "description", "String")
     end
 
-    # -----------------------------------------------------
-
     # FileSystemCheck::fsck_MikuTypedItem(item, verbose)
     def self.fsck_MikuTypedItem(item, verbose)
 
@@ -156,7 +154,6 @@ class FileSystemCheck
 
         if mikuType == "NxAnniversary" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
@@ -168,7 +165,6 @@ class FileSystemCheck
 
         if mikuType == "NxBall" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "accounts", "Array")
             FileSystemCheck::ensureAttribute(item, "itemuuid", "String")
@@ -177,7 +173,6 @@ class FileSystemCheck
 
         if mikuType == "NxTodo" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
@@ -189,6 +184,14 @@ class FileSystemCheck
             return
         end
 
+        if mikuType == "NxDrop" then
+            FileSystemCheck::ensureAttribute(item, "uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+            FileSystemCheck::ensureAttribute(item, "datetime", "String")
+            FileSystemCheck::ensureAttribute(item, "description", "String")
+            return
+        end
+
         if mikuType == "NxNode" then
             FileSystemCheck::fsck_NxNode(item, verbose)
             return
@@ -196,7 +199,6 @@ class FileSystemCheck
 
         if mikuType == "NxTimeCapsule" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "field1", "Number")
             FileSystemCheck::ensureAttribute(item, "field10", "String")
@@ -205,7 +207,6 @@ class FileSystemCheck
 
         if mikuType == "TxManualCountDown" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
             FileSystemCheck::ensureAttribute(item, "dailyTarget", "Number")
             FileSystemCheck::ensureAttribute(item, "date", "String")
@@ -215,7 +216,6 @@ class FileSystemCheck
 
         if mikuType == "Wave" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "mikuType", "String")
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
