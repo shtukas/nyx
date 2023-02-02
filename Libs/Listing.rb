@@ -6,7 +6,7 @@ class Listing
     def self.listingCommands()
         [
             "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | landing (<n>) | expose (<n>) | >> skip default | lock (<n>) | push | destroy",
-            "[makers] anniversary | manual countdown | wave | today | ondate | todo | drop | top",
+            "[makers] anniversary | manual countdown | wave | today | ondate | todo | drop | top | capsule",
             "[divings] anniversaries | ondates | waves | todos",
             "[NxBalls] start | start * | stop | stop * | pause | pursue",
             "[NxTodo] redate",
@@ -74,6 +74,22 @@ class Listing
         if Interpreting::match("commands", input) then
             puts Listing::listingCommands().yellow
             LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if Interpreting::match("capsule", input) then
+            hours = LucilleCore::askQuestionAnswerAsString("hours (algebraic): ").to_f
+            tc = NxTimeCommitments::interactivelySelectOneOrNull()
+            capsule = {
+                "uuid"        => SecureRandom.uuid,
+                "mikuType"    => "NxTimeCapsule",
+                "unixtime"    => Time.new.to_i,
+                "datetime"    => Time.new.utc.iso8601,
+                "description" => tc["description"],
+                "field1"      => hours,
+                "field4"      => tc["uuid"]
+            }
+            TodoDatabase2::commitObject(capsule)
             return
         end
 

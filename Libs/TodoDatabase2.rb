@@ -489,10 +489,10 @@ class Database2Engine
 
         Database2Data::itemsForMikuType("NxTimeCommitment")
             .each{|item|
-                next if Database2Data::itemsForMikuType("NxTimeCapsule").select{|drop| drop["field4"] == item["uuid"] }.size > 0
+                next if Database2Data::itemsForMikuType("NxTimeCapsule").select{|capsule| capsule["field4"] == item["uuid"] }.size > 0
 
                 (0..6).each{|indx|
-                    drop = {
+                    capsule = {
                         "uuid"        => SecureRandom.uuid,
                         "mikuType"    => "NxTimeCapsule",
                         "unixtime"    => Time.new.to_i,
@@ -501,9 +501,9 @@ class Database2Engine
                         "field1"      => item["field3"].to_f/7,
                         "field4"      => item["uuid"]
                     }
-                    puts JSON.pretty_generate(drop)
-                    TodoDatabase2::commitItem(drop)
-                    Database2Engine::activateItemForListing(drop, Database2Engine::trajectory(Time.new.to_f + indx*86400, 24))
+                    puts JSON.pretty_generate(capsule)
+                    TodoDatabase2::commitItem(capsule)
+                    Database2Engine::activateItemForListing(capsule, Database2Engine::trajectory(Time.new.to_f + indx*86400, 24))
                 }
 
                 item["resetTime"] = Time.new.to_i
@@ -515,7 +515,7 @@ class Database2Engine
             .each{|item|
                 next if Database2Data::itemIsListed(item)
                 next if !DoNotShowUntil::isVisible(item)
-                # Time drops are issued by NxTimeCommitment, and are actived at that moment
+                # Time capsules are issued by NxTimeCommitment, and are actived at that moment
                 # This exists in case we create one manually.
                 Database2Engine::activateItemForListing(item, Database2Engine::trajectory(Time.new.to_f, 24))
             }
