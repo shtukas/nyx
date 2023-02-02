@@ -55,15 +55,14 @@ class NxDrops
         uuid  = SecureRandom.uuid
         tc = NxTimeCommitments::interactivelySelectOneOrNull()
         item = {
-            "uuid"          => uuid,
-            "mikuType"      => "NxDrop",
-            "unixtime"      => Time.new.to_i,
-            "datetime"      => Time.new.utc.iso8601,
-            "description"   => description,
-            "tcId"             => tc ? tc["uuid"] : nil,
-            "tcName"           => tc ? tc["description"] : nil,
+            "uuid"             => uuid,
+            "mikuType"         => "NxDrop",
+            "unixtime"         => Time.new.to_i,
+            "datetime"         => Time.new.utc.iso8601,
+            "description"      => description,
+            "field10"          => tc ? tc["uuid"] : nil,
             "runStartUnixtime" => nil,
-            "field13"       => Database2Engine::trajectory(Time.new.to_f, 48)
+            "field13"          => Database2Engine::trajectory(Time.new.to_f, 48)
         }
         puts JSON.pretty_generate(item)
         NxDrops::commit(item)
@@ -76,7 +75,7 @@ class NxDrops
 
     # NxDrops::toString(item)
     def self.toString(item)
-        namex = item["tcName"] ? " (tc: #{item["tcName"]})" : ""
+        namex = item["tcName"] ? " (tc: #{NxTimeCommitments::uuidToDescription(item["field10"])})" : ""
         runningx = item["runStartUnixtime"] ? " (running for #{((Time.new.to_i - item["runStartUnixtime"]).to_f/3600).round(2)} hours)" : ""
         "(drop) #{item["description"]}#{namex}#{runningx}"
     end

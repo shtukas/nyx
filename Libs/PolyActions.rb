@@ -62,8 +62,6 @@ class PolyActions
     # PolyActions::done(item)
     def self.done(item)
 
-        item = TodoDatabase2::getItemByUUIDOrNull(item["uuid"])
-
         Locks::unlock(item["uuid"])
 
         # order: alphabetical order
@@ -123,8 +121,6 @@ class PolyActions
 
     # PolyActions::doubleDot(item)
     def self.doubleDot(item)
-
-        item = TodoDatabase2::getItemByUUIDOrNull(item["uuid"])
 
         if item["mikuType"] == "NxTimeCapsule" then
             if NxBalls::itemIsRunning(item) then
@@ -199,18 +195,17 @@ class PolyActions
                 end
                 if action == "add time" then
                     timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
-                    drop = {
+                    capsule = {
                         "uuid"        => SecureRandom.uuid,
                         "mikuType"    => "NxTimeCapsule",
                         "unixtime"    => Time.new.to_i,
                         "datetime"    => Time.new.utc.iso8601,
-                        "description" => "capsule for #{item["description"]}",
                         "field1"      => -timeInHours,
                         "field2"      => nil,
-                        "field4"      => item["uuid"]
+                        "field10"     => item["uuid"]
                     }
-                    puts JSON.pretty_generate(drop)
-                    TodoDatabase2::commitItem(drop)
+                    puts JSON.pretty_generate(capsule)
+                    TodoDatabase2::commitItem(capsule)
                 end
             }
             return
@@ -255,38 +250,36 @@ class PolyActions
 
     # PolyActions::stop(item)
     def self.stop(item)
-        item, timespanInSeconds, tcId = NxBalls::stop(item)
-        if tcId then
-            drop = {
+        item, timespanInSeconds, field10 = NxBalls::stop(item)
+        if field10 then
+            capsule = {
                 "uuid"        => SecureRandom.uuid,
                 "mikuType"    => "NxTimeCapsule",
                 "unixtime"    => Time.new.to_i,
                 "datetime"    => Time.new.utc.iso8601,
-                "description" => "nxball secondary",
                 "field1"      => -timespanInSeconds.to_f/3600,
-                "field4"      => tcId
+                "field10"     => field10
             }
-            puts JSON.pretty_generate(drop)
-            TodoDatabase2::commitItem(drop)
+            puts JSON.pretty_generate(capsule)
+            TodoDatabase2::commitItem(capsule)
         end
         PolyActions::commitToDisk(item)
     end
 
     # PolyActions::pause(item)
     def self.pause(item)
-        item, timespanInSeconds, tcId = NxBalls::pause(item)
-        if tcId then
-            drop = {
+        item, timespanInSeconds, field10 = NxBalls::pause(item)
+        if field10 then
+            capsule = {
                 "uuid"        => SecureRandom.uuid,
                 "mikuType"    => "NxTimeCapsule",
                 "unixtime"    => Time.new.to_i,
                 "datetime"    => Time.new.utc.iso8601,
-                "description" => "nxball secondary",
                 "field1"      => -timespanInSeconds.to_f/3600,
-                "field4"      => tcId
+                "field10"     => field10
             }
-            puts JSON.pretty_generate(drop)
-            TodoDatabase2::commitItem(drop)
+            puts JSON.pretty_generate(capsule)
+            TodoDatabase2::commitItem(capsule)
         end
         PolyActions::commitToDisk(item)
     end

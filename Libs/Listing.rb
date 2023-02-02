@@ -5,7 +5,7 @@ class Listing
     # Listing::listingCommands()
     def self.listingCommands()
         [
-            "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | landing (<n>) | expose (<n>) | >> skip default | lock (<n>) | push | destroy",
+            "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | landing (<n>) | expose (<n>) | >> skip default | lock (<n>) | push | set time commitment |destroy",
             "[makers] anniversary | manual countdown | wave | today | ondate | todo | drop | top | capsule",
             "[divings] anniversaries | ondates | waves | todos",
             "[NxBalls] start | start * | stop | stop * | pause | pursue",
@@ -78,8 +78,9 @@ class Listing
         end
 
         if Interpreting::match("capsule", input) then
-            hours = LucilleCore::askQuestionAnswerAsString("hours (algebraic): ").to_f
+            hours = LucilleCore::askQuestionAnswerAsString("hours (algebraic, negative for done time): ").to_f
             tc = NxTimeCommitments::interactivelySelectOneOrNull()
+            return if tc.nil?
             capsule = {
                 "uuid"        => SecureRandom.uuid,
                 "mikuType"    => "NxTimeCapsule",
@@ -87,7 +88,7 @@ class Listing
                 "datetime"    => Time.new.utc.iso8601,
                 "description" => tc["description"],
                 "field1"      => hours,
-                "field4"      => tc["uuid"]
+                "field10"     => tc["uuid"]
             }
             TodoDatabase2::commitObject(capsule)
             return
@@ -281,6 +282,17 @@ class Listing
             return
         end
 
+        if Interpreting::match("set time commitment", input) then
+            item = store.getDefault()
+            return if item.nil?
+            return if ["NxDrop", "NxTop"].include?(item["mikuType"])
+            tc = NxTimeCommitments::interactivelySelectOneOrNull()
+            return if tc.nil?
+            item["field10"] = tc["uuid"]
+            TodoDatabase2::commitItem(item)
+            return
+        end
+
         if Interpreting::match("start", input) then
             item = store.getDefault()
             return if item.nil?
@@ -427,7 +439,7 @@ class Listing
                 vspaceleft = vspaceleft - 1
                 tops.each{|item|
                     store.register(item, false)
-                    line = "(#{store.prefixString()}) #{NxDrops::toString(item)}"
+                    line = "(#{store.prefixString()}) #{NxTops::toString(item)}#{NxBalls::nxballSuffixStatus(item["field9"])}"
                     if line. include?("running") then
                         line = line.green
                     end
@@ -459,7 +471,7 @@ class Listing
                 .each{|item|
                     next if Listing::isNxTimeCapsuleStoppedAndCompleted(item)
                     store.register(item, !Skips::isSkipped(item) && !Locks::isLocked(item))
-                    line = "(#{store.prefixString()}) (#{"%5.2f" % item["listing:position"]}) #{PolyFunctions::toStringForListing(item)}#{NxBalls::nxballSuffixStatus(item["field9"])}"
+                    line = "(#{store.prefixString()}) (#{"%5.2f" % item["listing:position"]}) #{PolyFunctions::toStringForListing(item)}#{ item["field10"] ? " (tc: #{NxTimeCommitments::uuidToDescription(item["field10"])})" : "" }#{NxBalls::nxballSuffixStatus(item["field9"])}"
                     if Locks::isLocked(item) then
                         line = "#{line} [lock: #{item["field8"]}]".yellow
                     end

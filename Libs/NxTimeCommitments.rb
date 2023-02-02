@@ -45,7 +45,7 @@ class NxTimeCommitments
     # NxTimeCommitments::toStringForListing(store, item)
     def self.toStringForListing(store, item)
         capsule = Database2Data::itemsForMikuType("NxTimeCapsule")
-        hours = capsule.select{|drop| drop["field4"] == item["uuid"] }.map{|drop| drop["field1"] }.inject(0, :+)
+        hours = capsule.select{|drop| drop["field10"] == item["uuid"] }.map{|drop| drop["field1"] }.inject(0, :+)
         sinceResetInSeconds = Time.new.to_i - item["resetTime"]
         sinceResetInDays = sinceResetInSeconds.to_f/86400
         str1 =
@@ -56,5 +56,16 @@ class NxTimeCommitments
                 " (late by #{(sinceResetInDays - 7).round(2)} days)"
             end
         "(#{store.prefixString()}) #{item["description"].ljust(10)} (left: #{("%5.2f" % hours).to_s.green} hours, out of #{"%5.2f" % item["field3"]})#{str1}"
+    end
+
+    # NxTimeCommitments::uuidToDescription(uuid)
+    def self.uuidToDescription(uuid)
+        description = XCache::getOrNull("364347df-1724-47d6-928c-c5a5da999015:#{CommonUtils::today()}:#{uuid}")
+        return description if description
+        description = Database2Data::itemsForMikuType("NxTimeCommitment").select{|tc| tc["uuid"] == uuid }.map{|tc| tc["description"] }.first
+        if description then
+            XCache::set("364347df-1724-47d6-928c-c5a5da999015:#{CommonUtils::today()}:#{uuid}", description)
+        end
+        description
     end
 end

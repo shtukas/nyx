@@ -2,12 +2,10 @@ NxBall
 {
     "type"          : "running"
     "startunixtime" : Unixtime
-    "tcId"          : null or String
-    "tcName"        : null or String  
     "sequencestart" : null or Unixtime
+    "field10"       : null or String
 }
 {
     "type"          : "paused"
-    "tcId"          : null or String
-    "tcName"        : null or String
+    "field10"       : null or String
 }

@@ -7,7 +7,7 @@ class NxTimeCapsules
             .each{|item|
 
                 drops = Database2Data::itemsForMikuType("NxTimeCapsule")
-                            .select{|drop| drop["field4"] == item["uuid"] }
+                            .select{|drop| drop["field10"] == item["uuid"] }
 
                 dropnegative = drops
                                 .select{|drop| drop["field1"] < 0 }
@@ -29,9 +29,8 @@ class NxTimeCapsules
                     "mikuType"    => "NxTimeCapsule",
                     "unixtime"    => Time.new.to_i,
                     "datetime"    => Time.new.utc.iso8601,
-                    "description" => item["description"],
                     "field1"      => droppositive["field1"] + dropnegative["field1"],
-                    "field4"      => item["uuid"]
+                    "field10"     => item["uuid"]
                 }
                 puts JSON.pretty_generate(drop)
                 TodoDatabase2::commitItem(drop)

@@ -6,14 +6,20 @@ class NxBalls
     # ---------------------------------
     # Utils
 
-    # NxBalls::makeNxBall()
-    def self.makeNxBall()
-        tc = NxTimeCommitments::interactivelySelectOneOrNull()
+    # NxBalls::makeNxBallOrNull(item)
+    def self.makeNxBallOrNull(item)
+        tc = nil
+        if item["field10"] then
+            tc = TodoDatabase2::getItemByUUIDOrNull(item["field10"])
+        end
+        if tc.nil? then
+            tc = NxTimeCommitments::interactivelySelectOneOrNull()
+        end
+        return nil if tc.nil?
         {
             "type"          => "running",
             "startunixtime" => Time.new.to_i,
-            "tcId"          => tc ? tc["uuid"] : nil,
-            "tcName"        => tc ? tc["description"] : nil, 
+            "field10"       => tc["uuid"],
             "sequencestart" => nil
         }
     end
@@ -49,41 +55,28 @@ class NxBalls
     # NxBalls::start(item) # item
     def self.start(item)
         return item if !NxBalls::itemIsBallFree(item)
-
-        nxball =
-            if item["mikuType"] == "NxTimeCapsule" then
-                {
-                    "type"          => "running",
-                    "startunixtime" => Time.new.to_i,
-                    "tcId"          => item["field4"],
-                    "tcName"        => item["description"],
-                    "sequencestart" => nil
-                }
-            else
-                NxBalls::makeNxBall()
-            end
-
+        nxball = NxBalls::makeNxBallOrNull(item)
         item["field9"] = nxball
         item
     end
 
-    # NxBalls::stop(item) # [item, timespanInSeconds, tcId]
+    # NxBalls::stop(item) # [item, timespanInSeconds, field10]
     def self.stop(item)
         return [item, 0] if !NxBalls::itemIsRunning(item)
         nxball = item["field9"]
         timespanInSeconds = Time.new.to_i - nxball["startunixtime"]
         item["field9"] = nil
-        [item, timespanInSeconds, nxball["tcId"]]
+        [item, timespanInSeconds, nxball["field10"]]
     end
 
-    # NxBalls::pause(item) # [item, timespanInSeconds, tcId]
+    # NxBalls::pause(item) # [item, timespanInSeconds, field10]
     def self.pause(item)
         return if !NxBalls::itemIsRunning(item)
         nxball = item["field9"]
         timespanInSeconds = Time.new.to_i - nxball["startunixtime"]
         nxball["type"] = "paused"
         item["field9"] = nxball
-        [item, timespanInSeconds, nxball["tcId"]]
+        [item, timespanInSeconds, nxball["field10"]]
     end
 
     # NxBalls::pursue(item) # item
@@ -103,13 +96,13 @@ class NxBalls
     # NxBalls::nxBallToString(nxball)
     def self.nxBallToString(nxball)
         if nxball["type"] == "running" and nxball["sequencestart"] then
-            return "(nxball: running for #{ ((Time.new.to_i - nxball["startunixtime"]).to_f/3600).round(2) } hours, sequence started #{ ((Time.new.to_i - nxball["sequencestart"]).to_f/3600).round(2) } hours ago)"
+            return "(nxball: running for #{ ((Time.new.to_i - nxball["startunixtime"]).to_f/3600).round(2) } hours, sequence started #{ ((Time.new.to_i - nxball["sequencestart"]).to_f/3600).round(2) } hours ago) (tc: #{NxTimeCommitments::uuidToDescription(nxball["field10"])})"
         end
         if nxball["type"] == "running" then
-            return "(nxball: running for #{ ((Time.new.to_i - nxball["startunixtime"]).to_f/3600).round(2) } hours)"
+            return "(nxball: running for #{ ((Time.new.to_i - nxball["startunixtime"]).to_f/3600).round(2) } hours) (tc: #{NxTimeCommitments::uuidToDescription(nxball["field10"])})"
         end
         if nxball["type"] == "paused" then
-            return "(nxball: paused)"
+            return "(nxball: paused) (tc: #{NxTimeCommitments::uuidToDescription(nxball["field10"])})"
         end
         raise "(error: 93abde39-fd9d-4aa5-8e56-d09cf47a0f46) nxball: #{nxball}"
     end

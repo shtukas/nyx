@@ -60,8 +60,7 @@ class NxTops
             "unixtime"      => Time.new.to_i,
             "datetime"      => Time.new.utc.iso8601,
             "description"   => description,
-            "tcId"             => tc ? tc["uuid"] : nil,
-            "tcName"           => tc ? tc["description"] : nil,
+            "field10"       => tc ? tc["uuid"] : nil,
             "runStartUnixtime" => nil
         }
         puts JSON.pretty_generate(item)
@@ -75,7 +74,7 @@ class NxTops
 
     # NxTops::toString(item)
     def self.toString(item)
-        namex = item["tcName"] ? " (tc: #{item["tcName"]})" : ""
+        namex = item["tcName"] ? " (tc: #{NxTimeCommitments::uuidToDescription(item["field10"])})" : ""
         runningx = item["runStartUnixtime"] ? " (running for #{((Time.new.to_i - item["runStartUnixtime"]).to_f/3600).round(2)} hours)" : ""
         "(top) #{item["description"]}#{namex}#{runningx}"
     end

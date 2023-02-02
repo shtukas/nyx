@@ -198,9 +198,8 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
             FileSystemCheck::ensureAttribute(item, "mikuType", "String")
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-            FileSystemCheck::ensureAttribute(item, "description", "String")
             FileSystemCheck::ensureAttribute(item, "field1", "Number")
-            FileSystemCheck::ensureAttribute(item, "field4", "String")
+            FileSystemCheck::ensureAttribute(item, "field10", "String")
             return
         end
 

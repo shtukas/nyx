@@ -4,6 +4,5 @@ NxTimeCapsule:
     "mikuType"     : "NxTimeCapsule"
     "unixtime"     : Float
     "datetime"     : DateTime Iso 8601 UTC Zulu
-    "description"  : String
     "field1"       : Float, algebraic load in hours
-    "field4"       : reference time commitment uuid
+    "field10"      : reference time commitment uuid

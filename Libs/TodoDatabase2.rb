@@ -489,7 +489,7 @@ class Database2Engine
 
         Database2Data::itemsForMikuType("NxTimeCommitment")
             .each{|item|
-                next if Database2Data::itemsForMikuType("NxTimeCapsule").select{|capsule| capsule["field4"] == item["uuid"] }.size > 0
+                next if Database2Data::itemsForMikuType("NxTimeCapsule").select{|capsule| capsule["field10"] == item["uuid"] }.size > 0
                 next if (Time.new.to_i - item["resetTime"]) < 86400*7
 
                 (0..6).each{|indx|
@@ -498,9 +498,8 @@ class Database2Engine
                         "mikuType"    => "NxTimeCapsule",
                         "unixtime"    => Time.new.to_i,
                         "datetime"    => Time.new.utc.iso8601,
-                        "description" => item["description"],
                         "field1"      => item["field3"].to_f/7,
-                        "field4"      => item["uuid"]
+                        "field10"     => item["uuid"]
                     }
                     puts JSON.pretty_generate(capsule)
                     TodoDatabase2::commitItem(capsule)
