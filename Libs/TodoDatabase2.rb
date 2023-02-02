@@ -490,6 +490,7 @@ class Database2Engine
         Database2Data::itemsForMikuType("NxTimeCommitment")
             .each{|item|
                 next if Database2Data::itemsForMikuType("NxTimeCapsule").select{|capsule| capsule["field4"] == item["uuid"] }.size > 0
+                next if (Time.new.to_i - item["resetTime"]) < 86400*7
 
                 (0..6).each{|indx|
                     capsule = {
