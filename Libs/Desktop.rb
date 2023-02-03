@@ -8,18 +8,14 @@ class Desktop
         "#{Config::pathToDataCenter()}/Desktop"
     end
 
-    # Desktop::filepaths()
-    def self.filepaths()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Desktop")
-            .select{|filepath| filepath[-4, 4] == ".txt" }
+    # Desktop::filepath()
+    def self.filepath()
+        "#{Desktop::desktopFolderPath()}/desktop.txt"
     end
 
     # Desktop::contents()
     def self.contents()
-        Desktop::filepaths()
-            .map{|filepath| IO.read(filepath)}
-            .join("\n\n")
-            .strip
+        IO.read(Desktop::filepath()).lines.first(10).join().strip
     end
 
 end

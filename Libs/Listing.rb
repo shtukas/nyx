@@ -419,11 +419,7 @@ class Listing
 
             system("clear")
             store = ItemStore.new()
-            vspaceleft = CommonUtils::screenHeight() - 3
-
-            puts ""
-            puts The99Percent::line()
-            vspaceleft = vspaceleft - 2
+            vspaceleft = CommonUtils::screenHeight() - 4
 
             dskt = Desktop::contents()
             if dskt.size > 0 then
@@ -432,31 +428,18 @@ class Listing
                 vspaceleft = vspaceleft - 2
                 puts dskt
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(dskt)
+                puts ""
+                vspaceleft = vspaceleft - 1
             end
             
             timecommitments = Engine::itemsForMikuType("NxTimeCommitment")
-            if timecommitments.size > 0 then
-                puts ""
-                vspaceleft = vspaceleft - 1
-                timecommitments
-                    .each{|item|
-                        store.register(item, false)
-                        puts NxTimeCommitments::toStringForListing(store, item)
-                        vspaceleft = vspaceleft - 1
-                    }
-            end
-
-            puts ""
-            puts "> drop | todo | today | ondate | wave | access | done | landing | lock | >>".yellow
-            vspaceleft = vspaceleft - 2
+            vspaceleft = vspaceleft - timecommitments.size
 
             tops = Engine::itemsForMikuType("NxTop")
             if tops.size > 0 then
-                puts ""
-                vspaceleft = vspaceleft - 1
                 tops.each{|item|
                     store.register(item, false)
-                    line = "(#{store.prefixString()}) #{NxTops::toString(item)}#{NxBalls::nxballSuffixStatus(item["field9"])}"
+                    line = "(#{store.prefixString()})         #{NxTops::toString(item)}#{NxBalls::nxballSuffixStatus(item["field9"])}"
                     if line. include?("running") then
                         line = line.green
                     end
@@ -499,6 +482,12 @@ class Listing
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                     break if vspaceleft <= 0
                 }
+            timecommitments
+                .each{|item|
+                    store.register(item, false)
+                    puts "(#{store.prefixString()}) #{NxTimeCommitments::toStringForListing(item)}"
+                }
+            puts The99Percent::line()
 
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
