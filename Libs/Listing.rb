@@ -379,6 +379,7 @@ class Listing
     def self.isPriorityItem(item)
         return true if PolyFunctions::toStringForListing(item).include?("sticky")
         return true if NxBalls::nxballSuffixStatus(item["field9"]).include?("nxball")
+        return true if PolyFunctions::toStringForListing(item).include?("countdown")
         false
     end
 
