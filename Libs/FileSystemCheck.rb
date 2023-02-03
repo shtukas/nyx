@@ -205,6 +205,14 @@ class FileSystemCheck
             return
         end
 
+        if mikuType == "NxTop" then
+            FileSystemCheck::ensureAttribute(item, "uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+            FileSystemCheck::ensureAttribute(item, "datetime", "String")
+            FileSystemCheck::ensureAttribute(item, "description", "String")
+            return
+        end
+
         if mikuType == "TxManualCountDown" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
