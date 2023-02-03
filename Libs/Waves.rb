@@ -144,7 +144,7 @@ class Waves
             "nx113"            => nx113,
             "lastDoneDateTime" => "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         }
-        TodoDatabase2::commitItem(item)
+        ObjectStore1::commitItem(item)
         item
     end
 
@@ -173,7 +173,7 @@ class Waves
         # Marking the item as being done 
         puts "done-ing: #{Waves::toString(item)}"
         item["lastDoneDateTime"] = Time.now.utc.iso8601
-        TodoDatabase2::commitItem(item)
+        ObjectStore1::commitItem(item)
 
         # We control display using DoNotShowUntil
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
@@ -181,13 +181,13 @@ class Waves
         DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
 
         # Database Listing update
-        Database2Engine::disactivateListing(item)
+        Engine::disactivateListing(item)
     end
 
     # Waves::dive()
     def self.dive()
         loop {
-            items = Database2Data::itemsForMikuType("Wave").sort{|w1, w2| w1["description"] <=> w2["description"] }
+            items = Engine::itemsForMikuType("Wave").sort{|w1, w2| w1["description"] <=> w2["description"] }
             wave = LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", items, lambda{|wave| wave["description"] })
             return if wave.nil?
             PolyActions::landing(wave)

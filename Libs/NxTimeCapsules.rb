@@ -3,10 +3,10 @@ class NxTimeCapsules
 
     # NxTimeCapsules::garbageCollection()
     def self.garbageCollection()
-        Database2Data::itemsForMikuType("NxTimeCommitment")
+        Engine::itemsForMikuType("NxTimeCommitment")
             .each{|item|
 
-                drops = Database2Data::itemsForMikuType("NxTimeCapsule")
+                drops = Engine::itemsForMikuType("NxTimeCapsule")
                             .select{|drop| drop["field10"] == item["uuid"] }
 
                 dropnegative = drops
@@ -33,10 +33,10 @@ class NxTimeCapsules
                     "field10"     => item["uuid"]
                 }
                 puts JSON.pretty_generate(drop)
-                TodoDatabase2::commitItem(drop)
+                ObjectStore1::commitItem(drop)
 
-                TodoDatabase2::destroy(dropnegative["uuid"])
-                TodoDatabase2::destroy(droppositive["uuid"])
+                ObjectStore1::destroy(dropnegative["uuid"])
+                ObjectStore1::destroy(droppositive["uuid"])
             }
     end
 end

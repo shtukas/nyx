@@ -20,7 +20,7 @@ class NxTodos
             "nx113"       => nx113,
             "field2"      => "regular"
         }
-        TodoDatabase2::commitItem(item)
+        ObjectStore1::commitItem(item)
         item
     end
 
@@ -40,7 +40,7 @@ class NxTodos
             "nx113"       => nx113,
             "field2"      => "ondate"
         }
-        TodoDatabase2::commitItem(item)
+        ObjectStore1::commitItem(item)
         item
     end
 
@@ -59,7 +59,7 @@ class NxTodos
             "nx113"       => nx113,
             "field2"      => "ondate"
         }
-        TodoDatabase2::commitItem(item)
+        ObjectStore1::commitItem(item)
         item
     end
 
@@ -77,7 +77,7 @@ class NxTodos
             "nx113"       => nx113,
             "field2"      => "ondate"
         }
-        TodoDatabase2::commitItem(item)
+        ObjectStore1::commitItem(item)
         item
     end
 
@@ -95,7 +95,7 @@ class NxTodos
             "nx113"       => nx113,
             "field2"      => "triage"
         }
-        TodoDatabase2::commitItem(item)
+        ObjectStore1::commitItem(item)
         item
     end
 
@@ -134,7 +134,7 @@ class NxTodos
     def self.ondateReport()
         system("clear")
         puts "ondates:"
-        Database2Data::itemsForMikuType("NxTodo")
+        Engine::itemsForMikuType("NxTodo")
             .select{|item| item["field2"] == "ondate" }
             .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
             .each{|item|
@@ -152,7 +152,7 @@ class NxTodos
                 option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["destroy", "exit"])
                 return if option == ""
                 if option == "destroy" then
-                    TodoDatabase2::destroy(item["uuid"])
+                    ObjectStore1::destroy(item["uuid"])
                     return
                 end
                 if option == "exit" then
@@ -160,7 +160,7 @@ class NxTodos
                 end
                 return
             else
-                TodoDatabase2::destroy(item["uuid"])
+                ObjectStore1::destroy(item["uuid"])
             end
         end
     end

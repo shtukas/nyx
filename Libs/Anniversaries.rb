@@ -124,7 +124,7 @@ class Anniversaries
             "repeatType"          => repeatType,
             "lastCelebrationDate" => lastCelebrationDate
         }
-        TodoDatabase2::commitItem(item)
+        ObjectStore1::commitItem(item)
         item
     end
 
@@ -146,7 +146,7 @@ class Anniversaries
 
     # Anniversaries::listingItems()
     def self.listingItems()
-        Database2Data::itemsForMikuType("NxAnniversary")
+        Engine::itemsForMikuType("NxAnniversary")
             .select{|anniversary| Anniversaries::isOpenToAcknowledgement(anniversary) }
     end
 
@@ -155,10 +155,10 @@ class Anniversaries
 
     # Anniversaries::done(uuid)
     def self.done(uuid)
-        item = TodoDatabase2::getItemByUUIDOrNull(uuid)
+        item = ObjectStore1::getItemByUUIDOrNull(uuid)
         return if item.nil?
         item["lastCelebrationDate"] = Time.new.to_s[0, 10]
-        TodoDatabase2::commitItem(item)
+        ObjectStore1::commitItem(item)
     end
 
     # Anniversaries::accessAndDone(anniversary)
@@ -166,14 +166,14 @@ class Anniversaries
         puts Anniversaries::toString(anniversary)
         if LucilleCore::askQuestionAnswerAsBoolean("done ? : ", true) then
             anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
-            TodoDatabase2::commitItem(anniversary)
+            ObjectStore1::commitItem(anniversary)
         end
     end
 
     # Anniversaries::dive()
     def self.dive()
         loop {
-            anniversaries = Database2Data::itemsForMikuType("NxAnniversary")
+            anniversaries = Engine::itemsForMikuType("NxAnniversary")
                         .sort{|i1, i2| Anniversaries::nextDateOrdinal(i1)[0] <=> Anniversaries::nextDateOrdinal(i2)[0] }
             anniversary = LucilleCore::selectEntityFromListOfEntitiesOrNull("anniversary", anniversaries, lambda{|item| Anniversaries::toString(item) })
             return if anniversary.nil?

@@ -5,7 +5,7 @@
 require_relative "../Libs/loader.rb"
 
 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-item = TodoDatabase2::getItemByUUIDOrNull(uuid)
+item = ObjectStore1::getItemByUUIDOrNull(uuid)
 if item.nil? then
     puts "Could not determine an item for this uuid"
     exit
@@ -13,4 +13,4 @@ end
 puts JSON.pretty_generate(item)
 LucilleCore::pressEnterToContinue()
 
-TodoDatabase2::destroy(uuid)
+ObjectStore1::destroy(uuid)

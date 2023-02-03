@@ -19,7 +19,7 @@ class TxManualCountDowns
             "counter"     => dailyTarget,
             "lastUpdatedUnixtime" => nil
         }
-        TodoDatabase2::commitItem(item)
+        ObjectStore1::commitItem(item)
         item
     end
 
@@ -27,14 +27,14 @@ class TxManualCountDowns
 
     # TxManualCountDowns::listingItems()
     def self.listingItems()
-        Database2Data::itemsForMikuType("TxManualCountDown").each{|item|
+        Engine::itemsForMikuType("TxManualCountDown").each{|item|
             if item["date"] != CommonUtils::today() then
                 item["date"] = CommonUtils::today()
                 item["counter"] = item["dailyTarget"]
-                TodoDatabase2::commitItem(item)
+                ObjectStore1::commitItem(item)
             end
         }
-        Database2Data::itemsForMikuType("TxManualCountDown")
+        Engine::itemsForMikuType("TxManualCountDown")
             .select{|item| item["counter"] > 0 }
             .select{|item| item["lastUpdatedUnixtime"].nil? or (Time.new.to_i - item["lastUpdatedUnixtime"]) > 3600 }
     end
@@ -48,7 +48,7 @@ class TxManualCountDowns
         item["counter"] = item["counter"] - count
         item["lastUpdatedUnixtime"] = Time.new.to_i
         puts JSON.pretty_generate(item)
-        TodoDatabase2::commitItem(item)
+        ObjectStore1::commitItem(item)
     end
 
     # TxManualCountDowns::access(item)
@@ -56,8 +56,8 @@ class TxManualCountDowns
         puts "> #{item["description"]}"
         donecount = LucilleCore::askQuestionAnswerAsString("done count: ").to_i
         remaincount = item["counter"] - donecount
-        TodoDatabase2::set(item["uuid"], "field3", remaincount)
-        trajectory = Database2Engine::trajectory(Time.new.to_f, 2)
-        TodoDatabase2::set(item["uuid"], "field13", JSON.generate(trajectory))
+        ObjectStore1::set(item["uuid"], "field3", remaincount)
+        trajectory = Engine::trajectory(Time.new.to_f, 2)
+        ObjectStore1::set(item["uuid"], "field13", JSON.generate(trajectory))
     end
 end

@@ -31,7 +31,7 @@ class PolyActions
             return if action.nil?
             if action == "set hours" then
                 item["hours"] = LucilleCore::askQuestionAnswerAsString("hours (weekly): ").to_f
-                TodoDatabase2::commitItem(item)
+                ObjectStore1::commitItem(item)
             end
             return
         end
@@ -77,12 +77,12 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxDrop" then
-            NxDrops::destroy(item["uuid"])
+            ObjectStore1::destroy(item["uuid"])
             return
         end
 
         if item["mikuType"] == "NxTop" then
-            NxTops::destroy(item["uuid"])
+            ObjectStore1::destroy(item["uuid"])
             return
         end
 
@@ -171,13 +171,13 @@ class PolyActions
                     description = CommonUtils::editTextSynchronously(anniversary["description"]).strip
                     return if description == ""
                     anniversary["description"] = description
-                    TodoDatabase2::commitItem(anniversary)
+                    ObjectStore1::commitItem(anniversary)
                 end
                 if action == "update start date" then
                     startdate = CommonUtils::editTextSynchronously(anniversary["startdate"])
                     return if startdate == ""
                     anniversary["startdate"] = startdate
-                    TodoDatabase2::commitItem(anniversary)
+                    ObjectStore1::commitItem(anniversary)
                 end
             }
             return
@@ -191,7 +191,7 @@ class PolyActions
                 break if action.nil?
                 if action == "set hours" then
                     item["hours"] = LucilleCore::askQuestionAnswerAsString("hours (weekly): ").to_f
-                    TodoDatabase2::commitItem(item)
+                    ObjectStore1::commitItem(item)
                 end
                 if action == "add time" then
                     timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
@@ -205,7 +205,7 @@ class PolyActions
                         "field10"     => item["uuid"]
                     }
                     puts JSON.pretty_generate(capsule)
-                    TodoDatabase2::commitItem(capsule)
+                    ObjectStore1::commitItem(capsule)
                 end
             }
             return
@@ -219,11 +219,11 @@ class PolyActions
                 break if action.nil?
                 if action == "update description" then
                     item["description"] = CommonUtils::editTextSynchronously(item["description"])
-                    TodoDatabase2::commitItem(item)
+                    ObjectStore1::commitItem(item)
                 end
                 if action == "update wave pattern" then
                     item["nx46"] = Waves::makeNx46InteractivelyOrNull()
-                    TodoDatabase2::commitItem(item)
+                    ObjectStore1::commitItem(item)
                 end
                 if action == "perform done" then
                     Waves::performWaveNx46WaveDone(item)
@@ -232,7 +232,7 @@ class PolyActions
                 if action == "set days of the week" then
                     days, _ = CommonUtils::interactivelySelectSomeDaysOfTheWeekLowercaseEnglish()
                     item["onlyOnDays"] = days
-                    TodoDatabase2::commitItem(item)
+                    ObjectStore1::commitItem(item)
                 end
             }
             return
@@ -245,7 +245,7 @@ class PolyActions
     # PolyActions::start(item)
     def self.start(item)
         item = NxBalls::start(item)
-        PolyActions::commitToDisk(item)
+        ObjectStore1::commitItem(item)
     end
 
     # PolyActions::stop(item)
@@ -261,9 +261,9 @@ class PolyActions
                 "field10"     => field10
             }
             puts JSON.pretty_generate(capsule)
-            TodoDatabase2::commitItem(capsule)
+            ObjectStore1::commitItem(capsule)
         end
-        PolyActions::commitToDisk(item)
+        ObjectStore1::commitItem(item)
     end
 
     # PolyActions::pause(item)
@@ -279,27 +279,14 @@ class PolyActions
                 "field10"     => field10
             }
             puts JSON.pretty_generate(capsule)
-            TodoDatabase2::commitItem(capsule)
+            ObjectStore1::commitItem(capsule)
         end
-        PolyActions::commitToDisk(item)
+        ObjectStore1::commitItem(item)
     end
 
     # PolyActions::pursue(item)
     def self.pursue(item)
         item = NxBalls::pursue(item)
-        PolyActions::commitToDisk(item)
-    end
-
-    # PolyActions::commitToDisk(item)
-    def self.commitToDisk(item)
-        if item["mikuType"] == "NxDrop" then
-            NxDrops::commit(item)
-            return
-        end
-        if item["mikuType"] == "NxTop" then
-            NxTops::commit(item)
-            return
-        end
-        TodoDatabase2::commitItem(item)
+        ObjectStore1::commitItem(item)
     end
 end
