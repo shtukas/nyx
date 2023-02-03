@@ -417,6 +417,11 @@ class Listing
                 Engine::listingActivations()
             end
 
+            trajectoryToNumber = lambda{|trajectory|
+                return 0.8 if trajectory.nil?
+                (Time.new.to_i - trajectory["activationunixtime"]).to_f/(trajectory["expectedTimeToCompletionInHours"]*3600)
+            }
+
             system("clear")
             store = ItemStore.new()
             vspaceleft = CommonUtils::screenHeight() - 4
@@ -431,9 +436,6 @@ class Listing
                 puts ""
                 vspaceleft = vspaceleft - 1
             end
-            
-            timecommitments = Engine::itemsForMikuType("NxTimeCommitment")
-            vspaceleft = vspaceleft - timecommitments.size
 
             tops = Engine::itemsForMikuType("NxTop")
             if tops.size > 0 then
@@ -448,13 +450,11 @@ class Listing
                 }
             end
 
-            trajectoryToNumber = lambda{|trajectory|
-                return 0.8 if trajectory.nil?
-                (Time.new.to_i - trajectory["activationunixtime"]).to_f/(trajectory["expectedTimeToCompletionInHours"]*3600)
-            }
-
             puts ""
             vspaceleft = vspaceleft - 1
+
+            timecommitments = Engine::itemsForMikuType("NxTimeCommitment")
+            vspaceleft = vspaceleft - timecommitments.size
 
             items =
             Engine::listingItems()
@@ -482,11 +482,17 @@ class Listing
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                     break if vspaceleft <= 0
                 }
+
             timecommitments
                 .each{|item|
                     store.register(item, false)
-                    puts "(#{store.prefixString()}) #{NxTimeCommitments::toStringForListing(item)}"
+                    line = "(#{store.prefixString()}) #{NxTimeCommitments::toStringForListing(item)}#{NxBalls::nxballSuffixStatus(item["field9"])}"
+                    if NxBalls::itemIsRunning(item) or NxBalls::itemIsPaused(item) then
+                        line = line.green
+                    end
+                    puts line
                 }
+
             puts The99Percent::line()
 
             puts ""
