@@ -471,7 +471,7 @@ class Listing
                 .each{|item|
                     next if Listing::isNxTimeCapsuleStoppedAndCompleted(item)
                     store.register(item, !Skips::isSkipped(item) && !Locks::isLocked(item))
-                    line = "(#{store.prefixString()}) (#{"%5.2f" % item["listing:position"]}) #{PolyFunctions::toStringForListing(item)}#{ item["field10"] ? " (tc: #{NxTimeCommitments::uuidToDescription(item["field10"])})" : "" }#{NxBalls::nxballSuffixStatus(item["field9"])}"
+                    line = "(#{store.prefixString()}) (#{"%5.2f" % item["listing:position"]}) #{PolyFunctions::toStringForListing(item)}#{item["field10"] ? " (tc: #{NxTimeCommitments::uuidToDescription(item["field10"])})" : "" }#{NxBalls::nxballSuffixStatus(item["field9"])}"
                     if Locks::isLocked(item) then
                         line = "#{line} [lock: #{item["field8"]}]".yellow
                     end
