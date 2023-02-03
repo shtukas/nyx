@@ -422,9 +422,20 @@ class Listing
                 [value, 9.99].min
             }
 
+            itemToLine = lambda {|store, item|
+                line = "(#{store.prefixString()}) (#{"%5.2f" % item["listing:position"]}) #{PolyFunctions::toStringForListing(item)}#{item["field10"] ? " (tc: #{NxTimeCommitments::uuidToDescription(item["field10"])})" : "" }#{NxBalls::nxballSuffixStatus(item["field9"])}"
+                if Locks::isLocked(item) then
+                    line = "#{line} [lock: #{item["field8"]}]".yellow
+                end
+                if NxBalls::itemIsRunning(item) or NxBalls::itemIsPaused(item) then
+                    line = line.green
+                end
+                line
+            }
+
             system("clear")
             store = ItemStore.new()
-            vspaceleft = CommonUtils::screenHeight() - 5
+            vspaceleft = CommonUtils::screenHeight() - 4
 
             puts ""
 
@@ -457,27 +468,38 @@ class Listing
             vspaceleft = vspaceleft - timecommitments.size
 
             items =
-            Engine::listingItems()
-                .select{|item| DoNotShowUntil::isVisible(item) }
-                .map{|item|
-                    item["listing:position"] = trajectoryToNumber.call(item["field13"])
-                    item
-                }
-                .select{|item| item["listing:position"] > 0 }
-                .sort{|i1, i2| i1["listing:position"] <=> i2["listing:position"] }
-                .reverse
+                Engine::listingItems()
+                    .select{|item| DoNotShowUntil::isVisible(item) }
+                    .map{|item|
+                        item["listing:position"] = trajectoryToNumber.call(item["field13"])
+                        item
+                    }
+                    .select{|item| item["listing:position"] > 0 }
+                    .sort{|i1, i2| i1["listing:position"] <=> i2["listing:position"] }
+                    .reverse
 
-            CommonUtils::putFirst(items, lambda{|e| Listing::isPriorityItem(e) })
+            lockedItems, items = items.partition{|item| Locks::isLocked(item) }
+            lockedItems.each{|item|
+                vspaceleft = vspaceleft - CommonUtils::verticalSize(PolyFunctions::toStringForListing(item))
+            }
+
+            priorityItems, items = items.partition{|item| Listing::isPriorityItem(item) }
+
+            (priorityItems + items)
                 .each{|item|
                     next if Listing::isNxTimeCapsuleStoppedAndCompleted(item)
-                    store.register(item, !Skips::isSkipped(item) && !Locks::isLocked(item))
-                    line = "(#{store.prefixString()}) (#{"%5.2f" % item["listing:position"]}) #{PolyFunctions::toStringForListing(item)}#{item["field10"] ? " (tc: #{NxTimeCommitments::uuidToDescription(item["field10"])})" : "" }#{NxBalls::nxballSuffixStatus(item["field9"])}"
-                    if Locks::isLocked(item) then
-                        line = "#{line} [lock: #{item["field8"]}]".yellow
-                    end
-                    if NxBalls::itemIsRunning(item) or NxBalls::itemIsPaused(item) then
-                        line = line.green
-                    end
+                    store.register(item, !Skips::isSkipped(item))
+                    line = itemToLine.call(store, item)
+                    puts line
+                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                    break if vspaceleft <= 0
+                }
+
+            lockedItems
+                .each{|item|
+                    next if Listing::isNxTimeCapsuleStoppedAndCompleted(item)
+                    store.register(item, false)
+                    line = itemToLine.call(store, item)
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                     break if vspaceleft <= 0
