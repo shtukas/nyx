@@ -9,18 +9,25 @@ class NxTimeCommitments
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         hours = LucilleCore::askQuestionAnswerAsString("hours (weekly): ").to_f
+        uuid = SecureRandom.uuid
         item = {
-            "uuid"        => SecureRandom.uuid,
+            "uuid"        => uuid,
             "mikuType"    => "NxTimeCommitment",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
             "resetTime"   => 0,
-            "field3"      => hours
+            "field3"      => hours,
+            "field10"     => uuid,
         }
         FileSystemCheck::fsck_NxTimeCommitment(item, true)
         ObjectStore1::commitItem(item)
         item
+    end
+
+    # NxTimeCommitments::items()
+    def self.items()
+        Engine::itemsForMikuType("NxTimeCommitment")
     end
 
     # ----------------------------------------------------------------

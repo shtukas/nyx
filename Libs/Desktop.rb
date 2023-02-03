@@ -17,5 +17,4 @@ class Desktop
     def self.contents()
         IO.read(Desktop::filepath()).lines.first(10).join().strip
     end
-
 end

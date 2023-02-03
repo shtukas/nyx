@@ -20,7 +20,7 @@ Type:
 
     "field9"         : string ; (null | "") or NxBall, json encoded
 
-    "field10"        : string ; null |  empty | time commitment id # simplify the creation of nxballs
+    "field10"        : string ; null |  empty | time commitment uuid # simplifies the creation of nxballs
     "field11"        : string (not used)
 
     "field12"        : string ; "true" if listed
