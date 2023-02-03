@@ -7,7 +7,7 @@ class Listing
         [
             "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | landing (<n>) | expose (<n>) | >> skip default | lock (<n>) | push | set time commitment |destroy",
             "[makers] anniversary | manual countdown | wave | today | ondate | todo | drop | top | capsule",
-            "[divings] anniversaries | ondates | waves | todos",
+            "[divings] anniversaries | ondates | waves | todos | desktop",
             "[NxBalls] start | start * | stop | stop * | pause | pursue",
             "[NxTodo] redate",
             "[misc] search | speed | commands",
@@ -110,6 +110,11 @@ class Listing
             puts "edit description:"
             item["description"] = CommonUtils::editTextSynchronously(item["description"])
             ObjectStore1::commitItem(item)
+            return
+        end
+
+        if Interpreting::match("desktop", input) then
+            system("open '#{Desktop::desktopFolderPath()}'")
             return
         end
 
@@ -419,15 +424,26 @@ class Listing
             puts The99Percent::line()
             vspaceleft = vspaceleft - 2
 
-            puts ""
-            vspaceleft = vspaceleft - 1
+            dskt = Desktop::contents()
+            if dskt.size > 0 then
+                puts ""
+                puts "Desktop:".green
+                vspaceleft = vspaceleft - 2
+                puts dskt
+                vspaceleft = vspaceleft - CommonUtils::verticalSize(dskt)
+            end
             
-            Engine::itemsForMikuType("NxTimeCommitment")
-                .each{|item|
-                    store.register(item, false)
-                    puts NxTimeCommitments::toStringForListing(store, item)
-                    vspaceleft = vspaceleft - 1
-                }
+            timecommitments = Engine::itemsForMikuType("NxTimeCommitment")
+            if timecommitments.size > 0 then
+                puts ""
+                vspaceleft = vspaceleft - 1
+                timecommitments
+                    .each{|item|
+                        store.register(item, false)
+                        puts NxTimeCommitments::toStringForListing(store, item)
+                        vspaceleft = vspaceleft - 1
+                    }
+            end
 
             puts ""
             puts "> drop | todo | today | ondate | wave | access | done | landing | lock | >>".yellow

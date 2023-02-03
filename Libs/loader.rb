@@ -152,6 +152,8 @@ require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::isVisible(uid)
 require_relative "Dx8Units.rb"
 require_relative "DatablobStore.rb"
+require_relative "Desktop"
+
 require_relative "Engine.rb"
 
 require_relative "Locks.rb"
