@@ -379,7 +379,6 @@ class Listing
     def self.isPriorityItem(item)
         return true if PolyFunctions::toStringForListing(item).include?("sticky")
         return true if NxBalls::nxballSuffixStatus(item["field9"]).include?("nxball")
-        return true if PolyFunctions::toStringForListing(item).include?("countdown")
         false
     end
 
@@ -419,15 +418,18 @@ class Listing
 
             trajectoryToNumber = lambda{|trajectory|
                 return 0.8 if trajectory.nil?
-                (Time.new.to_i - trajectory["activationunixtime"]).to_f/(trajectory["expectedTimeToCompletionInHours"]*3600)
+                value = (Time.new.to_i - trajectory["activationunixtime"]).to_f/(trajectory["expectedTimeToCompletionInHours"]*3600)
+                [value, 9.99].min
             }
 
             system("clear")
             store = ItemStore.new()
-            vspaceleft = CommonUtils::screenHeight() - 4
+            vspaceleft = CommonUtils::screenHeight() - 5
 
-            dskt = Desktop::contents()
-            if dskt.size > 0 then
+            puts ""
+
+            dskt = Desktop::contentsOrNull()
+            if dskt and dskt.size > 0 then
                 puts ""
                 puts "Desktop:".green
                 vspaceleft = vspaceleft - 2
@@ -439,8 +441,10 @@ class Listing
 
             tops = Engine::itemsForMikuType("NxTop")
             if tops.size > 0 then
+                puts ""
+                vspaceleft = vspaceleft - 1
                 tops.each{|item|
-                    store.register(item, false)
+                    store.register(item, true)
                     line = "(#{store.prefixString()})         #{NxTops::toString(item)}#{NxBalls::nxballSuffixStatus(item["field9"])}"
                     if line. include?("running") then
                         line = line.green
@@ -449,10 +453,6 @@ class Listing
                     vspaceleft = vspaceleft - 1
                 }
             end
-
-            puts ""
-            vspaceleft = vspaceleft - 1
-
             timecommitments = Engine::itemsForMikuType("NxTimeCommitment")
             vspaceleft = vspaceleft - timecommitments.size
 

@@ -8,13 +8,20 @@ class Desktop
         "#{Config::pathToDataCenter()}/Desktop"
     end
 
-    # Desktop::filepath()
-    def self.filepath()
-        "#{Desktop::desktopFolderPath()}/desktop.txt"
+    # Desktop::filepathOrNull()
+    def self.filepathOrNull()
+        filepath = "#{Desktop::desktopFolderPath()}/desktop.txt"
+        File.exist?(filepath) ? filepath : nil
     end
 
-    # Desktop::contents()
-    def self.contents()
-        IO.read(Desktop::filepath()).lines.first(10).join().strip
+    # Desktop::contentsOrNull()
+    def self.contentsOrNull()
+        filepath = Desktop::filepathOrNull()
+        if filepath then
+            IO.read(Desktop::filepathOrNull()).lines.first(10).join().strip
+        else
+            nil
+        end
+        
     end
 end
