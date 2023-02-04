@@ -61,7 +61,7 @@ class NxTimeCommitments
                 if daysLeft > 1 then
                     " (#{"%4.2f" % daysLeft} days left, #{"%5.2f" % ([hours, 0].max.to_f/daysLeft)} hours per day)"
                 else
-                    " (#{"%4.2f" % daysLeft} days left, last day)"
+                    " (#{"%4.2f" % daysLeft} days left)"
                 end
                 
             else
