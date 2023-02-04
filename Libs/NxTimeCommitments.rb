@@ -58,7 +58,12 @@ class NxTimeCommitments
         str1 =
             if sinceResetInDays < 7 then
                 daysLeft = 7 - sinceResetInDays
-                " (#{"%4.2f" % daysLeft} days left, #{"%5.2f" % ([hours, 0].max.to_f/daysLeft)} hours per day)"
+                if daysLeft > 1 then
+                    " (#{"%4.2f" % daysLeft} days left, #{"%5.2f" % ([hours, 0].max.to_f/daysLeft)} hours per day)"
+                else
+                    " (#{"%4.2f" % daysLeft} days left, last day)"
+                end
+                
             else
                 " (late by #{(sinceResetInDays - 7).round(2)} days)"
             end
