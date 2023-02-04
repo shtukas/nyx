@@ -1,19 +1,25 @@
 
-The principal design idea of CoreData is that we refer to specific storage units by
-a single string, called a Core Date Reference String, or just _reference string_,
-and mutations of the storage unit are transparent to the holder of the reference.
+The principal design idea of CoreData is that we refer to specific storage units by a single string, called a Core Date Reference String, or just _reference string_. Note that mutations of the data may result in the string being updated, in any case the holder should always assume that an edit results in the string being updated.
 
-Issuing another storage unit corresponds to a different reference being generated.
-
-We have 4 kinds of payload
+reference strings categories:
 
     - "null" (when the node doesn't have one, for instance navigation nodes)
 
     - "nyx-directory:{directoryId}"
       The directory Id is the name of the directory in { Galaxy/Nyx/Directories }
 
-    - unique-string:#{uniquestring}
+    - "unique-string:#{uniquestring}""
 
+    - "just-text:#{nhash}"
+      The fragment is the named hash of the text in DatablobStore
+
+    - "aion-point:#{nhash}"
+      The nhash is the named hash of the root of the aion hierarchy
+
+    - "url:#{nhash}"
+      The nhash is the named hash of the url in the DatablobStore
+
+    
 
 -- (ignore below) ---------------------------------------------
 

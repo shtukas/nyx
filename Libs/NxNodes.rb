@@ -48,7 +48,12 @@ class NxNodes
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid  = SecureRandom.uuid
-        coredataref = CoreData::referenceString(uuid)
+        coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
+        if coredataref.nil? then
+            if !LucilleCore::askQuestionAnswerAsBoolean("We are building a node with a null coredataref. Confirm (or abort node creation): ") then
+                return nil
+            end
+        end
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxNode",

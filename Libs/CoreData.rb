@@ -5,7 +5,7 @@ class CoreData
 
     # CoreData::coreDataReferenceTypes()
     def self.coreDataReferenceTypes()
-        ["nyx directory", "unique string"]
+        ["nyx directory", "unique string", "just text", "url", "aion point", "Dx8Unit"]
     end
 
     # CoreData::interactivelySelectCoreDataReferenceType()
@@ -14,8 +14,8 @@ class CoreData
         LucilleCore::selectEntityFromListOfEntitiesOrNull("coredata reference type", types)
     end
 
-    # CoreData::referenceString(uuid) # payload string
-    def self.referenceString(uuid)
+    # CoreData::interactivelyMakeNewReferenceStringOrNull(uuid) # payload string
+    def self.interactivelyMakeNewReferenceStringOrNull(uuid)
         # This function is called during the making of a new node (or when we are issuing a new payload of an existing node)
         # It does stuff and returns a payload string or null
         referencetype = CoreData::interactivelySelectCoreDataReferenceType()
@@ -23,7 +23,7 @@ class CoreData
             if LucilleCore::askQuestionAnswerAsBoolean("> confirm null reference string ? ") then
                 return "null"
             else
-                return CoreData::referenceString(uuid)
+                return CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
             end
         end
         if referencetype == "nyx directory" then
@@ -36,6 +36,26 @@ class CoreData
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string: ")
             return "unique-string:#{uniquestring}"
         end
+        if referencetype == "just text" then
+            text = CommonUtils::editTextSynchronously("")
+            nhash = DatablobStore::put(text)
+            return "just-text:#{nhash}"
+        end
+        if referencetype == "url" then
+            url = LucilleCore::askQuestionAnswerAsString("url: ")
+            nhash = DatablobStore::put(url)
+            return "url:#{nhash}"
+        end
+        if referencetype == "aion point" then
+            location = CommonUtils::interactivelySelectDesktopLocationOrNull()
+            return nil if location.nil?
+            nhash = AionCore::commitLocationReturnHash(DatablobStoreElizabeth.new(), location)
+            return "aion-point:#{nhash}" 
+        end
+        if referencetype == "Dx8Unit" then
+            unitId = LucilleCore::askQuestionAnswerAsString("Dx8Unit Id: ")
+            return "Dx8UnitId:#{unitId}"
+        end
         raise "(error: f75b2797-99e5-49d0-8d49-40b44beb538c) unsupported core data reference type: #{referencetype}"
     end
 
@@ -44,7 +64,7 @@ class CoreData
 
     end
 
-    # CoreData::edit(referenceString)
+    # CoreData::edit(referenceString) # new reference string
     def self.edit(referenceString)
 
     end
