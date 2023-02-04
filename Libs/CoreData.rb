@@ -61,11 +61,62 @@ class CoreData
 
     # CoreData::access(referenceString)
     def self.access(referenceString)
-
+        if str == "null" then
+            puts "Accessing null reference string. Nothing to do."
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if str.start_with?("nyx-directory") then
+            directoryId = str.split(":")[1]
+            puts "CoreData, accessing nyx directory: id: #{directoryId}"
+            puts "not implemented yet"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if str.start_with?("unique-string") then
+            uniquestring = str.split(":")[1]
+            puts "CoreData, accessing unique string: #{uniquestring}"
+            puts "not implemented yet"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if str.start_with?("just-text") then
+            nhash = str.split(":")[1]
+            puts "CoreData, accessing just text: #{nhash}"
+            puts "not implemented yet"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if str.start_with?("url") then
+            nhash = str.split(":")[1]
+            puts "CoreData, accessing url: #{nhash}"
+            puts "not implemented yet"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if str.start_with?("aion-point") then
+            nhash = str.split(":")[1]
+            puts "CoreData, accessing aion point: #{nhash}"
+            puts "not implemented yet"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if str.start_with?("Dx8UnitId") then
+            nhash = str.split(":")[1]
+            puts "CoreData, accessing Dx8Unit: #{nhash}"
+            puts "not implemented yet"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
     end
 
     # CoreData::edit(referenceString) # new reference string
     def self.edit(referenceString)
+
+    end
+
+    # CoreData::fsck()
+    def self.fsck()
 
     end
 end
