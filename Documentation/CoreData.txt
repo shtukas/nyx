@@ -10,7 +10,7 @@ reference strings categories:
 
     - "unique-string:#{uniquestring}""
 
-    - "just-text:#{nhash}"
+    - "text:#{nhash}"
       The fragment is the named hash of the text in DatablobStore
 
     - "aion-point:#{nhash}"
