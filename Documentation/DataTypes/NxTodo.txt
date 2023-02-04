@@ -1,11 +1,10 @@
 
 NxTodo:
 
-    "uuid"              : String
-    "mikuType"          : "NxTodo"
-    "unixtime"          : Float
-    "datetime"          : DateTime Iso 8601 UTC Zulu
-    "description"       : String
-    "nx113"    "field1" : null or Nx113, json encoded
-               "field2" : "regular" | "ondate" | "triage"
-
+    "uuid"        : String
+    "mikuType"    : "NxTodo"
+    "unixtime"    : Float
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "description" : String
+    "field2"      : "regular" | "ondate" | "triage"
+    "field11"     : null or CoreData reference string

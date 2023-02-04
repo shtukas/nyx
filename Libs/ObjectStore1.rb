@@ -287,7 +287,6 @@ class ObjectStore1ItemObjectsTranslation
         # ------------------------------------
 
         if object["mikuType"] == "NxTodo" then
-            object["nx113"] = JSON.parse(object["field1"])
             return object
         end
         if object["mikuType"] == "NxAnniversary" then
@@ -299,7 +298,6 @@ class ObjectStore1ItemObjectsTranslation
         if object["mikuType"] == "Wave" then
             object["nx46"]                = JSON.parse(object["field1"])
             object["lastDoneDateTime"]    = object["field4"]
-            object["nx113"]               = JSON.parse(object["field5"])
             object["onlyOnDays"]          = JSON.parse(object["field6"])
             return object
         end
@@ -341,7 +339,6 @@ class ObjectStore1ItemObjectsTranslation
         item["field13"] = JSON.generate(item["field13"])
 
         if item["mikuType"] == "NxTodo" then
-            item["field1"] = JSON.generate(item["nx113"])
             return item
         end
         if item["mikuType"] == "NxAnniversary" then
@@ -353,7 +350,6 @@ class ObjectStore1ItemObjectsTranslation
         if item["mikuType"] == "Wave" then
             item["field1"] = JSON.generate(item["nx46"])
             item["field4"] = item["lastDoneDateTime"]
-            item["field5"] = JSON.generate(item["nx113"])
             item["field6"] = JSON.generate(item["onlyOnDays"])
             return item
         end

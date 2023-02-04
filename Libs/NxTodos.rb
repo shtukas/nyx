@@ -2,6 +2,11 @@
 
 class NxTodos
 
+    # NxTodos::items()
+    def self.items()
+        Engine::itemsForMikuType("NxTodo")
+    end
+
     # --------------------------------------------------
     # Makers
 

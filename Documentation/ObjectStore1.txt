@@ -15,16 +15,13 @@ Type:
     "field5"         : string ; used, miku type specific
     "field6"         : string ; used, miku type specific
 
-    "field7"         : string ; used as float, unixtime, skipped until
-    "field8"         : string ; lockname # string
-
-    "field9"         : string ; (null | "") or NxBall, json encoded
-
-    "field10"        : string ; null |  empty | time commitment uuid # simplifies the creation of nxballs
-    "field11"        : string (not used)
-
-    "field12"        : string ; "true" if listed
-    "field13"        : float  ; used as string, trajectory, null or NxListingVelocity, json encoded
+    "field7"         : string ; null, "" or skipped until unixtime (float)
+    "field8"         : string ; null, "" or lockname # if locked under that name
+    "field9"         : string ; null, "" or NxBall (json encoded at rest)
+    "field10"        : string ; null, "" or time commitment uuid
+    "field11"        : string ; null, "" or CoreData reference string
+    "field12"        : string ; null, "" or "true" # if listed
+    "field13"        : float  ; null, "" or NxListingVelocity (json encoded at rest)
 
 
 ```

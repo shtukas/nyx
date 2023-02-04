@@ -7,11 +7,11 @@ Wave:
     "description"      : description
 
     "nx46"             : "field1", JSON.parsed : Nx46 # Wave pattern
-
     "lastDoneDateTime" : "field4"              : DateTime Iso 8601 UTC Zulu
-    "nx113"            : "field5", JSON.parsed : Nx113
     "onlyOnDays"       : "field6", JSON.parsed : null or Array[week days names lowercase english] 
                                                  Indicates on which days the wave can show up
+
+    "field11"          : CoreData reference string
 
 Nx46 {
     "type"  : Nx46Type

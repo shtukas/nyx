@@ -4,6 +4,11 @@ class Waves
     # ------------------------------------------------------------------
     # IO
 
+    # Waves::items()
+    def self.items()
+        Engine::itemsForMikuType("Wave")
+    end
+
     # Waves::getExistingFilepathForUUIDOrNull(uuid)
     def self.getExistingFilepathForUUIDOrNull(uuid)
         LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Wave")
@@ -133,7 +138,7 @@ class Waves
         nx46 = Waves::makeNx46InteractivelyOrNull()
         return nil if nx46.nil?
         uuid = SecureRandom.uuid
-        nx113 = Nx113Make::interactivelyMakeNx113OrNull()
+        coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
         item = {
             "uuid"             => uuid,
             "mikuType"         => "Wave",
@@ -141,8 +146,8 @@ class Waves
             "datetime"         => Time.new.utc.iso8601,
             "description"      => description,
             "nx46"             => nx46,
-            "nx113"            => nx113,
-            "lastDoneDateTime" => "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
+            "lastDoneDateTime" => "#{Time.new.strftime("%Y")}-01-01T00:00:00Z",
+            "field11"          => coredataref,
         }
         ObjectStore1::commitItem(item)
         item
@@ -154,14 +159,14 @@ class Waves
     # Waves::toString(item)
     def self.toString(item)
         ago = "#{((Time.new.to_i - DateTime.parse(item["lastDoneDateTime"]).to_time.to_i).to_f/86400).round(2)} days ago"
-        "(wave) #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")} (#{Waves::nx46ToString(item["nx46"])}) (#{ago}) 🌊"
+        "(wave) #{item["description"]} (#{item["field11"]}) (#{Waves::nx46ToString(item["nx46"])}) (#{ago}) 🌊"
     end
 
     # Waves::toStringForSearch(item)
     def self.toStringForSearch(item)
         ago = "#{((Time.new.to_i - DateTime.parse(item["lastDoneDateTime"]).to_time.to_i).to_f/86400).round(2)} days ago"
         isPendingStr = DoNotShowUntil::isVisible(item["uuid"]) ? " (pending)".green : ""
-        "(wave) #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")} (#{Waves::nx46ToString(item["nx46"])}) (#{ago})#{isPendingStr} 🌊 [#{item["priority"]}]"
+        "(wave) #{item["description"]} (#{item["field11"]}) (#{Waves::nx46ToString(item["nx46"])}) (#{ago})#{isPendingStr} 🌊 [#{item["priority"]}]"
     end
 
     # -------------------------------------------------------------------------
@@ -197,8 +202,6 @@ class Waves
     # Waves::access(item)
     def self.access(item)
         puts Waves::toString(item).green
-        if item["nx113"] then
-            Nx113Access::access(item["nx113"])
-        end
+        CoreData::access(item["field11"])
     end
 end

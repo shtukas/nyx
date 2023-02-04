@@ -19,6 +19,18 @@ reference strings categories:
     - "url:#{nhash}"
       The nhash is the named hash of the url in the DatablobStore
 
+    - "file:#{nhash}"
+      We do not specifically create those but we have them in stock, 
+      we got them from NxTodos when we migrated, from Nx113 to CoreData 
+      The nhash points at an object of the form
+        {
+            "dottedExtension" => String
+            "nhash"           => String
+            "parts"           => Array[String]
+        }
+
+
+
 -- (ignore below) ---------------------------------------------
 
 We have distinct types of contents (or payloads) for Nyx Nodes.
