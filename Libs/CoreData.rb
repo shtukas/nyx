@@ -27,7 +27,7 @@ class CoreData
             end
         end
         if referencetype == "nyx directory" then
-            folderpath = NyxDirectories::makeNewDirectory(uuid)
+            folderpath = NyxDirectories::makeNew(uuid)
             system("open '#{folderpath}'")
             LucilleCore::pressEnterToContinue()
             return "nyx-directory:#{uuid}"
@@ -68,9 +68,7 @@ class CoreData
         end
         if str.start_with?("nyx-directory") then
             directoryId = str.split(":")[1]
-            puts "CoreData, accessing nyx directory: id: #{directoryId}"
-            puts "not implemented yet"
-            LucilleCore::pressEnterToContinue()
+            NyxDirectories::access(directoryId)
             return
         end
         if str.start_with?("unique-string") then
@@ -110,7 +108,47 @@ class CoreData
 
     # CoreData::edit(referenceString) # new reference string
     def self.edit(referenceString)
-
+        if str == "null" then
+            return CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
+        end
+        if str.start_with?("nyx-directory") then
+            directoryId = str.split(":")[1]
+            NyxDirectories::access(directoryId)
+            return
+        end
+        if str.start_with?("unique-string") then
+            uniquestring = str.split(":")[1]
+            puts "CoreData, editing unique string: #{uniquestring}"
+            puts "not implemented yet"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if str.start_with?("text") then
+            nhash = str.split(":")[1]
+            puts "CoreData, editing text: #{nhash}"
+            puts "not implemented yet"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if str.start_with?("url") then
+            nhash = str.split(":")[1]
+            puts "CoreData, editing url: #{nhash}"
+            puts "not implemented yet"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if str.start_with?("aion-point") then
+            nhash = str.split(":")[1]
+            puts "CoreData, editing aion point: #{nhash}"
+            puts "not implemented yet"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if str.start_with?("Dx8UnitId") then
+            unitId = str.split(":")[1]
+            Dx8Units::access(unitId)
+            return
+        end
     end
 
     # CoreData::fsck() # error if not validation
@@ -120,7 +158,7 @@ class CoreData
         end
         if str.start_with?("nyx-directory") then
             directoryId = str.split(":")[1]
-            folderpath = NyxDirectories::nyxDirectoryPath(directoryId)
+            folderpath = NyxDirectories::directoryPath(directoryId)
             if !File.exist?(folderpath) then
                 raise "CoreData fsck nyx-directory. Could not see directory: #{directoryId}"
             end

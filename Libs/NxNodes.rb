@@ -117,7 +117,7 @@ class NxNodes
                     next
                 end
                 if item["coredataref"] == "nyx-directory" then
-                    NyxDirectories::accessNyxDirectory(item["uuid"])
+                    NyxDirectories::access(item["uuid"])
                     next
                 end
                 next

@@ -19,8 +19,6 @@ reference strings categories:
     - "url:#{nhash}"
       The nhash is the named hash of the url in the DatablobStore
 
-    
-
 -- (ignore below) ---------------------------------------------
 
 We have distinct types of contents (or payloads) for Nyx Nodes.

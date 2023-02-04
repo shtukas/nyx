@@ -5,14 +5,14 @@ class NyxDirectories
 
     # --------------------------------------------------------
 
-    # NyxDirectories::nyxDirectoryPath(directoryId)
-    def self.nyxDirectoryPath(directoryId)
+    # NyxDirectories::directoryPath(directoryId)
+    def self.directoryPath(directoryId)
         "#{Nyx::pathToNyx()}/Directories/#{directoryId}"
     end
 
-    # NyxDirectories::accessNyxDirectory(directoryId)
-    def self.accessNyxDirectory(directoryId)
-        folderpath = NyxDirectories::nyxDirectoryPath(directoryId)
+    # NyxDirectories::access(directoryId)
+    def self.access(directoryId)
+        folderpath = NyxDirectories::directoryPath(directoryId)
         if !File.exist?(folderpath) then
             puts "There is not nyx directory for directoryId: #{directoryId}"
             LucilleCore::pressEnterToContinue()
@@ -22,9 +22,9 @@ class NyxDirectories
         LucilleCore::pressEnterToContinue()
     end
 
-    # NyxDirectories::makeNewDirectory(directoryId) # folderpath
-    def self.makeNewDirectory(directoryId)
-        folderpath = NyxDirectories::nyxDirectoryPath(directoryId)
+    # NyxDirectories::makeNew(directoryId) # folderpath
+    def self.makeNew(directoryId)
+        folderpath = NyxDirectories::directoryPath(directoryId)
         if !File.exist?(folderpath) then
             FileUtils.mkdir(folderpath)
         end
