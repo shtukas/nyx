@@ -441,19 +441,14 @@ class Listing
 
             dskt = Desktop::contentsOrNull()
             if dskt and dskt.size > 0 then
-                puts ""
                 puts "Desktop:".green
                 vspaceleft = vspaceleft - 2
                 puts dskt
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(dskt)
-                puts ""
-                vspaceleft = vspaceleft - 1
             end
 
             tops = Engine::itemsForMikuType("NxTop")
             if tops.size > 0 then
-                puts ""
-                vspaceleft = vspaceleft - 1
                 tops.each{|item|
                     store.register(item, true)
                     line = "(#{store.prefixString()})         #{NxTops::toString(item)}#{NxBalls::nxballSuffixStatus(item["field9"])}"
