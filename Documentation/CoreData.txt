@@ -29,8 +29,6 @@ reference strings categories:
             "parts"           => Array[String]
         }
 
-
-
 -- (ignore below) ---------------------------------------------
 
 We have distinct types of contents (or payloads) for Nyx Nodes.

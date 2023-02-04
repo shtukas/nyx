@@ -169,7 +169,6 @@ require_relative "FileSystemCheck.rb"
 require_relative "LambdX1s.rb"
 
 require_relative "Nyx.rb"
-require_relative "Nx113.rb"
 require_relative "NxTodos.rb"
 require_relative "NxNetwork.rb"
 require_relative "NxNodes.rb"

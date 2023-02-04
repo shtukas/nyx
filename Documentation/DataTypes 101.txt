@@ -1,13 +1,13 @@
 
 Catalyst:
     NxAnniversary    (no payload)
-    NxTodo           (Nx113)
+    NxTodo           (CoreData)
     NxTimeCapsule    (no payload)
     TxManualPayload  (no payload)
-    Wave             (Nx113)
+    Wave             (CoreData)
 
 Nyx Networks:
-    NxNode           (Nx113)
+    NxNode           (CoreData)
 
 Misc:
     Nx45      # UUID naming convention 

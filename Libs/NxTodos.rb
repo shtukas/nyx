@@ -15,15 +15,15 @@ class NxTodos
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid  = SecureRandom.uuid
-        nx113 = Nx113Make::interactivelyMakeNx113OrNull()
+        coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "nx113"       => nx113,
             "field2"      => "regular"
+            "field11"     => coredataref,
         }
         ObjectStore1::commitItem(item)
         item
@@ -34,7 +34,7 @@ class NxTodos
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid  = SecureRandom.uuid
-        nx113 = Nx113Make::interactivelyMakeNx113OrNull()
+        coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
         datetime = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
         item = {
             "uuid"        => uuid,
@@ -42,8 +42,8 @@ class NxTodos
             "unixtime"    => Time.new.to_i,
             "datetime"    => datetime,
             "description" => description,
-            "nx113"       => nx113,
-            "field2"      => "ondate"
+            "field2"      => "ondate",
+            "field11"     => coredataref
         }
         ObjectStore1::commitItem(item)
         item
@@ -54,15 +54,14 @@ class NxTodos
         description = LucilleCore::askQuestionAnswerAsString("today (empty to abort): ")
         return nil if description == ""
         uuid  = SecureRandom.uuid
-        nx113 = Nx113Make::interactivelyMakeNx113OrNull()
+        coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "nx113"       => nx113,
-            "field2"      => "ondate"
+            "field11"     => coredataref
         }
         ObjectStore1::commitItem(item)
         item
@@ -72,15 +71,15 @@ class NxTodos
     def self.viennaUrlForToday(url)
         description = "(vienna) #{url}"
         uuid  = SecureRandom.uuid
-        nx113 = Nx113Make::url(url)
+        coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "nx113"       => nx113,
-            "field2"      => "ondate"
+            "field2"      => "ondate",
+            "field11"     => coredataref,
         }
         ObjectStore1::commitItem(item)
         item
@@ -90,15 +89,15 @@ class NxTodos
     def self.bufferInImport(location)
         description = File.basename(location)
         uuid = SecureRandom.uuid
-        nx113 = Nx113Make::aionpoint(location)
+        coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "nx113"       => nx113,
-            "field2"      => "triage"
+            "field2"      => "triage",
+            "field11"     => coredataref
         }
         ObjectStore1::commitItem(item)
         item
@@ -115,8 +114,7 @@ class NxTodos
             return ", triage" if item["field2"] == "triage"
             raise "(error: ca9b365a-2e14-4523-8df9-fe2d6a6dd5f4) #{item}"
         }).call(item)
-        nx113str = Nx113Access::toStringOrNull(" ", item["nx113"], "")
-        "(todo#{flavour}) #{item["description"]}#{nx113str}"
+        "(todo#{flavour}) #{item["description"]}"
     end
 
     # NxTodos::toStringForSearch(item)
@@ -129,10 +127,7 @@ class NxTodos
 
     # NxTodos::access(item)
     def self.access(item)
-        puts NxTodos::toString(item).green
-        if item["nx113"] then
-            Nx113Access::access(item["nx113"])
-        end
+
     end
 
     # NxTodos::ondateReport()
@@ -152,8 +147,8 @@ class NxTodos
     def self.doneprocess(item)
         puts PolyFunctions::toString(item)
         if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
-            if item["nx113"] then
-                puts "You are attempting to done a NxTodo which carries some contents (Nx113)"
+            if item["field11"] then
+                puts "You are attempting to done a NxTodo which carries a core data reference string"
                 option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["destroy", "exit"])
                 return if option == ""
                 if option == "destroy" then

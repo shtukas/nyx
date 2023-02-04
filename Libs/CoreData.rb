@@ -139,11 +139,36 @@ class CoreData
             return
         end
         if referenceString.start_with?("aion-point") then
-            nhash = referenceString.split(":")[1]
-            puts "CoreData, editing aion point: #{nhash}"
-            puts "not implemented yet"
+            rootnhash = referenceString.split(":")[1]
+
+            exportLocation = "#{ENV['HOME']}/Desktop/aion-point-#{SecureRandom.hex(4)}"
+            FileUtils.mkdir(exportLocation)
+            AionCore::exportHashAtFolder(rootnhash, exportLocation)
+            puts "Item exported at #{exportLocation} for edition"
             LucilleCore::pressEnterToContinue()
-            return
+
+            acquireLocationInsideExportFolder = lambda {|exportLocation|
+                locations = LucilleCore::locationsAtFolder(exportLocation).select{|loc| File.basename(loc)[0, 1] != "."}
+                if locations.size == 0 then
+                    puts "I am in the middle of a CoreData aion-point edit. I cannot see anything inside the export folder"
+                    puts "Exit"
+                    exit
+                end
+                if locations.size == 1 then
+                    return locations[0]
+                end
+                if locations.size > 1 then
+                    puts "I am in the middle of a CoreData aion-point edit. I found more than one location in the export folder."
+                    puts "Exit"
+                    exit
+                end
+            }
+
+            location = acquireLocationInsideExportFolder.call(exportLocation)
+            puts "reading: #{location}"
+            rootnhash = AionCore::commitLocationReturnHash(location)
+
+            return "aion-point:#{rootnhash}"
         end
         if referenceString.start_with?("Dx8UnitId") then
             unitId = referenceString.split(":")[1]
