@@ -501,9 +501,10 @@ class Listing
 
             system("clear")
             store = ItemStore.new()
-            vspaceleft = CommonUtils::screenHeight() - 3
+            vspaceleft = CommonUtils::screenHeight() - 4
 
             puts ""
+            vspaceleft = vspaceleft - 1
 
             dskt = Desktop::contentsOrNull()
             if dskt and dskt.size > 0 then

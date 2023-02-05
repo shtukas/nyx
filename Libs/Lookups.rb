@@ -141,7 +141,7 @@ class Lookups
     # Lookups::mergeFiles(foldername, filepath1, filepath2)
     def self.mergeFiles(foldername, filepath1, filepath2)
 
-        filepath3 = ObjectStore2::spawnNewDatabase(foldername)
+        filepath3 = Lookups::spawnNewDatabase(foldername)
 
         db3 = SQLite3::Database.new(filepath3)
 
