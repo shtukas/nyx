@@ -65,7 +65,6 @@ class NxTimeCommitments
     # NxTimeCommitments::timeManagement()
     def self.timeManagement()
         NxTimeCommitments::items().each{|item|
-            puts item
             if (Time.new.to_i - item["resetUnixtime"]) >= 86400*7 then
                 # Time for a reset
                 puts "NxTimeCommitments, resetting #{item["description"]}"
