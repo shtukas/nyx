@@ -1,9 +1,9 @@
 
 class Anniversaries
 
-    # Anniversaries::filepath(uuid)
-    def self.filepath(uuid)
-        "#{Config::pathToDataCenter()}/Anniversaries/#{uuid}.json"
+    # Anniversaries::items()
+    def self.items()
+        ObjectStore2::objects("NxAnniversaries")
     end
 
     # ----------------------------------------------------------------
@@ -124,7 +124,7 @@ class Anniversaries
             "repeatType"          => repeatType,
             "lastCelebrationDate" => lastCelebrationDate
         }
-        ObjectStore1::commitItem(item)
+        ObjectStore2::commit("NxAnniversaries", item)
         item
     end
 
@@ -146,7 +146,7 @@ class Anniversaries
 
     # Anniversaries::listingItems()
     def self.listingItems()
-        Engine::itemsForMikuType("NxAnniversary")
+        Anniversaries::items()
             .select{|anniversary| Anniversaries::isOpenToAcknowledgement(anniversary) }
     end
 
@@ -155,10 +155,10 @@ class Anniversaries
 
     # Anniversaries::done(uuid)
     def self.done(uuid)
-        item = ObjectStore1::getItemByUUIDOrNull(uuid)
+        item = ObjectStore2::getOrNull("NxAnniversaries", uuid)
         return if item.nil?
         item["lastCelebrationDate"] = Time.new.to_s[0, 10]
-        ObjectStore1::commitItem(item)
+        ObjectStore2::commit("NxAnniversaries", item)
     end
 
     # Anniversaries::accessAndDone(anniversary)
@@ -166,14 +166,14 @@ class Anniversaries
         puts Anniversaries::toString(anniversary)
         if LucilleCore::askQuestionAnswerAsBoolean("done ? : ", true) then
             anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
-            ObjectStore1::commitItem(anniversary)
+            ObjectStore2::commit("NxAnniversaries", anniversary)
         end
     end
 
     # Anniversaries::dive()
     def self.dive()
         loop {
-            anniversaries = Engine::itemsForMikuType("NxAnniversary")
+            anniversaries = Anniversaries::items()
                         .sort{|i1, i2| Anniversaries::nextDateOrdinal(i1)[0] <=> Anniversaries::nextDateOrdinal(i2)[0] }
             anniversary = LucilleCore::selectEntityFromListOfEntitiesOrNull("anniversary", anniversaries, lambda{|item| Anniversaries::toString(item) })
             return if anniversary.nil?

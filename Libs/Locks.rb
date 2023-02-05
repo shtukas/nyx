@@ -2,18 +2,23 @@
 
 class Locks
 
-    # Locks::lock(domain, uuid)
-    def self.lock(domain, uuid)
-        ObjectStore1::set(uuid, "field8", domain)
+    # Locks::lock(uuid, domain)
+    def self.lock(uuid, domain)
+        Lookups::commit("Locks", uuid, domain)
     end
 
-    # Locks::isLocked(item)
-    def self.isLocked(item)
-        item["field8"] and item["field8"].size > 0
+    # Locks::isLocked(uuid)
+    def self.isLocked(uuid)
+        !Lookups::getValueOrNull("Locks", uuid).nil?
+    end
+
+    # Locks::locknameOrNull(uuid)
+    def self.locknameOrNull(uuid)
+        Lookups::getValueOrNull("Locks", uuid)
     end
 
     # Locks::unlock(uuid)
     def self.unlock(uuid)
-        ObjectStore1::set(uuid, "field8", "")
+        Lookups::destroy("Locks", uuid)
     end
 end

@@ -1,0 +1,7 @@
+NxOndate
+    "uuid"        => uuid,
+    "mikuType"    => "NxOndate",
+    "unixtime"    => Time.new.to_i,
+    "datetime"    => datetime,
+    "description" => description,
+    "field11"     => coredataref

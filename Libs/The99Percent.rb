@@ -7,9 +7,27 @@ class The99Percent
     #     "datetime" =>
     # }
 
+    # The99Percent::count()
+    def self.count()
+        ObjectStore2::filepaths("NxTodos")
+            .map{|filepath|
+                count = nil
+                db = SQLite3::Database.new(filepath)
+                db.busy_timeout = 117
+                db.busy_handler { |count| true }
+                db.results_as_hash = true
+                db.execute("select count(*) as count from objects", []) do |row|
+                    count = row["count"]
+                end
+                db.close
+                count
+            }
+            .inject(0, :+)
+    end
+
     # The99Percent::getCurrentCount()
     def self.getCurrentCount()
-        [Engine::the99Count(), 1].max # It should not be 0, because we divide by it.
+        [The99Percent::count(), 1].max # It should not be 0, because we divide by it.
     end
 
     # The99Percent::issueNewReference()

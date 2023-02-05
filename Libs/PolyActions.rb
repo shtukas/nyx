@@ -31,7 +31,7 @@ class PolyActions
             return if action.nil?
             if action == "set hours" then
                 item["hours"] = LucilleCore::askQuestionAnswerAsString("hours (weekly): ").to_f
-                ObjectStore1::commitItem(item)
+                ObjectStore2::commit("NxTimeCommitments", item)
             end
             return
         end
@@ -77,18 +77,12 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxDrop" then
-            ObjectStore1::destroy(item["uuid"])
+            ObjectStore2::destroy("NxDrops", item["uuid"])
             return
         end
 
         if item["mikuType"] == "NxTop" then
-            ObjectStore1::destroy(item["uuid"])
-            return
-        end
-
-        if item["mikuType"] == "NxTimeCapsule" then
-            puts "You cannot done a NxTimeCapsule, only start and stop"
-            LucilleCore::pressEnterToContinue()
+            ObjectStore2::destroy("NxTops", item["uuid"])
             return
         end
 
@@ -121,15 +115,6 @@ class PolyActions
 
     # PolyActions::doubleDot(item)
     def self.doubleDot(item)
-
-        if item["mikuType"] == "NxTimeCapsule" then
-            if NxBalls::itemIsRunning(item) then
-                NxBalls::stop(item)
-            else
-                NxBalls::start(item)
-            end
-            return
-        end
 
         if item["mikuType"] == "NxTimeCommitment" then
             return
@@ -171,13 +156,13 @@ class PolyActions
                     description = CommonUtils::editTextSynchronously(anniversary["description"]).strip
                     return if description == ""
                     anniversary["description"] = description
-                    ObjectStore1::commitItem(anniversary)
+                    ObjectStore2::commit("NxAnniversaries", anniversary)
                 end
                 if action == "update start date" then
                     startdate = CommonUtils::editTextSynchronously(anniversary["startdate"])
                     return if startdate == ""
                     anniversary["startdate"] = startdate
-                    ObjectStore1::commitItem(anniversary)
+                    ObjectStore2::commit("NxAnniversaries", anniversary)
                 end
             }
             return
@@ -191,21 +176,11 @@ class PolyActions
                 break if action.nil?
                 if action == "set hours" then
                     item["hours"] = LucilleCore::askQuestionAnswerAsString("hours (weekly): ").to_f
-                    ObjectStore1::commitItem(item)
+                    ObjectStore2::commit("NxTimeCommitments", item)
                 end
                 if action == "add time" then
                     timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
-                    capsule = {
-                        "uuid"        => SecureRandom.uuid,
-                        "mikuType"    => "NxTimeCapsule",
-                        "unixtime"    => Time.new.to_i,
-                        "datetime"    => Time.new.utc.iso8601,
-                        "field1"      => -timeInHours,
-                        "field2"      => nil,
-                        "field10"     => item["uuid"]
-                    }
-                    puts JSON.pretty_generate(capsule)
-                    ObjectStore1::commitItem(capsule)
+                    BankCore::put(item["uuid"], timeInHours * 3600)
                 end
             }
             return
@@ -219,11 +194,11 @@ class PolyActions
                 break if action.nil?
                 if action == "update description" then
                     item["description"] = CommonUtils::editTextSynchronously(item["description"])
-                    ObjectStore1::commitItem(item)
+                    ObjectStore2::commit("Waves", item)
                 end
                 if action == "update wave pattern" then
                     item["nx46"] = Waves::makeNx46InteractivelyOrNull()
-                    ObjectStore1::commitItem(item)
+                    ObjectStore2::commit("Waves", item)
                 end
                 if action == "perform done" then
                     Waves::performWaveNx46WaveDone(item)
@@ -232,7 +207,7 @@ class PolyActions
                 if action == "set days of the week" then
                     days, _ = CommonUtils::interactivelySelectSomeDaysOfTheWeekLowercaseEnglish()
                     item["onlyOnDays"] = days
-                    ObjectStore1::commitItem(item)
+                    ObjectStore2::commit("Waves", item)
                 end
             }
             return
@@ -242,51 +217,8 @@ class PolyActions
         LucilleCore::pressEnterToContinue()
     end
 
-    # PolyActions::start(item)
-    def self.start(item)
-        item = NxBalls::start(item)
-        ObjectStore1::commitItem(item)
-    end
-
-    # PolyActions::stop(item)
-    def self.stop(item)
-        item, timespanInSeconds, field10 = NxBalls::stop(item)
-        if field10 then
-            capsule = {
-                "uuid"        => SecureRandom.uuid,
-                "mikuType"    => "NxTimeCapsule",
-                "unixtime"    => Time.new.to_i,
-                "datetime"    => Time.new.utc.iso8601,
-                "field1"      => -timespanInSeconds.to_f/3600,
-                "field10"     => field10
-            }
-            puts JSON.pretty_generate(capsule)
-            ObjectStore1::commitItem(capsule)
-        end
-        ObjectStore1::commitItem(item)
-    end
-
-    # PolyActions::pause(item)
-    def self.pause(item)
-        item, timespanInSeconds, field10 = NxBalls::pause(item)
-        if field10 then
-            capsule = {
-                "uuid"        => SecureRandom.uuid,
-                "mikuType"    => "NxTimeCapsule",
-                "unixtime"    => Time.new.to_i,
-                "datetime"    => Time.new.utc.iso8601,
-                "field1"      => -timespanInSeconds.to_f/3600,
-                "field10"     => field10
-            }
-            puts JSON.pretty_generate(capsule)
-            ObjectStore1::commitItem(capsule)
-        end
-        ObjectStore1::commitItem(item)
-    end
-
     # PolyActions::pursue(item)
     def self.pursue(item)
-        item = NxBalls::pursue(item)
-        ObjectStore1::commitItem(item)
+        NxBalls::pursue(item)
     end
 end

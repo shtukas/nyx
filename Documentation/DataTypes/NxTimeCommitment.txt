@@ -6,4 +6,3 @@ NxTimeCommitment:
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : String
     "field3"      : Float
-    "field10"     : copy of the uuid

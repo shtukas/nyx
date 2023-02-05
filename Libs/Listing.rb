@@ -5,7 +5,7 @@ class Listing
     # Listing::listingCommands()
     def self.listingCommands()
         [
-            "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | landing (<n>) | expose (<n>) | >> skip default | lock (<n>) | push | set time commitment |destroy",
+            "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | landing (<n>) | expose (<n>) | >> skip default | lock (<n>) | set time commitment (<n>) | destroy",
             "[makers] anniversary | manual countdown | wave | today | ondate | todo | drop | top | capsule",
             "[divings] anniversaries | ondates | waves | todos | desktop",
             "[NxBalls] start | start * | stop | stop * | pause | pursue",
@@ -78,19 +78,7 @@ class Listing
         end
 
         if Interpreting::match("capsule", input) then
-            hours = LucilleCore::askQuestionAnswerAsString("hours (algebraic, negative for done time): ").to_f
-            tc = NxTimeCommitments::interactivelySelectOneOrNull()
-            return if tc.nil?
-            capsule = {
-                "uuid"        => SecureRandom.uuid,
-                "mikuType"    => "NxTimeCapsule",
-                "unixtime"    => Time.new.to_i,
-                "datetime"    => Time.new.utc.iso8601,
-                "description" => tc["description"],
-                "field1"      => hours,
-                "field10"     => tc["uuid"]
-            }
-            ObjectStore1::commitObject(capsule)
+
             return
         end
 
@@ -99,7 +87,7 @@ class Listing
             return if item.nil?
             puts "edit description:"
             item["description"] = CommonUtils::editTextSynchronously(item["description"])
-            ObjectStore1::commitItem(item)
+            raise "not implemented"
             return
         end
 
@@ -109,7 +97,7 @@ class Listing
             return if item.nil?
             puts "edit description:"
             item["description"] = CommonUtils::editTextSynchronously(item["description"])
-            ObjectStore1::commitItem(item)
+            raise "not implemented"
             return
         end
 
@@ -121,8 +109,9 @@ class Listing
         if Interpreting::match("destroy", input) then
             item = store.getDefault()
             return if item.nil?
+            raise "not implemented"
             if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{PolyFunctions::toString(item).green}' ") then
-                ObjectStore1::destroy(item["uuid"])
+                
             end
             return
         end
@@ -131,8 +120,9 @@ class Listing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
+            raise "not implemented"
             if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{PolyFunctions::toString(item).green}' ") then
-                ObjectStore1::destroy(item["uuid"])
+                
             end
             return
         end
@@ -208,7 +198,7 @@ class Listing
             item = store.getDefault()
             return if item.nil?
             domain = LucilleCore::askQuestionAnswerAsString("domain: ")
-            Locks::lock(domain, item["uuid"])
+            Locks::lock(item["uuid"], domain)
             return
         end
 
@@ -218,7 +208,7 @@ class Listing
         end
 
         if Interpreting::match("ondate", input) then
-            item = NxTodos::interactivelyIssueNewOndateOrNull()
+            item = NxOndates::interactivelyIssueNullOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
             return
@@ -229,18 +219,10 @@ class Listing
             return
         end
 
-        if Interpreting::match("push", input) then
-            item = store.getDefault()
-            return if item.nil?
-            trajectory = Engine::trajectory(Time.new.to_f + 3600*6, 24)
-            ObjectStore1::set(item["uuid"], "field13", JSON.generate(trajectory))
-            return
-        end
-
         if Interpreting::match("pause", input) then
             item = store.getDefault()
             return if item.nil?
-            PolyActions::pause(item)
+            NxBalls::pause(item)
             return
         end
 
@@ -248,7 +230,7 @@ class Listing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyActions::pause(item)
+            NxBalls::pause(item)
             return
         end
 
@@ -270,38 +252,41 @@ class Listing
         if Interpreting::match("redate", input) then
             item = store.getDefault()
             return if item.nil?
-            if item["mikuType"] != "NxTodo" then
-                puts "redate is reserved for NxTodos"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            if item["field2"] != "ondate" then
-                puts "redate is reserved for NxTodos with ondate"
+            if item["mikuType"] != "NxOndate" then
+                puts "redate is reserved for NxOndates"
                 LucilleCore::pressEnterToContinue()
                 return
             end
             unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
-            item["doNotShowUntil"] = unixtime
             item["datetime"] = Time.at(unixtime).utc.iso8601
-            ObjectStore1::commitItem(item)
+            ObjectStore2::commit("NxOndates", item)
+            DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
             return
         end
 
         if Interpreting::match("set time commitment", input) then
             item = store.getDefault()
             return if item.nil?
-            return if ["NxDrop", "NxTop"].include?(item["mikuType"])
             tc = NxTimeCommitments::interactivelySelectOneOrNull()
             return if tc.nil?
-            item["field10"] = tc["uuid"]
-            ObjectStore1::commitItem(item)
+            ItemToTimeCommitmentMapping::set(item["uuid"], tc["uuid"])
+            return
+        end
+
+        if Interpreting::match("set time commitment *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            tc = NxTimeCommitments::interactivelySelectOneOrNull()
+            return if tc.nil?
+            ItemToTimeCommitmentMapping::set(item["uuid"], tc["uuid"])
             return
         end
 
         if Interpreting::match("start", input) then
             item = store.getDefault()
             return if item.nil?
-            PolyActions::start(item)
+            NxBalls::start(item)
             return
         end
 
@@ -309,14 +294,14 @@ class Listing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyActions::start(item)
+            NxBalls::start(item)
             return
         end
 
         if Interpreting::match("stop", input) then
             item = store.getDefault()
             return if item.nil?
-            PolyActions::stop(item)
+            NxBalls::stop(item)
             return
         end
 
@@ -324,7 +309,7 @@ class Listing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyActions::stop(item)
+            NxBalls::stop(item)
             return
         end
 
@@ -367,18 +352,21 @@ class Listing
         end
     end
 
-    # Listing::isNxTimeCapsuleStoppedAndCompleted(item)
-    def self.isNxTimeCapsuleStoppedAndCompleted(item)
-        return false if item["mikuType"] != "NxTimeCapsule"
-        return false if item["field2"]     # we are running
-        return false if item["field1"] > 0 # we are still positive
-        true
+    # Listing::items()
+    def self.items()
+        [
+            Anniversaries::listingItems(),
+            Waves::listingItems(),
+            NxOndates::listingItems()
+        ]
+            .flatten
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
     # Listing::isPriorityItem(item)
     def self.isPriorityItem(item)
         return true if PolyFunctions::toStringForListing(item).include?("sticky")
-        return true if NxBalls::nxballSuffixStatus(item["field9"]).include?("nxball")
+        return true if NxBalls::itemIsRunning(item)
         false
     end
 
@@ -404,17 +392,10 @@ class Listing
             LucilleCore::locationsAtFolder("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")
                 .each{|location|
                     next if File.basename(location).start_with?(".")
-                    item = NxTodos::bufferInImport(location)
+                    item = NxTriages::bufferInImport(location)
                     puts "Picked up from NxTodos-BufferIn: #{JSON.pretty_generate(item)}"
                     LucilleCore::removeFileSystemLocation(location)
                 }
-
-            NxTimeCapsules::garbageCollection()
-
-            if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("2bf15677-bac8-4467-b7cc-e313113df3a9", 3600) then
-                puts "Engine::listingActivations()"
-                Engine::listingActivations()
-            end
 
             trajectoryToNumber = lambda{|trajectory|
                 return 0.8 if trajectory.nil?
@@ -423,9 +404,9 @@ class Listing
             }
 
             itemToLine = lambda {|store, item|
-                line = "(#{store.prefixString()}) (#{"%5.2f" % item["listing:position"]}) #{PolyFunctions::toStringForListing(item)}#{item["field10"] ? " (tc: #{NxTimeCommitments::uuidToDescription(item["field10"])})" : "" }#{NxBalls::nxballSuffixStatus(item["field9"])}"
-                if Locks::isLocked(item) then
-                    line = "#{line} [lock: #{item["field8"]}]".yellow
+                line = "(#{store.prefixString()}) #{PolyFunctions::toStringForListing(item)}#{ItemToTimeCommitmentMapping::toStringSuffix(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}"
+                if Locks::isLocked(item["uuid"]) then
+                    line = "#{line} [lock: #{Locks::locknameOrNull(item["uuid"])}]".yellow
                 end
                 if NxBalls::itemIsRunning(item) or NxBalls::itemIsPaused(item) then
                     line = line.green
@@ -447,11 +428,11 @@ class Listing
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(dskt)
             end
 
-            tops = Engine::itemsForMikuType("NxTop")
+            tops = NxTops::items()
             if tops.size > 0 then
                 tops.each{|item|
                     store.register(item, true)
-                    line = "(#{store.prefixString()})         #{NxTops::toString(item)}#{NxBalls::nxballSuffixStatus(item["field9"])}"
+                    line = "(#{store.prefixString()})         #{NxTops::toString(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}"
                     if line. include?("running") then
                         line = line.green
                     end
@@ -459,21 +440,12 @@ class Listing
                     vspaceleft = vspaceleft - 1
                 }
             end
-            timecommitments = Engine::itemsForMikuType("NxTimeCommitment")
+            timecommitments = NxTimeCommitments::items()
             vspaceleft = vspaceleft - timecommitments.size
 
-            items =
-                Engine::listingItems()
-                    .select{|item| DoNotShowUntil::isVisible(item) }
-                    .map{|item|
-                        item["listing:position"] = trajectoryToNumber.call(item["field13"])
-                        item
-                    }
-                    .select{|item| item["listing:position"] > 0 }
-                    .sort{|i1, i2| i1["listing:position"] <=> i2["listing:position"] }
-                    .reverse
+            items = Listing::items()
 
-            lockedItems, items = items.partition{|item| Locks::isLocked(item) }
+            lockedItems, items = items.partition{|item| Locks::isLocked(item["uuid"]) }
             lockedItems.each{|item|
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(PolyFunctions::toStringForListing(item))
             }
@@ -482,8 +454,7 @@ class Listing
 
             (priorityItems + items)
                 .each{|item|
-                    next if Listing::isNxTimeCapsuleStoppedAndCompleted(item)
-                    store.register(item, !Skips::isSkipped(item))
+                    store.register(item, !Skips::isSkipped(item["uuid"]))
                     line = itemToLine.call(store, item)
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
@@ -492,7 +463,6 @@ class Listing
 
             lockedItems
                 .each{|item|
-                    next if Listing::isNxTimeCapsuleStoppedAndCompleted(item)
                     store.register(item, false)
                     line = itemToLine.call(store, item)
                     puts line
@@ -503,7 +473,7 @@ class Listing
             timecommitments
                 .each{|item|
                     store.register(item, false)
-                    line = "(#{store.prefixString()}) #{NxTimeCommitments::toStringForListing(item)}#{NxBalls::nxballSuffixStatus(item["field9"])}"
+                    line = "(#{store.prefixString()}) #{NxTimeCommitments::toStringForListing(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}"
                     if NxBalls::itemIsRunning(item) or NxBalls::itemIsPaused(item) then
                         line = line.green
                     end

@@ -4,7 +4,7 @@ class NxTodos
 
     # NxTodos::items()
     def self.items()
-        Engine::itemsForMikuType("NxTodo")
+        ObjectStore2::objects("NxTodos")
     end
 
     # --------------------------------------------------
@@ -22,30 +22,10 @@ class NxTodos
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "field2"      => "regular"
+            "field2"      => "regular",
             "field11"     => coredataref,
         }
-        ObjectStore1::commitItem(item)
-        item
-    end
-
-    # NxTodos::interactivelyIssueNewOndateOrNull()
-    def self.interactivelyIssueNewOndateOrNull()
-        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-        return nil if description == ""
-        uuid  = SecureRandom.uuid
-        coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
-        datetime = CommonUtils::interactivelySelectDateTimeIso8601UsingDateCode()
-        item = {
-            "uuid"        => uuid,
-            "mikuType"    => "NxTodo",
-            "unixtime"    => Time.new.to_i,
-            "datetime"    => datetime,
-            "description" => description,
-            "field2"      => "ondate",
-            "field11"     => coredataref
-        }
-        ObjectStore1::commitItem(item)
+        ObjectStore2::commit("NxTodos", item)
         item
     end
 
@@ -63,43 +43,7 @@ class NxTodos
             "description" => description,
             "field11"     => coredataref
         }
-        ObjectStore1::commitItem(item)
-        item
-    end
-
-    # NxTodos::viennaUrlForToday(url)
-    def self.viennaUrlForToday(url)
-        description = "(vienna) #{url}"
-        uuid  = SecureRandom.uuid
-        coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
-        item = {
-            "uuid"        => uuid,
-            "mikuType"    => "NxTodo",
-            "unixtime"    => Time.new.to_i,
-            "datetime"    => Time.new.utc.iso8601,
-            "description" => description,
-            "field2"      => "ondate",
-            "field11"     => coredataref,
-        }
-        ObjectStore1::commitItem(item)
-        item
-    end
-
-    # NxTodos::bufferInImport(location)
-    def self.bufferInImport(location)
-        description = File.basename(location)
-        uuid = SecureRandom.uuid
-        coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
-        item = {
-            "uuid"        => uuid,
-            "mikuType"    => "NxTodo",
-            "unixtime"    => Time.new.to_i,
-            "datetime"    => Time.new.utc.iso8601,
-            "description" => description,
-            "field2"      => "triage",
-            "field11"     => coredataref
-        }
-        ObjectStore1::commitItem(item)
+        ObjectStore2::commit("NxTodos", item)
         item
     end
 
@@ -127,20 +71,7 @@ class NxTodos
 
     # NxTodos::access(item)
     def self.access(item)
-
-    end
-
-    # NxTodos::ondateReport()
-    def self.ondateReport()
-        system("clear")
-        puts "ondates:"
-        Engine::itemsForMikuType("NxTodo")
-            .select{|item| item["field2"] == "ondate" }
-            .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
-            .each{|item|
-                puts NxTodos::toString(item)
-            }
-        LucilleCore::pressEnterToContinue()
+        CoreData::access(item["field11"])
     end
 
     # NxTodos::doneprocess(item)
@@ -152,7 +83,7 @@ class NxTodos
                 option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["destroy", "exit"])
                 return if option == ""
                 if option == "destroy" then
-                    ObjectStore1::destroy(item["uuid"])
+                    ObjectStore2::destroy("NxTodos", item["uuid"])
                     return
                 end
                 if option == "exit" then
@@ -160,7 +91,7 @@ class NxTodos
                 end
                 return
             else
-                ObjectStore1::destroy(item["uuid"])
+                ObjectStore2::destroy("NxTodos", item["uuid"])
             end
         end
     end

@@ -6,7 +6,7 @@ class Waves
 
     # Waves::items()
     def self.items()
-        Engine::itemsForMikuType("Wave")
+        ObjectStore2::objects("Waves")
     end
 
     # Waves::getExistingFilepathForUUIDOrNull(uuid)
@@ -19,13 +19,26 @@ class Waves
             .first
     end
 
+    # Waves::commit(item)
+    def self.commit(item)
+        ObjectStore2::commit("Waves", item)
+    end
+
     # --------------------------------------------------
     # Making
 
     # Waves::interactivelySelectPriorityOrNull()
     def self.interactivelySelectPriorityOrNull()
-        prioritys = ["ns:mandatory-today", "ns:time-important", "ns:beach"]
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("priority:", prioritys)
+        priorities = ["ns:high", "ns:medium", "ns:low"]
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("priority:", priorities)
+    end
+
+    # Waves::interactivelySelectPriority()
+    def self.interactivelySelectPriority()
+        loop {
+            priority = Waves::interactivelySelectPriorityOrNull()
+            return priority if priority
+        }
     end
 
     # Waves::makeNx46InteractivelyOrNull()
@@ -139,6 +152,7 @@ class Waves
         return nil if nx46.nil?
         uuid = SecureRandom.uuid
         coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
+        priority = Waves::interactivelySelectPriority()
         item = {
             "uuid"             => uuid,
             "mikuType"         => "Wave",
@@ -148,8 +162,10 @@ class Waves
             "nx46"             => nx46,
             "lastDoneDateTime" => "#{Time.new.strftime("%Y")}-01-01T00:00:00Z",
             "field11"          => coredataref,
+            "priority"         => priority
         }
-        ObjectStore1::commitItem(item)
+        ObjectStore2::commit("Waves", item)
+        ItemToTimeCommitmentMapping::interactiveProposalToSetMapping(item)
         item
     end
 
@@ -159,14 +175,22 @@ class Waves
     # Waves::toString(item)
     def self.toString(item)
         ago = "#{((Time.new.to_i - DateTime.parse(item["lastDoneDateTime"]).to_time.to_i).to_f/86400).round(2)} days ago"
-        "(wave) #{item["description"]} (#{item["field11"]}) (#{Waves::nx46ToString(item["nx46"])}) (#{ago}) 🌊"
+        "(wave) #{item["description"]} (#{Waves::nx46ToString(item["nx46"])}) (coredataref: #{item["field11"]}) (#{ago}) 🌊"
     end
 
     # Waves::toStringForSearch(item)
     def self.toStringForSearch(item)
         ago = "#{((Time.new.to_i - DateTime.parse(item["lastDoneDateTime"]).to_time.to_i).to_f/86400).round(2)} days ago"
         isPendingStr = DoNotShowUntil::isVisible(item["uuid"]) ? " (pending)".green : ""
-        "(wave) #{item["description"]} (#{item["field11"]}) (#{Waves::nx46ToString(item["nx46"])}) (#{ago})#{isPendingStr} 🌊 [#{item["priority"]}]"
+        "(wave) #{item["description"]} (#{Waves::nx46ToString(item["nx46"])}) (coredataref: #{item["field11"]}) (#{ago})#{isPendingStr} 🌊 [#{item["priority"]}]"
+    end
+
+    # Waves::listingItems()
+    def self.listingItems()
+        Waves::items()
+            .select{|item|
+                item["onlyOnDays"].nil? or item["onlyOnDays"].include?(CommonUtils::todayAsLowercaseEnglishWeekDayName())
+            }
     end
 
     # -------------------------------------------------------------------------
@@ -178,21 +202,18 @@ class Waves
         # Marking the item as being done 
         puts "done-ing: #{Waves::toString(item)}"
         item["lastDoneDateTime"] = Time.now.utc.iso8601
-        ObjectStore1::commitItem(item)
+        ObjectStore2::commit("Waves", item)
 
         # We control display using DoNotShowUntil
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
         puts "not shown until: #{Time.at(unixtime).to_s}"
         DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-
-        # Database Listing update
-        Engine::disactivateListing(item)
     end
 
     # Waves::dive()
     def self.dive()
         loop {
-            items = Engine::itemsForMikuType("Wave").sort{|w1, w2| w1["description"] <=> w2["description"] }
+            items = Waves::items().sort{|w1, w2| w1["description"] <=> w2["description"] }
             wave = LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", items, lambda{|wave| wave["description"] })
             return if wave.nil?
             PolyActions::landing(wave)

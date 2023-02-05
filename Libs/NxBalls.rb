@@ -1,36 +1,27 @@
 
 class NxBalls
 
-    # NxBalls doesn't read or write the database to avoid race conditions
-
     # ---------------------------------
-    # Utils
+    # IO
 
-    # NxBalls::makeNxBallOrNull(item)
-    def self.makeNxBallOrNull(item)
-        tc = nil
-        if item["field10"] then
-            tc = ObjectStore1::getItemByUUIDOrNull(item["field10"])
-        end
-        if tc.nil? then
-            tc = NxTimeCommitments::interactivelySelectOneOrNull()
-        end
-        return nil if tc.nil?
-        {
-            "type"          => "running",
-            "startunixtime" => Time.new.to_i,
-            "field10"       => tc["uuid"],
-            "sequencestart" => nil
+    # NxBalls::issueNxBall(item, accounts)
+    def self.issueNxBall(item, accounts)
+        nxball = {
+            "type"           => "running",
+            "startunixtime"  => Time.new.to_i,
+            "accounts"       => accounts,
+            "sequencestart"  => nil
         }
+        Lookups::commit("NxBalls", item["uuid"], nxball)
     end
-
-    # ---------------------------------
-    # Item -> item # transforms
 
     # NxBalls::getNxballOrNull(item)
     def self.getNxballOrNull(item)
-        item["field9"]
+        Lookups::getValueOrNull("NxBalls", item["uuid"])
     end
+
+    # ---------------------------------
+    # Statuses
 
     # NxBalls::itemIsRunning(item)
     # returns false if the item doesn't have a nxball of is paused
@@ -52,42 +43,47 @@ class NxBalls
         NxBalls::getNxballOrNull(item).nil?
     end
 
-    # NxBalls::start(item) # item
+    # ---------------------------------
+    # Ops
+
+    # NxBalls::start(item)
     def self.start(item)
-        return item if !NxBalls::itemIsBallFree(item)
-        nxball = NxBalls::makeNxBallOrNull(item)
-        item["field9"] = nxball
-        item
+        return if !NxBalls::itemIsBallFree(item)
+        NxBalls::issueNxBall(item)
     end
 
-    # NxBalls::stop(item) # [item, timespanInSeconds, field10]
+    # NxBalls::stop(item)
     def self.stop(item)
-        return [item, 0] if !NxBalls::itemIsRunning(item)
-        nxball = item["field9"]
+        return if !NxBalls::itemIsRunning(item)
+        nxball = NxBalls::getNxballOrNull(item)
         timespanInSeconds = Time.new.to_i - nxball["startunixtime"]
-        item["field9"] = nil
-        [item, timespanInSeconds, nxball["field10"]]
+        nxball["accounts"].each{|account|
+            puts "adding #{timespanInSeconds} seconds to account: (#{account["description"]}, #{account["account"]})"
+            BankCore::put(account["account"], timespanInSeconds)
+        }
+        Lookups::destroy("NxBalls", item["uuid"])
     end
 
-    # NxBalls::pause(item) # [item, timespanInSeconds, field10]
+    # NxBalls::pause(item)
     def self.pause(item)
         return if !NxBalls::itemIsRunning(item)
-        nxball = item["field9"]
+        nxball = NxBalls::getNxballOrNull(item)
         timespanInSeconds = Time.new.to_i - nxball["startunixtime"]
+        nxball["accounts"].each{|account|
+            puts "adding #{timespanInSeconds} seconds to account: (#{account["description"]}, #{account["account"]})"
+            BankCore::put(account["account"], timespanInSeconds)
+        }
         nxball["type"] = "paused"
-        item["field9"] = nxball
-        [item, timespanInSeconds, nxball["field10"]]
+        Lookups::commit("NxBalls", item["uuid"], nxball)
     end
 
-    # NxBalls::pursue(item) # item
+    # NxBalls::pursue(item)
     def self.pursue(item)
         return item if !NxBalls::itemIsPaused(item)
-        nxball = item["field9"]
-        nxball["sequencestart"] = nxball["sequencestart"] || nxball["startunixtime"]
-        nxball["type"] = "running"
+        nxball["type"]          = "running"
         nxball["startunixtime"] = Time.new.to_i
-        item["field9"] = nxball
-        item
+        nxball["sequencestart"] = nxball["sequencestart"] || nxball["startunixtime"]
+        Lookups::commit("NxBalls", item["uuid"], nxball)
     end
 
     # ---------------------------------
@@ -95,20 +91,22 @@ class NxBalls
 
     # NxBalls::nxBallToString(nxball)
     def self.nxBallToString(nxball)
+        accounts = nxball["accounts"].map{|a| a["description"]}.join(", ")
         if nxball["type"] == "running" and nxball["sequencestart"] then
-            return "(nxball: running for #{ ((Time.new.to_i - nxball["startunixtime"]).to_f/3600).round(2) } hours, sequence started #{ ((Time.new.to_i - nxball["sequencestart"]).to_f/3600).round(2) } hours ago) (tc: #{NxTimeCommitments::uuidToDescription(nxball["field10"])})"
+            return "(nxball: running for #{((Time.new.to_i - nxball["startunixtime"]).to_f/3600).round(2)} hours, sequence started #{((Time.new.to_i - nxball["sequencestart"]).to_f/3600).round(2)} hours ago, #{accounts})"
         end
         if nxball["type"] == "running" then
-            return "(nxball: running for #{ ((Time.new.to_i - nxball["startunixtime"]).to_f/3600).round(2) } hours) (tc: #{NxTimeCommitments::uuidToDescription(nxball["field10"])})"
+            return "(nxball: running for #{((Time.new.to_i - nxball["startunixtime"]).to_f/3600).round(2)} hours, #{accounts})"
         end
         if nxball["type"] == "paused" then
-            return "(nxball: paused) (tc: #{NxTimeCommitments::uuidToDescription(nxball["field10"])})"
+            return "(nxball: paused) (#{accounts})"
         end
         raise "(error: 93abde39-fd9d-4aa5-8e56-d09cf47a0f46) nxball: #{nxball}"
     end
 
-    # NxBalls::nxballSuffixStatus(nxball)
-    def self.nxballSuffixStatus(nxball)
+    # NxBalls::nxballSuffixStatusIfRelevant(item)
+    def self.nxballSuffixStatusIfRelevant(item)
+        nxball = NxBalls::getNxballOrNull(item)
         return "" if nxball.nil?
         " #{NxBalls::nxBallToString(nxball)}"
     end

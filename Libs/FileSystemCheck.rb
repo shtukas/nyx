@@ -103,15 +103,33 @@ class FileSystemCheck
             return
         end
 
+        if mikuType == "NxOndate" then
+            FileSystemCheck::ensureAttribute(item, "uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+            FileSystemCheck::ensureAttribute(item, "datetime", "String")
+            FileSystemCheck::ensureAttribute(item, "description", "String")
+            if item["field11"] and item["field11"].size > 0 then
+                CoreData::fsck(item["field11"])
+            end
+            return
+        end
+
         if mikuType == "NxTodo" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
-            FileSystemCheck::ensureAttribute(item, "field2", "String")
-            if !["regular", "ondate", "triage"].include?(item["field2"]) then
-                raise "error: #{item["field2"]} is not supported"
+            if item["field11"] and item["field11"].size > 0 then
+                CoreData::fsck(item["field11"])
             end
+            return
+        end
+
+        if mikuType == "NxTriage" then
+            FileSystemCheck::ensureAttribute(item, "uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+            FileSystemCheck::ensureAttribute(item, "datetime", "String")
+            FileSystemCheck::ensureAttribute(item, "description", "String")
             if item["field11"] and item["field11"].size > 0 then
                 CoreData::fsck(item["field11"])
             end
@@ -128,14 +146,6 @@ class FileSystemCheck
 
         if mikuType == "NxNode" then
             FileSystemCheck::fsck_NxNode(item, verbose)
-            return
-        end
-
-        if mikuType == "NxTimeCapsule" then
-            FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-            FileSystemCheck::ensureAttribute(item, "field1", "Number")
-            FileSystemCheck::ensureAttribute(item, "field10", "String")
             return
         end
 
@@ -166,6 +176,10 @@ class FileSystemCheck
             if item["field11"] and item["field11"].size > 0 then
                 CoreData::fsck(item["field11"])
             end
+            FileSystemCheck::ensureAttribute(item, "priority", "String")
+            if !["ns:high", "ns:medium", "ns:low"].include?(item["priority"]) then
+                raise "Incorrect priority for Wave #{JSON.pretty_generate(item)}"
+            end
             return
         end
 
@@ -184,7 +198,7 @@ class FileSystemCheck
 
     # FileSystemCheck::fsckErrorAtFirstFailure()
     def self.fsckErrorAtFirstFailure()
-        ObjectStore1::databaseItems()
+        []
             .each{|object|
                 FileSystemCheck::exitIfMissingCanary()
                 FileSystemCheck::fsck_MikuTypedItem(item, true)

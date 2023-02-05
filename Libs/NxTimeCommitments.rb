@@ -1,6 +1,16 @@
 
 class NxTimeCommitments
 
+    # NxTimeCommitments::items()
+    def self.items()
+        ObjectStore2::objects("NxTimeCommitments")
+    end
+
+    # NxTimeCommitments::getItemOfNull(uuid)
+    def self.getItemOfNull(uuid)
+        ObjectStore2::getOrNull("NxTimeCommitments", uuid)
+    end
+
     # --------------------------------------------
     # Makers
 
@@ -18,16 +28,10 @@ class NxTimeCommitments
             "description" => description,
             "resetTime"   => 0,
             "field3"      => hours,
-            "field10"     => uuid,
         }
         FileSystemCheck::fsck_NxTimeCommitment(item, true)
-        ObjectStore1::commitItem(item)
+        ObjectStore2::commit("NxTimeCommitments", item)
         item
-    end
-
-    # NxTimeCommitments::items()
-    def self.items()
-        Engine::itemsForMikuType("NxTimeCommitment")
     end
 
     # ----------------------------------------------------------------
@@ -45,14 +49,13 @@ class NxTimeCommitments
 
     # NxTimeCommitments::interactivelySelectOneOrNull()
     def self.interactivelySelectOneOrNull()
-        items = Engine::itemsForMikuType("NxTimeCommitment")
+        items = NxTimeCommitments::items()
         LucilleCore::selectEntityFromListOfEntitiesOrNull("time commitment", items, lambda{|item| NxTimeCommitments::toString(item) })
     end
 
     # NxTimeCommitments::toStringForListing(item)
     def self.toStringForListing(item)
-        capsule = Engine::itemsForMikuType("NxTimeCapsule")
-        hours = capsule.select{|drop| drop["field10"] == item["uuid"] }.map{|drop| drop["field1"] }.inject(0, :+)
+        hours = BankCore::getValue(item["uuid"]).to_f/3600
         sinceResetInSeconds = Time.new.to_i - item["resetTime"]
         sinceResetInDays = sinceResetInSeconds.to_f/86400
         str1 =
@@ -68,16 +71,5 @@ class NxTimeCommitments
                 " (late by #{(sinceResetInDays - 7).round(2)} days)"
             end
         "#{item["description"].ljust(10)} (left: #{("%5.2f" % hours).to_s.green} hours, out of #{"%5.2f" % item["field3"]})#{str1}"
-    end
-
-    # NxTimeCommitments::uuidToDescription(uuid)
-    def self.uuidToDescription(uuid)
-        description = XCache::getOrNull("364347df-1724-47d6-928c-c5a5da999015:#{CommonUtils::today()}:#{uuid}")
-        return description if description
-        description = Engine::itemsForMikuType("NxTimeCommitment").select{|tc| tc["uuid"] == uuid }.map{|tc| tc["description"] }.first
-        if description then
-            XCache::set("364347df-1724-47d6-928c-c5a5da999015:#{CommonUtils::today()}:#{uuid}", description)
-        end
-        description
     end
 end

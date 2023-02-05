@@ -1,8 +1,0 @@
-
-NxTimeCapsule:
-    "uuid"         : String
-    "mikuType"     : "NxTimeCapsule"
-    "unixtime"     : Float
-    "datetime"     : DateTime Iso 8601 UTC Zulu
-    "field1"       : Float, algebraic load in hours
-    "field10"      : reference time commitment uuid

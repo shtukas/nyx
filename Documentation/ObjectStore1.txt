@@ -15,22 +15,7 @@ Type:
     "field5"         : string ; used, miku type specific
     "field6"         : string ; used, miku type specific
 
-    "field7"         : string ; null, "" or skipped until unixtime (float)
-    "field8"         : string ; null, "" or lockname # if locked under that name
-    "field9"         : string ; null, "" or NxBall (json encoded at rest)
-    "field10"        : string ; null, "" or time commitment uuid
     "field11"        : string ; null, "" or CoreData reference string
     "field12"        : string ; null, "" or "true" # if listed
     "field13"        : float  ; null, "" or NxListingVelocity (json encoded at rest)
 
-
-```
-ObjectStore1::filepaths().each{|filepath|
-    db = SQLite3::Database.new(filepath)
-    db.busy_timeout = 117
-    db.busy_handler { |count| true }
-    db.results_as_hash = true
-    db.execute "alter table objects add column field12 text", []
-    db.close
-}
-```

@@ -17,9 +17,6 @@ class PolyFunctions
         if item["mikuType"] == "NxTimeCommitment" then
             return NxTimeCommitments::toString(item)
         end
-        if item["mikuType"] == "NxTimeCapsule" then
-            return "(capsule) #{NxTimeCommitments::uuidToDescription(item["field10"])} (#{item["field1"].round(2)} hours left)"
-        end
         if item["mikuType"] == "NxTodo" then
             return NxTodos::toString(item)
         end

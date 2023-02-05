@@ -2,7 +2,6 @@
 Catalyst:
     NxAnniversary    (no payload)
     NxTodo           (CoreData)
-    NxTimeCapsule    (no payload)
     TxManualPayload  (no payload)
     Wave             (CoreData)
 

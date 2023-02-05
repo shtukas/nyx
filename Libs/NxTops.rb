@@ -1,26 +1,31 @@
 
 class NxTops
 
+    # NxTops::items()
+    def self.items()
+        ObjectStore2::objects("NxTops")
+    end
+
     # NxTops::interactivelyIssueNullOrNull()
     def self.interactivelyIssueNullOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid  = SecureRandom.uuid
-        tc = NxTimeCommitments::interactivelySelectOneOrNull()
         item = {
             "uuid"          => uuid,
             "mikuType"      => "NxTop",
             "unixtime"      => Time.new.to_i,
             "datetime"      => Time.new.utc.iso8601,
             "description"   => description,
-            "field10"       => tc ? tc["uuid"] : nil,
         }
         puts JSON.pretty_generate(item)
-        ObjectStore1::commitItem(item)
+        ObjectStore2::commit("NxTops", item)
+        ItemToTimeCommitmentMapping::interactiveProposalToSetMapping(item)
+        item
     end
 
     # NxTops::toString(item)
     def self.toString(item)
-        "(top) #{item["description"]} (tc: #{NxTimeCommitments::uuidToDescription(item["field10"])})"
+        "(top) #{item["description"]}"
     end
 end

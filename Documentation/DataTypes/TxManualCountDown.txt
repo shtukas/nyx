@@ -4,7 +4,7 @@ TxManualCountDown
     "mikuType"    : "TxManualCountDown"
     "description" : String 
 
-    "dailyTarget"         "field1" : Int
-    "date"                "field2" : Date
-    "counter"             "field3" : Int
-    "lastUpdatedUnixtime" "field4" : nil or Integer
+    "dailyTarget"         : Int
+    "date"                : Date
+    "counter"             : Int
+    "lastUpdatedUnixtime" : nil or Integer

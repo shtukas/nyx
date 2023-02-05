@@ -4,11 +4,16 @@ class Skips
 
     # Skips::skip(uuid, unixtime)
     def self.skip(uuid, unixtime)
-        ObjectStore1::set(uuid, "field7", unixtime)
+        Lookups::commit("Skips", uuid, unixtime)
     end
 
-    # Skips::isSkipped(item)
-    def self.isSkipped(item)
-        item["field7"] and Time.new.to_i < item["field7"].to_i
+    # Skips::getUnixtimeOrNull(uuid)
+    def self.getUnixtimeOrNull(uuid)
+        Lookups::getValueOrNull("Skips", uuid)
+    end
+
+    # Skips::isSkipped(uuid)
+    def self.isSkipped(uuid)
+        Time.new.to_i < (Skips::getUnixtimeOrNull(uuid) || 0)
     end
 end
