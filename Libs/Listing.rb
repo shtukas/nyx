@@ -382,8 +382,10 @@ class Listing
         trajectory
     end
 
-    # Listing::trajectoryToPosition(trajectory)
-    def self.trajectoryToPosition(trajectory)
+    # Listing::trajectoryToPosition(item, trajectory)
+    def self.trajectoryToPosition(item, trajectory)
+        return 1 if NxBalls::itemIsRunning(item)
+        return 1 if PolyFunctions::toStringForListing(item).include?("sticky")
         position = trajectory["position1"] + (Time.new.to_f - trajectory["unixtime"]).to_f/(trajectory["timespanInHours"]*3600)
         [position, trajectory["position2"]].min
     end
@@ -464,7 +466,7 @@ class Listing
             items = Listing::items()
                         .map{|item|
                             trajectory = Listing::listingVelocity(item)
-                            item["listing:position"] = Listing::trajectoryToPosition(trajectory)
+                            item["listing:position"] = Listing::trajectoryToPosition(item, trajectory)
                             item
                         }
                         .sort{|i1, i2| i1["listing:position"] <=> i2["listing:position"] }
