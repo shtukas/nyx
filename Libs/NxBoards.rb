@@ -101,10 +101,11 @@ class NxBoards
 
             dskt = Desktop::contentsOrNull()
             if dskt and dskt.size > 0 then
+                puts "-----------------------------"
                 puts "Desktop:".green
-                vspaceleft = vspaceleft - 2
                 puts dskt
-                vspaceleft = vspaceleft - CommonUtils::verticalSize(dskt)
+                puts "-----------------------------"
+                vspaceleft = vspaceleft - (CommonUtils::verticalSize(dskt) + 3)
             end
 
             tops = NxTops::items()

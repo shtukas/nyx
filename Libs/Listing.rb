@@ -501,16 +501,17 @@ class Listing
 
             system("clear")
             store = ItemStore.new()
-            vspaceleft = CommonUtils::screenHeight() - 4
+            vspaceleft = CommonUtils::screenHeight() - 3
 
             puts ""
 
             dskt = Desktop::contentsOrNull()
             if dskt and dskt.size > 0 then
+                puts "-----------------------------"
                 puts "Desktop:".green
-                vspaceleft = vspaceleft - 2
                 puts dskt
-                vspaceleft = vspaceleft - CommonUtils::verticalSize(dskt)
+                puts "-----------------------------"
+                vspaceleft = vspaceleft - (CommonUtils::verticalSize(dskt) + 3)
             end
 
             tops = NxTops::items()
