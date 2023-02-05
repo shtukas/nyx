@@ -66,6 +66,11 @@ class NxTodos
         "(todo) #{item["description"]}"
     end
 
+    # NxTodos::listingItems()
+    def self.listingItems()
+        NxTodos::items().take(1)
+    end
+
     # --------------------------------------------------
     # Operations
 

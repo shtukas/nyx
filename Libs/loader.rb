@@ -147,7 +147,6 @@ require_relative "BankCore.rb"
 require_relative "Catalyst.rb"
 require_relative "Listing.rb"
 require_relative "CommonUtils.rb"
-require_relative "CompositeElizabeth.rb"
 
 require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)
@@ -162,7 +161,6 @@ require_relative "Galaxy.rb"
 
 require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"
-require_relative "InMemoryStore.rb"
 require_relative "ItemToTimeCommitmentMapping.rb"
 
 require_relative "FileSystemCheck.rb"
