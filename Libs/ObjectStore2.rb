@@ -81,14 +81,14 @@ class ObjectStore2
     # ----------------------------------
     # Private (1)
 
-    # ObjectStore2::spawnNewDatabase(foldername)
+    # ObjectStore2::spawnNewDatabase(foldername) # filepath
     def self.spawnNewDatabase(foldername)
         filepath = "#{Config::pathToDataCenter()}/#{foldername}/#{CommonUtils::timeStringL22()}.sqlite3"
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        db.execute("create table objects (uuid text primary key, mikuType text, unixtime float, datetime text, description text, object text)", [])
+        db.execute("create table objects (uuid text, mikuType text, unixtime float, datetime text, description text, object text)", [])
         db.close
         filepath
     end
@@ -161,27 +161,38 @@ class ObjectStore2
 
     # ObjectStore2::mergeFiles(foldername, filepath1, filepath2)
     def self.mergeFiles(foldername, filepath1, filepath2)
+
+        filepath3 = ObjectStore2::spawnNewDatabase(foldername)
+
+        db3 = SQLite3::Database.new(filepath3)
+
+        # We move all the objects from db1 to db3
+
         db1 = SQLite3::Database.new(filepath1)
-        db2 = SQLite3::Database.new(filepath2)
-
-        # We move all the objects from db1 to db2
-
         db1.busy_timeout = 117
         db1.busy_handler { |count| true }
         db1.results_as_hash = true
         db1.execute("select * from objects", []) do |row|
-            db2.execute "insert into objects (uuid, mikuType, unixtime, datetime, description, object) values (?, ?, ?, ?, ?, ?)", [row["uuid"], row["mikuType"], row["unixtime"], row["datetime"], row["description"], row["object"]] # we copy the object as string
+            db3.execute "insert into objects (uuid, mikuType, unixtime, datetime, description, object) values (?, ?, ?, ?, ?, ?)", [row["uuid"], row["mikuType"], row["unixtime"], row["datetime"], row["description"], row["object"]] # we copy the object as string
         end
-
         db1.close
+
+        # We move all the objects from db2 to db3
+
+        db2 = SQLite3::Database.new(filepath2)
+        db2.busy_timeout = 117
+        db2.busy_handler { |count| true }
+        db2.results_as_hash = true
+        db2.execute("select * from objects", []) do |row|
+            db3.execute "insert into objects (uuid, mikuType, unixtime, datetime, description, object) values (?, ?, ?, ?, ?, ?)", [row["uuid"], row["mikuType"], row["unixtime"], row["datetime"], row["description"], row["object"]] # we copy the object as string
+        end
         db2.close
 
-        # Let's now delete the first file 
+        db3.close
+
+        # Let's now delete the two files
         FileUtils.rm(filepath1)
+        FileUtils.rm(filepath2)
 
-
-        # And rename the second one
-        filepath3 = "#{Config::pathToDataCenter()}/#{foldername}/#{CommonUtils::timeStringL22()}.sqlite3"
-        FileUtils.mv(filepath2, filepath3)
     end
 end

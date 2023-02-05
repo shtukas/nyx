@@ -29,27 +29,6 @@ class FileSystemCheck
         AionFsck::structureCheckAionHashRaiseErrorIfAny(DatablobStoreElizabeth.new(), rootnhash)
     end
 
-    # FileSystemCheck::fsck_NxTimeCommitment(item, verbose)
-    def self.fsck_NxTimeCommitment(item, verbose)
-        return if item.nil?
-
-        if verbose then
-            puts "FileSystemCheck::fsck_NxTimeCommitment(#{JSON.pretty_generate(item)}, #{verbose})"
-        end
-
-        if item["mikuType"] != "NxTimeCommitment" then
-            raise "Incorrect Miku type for function"
-        end
-
-        FileSystemCheck::ensureAttribute(item, "uuid", "String")
-        FileSystemCheck::ensureAttribute(item, "mikuType", "String")
-        FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-        FileSystemCheck::ensureAttribute(item, "datetime", "String")
-        FileSystemCheck::ensureAttribute(item, "description", "String")
-        FileSystemCheck::ensureAttribute(item, "resetTime", "Number")
-        FileSystemCheck::ensureAttribute(item, "field3", "Number")
-    end
-
     # FileSystemCheck::fsck_NxNode(item, verbose)
     def self.fsck_NxNode(item, verbose)
 
@@ -79,11 +58,6 @@ class FileSystemCheck
 
         mikuType = item["mikuType"]
 
-        if mikuType == "NxTimeCommitment" then
-            FileSystemCheck::fsck_NxTimeCommitment(item, verbose)
-            return
-        end
-
         if mikuType == "NxAnniversary" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
@@ -100,6 +74,14 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "accounts", "Array")
             FileSystemCheck::ensureAttribute(item, "itemuuid", "String")
+            return
+        end
+
+        if mikuType == "NxBoard" then
+            FileSystemCheck::ensureAttribute(item, "uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+            FileSystemCheck::ensureAttribute(item, "datetime", "String")
+            FileSystemCheck::ensureAttribute(item, "description", "String")
             return
         end
 
@@ -122,6 +104,17 @@ class FileSystemCheck
             if item["field11"] and item["field11"].size > 0 then
                 CoreData::fsck(item["field11"])
             end
+            FileSystemCheck::ensureAttribute(item, "boarduuid", "String")
+            return
+        end
+
+        if mikuType == "NxTimeCommitment" then
+            FileSystemCheck::ensureAttribute(item, "uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+            FileSystemCheck::ensureAttribute(item, "datetime", "String")
+            FileSystemCheck::ensureAttribute(item, "description", "String")
+            FileSystemCheck::ensureAttribute(item, "hours", "Number")
+            FileSystemCheck::ensureAttribute(item, "resetUnixtime", "Number")
             return
         end
 

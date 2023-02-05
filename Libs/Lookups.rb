@@ -44,7 +44,7 @@ class Lookups
     # Lookups::destroy(foldername, uuid)
     def self.destroy(foldername, uuid)
         #puts "Lookups::destroy(#{foldername}, #{uuid})"
-        Lookups::filepaths().each{|filepath|
+        Lookups::filepaths(foldername).each{|filepath|
             Lookups::deleteValueInFile(foldername, filepath, uuid)
         }
     end
@@ -67,7 +67,7 @@ class Lookups
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        db.execute("create table _values_ (uuid text primary key, value text)", [])
+        db.execute("create table _values_ (uuid text, value text)", [])
         db.close
         filepath
     end
@@ -140,27 +140,33 @@ class Lookups
 
     # Lookups::mergeFiles(foldername, filepath1, filepath2)
     def self.mergeFiles(foldername, filepath1, filepath2)
+
+        filepath3 = ObjectStore2::spawnNewDatabase(foldername)
+
+        db3 = SQLite3::Database.new(filepath3)
+
+
         db1 = SQLite3::Database.new(filepath1)
-        db2 = SQLite3::Database.new(filepath2)
-
-        # We move all the objects from db1 to db2
-
         db1.busy_timeout = 117
         db1.busy_handler { |count| true }
         db1.results_as_hash = true
         db1.execute("select * from _values_", []) do |row|
-            db2.execute "insert into _values_ (uuid, value) values (?, ?)", [row["uuid"], row["value"]] # we copy the value as string
+            db3.execute "insert into _values_ (uuid, value) values (?, ?)", [row["uuid"], row["value"]] # we copy the value as string
         end
-
         db1.close
+
+        db2 = SQLite3::Database.new(filepath2)
+        db2.busy_timeout = 117
+        db2.busy_handler { |count| true }
+        db2.results_as_hash = true
+        db2.execute("select * from _values_", []) do |row|
+            db3.execute "insert into _values_ (uuid, value) values (?, ?)", [row["uuid"], row["value"]] # we copy the value as string
+        end
         db2.close
 
-        # Let's now delete the first file 
+        db3.close
+
         FileUtils.rm(filepath1)
-
-
-        # And rename the second one
-        filepath3 = "#{Config::pathToDataCenter()}/#{foldername}/#{CommonUtils::timeStringL22()}.sqlite3"
-        FileUtils.mv(filepath2, filepath3)
+        FileUtils.rm(filepath2)
     end
 end

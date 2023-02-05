@@ -61,7 +61,11 @@ class CoreData
 
     # CoreData::access(referenceString)
     def self.access(referenceString)
-        return if referenceString.nil?
+        if referenceString.nil? then
+            puts "Accessing null reference string. Nothing to do."
+            LucilleCore::pressEnterToContinue()
+            return
+        end
         if referenceString == "null" then
             puts "Accessing null reference string. Nothing to do."
             LucilleCore::pressEnterToContinue()

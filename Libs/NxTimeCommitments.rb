@@ -11,6 +11,11 @@ class NxTimeCommitments
         ObjectStore2::getOrNull("NxTimeCommitments", uuid)
     end
 
+    # NxTimeCommitments::commit(item)
+    def self.commit(item)
+        ObjectStore2::commit("NxTimeCommitments", item)
+    end
+
     # --------------------------------------------
     # Makers
 
@@ -26,11 +31,11 @@ class NxTimeCommitments
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "resetTime"   => 0,
-            "field3"      => hours,
+            "hours"       => hours,
+            "resetUnixtime"   => 0,
         }
-        FileSystemCheck::fsck_NxTimeCommitment(item, true)
-        ObjectStore2::commit("NxTimeCommitments", item)
+        FileSystemCheck::fsck_MikuTypedItem(item, true)
+        NxTimeCommitments::commit(item)
         item
     end
 
@@ -42,11 +47,6 @@ class NxTimeCommitments
         "(tc) #{item["description"]}"
     end
 
-    # NxTimeCommitments::toStringWithDetails(item, shouldFormat)
-    def self.toStringWithDetails(item, shouldFormat)
-        "(tc) (hours: #{item["field3"]}) #{item["description"]}"
-    end
-
     # NxTimeCommitments::interactivelySelectOneOrNull()
     def self.interactivelySelectOneOrNull()
         items = NxTimeCommitments::items()
@@ -56,20 +56,24 @@ class NxTimeCommitments
     # NxTimeCommitments::toStringForListing(item)
     def self.toStringForListing(item)
         hours = BankCore::getValue(item["uuid"]).to_f/3600
-        sinceResetInSeconds = Time.new.to_i - item["resetTime"]
-        sinceResetInDays = sinceResetInSeconds.to_f/86400
-        str1 =
-            if sinceResetInDays < 7 then
-                daysLeft = 7 - sinceResetInDays
-                if daysLeft > 1 then
-                    " (#{"%4.2f" % daysLeft} days left, #{"%5.2f" % ([hours, 0].max.to_f/daysLeft)} hours per day)"
-                else
-                    " (#{"%4.2f" % daysLeft} days left)"
-                end
-                
-            else
-                " (late by #{(sinceResetInDays - 7).round(2)} days)"
-            end
-        "#{item["description"].ljust(10)} (left: #{("%5.2f" % hours).to_s.green} hours, out of #{"%5.2f" % item["field3"]})#{str1}"
+        "#{item["description"].ljust(10)} (left: #{("%5.2f" % (-hours)).to_s.green} hours, out of #{"%5.2f" % item["hours"]})"
     end
+
+    # ----------------------------------------------------------------
+    # Ops
+
+    # NxTimeCommitments::timeManagement()
+    def self.timeManagement()
+        NxTimeCommitments::items().each{|item|
+            puts item
+            if (Time.new.to_i - item["resetUnixtime"]) >= 86400*7 then
+                # Time for a reset
+                puts "NxTimeCommitments, resetting #{item["description"]}"
+                BankCore::put(item["uuid"], -item["hours"]*3600)
+                item["resetUnixtime"] = Time.new.to_f
+                NxTimeCommitments::commit(item)
+            end
+        }
+    end
+
 end

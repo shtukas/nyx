@@ -20,12 +20,17 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NxBoard" then
+            NxBoards::listingProgram(item)
+            return
+        end
+
         if item["mikuType"] == "NxDrop" then
             return
         end
 
         if item["mikuType"] == "NxTimeCommitment" then
-            puts NxTimeCommitments::toStringWithDetails(item, false)
+            puts NxTimeCommitments::toString(item, false)
             actions = ["set hours"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
@@ -51,7 +56,6 @@ class PolyActions
         end
 
         if item["mikuType"] == "Wave" then
-            puts Waves::toString(item).green
             Waves::access(item)
             return
         end
@@ -116,6 +120,11 @@ class PolyActions
     # PolyActions::doubleDot(item)
     def self.doubleDot(item)
 
+        if item["mikuType"] == "NxBoard" then
+            PolyActions::access(item)
+            return
+        end
+
         if item["mikuType"] == "NxTimeCommitment" then
             return
         end
@@ -170,7 +179,7 @@ class PolyActions
 
         if item["mikuType"] == "NxTimeCommitment" then
             loop {
-                puts NxTimeCommitments::toStringWithDetails(item, false)
+                puts NxTimeCommitments::toString(item, false)
                 actions = ["set hours", "add time"]
                 action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
                 break if action.nil?

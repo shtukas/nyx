@@ -7,6 +7,11 @@ class NxTodos
         ObjectStore2::objects("NxTodos")
     end
 
+    # NxTodos::commit(item)
+    def self.commit(item)
+        ObjectStore2::commit("NxTodos", item)
+    end
+
     # --------------------------------------------------
     # Makers
 
@@ -16,6 +21,7 @@ class NxTodos
         return nil if description == ""
         uuid  = SecureRandom.uuid
         coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
+        board = NxBoards::interactivelySelectOne()
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
@@ -24,26 +30,27 @@ class NxTodos
             "description" => description,
             "field2"      => "regular",
             "field11"     => coredataref,
+            "boarduuid"   => board["uuid"]
         }
-        ObjectStore2::commit("NxTodos", item)
+        NxTodos::commit(item)
         item
     end
 
-    # NxTodos::interactivelyIssueNewTodayOrNull()
-    def self.interactivelyIssueNewTodayOrNull()
-        description = LucilleCore::askQuestionAnswerAsString("today (empty to abort): ")
-        return nil if description == ""
+    # NxTodos::viennaUrl(url)
+    def self.viennaUrl(url)
+        description = "(vienna) #{url}"
         uuid  = SecureRandom.uuid
-        coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
+        coredataref = "url:#{DatablobStore::put(url)}"
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "field11"     => coredataref
+            "field11"     => coredataref,
+            "boarduuid"   => "b093459d-70a7-4317-aa7e-326e53bd626a" # vienna (latest)
         }
-        ObjectStore2::commit("NxTodos", item)
+        ObjectStore2::commit("NxTriages", item)
         item
     end
 

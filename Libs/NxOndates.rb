@@ -6,6 +6,11 @@ class NxOndates
         ObjectStore2::objects("NxOndates")
     end
 
+    # NxOndates::commit(item)
+    def self.commit(item)
+        ObjectStore2::commit("NxOndates", item)
+    end
+
     # NxOndates::interactivelyIssueNullOrNull()
     def self.interactivelyIssueNullOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
@@ -22,8 +27,26 @@ class NxOndates
             "field11"     => coredataref
         }
         puts JSON.pretty_generate(item)
-        ObjectStore2::commit("NxOndates", item)
+        NxOndates::commit(item)
         ItemToTimeCommitmentMapping::interactiveProposalToSetMapping(item)
+        item
+    end
+
+    # NxOndates::interactivelyIssueNewTodayOrNull()
+    def self.interactivelyIssueNewTodayOrNull()
+        description = LucilleCore::askQuestionAnswerAsString("today (empty to abort): ")
+        return nil if description == ""
+        uuid  = SecureRandom.uuid
+        coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NxOndate",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "field11"     => coredataref
+        }
+        NxOndates::commit(item)
         item
     end
 

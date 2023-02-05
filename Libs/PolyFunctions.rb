@@ -1,5 +1,25 @@
 class PolyFunctions
 
+    # PolyFunctions::itemsToBankingAccounts(item)
+    def self.itemsToBankingAccounts(item)
+        accounts = []
+        accounts << {
+            "description" => nil,
+            "account"     => item["uuid"]
+        }
+        tcuuid = ItemToTimeCommitmentMapping::getOrNull(item["uuid"])
+        if tcuuid then
+            tc = NxTimeCommitments::getItemOfNull(tcuuid)
+            if tc then
+                accounts << {
+                    "description" => tc["description"],
+                    "account"     => tcuuid
+                }
+            end
+        end
+        accounts
+    end
+
     # PolyFunctions::toString(item)
     def self.toString(item)
         if item["mikuType"] == "LambdX1" then
@@ -8,11 +28,17 @@ class PolyFunctions
         if item["mikuType"] == "NxAnniversary" then
             return Anniversaries::toString(item)
         end
+        if item["mikuType"] == "NxBoard" then
+            return NxBoards::toString(item)
+        end
         if item["mikuType"] == "NxDrop" then
             return NxDrops::toString(item)
         end
         if item["mikuType"] == "NxNode" then
             return NxNodes::toString(item)
+        end
+        if item["mikuType"] == "NxOndate" then
+            return NxOndates::toString(item)
         end
         if item["mikuType"] == "NxTimeCommitment" then
             return NxTimeCommitments::toString(item)
@@ -22,6 +48,9 @@ class PolyFunctions
         end
         if item["mikuType"] == "NxTop" then
             return NxTops::toString(item)
+        end
+        if item["mikuType"] == "NxTriage" then
+            return NxTriages::toString(item)
         end
         if item["mikuType"] == "TxManualCountDown" then
             return "(countdown) #{item["description"]}: #{item["counter"]}"
@@ -36,7 +65,7 @@ class PolyFunctions
     # PolyFunctions::toStringForListing(item)
     def self.toStringForListing(item)
         if item["mikuType"] == "NxTimeCommitment" then
-            return NxTimeCommitments::toStringWithDetails(item, true)
+            return NxTimeCommitments::toStringForListing(item)
         end
         PolyFunctions::toString(item)
     end

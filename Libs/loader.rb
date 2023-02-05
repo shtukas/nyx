@@ -145,7 +145,7 @@ require_relative "Anniversaries.rb"
 require_relative "BankCore.rb"
 
 require_relative "Catalyst.rb"
-require_relative "Listing.rb"
+require_relative "CoreData.rb"
 require_relative "CommonUtils.rb"
 
 require_relative "DoNotShowUntil.rb"
@@ -167,18 +167,19 @@ require_relative "FileSystemCheck.rb"
 
 require_relative "LambdX1s.rb"
 require_relative "Lookups.rb"
+require_relative "Listing.rb"
 
 require_relative "Nyx.rb"
 require_relative "NxTodos.rb"
 require_relative "NxNetwork.rb"
 require_relative "NxNodes.rb"
 require_relative "NxTimeCommitments.rb"
-require_relative "CoreData.rb"
 require_relative "NxDrops.rb"
 require_relative "NxBalls.rb"
 require_relative "NxTops.rb"
 require_relative "NxOndates.rb"
 require_relative "NxTriages.rb"
+require_relative "NxBoards.rb"
 
 require_relative "ObjectStore2.rb"
 
@@ -204,28 +205,5 @@ $dnsu_database_semaphore = Mutex.new
 $owner_items_mapping_database_semaphore = Mutex.new
 $links_database_semaphore = Mutex.new
 $arrows_database_semaphore = Mutex.new
-
-# ------------------------------------------------------------
-
-if $RunNonEssentialThreads then
-
-    if Config::thisInstanceId() == "Lucille20-pascal" then 
-        Thread.new {
-            loop {
-                sleep 600
-                system("#{File.dirname(__FILE__)}/bin/vienna-import")
-            }
-        }
-    end
-
-    Thread.new {
-        loop {
-            sleep 12
-            The99Percent::line()
-            sleep 600
-        }
-    }
-
-end
 
 # ------------------------------------------------------------

@@ -323,7 +323,7 @@ class Listing
         end
 
         if Interpreting::match("today", input) then
-            item = NxTodos::interactivelyIssueNewTodayOrNull()
+            item = NxOndates::interactivelyIssueNewTodayOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
             return
@@ -355,38 +355,102 @@ class Listing
     # Listing::items()
     def self.items()
         [
-            Anniversaries::listingItems(),
-            NxDrops::items(),
-            NxOndates::listingItems(),
+            #Anniversaries::listingItems(),
+            #NxBoards::listingItems(),
+            #NxDrops::items(),
+            #NxOndates::listingItems(),
             NxTimeCommitments::items(),
-            NxTodos::listingItems(),
-            NxTops::items(),
-            NxTriages::items(),
-            Waves::listingItems(),
+            #NxTops::items(),
+            #NxTriages::items(),
+            #Waves::listingItems(),
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
-    # Listing::listingVelocity(item)
-    def self.listingVelocity(item)
-        trajectory = Lookups::getValueOrNull("ListingTrajectories", item["uuid"])
-        return trajectory if trajectory
-        trajectory = {
-            "unixtime"        => Time.new.to_f,
-            "position1"       => 0,
-            "position2"       => 1,
-            "timespanInHours" => 24
-        }
-        Lookups::commit("ListingTrajectories", item["uuid"], trajectory)
-        trajectory
-    end
+    # Listing::itemListingPosition(item)
+    def self.itemListingPosition(item)
 
-    # Listing::trajectoryToPosition(item, trajectory)
-    def self.trajectoryToPosition(item, trajectory)
+        trajectory = nil
+        
         return 1 if NxBalls::itemIsRunning(item)
         return 1 if PolyFunctions::toStringForListing(item).include?("sticky")
-        position = trajectory["position1"] + (Time.new.to_f - trajectory["unixtime"]).to_f/(trajectory["timespanInHours"]*3600)
+
+        if item["mikuType"] == "NxAnniversary" then
+            return 0.9
+        end
+
+        if item["mikuType"] == "NxTop" then
+            return 0.9
+        end
+
+        if item["mikuType"] == "NxTriage" then
+            return 0.7
+        end
+
+        if item["mikuType"] == "NxOndate" then
+            trajectory = Lookups::getValueOrNull("ListingTrajectories", item["uuid"])
+            if trajectory.nil? then
+                trajectory = {
+                    "unixtime"        => Time.new.to_f,
+                    "position1"       => 0.5,
+                    "position2"       => 1,
+                    "timespanInHours" => 12
+                }
+                Lookups::commit("ListingTrajectories", item["uuid"], trajectory)
+            end
+        end
+
+        if item["mikuType"] == "NxBoard" then
+            return 0.5
+        end
+
+        if item["mikuType"] == "NxTimeCommitment" then
+            return 0.5
+        end
+
+        if item["mikuType"] == "NxDrop" then
+            trajectory = Lookups::getValueOrNull("ListingTrajectories", item["uuid"])
+            if trajectory.nil? then
+                trajectory = {
+                    "unixtime"        => Time.new.to_f,
+                    "position1"       => 0,
+                    "position2"       => 1,
+                    "timespanInHours" => 48
+                }
+                Lookups::commit("ListingTrajectories", item["uuid"], trajectory)
+            end
+        end
+
+        if item["mikuType"] == "Wave" then
+            trajectory = Lookups::getValueOrNull("ListingTrajectories", item["uuid"])
+            if trajectory.nil? then
+                mapping1 = {
+                    "ns:high"   => 0.7,
+                    "ns:medium" => 0.4,
+                    "ns:low"    => 0.2
+                }
+                mapping2 = {
+                    "ns:high"   => 2,
+                    "ns:medium" => 24,
+                    "ns:low"    => 72
+                }
+                trajectory = {
+                    "unixtime"        => Time.new.to_f,
+                    "position1"       => mapping1[item["priority"]],
+                    "position2"       => 0.8,
+                    "timespanInHours" => mapping2[item["priority"]]
+                }
+                Lookups::commit("ListingTrajectories", item["uuid"], trajectory)
+            end
+        end
+
+        if trajectory.nil? then
+            raise "missing trajectory for item: #{item}"
+        end
+
+        ratio = (Time.new.to_f - trajectory["unixtime"]).to_f/(trajectory["timespanInHours"]*3600)
+        position = trajectory["position1"] + ratio*(trajectory["position2"]-trajectory["position1"])
         [position, trajectory["position2"]].min
     end
 
@@ -395,8 +459,6 @@ class Listing
 
         initialCodeTrace = CommonUtils::stargateTraceCode()
 
-        $SyncConflictInterruptionFilepath = nil
-
         loop {
 
             if CommonUtils::stargateTraceCode() != initialCodeTrace then
@@ -404,9 +466,10 @@ class Listing
                 break
             end
 
-            if $SyncConflictInterruptionFilepath then
-                puts "$SyncConflictInterruptionFilepath: #{$SyncConflictInterruptionFilepath}"
-                exit
+            if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("8fba6ab0-ce92-46af-9e6b-ce86371d643d", 3600*12) then
+                if Config::thisInstanceId() == "Lucille20-pascal" then 
+                    system("#{File.dirname(__FILE__)}/bin/vienna-import")
+                end
             end
 
             LucilleCore::locationsAtFolder("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")
@@ -417,6 +480,8 @@ class Listing
                     LucilleCore::removeFileSystemLocation(location)
                 }
 
+            NxTimeCommitments::timeManagement()
+
             trajectoryToNumber = lambda{|trajectory|
                 return 0.8 if trajectory.nil?
                 value = (Time.new.to_i - trajectory["activationunixtime"]).to_f/(trajectory["expectedTimeToCompletionInHours"]*3600)
@@ -424,7 +489,7 @@ class Listing
             }
 
             itemToLine = lambda {|store, item|
-                line = "(#{store.prefixString()}) #{PolyFunctions::toStringForListing(item)}#{ItemToTimeCommitmentMapping::toStringSuffix(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}"
+                line = "(#{store.prefixString()}) (#{"%5.2f" % item["listing:position"]}) #{PolyFunctions::toStringForListing(item)}#{ItemToTimeCommitmentMapping::toStringSuffix(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}"
                 if Locks::isLocked(item["uuid"]) then
                     line = "#{line} [lock: #{Locks::locknameOrNull(item["uuid"])}]".yellow
                 end
@@ -460,13 +525,10 @@ class Listing
                     vspaceleft = vspaceleft - 1
                 }
             end
-            timecommitments = NxTimeCommitments::items()
-            vspaceleft = vspaceleft - timecommitments.size
 
             items = Listing::items()
                         .map{|item|
-                            trajectory = Listing::listingVelocity(item)
-                            item["listing:position"] = Listing::trajectoryToPosition(item, trajectory)
+                            item["listing:position"] = Listing::itemListingPosition(item)
                             item
                         }
                         .sort{|i1, i2| i1["listing:position"] <=> i2["listing:position"] }
@@ -493,16 +555,6 @@ class Listing
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                     break if vspaceleft <= 0
-                }
-
-            timecommitments
-                .each{|item|
-                    store.register(item, false)
-                    line = "(#{store.prefixString()}) #{NxTimeCommitments::toStringForListing(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}"
-                    if NxBalls::itemIsRunning(item) or NxBalls::itemIsPaused(item) then
-                        line = line.green
-                    end
-                    puts line
                 }
 
             puts The99Percent::line()

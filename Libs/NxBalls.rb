@@ -49,7 +49,8 @@ class NxBalls
     # NxBalls::start(item)
     def self.start(item)
         return if !NxBalls::itemIsBallFree(item)
-        NxBalls::issueNxBall(item)
+        accounts = PolyFunctions::itemsToBankingAccounts(item)
+        NxBalls::issueNxBall(item, accounts)
     end
 
     # NxBalls::stop(item)
@@ -91,7 +92,7 @@ class NxBalls
 
     # NxBalls::nxBallToString(nxball)
     def self.nxBallToString(nxball)
-        accounts = nxball["accounts"].map{|a| a["description"]}.join(", ")
+        accounts = nxball["accounts"].map{|a| a["description"]}.compact.join(", ")
         if nxball["type"] == "running" and nxball["sequencestart"] then
             return "(nxball: running for #{((Time.new.to_i - nxball["startunixtime"]).to_f/3600).round(2)} hours, sequence started #{((Time.new.to_i - nxball["sequencestart"]).to_f/3600).round(2)} hours ago, #{accounts})"
         end

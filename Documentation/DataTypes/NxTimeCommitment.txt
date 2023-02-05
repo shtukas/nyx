@@ -1,8 +1,9 @@
 
 NxTimeCommitment:
-    "uuid"        : String
-    "mikuType"    : "NxTimeCommitment"
-    "unixtime"    : Float
-    "datetime"    : DateTime Iso 8601 UTC Zulu
-    "description" : String
-    "field3"      : Float
+    "uuid"          : String
+    "mikuType"      : "NxTimeCommitment"
+    "unixtime"      : Float
+    "datetime"      : DateTime Iso 8601 UTC Zulu
+    "description"   : String
+    "hours"         : Float
+    "resetUnixtime" : float
