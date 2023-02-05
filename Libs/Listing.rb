@@ -355,14 +355,14 @@ class Listing
     # Listing::items()
     def self.items()
         [
-            #Anniversaries::listingItems(),
-            #NxBoards::listingItems(),
-            #NxDrops::items(),
-            #NxOndates::listingItems(),
+            Anniversaries::listingItems(),
+            NxBoards::listingItems(),
+            NxDrops::items(),
+            NxOndates::listingItems(),
             NxTimeCommitments::items(),
-            #NxTops::items(),
-            #NxTriages::items(),
-            #Waves::listingItems(),
+            NxTops::items(),
+            NxTriages::items(),
+            Waves::listingItems(),
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
