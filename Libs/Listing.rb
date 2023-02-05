@@ -368,11 +368,24 @@ class Listing
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
-    # Listing::isPriorityItem(item)
-    def self.isPriorityItem(item)
-        return true if PolyFunctions::toStringForListing(item).include?("sticky")
-        return true if NxBalls::itemIsRunning(item)
-        false
+    # Listing::listingVelocity(item)
+    def self.listingVelocity(item)
+        trajectory = Lookups::getValueOrNull("ListingTrajectories", item["uuid"])
+        return trajectory if trajectory
+        trajectory = {
+            "unixtime"        => Time.new.to_f,
+            "position1"       => 0,
+            "position2"       => 1,
+            "timespanInHours" => 24
+        }
+        Lookups::commit("ListingTrajectories", item["uuid"], trajectory)
+        trajectory
+    end
+
+    # Listing::trajectoryToPosition(trajectory)
+    def self.trajectoryToPosition(trajectory)
+        position = trajectory["position1"] + (Time.new.to_f - trajectory["unixtime"]).to_f/(trajectory["timespanInHours"]*3600)
+        [position, trajectory["position2"]].min
     end
 
     # Listing::mainProgram2Pure()
@@ -421,7 +434,7 @@ class Listing
 
             system("clear")
             store = ItemStore.new()
-            vspaceleft = CommonUtils::screenHeight() - 3
+            vspaceleft = CommonUtils::screenHeight() - 4
 
             puts ""
 
@@ -449,15 +462,20 @@ class Listing
             vspaceleft = vspaceleft - timecommitments.size
 
             items = Listing::items()
+                        .map{|item|
+                            trajectory = Listing::listingVelocity(item)
+                            item["listing:position"] = Listing::trajectoryToPosition(trajectory)
+                            item
+                        }
+                        .sort{|i1, i2| i1["listing:position"] <=> i2["listing:position"] }
+                        .reverse
 
             lockedItems, items = items.partition{|item| Locks::isLocked(item["uuid"]) }
             lockedItems.each{|item|
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(PolyFunctions::toStringForListing(item))
             }
 
-            priorityItems, items = items.partition{|item| Listing::isPriorityItem(item) }
-
-            (priorityItems + items)
+            items
                 .each{|item|
                     store.register(item, !Skips::isSkipped(item["uuid"]))
                     line = itemToLine.call(store, item)

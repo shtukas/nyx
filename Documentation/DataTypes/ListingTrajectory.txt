@@ -1,0 +1,5 @@
+ListingTrajectory
+    "unixtime"        : Unixtime
+    "position1"       : float
+    "position2"       : float
+    "timespanInHours" : float

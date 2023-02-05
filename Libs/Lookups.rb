@@ -17,7 +17,7 @@ class Lookups
 
     # Lookups::commit(foldername, uuid, value)
     def self.commit(foldername, uuid, value)
-        puts "Lookups::commit(#{foldername}, #{uuid}, #{JSON.generate(value)})"
+        # puts "Lookups::commit(#{foldername}, #{uuid}, #{JSON.generate(value)})"
 
         filepaths = Lookups::filepaths(foldername)
 
@@ -43,7 +43,7 @@ class Lookups
 
     # Lookups::destroy(foldername, uuid)
     def self.destroy(foldername, uuid)
-        puts "Lookups::destroy(#{foldername}, #{uuid})"
+        #puts "Lookups::destroy(#{foldername}, #{uuid})"
         Lookups::filepaths().each{|filepath|
             Lookups::deleteValueInFile(foldername, filepath, uuid)
         }
