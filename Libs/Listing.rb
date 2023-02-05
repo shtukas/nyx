@@ -386,6 +386,14 @@ class Listing
             return 0.7
         end
 
+        if item["mikuType"] == "NxTimeCommitment" then
+            return (NxTimeCommitments::isWithinIdealProgression(item) ? 0.2 : 0.7)
+        end
+
+        if item["mikuType"] == "NxBoard" then
+            return (BankUtils::recoveredAverageHoursPerDay(item["uuid"]) > 0.5 ? 0.1 : 0.6 )
+        end
+
         if item["mikuType"] == "NxOndate" then
             trajectory = Lookups::getValueOrNull("ListingTrajectories", item["uuid"])
             if trajectory.nil? then
@@ -397,14 +405,6 @@ class Listing
                 }
                 Lookups::commit("ListingTrajectories", item["uuid"], trajectory)
             end
-        end
-
-        if item["mikuType"] == "NxBoard" then
-            return 0.5
-        end
-
-        if item["mikuType"] == "NxTimeCommitment" then
-            return 0.5
         end
 
         if item["mikuType"] == "NxDrop" then

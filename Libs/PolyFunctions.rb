@@ -3,10 +3,12 @@ class PolyFunctions
     # PolyFunctions::itemsToBankingAccounts(item)
     def self.itemsToBankingAccounts(item)
         accounts = []
+
         accounts << {
             "description" => nil,
             "account"     => item["uuid"]
         }
+
         tcuuid = ItemToTimeCommitmentMapping::getOrNull(item["uuid"])
         if tcuuid then
             tc = NxTimeCommitments::getItemOfNull(tcuuid)
@@ -17,6 +19,18 @@ class PolyFunctions
                 }
             end
         end
+
+        if item["mikuType"] == "NxTodo" then
+            boarduuid = item["boarduuid"]
+            board = NxBoards::getItemOfNull(uuid)
+            if board then
+                accounts << {
+                    "description" => board["description"],
+                    "account"     => boarduuid
+                }
+            end
+        end
+
         accounts
     end
 

@@ -143,6 +143,7 @@ require "#{Config::userHomeDirectory()}/Galaxy/LucilleOS/Libraries/Ruby-Librarie
 require_relative "Anniversaries.rb"
 
 require_relative "BankCore.rb"
+require_relative "BankUtils.rb"
 
 require_relative "Catalyst.rb"
 require_relative "CoreData.rb"
