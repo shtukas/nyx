@@ -1,4 +1,0 @@
-
-NxListingVelocity:
-    "activationunixtime"              : Float
-    "expectedTimeToCompletionInHours" : Float

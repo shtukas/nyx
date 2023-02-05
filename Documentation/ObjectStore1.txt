@@ -8,7 +8,6 @@ Type:
     "payload"        : 
     "doNotShowUntil" : Unixtime
 
-    "field1"         : string ; used, miku type specific
     "field2"         : string ; used, miku type specific
     "field3"         : string ; used, miku type specific
     "field4"         : string ; used, miku type specific
@@ -16,6 +15,4 @@ Type:
     "field6"         : string ; used, miku type specific
 
     "field11"        : string ; null, "" or CoreData reference string
-    "field12"        : string ; null, "" or "true" # if listed
-    "field13"        : float  ; null, "" or NxListingVelocity (json encoded at rest)
 
