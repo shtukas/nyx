@@ -1,6 +1,9 @@
 
 class NxTriages
 
+    # ------------------
+    # IO
+
     # NxTriages::items()
     def self.items()
         ObjectStore2::objects("NxTriages")
@@ -10,6 +13,14 @@ class NxTriages
     def self.commit(item)
         ObjectStore2::commit("NxTriages", item)
     end
+
+    # NxTriages::destroy(uuid)
+    def self.destroy(uuid)
+        ObjectStore2::destroy("NxTriages", uuid)
+    end
+
+    # ------------------
+    # Makers
 
     # NxTriages::bufferInImport(location)
     def self.bufferInImport(location)
@@ -30,13 +41,24 @@ class NxTriages
         item
     end
 
+    # ------------------
+    # Data
+
+    # NxTriages::toString(item)
+    def self.toString(item)
+        "(triage) #{item["description"]} (coredataref: #{item["field11"]})"
+    end
+
     # NxTriages::listingItems()
     def self.listingItems()
         NxTriages::items()
     end
 
-    # NxTriages::toString(item)
-    def self.toString(item)
-        "(triage) #{item["description"]} (coredataref: #{item["field11"]})"
+    # ------------------
+    # Ops
+
+    # NxTriages::access(item)
+    def self.access(item)
+        CoreData::access(item["field11"])
     end
 end

@@ -149,6 +149,32 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NxTriage" then
+            NxTriages::access(item)
+            options = ["done (destroy)", "move to board", "do not display until"]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", options)
+            return if option.nil?
+            if option == "done (destroy)" then
+                NxTriages::destroy(uuid)
+            end
+            if option == "move to board" then
+                board = NxBoards::interactivelySelectOne()
+                newitem = item.clone
+                newitem["uuid"] = SecureRandom.uuid
+                newitem["mikuType"] = "NxTodo"
+                newitem["boarduuid"] = board["uuid"]
+                NxTodos::commit(newitem)
+                NxTriages::destroy(item["uuid"])
+            end
+            if option == "do not show until" then
+                NxTriages::destroy(uuid)
+                unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
+                return if unixtime.nil?
+                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+            end
+            return
+        end
+
         puts "I don't know how to doubleDot '#{item["mikuType"]}'"
         LucilleCore::pressEnterToContinue()
     end

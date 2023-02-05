@@ -65,7 +65,7 @@ class ObjectStore2
     # ObjectStore2::destroy(foldername, uuid)
     def self.destroy(foldername, uuid)
         puts "ObjectStore2::destroy(#{foldername}, #{uuid})"
-        ObjectStore2::filepaths().each{|filepath|
+        ObjectStore2::filepaths(foldername).each{|filepath|
             ObjectStore2::deleteObjectInFile(foldername, filepath, uuid)
         }
     end

@@ -1,6 +1,9 @@
 
 class NxOndates
 
+    # ------------------
+    # IO
+
     # NxOndates::items()
     def self.items()
         ObjectStore2::objects("NxOndates")
@@ -50,16 +53,22 @@ class NxOndates
         item
     end
 
+    # ------------------
+    # Data
+
+    # NxOndates::toString(item)
+    def self.toString(item)
+        "(ondate) #{item["description"]} (coredataref: #{item["field11"]})"
+    end
+
     # NxOndates::listingItems()
     def self.listingItems()
         NxOndates::items()
             .select{|item| item["datetime"][0, 10] <= CommonUtils::today() }
     end
 
-    # NxOndates::toString(item)
-    def self.toString(item)
-        "(ondate) #{item["description"]} (coredataref: #{item["field11"]})"
-    end
+    # ------------------
+    # Ops
 
     # NxOndates::report()
     def self.report()
@@ -71,5 +80,10 @@ class NxOndates
                 puts NxOndates::toString(item)
             }
         LucilleCore::pressEnterToContinue()
+    end
+
+    # NxTriages::access(item)
+    def self.access(item)
+        CoreData::access(item["field11"])
     end
 end

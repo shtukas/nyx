@@ -146,9 +146,7 @@ class Listing
             _, _, _, _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            datecode = LucilleCore::askQuestionAnswerAsString("datecode: ")
-            return if datecode == ""
-            unixtime = CommonUtils::codeToUnixtimeOrNull(datecode.gsub(" ", ""))
+            unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
             return if unixtime.nil?
             DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
             return
