@@ -47,16 +47,16 @@ class NxTimeCommitments
         "(tc) #{item["description"]}"
     end
 
+    # NxTimeCommitments::toStringForListing(item)
+    def self.toStringForListing(item)
+        hours = BankCore::getValue(item["uuid"]).to_f/3600
+        "(-tc-) #{item["description"]} (left: #{("%5.2f" % (-hours)).to_s.green} hours, out of #{"%5.2f" % item["hours"]})"
+    end
+
     # NxTimeCommitments::interactivelySelectOneOrNull()
     def self.interactivelySelectOneOrNull()
         items = NxTimeCommitments::items()
         LucilleCore::selectEntityFromListOfEntitiesOrNull("time commitment", items, lambda{|item| NxTimeCommitments::toString(item) })
-    end
-
-    # NxTimeCommitments::toStringForListing(item)
-    def self.toStringForListing(item)
-        hours = BankCore::getValue(item["uuid"]).to_f/3600
-        "#{item["description"].ljust(10)} (left: #{("%5.2f" % (-hours)).to_s.green} hours, out of #{"%5.2f" % item["hours"]})"
     end
 
     # ----------------------------------------------------------------
