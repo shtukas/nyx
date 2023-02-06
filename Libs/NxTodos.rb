@@ -123,7 +123,7 @@ class NxTodos
 
     # NxTodos::toString(item)
     def self.toString(item)
-        "(todo) (#{"%8.3f" % item["boardposition"]}) #{item["description"]}"
+        "(todo) (pos: #{"%8.3f" % item["boardposition"]}) #{item["description"]}"
     end
 
     # NxTodos::toStringForFirstItem(item)

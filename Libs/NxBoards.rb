@@ -164,7 +164,7 @@ class NxBoards
             puts ""
             vspaceleft = vspaceleft - 3
 
-            items = NxBoards::boardItemsOrderedX3(board["uuid"])
+            items = NxBoards::boardItemsOrdered(board["uuid"])
 
             lockedItems, items = items.partition{|item| Locks::isLocked(item["uuid"]) }
             lockedItems.each{|item|
@@ -182,7 +182,7 @@ class NxBoards
             items
                 .each{|item|
                     store.register(item, !Skips::isSkipped(item["uuid"]))
-                    line = "(#{"%7.2f" % (BankCore::getValue(item["uuid"]).to_f/3600)} hours) #{Listing::itemToListingLine(store, item, nil)}"
+                    line = Listing::itemToListingLine(store, item, "(done: #{"%7.2f" % (BankCore::getValue(item["uuid"]).to_f/3600)} hours)")
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                     break if vspaceleft <= 0

@@ -491,8 +491,9 @@ class Listing
 
     # Listing::itemToListingLine(store, item, afterOrdinalFragment)
     def self.itemToListingLine(store, item, afterOrdinalFragment)
-        listingposition = item["listing:position"] ? " (#{"%5.2f" % item["listing:position"]})" : ""
-        line = "(#{store.prefixString()})#{listingposition} #{PolyFunctions::toStringForListing(item)}#{ItemToTimeCommitmentMapping::toStringSuffix(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}"
+        listingposition = item["listing:position"] ? " (lpos: #{"%5.2f" % item["listing:position"]})" : ""
+        aof = afterOrdinalFragment ? " #{afterOrdinalFragment} " : " "
+        line = "(#{store.prefixString()})#{listingposition}#{aof}#{PolyFunctions::toStringForListing(item)}#{ItemToTimeCommitmentMapping::toStringSuffix(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}"
         if Locks::isLocked(item["uuid"]) then
             line = "#{line} [lock: #{Locks::locknameOrNull(item["uuid"])}]".yellow
         end
