@@ -41,6 +41,7 @@ class NxTodos
         description = "(vienna) #{url}"
         uuid  = SecureRandom.uuid
         coredataref = "url:#{DatablobStore::put(url)}"
+        board = NxBoards::getItemOfNull("b093459d-70a7-4317-aa7e-326e53bd626a") # vienna (latest)
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
@@ -48,7 +49,8 @@ class NxTodos
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
             "field11"     => coredataref,
-            "boarduuid"   => "b093459d-70a7-4317-aa7e-326e53bd626a" # vienna (latest)
+            "boarduuid"     => board["uuid"], # vienna (latest)
+            "boardposition" => NxBoards::getBoardNextPosition(board)
         }
         ObjectStore2::commit("NxTriages", item)
         item
@@ -77,7 +79,7 @@ class NxTodos
 
     # NxTodos::toString(item)
     def self.toString(item)
-        "(todo) #{item["description"]}"
+        "(todo) (#{"%8.3f" % item["boardposition"]}) #{item["description"]}"
     end
 
     # NxTodos::listingItems()

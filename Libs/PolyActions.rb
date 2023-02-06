@@ -163,6 +163,7 @@ class PolyActions
                 newitem["uuid"] = SecureRandom.uuid
                 newitem["mikuType"] = "NxTodo"
                 newitem["boarduuid"] = board["uuid"]
+                newitem["boardposition"] = NxBoards::decideNewBoardPosition(board)
                 NxTodos::commit(newitem)
                 NxTriages::destroy(item["uuid"])
             end

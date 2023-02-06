@@ -105,6 +105,7 @@ class FileSystemCheck
                 CoreData::fsck(item["field11"])
             end
             FileSystemCheck::ensureAttribute(item, "boarduuid", "String")
+            FileSystemCheck::ensureAttribute(item, "boardposition", "Number")
             return
         end
 

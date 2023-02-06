@@ -165,7 +165,7 @@ class NxBoards
                 puts "line:"
                 puts "    description: #{description}"
                 puts "    ordinal    : #{ordinal}"
-                NxTodos::issueBoardLine(line, board["uuid"], ordinal)
+                NxTodos::issueBoardLine(description, board["uuid"], ordinal)
                 next
             end
 
@@ -175,6 +175,15 @@ class NxBoards
 
     # NxBoards::decideNewBoardPosition(board)
     def self.decideNewBoardPosition(board)
+        NxBoards::boardItems(board["uuid"])
+            .sort{|i1, i2| i1["boardposition"] <=> i2["boardposition"] }
+            .first(40)
+            .each{|item| puts NxTodos::toString(item) }
         LucilleCore::askQuestionAnswerAsString("position: ").to_f
+    end
+
+    # NxBoards::getBoardNextPosition(board)
+    def self.getBoardNextPosition(board)
+        (NxBoards::boardItems(board["uuid"]).map{|item| item["boardposition"] } + [0]).max + 1
     end
 end
