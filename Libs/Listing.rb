@@ -9,7 +9,7 @@ class Listing
             "[makers] anniversary | manual countdown | wave | today | ondate | todo | drop | top | capsule",
             "[divings] anniversaries | ondates | waves | todos | desktop",
             "[NxBalls] start | start * | stop | stop * | pause | pursue",
-            "[NxTodo] redate",
+            "[NxOndate] redate",
             "[misc] search | speed | commands",
         ].join("\n")
     end
@@ -257,7 +257,7 @@ class Listing
             end
             unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
             item["datetime"] = Time.at(unixtime).utc.iso8601
-            ObjectStore2::commit("NxOndates", item)
+            NxOndates::commit(item)
             DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
             return
         end
