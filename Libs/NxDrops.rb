@@ -6,6 +6,11 @@ class NxDrops
         ObjectStore2::objects("NxDrops")
     end
 
+    # NxDrops::destroy(uuid)
+    def self.destroy(uuid)
+        ObjectStore2::destroy("NxDrops", uuid)
+    end
+
     # NxDrops::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")

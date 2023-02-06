@@ -93,17 +93,23 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxDrop" then
-            ObjectStore2::destroy("NxDrops", item["uuid"])
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green} ? '", true) then
+                NxDrops::destroy(item["uuid"])
+            end
             return
         end
 
         if item["mikuType"] == "NxTop" then
-            ObjectStore2::destroy("NxTops", item["uuid"])
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green} ? '", true) then
+                NxTops::destroy(item["uuid"])
+            end
             return
         end
 
         if item["mikuType"] == "NxTodo" then
-            NxTodos::doneprocess(item)
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green} ? '", true) then
+                NxTodos::destroy(item["uuid"])
+            end
             return
         end
 
@@ -200,7 +206,17 @@ class PolyActions
 
         if item["mikuType"] == "NxTodo" then
             NxTodos::access(item)
-            NxTodos::doneprocess(item)
+            options = ["done (destroy)", "do not display until"]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", options)
+            return if option.nil?
+            if option == "done (destroy)" then
+                NxTodos::destroy(item["uuid"])
+            end
+            if option == "do not show until" then
+                unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
+                return if unixtime.nil?
+                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+            end
             return
         end
 

@@ -12,6 +12,11 @@ class NxTodos
         ObjectStore2::commit("NxTodos", item)
     end
 
+    # NxTodos::destroy(uuid)
+    def self.destroy(uuid)
+        ObjectStore2::destroy("NxTodos", uuid)
+    end
+
     # --------------------------------------------------
     # Makers
 
@@ -98,27 +103,5 @@ class NxTodos
     # NxTodos::access(item)
     def self.access(item)
         CoreData::access(item["field11"])
-    end
-
-    # NxTodos::doneprocess(item)
-    def self.doneprocess(item)
-        puts PolyFunctions::toString(item)
-        if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
-            if item["field11"] then
-                puts "You are attempting to done a NxTodo which carries a core data reference string"
-                option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["destroy", "exit"])
-                return if option == ""
-                if option == "destroy" then
-                    ObjectStore2::destroy("NxTodos", item["uuid"])
-                    return
-                end
-                if option == "exit" then
-                    return
-                end
-                return
-            else
-                ObjectStore2::destroy("NxTodos", item["uuid"])
-            end
-        end
     end
 end

@@ -11,6 +11,11 @@ class NxTops
         ObjectStore2::commit("NxTops", item)
     end
 
+    # NxTops::destroy(uuid)
+    def self.destroy(uuid)
+        ObjectStore2::destroy("NxTops", uuid)
+    end
+
     # NxTops::interactivelyIssueNullOrNull()
     def self.interactivelyIssueNullOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")

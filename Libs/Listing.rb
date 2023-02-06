@@ -10,6 +10,7 @@ class Listing
             "[divings] anniversaries | ondates | waves | todos | desktop",
             "[NxBalls] start | start * | stop | stop * | pause | pursue",
             "[NxOndate] redate",
+            "[NxTimeCommitment] tc add time",
             "[misc] search | speed | commands",
         ].join("\n")
     end
@@ -310,6 +311,14 @@ class Listing
         if Interpreting::match("search", input) then
             SearchCatalyst::run()
             return
+        end
+
+        if Interpreting::match("tc add time", input) then
+            tc = NxTimeCommitments::interactivelySelectOneOrNull()
+            return if tc.nil?
+            timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
+            puts "Adding #{timeInHours*3600} seconds to tc: #{tc["description"]}"
+            BankCore::put(tc["uuid"], timeInHours*3600)
         end
 
         if Interpreting::match("top", input) then
