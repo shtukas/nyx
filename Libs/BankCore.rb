@@ -128,7 +128,7 @@ class BankCore
 
 
         # And rename the second one
-        filepath3 = "#{Config::pathToDataCenter()}/#{foldername}/#{CommonUtils::timeStringL22()}.sqlite3"
+        filepath3 = "#{Config::pathToDataCenter()}/Bank/#{CommonUtils::timeStringL22()}.sqlite3"
         FileUtils.mv(filepath2, filepath3)
     end
 end
