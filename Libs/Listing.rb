@@ -272,10 +272,7 @@ class Listing
                 LucilleCore::pressEnterToContinue()
                 return
             end
-            unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
-            item["datetime"] = Time.at(unixtime).utc.iso8601
-            NxOndates::commit(item)
-            DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+            NxOndates::redate(item)
             return
         end
 

@@ -105,8 +105,8 @@ class BankCore
         value
     end
 
-    # BankCore::mergeFiles(foldername, filepath1, filepath2)
-    def self.mergeFiles(foldername, filepath1, filepath2)
+    # BankCore::mergeFiles(filepath1, filepath2)
+    def self.mergeFiles(filepath1, filepath2)
 
         db1 = SQLite3::Database.new(filepath1)
         db2 = SQLite3::Database.new(filepath2)

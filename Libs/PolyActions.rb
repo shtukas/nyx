@@ -91,6 +91,12 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NxBoard" then
+            puts "There is no doen action on NxBoards. You probaly want stop"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
         if item["mikuType"] == "NxBoardFirstItem" then
             todo = item["todo"]
             PolyActions::done(todo)
@@ -183,6 +189,18 @@ class PolyActions
         if item["mikuType"] == "NxOndate" then
             NxBalls::start(item)
             NxOndates::access(item)
+            options = ["done (destroy)", "run in background", "do not display until"]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", options)
+            return if option.nil?
+            if option == "done (destroy)" then
+                NxOndates::destroy(todo["uuid"])
+            end
+            if option == "run in background" then
+                return
+            end
+            if option == "redate" then
+                NxOndates::redate(item)
+            end
             return
         end
 

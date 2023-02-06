@@ -63,7 +63,7 @@ class NxOndates
 
     # NxOndates::toString(item)
     def self.toString(item)
-        "(ondate) #{item["description"]} (coredataref: #{item["field11"]})"
+        "(ondate: #{item["datetime"][0, 10]}) #{item["description"]} (coredataref: #{item["field11"]})"
     end
 
     # NxOndates::listingItems()
@@ -90,5 +90,13 @@ class NxOndates
     # NxOndates::access(item)
     def self.access(item)
         CoreData::access(item["field11"])
+    end
+
+    # NxOndates::redate(item)
+    def self.redate(item)
+        unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
+        item["datetime"] = Time.at(unixtime).utc.iso8601
+        NxOndates::commit(item)
+        DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
     end
 end
