@@ -351,11 +351,11 @@ class Listing
         [
             Anniversaries::listingItems(),
             NxBoards::listingItems(),
-            #NxDrops::items(),
+            NxDrops::items(),
             NxOndates::listingItems(),
             NxTimeCommitments::items(),
             NxTriages::items(),
-            #Waves::listingItems(),
+            Waves::listingItems(),
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
