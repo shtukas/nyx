@@ -72,6 +72,7 @@ class PolyActions
     # PolyActions::done(item)
     def self.done(item)
 
+        NxBalls::stop(item)
         Locks::unlock(item["uuid"])
 
         # order: alphabetical order
@@ -81,7 +82,6 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxAnniversary" then
-            NxBalls::stop(item)
             Anniversaries::done(item["uuid"])
             return
         end
@@ -112,14 +112,12 @@ class PolyActions
         end
 
         if item["mikuType"] == "TxManualCountDown" then
-            NxBalls::stop(item)
             TxManualCountDowns::performUpdate(item)
             return
         end
 
         if item["mikuType"] == "Wave" then
             if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
-                NxBalls::stop(item)
                 Waves::performWaveNx46WaveDone(item)
             end
             return
