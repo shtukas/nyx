@@ -15,22 +15,22 @@ class NxTodos
     # --------------------------------------------------
     # Makers
 
-    # NxTodos::interactivelyIssueNewRegularOrNull()
-    def self.interactivelyIssueNewRegularOrNull()
+    # NxTodos::interactivelyIssueNewOrNull(contextualBoardOpt)
+    def self.interactivelyIssueNewOrNull(contextualBoardOpt)
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid  = SecureRandom.uuid
         coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
-        board = NxBoards::interactivelySelectOne()
+        board = contextualBoardOpt ? contextualBoardOpt : NxBoards::interactivelySelectOne()
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "field2"      => "regular",
             "field11"     => coredataref,
-            "boarduuid"   => board["uuid"]
+            "boarduuid"     => board["uuid"],
+            "boardposition" => NxBoards::decideNewBoardPosition(board)
         }
         NxTodos::commit(item)
         item
@@ -54,22 +54,29 @@ class NxTodos
         item
     end
 
+    # NxTodos::issueBoardLine(line, boarduuid, boardposition)
+    def self.issueBoardLine(line, boarduuid, boardposition)
+        description = line
+        uuid  = SecureRandom.uuid
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NxTodo",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "field11"     => nil,
+            "boarduuid"     => boarduuid,
+            "boardposition" => boardposition
+        }
+        NxTodos::commit(item)
+        item
+    end
+
     # --------------------------------------------------
     # Data
 
     # NxTodos::toString(item)
     def self.toString(item)
-        flavour = (lambda {|item|
-            return "" if item["field2"] == "regular"
-            return ", ondate #{item["datetime"][0, 10]}" if item["field2"] == "ondate"
-            return ", triage" if item["field2"] == "triage"
-            raise "(error: ca9b365a-2e14-4523-8df9-fe2d6a6dd5f4) #{item}"
-        }).call(item)
-        "(todo#{flavour}) #{item["description"]}"
-    end
-
-    # NxTodos::toStringForSearch(item)
-    def self.toStringForSearch(item)
         "(todo) #{item["description"]}"
     end
 

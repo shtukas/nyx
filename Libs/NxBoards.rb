@@ -123,7 +123,7 @@ class NxBoards
             timecommitments = NxTimeCommitments::items()
             vspaceleft = vspaceleft - timecommitments.size
 
-            items = NxBoards::boardItems(board["uuid"])
+            items = NxBoards::boardItems(board["uuid"]).sort{|i1, i2| i1["boardposition"] <=> i2["boardposition"] }
 
             lockedItems, items = items.partition{|item| Locks::isLocked(item["uuid"]) }
             lockedItems.each{|item|
@@ -153,7 +153,28 @@ class NxBoards
             return if input == "exit"
             next if input == ""
 
-            Listing::listingCommandInterpreter(input, store)
+            # line
+            # We have a special line command that fast inject a line on the board
+
+            if input.start_with?("line:") then
+                line = input[6, input.length].strip
+                line = line.reverse
+                position = line.index("@")
+                ordinal = line[0, position].strip.reverse.to_f
+                description = line[position+1, line.size].strip.reverse
+                puts "line:"
+                puts "    description: #{description}"
+                puts "    ordinal    : #{ordinal}"
+                NxTodos::issueBoardLine(line, board["uuid"], ordinal)
+                next
+            end
+
+            Listing::listingCommandInterpreter(input, store, board)
         }
+    end
+
+    # NxBoards::decideNewBoardPosition(board)
+    def self.decideNewBoardPosition(board)
+        LucilleCore::askQuestionAnswerAsString("position: ").to_f
     end
 end

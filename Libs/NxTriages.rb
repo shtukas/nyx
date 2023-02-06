@@ -30,11 +30,10 @@ class NxTriages
         coredataref = "aion-point:#{nhash}" 
         item = {
             "uuid"        => uuid,
-            "mikuType"    => "NxTodo",
+            "mikuType"    => "NxTriage",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "field2"      => "triage",
             "field11"     => coredataref
         }
         ObjectStore2::commit("NxTriages", item)

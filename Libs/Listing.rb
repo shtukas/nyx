@@ -14,8 +14,8 @@ class Listing
         ].join("\n")
     end
 
-    # Listing::listingCommandInterpreter(input, store)
-    def self.listingCommandInterpreter(input, store)
+    # Listing::listingCommandInterpreter(input, store, contextualBoardOpt or nil)
+    def self.listingCommandInterpreter(input, store, contextualBoardOpt)
 
         if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
             if (item = store.getDefault()) then
@@ -328,7 +328,7 @@ class Listing
         end
 
         if Interpreting::match("todo", input) then
-            item = NxTodos::interactivelyIssueNewRegularOrNull()
+            item = NxTodos::interactivelyIssueNewOrNull(contextualBoardOpt)
             return if item.nil?
             puts JSON.pretty_generate(item)
             return
@@ -513,19 +513,6 @@ class Listing
                 vspaceleft = vspaceleft - (CommonUtils::verticalSize(dskt) + 3)
             end
 
-            tops = NxTops::items()
-            if tops.size > 0 then
-                tops.each{|item|
-                    store.register(item, true)
-                    line = "(#{store.prefixString()})         #{NxTops::toString(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}"
-                    if line. include?("running") then
-                        line = line.green
-                    end
-                    puts line
-                    vspaceleft = vspaceleft - 1
-                }
-            end
-
             items = Listing::items()
                         .map{|item|
                             item["listing:position"] = Listing::itemListingPosition(item)
@@ -563,7 +550,7 @@ class Listing
             input = LucilleCore::askQuestionAnswerAsString("> ")
             next if input == ""
 
-            Listing::listingCommandInterpreter(input, store)
+            Listing::listingCommandInterpreter(input, store, nil)
         }
     end
 end

@@ -35,11 +35,7 @@ class SearchCatalyst
                                 .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
                 nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", selected, lambda{|i| i["announce"] })
                 break if nx20.nil?
-                puts PolyFunctions::toStringForListing(nx20["item"])
-                puts ""
-                input = LucilleCore::askQuestionAnswerAsString("> ")
-                next if input == ""
-                Listing::listingCommandInterpreter(input, store)
+                puts PolyFunctions::access(nx20["item"])
             }
         }
         nil
