@@ -125,7 +125,10 @@ class NxBoards
             linecount = Listing::printTops(store)
             vspaceleft = vspaceleft - linecount
 
-            Listing::printProcesses(store)
+            puts ""
+            vspaceleft = vspaceleft - 1
+
+            Listing::printProcesses(store, false)
 
             puts ""
             puts "BOARD FOCUS: #{NxBoards::toString(board)}#{NxBalls::nxballSuffixStatusIfRelevant(board).green}"
@@ -150,7 +153,7 @@ class NxBoards
             items
                 .each{|item|
                     store.register(item, !Skips::isSkipped(item["uuid"]))
-                    line = Listing::itemToListingLine(store, item, nil)
+                    line = "(#{"%7.2f" % (BankCore::getValue(item["uuid"]).to_f/3600)} hours) #{Listing::itemToListingLine(store, item, nil)}"
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                     break if vspaceleft <= 0
