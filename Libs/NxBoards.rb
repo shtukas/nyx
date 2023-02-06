@@ -64,6 +64,28 @@ class NxBoards
         }
     end
 
+    # NxBoards::decideNewBoardPosition(board)
+    def self.decideNewBoardPosition(board)
+        NxBoards::boardItemsOrdered(board["uuid"])
+            .first(20)
+            .each{|item| puts NxTodos::toString(item) }
+        input = LucilleCore::askQuestionAnswerAsString("position (empty for next): ")
+        return NxBoards::getBoardNextPosition(board) if input == ""
+        input.to_f
+    end
+
+    # NxBoards::getBoardNextPosition(board)
+    def self.getBoardNextPosition(board)
+        (NxBoards::boardItems(board["uuid"]).map{|item| item["boardposition"] } + [0]).max + 1
+    end
+
+    # NxBoards::interactivelyDecideBoardPositionPair()
+    def self.interactivelyDecideBoardPositionPair()
+        board = NxBoards::interactivelySelectOne()
+        position = NxBoards::decideNewBoardPosition(board)
+        [board, position]
+    end
+
     # NxBoards::listingItems()
     def self.listingItems()
         NxBoards::items()
@@ -128,16 +150,14 @@ class NxBoards
             store = ItemStore.new()
             vspaceleft = CommonUtils::screenHeight() - 3
 
+            puts ""
+            vspaceleft = vspaceleft - 1
+
             linecount = Listing::printDesktop()
             vspaceleft = vspaceleft - linecount
 
             linecount = Listing::printTops(store)
             vspaceleft = vspaceleft - linecount
-
-            puts ""
-            vspaceleft = vspaceleft - 1
-
-            Listing::printProcesses(store, false)
 
             puts ""
             puts "BOARD FOCUS: #{NxBoards::toString(board)}#{NxBalls::nxballSuffixStatusIfRelevant(board).green}"
@@ -191,19 +211,6 @@ class NxBoards
 
             Listing::listingCommandInterpreter(input, store, board)
         }
-    end
-
-    # NxBoards::decideNewBoardPosition(board)
-    def self.decideNewBoardPosition(board)
-        NxBoards::boardItemsOrdered(boarduuid)
-            .first(20)
-            .each{|item| puts NxTodos::toString(item) }
-        LucilleCore::askQuestionAnswerAsString("position: ").to_f
-    end
-
-    # NxBoards::getBoardNextPosition(board)
-    def self.getBoardNextPosition(board)
-        (NxBoards::boardItems(board["uuid"]).map{|item| item["boardposition"] } + [0]).max + 1
     end
 
     # NxBoards::dataMaintenance()

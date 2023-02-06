@@ -79,6 +79,45 @@ class NxTodos
         item
     end
 
+    # NxTodos::issueUsingItem(item)
+    def self.issueUsingItem(item)
+        if item["mikuType"] == "NxTop" then
+            board, position = NxBoards::interactivelyDecideBoardPositionPair()
+            newitem = item.clone
+            newitem["uuid"] = SecureRandom.uuid
+            newitem["mikuType"] = "NxTodo"
+            newitem["boarduuid"] = board["uuid"]
+            newitem["boardposition"] = position
+            NxTodos::commit(newitem)
+            NxTops::destroy(item["uuid"])
+            return
+        end
+        if item["mikuType"] == "NxDrop" then
+            board, position = NxBoards::interactivelyDecideBoardPositionPair()
+            newitem = item.clone
+            newitem["uuid"] = SecureRandom.uuid
+            newitem["mikuType"] = "NxTodo"
+            newitem["boarduuid"] = board["uuid"]
+            newitem["boardposition"] = position
+            NxTodos::commit(newitem)
+            NxDrops::destroy(item["uuid"])
+            return
+        end
+        if item["mikuType"] == "NxOndate" then
+            board, position = NxBoards::interactivelyDecideBoardPositionPair()
+            newitem = item.clone
+            newitem["uuid"] = SecureRandom.uuid
+            newitem["mikuType"] = "NxTodo"
+            newitem["boarduuid"] = board["uuid"]
+            newitem["boardposition"] = position
+            NxTodos::commit(newitem)
+            NxOndates::destroy(item["uuid"])
+            return
+        end
+
+        raise "I do not know how to #{NxTodos::issueUsingItem(JSON.pretty_generate(item))}"
+    end
+
     # --------------------------------------------------
     # Data
 

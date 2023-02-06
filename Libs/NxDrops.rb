@@ -6,6 +6,11 @@ class NxDrops
         ObjectStore2::objects("NxDrops")
     end
 
+    # NxDrops::commit(item)
+    def self.commit(item)
+        ObjectStore2::commit("NxDrops", item)
+    end
+
     # NxDrops::destroy(uuid)
     def self.destroy(uuid)
         ObjectStore2::destroy("NxDrops", uuid)
@@ -24,7 +29,7 @@ class NxDrops
             "description"      => description
         }
         puts JSON.pretty_generate(item)
-        ObjectStore2::commit("NxDrops", item)
+        NxDrops::commit(item)
         ItemToTimeCommitmentMapping::interactiveProposalToSetMapping(item)
         item
     end
@@ -33,5 +38,4 @@ class NxDrops
     def self.toString(item)
         "(drop) #{item["description"]}"
     end
-
 end

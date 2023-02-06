@@ -14,6 +14,11 @@ class NxOndates
         ObjectStore2::commit("NxOndates", item)
     end
 
+    # NxOndates::destroy(uuid)
+    def self.destroy(uuid)
+        ObjectStore2::destroy("NxOndates", uuid)
+    end
+
     # NxOndates::interactivelyIssueNullOrNull()
     def self.interactivelyIssueNullOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
@@ -82,7 +87,7 @@ class NxOndates
         LucilleCore::pressEnterToContinue()
     end
 
-    # NxTriages::access(item)
+    # NxOndates::access(item)
     def self.access(item)
         CoreData::access(item["field11"])
     end

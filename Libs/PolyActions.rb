@@ -35,6 +35,11 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NxOndate" then
+            NxOndates::access(item)
+            return
+        end
+
         if item["mikuType"] == "NxTimeCommitment" then
             puts NxTimeCommitments::toString(item, false)
             actions = ["set hours"]
@@ -95,6 +100,13 @@ class PolyActions
         if item["mikuType"] == "NxDrop" then
             if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green} ? '", true) then
                 NxDrops::destroy(item["uuid"])
+            end
+            return
+        end
+
+        if item["mikuType"] == "NxOndate" then
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green} ? '", true) then
+                NxOndates::destroy(item["uuid"])
             end
             return
         end
@@ -168,6 +180,12 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NxOndate" then
+            NxBalls::start(item)
+            NxOndates::access(item)
+            return
+        end
+
         if item["mikuType"] == "NxTimeCommitment" then
             if NxBalls::itemIsRunning(item) then
                 if LucilleCore::askQuestionAnswerAsBoolean("We are running, would you like to stop ? ".green, true) then
@@ -190,21 +208,8 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "TxManualCountDown" then
-            TxManualCountDowns::access(item)
-            return
-        end
-
-        if item["mikuType"] == "Wave" then
-            PolyActions::access(item)
-            if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
-                NxBalls::stop(item)
-                Waves::performWaveNx46WaveDone(item)
-            end
-            return
-        end
-
         if item["mikuType"] == "NxTodo" then
+            NxBalls::start(item)
             NxTodos::access(item)
             options = ["done (destroy)", "do not display until"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", options)
@@ -221,6 +226,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxTriage" then
+            NxBalls::start(item)
             NxTriages::access(item)
             options = ["done (destroy)", "move to board", "do not display until"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", options)
@@ -242,6 +248,21 @@ class PolyActions
                 unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
                 return if unixtime.nil?
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+            end
+            return
+        end
+
+        if item["mikuType"] == "TxManualCountDown" then
+            TxManualCountDowns::access(item)
+            return
+        end
+
+        if item["mikuType"] == "Wave" then
+            NxBalls::start(item)
+            PolyActions::access(item)
+            if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
+                NxBalls::stop(item)
+                Waves::performWaveNx46WaveDone(item)
             end
             return
         end

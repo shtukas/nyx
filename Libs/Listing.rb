@@ -11,6 +11,7 @@ class Listing
             "[NxBalls] start | start * | stop | stop * | pause | pursue",
             "[NxOndate] redate",
             "[NxTimeCommitment] tc add time",
+            "[NxTop, NxDrop, NxOndate] >todo (<n>)",
             "[misc] search | speed | commands",
         ].join("\n")
     end
@@ -44,6 +45,21 @@ class Listing
             item = store.getDefault()
             return if item.nil?
             Skips::skip(item["uuid"], Time.new.to_f + 3600*1.5)
+            return
+        end
+
+        if Interpreting::match(">todo", input) then
+            item = store.getDefault()
+            return if item.nil?
+            NxTodos::issueUsingItem(item)
+            return
+        end
+
+        if Interpreting::match(">todo *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            NxTodos::issueUsingItem(item)
             return
         end
 
