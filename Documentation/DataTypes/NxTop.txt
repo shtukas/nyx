@@ -4,3 +4,4 @@ NxTop
     "unixtime"   : 1675324098,
     "datetime"   : "2023-02-02T07:48:18Z",
     "description": "example",
+    "ordinal"    : Float

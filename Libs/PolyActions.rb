@@ -126,6 +126,24 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxTimeCommitment" then
+            if NxBalls::itemIsRunning(item) then
+                if LucilleCore::askQuestionAnswerAsBoolean("We are running, would you like to stop ? ".green, true) then
+                    NxBalls::stop(item)
+                end
+                return
+            end
+            if NxBalls::itemIsPaused(item) then
+                if LucilleCore::askQuestionAnswerAsBoolean("We are paused would you like to pursue ? ".green, true) then
+                    NxBalls::pursue(item)
+                end
+                return
+            end
+            if NxBalls::itemIsBallFree(item) then
+                if LucilleCore::askQuestionAnswerAsBoolean("Would you like to start ? ".green, true) then
+                    NxBalls::start(item)
+                end
+                return
+            end
             return
         end
 

@@ -47,37 +47,34 @@ class NxTimeCommitments
         "(tc) #{item["description"]}"
     end
 
-    # NxTimeCommitments::toStringForListing(item)
-    def self.toStringForListing(item)
+    # NxTimeCommitments::toStringWithDetails(item)
+    def self.toStringWithDetails(item)
         hoursDone = BankCore::getValue(item["uuid"]).to_f/3600 + item["hours"]
         hoursLeft = item["hours"] - hoursDone
         timeLeftInDays = 7 - (Time.new.to_i - item["resetUnixtime"]).to_f/86400
-        str = 
-            if hoursLeft <= 0 then
-                "(all #{item["hours"]} done, acutally done: #{hoursDone.round(2)}, #{timeLeftInDays.round(2)} days before reset)"
+        str1 = "(done #{hoursDone.round(2).to_s.green} out of #{item["hours"]})"
+        str2 = 
+            if timeLeftInDays > 0 then
+                "(#{timeLeftInDays.round(2)} days before reset)"
             else
-                if timeLeftInDays > 0 then
-                    "(done #{hoursDone.round(2).to_s.green} out of #{item["hours"]}, #{timeLeftInDays.round(2)} days before reset)"
-                else
-                    "(done #{hoursDone.round(2).to_s.green} out of #{item["hours"]}, and your are late by #{-timeLeftInDays.round(2)})"
-                end
+                "(late by #{-timeLeftInDays.round(2)})"
             end
-
-        "(-tc-) #{item["description"]} #{str}"
-    end
-
-    # NxTimeCommitments::isWithinIdealProgression(item)
-    def self.isWithinIdealProgression(item)
-        timeInSequenceInDays = (Time.new.to_i - item["resetUnixtime"]).to_f/86400
-        ratioInSequence = timeInSequenceInDays.to_f/5 # We should be using 7 here , but we are going to use 5 to give us 2 days break
-        idealBankValueInHours = -item["hours"] + ratioInSequence*item["hours"]
-        BankCore::getValue(item["uuid"]).to_f/3600 > idealBankValueInHours
+        "(tc) #{item["description"].ljust(8)} #{str1} #{str2}"
     end
 
     # NxTimeCommitments::interactivelySelectOneOrNull()
     def self.interactivelySelectOneOrNull()
         items = NxTimeCommitments::items()
         LucilleCore::selectEntityFromListOfEntitiesOrNull("time commitment", items, lambda{|item| NxTimeCommitments::toString(item) })
+    end
+
+    # NxTimeCommitments::differentialForListingPosition(item)
+    def self.differentialForListingPosition(item)
+        timeRatio       = (Time.new.to_i - item["resetUnixtime"]).to_f/(86400*5) # 5 days, ideally
+        idealHoursDone  = item["hours"] * timeRatio
+        actualHoursDone = BankCore::getValue(item["uuid"]).to_f/3600 + item["hours"]
+        return 0 if actualHoursDone < idealHoursDone
+        -(actualHoursDone - idealHoursDone).to_f/5
     end
 
     # ----------------------------------------------------------------
@@ -95,5 +92,4 @@ class NxTimeCommitments
             end
         }
     end
-
 end

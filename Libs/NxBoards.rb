@@ -39,6 +39,12 @@ class NxBoards
         "(board) #{item["description"]}"
     end
 
+    # NxBoards::toStringForListing(item)
+    def self.toStringForListing(item)
+        rt = BankUtils::recoveredAverageHoursPerDay(item["uuid"])
+        "(board) (rt: #{("%5.2f" % rt)}) #{item["description"]}"
+    end
+
     # NxBoards::interactivelySelectOneOrNull()
     def self.interactivelySelectOneOrNull()
         items = NxBoards::items()
@@ -53,12 +59,6 @@ class NxBoards
         }
     end
 
-    # NxBoards::toStringForListing(item)
-    def self.toStringForListing(item)
-        hours = BankCore::getValue(item["uuid"]).to_f/3600
-        "#{item["description"]} (hours: #{("%5.2f" % hours)})"
-    end
-
     # NxBoards::listingItems()
     def self.listingItems()
         NxBoards::items()
@@ -69,6 +69,18 @@ class NxBoards
         NxTodos::items().select{|item| item["boarduuid"] == boarduuid }
     end
 
+    # NxBoards::rtExpectation()
+    def self.rtExpectation()
+        0.40
+    end
+
+    # NxBoards::differentialForListingPosition(item)
+    def self.differentialForListingPosition(item)
+        rt = BankUtils::recoveredAverageHoursPerDay(item["uuid"])
+        return 0 if rt < NxBoards::rtExpectation()
+        -(rt - NxBoards::rtExpectation())
+    end
+
     # ---------------------------------------------------------
     # Ops
 
@@ -77,51 +89,22 @@ class NxBoards
 
         loop {
 
-            itemToLine = lambda {|store, item|
-                line = "(#{store.prefixString()}) #{PolyFunctions::toStringForListing(item)}#{ItemToTimeCommitmentMapping::toStringSuffix(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}"
-                if Locks::isLocked(item["uuid"]) then
-                    line = "#{line} [lock: #{Locks::locknameOrNull(item["uuid"])}]".yellow
-                end
-                if NxBalls::itemIsRunning(item) or NxBalls::itemIsPaused(item) then
-                    line = line.green
-                end
-                line
-            }
-
             system("clear")
             store = ItemStore.new()
             vspaceleft = CommonUtils::screenHeight() - 3
 
+            linecount = Listing::printDesktop()
+            vspaceleft = vspaceleft - linecount
+
+            linecount = Listing::printTops(store)
+            vspaceleft = vspaceleft - linecount
+
+            Listing::printProcesses(store)
+
             puts ""
-            puts "----------------------------------------------------"
             puts "BOARD FOCUS: #{NxBoards::toString(board)}#{NxBalls::nxballSuffixStatusIfRelevant(board).green}"
-            puts "----------------------------------------------------"
             puts ""
-            vspaceleft = vspaceleft - 5
-
-            dskt = Desktop::contentsOrNull()
-            if dskt and dskt.size > 0 then
-                puts "-----------------------------"
-                puts "Desktop:".green
-                puts dskt
-                puts "-----------------------------"
-                vspaceleft = vspaceleft - (CommonUtils::verticalSize(dskt) + 3)
-            end
-
-            tops = NxTops::items()
-            if tops.size > 0 then
-                tops.each{|item|
-                    store.register(item, true)
-                    line = "(#{store.prefixString()})         #{NxTops::toString(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}"
-                    if line. include?("running") then
-                        line = line.green
-                    end
-                    puts line
-                    vspaceleft = vspaceleft - 1
-                }
-            end
-            timecommitments = NxTimeCommitments::items()
-            vspaceleft = vspaceleft - timecommitments.size
+            vspaceleft = vspaceleft - 3
 
             items = NxBoards::boardItems(board["uuid"]).sort{|i1, i2| i1["boardposition"] <=> i2["boardposition"] }
 
@@ -130,19 +113,18 @@ class NxBoards
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(PolyFunctions::toStringForListing(item))
             }
 
-            items
-                .each{|item|
-                    store.register(item, !Skips::isSkipped(item["uuid"]))
-                    line = itemToLine.call(store, item)
-                    puts line
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                    break if vspaceleft <= 0
-                }
-
             lockedItems
                 .each{|item|
                     store.register(item, false)
-                    line = itemToLine.call(store, item)
+                    line = Listing::itemToListingLine(store, item, nil)
+                    puts line
+                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                }
+
+            items
+                .each{|item|
+                    store.register(item, !Skips::isSkipped(item["uuid"]))
+                    line = Listing::itemToListingLine(store, item, nil)
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                     break if vspaceleft <= 0

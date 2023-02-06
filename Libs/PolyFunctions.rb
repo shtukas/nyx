@@ -79,7 +79,10 @@ class PolyFunctions
     # PolyFunctions::toStringForListing(item)
     def self.toStringForListing(item)
         if item["mikuType"] == "NxTimeCommitment" then
-            return NxTimeCommitments::toStringForListing(item)
+            return NxTimeCommitments::toStringWithDetails(item)
+        end
+        if item["mikuType"] == "NxBoard" then
+            return NxBoards::toStringForListing(item)
         end
         PolyFunctions::toString(item)
     end

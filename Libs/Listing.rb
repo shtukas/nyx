@@ -358,12 +358,24 @@ class Listing
             NxDrops::items(),
             NxOndates::listingItems(),
             NxTimeCommitments::items(),
-            NxTops::items(),
             NxTriages::items(),
             Waves::listingItems(),
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+    end
+
+    # Listing::printDesktop()
+    def self.printDesktop()
+        linecount = 0
+        dskt = Desktop::contentsOrNull()
+        if dskt and dskt.size > 0 then
+            dskt = dskt.lines.map{|line| "      #{line}" }.join()
+            puts "(-->) Desktop:".green
+            puts dskt
+            linecount = linecount + (CommonUtils::verticalSize(dskt) + 1)
+        end
+        linecount
     end
 
     # Listing::itemListingPosition(item)
@@ -387,11 +399,11 @@ class Listing
         end
 
         if item["mikuType"] == "NxTimeCommitment" then
-            return (NxTimeCommitments::isWithinIdealProgression(item) ? 0.2 : 0.7)
+            return 0.7 + NxTimeCommitments::differentialForListingPosition(item)
         end
 
         if item["mikuType"] == "NxBoard" then
-            return (BankUtils::recoveredAverageHoursPerDay(item["uuid"]) > 0.5 ? 0.1 : 0.6 )
+            return 0.6 + NxBoards::differentialForListingPosition(item)
         end
 
         if item["mikuType"] == "NxOndate" then
@@ -452,6 +464,51 @@ class Listing
         [position, trajectory["position2"]].min
     end
 
+    # Listing::itemToListingLine(store, item, afterOrdinalFragment)
+    def self.itemToListingLine(store, item, afterOrdinalFragment)
+        listingposition = item["listing:position"] ? " (#{"%5.2f" % item["listing:position"]})" : ""
+        line = "(#{store.prefixString()})#{listingposition} #{PolyFunctions::toStringForListing(item)}#{ItemToTimeCommitmentMapping::toStringSuffix(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}"
+        if Locks::isLocked(item["uuid"]) then
+            line = "#{line} [lock: #{Locks::locknameOrNull(item["uuid"])}]".yellow
+        end
+        if NxBalls::itemIsRunning(item) or NxBalls::itemIsPaused(item) then
+            line = line.green
+        end
+        line
+    end
+
+    # Listing::printTops(store)
+    def self.printTops(store)
+        linecount = 0
+        NxTops::items()
+        .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
+        .each{|item|
+            store.register(item, true)
+            line = Listing::itemToListingLine(store, item, nil)
+            puts line
+            linecount = linecount + CommonUtils::verticalSize(line)
+        }
+        linecount
+    end
+
+    # Listing::printProcesses(store, isSimulation)
+    def self.printProcesses(store, isSimulation)
+        linecount = 0
+        (NxTimeCommitments::items() + NxBoards::items()).each{|item|
+            store.register(item, false)
+            line = "#{Listing::itemToListingLine(store, item, nil)}"
+            if !isSimulation then
+                if NxBalls::itemIsRunning(item) or NxBalls::itemIsPaused(item) then
+                    puts line.green
+                else
+                    puts line.yellow
+                end
+            end
+            linecount = linecount + CommonUtils::verticalSize(line)
+        }
+        linecount
+    end
+
     # Listing::mainProgram2Pure()
     def self.mainProgram2Pure()
 
@@ -480,38 +537,23 @@ class Listing
 
             NxTimeCommitments::timeManagement()
 
-            trajectoryToNumber = lambda{|trajectory|
-                return 0.8 if trajectory.nil?
-                value = (Time.new.to_i - trajectory["activationunixtime"]).to_f/(trajectory["expectedTimeToCompletionInHours"]*3600)
-                [value, 9.99].min
-            }
-
-            itemToLine = lambda {|store, item|
-                line = "(#{store.prefixString()}) (#{"%5.2f" % item["listing:position"]}) #{PolyFunctions::toStringForListing(item)}#{ItemToTimeCommitmentMapping::toStringSuffix(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}"
-                if Locks::isLocked(item["uuid"]) then
-                    line = "#{line} [lock: #{Locks::locknameOrNull(item["uuid"])}]".yellow
-                end
-                if NxBalls::itemIsRunning(item) or NxBalls::itemIsPaused(item) then
-                    line = line.green
-                end
-                line
-            }
-
             system("clear")
             store = ItemStore.new()
-            vspaceleft = CommonUtils::screenHeight() - 4
+            vspaceleft = CommonUtils::screenHeight() - 3
 
             puts ""
             vspaceleft = vspaceleft - 1
 
-            dskt = Desktop::contentsOrNull()
-            if dskt and dskt.size > 0 then
-                puts "-----------------------------"
-                puts "Desktop:".green
-                puts dskt
-                puts "-----------------------------"
-                vspaceleft = vspaceleft - (CommonUtils::verticalSize(dskt) + 3)
-            end
+            vspaceleft = vspaceleft - 1 # The99Percent::line()
+
+            linecount = Listing::printDesktop()
+            vspaceleft = vspaceleft - linecount
+
+            linecount = Listing::printTops(store)
+            vspaceleft = vspaceleft - linecount
+
+            linecount = Listing::printProcesses(store, true)
+            vspaceleft = vspaceleft - linecount
 
             items = Listing::items()
                         .map{|item|
@@ -526,24 +568,26 @@ class Listing
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(PolyFunctions::toStringForListing(item))
             }
 
-            items
-                .each{|item|
-                    store.register(item, !Skips::isSkipped(item["uuid"]))
-                    line = itemToLine.call(store, item)
-                    puts line
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                    break if vspaceleft <= 0
-                }
-
             lockedItems
                 .each{|item|
                     store.register(item, false)
-                    line = itemToLine.call(store, item)
+                    line = Listing::itemToListingLine(store, item, nil)
+                    puts line
+                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                }
+
+            runningItems, items = items.partition{|item| NxBalls::itemIsRunning(item) }
+
+            (runningItems + items)
+                .each{|item|
+                    store.register(item, !Skips::isSkipped(item["uuid"]))
+                    line = Listing::itemToListingLine(store, item, nil)
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                     break if vspaceleft <= 0
                 }
 
+            Listing::printProcesses(store, false)
             puts The99Percent::line()
 
             puts ""
