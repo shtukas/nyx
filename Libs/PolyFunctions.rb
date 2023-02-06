@@ -9,12 +9,12 @@ class PolyFunctions
             "account"     => item["uuid"]
         }
 
-        tcuuid = ItemToTimeCommitmentMapping::getOrNull(item["uuid"])
+        tcuuid = ItemToTimeCommitmentMapping::getOrNull(item)
         if tcuuid then
             tc = NxTimeCommitments::getItemOfNull(tcuuid)
             if tc then
                 accounts << {
-                    "description" => tc["description"],
+                    "description" => "tc: #{tc["description"]}",
                     "account"     => tcuuid
                 }
             end
@@ -25,7 +25,7 @@ class PolyFunctions
             board = NxBoards::getItemOfNull(uuid)
             if board then
                 accounts << {
-                    "description" => board["description"],
+                    "description" => "board: #{board["description"]}",
                     "account"     => boarduuid
                 }
             end
@@ -33,7 +33,7 @@ class PolyFunctions
 
         if item["mikuType"] == "NxBoardFirstItem" then
             accounts << {
-                "description" => item["board"]["description"],
+                "description" => "board: #{item["board"]["description"]}",
                 "account"     => item["board"]["uuid"]
             }
             accounts << {

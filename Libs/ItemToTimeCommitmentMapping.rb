@@ -7,9 +7,12 @@ class ItemToTimeCommitmentMapping
         Lookups::commit("ItemToTimeCommitmentMapping", uuid, tcuuid)
     end
 
-    # ItemToTimeCommitmentMapping::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        Lookups::getValueOrNull("ItemToTimeCommitmentMapping", uuid)
+    # ItemToTimeCommitmentMapping::getOrNull(item)
+    def self.getOrNull(item)
+        if item["mikuType"] == "NxBoardFirstItem" then
+            item = item["todo"]
+        end
+        Lookups::getValueOrNull("ItemToTimeCommitmentMapping", item["uuid"])
     end
 
     # ItemToTimeCommitmentMapping::toStringSuffix(item)
@@ -17,7 +20,7 @@ class ItemToTimeCommitmentMapping
         if item["mikuType"] == "NxBoardFirstItem" then
             item = item["todo"]
         end
-        tcuuid = ItemToTimeCommitmentMapping::getOrNull(item["uuid"])
+        tcuuid = ItemToTimeCommitmentMapping::getOrNull(item)
         return "" if tcuuid.nil?
         tc = NxTimeCommitments::getItemOfNull(tcuuid)
         return "" if tc.nil?
