@@ -82,6 +82,11 @@ class NxTodos
         "(todo) (#{"%8.3f" % item["boardposition"]}) #{item["description"]}"
     end
 
+    # NxTodos::toStringForFirstItem(item)
+    def self.toStringForFirstItem(item)
+        "#{item["description"]}"
+    end
+
     # NxTodos::listingItems()
     def self.listingItems()
         NxTodos::items().take(1)

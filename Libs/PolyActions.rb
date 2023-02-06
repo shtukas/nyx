@@ -25,6 +25,12 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NxBoardFirstItem" then
+            todo = item["todo"]
+            PolyActions::access(todo)
+            return
+        end
+
         if item["mikuType"] == "NxDrop" then
             return
         end
@@ -80,6 +86,12 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NxBoardFirstItem" then
+            todo = item["todo"]
+            PolyActions::done(todo)
+            return
+        end
+
         if item["mikuType"] == "NxDrop" then
             ObjectStore2::destroy("NxDrops", item["uuid"])
             return
@@ -122,6 +134,32 @@ class PolyActions
 
         if item["mikuType"] == "NxBoard" then
             PolyActions::access(item)
+            return
+        end
+
+        if item["mikuType"] == "NxBoardFirstItem" then
+            todo = item["todo"]
+            if ItemToTimeCommitmentMapping::getOrNull(todo["uuid"]).nil? then
+                ItemToTimeCommitmentMapping::interactiveProposalToSetMapping(todo)
+            end
+
+            NxBalls::start(todo)
+
+            options = ["done (destroy)", "run in background", "do not display until"]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", options)
+            return if option.nil?
+            if option == "done (destroy)" then
+                NxTodos::destroy(todo["uuid"])
+            end
+            if option == "run in background" then
+                return
+            end
+            if option == "do not show until" then
+                unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
+                return if unixtime.nil?
+                DoNotShowUntil::setUnixtime(todo["uuid"], unixtime)
+            end
+
             return
         end
 
@@ -173,7 +211,7 @@ class PolyActions
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", options)
             return if option.nil?
             if option == "done (destroy)" then
-                NxTriages::destroy(uuid)
+                NxTriages::destroy(item["uuid"])
             end
             if option == "move to board" then
                 board = NxBoards::interactivelySelectOne()
@@ -186,7 +224,6 @@ class PolyActions
                 NxTriages::destroy(item["uuid"])
             end
             if option == "do not show until" then
-                NxTriages::destroy(uuid)
                 unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
                 return if unixtime.nil?
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)

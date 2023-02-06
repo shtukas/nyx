@@ -62,11 +62,32 @@ class NxBoards
     # NxBoards::listingItems()
     def self.listingItems()
         NxBoards::items()
+            .map{|board|
+                todo = NxBoards::boardItemsOrdered(board["uuid"]).first
+                if todo then
+                    {
+                        "uuid"        => "#{board["uuid"]}-#{todo["uuid"]}",
+                        "mikuType"    => "NxBoardFirstItem",
+                        "description" => "(first item) #{board["description"].yellow} | #{NxTodos::toStringForFirstItem(todo)}",
+                        "board"       => board,
+                        "todo"        => todo
+                    }
+                else
+                    nil
+                end
+            }
+            .compact
     end
 
     # NxBoards::boardItems(boarduuid)
     def self.boardItems(boarduuid)
         NxTodos::items().select{|item| item["boarduuid"] == boarduuid }
+    end
+
+    # NxBoards::boardItemsOrdered(boarduuid)
+    def self.boardItemsOrdered(boarduuid)
+        NxBoards::boardItems(boarduuid)
+            .sort{|i1, i2| i1["boardposition"] <=> i2["boardposition"] }
     end
 
     # NxBoards::rtExpectation()
@@ -157,9 +178,8 @@ class NxBoards
 
     # NxBoards::decideNewBoardPosition(board)
     def self.decideNewBoardPosition(board)
-        NxBoards::boardItems(board["uuid"])
-            .sort{|i1, i2| i1["boardposition"] <=> i2["boardposition"] }
-            .first(40)
+        NxBoards::boardItemsOrdered(boarduuid)
+            .first(20)
             .each{|item| puts NxTodos::toString(item) }
         LucilleCore::askQuestionAnswerAsString("position: ").to_f
     end

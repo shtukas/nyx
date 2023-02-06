@@ -5,7 +5,7 @@ class Listing
     # Listing::listingCommands()
     def self.listingCommands()
         [
-            "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | landing (<n>) | expose (<n>) | >> skip default | lock (<n>) | set time commitment (<n>) | destroy",
+            "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | landing (<n>) | expose (<n>) | >> skip default | lock (<n>) | set tc (<n>) | destroy",
             "[makers] anniversary | manual countdown | wave | today | ondate | todo | drop | top | capsule",
             "[divings] anniversaries | ondates | waves | todos | desktop",
             "[NxBalls] start | start * | stop | stop * | pause | pursue",
@@ -262,22 +262,18 @@ class Listing
             return
         end
 
-        if Interpreting::match("set time commitment", input) then
+        if Interpreting::match("set tc", input) then
             item = store.getDefault()
             return if item.nil?
-            tc = NxTimeCommitments::interactivelySelectOneOrNull()
-            return if tc.nil?
-            ItemToTimeCommitmentMapping::set(item["uuid"], tc["uuid"])
+            ItemToTimeCommitmentMapping::interactiveProposalToSetMapping(item)
             return
         end
 
-        if Interpreting::match("set time commitment *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
+        if Interpreting::match("set tc *", input) then
+            _, _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            tc = NxTimeCommitments::interactivelySelectOneOrNull()
-            return if tc.nil?
-            ItemToTimeCommitmentMapping::set(item["uuid"], tc["uuid"])
+            ItemToTimeCommitmentMapping::interactiveProposalToSetMapping(item)
             return
         end
 
@@ -355,11 +351,11 @@ class Listing
         [
             Anniversaries::listingItems(),
             NxBoards::listingItems(),
-            NxDrops::items(),
+            #NxDrops::items(),
             NxOndates::listingItems(),
             NxTimeCommitments::items(),
             NxTriages::items(),
-            Waves::listingItems(),
+            #Waves::listingItems(),
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -404,6 +400,10 @@ class Listing
 
         if item["mikuType"] == "NxBoard" then
             return 0.6 + NxBoards::differentialForListingPosition(item)
+        end
+
+        if item["mikuType"] == "NxBoardFirstItem" then
+            return 0.6 + NxBoards::differentialForListingPosition(item["board"])
         end
 
         if item["mikuType"] == "NxOndate" then

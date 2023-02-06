@@ -5,7 +5,7 @@ class PolyFunctions
         accounts = []
 
         accounts << {
-            "description" => item["description"],
+            "description" => nil,
             "account"     => item["uuid"]
         }
 
@@ -31,6 +31,17 @@ class PolyFunctions
             end
         end
 
+        if item["mikuType"] == "NxBoardFirstItem" then
+            accounts << {
+                "description" => item["board"]["description"],
+                "account"     => item["board"]["uuid"]
+            }
+            accounts << {
+                "description" => nil,
+                "account"     => item["todo"]["uuid"]
+            }
+        end
+
         accounts
     end
 
@@ -44,6 +55,9 @@ class PolyFunctions
         end
         if item["mikuType"] == "NxBoard" then
             return NxBoards::toString(item)
+        end
+        if item["mikuType"] == "NxBoardFirstItem" then
+            return item["description"]
         end
         if item["mikuType"] == "NxDrop" then
             return NxDrops::toString(item)
