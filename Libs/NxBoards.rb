@@ -68,7 +68,7 @@ class NxBoards
     def self.listingItems()
         NxBoards::items()
             .map{|board|
-                todo = NxBoards::boardItemsOrdered(board["uuid"]).first
+                todo = NxBoards::boardItemsOrderedX3(board["uuid"]).first
                 if todo then
                     {
                         "uuid"        => "#{board["uuid"]}-#{todo["uuid"]}",
@@ -93,6 +93,15 @@ class NxBoards
     def self.boardItemsOrdered(boarduuid)
         NxBoards::boardItems(boarduuid)
             .sort{|i1, i2| i1["boardposition"] <=> i2["boardposition"] }
+    end
+
+    # NxBoards::boardItemsOrderedX3(boarduuid)
+    def self.boardItemsOrderedX3(boarduuid)
+        items = NxBoards::boardItemsOrdered(boarduuid)
+        is1 = items.take(3)
+        is2 = items.drop(3)
+        is1 = is1.sort{|i1, i2| BankCore::getValue(i1["uuid"]) <=> BankCore::getValue(i2["uuid"]) }
+        is1 + is2
     end
 
     # NxBoards::rtExpectation()
@@ -135,7 +144,7 @@ class NxBoards
             puts ""
             vspaceleft = vspaceleft - 3
 
-            items = NxBoards::boardItems(board["uuid"]).sort{|i1, i2| i1["boardposition"] <=> i2["boardposition"] }
+            items = NxBoards::boardItemsOrderedX3(board["uuid"])
 
             lockedItems, items = items.partition{|item| Locks::isLocked(item["uuid"]) }
             lockedItems.each{|item|
