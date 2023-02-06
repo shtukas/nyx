@@ -536,6 +536,7 @@ class Listing
                 }
 
             NxTimeCommitments::timeManagement()
+            NxBoards::dataMaintenance()
 
             system("clear")
             store = ItemStore.new()

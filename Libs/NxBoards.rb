@@ -11,6 +11,11 @@ class NxBoards
         ObjectStore2::getOrNull("NxBoards", uuid)
     end
 
+    # NxBoards::commit(item)
+    def self.commit(item)
+        ObjectStore2::commit("NxBoards", item)
+    end
+
     # --------------------------------------------
     # Makers
 
@@ -27,7 +32,7 @@ class NxBoards
             "description" => description,
         }
         FileSystemCheck::fsck_MikuTypedItem(item, true)
-        ObjectStore2::commit("NxBoards", item)
+        NxBoards::commit(item)
         item
     end
 
@@ -187,5 +192,17 @@ class NxBoards
     # NxBoards::getBoardNextPosition(board)
     def self.getBoardNextPosition(board)
         (NxBoards::boardItems(board["uuid"]).map{|item| item["boardposition"] } + [0]).max + 1
+    end
+
+    # NxBoards::dataMaintenance()
+    def self.dataMaintenance()
+        NxBoards::items()
+            .each{|board|
+                if board["hasTimeCommitmentCompanion"].nil? then
+                    answer = LucilleCore::askQuestionAnswerAsBoolean("board '#{board["description"]}' has time commitment companion ? ")
+                    board["hasTimeCommitmentCompanion"] = (answer ? "true" : "false")
+                    NxBoards::commit(board)
+                end
+            }
     end
 end

@@ -138,8 +138,9 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxBoardFirstItem" then
+            board = item["board"]
             todo = item["todo"]
-            if ItemToTimeCommitmentMapping::getOrNull(todo).nil? then
+            if board["hasTimeCommitmentCompanion"] == "true" and ItemToTimeCommitmentMapping::getOrNull(todo).nil? then
                 ItemToTimeCommitmentMapping::interactiveProposalToSetMapping(todo)
             end
 
