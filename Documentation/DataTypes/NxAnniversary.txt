@@ -9,6 +9,6 @@ NxAnniversary
     "payload"             : 
     "doNotShowUntil"      : Unixtime
 
-    "startdate"           : "field1" : Date # YYYY-MM-DD
-    "repeatType"          : "field2" : "weekly" | "monthly" | "yearly"
-    "lastCelebrationDate" : "field3" : Date
+    "startdate"           : Date # YYYY-MM-DD
+    "repeatType"          : "weekly" | "monthly" | "yearly"
+    "lastCelebrationDate" : Date
