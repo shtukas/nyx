@@ -596,7 +596,6 @@ class Listing
                 .each{|item|
                     store.register(item, false)
                     line = Listing::itemToListingLine(store, item, nil)
-                    puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
 
@@ -609,6 +608,13 @@ class Listing
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                     break if vspaceleft <= 0
+                }
+
+            lockedItems
+                .each{|item|
+                    store.register(item, false)
+                    line = Listing::itemToListingLine(store, item, nil)
+                    puts line
                 }
 
             Listing::printProcesses(store, false)
