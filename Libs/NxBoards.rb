@@ -165,27 +165,37 @@ class NxBoards
             vspaceleft = vspaceleft - 3
 
             items = NxBoards::boardItemsOrdered(board["uuid"])
+                        .map{|item|
+                            # We do this because some items are stored with their 
+                            # computed listing positions and come back with them. 
+                            # This should not be a problem, except for board displays 
+                            # where e do not use them.
+                            item["listing:position"] = nil
+                            item
+                        }
 
             lockedItems, items = items.partition{|item| Locks::isLocked(item["uuid"]) }
             lockedItems.each{|item|
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(PolyFunctions::toStringForListing(item))
             }
 
-            lockedItems
-                .each{|item|
-                    store.register(item, false)
-                    line = Listing::itemToListingLine(store, item, nil)
-                    puts line
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                }
+            linecount = Listing::itemsToVerticalSpace(lockedItems)
+            vspaceleft = vspaceleft - linecount
 
             items
                 .each{|item|
                     store.register(item, !Skips::isSkipped(item["uuid"]))
-                    line = Listing::itemToListingLine(store, item, "(done: #{"%7.2f" % (BankCore::getValue(item["uuid"]).to_f/3600)} hours)")
+                    line = Listing::itemToListingLine(store, item, "(done: #{"%5.2f" % (BankCore::getValue(item["uuid"]).to_f/3600)} hours)")
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                     break if vspaceleft <= 0
+                }
+
+            lockedItems
+                .each{|item|
+                    store.register(item, false)
+                    line = Listing::itemToListingLine(store, item, "(done: #{"%5.2f" % (BankCore::getValue(item["uuid"]).to_f/3600)} hours)")
+                    puts line
                 }
 
             puts ""
