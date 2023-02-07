@@ -381,6 +381,14 @@ class Listing
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .map{|item|
+                # We do this because some items are stored with their 
+                # computed listing positions and come back with them. 
+                # This should not be a problem, except for board displays 
+                # where e do not use them.
+                item["listing:position"] = nil
+                item
+            }
     end
 
     # Listing::printDesktop()
@@ -486,11 +494,12 @@ class Listing
         [position, trajectory["position2"]].min
     end
 
-    # Listing::itemToListingLine(store, item, afterOrdinalFragment)
+    # Listing::itemToListingLine(store or nil, item, afterOrdinalFragment or nil)
     def self.itemToListingLine(store, item, afterOrdinalFragment)
-        listingposition = item["listing:position"] ? " (lpos: #{"%5.2f" % item["listing:position"]})" : ""
-        aof = afterOrdinalFragment ? " #{afterOrdinalFragment} " : " "
-        line = "(#{store.prefixString()})#{listingposition}#{aof}#{PolyFunctions::toStringForListing(item)}#{ItemToTimeCommitmentMapping::toStringSuffix(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}"
+        listingposition = item["listing:position"] ? " (#{"%5.2f" % item["listing:position"]})" : ""
+        aof = afterOrdinalFragment ? " #{afterOrdinalFragment}" : ""
+        storePrefix = store ? "(#{store.prefixString()})" : "     "
+        line = "#{storePrefix}#{listingposition}#{aof} #{PolyFunctions::toStringForListing(item)}#{ItemToTimeCommitmentMapping::toStringSuffix(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}"
         if Locks::isLocked(item["uuid"]) then
             line = "#{line} [lock: #{Locks::locknameOrNull(item["uuid"])}]".yellow
         end
@@ -498,6 +507,16 @@ class Listing
             line = line.green
         end
         line
+    end
+
+    # Listing::itemsToVerticalSpace(items)
+    def self.itemsToVerticalSpace(items)
+        items
+            .map{|item|
+                line = Listing::itemToListingLine(nil, item, nil)
+                CommonUtils::verticalSize(line)
+            }
+            .inject(0, :+)
     end
 
     # Listing::printTops(store)
@@ -592,12 +611,8 @@ class Listing
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(PolyFunctions::toStringForListing(item))
             }
 
-            lockedItems
-                .each{|item|
-                    store.register(item, false)
-                    line = Listing::itemToListingLine(store, item, nil)
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                }
+            linecount = Listing::itemsToVerticalSpace(lockedItems)
+            vspaceleft = vspaceleft - linecount
 
             runningItems, items = items.partition{|item| NxBalls::itemIsRunning(item) }
 
