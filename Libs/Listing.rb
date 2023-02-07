@@ -372,7 +372,7 @@ class Listing
     def self.items()
         [
             Anniversaries::listingItems(),
-            NxBoards::listingItems(),
+            NxStreams::listingItems(),
             NxDrops::items(),
             NxOndates::listingItems(),
             NxTimeCommitments::items(),
@@ -429,11 +429,11 @@ class Listing
         end
 
         if item["mikuType"] == "NxBoard" then
-            return 0.6 + NxBoards::differentialForListingPosition(item)
+            return 0.6 + NxStreams::differentialForListingPosition(item)
         end
 
         if item["mikuType"] == "NxBoardFirstItem" then
-            return 0.6 + NxBoards::differentialForListingPosition(item["board"])
+            return 0.6 + NxStreams::differentialForListingPosition(item["board"])
         end
 
         if item["mikuType"] == "NxOndate" then
@@ -536,7 +536,7 @@ class Listing
     # Listing::printProcesses(store, isSimulation)
     def self.printProcesses(store, isSimulation)
         linecount = 0
-        (NxTimeCommitments::items() + NxBoards::items()).each{|item|
+        (NxTimeCommitments::items() + NxStreams::items()).each{|item|
             store.register(item, false)
             line = "#{Listing::itemToListingLine(store, item, nil)}"
             if !isSimulation then
@@ -578,7 +578,7 @@ class Listing
                 }
 
             NxTimeCommitments::timeManagement()
-            NxBoards::dataMaintenance()
+            NxStreams::dataMaintenance()
 
             system("clear")
             store = ItemStore.new()

@@ -22,7 +22,7 @@ class PolyFunctions
 
         if item["mikuType"] == "NxTodo" then
             boarduuid = item["boarduuid"]
-            board = NxBoards::getItemOfNull(uuid)
+            board = NxStreams::getItemOfNull(uuid)
             if board then
                 accounts << {
                     "description" => "board: #{board["description"]}",
@@ -54,7 +54,7 @@ class PolyFunctions
             return Anniversaries::toString(item)
         end
         if item["mikuType"] == "NxBoard" then
-            return NxBoards::toString(item)
+            return NxStreams::toString(item)
         end
         if item["mikuType"] == "NxBoardFirstItem" then
             return item["description"]
@@ -96,7 +96,7 @@ class PolyFunctions
             return NxTimeCommitments::toStringWithDetails(item)
         end
         if item["mikuType"] == "NxBoard" then
-            return NxBoards::toStringForListing(item)
+            return NxStreams::toStringForListing(item)
         end
         PolyFunctions::toString(item)
     end

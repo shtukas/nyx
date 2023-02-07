@@ -180,7 +180,7 @@ require_relative "NxBalls.rb"
 require_relative "NxTops.rb"
 require_relative "NxOndates.rb"
 require_relative "NxTriages.rb"
-require_relative "NxBoards.rb"
+require_relative "NxStreams.rb"
 
 require_relative "ObjectStore2.rb"
 

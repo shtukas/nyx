@@ -21,7 +21,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxBoard" then
-            NxBoards::listingProgram(item)
+            NxStreams::listingProgram(item)
             return
         end
 
@@ -92,7 +92,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxBoard" then
-            puts "There is no doen action on NxBoards. You probaly want stop"
+            puts "There is no doen action on NxStreams. You probaly want stop"
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -253,12 +253,12 @@ class PolyActions
                 NxTriages::destroy(item["uuid"])
             end
             if option == "move to board" then
-                board = NxBoards::interactivelySelectOne()
+                board = NxStreams::interactivelySelectOne()
                 newitem = item.clone
                 newitem["uuid"] = SecureRandom.uuid
                 newitem["mikuType"] = "NxTodo"
                 newitem["boarduuid"] = board["uuid"]
-                newitem["boardposition"] = NxBoards::decideNewBoardPosition(board)
+                newitem["boardposition"] = NxStreams::decideNewBoardPosition(board)
                 NxTodos::commit(newitem)
                 NxTriages::destroy(item["uuid"])
             end

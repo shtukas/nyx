@@ -1,25 +1,25 @@
 
-class NxBoards
+class NxStreams
 
-    # NxBoards::items()
+    # NxStreams::items()
     def self.items()
-        ObjectStore2::objects("NxBoards")
+        ObjectStore2::objects("NxStreams")
     end
 
-    # NxBoards::getItemOfNull(uuid)
+    # NxStreams::getItemOfNull(uuid)
     def self.getItemOfNull(uuid)
-        ObjectStore2::getOrNull("NxBoards", uuid)
+        ObjectStore2::getOrNull("NxStreams", uuid)
     end
 
-    # NxBoards::commit(item)
+    # NxStreams::commit(item)
     def self.commit(item)
-        ObjectStore2::commit("NxBoards", item)
+        ObjectStore2::commit("NxStreams", item)
     end
 
     # --------------------------------------------
     # Makers
 
-    # NxBoards::interactivelyIssueNewOrNull()
+    # NxStreams::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
@@ -32,65 +32,65 @@ class NxBoards
             "description" => description,
         }
         FileSystemCheck::fsck_MikuTypedItem(item, true)
-        NxBoards::commit(item)
+        NxStreams::commit(item)
         item
     end
 
     # ----------------------------------------------------------------
     # Data
 
-    # NxBoards::toString(item)
+    # NxStreams::toString(item)
     def self.toString(item)
         "(board) #{item["description"]}"
     end
 
-    # NxBoards::toStringForListing(item)
+    # NxStreams::toStringForListing(item)
     def self.toStringForListing(item)
         rt = BankUtils::recoveredAverageHoursPerDay(item["uuid"])
         "(board) (rt: #{("%5.2f" % rt)}) #{item["description"]}"
     end
 
-    # NxBoards::interactivelySelectOneOrNull()
+    # NxStreams::interactivelySelectOneOrNull()
     def self.interactivelySelectOneOrNull()
-        items = NxBoards::items()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("board", items, lambda{|item| NxBoards::toString(item) })
+        items = NxStreams::items()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("board", items, lambda{|item| NxStreams::toString(item) })
     end
 
-    # NxBoards::interactivelySelectOne()
+    # NxStreams::interactivelySelectOne()
     def self.interactivelySelectOne()
         loop {
-            item = NxBoards::interactivelySelectOneOrNull()
+            item = NxStreams::interactivelySelectOneOrNull()
             return item if item
         }
     end
 
-    # NxBoards::decideNewBoardPosition(board)
+    # NxStreams::decideNewBoardPosition(board)
     def self.decideNewBoardPosition(board)
-        NxBoards::boardItemsOrdered(board["uuid"])
+        NxStreams::boardItemsOrdered(board["uuid"])
             .first(20)
             .each{|item| puts NxTodos::toString(item) }
         input = LucilleCore::askQuestionAnswerAsString("position (empty for next): ")
-        return NxBoards::getBoardNextPosition(board) if input == ""
+        return NxStreams::getBoardNextPosition(board) if input == ""
         input.to_f
     end
 
-    # NxBoards::getBoardNextPosition(board)
+    # NxStreams::getBoardNextPosition(board)
     def self.getBoardNextPosition(board)
-        (NxBoards::boardItems(board["uuid"]).map{|item| item["boardposition"] } + [0]).max + 1
+        (NxStreams::boardItems(board["uuid"]).map{|item| item["boardposition"] } + [0]).max + 1
     end
 
-    # NxBoards::interactivelyDecideBoardPositionPair()
+    # NxStreams::interactivelyDecideBoardPositionPair()
     def self.interactivelyDecideBoardPositionPair()
-        board = NxBoards::interactivelySelectOne()
-        position = NxBoards::decideNewBoardPosition(board)
+        board = NxStreams::interactivelySelectOne()
+        position = NxStreams::decideNewBoardPosition(board)
         [board, position]
     end
 
-    # NxBoards::listingItems()
+    # NxStreams::listingItems()
     def self.listingItems()
-        NxBoards::items()
+        NxStreams::items()
             .map{|board|
-                todo = NxBoards::boardItemsOrderedX3(board["uuid"]).first
+                todo = NxStreams::boardItemsOrderedX3(board["uuid"]).first
                 if todo then
                     {
                         "uuid"        => "#{board["uuid"]}-#{todo["uuid"]}",
@@ -106,42 +106,42 @@ class NxBoards
             .compact
     end
 
-    # NxBoards::boardItems(boarduuid)
+    # NxStreams::boardItems(boarduuid)
     def self.boardItems(boarduuid)
         NxTodos::items().select{|item| item["boarduuid"] == boarduuid }
     end
 
-    # NxBoards::boardItemsOrdered(boarduuid)
+    # NxStreams::boardItemsOrdered(boarduuid)
     def self.boardItemsOrdered(boarduuid)
-        NxBoards::boardItems(boarduuid)
+        NxStreams::boardItems(boarduuid)
             .sort{|i1, i2| i1["boardposition"] <=> i2["boardposition"] }
     end
 
-    # NxBoards::boardItemsOrderedX3(boarduuid)
+    # NxStreams::boardItemsOrderedX3(boarduuid)
     def self.boardItemsOrderedX3(boarduuid)
-        items = NxBoards::boardItemsOrdered(boarduuid)
+        items = NxStreams::boardItemsOrdered(boarduuid)
         is1 = items.take(3)
         is2 = items.drop(3)
         is1 = is1.sort{|i1, i2| BankCore::getValue(i1["uuid"]) <=> BankCore::getValue(i2["uuid"]) }
         is1 + is2
     end
 
-    # NxBoards::rtExpectation()
+    # NxStreams::rtExpectation()
     def self.rtExpectation()
         0.40
     end
 
-    # NxBoards::differentialForListingPosition(item)
+    # NxStreams::differentialForListingPosition(item)
     def self.differentialForListingPosition(item)
         rt = BankUtils::recoveredAverageHoursPerDay(item["uuid"])
-        return 0 if rt < NxBoards::rtExpectation()
-        -(rt - NxBoards::rtExpectation())
+        return 0 if rt < NxStreams::rtExpectation()
+        -(rt - NxStreams::rtExpectation())
     end
 
     # ---------------------------------------------------------
     # Ops
 
-    # NxBoards::listingProgram(board)
+    # NxStreams::listingProgram(board)
     def self.listingProgram(board)
 
         loop {
@@ -160,11 +160,11 @@ class NxBoards
             vspaceleft = vspaceleft - linecount
 
             puts ""
-            puts "BOARD FOCUS: #{NxBoards::toString(board)}#{NxBalls::nxballSuffixStatusIfRelevant(board).green}"
+            puts "BOARD FOCUS: #{NxStreams::toString(board)}#{NxBalls::nxballSuffixStatusIfRelevant(board).green}"
             puts ""
             vspaceleft = vspaceleft - 3
 
-            items = NxBoards::boardItemsOrdered(board["uuid"])
+            items = NxStreams::boardItemsOrdered(board["uuid"])
                         .map{|item|
                             # We do this because some items are stored with their 
                             # computed listing positions and come back with them. 
@@ -223,14 +223,14 @@ class NxBoards
         }
     end
 
-    # NxBoards::dataMaintenance()
+    # NxStreams::dataMaintenance()
     def self.dataMaintenance()
-        NxBoards::items()
+        NxStreams::items()
             .each{|board|
                 if board["hasTimeCommitmentCompanion"].nil? then
                     answer = LucilleCore::askQuestionAnswerAsBoolean("board '#{board["description"]}' has time commitment companion ? ")
                     board["hasTimeCommitmentCompanion"] = (answer ? "true" : "false")
-                    NxBoards::commit(board)
+                    NxStreams::commit(board)
                 end
             }
     end

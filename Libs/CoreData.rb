@@ -20,7 +20,7 @@ class CoreData
         # It does stuff and returns a payload string or null
         referencetype = CoreData::interactivelySelectCoreDataReferenceType()
         if referencetype.nil? then
-            if LucilleCore::askQuestionAnswerAsBoolean("> confirm null reference string ? ") then
+            if LucilleCore::askQuestionAnswerAsBoolean("> confirm null reference string ? ", true) then
                 return "null"
             else
                 return CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)

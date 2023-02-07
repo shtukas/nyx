@@ -1,11 +1,11 @@
 
 NxTodo:
 
-    "uuid"        : String
-    "mikuType"    : "NxTodo"
-    "unixtime"    : Float
-    "datetime"    : DateTime Iso 8601 UTC Zulu
-    "description" : String
-    "field11"     : null or CoreData reference string
+    "uuid"          : String
+    "mikuType"      : "NxTodo"
+    "unixtime"      : Float
+    "datetime"      : DateTime Iso 8601 UTC Zulu
+    "description"   : String
+    "field11"       : null or CoreData reference string
     "boarduuid"     : String
     "boardposition" : Float
