@@ -5,4 +5,7 @@ NxBoard:
     "unixtime"    : Float
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : String
-    "hasTimeCommitmentCompanion" : "true" | "false"
+
+    "hasTimeCommitmentCompanion" : "true" | "false" 
+        # this makes any item started in the board prompt for a 
+        # time commitment if it doesn't already have one
