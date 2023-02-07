@@ -49,13 +49,15 @@ class NxTimeCommitments
 
     # NxTimeCommitments::toStringWithDetails(item)
     def self.toStringWithDetails(item)
-        hoursDone = BankCore::getValue(item["uuid"]).to_f/3600 + item["hours"]
-        hoursLeft = item["hours"] - hoursDone
-        timeLeftInDays = 7 - (Time.new.to_i - item["resetUnixtime"]).to_f/86400
-        str1 = "(done #{hoursDone.round(2).to_s.green} out of #{item["hours"]})"
+        loadDoneInHours = BankCore::getValue(item["uuid"]).to_f/3600 + item["hours"]
+        loadLeftInhours = item["hours"] - loadDoneInHours
+        timePassedInDays = (Time.new.to_i - item["resetUnixtime"]).to_f/86400
+        timeLeftInDays = 7 - timePassedInDays
+        str1 = "(done #{loadDoneInHours.round(2).to_s.green} out of #{item["hours"]})"
         str2 = 
             if timeLeftInDays > 0 then
-                "(#{timeLeftInDays.round(2)} days before reset)"
+                average = loadLeftInhours.to_f/timeLeftInDays
+                "(#{timeLeftInDays.round(2)} days before reset) (#{average.round(2)} hours/day)"
             else
                 "(late by #{-timeLeftInDays.round(2)})"
             end
