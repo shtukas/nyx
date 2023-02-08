@@ -24,12 +24,14 @@ class NxStreams
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid
+        engine = NxEngine::interactivelyMakeNewEngine()
         item = {
             "uuid"        => uuid,
-            "mikuType"    => "NxBoard",
+            "mikuType"    => "NxStream",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
+            "engine"      => engine
         }
         FileSystemCheck::fsck_MikuTypedItem(item, true)
         NxStreams::commit(item)
@@ -41,13 +43,34 @@ class NxStreams
 
     # NxStreams::toString(item)
     def self.toString(item)
-        "(board) #{item["description"]}"
+        "(stream) #{item["description"]}"
     end
 
     # NxStreams::toStringForListing(item)
     def self.toStringForListing(item)
-        rt = BankUtils::recoveredAverageHoursPerDay(item["uuid"])
-        "(board) (rt: #{("%5.2f" % rt)}) #{item["description"]}"
+
+        engine = item["engine"]
+
+        if engine["type"] == "managed" then
+            rt = BankUtils::recoveredAverageHoursPerDay(item["uuid"])
+            return "(stream) (rt: #{("%5.2f" % rt)}) #{item["description"]}"
+        end
+
+        if engine["type"] == "time-commitment" then
+            loadDoneInHours = BankCore::getValue(item["uuid"]).to_f/3600 + engine["hours"]
+            loadLeftInhours = engine["hours"] - loadDoneInHours
+            timePassedInDays = (Time.new.to_i - engine["lastResetTime"]).to_f/86400
+            timeLeftInDays = 7 - timePassedInDays
+            str1 = "(done #{loadDoneInHours.round(2).to_s.green} out of #{engine["hours"]})"
+            str2 = 
+                if timeLeftInDays > 0 then
+                    average = loadLeftInhours.to_f/timeLeftInDays
+                    "(#{timeLeftInDays.round(2)} days before reset) (#{average.round(2)} hours/day)"
+                else
+                    "(late by #{-timeLeftInDays.round(2)})"
+                end
+            "(stream) #{item["description"]} #{str1} #{str2}"
+        end
     end
 
     # NxStreams::interactivelySelectOneOrNull()
@@ -64,39 +87,39 @@ class NxStreams
         }
     end
 
-    # NxStreams::decideNewBoardPosition(board)
-    def self.decideNewBoardPosition(board)
-        NxStreams::boardItemsOrdered(board["uuid"])
+    # NxStreams::interactivelyDecideNewStreamPosition(stream)
+    def self.interactivelyDecideNewStreamPosition(stream)
+        NxStreams::streamItemsOrdered(stream["uuid"])
             .first(20)
             .each{|item| puts NxTodos::toString(item) }
         input = LucilleCore::askQuestionAnswerAsString("position (empty for next): ")
-        return NxStreams::getBoardNextPosition(board) if input == ""
+        return NxStreams::computeNextStreamPosition(stream) if input == ""
         input.to_f
     end
 
-    # NxStreams::getBoardNextPosition(board)
-    def self.getBoardNextPosition(board)
-        (NxStreams::boardItems(board["uuid"]).map{|item| item["boardposition"] } + [0]).max + 1
+    # NxStreams::computeNextStreamPosition(stream)
+    def self.computeNextStreamPosition(stream)
+        (NxStreams::boardItems(stream["uuid"]).map{|item| item["boardposition"] } + [0]).max + 1
     end
 
-    # NxStreams::interactivelyDecideBoardPositionPair()
-    def self.interactivelyDecideBoardPositionPair()
-        board = NxStreams::interactivelySelectOne()
-        position = NxStreams::decideNewBoardPosition(board)
-        [board, position]
+    # NxStreams::interactivelyDecideStreamPositionPair()
+    def self.interactivelyDecideStreamPositionPair()
+        stream = NxStreams::interactivelySelectOne()
+        position = NxStreams::interactivelyDecideNewStreamPosition(stream)
+        [stream, position]
     end
 
     # NxStreams::listingItems()
     def self.listingItems()
         NxStreams::items()
-            .map{|board|
-                todo = NxStreams::boardItemsOrderedX3(board["uuid"]).first
+            .map{|stream|
+                todo = NxStreams::streamItemsOrdered(stream["uuid"]).first
                 if todo then
                     {
-                        "uuid"        => "#{board["uuid"]}-#{todo["uuid"]}",
-                        "mikuType"    => "NxBoardFirstItem",
-                        "description" => "(first item) #{board["description"].yellow} | #{NxTodos::toStringForFirstItem(todo)}",
-                        "board"       => board,
+                        "uuid"        => "#{stream["uuid"]}-#{todo["uuid"]}",
+                        "mikuType"    => "NxStreamFirstItem",
+                        "description" => "(first item) #{stream["description"].yellow} | #{NxTodos::toStringForFirstItem(todo)}",
+                        "stream"      => stream,
                         "todo"        => todo
                     }
                 else
@@ -106,43 +129,43 @@ class NxStreams
             .compact
     end
 
-    # NxStreams::boardItems(boarduuid)
-    def self.boardItems(boarduuid)
-        NxTodos::items().select{|item| item["boarduuid"] == boarduuid }
+    # NxStreams::boardItems(streamuuid)
+    def self.boardItems(streamuuid)
+        NxTodos::items().select{|item| item["boarduuid"] == streamuuid }
     end
 
-    # NxStreams::boardItemsOrdered(boarduuid)
-    def self.boardItemsOrdered(boarduuid)
-        NxStreams::boardItems(boarduuid)
+    # NxStreams::streamItemsOrdered(streamuuid)
+    def self.streamItemsOrdered(streamuuid)
+        NxStreams::boardItems(streamuuid)
             .sort{|i1, i2| i1["boardposition"] <=> i2["boardposition"] }
     end
 
-    # NxStreams::boardItemsOrderedX3(boarduuid)
-    def self.boardItemsOrderedX3(boarduuid)
-        items = NxStreams::boardItemsOrdered(boarduuid)
-        is1 = items.take(3)
-        is2 = items.drop(3)
-        is1 = is1.sort{|i1, i2| BankCore::getValue(i1["uuid"]) <=> BankCore::getValue(i2["uuid"]) }
-        is1 + is2
-    end
-
-    # NxStreams::rtExpectation()
-    def self.rtExpectation()
+    # NxStreams::rtExpectationForManagedItems()
+    def self.rtExpectationForManagedItems()
         0.40
     end
 
     # NxStreams::differentialForListingPosition(item)
     def self.differentialForListingPosition(item)
-        rt = BankUtils::recoveredAverageHoursPerDay(item["uuid"])
-        return 0 if rt < NxStreams::rtExpectation()
-        -(rt - NxStreams::rtExpectation())
+        engine = item["engine"]
+        if engine["type"] == "time-commitment" then
+            timeRatio       = (Time.new.to_i - engine["lastResetTime"]).to_f/(86400*5) # 5 days, ideally
+            idealHoursDone  = engine["hours"] * timeRatio
+            actualHoursDone = BankCore::getValue(item["uuid"]).to_f/3600 + engine["hours"]
+            return -(actualHoursDone - idealHoursDone).to_f/5
+        end
+        if engine["type"] == "managed" then
+            rt = BankUtils::recoveredAverageHoursPerDay(item["uuid"])
+            return -(rt - NxStreams::rtExpectationForManagedItems()).to_f/5
+        end
+        raise
     end
 
     # ---------------------------------------------------------
     # Ops
 
-    # NxStreams::listingProgram(board)
-    def self.listingProgram(board)
+    # NxStreams::listingProgram(stream)
+    def self.listingProgram(stream)
 
         loop {
 
@@ -160,15 +183,15 @@ class NxStreams
             vspaceleft = vspaceleft - linecount
 
             puts ""
-            puts "BOARD FOCUS: #{NxStreams::toString(board)}#{NxBalls::nxballSuffixStatusIfRelevant(board).green}"
+            puts "BOARD FOCUS: #{NxStreams::toString(stream)}#{NxBalls::nxballSuffixStatusIfRelevant(stream).green}"
             puts ""
             vspaceleft = vspaceleft - 3
 
-            items = NxStreams::boardItemsOrdered(board["uuid"])
+            items = NxStreams::streamItemsOrdered(stream["uuid"])
                         .map{|item|
                             # We do this because some items are stored with their 
                             # computed listing positions and come back with them. 
-                            # This should not be a problem, except for board displays 
+                            # This should not be a problem, except for stream displays 
                             # where e do not use them.
                             item["listing:position"] = nil
                             item
@@ -204,7 +227,7 @@ class NxStreams
             next if input == ""
 
             # line
-            # We have a special line command that fast inject a line on the board
+            # We have a special line command that fast inject a line on the stream
 
             if input.start_with?("line:") then
                 line = input[6, input.length].strip
@@ -215,23 +238,26 @@ class NxStreams
                 puts "line:"
                 puts "    description: #{description}"
                 puts "    ordinal    : #{ordinal}"
-                NxTodos::issueBoardLine(description, board["uuid"], ordinal)
+                NxTodos::issueStreamLine(description, stream["uuid"], ordinal)
                 next
             end
 
-            Listing::listingCommandInterpreter(input, store, board)
+            Listing::listingCommandInterpreter(input, store, stream)
         }
     end
 
-    # NxStreams::dataMaintenance()
-    def self.dataMaintenance()
-        NxStreams::items()
-            .each{|board|
-                if board["hasTimeCommitmentCompanion"].nil? then
-                    answer = LucilleCore::askQuestionAnswerAsBoolean("board '#{board["description"]}' has time commitment companion ? ")
-                    board["hasTimeCommitmentCompanion"] = (answer ? "true" : "false")
-                    NxStreams::commit(board)
+    # NxStreams::timeManagement()
+    def self.timeManagement()
+        NxStreams::items().each{|item|
+            engine = item["engine"]
+            if engine["type"] == "time-commitment" then
+                if BankCore::getValue(item["uuid"]) >= 0 and (Time.new.to_i - engine["lastResetTime"]) >= 86400*7 then
+                    puts "resetting time commitment stream: #{item["description"]}"
+                    BankCore::put(item["uuid"], -engine["hours"]*3600)
+                    item["engine"]["lastResetTime"] = Time.new.to_i
+                    NxStreams::commit(item)
                 end
-            }
+            end
+        }
     end
 end

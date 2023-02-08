@@ -162,7 +162,7 @@ require_relative "Galaxy.rb"
 
 require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"
-require_relative "ItemToTimeCommitmentMapping.rb"
+require_relative "NonNxTodoItemToStreamMapping.rb"
 
 require_relative "FileSystemCheck.rb"
 
@@ -174,13 +174,13 @@ require_relative "Nyx.rb"
 require_relative "NxTodos.rb"
 require_relative "NxNetwork.rb"
 require_relative "NxNodes.rb"
-require_relative "NxTimeCommitments.rb"
 require_relative "NxDrops.rb"
 require_relative "NxBalls.rb"
 require_relative "NxTops.rb"
 require_relative "NxOndates.rb"
 require_relative "NxTriages.rb"
 require_relative "NxStreams.rb"
+require_relative "NxEngine.rb"
 
 require_relative "ObjectStore2.rb"
 

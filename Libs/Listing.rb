@@ -5,19 +5,19 @@ class Listing
     # Listing::listingCommands()
     def self.listingCommands()
         [
-            "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | landing (<n>) | expose (<n>) | >> skip default | lock (<n>) | set tc (<n>) | destroy",
+            "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | landing (<n>) | expose (<n>) | >> skip default | lock (<n>) | set stream (<n>) | destroy",
             "[makers] anniversary | manual countdown | wave | today | ondate | todo | drop | top | capsule",
             "[divings] anniversaries | ondates | waves | todos | desktop",
             "[NxBalls] start | start * | stop | stop * | pause | pursue",
             "[NxOndate] redate",
-            "[NxTimeCommitment] tc add time",
+            "[NxStream] stream add time",
             "[NxTop, NxDrop, NxOndate] >todo (<n>)",
             "[misc] search | speed | commands",
         ].join("\n")
     end
 
-    # Listing::listingCommandInterpreter(input, store, contextualBoardOpt or nil)
-    def self.listingCommandInterpreter(input, store, contextualBoardOpt)
+    # Listing::listingCommandInterpreter(input, store, contextualStreamOpt or nil)
+    def self.listingCommandInterpreter(input, store, contextualStreamOpt)
 
         if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
             if (item = store.getDefault()) then
@@ -276,18 +276,18 @@ class Listing
             return
         end
 
-        if Interpreting::match("set tc", input) then
+        if Interpreting::match("set stream", input) then
             item = store.getDefault()
             return if item.nil?
-            ItemToTimeCommitmentMapping::interactiveProposalToSetMapping(item)
+            NonNxTodoItemToStreamMapping::interactiveProposalToSetMapping(item)
             return
         end
 
-        if Interpreting::match("set tc *", input) then
+        if Interpreting::match("set stream *", input) then
             _, _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            ItemToTimeCommitmentMapping::interactiveProposalToSetMapping(item)
+            NonNxTodoItemToStreamMapping::interactiveProposalToSetMapping(item)
             return
         end
 
@@ -326,12 +326,12 @@ class Listing
             return
         end
 
-        if Interpreting::match("tc add time", input) then
-            tc = NxTimeCommitments::interactivelySelectOneOrNull()
-            return if tc.nil?
+        if Interpreting::match("stream add time", input) then
+            stream = NxStreams::interactivelySelectOneOrNull()
+            return if stream.nil?
             timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
-            puts "Adding #{timeInHours*3600} seconds to tc: #{tc["description"]}"
-            BankCore::put(tc["uuid"], timeInHours*3600)
+            puts "Adding #{timeInHours*3600} seconds to stream: #{stream["description"]}"
+            BankCore::put(stream["uuid"], timeInHours*3600)
         end
 
         if Interpreting::match("top", input) then
@@ -346,7 +346,7 @@ class Listing
         end
 
         if Interpreting::match("todo", input) then
-            item = NxTodos::interactivelyIssueNewOrNull(contextualBoardOpt)
+            item = NxTodos::interactivelyIssueNewOrNull(contextualStreamOpt)
             return if item.nil?
             puts JSON.pretty_generate(item)
             return
@@ -375,7 +375,6 @@ class Listing
             NxStreams::listingItems(),
             NxDrops::items(),
             NxOndates::listingItems(),
-            NxTimeCommitments::items(),
             NxTriages::items(),
             Waves::listingItems(),
         ]
@@ -424,16 +423,8 @@ class Listing
             return 0.7
         end
 
-        if item["mikuType"] == "NxTimeCommitment" then
-            return 0.7 + NxTimeCommitments::differentialForListingPosition(item)
-        end
-
-        if item["mikuType"] == "NxBoard" then
-            return 0.6 + NxStreams::differentialForListingPosition(item)
-        end
-
-        if item["mikuType"] == "NxBoardFirstItem" then
-            return 0.6 + NxStreams::differentialForListingPosition(item["board"])
+        if item["mikuType"] == "NxStreamFirstItem" then
+            return 0.6 + NxStreams::differentialForListingPosition(item["stream"])
         end
 
         if item["mikuType"] == "NxOndate" then
@@ -499,7 +490,7 @@ class Listing
         listingposition = item["listing:position"] ? " (#{"%5.2f" % item["listing:position"]})" : ""
         aof = afterOrdinalFragment ? " #{afterOrdinalFragment}" : ""
         storePrefix = store ? "(#{store.prefixString()})" : "     "
-        line = "#{storePrefix}#{listingposition}#{aof} #{PolyFunctions::toStringForListing(item)}#{ItemToTimeCommitmentMapping::toStringSuffix(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}"
+        line = "#{storePrefix}#{listingposition}#{aof} #{PolyFunctions::toStringForListing(item)}#{NonNxTodoItemToStreamMapping::toStringSuffix(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}"
         if Locks::isLocked(item["uuid"]) then
             line = "#{line} [lock: #{Locks::locknameOrNull(item["uuid"])}]".yellow
         end
@@ -536,7 +527,7 @@ class Listing
     # Listing::printProcesses(store, isSimulation)
     def self.printProcesses(store, isSimulation)
         linecount = 0
-        (NxTimeCommitments::items() + NxStreams::items()).each{|item|
+        NxStreams::items().each{|item|
             store.register(item, false)
             line = "#{Listing::itemToListingLine(store, item, nil)}"
             if !isSimulation then
@@ -577,8 +568,7 @@ class Listing
                     LucilleCore::removeFileSystemLocation(location)
                 }
 
-            NxTimeCommitments::timeManagement()
-            NxStreams::dataMaintenance()
+            NxStreams::timeManagement()
 
             system("clear")
             store = ItemStore.new()

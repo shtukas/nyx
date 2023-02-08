@@ -20,13 +20,13 @@ class NxTodos
     # --------------------------------------------------
     # Makers
 
-    # NxTodos::interactivelyIssueNewOrNull(contextualBoardOpt)
-    def self.interactivelyIssueNewOrNull(contextualBoardOpt)
+    # NxTodos::interactivelyIssueNewOrNull(streamOpt)
+    def self.interactivelyIssueNewOrNull(streamOpt)
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid  = SecureRandom.uuid
         coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
-        board = contextualBoardOpt ? contextualBoardOpt : NxStreams::interactivelySelectOne()
+        stream = streamOpt ? streamOpt : NxStreams::interactivelySelectOne()
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
@@ -34,8 +34,8 @@ class NxTodos
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
             "field11"     => coredataref,
-            "boarduuid"     => board["uuid"],
-            "boardposition" => NxStreams::decideNewBoardPosition(board)
+            "boarduuid"     => stream["uuid"],
+            "boardposition" => NxStreams::interactivelyDecideNewStreamPosition(stream)
         }
         NxTodos::commit(item)
         item
@@ -46,7 +46,7 @@ class NxTodos
         description = "(vienna) #{url}"
         uuid  = SecureRandom.uuid
         coredataref = "url:#{DatablobStore::put(url)}"
-        board = NxStreams::getItemOfNull("b093459d-70a7-4317-aa7e-326e53bd626a") # vienna (latest)
+        stream = NxStreams::getItemOfNull("b093459d-70a7-4317-aa7e-326e53bd626a") # vienna (latest)
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTodo",
@@ -54,15 +54,15 @@ class NxTodos
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
             "field11"     => coredataref,
-            "boarduuid"     => board["uuid"], # vienna (latest)
-            "boardposition" => NxStreams::getBoardNextPosition(board)
+            "boarduuid"     => stream["uuid"], # vienna (latest)
+            "boardposition" => NxStreams::computeNextStreamPosition(stream)
         }
         ObjectStore2::commit("NxTriages", item)
         item
     end
 
-    # NxTodos::issueBoardLine(line, boarduuid, boardposition)
-    def self.issueBoardLine(line, boarduuid, boardposition)
+    # NxTodos::issueStreamLine(line, streamuuid, streamposition)
+    def self.issueStreamLine(line, streamuuid, streamposition)
         description = line
         uuid  = SecureRandom.uuid
         item = {
@@ -72,8 +72,8 @@ class NxTodos
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
             "field11"     => nil,
-            "boarduuid"     => boarduuid,
-            "boardposition" => boardposition
+            "boarduuid"     => streamuuid,
+            "boardposition" => streamposition
         }
         NxTodos::commit(item)
         item
@@ -82,33 +82,33 @@ class NxTodos
     # NxTodos::issueUsingItem(item)
     def self.issueUsingItem(item)
         if item["mikuType"] == "NxTop" then
-            board, position = NxStreams::interactivelyDecideBoardPositionPair()
+            stream, position = NxStreams::interactivelyDecideStreamPositionPair()
             newitem = item.clone
             newitem["uuid"] = SecureRandom.uuid
             newitem["mikuType"] = "NxTodo"
-            newitem["boarduuid"] = board["uuid"]
+            newitem["boarduuid"] = stream["uuid"]
             newitem["boardposition"] = position
             NxTodos::commit(newitem)
             NxTops::destroy(item["uuid"])
             return
         end
         if item["mikuType"] == "NxDrop" then
-            board, position = NxStreams::interactivelyDecideBoardPositionPair()
+            stream, position = NxStreams::interactivelyDecideStreamPositionPair()
             newitem = item.clone
             newitem["uuid"] = SecureRandom.uuid
             newitem["mikuType"] = "NxTodo"
-            newitem["boarduuid"] = board["uuid"]
+            newitem["boarduuid"] = stream["uuid"]
             newitem["boardposition"] = position
             NxTodos::commit(newitem)
             NxDrops::destroy(item["uuid"])
             return
         end
         if item["mikuType"] == "NxOndate" then
-            board, position = NxStreams::interactivelyDecideBoardPositionPair()
+            stream, position = NxStreams::interactivelyDecideStreamPositionPair()
             newitem = item.clone
             newitem["uuid"] = SecureRandom.uuid
             newitem["mikuType"] = "NxTodo"
-            newitem["boarduuid"] = board["uuid"]
+            newitem["boarduuid"] = stream["uuid"]
             newitem["boardposition"] = position
             NxTodos::commit(newitem)
             NxOndates::destroy(item["uuid"])

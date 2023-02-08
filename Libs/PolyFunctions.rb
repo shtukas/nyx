@@ -4,42 +4,54 @@ class PolyFunctions
     def self.itemsToBankingAccounts(item)
         accounts = []
 
-        accounts << {
-            "description" => nil,
-            "account"     => item["uuid"]
-        }
-
-        tcuuid = ItemToTimeCommitmentMapping::getOrNull(item)
-        if tcuuid then
-            tc = NxTimeCommitments::getItemOfNull(tcuuid)
-            if tc then
-                accounts << {
-                    "description" => "tc: #{tc["description"]}",
-                    "account"     => tcuuid
-                }
-            end
+        if item["mikuType"] == "NxStream" then
+            accounts << {
+                "description" => item["description"],
+                "account"     => item["uuid"]
+            }
+            return accounts
         end
 
         if item["mikuType"] == "NxTodo" then
-            boarduuid = item["boarduuid"]
-            board = NxStreams::getItemOfNull(uuid)
-            if board then
-                accounts << {
-                    "description" => "board: #{board["description"]}",
-                    "account"     => boarduuid
-                }
-            end
+            accounts << {
+                "description" => nil,
+                "account"     => item["uuid"]
+            }
+            streamuuid = item["boarduuid"]
+            stream = NxStreams::getItemOfNull(streamuuid)
+            accounts << {
+                "description" => "stream: #{stream["description"]}",
+                "account"     => boarduuid
+            }
+            return accounts
         end
 
-        if item["mikuType"] == "NxBoardFirstItem" then
+        if item["mikuType"] == "NxStreamFirstItem" then
             accounts << {
-                "description" => "board: #{item["board"]["description"]}",
-                "account"     => item["board"]["uuid"]
+                "description" => "stream: #{item["stream"]["description"]}",
+                "account"     => item["stream"]["uuid"]
             }
             accounts << {
                 "description" => nil,
                 "account"     => item["todo"]["uuid"]
             }
+            return accounts
+        end
+
+        accounts << {
+            "description" => nil,
+            "account"     => item["uuid"]
+        }
+
+        streamuuid = NonNxTodoItemToStreamMapping::getOrNull(item)
+        if streamuuid then
+            stream = NxStreams::getItemOfNull(streamuuid)
+            if stream then
+                accounts << {
+                    "description" => "stream: #{stream["description"]}",
+                    "account"     => streamuuid
+                }
+            end
         end
 
         accounts
@@ -53,10 +65,10 @@ class PolyFunctions
         if item["mikuType"] == "NxAnniversary" then
             return Anniversaries::toString(item)
         end
-        if item["mikuType"] == "NxBoard" then
+        if item["mikuType"] == "NxStream" then
             return NxStreams::toString(item)
         end
-        if item["mikuType"] == "NxBoardFirstItem" then
+        if item["mikuType"] == "NxStreamFirstItem" then
             return item["description"]
         end
         if item["mikuType"] == "NxDrop" then
@@ -67,9 +79,6 @@ class PolyFunctions
         end
         if item["mikuType"] == "NxOndate" then
             return NxOndates::toString(item)
-        end
-        if item["mikuType"] == "NxTimeCommitment" then
-            return NxTimeCommitments::toString(item)
         end
         if item["mikuType"] == "NxTodo" then
             return NxTodos::toString(item)
@@ -92,10 +101,7 @@ class PolyFunctions
 
     # PolyFunctions::toStringForListing(item)
     def self.toStringForListing(item)
-        if item["mikuType"] == "NxTimeCommitment" then
-            return NxTimeCommitments::toStringWithDetails(item)
-        end
-        if item["mikuType"] == "NxBoard" then
+        if item["mikuType"] == "NxStream" then
             return NxStreams::toStringForListing(item)
         end
         PolyFunctions::toString(item)

@@ -77,7 +77,7 @@ class FileSystemCheck
             return
         end
 
-        if mikuType == "NxBoard" then
+        if mikuType == "NxStream" then
             FileSystemCheck::ensureAttribute(item, "uuid", "String")
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
@@ -106,16 +106,6 @@ class FileSystemCheck
             end
             FileSystemCheck::ensureAttribute(item, "boarduuid", "String")
             FileSystemCheck::ensureAttribute(item, "boardposition", "Number")
-            return
-        end
-
-        if mikuType == "NxTimeCommitment" then
-            FileSystemCheck::ensureAttribute(item, "uuid", "String")
-            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
-            FileSystemCheck::ensureAttribute(item, "datetime", "String")
-            FileSystemCheck::ensureAttribute(item, "description", "String")
-            FileSystemCheck::ensureAttribute(item, "hours", "Number")
-            FileSystemCheck::ensureAttribute(item, "resetUnixtime", "Number")
             return
         end
 
@@ -179,8 +169,6 @@ class FileSystemCheck
 
         raise "Unsupported Miku Type '#{mikuType}' in #{JSON.pretty_generate(item)}"
     end
-
-    # -----------------------------------------------------
 
     # FileSystemCheck::exitIfMissingCanary()
     def self.exitIfMissingCanary()

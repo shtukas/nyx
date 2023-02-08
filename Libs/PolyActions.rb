@@ -20,12 +20,12 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxBoard" then
+        if item["mikuType"] == "NxStream" then
             NxStreams::listingProgram(item)
             return
         end
 
-        if item["mikuType"] == "NxBoardFirstItem" then
+        if item["mikuType"] == "NxStreamFirstItem" then
             todo = item["todo"]
             PolyActions::access(todo)
             return
@@ -40,14 +40,18 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxTimeCommitment" then
-            puts NxTimeCommitments::toString(item, false)
-            actions = ["set hours"]
+        if item["mikuType"] == "NxStream" then
+            puts NxStreams::toStringForListing(item)
+            actions = ["set hours", "access items"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
             if action == "set hours" then
-                item["hours"] = LucilleCore::askQuestionAnswerAsString("hours (weekly): ").to_f
-                ObjectStore2::commit("NxTimeCommitments", item)
+                puts "Not implemented yet"
+                LucilleCore::pressEnterToContinue()
+            end
+            if action == "access items" then
+                puts "Not implemented yet"
+                LucilleCore::pressEnterToContinue()
             end
             return
         end
@@ -91,13 +95,13 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxBoard" then
+        if item["mikuType"] == "NxStream" then
             puts "There is no doen action on NxStreams. You probaly want stop"
             LucilleCore::pressEnterToContinue()
             return
         end
 
-        if item["mikuType"] == "NxBoardFirstItem" then
+        if item["mikuType"] == "NxStreamFirstItem" then
             todo = item["todo"]
             PolyActions::done(todo)
             return
@@ -131,10 +135,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxTimeCommitment" then
-            return
-        end
-
         if item["mikuType"] == "TxManualCountDown" then
             TxManualCountDowns::performUpdate(item)
             return
@@ -154,17 +154,14 @@ class PolyActions
     # PolyActions::doubleDot(item)
     def self.doubleDot(item)
 
-        if item["mikuType"] == "NxBoard" then
+        if item["mikuType"] == "NxStream" then
             PolyActions::access(item)
             return
         end
 
-        if item["mikuType"] == "NxBoardFirstItem" then
-            board = item["board"]
+        if item["mikuType"] == "NxStreamFirstItem" then
+
             todo = item["todo"]
-            if board["hasTimeCommitmentCompanion"] == "true" and ItemToTimeCommitmentMapping::getOrNull(todo).nil? then
-                ItemToTimeCommitmentMapping::interactiveProposalToSetMapping(todo)
-            end
 
             NxBalls::start(todo)
 
@@ -204,7 +201,7 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxTimeCommitment" then
+        if item["mikuType"] == "NxStream" then
             if NxBalls::itemIsRunning(item) then
                 if LucilleCore::askQuestionAnswerAsBoolean("We are running, would you like to stop ? ".green, true) then
                     NxBalls::stop(item)
@@ -258,7 +255,7 @@ class PolyActions
                 newitem["uuid"] = SecureRandom.uuid
                 newitem["mikuType"] = "NxTodo"
                 newitem["boarduuid"] = board["uuid"]
-                newitem["boardposition"] = NxStreams::decideNewBoardPosition(board)
+                newitem["boardposition"] = NxStreams::interactivelyDecideNewStreamPosition(board)
                 NxTodos::commit(newitem)
                 NxTriages::destroy(item["uuid"])
             end
@@ -313,21 +310,8 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxTimeCommitment" then
-            loop {
-                puts NxTimeCommitments::toString(item, false)
-                actions = ["set hours", "add time"]
-                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
-                break if action.nil?
-                if action == "set hours" then
-                    item["hours"] = LucilleCore::askQuestionAnswerAsString("hours (weekly): ").to_f
-                    ObjectStore2::commit("NxTimeCommitments", item)
-                end
-                if action == "add time" then
-                    timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
-                    BankCore::put(item["uuid"], timeInHours * 3600)
-                end
-            }
+        if item["mikuType"] == "NxStream" then
+            PolyActions::access(item)
             return
         end
 

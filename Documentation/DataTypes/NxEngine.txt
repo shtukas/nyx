@@ -1,0 +1,9 @@
+NxEngine {
+    "type" : "managed"
+}
+
+NxEngine {
+    "type"          : "time-commitment"
+    "hours"         : Float
+    "lastResetTime" : Float
+}

@@ -7,5 +7,5 @@ NxTodo:
     "datetime"      : DateTime Iso 8601 UTC Zulu
     "description"   : String
     "field11"       : null or CoreData reference string
-    "boarduuid"     : String
-    "boardposition" : Float
+    "boarduuid"     : String # uuid of the stream
+    "boardposition" : Float  # position in that stream

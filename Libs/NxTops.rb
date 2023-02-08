@@ -32,7 +32,7 @@ class NxTops
         }
         puts JSON.pretty_generate(item)
         NxTops::commit(item)
-        ItemToTimeCommitmentMapping::interactiveProposalToSetMapping(item)
+        NonNxTodoItemToStreamMapping::interactiveProposalToSetMapping(item)
         item
     end
 
