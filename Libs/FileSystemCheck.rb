@@ -11,10 +11,12 @@ class FileSystemCheck
         if type.nil? then
             return
         end
+        types = [type]
         if type == "Number" then
             types = ["Integer", "Float"]
-        else
-            types = [type]
+        end
+        if type == "Boolean" then
+            types = ["TrueClass", "FalseClass"]
         end
         if !types.include?(item[attname].class.to_s) then
             raise "Incorrect attribute type for #{attname} in #{JSON.pretty_generate(item)}, expected: #{type}, found: #{item[attname].class.to_s}"
@@ -82,6 +84,7 @@ class FileSystemCheck
             FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
             FileSystemCheck::ensureAttribute(item, "datetime", "String")
             FileSystemCheck::ensureAttribute(item, "description", "String")
+            FileSystemCheck::ensureAttribute(item, "isListeable", "Boolean")
             return
         end
 

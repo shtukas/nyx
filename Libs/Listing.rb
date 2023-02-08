@@ -423,6 +423,10 @@ class Listing
             return 0.7
         end
 
+        if item["mikuType"] == "NxStream" then
+            return 0.6 + NxStreams::differentialForListingPosition(item)
+        end
+
         if item["mikuType"] == "NxStreamFirstItem" then
             return 0.6 + NxStreams::differentialForListingPosition(item["stream"])
         end

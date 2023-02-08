@@ -25,13 +25,15 @@ class NxStreams
         return nil if description == ""
         uuid = SecureRandom.uuid
         engine = NxEngine::interactivelyMakeNewEngine()
+        isListeable = LucilleCore::askQuestionAnswerAsBoolean("Is listeable ? ")
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxStream",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "engine"      => engine
+            "engine"      => engine,
+            "isListeable" => isListeable
         }
         FileSystemCheck::fsck_MikuTypedItem(item, true)
         NxStreams::commit(item)
@@ -123,7 +125,11 @@ class NxStreams
                         "todo"        => todo
                     }
                 else
-                    nil
+                    if stream["isListeable"] then
+                        stream
+                    else
+                        nil
+                    end
                 end
             }
             .compact

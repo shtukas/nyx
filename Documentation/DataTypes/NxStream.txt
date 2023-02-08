@@ -6,3 +6,5 @@ NxStream:
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : String
     "engine"      : null or NxEngine
+    "isListeable" : Boolean # Indicates whether the stream shows up as its own item when it's empty
+                              A difference between the universe (not listeable) and work (listeable)
