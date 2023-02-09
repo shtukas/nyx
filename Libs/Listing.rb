@@ -372,22 +372,16 @@ class Listing
     def self.items()
         [
             Anniversaries::listingItems(),
-            NxStreams::listingItems(),
-            NxDrops::items(),
             NxOndates::listingItems(),
+            Waves::listingItems("ns:high"),
+            NxDrops::items(),
+            NxStreams::listingItems(),
+            Waves::listingItems("ns:medium"),
             NxTriages::items(),
-            Waves::listingItems(),
+            Waves::listingItems("ns:low"),
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .map{|item|
-                # We do this because some items are stored with their 
-                # computed listing positions and come back with them. 
-                # This should not be a problem, except for board displays 
-                # where e do not use them.
-                item["listing:position"] = nil
-                item
-            }
     end
 
     # Listing::printDesktop()
@@ -403,98 +397,11 @@ class Listing
         linecount
     end
 
-    # Listing::itemListingPosition(item)
-    def self.itemListingPosition(item)
-
-        trajectory = nil
-        
-        return 1 if NxBalls::itemIsRunning(item)
-        return 1 if PolyFunctions::toStringForListing(item).include?("sticky")
-
-        if item["mikuType"] == "NxAnniversary" then
-            return 0.9
-        end
-
-        if item["mikuType"] == "NxTop" then
-            return 0.9
-        end
-
-        if item["mikuType"] == "NxTriage" then
-            return 0.7
-        end
-
-        if item["mikuType"] == "NxStream" then
-            return 0.6 + NxStreams::differentialForListingPosition(item)
-        end
-
-        if item["mikuType"] == "NxStreamFirstItem" then
-            return 0.6 + NxStreams::differentialForListingPosition(item["stream"])
-        end
-
-        if item["mikuType"] == "NxOndate" then
-            trajectory = Lookups::getValueOrNull("ListingTrajectories", item["uuid"])
-            if trajectory.nil? then
-                trajectory = {
-                    "unixtime"        => Time.new.to_f,
-                    "position1"       => 0.5,
-                    "position2"       => 1,
-                    "timespanInHours" => 12
-                }
-                Lookups::commit("ListingTrajectories", item["uuid"], trajectory)
-            end
-        end
-
-        if item["mikuType"] == "NxDrop" then
-            trajectory = Lookups::getValueOrNull("ListingTrajectories", item["uuid"])
-            if trajectory.nil? then
-                trajectory = {
-                    "unixtime"        => Time.new.to_f,
-                    "position1"       => 0,
-                    "position2"       => 1,
-                    "timespanInHours" => 48
-                }
-                Lookups::commit("ListingTrajectories", item["uuid"], trajectory)
-            end
-        end
-
-        if item["mikuType"] == "Wave" then
-            trajectory = Lookups::getValueOrNull("ListingTrajectories", item["uuid"])
-            if trajectory.nil? then
-                mapping1 = {
-                    "ns:high"   => 0.7,
-                    "ns:medium" => 0.4,
-                    "ns:low"    => 0.2
-                }
-                mapping2 = {
-                    "ns:high"   => 2,
-                    "ns:medium" => 24,
-                    "ns:low"    => 72
-                }
-                trajectory = {
-                    "unixtime"        => Time.new.to_f,
-                    "position1"       => mapping1[item["priority"]],
-                    "position2"       => 0.8,
-                    "timespanInHours" => mapping2[item["priority"]]
-                }
-                Lookups::commit("ListingTrajectories", item["uuid"], trajectory)
-            end
-        end
-
-        if trajectory.nil? then
-            raise "missing trajectory for item: #{item}"
-        end
-
-        ratio = (Time.new.to_f - trajectory["unixtime"]).to_f/(trajectory["timespanInHours"]*3600)
-        position = trajectory["position1"] + ratio*(trajectory["position2"]-trajectory["position1"])
-        [position, trajectory["position2"]].min
-    end
-
     # Listing::itemToListingLine(store or nil, item, afterOrdinalFragment or nil)
     def self.itemToListingLine(store, item, afterOrdinalFragment)
-        listingposition = item["listing:position"] ? " (#{"%5.2f" % item["listing:position"]})" : ""
         aof = afterOrdinalFragment ? " #{afterOrdinalFragment}" : ""
         storePrefix = store ? "(#{store.prefixString()})" : "     "
-        line = "#{storePrefix}#{listingposition}#{aof} #{PolyFunctions::toStringForListing(item)}#{NonNxTodoItemToStreamMapping::toStringSuffix(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}"
+        line = "#{storePrefix}#{aof} #{PolyFunctions::toStringForListing(item)}#{NonNxTodoItemToStreamMapping::toStringSuffix(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}"
         if Locks::isLocked(item["uuid"]) then
             line = "#{line} [lock: #{Locks::locknameOrNull(item["uuid"])}]".yellow
         end
@@ -593,12 +500,6 @@ class Listing
             vspaceleft = vspaceleft - linecount
 
             items = Listing::items()
-                        .map{|item|
-                            item["listing:position"] = Listing::itemListingPosition(item)
-                            item
-                        }
-                        .sort{|i1, i2| i1["listing:position"] <=> i2["listing:position"] }
-                        .reverse
 
             lockedItems, items = items.partition{|item| Locks::isLocked(item["uuid"]) }
             lockedItems.each{|item|

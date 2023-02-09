@@ -185,9 +185,10 @@ class Waves
         "(wave) #{item["description"]} (#{Waves::nx46ToString(item["nx46"])}) (coredataref: #{item["field11"]}) (#{ago})#{isPendingStr} 🌊 [#{item["priority"]}]"
     end
 
-    # Waves::listingItems()
-    def self.listingItems()
+    # Waves::listingItems(priority)
+    def self.listingItems(priority)
         Waves::items()
+            .select{|item| item["priority"] == priority }
             .select{|item|
                 item["onlyOnDays"].nil? or item["onlyOnDays"].include?(CommonUtils::todayAsLowercaseEnglishWeekDayName())
             }
@@ -208,8 +209,6 @@ class Waves
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
         puts "not shown until: #{Time.at(unixtime).to_s}"
         DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-
-        Lookups::destroy("ListingTrajectories", item["uuid"])
     end
 
     # Waves::dive()
