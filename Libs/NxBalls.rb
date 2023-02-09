@@ -60,6 +60,7 @@ class NxBalls
             return
         end
         if NxBalls::itemIsPaused(item) then
+            puts "stopping paused item, nothing to do..."
             Lookups::destroy("NxBalls", item["uuid"])
             return
         end
