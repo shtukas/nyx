@@ -7,11 +7,11 @@ class Listing
         [
             "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | landing (<n>) | expose (<n>) | >> skip default | lock (<n>) | set stream (<n>) | destroy",
             "[makers] anniversary | manual countdown | wave | today | ondate | todo | drop | top | capsule",
-            "[divings] anniversaries | ondates | waves | todos | desktop",
+            "[divings] anniversaries | ondates | waves | todos | desktop | open",
             "[NxBalls] start | start * | stop | stop * | pause | pursue",
             "[NxOndate] redate",
             "[NxStream] stream add time",
-            "[NxTop, NxDrop, NxOndate] >todo (<n>)",
+            "[NxTop, NxDrop, NxOndate] >stream (<n>)",
             "[misc] search | speed | commands",
         ].join("\n")
     end
@@ -48,14 +48,14 @@ class Listing
             return
         end
 
-        if Interpreting::match(">todo", input) then
+        if Interpreting::match(">stream", input) then
             item = store.getDefault()
             return if item.nil?
             NxTodos::issueUsingItem(item)
             return
         end
 
-        if Interpreting::match(">todo *", input) then
+        if Interpreting::match(">stream *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
@@ -234,6 +234,13 @@ class Listing
             return
         end
 
+        if Interpreting::match("open", input) then
+            item = NxOpens::interactivelyIssueNullOrNull()
+            return if item.nil?
+            puts JSON.pretty_generate(item)
+            return
+        end
+
         if Interpreting::match("pause", input) then
             item = store.getDefault()
             return if item.nil?
@@ -374,11 +381,11 @@ class Listing
             Anniversaries::listingItems(),
             NxOndates::listingItems(),
             Waves::topItems(),
-            NxDrops::items(),
             NxStreams::listingItems(),
             Waves::listingItems("ns:medium"),
             NxTriages::items(),
             Waves::listingItems("ns:low"),
+            NxDrops::items(),
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -498,6 +505,11 @@ class Listing
 
             linecount = Listing::printProcesses(store, true)
             vspaceleft = vspaceleft - linecount
+
+            NxOpens::items().each{|o|
+                store.register(o, false)
+                puts "(#{store.prefixString()}) (open) #{o["description"]}".yellow
+            }
 
             items = Listing::items()
 

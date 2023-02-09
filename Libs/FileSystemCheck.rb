@@ -131,6 +131,14 @@ class FileSystemCheck
             return
         end
 
+        if mikuType == "NxOpen" then
+            FileSystemCheck::ensureAttribute(item, "uuid", "String")
+            FileSystemCheck::ensureAttribute(item, "unixtime", "Number")
+            FileSystemCheck::ensureAttribute(item, "datetime", "String")
+            FileSystemCheck::ensureAttribute(item, "description", "String")
+            return
+        end
+
         if mikuType == "NxNode" then
             FileSystemCheck::fsck_NxNode(item, verbose)
             return

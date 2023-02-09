@@ -144,6 +144,7 @@ require_relative "Anniversaries.rb"
 
 require_relative "BankCore.rb"
 require_relative "BankUtils.rb"
+require_relative "NxBoardItem.rb"
 
 require_relative "Catalyst.rb"
 require_relative "CoreData.rb"
@@ -181,6 +182,7 @@ require_relative "NxOndates.rb"
 require_relative "NxTriages.rb"
 require_relative "NxStreams.rb"
 require_relative "NxEngine.rb"
+require_relative "NxOpen.rb"
 
 require_relative "ObjectStore2.rb"
 

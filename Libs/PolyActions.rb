@@ -96,7 +96,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxStream" then
-            puts "There is no doen action on NxStreams. You probaly want stop"
+            puts "There is no done action on NxStreams. If it was running, I have stopped it."
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -110,6 +110,13 @@ class PolyActions
         if item["mikuType"] == "NxDrop" then
             if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green} ? '", true) then
                 NxDrops::destroy(item["uuid"])
+            end
+            return
+        end
+
+        if item["mikuType"] == "NxOpen" then
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green} ? '", true) then
+                NxOpens::destroy(item["uuid"])
             end
             return
         end

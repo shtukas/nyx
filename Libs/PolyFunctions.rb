@@ -77,6 +77,9 @@ class PolyFunctions
         if item["mikuType"] == "NxNode" then
             return NxNodes::toString(item)
         end
+        if item["mikuType"] == "NxOpen" then
+            return NxOpens::toString(item)
+        end
         if item["mikuType"] == "NxOndate" then
             return NxOndates::toString(item)
         end

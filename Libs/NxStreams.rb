@@ -111,10 +111,39 @@ class NxStreams
         [stream, position]
     end
 
+    # NxStreams::rtTarget(item)
+    def self.rtTarget(item)
+        if item["engine"]["type"] == "managed" then
+            return 0.4
+        end
+        if item["engine"]["type"] == "time-commitment" then
+            return item["engine"]["hours"].to_f/5 # Hopefully 5 days
+        end
+        raise "(error: afcf8b95-c68c-4395-99c5-8e7538926630)"
+    end
+
+    # NxStreams::completionRatio(item)
+    def self.completionRatio(item)
+        BankUtils::recoveredAverageHoursPerDay(item["uuid"]).to_f/NxStreams::rtTarget(item)
+    end
+
     # NxStreams::listingItems()
     def self.listingItems()
         NxStreams::items()
             .map{|stream|
+                {
+                    "stream" => stream,
+                    "ratio"  => NxStreams::completionRatio(stream)
+                }
+            }
+            .sort{|p1, p2|
+                p1["ratio"] <=> p2["ratio"]
+            }
+            .select{|packet|
+                packet["ratio"] < 1
+            }
+            .map{|packet|
+                stream = packet["stream"]
                 todo = NxStreams::streamItemsOrdered(stream["uuid"]).first
                 if todo then
                     {
@@ -146,27 +175,6 @@ class NxStreams
             .sort{|i1, i2| i1["boardposition"] <=> i2["boardposition"] }
     end
 
-    # NxStreams::rtExpectationForManagedItems()
-    def self.rtExpectationForManagedItems()
-        0.40
-    end
-
-    # NxStreams::differentialForListingPosition(item)
-    def self.differentialForListingPosition(item)
-        engine = item["engine"]
-        if engine["type"] == "time-commitment" then
-            timeRatio       = (Time.new.to_i - engine["lastResetTime"]).to_f/(86400*5) # 5 days, ideally
-            idealHoursDone  = engine["hours"] * timeRatio
-            actualHoursDone = BankCore::getValue(item["uuid"]).to_f/3600 + engine["hours"]
-            return -(actualHoursDone - idealHoursDone).to_f/5
-        end
-        if engine["type"] == "managed" then
-            rt = BankUtils::recoveredAverageHoursPerDay(item["uuid"])
-            return -(rt - NxStreams::rtExpectationForManagedItems()).to_f/5
-        end
-        raise
-    end
-
     # ---------------------------------------------------------
     # Ops
 
@@ -194,14 +202,6 @@ class NxStreams
             vspaceleft = vspaceleft - 3
 
             items = NxStreams::streamItemsOrdered(stream["uuid"])
-                        .map{|item|
-                            # We do this because some items are stored with their 
-                            # computed listing positions and come back with them. 
-                            # This should not be a problem, except for stream displays 
-                            # where e do not use them.
-                            item["listing:position"] = nil
-                            item
-                        }
 
             lockedItems, items = items.partition{|item| Locks::isLocked(item["uuid"]) }
             lockedItems.each{|item|
