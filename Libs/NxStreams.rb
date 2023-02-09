@@ -35,7 +35,6 @@ class NxStreams
             "engine"      => engine,
             "isListeable" => isListeable
         }
-        FileSystemCheck::fsck_MikuTypedItem(item, true)
         NxStreams::commit(item)
         item
     end

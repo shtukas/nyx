@@ -165,8 +165,6 @@ require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"
 require_relative "NonNxTodoItemToStreamMapping.rb"
 
-require_relative "FileSystemCheck.rb"
-
 require_relative "LambdX1s.rb"
 require_relative "Lookups.rb"
 require_relative "Listing.rb"

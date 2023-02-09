@@ -35,8 +35,6 @@ class ObjectStore2
     def self.commit(foldername, object)
         puts "ObjectStore2::commit(#{foldername}, #{JSON.pretty_generate(object)})"
 
-        FileSystemCheck::fsck_MikuTypedItem(object, true)
-
         # If we want to commit an object, we need to rewrite all the files in which it is (meaning deleting the object and renaming the file)
         # and put it into a new file.
 

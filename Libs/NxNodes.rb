@@ -20,7 +20,6 @@ class NxNodes
 
     # NxNodes::commit(item)
     def self.commit(item)
-        FileSystemCheck::fsck_NxNode(item, false)
         filepath = NxNodes::filepath(item["uuid"])
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
