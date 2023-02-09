@@ -12,7 +12,7 @@ class PolyFunctions
             return accounts
         end
 
-        if item["mikuType"] == "NxTodo" then
+        if item["mikuType"] == "NxBoardItem" then
             accounts << {
                 "description" => nil,
                 "account"     => item["uuid"]
@@ -26,7 +26,7 @@ class PolyFunctions
             return accounts
         end
 
-        if item["mikuType"] == "NxStreamFirstItem" then
+        if item["mikuType"] == "NxBoardFirstItem" then
             accounts << {
                 "description" => "stream: #{item["stream"]["description"]}",
                 "account"     => item["stream"]["uuid"]
@@ -43,17 +43,6 @@ class PolyFunctions
             "account"     => item["uuid"]
         }
 
-        streamuuid = NonNxTodoItemToStreamMapping::getOrNull(item)
-        if streamuuid then
-            stream = NxStreams::getItemOfNull(streamuuid)
-            if stream then
-                accounts << {
-                    "description" => "stream: #{stream["description"]}",
-                    "account"     => streamuuid
-                }
-            end
-        end
-
         accounts
     end
 
@@ -68,7 +57,10 @@ class PolyFunctions
         if item["mikuType"] == "NxStream" then
             return NxStreams::toString(item)
         end
-        if item["mikuType"] == "NxStreamFirstItem" then
+        if item["mikuType"] == "NxBoardItem" then
+            return item["description"]
+        end
+        if item["mikuType"] == "NxBoardFirstItem" then
             return item["description"]
         end
         if item["mikuType"] == "NxDrop" then
@@ -83,8 +75,11 @@ class PolyFunctions
         if item["mikuType"] == "NxOndate" then
             return NxOndates::toString(item)
         end
-        if item["mikuType"] == "NxTodo" then
-            return NxTodos::toString(item)
+        if item["mikuType"] == "NxTailStream" then
+            return NxTailStreams::toString(item)
+        end
+        if item["mikuType"] == "NxTopStream" then
+            return NxTopStreams::toString(item)
         end
         if item["mikuType"] == "NxTop" then
             return NxTops::toString(item)

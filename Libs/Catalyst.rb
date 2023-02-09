@@ -4,6 +4,6 @@ class Catalyst
 
     # Catalyst::catalystItems()
     def self.catalystItems()
-        NxTodos::items() + Waves::items()
+        Waves::items()
     end
 end

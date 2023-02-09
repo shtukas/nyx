@@ -49,9 +49,9 @@ class NxTopStreams
         "(#{"%8.3f" % item["position"]}) #{item["description"]}"
     end
 
-    # NxTopStreams::toStringForFirstItem(item)
-    def self.toStringForFirstItem(item)
-        "#{item["description"]}"
+    # NxTopStreams::nextPosition()
+    def self.nextPosition()
+        ([0] + NxTopStreams::items().map{|item| item["position"] }).max + 1
     end
 
     # --------------------------------------------------

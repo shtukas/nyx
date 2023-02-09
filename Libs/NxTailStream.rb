@@ -26,7 +26,7 @@ class NxTailStreams
         return nil if description == ""
         uuid  = SecureRandom.uuid
         coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
-        position = 0
+        position = NxTailStreams::frontPositionMinusOne()
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTailStream",
@@ -40,6 +40,25 @@ class NxTailStreams
         item
     end
 
+    # NxTailStreams::viennaUrl(url)
+    def self.viennaUrl(url)
+        description = "(vienna) #{url}"
+        uuid  = SecureRandom.uuid
+        coredataref = "url:#{DatablobStore::put(url)}"
+        position = NxTailStreams::frontPositionMinusOne()
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NxTailStream",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "field11"     => coredataref,
+            "position"    => position
+        }
+        ObjectStore2::commit("NxTriages", item)
+        item
+    end
+
     # --------------------------------------------------
     # Data
 
@@ -48,9 +67,28 @@ class NxTailStreams
         "(#{"%8.3f" % item["position"]}) #{item["description"]}"
     end
 
-    # NxTailStreams::toStringForFirstItem(item)
-    def self.toStringForFirstItem(item)
-        "#{item["description"]}"
+    # NxTailStreams::frontPositionMinusOne()
+    def self.frontPositionMinusOne()
+        ([0] + NxTailStreams::items().map{|item| item["position"] }).min - 1
+    end
+
+    # NxTailStreams::endPositionPlusOne()
+    def self.endPositionPlusOne()
+        ([0] + NxTailStreams::items().map{|item| item["position"] }).max + 1
+    end
+
+    # NxTailStreams::getFrontElementOrNull()
+    def self.getFrontElementOrNull()
+        NxTailStreams::items()
+            .sort{|i1, i2| i1["position"] <=> i2["position"]}
+            .first
+    end
+
+    # NxTailStreams::getEndElementOrNull()s
+    def self.getEndElementOrNull()
+        NxTailStreams::items()
+            .sort{|i1, i2| i1["position"] <=> i2["position"]}
+            .last
     end
 
     # --------------------------------------------------

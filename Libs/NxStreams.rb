@@ -39,6 +39,24 @@ class NxStreams
         item
     end
 
+    # NxStreams::issueLine(line, streamuuid, streamposition)
+    def self.issueLine(line, streamuuid, streamposition)
+        description = line
+        uuid  = SecureRandom.uuid
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NxBoardItem",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "field11"     => nil,
+            "boarduuid"     => streamuuid,
+            "boardposition" => streamposition
+        }
+        NxBoardItems::commit(item)
+        item
+    end
+
     # ----------------------------------------------------------------
     # Data
 
@@ -92,15 +110,8 @@ class NxStreams
     def self.interactivelyDecideNewStreamPosition(stream)
         NxStreams::streamItemsOrdered(stream["uuid"])
             .first(20)
-            .each{|item| puts NxTodos::toString(item) }
-        input = LucilleCore::askQuestionAnswerAsString("position (empty for next): ")
-        return NxStreams::computeNextStreamPosition(stream) if input == ""
-        input.to_f
-    end
-
-    # NxStreams::computeNextStreamPosition(stream)
-    def self.computeNextStreamPosition(stream)
-        (NxStreams::boardItems(stream["uuid"]).map{|item| item["boardposition"] } + [0]).max + 1
+            .each{|item| puts NxBoardItems::toString(item) }
+        LucilleCore::askQuestionAnswerAsString("position: ").to_f
     end
 
     # NxStreams::interactivelyDecideStreamPositionPair()
@@ -147,8 +158,8 @@ class NxStreams
                 if todo then
                     {
                         "uuid"        => "#{stream["uuid"]}-#{todo["uuid"]}",
-                        "mikuType"    => "NxStreamFirstItem",
-                        "description" => "(first item) #{stream["description"].yellow} | #{NxTodos::toStringForFirstItem(todo)}",
+                        "mikuType"    => "NxBoardFirstItem",
+                        "description" => "(first item) #{stream["description"].yellow} | #{todo["description"]}",
                         "stream"      => stream,
                         "todo"        => todo
                     }
@@ -165,7 +176,7 @@ class NxStreams
 
     # NxStreams::boardItems(streamuuid)
     def self.boardItems(streamuuid)
-        NxTodos::items().select{|item| item["boarduuid"] == streamuuid }
+        NxBoardItems::items().select{|item| item["boarduuid"] == streamuuid }
     end
 
     # NxStreams::streamItemsOrdered(streamuuid)
@@ -243,7 +254,7 @@ class NxStreams
                 puts "line:"
                 puts "    description: #{description}"
                 puts "    ordinal    : #{ordinal}"
-                NxTodos::issueStreamLine(description, stream["uuid"], ordinal)
+                NxStreams::issueLine(description, stream["uuid"], ordinal)
                 next
             end
 

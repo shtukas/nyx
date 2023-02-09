@@ -5,13 +5,12 @@ class Listing
     # Listing::listingCommands()
     def self.listingCommands()
         [
-            "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | landing (<n>) | expose (<n>) | >> skip default | lock (<n>) | set stream (<n>) | destroy",
-            "[makers] anniversary | manual countdown | wave | today | ondate | todo | drop | top | capsule",
+            "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | landing (<n>) | expose (<n>) | >> skip default | lock (<n>) | destroy",
+            "[makers] anniversary | manual countdown | wave | today | ondate | drop | top",
             "[divings] anniversaries | ondates | waves | todos | desktop | open",
             "[NxBalls] start | start * | stop | stop * | pause | pursue",
             "[NxOndate] redate",
             "[NxStream] stream add time",
-            "[NxTop, NxDrop, NxOndate] >stream (<n>)",
             "[misc] search | speed | commands",
         ].join("\n")
     end
@@ -48,21 +47,6 @@ class Listing
             return
         end
 
-        if Interpreting::match(">stream", input) then
-            item = store.getDefault()
-            return if item.nil?
-            NxTodos::issueUsingItem(item)
-            return
-        end
-
-        if Interpreting::match(">stream *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            NxTodos::issueUsingItem(item)
-            return
-        end
-
         if Interpreting::match("access", input) then
             item = store.getDefault()
             return if item.nil?
@@ -91,11 +75,6 @@ class Listing
         if Interpreting::match("commands", input) then
             puts Listing::listingCommands().yellow
             LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if Interpreting::match("capsule", input) then
-
             return
         end
 
@@ -230,7 +209,7 @@ class Listing
         end
 
         if Interpreting::match("ondates", input) then
-            NxTodos::ondateReport()
+            NxOndates::report()
             return
         end
 
@@ -280,21 +259,6 @@ class Listing
                 return
             end
             NxOndates::redate(item)
-            return
-        end
-
-        if Interpreting::match("set stream", input) then
-            item = store.getDefault()
-            return if item.nil?
-            NonNxTodoItemToStreamMapping::interactiveProposalToSetMapping(item)
-            return
-        end
-
-        if Interpreting::match("set stream *", input) then
-            _, _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            NonNxTodoItemToStreamMapping::interactiveProposalToSetMapping(item)
             return
         end
 
@@ -352,13 +316,6 @@ class Listing
             return
         end
 
-        if Interpreting::match("todo", input) then
-            item = NxTodos::interactivelyIssueNewOrNull(contextualStreamOpt)
-            return if item.nil?
-            puts JSON.pretty_generate(item)
-            return
-        end
-
         if input == "wave" then
             Waves::issueNewWaveInteractivelyOrNull()
             return
@@ -408,7 +365,7 @@ class Listing
     def self.itemToListingLine(store, item, afterOrdinalFragment)
         aof = afterOrdinalFragment ? " #{afterOrdinalFragment}" : ""
         storePrefix = store ? "(#{store.prefixString()})" : "     "
-        line = "#{storePrefix}#{aof} #{PolyFunctions::toStringForListing(item)}#{NonNxTodoItemToStreamMapping::toStringSuffix(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}"
+        line = "#{storePrefix}#{aof} #{PolyFunctions::toStringForListing(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}"
         if Locks::isLocked(item["uuid"]) then
             line = "#{line} [lock: #{Locks::locknameOrNull(item["uuid"])}]".yellow
         end
@@ -478,11 +435,11 @@ class Listing
                 end
             end
 
-            LucilleCore::locationsAtFolder("#{ENV['HOME']}/Galaxy/DataHub/NxTodos-BufferIn")
+            LucilleCore::locationsAtFolder("#{ENV['HOME']}/Galaxy/DataHub/NxTailStreams-FrontElements-BufferIn")
                 .each{|location|
                     next if File.basename(location).start_with?(".")
                     item = NxTriages::bufferInImport(location)
-                    puts "Picked up from NxTodos-BufferIn: #{JSON.pretty_generate(item)}"
+                    puts "Picked up from NxTailStreams-FrontElements-BufferIn: #{JSON.pretty_generate(item)}"
                     LucilleCore::removeFileSystemLocation(location)
                 }
 

@@ -50,11 +50,6 @@ class NxBoardItems
         "(pos: #{"%8.3f" % item["boardposition"]}) #{item["description"]}"
     end
 
-    # NxBoardItems::toStringForFirstItem(item)
-    def self.toStringForFirstItem(item)
-        "#{item["description"]}"
-    end
-
     # --------------------------------------------------
     # Operations
 

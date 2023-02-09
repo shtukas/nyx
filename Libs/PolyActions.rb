@@ -25,7 +25,7 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxStreamFirstItem" then
+        if item["mikuType"] == "NxBoardFirstItem" then
             todo = item["todo"]
             PolyActions::access(todo)
             return
@@ -56,8 +56,13 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxTodo" then
-            NxTodos::access(item)
+        if item["mikuType"] == "NxTopStream" then
+            NxTopStreams::access(item)
+            return
+        end
+
+        if item["mikuType"] == "NxTailStream" then
+            NxTailStreams::access(item)
             return
         end
 
@@ -101,7 +106,7 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxStreamFirstItem" then
+        if item["mikuType"] == "NxBoardFirstItem" then
             todo = item["todo"]
             PolyActions::done(todo)
             return
@@ -135,9 +140,23 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxTodo" then
+        if item["mikuType"] == "NxBoardItem" then
             if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green} ? '", true) then
-                NxTodos::destroy(item["uuid"])
+                NxBoardItems::destroy(item["uuid"])
+            end
+            return
+        end
+
+        if item["mikuType"] == "NxTopStream" then
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green} ? '", true) then
+                NxTopStreams::destroy(item["uuid"])
+            end
+            return
+        end
+
+        if item["mikuType"] == "NxTailStream" then
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green} ? '", true) then
+                NxTailStreams::destroy(item["uuid"])
             end
             return
         end
@@ -166,7 +185,7 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxStreamFirstItem" then
+        if item["mikuType"] == "NxBoardFirstItem" then
 
             todo = item["todo"]
 
@@ -176,7 +195,7 @@ class PolyActions
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", options)
             return if option.nil?
             if option == "done (destroy)" then
-                NxTodos::destroy(todo["uuid"])
+                NxBoardItems::destroy(todo["uuid"])
             end
             if option == "run in background" then
                 return
@@ -230,46 +249,59 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxTodo" then
+        if item["mikuType"] == "NxBoardItem" then
             NxBalls::start(item)
-            NxTodos::access(item)
-            options = ["done (destroy)", "do not display until"]
+            NxBoardItems::access(item)
+            options = ["done (destroy)", "do not display until", "keep running"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", options)
             return if option.nil?
             if option == "done (destroy)" then
-                NxTodos::destroy(item["uuid"])
+                NxBoardItems::destroy(item["uuid"])
             end
             if option == "do not show until" then
                 unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
                 return if unixtime.nil?
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+            end
+            if option == "keep running" then
             end
             return
         end
 
-        if item["mikuType"] == "NxTriage" then
+        if item["mikuType"] == "NxTopStream" then
             NxBalls::start(item)
-            NxTriages::access(item)
-            options = ["done (destroy)", "move to board", "do not display until"]
+            NxTopStreams::access(item)
+            options = ["done (destroy)", "do not display until", "keep running"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", options)
             return if option.nil?
             if option == "done (destroy)" then
-                NxTriages::destroy(item["uuid"])
-            end
-            if option == "move to board" then
-                board = NxStreams::interactivelySelectOne()
-                newitem = item.clone
-                newitem["uuid"] = SecureRandom.uuid
-                newitem["mikuType"] = "NxTodo"
-                newitem["boarduuid"] = board["uuid"]
-                newitem["boardposition"] = NxStreams::interactivelyDecideNewStreamPosition(board)
-                NxTodos::commit(newitem)
-                NxTriages::destroy(item["uuid"])
+                NxTopStreams::destroy(item["uuid"])
             end
             if option == "do not show until" then
                 unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
                 return if unixtime.nil?
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+            end
+            if option == "keep running" then
+            end
+            return
+        end
+
+        if item["mikuType"] == "NxTailStream" then
+            NxBalls::start(item)
+            NxTailStreams::access(item)
+            options = ["done (destroy)", "do not display until", "keep running"]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", options)
+            return if option.nil?
+            if option == "done (destroy)" then
+                NxTailStreams::destroy(item["uuid"])
+            end
+            if option == "do not show until" then
+                unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
+                return if unixtime.nil?
+                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+            end
+            if option == "keep running" then
             end
             return
         end
@@ -360,15 +392,6 @@ class PolyActions
 
     # PolyActions::start(item)
     def self.start(item)
-        if item["mikuType"] == "NxDrop" and NonNxTodoItemToStreamMapping::getOrNull(item).nil? then
-            NonNxTodoItemToStreamMapping::interactiveProposalToSetMapping(item)
-        end
-        if item["mikuType"] == "NxOndate" and NonNxTodoItemToStreamMapping::getOrNull(item).nil? then
-            NonNxTodoItemToStreamMapping::interactiveProposalToSetMapping(item)
-        end
-        if item["mikuType"] == "NxTop" and NonNxTodoItemToStreamMapping::getOrNull(item).nil? then
-            NonNxTodoItemToStreamMapping::interactiveProposalToSetMapping(item)
-        end
         NxBalls::start(item)
     end
 end
