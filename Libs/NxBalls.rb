@@ -55,7 +55,15 @@ class NxBalls
 
     # NxBalls::stop(item)
     def self.stop(item)
-        return if !NxBalls::itemIsRunning(item)
+        if NxBalls::itemIsBallFree(item) then
+            Lookups::destroy("NxBalls", item["uuid"])
+            return
+        end
+        if NxBalls::itemIsPaused(item) then
+            Lookups::destroy("NxBalls", item["uuid"])
+            return
+        end
+        # Item is running
         nxball = NxBalls::getNxballOrNull(item)
         timespanInSeconds = Time.new.to_i - nxball["startunixtime"]
         nxball["accounts"].each{|account|
