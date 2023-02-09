@@ -36,7 +36,6 @@ class NxOndates
         }
         puts JSON.pretty_generate(item)
         NxOndates::commit(item)
-        NonNxTodoItemToStreamMapping::interactiveProposalToSetMapping(item)
         item
     end
 

@@ -165,7 +165,6 @@ class Waves
             "priority"         => priority
         }
         ObjectStore2::commit("Waves", item)
-        NonNxTodoItemToStreamMapping::interactiveProposalToSetMapping(item)
         item
     end
 

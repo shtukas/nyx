@@ -30,7 +30,6 @@ class NxDrops
         }
         puts JSON.pretty_generate(item)
         NxDrops::commit(item)
-        NonNxTodoItemToStreamMapping::interactiveProposalToSetMapping(item)
         item
     end
 

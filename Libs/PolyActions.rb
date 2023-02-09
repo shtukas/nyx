@@ -350,4 +350,18 @@ class PolyActions
     def self.pursue(item)
         NxBalls::pursue(item)
     end
+
+    # PolyActions::start(item)
+    def self.start(item)
+        if item["mikuType"] == "NxDrop" and NonNxTodoItemToStreamMapping::getOrNull(item).nil? then
+            NonNxTodoItemToStreamMapping::interactiveProposalToSetMapping(item)
+        end
+        if item["mikuType"] == "NxOndate" and NonNxTodoItemToStreamMapping::getOrNull(item).nil? then
+            NonNxTodoItemToStreamMapping::interactiveProposalToSetMapping(item)
+        end
+        if item["mikuType"] == "NxTop" and NonNxTodoItemToStreamMapping::getOrNull(item).nil? then
+            NonNxTodoItemToStreamMapping::interactiveProposalToSetMapping(item)
+        end
+        NxBalls::start(item)
+    end
 end

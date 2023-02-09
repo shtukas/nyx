@@ -294,7 +294,7 @@ class Listing
         if Interpreting::match("start", input) then
             item = store.getDefault()
             return if item.nil?
-            NxBalls::start(item)
+            PolyActions::start(item)
             return
         end
 
@@ -302,7 +302,7 @@ class Listing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            NxBalls::start(item)
+            PolyActions::start(item)
             return
         end
 
