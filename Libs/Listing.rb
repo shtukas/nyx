@@ -373,7 +373,7 @@ class Listing
         [
             Anniversaries::listingItems(),
             NxOndates::listingItems(),
-            Waves::listingItems("ns:high"),
+            Waves::topItems(),
             NxDrops::items(),
             NxStreams::listingItems(),
             Waves::listingItems("ns:medium"),

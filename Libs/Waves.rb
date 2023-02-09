@@ -193,6 +193,15 @@ class Waves
             }
     end
 
+    # Waves::topItems()
+    def self.topItems()
+        Waves::items()
+            .select{|item| item["priority"] == "ns:high" or item["nx46"]["type"] == "sticky" }
+            .select{|item|
+                item["onlyOnDays"].nil? or item["onlyOnDays"].include?(CommonUtils::todayAsLowercaseEnglishWeekDayName())
+            }
+    end
+
     # -------------------------------------------------------------------------
     # Operations
 
