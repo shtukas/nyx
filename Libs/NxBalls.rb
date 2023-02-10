@@ -68,8 +68,8 @@ class NxBalls
         nxball = NxBalls::getNxballOrNull(item)
         timespanInSeconds = Time.new.to_i - nxball["startunixtime"]
         nxball["accounts"].each{|account|
-            puts "adding #{timespanInSeconds} seconds to account: (#{account["description"]}, #{account["account"]})"
-            BankCore::put(account["account"], timespanInSeconds)
+            puts "adding #{timespanInSeconds} seconds to account: (#{account["description"]}, #{account["number"]})"
+            BankCore::put(account["number"], timespanInSeconds)
         }
         Lookups::destroy("NxBalls", item["uuid"])
     end
@@ -80,8 +80,8 @@ class NxBalls
         nxball = NxBalls::getNxballOrNull(item)
         timespanInSeconds = Time.new.to_i - nxball["startunixtime"]
         nxball["accounts"].each{|account|
-            puts "adding #{timespanInSeconds} seconds to account: (#{account["description"]}, #{account["account"]})"
-            BankCore::put(account["account"], timespanInSeconds)
+            puts "adding #{timespanInSeconds} seconds to account: (#{account["description"]}, #{account["number"]})"
+            BankCore::put(account["number"], timespanInSeconds)
         }
         nxball["type"] = "paused"
         Lookups::commit("NxBalls", item["uuid"], nxball)

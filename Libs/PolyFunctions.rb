@@ -7,7 +7,7 @@ class PolyFunctions
         if item["mikuType"] == "NxBoard" then
             accounts << {
                 "description" => item["description"],
-                "account"     => item["uuid"]
+                "number"      => item["uuid"]
             }
             return accounts
         end
@@ -15,13 +15,13 @@ class PolyFunctions
         if item["mikuType"] == "NxBoardItem" then
             accounts << {
                 "description" => nil,
-                "account"     => item["uuid"]
+                "number"      => item["uuid"]
             }
             boarduuid = item["boarduuid"]
             stream = NxBoards::getItemOfNull(boarduuid)
             accounts << {
                 "description" => "stream: #{stream["description"]}",
-                "account"     => boarduuid
+                "number"      => boarduuid
             }
             return accounts
         end
@@ -29,19 +29,27 @@ class PolyFunctions
         if item["mikuType"] == "NxBoardFirstItem" then
             accounts << {
                 "description" => "stream: #{item["stream"]["description"]}",
-                "account"     => item["stream"]["uuid"]
+                "number"      => item["stream"]["uuid"]
             }
             accounts << {
                 "description" => nil,
-                "account"     => item["todo"]["uuid"]
+                "number"      => item["todo"]["uuid"]
             }
             return accounts
         end
 
         accounts << {
             "description" => nil,
-            "account"     => item["uuid"]
+            "number"      => item["uuid"]
         }
+
+        board = Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"])
+        if board then
+            accounts << {
+                "description" => board["description"],
+                "number"      => board["uuid"]
+            }
+        end
 
         accounts
     end
@@ -77,6 +85,9 @@ class PolyFunctions
         end
         if item["mikuType"] == "NxTopStream" then
             return NxTopStreams::toString(item)
+        end
+        if item["mikuType"] == "NxTop" then
+            return NxTops::toString(item)
         end
         if item["mikuType"] == "TxManualCountDown" then
             return "(countdown) #{item["description"]}: #{item["counter"]}"

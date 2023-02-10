@@ -5,12 +5,11 @@ class Listing
     # Listing::listingCommands()
     def self.listingCommands()
         [
-            "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | landing (<n>) | expose (<n>) | >> skip default | lock (<n>) | destroy",
+            "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | landing (<n>) | expose (<n>) | >> skip default | lock (<n>) | add time (<n>) |destroy",
             "[makers] anniversary | manual countdown | wave | today | ondate | drop | top",
             "[divings] anniversaries | ondates | waves | todos | desktop | open",
             "[NxBalls] start | start * | stop | stop * | pause | pursue",
             "[NxOndate] redate",
-            "[NxBoard] stream add time",
             "[misc] search | speed | commands",
         ].join("\n")
     end
@@ -45,6 +44,27 @@ class Listing
             return if item.nil?
             Skips::skip(item["uuid"], Time.new.to_f + 3600*1.5)
             return
+        end
+
+        if Interpreting::match("add time", input) then
+            item = store.getDefault()
+            return if item.nil?
+            timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
+            PolyFunctions::itemsToBankingAccounts(item).each{|account|
+                puts "Adding #{timeInHours*3600} seconds to item: #{account["description"]}"
+                BankCore::put(account["number"], timeInHours*3600)
+            }
+        end
+
+        if Interpreting::match("add time *", input) then
+            _, _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
+            PolyFunctions::itemsToBankingAccounts(item).each{|account|
+                puts "Adding #{timeInHours*3600} seconds to item: #{account["description"]}"
+                BankCore::put(account["number"], timeInHours*3600)
+            }
         end
 
         if Interpreting::match("access", input) then
@@ -302,16 +322,15 @@ class Listing
             return
         end
 
-        if Interpreting::match("stream add time", input) then
-            stream = NxBoards::interactivelySelectOneOrNull()
-            return if stream.nil?
-            timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
-            puts "Adding #{timeInHours*3600} seconds to stream: #{stream["description"]}"
-            BankCore::put(stream["uuid"], timeInHours*3600)
-        end
-
         if Interpreting::match("today", input) then
             item = NxOndates::interactivelyIssueNewTodayOrNull()
+            return if item.nil?
+            puts JSON.pretty_generate(item)
+            return
+        end
+
+        if Interpreting::match("top", input) then
+            item = NxTops::interactivelyIssueNullOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
             return
@@ -432,22 +451,13 @@ class Listing
 
             system("clear")
             store = ItemStore.new()
-            vspaceleft = CommonUtils::screenHeight() - 4
+            vspaceleft = CommonUtils::screenHeight() - 3
 
             puts ""
+            vspaceleft = vspaceleft - 1
 
             puts The99Percent::line()
             vspaceleft = vspaceleft - 1
-
-            linecount = Listing::printDesktop()
-            vspaceleft = vspaceleft - linecount
-
-            vspaceleft = vspaceleft - NxBoards::bottomItems().size
-
-            NxOpens::items().each{|o|
-                store.register(o, false)
-                puts "(#{store.prefixString()}) (open) #{o["description"]}".yellow
-            }
 
             items = Listing::items()
 
@@ -460,6 +470,26 @@ class Listing
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
+
+            puts ""
+            vspaceleft = vspaceleft - 1
+
+            NxOpens::items().each{|o|
+                store.register(o, false)
+                puts "(#{store.prefixString()}) (open) #{o["description"]}".yellow
+                vspaceleft = vspaceleft - 1
+            }
+
+            NxTops::itemsInOrder().each{|item|
+                store.register(item, true)
+                puts Listing::itemToListingLine(store, item)
+                vspaceleft = vspaceleft - 1
+            }
+
+            linecount = Listing::printDesktop()
+            vspaceleft = vspaceleft - linecount
+
+            vspaceleft = vspaceleft - NxBoards::bottomItems().size
 
             runningItems, items = items.partition{|item| NxBalls::itemIsRunning(item) }
 

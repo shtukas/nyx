@@ -15,6 +15,11 @@ class Lookups
         value
     end
 
+    # Lookups::isValued(foldername, uuid)
+    def self.isValued(foldername, uuid)
+        !Lookups::getValueOrNull(foldername, uuid).nil?
+    end
+
     # Lookups::commit(foldername, uuid, value)
     def self.commit(foldername, uuid, value)
         # puts "Lookups::commit(#{foldername}, #{uuid}, #{JSON.generate(value)})"

@@ -129,6 +129,13 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NxTop" then
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green} ? '", true) then
+                NxTops::destroy(item["uuid"])
+            end
+            return
+        end
+
         if item["mikuType"] == "NxTopStream" then
             if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green} ? '", true) then
                 NxTopStreams::destroy(item["uuid"])

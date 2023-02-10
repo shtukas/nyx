@@ -105,13 +105,6 @@ class NxBoards
         LucilleCore::askQuestionAnswerAsString("position: ").to_f
     end
 
-    # NxBoards::interactivelyDecideBoardPositionPair()
-    def self.interactivelyDecideBoardPositionPair()
-        stream = NxBoards::interactivelySelectOne()
-        position = NxBoards::interactivelyDecideNewBoardPosition(stream)
-        [stream, position]
-    end
-
     # NxBoards::rtTarget(item)
     def self.rtTarget(item)
         if item["engine"]["type"] == "managed" then
@@ -221,5 +214,23 @@ class NxBoards
                 end
             end
         }
+    end
+
+    # NxBoards::interactivelyOffersToAttachBoard(item)
+    def self.interactivelyOffersToAttachBoard(item)
+        return if item["mikuType"] == "NxBoard"
+        return if item["mikuType"] == "NxBoardItem"
+        return if Lookups::isValued("NonBoardItemToBoardMapping", item["uuid"])
+        puts "attaching board for accounting"
+        board = NxBoards::interactivelySelectOneOrNull()
+        return if board.nil?
+        Lookups::commit("NonBoardItemToBoardMapping", item["uuid"], board)
+    end
+
+    # NxBoards::toStringSuffix(item)
+    def self.toStringSuffix(item)
+        board = Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"])
+        return "" if board.nil?
+        " (board: #{board["description"]})".green
     end
 end
