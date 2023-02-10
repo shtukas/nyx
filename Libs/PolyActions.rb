@@ -20,8 +20,8 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxStream" then
-            NxStreams::listingProgram(item)
+        if item["mikuType"] == "NxBoard" then
+            NxBoards::listingProgram(item)
             return
         end
 
@@ -31,17 +31,13 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxDrop" then
-            return
-        end
-
         if item["mikuType"] == "NxOndate" then
             NxOndates::access(item)
             return
         end
 
-        if item["mikuType"] == "NxStream" then
-            puts NxStreams::toStringForListing(item)
+        if item["mikuType"] == "NxBoard" then
+            puts NxBoards::toString(item)
             actions = ["set hours", "access items"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action: ", actions)
             return if action.nil?
@@ -100,8 +96,8 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxStream" then
-            puts "There is no done action on NxStreams. If it was running, I have stopped it."
+        if item["mikuType"] == "NxBoard" then
+            puts "There is no done action on NxBoards. If it was running, I have stopped it."
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -109,13 +105,6 @@ class PolyActions
         if item["mikuType"] == "NxBoardFirstItem" then
             todo = item["todo"]
             PolyActions::done(todo)
-            return
-        end
-
-        if item["mikuType"] == "NxDrop" then
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green} ? '", true) then
-                NxDrops::destroy(item["uuid"])
-            end
             return
         end
 
@@ -129,13 +118,6 @@ class PolyActions
         if item["mikuType"] == "NxOndate" then
             if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green} ? '", true) then
                 NxOndates::destroy(item["uuid"])
-            end
-            return
-        end
-
-        if item["mikuType"] == "NxTop" then
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green} ? '", true) then
-                NxTops::destroy(item["uuid"])
             end
             return
         end
@@ -180,7 +162,7 @@ class PolyActions
     # PolyActions::doubleDot(item)
     def self.doubleDot(item)
 
-        if item["mikuType"] == "NxStream" then
+        if item["mikuType"] == "NxBoard" then
             PolyActions::access(item)
             return
         end
@@ -227,7 +209,7 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxStream" then
+        if item["mikuType"] == "NxBoard" then
             if NxBalls::itemIsRunning(item) then
                 if LucilleCore::askQuestionAnswerAsBoolean("We are running, would you like to stop ? ".green, true) then
                     NxBalls::stop(item)
@@ -349,7 +331,7 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxStream" then
+        if item["mikuType"] == "NxBoard" then
             PolyActions::access(item)
             return
         end

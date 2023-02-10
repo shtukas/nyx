@@ -20,13 +20,13 @@ class NxTailStreams
     # --------------------------------------------------
     # Makers
 
-    # NxTailStreams::interactivelyIssueNewOrNull(streamOpt)
-    def self.interactivelyIssueNewOrNull(streamOpt)
+    # NxTailStreams::interactivelyIssueNewOrNull()
+    def self.interactivelyIssueNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid  = SecureRandom.uuid
         coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
-        position = NxTailStreams::frontPositionMinusOne()
+        position = NxStreamsCommon::midpoint()
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTailStream",
@@ -45,7 +45,7 @@ class NxTailStreams
         description = "(vienna) #{url}"
         uuid  = SecureRandom.uuid
         coredataref = "url:#{DatablobStore::put(url)}"
-        position = NxTailStreams::frontPositionMinusOne()
+        position = NxStreamsCommon::midpoint()
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTailStream",
@@ -55,7 +55,27 @@ class NxTailStreams
             "field11"     => coredataref,
             "position"    => position
         }
-        ObjectStore2::commit("NxTriages", item)
+        NxTailStreams::commit(item)
+        item
+    end
+
+    # NxTailStreams::bufferInImport(location)
+    def self.bufferInImport(location)
+        description = File.basename(location)
+        uuid = SecureRandom.uuid
+        nhash = AionCore::commitLocationReturnHash(DatablobStoreElizabeth.new(), location)
+        coredataref = "aion-point:#{nhash}"
+        position = NxStreamsCommon::midpoint()
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NxTailStream",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "field11"     => coredataref,
+            "position"    => position
+        }
+        NxTailStreams::commit(item)
         item
     end
 
@@ -67,14 +87,9 @@ class NxTailStreams
         "(#{"%8.3f" % item["position"]}) #{item["description"]}"
     end
 
-    # NxTailStreams::frontPositionMinusOne()
-    def self.frontPositionMinusOne()
-        ([0] + NxTailStreams::items().map{|item| item["position"] }).min - 1
-    end
-
-    # NxTailStreams::endPositionPlusOne()
-    def self.endPositionPlusOne()
-        ([0] + NxTailStreams::items().map{|item| item["position"] }).max + 1
+    # NxTailStreams::frontPosition()
+    def self.frontPosition()
+        ([0] + NxTailStreams::items().map{|item| item["position"] }).min
     end
 
     # NxTailStreams::getFrontElementOrNull()
@@ -84,7 +99,7 @@ class NxTailStreams
             .first
     end
 
-    # NxTailStreams::getEndElementOrNull()s
+    # NxTailStreams::getEndElementOrNull()
     def self.getEndElementOrNull()
         NxTailStreams::items()
             .sort{|i1, i2| i1["position"] <=> i2["position"]}

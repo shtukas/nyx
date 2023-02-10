@@ -1,9 +1,8 @@
 
-NxTriage:
-
+NxBoard:
     "uuid"        : String
-    "mikuType"    : "NxTriage"
+    "mikuType"    : "NxBoard"
     "unixtime"    : Float
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : String
-    "field11"     : null or CoreData reference string
+    "hours"       : Float

@@ -20,14 +20,13 @@ class NxBoardItems
     # --------------------------------------------------
     # Makers
 
-    # NxBoardItems::interactivelyIssueNewOrNull(streamOpt)
-    def self.interactivelyIssueNewOrNull(streamOpt)
+    # NxBoardItems::interactivelyIssueNewOrNull(board)
+    def self.interactivelyIssueNewOrNull(board)
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid  = SecureRandom.uuid
         coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
-        stream = streamOpt ? streamOpt : NxStreams::interactivelySelectOne()
-        boardposition = NxStreams::interactivelyDecideNewStreamPosition(stream)
+        boardposition = NxBoards::interactivelyDecideNewBoardPosition(board)
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxBoardItem",
@@ -35,7 +34,7 @@ class NxBoardItems
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
             "field11"     => coredataref,
-            "boarduuid"     => stream["uuid"],
+            "boarduuid"     => board["uuid"],
             "boardposition" => boardposition
         }
         NxBoardItems::commit(item)

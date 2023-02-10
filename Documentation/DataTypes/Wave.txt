@@ -11,7 +11,7 @@ Wave:
     "onlyOnDays"       : null or Array[week days names lowercase english] 
                          Indicates on which days the wave can show up
     "field11"          : CoreData reference string
-    "priority"         : "ns:high" | "ns:medium" | "ns:low"
+    "priority"         : "ns:today" | "ns:today-or-tomorrow" | "ns:leisure"
 
 Nx46 {
     "type"  : Nx46Type

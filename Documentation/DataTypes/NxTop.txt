@@ -1,7 +1,0 @@
-NxTop
-    "uuid"       : "caf0779f-a174-4b21-948b-e92d14145c1c",
-    "mikuType"   : "NxTop",
-    "unixtime"   : 1675324098,
-    "datetime"   : "2023-02-02T07:48:18Z",
-    "description": "example",
-    "ordinal"    : Float

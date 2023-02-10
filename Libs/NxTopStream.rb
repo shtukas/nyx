@@ -20,13 +20,12 @@ class NxTopStreams
     # --------------------------------------------------
     # Makers
 
-    # NxTopStreams::interactivelyIssueNewOrNull(streamOpt)
-    def self.interactivelyIssueNewOrNull(streamOpt)
+    # NxTopStreams::interactivelyIssueNewOrNull()
+    def self.interactivelyIssueNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid  = SecureRandom.uuid
         coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
-        stream = streamOpt ? streamOpt : NxStreams::interactivelySelectOne()
         position = 0
         item = {
             "uuid"        => uuid,
@@ -46,12 +45,20 @@ class NxTopStreams
 
     # NxTopStreams::toString(item)
     def self.toString(item)
-        "(#{"%8.3f" % item["position"]}) #{item["description"]}"
+        "(stream) (#{"%8.3f" % item["position"]}) #{item["description"]}"
     end
 
-    # NxTopStreams::nextPosition()
-    def self.nextPosition()
-        ([0] + NxTopStreams::items().map{|item| item["position"] }).max + 1
+    # NxTopStreams::endPosition()
+    def self.endPosition()
+        ([0] + NxTopStreams::items().map{|item| item["position"] }).max
+    end
+
+    # NxTopStreams::listingItems()
+    def self.listingItems()
+        NxTopStreams::items()
+            .sort{|i1, i2| i1["position"] <=> i2["position"] }
+            .take(3)
+            .sort{|i1, i2| BankUtils::recoveredAverageHoursPerDay(i1["uuid"]) <=> BankUtils::recoveredAverageHoursPerDay(i2["uuid"]) }
     end
 
     # --------------------------------------------------

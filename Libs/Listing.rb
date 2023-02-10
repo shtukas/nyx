@@ -10,13 +10,13 @@ class Listing
             "[divings] anniversaries | ondates | waves | todos | desktop | open",
             "[NxBalls] start | start * | stop | stop * | pause | pursue",
             "[NxOndate] redate",
-            "[NxStream] stream add time",
+            "[NxBoard] stream add time",
             "[misc] search | speed | commands",
         ].join("\n")
     end
 
-    # Listing::listingCommandInterpreter(input, store, contextualStreamOpt or nil)
-    def self.listingCommandInterpreter(input, store, contextualStreamOpt)
+    # Listing::listingCommandInterpreter(input, store, board or nil)
+    def self.listingCommandInterpreter(input, store, board)
 
         if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
             if (item = store.getDefault()) then
@@ -149,7 +149,12 @@ class Listing
         end
 
         if Interpreting::match("drop", input) then
-            NxDrops::interactivelyIssueNewOrNull()
+            if board then
+                NxBoardItems::interactivelyIssueNewOrNull(board)
+            else
+                NxTopStreams::interactivelyIssueNewOrNull()
+            end
+            
         end
 
         if Interpreting::match("exit", input) then
@@ -298,15 +303,11 @@ class Listing
         end
 
         if Interpreting::match("stream add time", input) then
-            stream = NxStreams::interactivelySelectOneOrNull()
+            stream = NxBoards::interactivelySelectOneOrNull()
             return if stream.nil?
             timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
             puts "Adding #{timeInHours*3600} seconds to stream: #{stream["description"]}"
             BankCore::put(stream["uuid"], timeInHours*3600)
-        end
-
-        if Interpreting::match("top", input) then
-            NxTops::interactivelyIssueNullOrNull()
         end
 
         if Interpreting::match("today", input) then
@@ -338,11 +339,10 @@ class Listing
             Anniversaries::listingItems(),
             NxOndates::listingItems(),
             Waves::topItems(),
-            NxStreams::listingItems(),
-            Waves::listingItems("ns:medium"),
-            NxTriages::items(),
-            Waves::listingItems("ns:low"),
-            NxDrops::items(),
+            NxBoards::listingItems(),
+            Waves::listingItems("ns:today-or-tomorrow"),
+            Waves::leisureItemsWithCircuitBreaker(),
+            NxTopStreams::listingItems()
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -361,11 +361,10 @@ class Listing
         linecount
     end
 
-    # Listing::itemToListingLine(store or nil, item, afterOrdinalFragment or nil)
-    def self.itemToListingLine(store, item, afterOrdinalFragment)
-        aof = afterOrdinalFragment ? " #{afterOrdinalFragment}" : ""
+    # Listing::itemToListingLine(store or nil, item)
+    def self.itemToListingLine(store, item)
         storePrefix = store ? "(#{store.prefixString()})" : "     "
-        line = "#{storePrefix}#{aof} #{PolyFunctions::toStringForListing(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}"
+        line = "#{storePrefix} #{PolyFunctions::toString(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}"
         if Locks::isLocked(item["uuid"]) then
             line = "#{line} [lock: #{Locks::locknameOrNull(item["uuid"])}]".yellow
         end
@@ -379,32 +378,18 @@ class Listing
     def self.itemsToVerticalSpace(items)
         items
             .map{|item|
-                line = Listing::itemToListingLine(nil, item, nil)
+                line = Listing::itemToListingLine(nil, item)
                 CommonUtils::verticalSize(line)
             }
             .inject(0, :+)
     end
 
-    # Listing::printTops(store)
-    def self.printTops(store)
+    # Listing::printBottomBoards(store, isSimulation)
+    def self.printBottomBoards(store, isSimulation)
         linecount = 0
-        NxTops::items()
-        .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
-        .each{|item|
-            store.register(item, true)
-            line = Listing::itemToListingLine(store, item, nil)
-            puts line
-            linecount = linecount + CommonUtils::verticalSize(line)
-        }
-        linecount
-    end
-
-    # Listing::printProcesses(store, isSimulation)
-    def self.printProcesses(store, isSimulation)
-        linecount = 0
-        NxStreams::items().each{|item|
+        NxBoards::bottomItems().each{|item|
             store.register(item, false)
-            line = "#{Listing::itemToListingLine(store, item, nil)}"
+            line = "#{Listing::itemToListingLine(store, item)}"
             if !isSimulation then
                 if NxBalls::itemIsRunning(item) or NxBalls::itemIsPaused(item) then
                     puts line.green
@@ -438,30 +423,26 @@ class Listing
             LucilleCore::locationsAtFolder("#{ENV['HOME']}/Galaxy/DataHub/NxTailStreams-FrontElements-BufferIn")
                 .each{|location|
                     next if File.basename(location).start_with?(".")
-                    item = NxTriages::bufferInImport(location)
+                    item = NxTailStreams::bufferInImport(location)
                     puts "Picked up from NxTailStreams-FrontElements-BufferIn: #{JSON.pretty_generate(item)}"
                     LucilleCore::removeFileSystemLocation(location)
                 }
 
-            NxStreams::timeManagement()
+            NxBoards::timeManagement()
 
             system("clear")
             store = ItemStore.new()
-            vspaceleft = CommonUtils::screenHeight() - 3
+            vspaceleft = CommonUtils::screenHeight() - 4
 
             puts ""
-            vspaceleft = vspaceleft - 1
 
-            vspaceleft = vspaceleft - 1 # The99Percent::line()
+            puts The99Percent::line()
+            vspaceleft = vspaceleft - 1
 
             linecount = Listing::printDesktop()
             vspaceleft = vspaceleft - linecount
 
-            linecount = Listing::printTops(store)
-            vspaceleft = vspaceleft - linecount
-
-            linecount = Listing::printProcesses(store, true)
-            vspaceleft = vspaceleft - linecount
+            vspaceleft = vspaceleft - NxBoards::bottomItems().size
 
             NxOpens::items().each{|o|
                 store.register(o, false)
@@ -471,33 +452,37 @@ class Listing
             items = Listing::items()
 
             lockedItems, items = items.partition{|item| Locks::isLocked(item["uuid"]) }
-            lockedItems.each{|item|
-                vspaceleft = vspaceleft - CommonUtils::verticalSize(PolyFunctions::toStringForListing(item))
-            }
 
-            linecount = Listing::itemsToVerticalSpace(lockedItems)
-            vspaceleft = vspaceleft - linecount
+            lockedItems
+                .each{|item|
+                    store.register(item, false)
+                    line = Listing::itemToListingLine(store, item)
+                    puts line
+                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                }
 
             runningItems, items = items.partition{|item| NxBalls::itemIsRunning(item) }
 
             (runningItems + items)
                 .each{|item|
                     store.register(item, !Skips::isSkipped(item["uuid"]))
-                    line = Listing::itemToListingLine(store, item, nil)
+                    line = Listing::itemToListingLine(store, item)
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                     break if vspaceleft <= 0
                 }
 
-            lockedItems
-                .each{|item|
-                    store.register(item, false)
-                    line = Listing::itemToListingLine(store, item, nil)
-                    puts line
-                }
-
-            Listing::printProcesses(store, false)
-            puts The99Percent::line()
+            NxBoards::bottomItems().each{|item|
+                store.register(item, false)
+                line = "#{Listing::itemToListingLine(store, item)}"
+                if !isSimulation then
+                    if NxBalls::itemIsRunning(item) or NxBalls::itemIsPaused(item) then
+                        puts line.green
+                    else
+                        puts line.yellow
+                    end
+                end
+            }
 
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
