@@ -373,6 +373,7 @@ class Listing
             Anniversaries::listingItems(),
             NxOndates::listingItems(),
             Waves::topItems(),
+            TxManualCountDowns::listingItems(),
             NxBoards::listingItems(),
             Waves::listingItems("ns:today-or-tomorrow"),
             Waves::leisureItemsWithCircuitBreaker(),
