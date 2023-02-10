@@ -12,6 +12,11 @@ class NxTopStreams
         ObjectStore2::commit("NxTopStreams", item)
     end
 
+    # NxTopStreams::getItemOfNull(uuid)
+    def self.getItemOfNull(uuid)
+        ObjectStore2::getOrNull("NxTopStreams", uuid)
+    end
+
     # NxTopStreams::destroy(uuid)
     def self.destroy(uuid)
         ObjectStore2::destroy("NxTopStreams", uuid)

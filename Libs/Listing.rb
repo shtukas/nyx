@@ -5,7 +5,7 @@ class Listing
     # Listing::listingCommands()
     def self.listingCommands()
         [
-            "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | landing (<n>) | expose (<n>) | >> skip default | lock (<n>) | add time (<n>) |destroy",
+            "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | landing (<n>) | expose (<n>) | >> skip default | lock (<n>) | add time (<n>) | board (<n>) | destroy",
             "[makers] anniversary | manual countdown | wave | today | ondate | drop | top",
             "[divings] anniversaries | ondates | waves | todos | desktop | open",
             "[NxBalls] start | start * | stop | stop * | pause | pursue",
@@ -89,6 +89,21 @@ class Listing
 
         if Interpreting::match("anniversaries", input) then
             Anniversaries::dive()
+            return
+        end
+
+        if Interpreting::match("board", input) then
+            item = store.getDefault()
+            return if item.nil?
+            NxBoards::interactivelyOffersToAttachBoard(item)
+            return
+        end
+
+        if Interpreting::match("board *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            NxBoards::interactivelyOffersToAttachBoard(item)
             return
         end
 
@@ -383,7 +398,7 @@ class Listing
     # Listing::itemToListingLine(store or nil, item)
     def self.itemToListingLine(store, item)
         storePrefix = store ? "(#{store.prefixString()})" : "     "
-        line = "#{storePrefix} #{PolyFunctions::toString(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}"
+        line = "#{storePrefix} #{PolyFunctions::toString(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}#{NxBoards::toStringSuffix(item)}"
         if Locks::isLocked(item["uuid"]) then
             line = "#{line} [lock: #{Locks::locknameOrNull(item["uuid"])}]".yellow
         end
@@ -448,6 +463,7 @@ class Listing
                 }
 
             NxBoards::timeManagement()
+            NxStreamsCommon::dataManagement()
 
             system("clear")
             store = ItemStore.new()
@@ -461,6 +477,12 @@ class Listing
 
             items = Listing::items()
 
+            NxBoards::boardsOrdered().each{|board|
+                store.register(board, false)
+                puts "(#{store.prefixString()}) #{NxBoards::toString(board)}".yellow
+                vspaceleft = vspaceleft - 1
+            }
+
             lockedItems, items = items.partition{|item| Locks::isLocked(item["uuid"]) }
 
             lockedItems
@@ -470,6 +492,7 @@ class Listing
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
+
 
             puts ""
             vspaceleft = vspaceleft - 1

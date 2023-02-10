@@ -24,14 +24,14 @@ class NxBoards
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid
-        engine = NxEngine::interactivelyMakeNewEngine()
+        hours = LucilleCore::askQuestionAnswerAsString("hours: ").to_f
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxBoard",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "engine"      => engine
+            "hours"       => hours
         }
         NxBoards::commit(item)
         item
@@ -60,27 +60,19 @@ class NxBoards
 
     # NxBoards::toString(item)
     def self.toString(item)
-        engine = item["engine"]
-
-        if engine["type"] == "managed" then
-            rt = BankUtils::recoveredAverageHoursPerDay(item["uuid"])
-            return "(stream) (rt: #{("%5.2f" % rt)}) #{item["description"]}"
-        end
-
-        if engine["type"] == "time-commitment" then
-            loadDoneInHours = BankCore::getValue(item["uuid"]).to_f/3600 + engine["hours"]
-            loadLeftInhours = engine["hours"] - loadDoneInHours
-            timePassedInDays = (Time.new.to_i - engine["lastResetTime"]).to_f/86400
-            timeLeftInDays = 7 - timePassedInDays
-            str1 = "(done #{("%5.2f" % loadDoneInHours).to_s.green} out of #{engine["hours"]})"
-            str2 = 
-                if timeLeftInDays > 0 then
-                    "(#{timeLeftInDays.round(2)} days before reset)"
-                else
-                    "(late by #{-timeLeftInDays.round(2)})"
-                end
-            "(board) #{item["description"].ljust(8)} #{str1} #{str2}"
-        end
+        loadDoneInHours = BankCore::getValue(item["uuid"]).to_f/3600 + item["hours"]
+        loadLeftInhours = item["hours"] - loadDoneInHours
+        timePassedInDays = (Time.new.to_i - item["lastResetTime"]).to_f/86400
+        timeLeftInDays = 7 - timePassedInDays
+        str1 = "(done #{("%5.2f" % loadDoneInHours).to_s.green} out of #{item["hours"]})"
+        str2 = 
+            if timeLeftInDays > 0 then
+                "(#{timeLeftInDays.round(2)} days before reset)"
+            else
+                "(late by #{-timeLeftInDays.round(2)})"
+            end
+        str3 = "(cr: #{"%5.2f" % NxBoards::completionRatio(item)})"
+        "(board) #{item["description"].ljust(8)} #{str1} #{str2} #{str3}"
     end
 
     # NxBoards::interactivelySelectOneOrNull()
@@ -107,13 +99,7 @@ class NxBoards
 
     # NxBoards::rtTarget(item)
     def self.rtTarget(item)
-        if item["engine"]["type"] == "managed" then
-            return 0.4
-        end
-        if item["engine"]["type"] == "time-commitment" then
-            return item["engine"]["hours"].to_f/5 # Hopefully 5 days
-        end
-        raise "(error: afcf8b95-c68c-4395-99c5-8e7538926630)"
+        item["hours"].to_f/5 # Hopefully 5 days
     end
 
     # NxBoards::completionRatio(item)
@@ -124,8 +110,8 @@ class NxBoards
     # NxBoards::listingItems()
     def self.listingItems()
         NxBoards::items()
-            .sort{|s1, s2| NxBoards::completionRatio(s1) <=> NxBoards::completionRatio(s2)}
             .select{|stream| NxBoards::completionRatio(stream) < 1 }
+            .sort{|s1, s2| NxBoards::completionRatio(s1) <=> NxBoards::completionRatio(s2)}
     end
 
     # NxBoards::bottomItems()
@@ -144,6 +130,11 @@ class NxBoards
     def self.boardItemsOrdered(boarduuid)
         NxBoards::boardItems(boarduuid)
             .sort{|i1, i2| i1["boardposition"] <=> i2["boardposition"] }
+    end
+
+    # NxBoards::boardsOrdered()
+    def self.boardsOrdered()
+        NxBoards::items().sort{|i1, i2| NxBoards::completionRatio(i1) <=> NxBoards::completionRatio(i2) }
     end
 
     # ---------------------------------------------------------
@@ -204,14 +195,11 @@ class NxBoards
     # NxBoards::timeManagement()
     def self.timeManagement()
         NxBoards::items().each{|item|
-            engine = item["engine"]
-            if engine["type"] == "time-commitment" then
-                if BankCore::getValue(item["uuid"]) >= 0 and (Time.new.to_i - engine["lastResetTime"]) >= 86400*7 then
-                    puts "resetting time commitment stream: #{item["description"]}"
-                    BankCore::put(item["uuid"], -engine["hours"]*3600)
-                    item["engine"]["lastResetTime"] = Time.new.to_i
-                    NxBoards::commit(item)
-                end
+            if BankCore::getValue(item["uuid"]) >= 0 and (Time.new.to_i - item["lastResetTime"]) >= 86400*7 then
+                puts "resetting time commitment stream: #{item["description"]}"
+                BankCore::put(item["uuid"], -engine["hours"]*3600)
+                item["lastResetTime"] = Time.new.to_i
+                NxBoards::commit(item)
             end
         }
     end
