@@ -51,7 +51,7 @@ class NxHeads
     # NxHeads::toString(item)
     def self.toString(item)
         rt = BankUtils::recoveredAverageHoursPerDay(item["uuid"])
-        "(stream) (#{"%8.3f" % item["position"]}) (#{"%5.2f" % rt}) #{item["description"]}"
+        "(stream) (#{"%5.2f" % rt}) #{item["description"]} (pos: #{item["position"]})"
     end
 
     # NxHeads::endPosition()
