@@ -29,7 +29,7 @@ class CoreData
             return "nyx-directory:#{uuid}"
         end
         if referencetype == "unique string" then
-            uniquestring = LucilleCore::askQuestionAnswerAsString("unique string: ")
+            uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (if needed use Nx01-#{SecureRandom.hex[0, 12]}): ")
             return "unique-string:#{uniquestring}"
         end
         if referencetype == "text" then

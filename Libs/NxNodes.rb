@@ -95,7 +95,7 @@ class NxNodes
             }
 
             puts ""
-            puts "commands: access | link"
+            puts "commands: access | link | coredata"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -131,6 +131,12 @@ class NxNodes
                 next
             end
 
+            if command == "coredata" then
+                next if !LucilleCore::askQuestionAnswerAsBoolean("Confirm update of CoreData payload ? ", true)
+                item["coredataref"] = CoreData::interactivelyMakeNewReferenceStringOrNull(item["uuid"])
+                NxNodes::commit(item)
+                next
+            end
         }
     end
 
