@@ -1,8 +1,8 @@
 
 class NxList
 
-    # NxList::midpoint()
-    def self.midpoint()
+    # NxList::midposition()
+    def self.midposition()
         0.5 * (NxHeads::endPosition() + NxTails::frontPosition())
     end
 
@@ -19,7 +19,7 @@ class NxList
                     newitem = item.clone
                     newitem["uuid"] = newuuid
                     newitem["mikuType"] = "NxHead"
-                    newitem["position"] = NxList::midpoint()
+                    newitem["position"] = NxList::midposition()
                     NxHeads::commit(newitem)
                     control = NxHeads::getItemOfNull(newuuid)
                     if control.nil? then

@@ -199,12 +199,15 @@ class Listing
         end
 
         if Interpreting::match("drop", input) then
-            if board then
-                NxBoardItems::interactivelyIssueNewOrNull(board)
-            else
+            options = ["NxBoard", "NxList"]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+            return if option.nil?
+            if option == "NxBoard" then
+                NxBoardItems::interactivelyIssueNewOrNull()
+            end
+            if option == "NxList" then
                 NxHeads::interactivelyIssueNewOrNull()
             end
-            
         end
 
         if Interpreting::match("exit", input) then

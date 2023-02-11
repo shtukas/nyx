@@ -20,20 +20,21 @@ class NxBoardItems
     # --------------------------------------------------
     # Makers
 
-    # NxBoardItems::interactivelyIssueNewOrNull(board)
-    def self.interactivelyIssueNewOrNull(board)
+    # NxBoardItems::interactivelyIssueNewOrNull()
+    def self.interactivelyIssueNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid  = SecureRandom.uuid
         coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
+        board = NxBoards::interactivelySelectOne()
         boardposition = NxBoards::interactivelyDecideNewBoardPosition(board)
         item = {
-            "uuid"        => uuid,
-            "mikuType"    => "NxBoardItem",
-            "unixtime"    => Time.new.to_i,
-            "datetime"    => Time.new.utc.iso8601,
-            "description" => description,
-            "field11"     => coredataref,
+            "uuid"          => uuid,
+            "mikuType"      => "NxBoardItem",
+            "unixtime"      => Time.new.to_i,
+            "datetime"      => Time.new.utc.iso8601,
+            "description"   => description,
+            "field11"       => coredataref,
             "boarduuid"     => board["uuid"],
             "boardposition" => boardposition
         }

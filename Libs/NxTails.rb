@@ -26,7 +26,7 @@ class NxTails
         return nil if description == ""
         uuid  = SecureRandom.uuid
         coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
-        position = NxList::midpoint()
+        position = NxList::midposition()
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTail",
@@ -45,7 +45,7 @@ class NxTails
         description = "(vienna) #{url}"
         uuid  = SecureRandom.uuid
         coredataref = "url:#{DatablobStore::put(url)}"
-        position = NxList::midpoint()
+        position = NxList::midposition()
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTail",
@@ -65,7 +65,7 @@ class NxTails
         uuid = SecureRandom.uuid
         nhash = AionCore::commitLocationReturnHash(DatablobStoreElizabeth.new(), location)
         coredataref = "aion-point:#{nhash}"
-        position = NxList::midpoint()
+        position = NxList::midposition()
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTail",

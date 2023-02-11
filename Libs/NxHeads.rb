@@ -31,7 +31,7 @@ class NxHeads
         return nil if description == ""
         uuid  = SecureRandom.uuid
         coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
-        position = 0
+        position = NxList::midposition()
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxHead",
