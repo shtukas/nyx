@@ -210,7 +210,11 @@ class NxBoards
         items = NxBoards::boardItemsOrdered(board["uuid"])
 
         store.register(board, (tops+waves+items).empty?)
-        spacecontrol.putsline "(#{store.prefixString()}) #{NxBoards::toString(board)}"
+        line = "(#{store.prefixString()}) #{NxBoards::toString(board)}#{NxBalls::nxballSuffixStatusIfRelevant(board)}"
+        if NxBalls::itemIsRunning(board) or NxBalls::itemIsPaused(board) then
+            line = line.green
+        end
+        spacecontrol.putsline line
         NxOpens::itemsForBoard(boarduuid).each{|item|
             store.register(item, false)
             spacecontrol.putsline "(#{store.prefixString()}) (open) #{item["description"]}".yellow
@@ -250,7 +254,12 @@ class NxBoards
             exit
         end
         store.register(board, false)
-        spacecontrol.putsline "(#{store.prefixString()}) #{NxBoards::toString(board)}#{DoNotShowUntil::suffixString(board)}"
+        line = "(#{store.prefixString()}) #{NxBoards::toString(board)}#{DoNotShowUntil::suffixString(board)}#{NxBalls::nxballSuffixStatusIfRelevant(board)}"
+        if NxBalls::itemIsRunning(board) or NxBalls::itemIsPaused(board) then
+            line = line.green
+        end
+        spacecontrol.putsline line
+
         NxOpens::itemsForBoard(boarduuid).each{|item|
             store.register(item, false)
             spacecontrol.putsline "#{padding}(#{store.prefixString()}) (open) #{item["description"]}".yellow
