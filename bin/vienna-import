@@ -42,7 +42,7 @@ loop {
     link = viennaLinkFeeder.next()
     break if link.nil?
     #puts "vienna: #{link}"
-    item = NxTailStreams::viennaUrl(link)
+    item = NxTails::viennaUrl(link)
     #puts JSON.pretty_generate(item)
     viennaLinkFeeder.done(link)
     sleep 0.1

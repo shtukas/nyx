@@ -1,31 +1,31 @@
 # encoding: UTF-8
 
-class NxTopStreams
+class NxHeads
 
-    # NxTopStreams::items()
+    # NxHeads::items()
     def self.items()
-        ObjectStore2::objects("NxTopStreams")
+        ObjectStore2::objects("NxHeads")
     end
 
-    # NxTopStreams::commit(item)
+    # NxHeads::commit(item)
     def self.commit(item)
-        ObjectStore2::commit("NxTopStreams", item)
+        ObjectStore2::commit("NxHeads", item)
     end
 
-    # NxTopStreams::getItemOfNull(uuid)
+    # NxHeads::getItemOfNull(uuid)
     def self.getItemOfNull(uuid)
-        ObjectStore2::getOrNull("NxTopStreams", uuid)
+        ObjectStore2::getOrNull("NxHeads", uuid)
     end
 
-    # NxTopStreams::destroy(uuid)
+    # NxHeads::destroy(uuid)
     def self.destroy(uuid)
-        ObjectStore2::destroy("NxTopStreams", uuid)
+        ObjectStore2::destroy("NxHeads", uuid)
     end
 
     # --------------------------------------------------
     # Makers
 
-    # NxTopStreams::interactivelyIssueNewOrNull()
+    # NxHeads::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
@@ -34,33 +34,33 @@ class NxTopStreams
         position = 0
         item = {
             "uuid"        => uuid,
-            "mikuType"    => "NxTopStream",
+            "mikuType"    => "NxHead",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
             "field11"     => coredataref,
             "position"    => position
         }
-        NxTopStreams::commit(item)
+        NxHeads::commit(item)
         item
     end
 
     # --------------------------------------------------
     # Data
 
-    # NxTopStreams::toString(item)
+    # NxHeads::toString(item)
     def self.toString(item)
         "(stream) (#{"%8.3f" % item["position"]}) #{item["description"]}"
     end
 
-    # NxTopStreams::endPosition()
+    # NxHeads::endPosition()
     def self.endPosition()
-        ([0] + NxTopStreams::items().map{|item| item["position"] }).max
+        ([0] + NxHeads::items().map{|item| item["position"] }).max
     end
 
-    # NxTopStreams::listingItems()
+    # NxHeads::listingItems()
     def self.listingItems()
-        NxTopStreams::items()
+        NxHeads::items()
             .sort{|i1, i2| i1["position"] <=> i2["position"] }
             .take(3)
             .sort{|i1, i2| BankUtils::recoveredAverageHoursPerDay(i1["uuid"]) <=> BankUtils::recoveredAverageHoursPerDay(i2["uuid"]) }
@@ -69,7 +69,7 @@ class NxTopStreams
     # --------------------------------------------------
     # Operations
 
-    # NxTopStreams::access(item)
+    # NxHeads::access(item)
     def self.access(item)
         CoreData::access(item["field11"])
     end

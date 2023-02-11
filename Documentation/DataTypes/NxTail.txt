@@ -1,7 +1,7 @@
 
-NxTailStream:
+NxTail:
     "uuid"        : String
-    "mikuType"    : "NxTailStream"
+    "mikuType"    : "NxTail"
     "unixtime"    : Float
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : String

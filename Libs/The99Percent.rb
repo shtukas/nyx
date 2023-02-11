@@ -9,7 +9,7 @@ class The99Percent
 
     # The99Percent::count()
     def self.count()
-        (ObjectStore2::filepaths("NxBoardItems") + ObjectStore2::filepaths("NxTopStreams") + ObjectStore2::filepaths("NxTailStreams"))
+        (ObjectStore2::filepaths("NxBoardItems") + ObjectStore2::filepaths("NxHeads") + ObjectStore2::filepaths("NxTails"))
             .map{|filepath|
                 count = nil
                 db = SQLite3::Database.new(filepath)

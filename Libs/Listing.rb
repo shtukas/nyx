@@ -187,7 +187,7 @@ class Listing
             if board then
                 NxBoardItems::interactivelyIssueNewOrNull(board)
             else
-                NxTopStreams::interactivelyIssueNewOrNull()
+                NxHeads::interactivelyIssueNewOrNull()
             end
             
         end
@@ -377,7 +377,7 @@ class Listing
             NxBoards::listingItems(),
             Waves::listingItems("ns:today-or-tomorrow"),
             Waves::leisureItemsWithCircuitBreaker(),
-            NxTopStreams::listingItems()
+            NxHeads::listingItems()
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -455,16 +455,16 @@ class Listing
                 end
             end
 
-            LucilleCore::locationsAtFolder("#{ENV['HOME']}/Galaxy/DataHub/NxTailStreams-FrontElements-BufferIn")
+            LucilleCore::locationsAtFolder("#{ENV['HOME']}/Galaxy/DataHub/NxTails-FrontElements-BufferIn")
                 .each{|location|
                     next if File.basename(location).start_with?(".")
-                    item = NxTailStreams::bufferInImport(location)
-                    puts "Picked up from NxTailStreams-FrontElements-BufferIn: #{JSON.pretty_generate(item)}"
+                    item = NxTails::bufferInImport(location)
+                    puts "Picked up from NxTails-FrontElements-BufferIn: #{JSON.pretty_generate(item)}"
                     LucilleCore::removeFileSystemLocation(location)
                 }
 
             NxBoards::timeManagement()
-            NxStreamsCommon::dataManagement()
+            NxList::dataManagement()
 
             system("clear")
             store = ItemStore.new()

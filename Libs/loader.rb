@@ -47,7 +47,7 @@ checkLocation = lambda{|location|
 } 
 
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-Config.json")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub/NxTailStreams-FrontElements-BufferIn")
+checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub/NxTails-FrontElements-BufferIn")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub/Stargate-DataCenter")
 checkLocation.call("#{ENV['HOME']}/Galaxy/Nyx")
 checkLocation.call("#{ENV['HOME']}/Galaxy/LucilleOS/Libraries/Ruby-Libraries")
@@ -176,7 +176,10 @@ require_relative "NxOndates.rb"
 require_relative "NxBoards.rb"
 require_relative "NxEngine.rb"
 require_relative "NxOpen.rb"
-require_relative "NxStreamsCommon.rb"
+require_relative "NxList.rb"
+require_relative "NxHeads.rb"
+require_relative "NxTails.rb"
+require_relative "NxTops.rb"
 
 require_relative "ObjectStore2.rb"
 
@@ -192,9 +195,6 @@ require_relative "Skips.rb"
 
 require_relative "TxManualCountDowns.rb"
 require_relative "The99Percent.rb"
-require_relative "NxTopStream.rb"
-require_relative "NxTailStream.rb"
-require_relative "NxTops.rb"
 
 require_relative "Waves.rb"
 

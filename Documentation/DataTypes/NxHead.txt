@@ -1,7 +1,7 @@
 
-NxTopStream:
+NxHead:
     "uuid"        : String
-    "mikuType"    : "NxTopStream"
+    "mikuType"    : "NxHead"
     "unixtime"    : Float
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : String

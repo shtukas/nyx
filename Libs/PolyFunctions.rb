@@ -80,11 +80,11 @@ class PolyFunctions
         if item["mikuType"] == "NxOndate" then
             return NxOndates::toString(item)
         end
-        if item["mikuType"] == "NxTailStream" then
-            return NxTailStreams::toString(item)
+        if item["mikuType"] == "NxTail" then
+            return NxTails::toString(item)
         end
-        if item["mikuType"] == "NxTopStream" then
-            return NxTopStreams::toString(item)
+        if item["mikuType"] == "NxHead" then
+            return NxHeads::toString(item)
         end
         if item["mikuType"] == "NxTop" then
             return NxTops::toString(item)

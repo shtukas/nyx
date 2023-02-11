@@ -52,13 +52,13 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxTopStream" then
-            NxTopStreams::access(item)
+        if item["mikuType"] == "NxHead" then
+            NxHeads::access(item)
             return
         end
 
-        if item["mikuType"] == "NxTailStream" then
-            NxTailStreams::access(item)
+        if item["mikuType"] == "NxTail" then
+            NxTails::access(item)
             return
         end
 
@@ -136,16 +136,16 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxTopStream" then
+        if item["mikuType"] == "NxHead" then
             if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green} ? '", true) then
-                NxTopStreams::destroy(item["uuid"])
+                NxHeads::destroy(item["uuid"])
             end
             return
         end
 
-        if item["mikuType"] == "NxTailStream" then
+        if item["mikuType"] == "NxTail" then
             if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green} ? '", true) then
-                NxTailStreams::destroy(item["uuid"])
+                NxTails::destroy(item["uuid"])
             end
             return
         end
@@ -257,14 +257,14 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxTopStream" then
+        if item["mikuType"] == "NxHead" then
             NxBalls::start(item)
-            NxTopStreams::access(item)
+            NxHeads::access(item)
             options = ["done (destroy)", "do not display until", "keep running"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", options)
             return if option.nil?
             if option == "done (destroy)" then
-                NxTopStreams::destroy(item["uuid"])
+                NxHeads::destroy(item["uuid"])
             end
             if option == "do not show until" then
                 unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
@@ -276,14 +276,14 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxTailStream" then
+        if item["mikuType"] == "NxTail" then
             NxBalls::start(item)
-            NxTailStreams::access(item)
+            NxTails::access(item)
             options = ["done (destroy)", "do not display until", "keep running"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", options)
             return if option.nil?
             if option == "done (destroy)" then
-                NxTailStreams::destroy(item["uuid"])
+                NxTails::destroy(item["uuid"])
             end
             if option == "do not show until" then
                 unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
