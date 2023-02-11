@@ -355,6 +355,11 @@ class Listing
             return
         end
 
+        if Interpreting::match("speed", input) then
+            Listing::speedTest()
+            return
+        end
+
         if Interpreting::match("today", input) then
             item = NxOndates::interactivelyIssueNewTodayOrNull()
             return if item.nil?
@@ -383,6 +388,105 @@ class Listing
             LucilleCore::pressEnterToContinue()
             return
         end
+    end
+
+    # Listing::speedTest()
+    def self.speedTest()
+
+        tests = [
+            {
+                "name" => "Anniversaries::listingItems()",
+                "lambda" => lambda { Anniversaries::listingItems() }
+            },
+            {
+                "name" => "Anniversaries::listingItems()",
+                "lambda" => lambda { Anniversaries::listingItems() }
+            },
+            {
+                "name" => "NxOndates::listingItems()",
+                "lambda" => lambda { NxOndates::listingItems() }
+            },
+            {
+                "name" => "Waves::topItems()",
+                "lambda" => lambda { Waves::topItems() }
+            },
+            {
+                "name" => "TxManualCountDowns::listingItems()",
+                "lambda" => lambda { TxManualCountDowns::listingItems() }
+            },
+            {
+                "name" => "NxBoards::listingItems()",
+                "lambda" => lambda { NxBoards::listingItems() }
+            },
+            {
+                "name" => "Waves::listingItems(ns:today-or-tomorrow)",
+                "lambda" => lambda { Waves::listingItems("ns:today-or-tomorrow") }
+            },
+            {
+                "name" => "Waves::leisureItemsWithCircuitBreaker()",
+                "lambda" => lambda { Waves::leisureItemsWithCircuitBreaker() }
+            },
+            {
+                "name" => "NxHeads::listingItems()",
+                "lambda" => lambda { NxHeads::listingItems() }
+            },
+            {
+                "name" => "Waves::listingItems(ns:leisure)",
+                "lambda" => lambda { Waves::listingItems("ns:leisure") }
+            },
+        ]
+
+        runTest = lambda {|test|
+            t1 = Time.new.to_f
+            (1..3).each{ test["lambda"].call() }
+            t2 = Time.new.to_f
+            {
+                "name" => test["name"],
+                "runtime" => (t2 - t1).to_f/3
+            }
+        }
+
+        printTestResults = lambda{|result, padding|
+            puts "- #{result["name"].ljust(padding)} : #{"%6.3f" % result["runtime"]}"
+        }
+
+        padding = tests.map{|test| test["name"].size }.max
+
+        # dry run to initialise things
+        tests
+            .each{|test|
+                test["lambda"].call()
+            }
+
+        results1 = tests
+                    .map{|test|
+                        puts "running: #{test["name"]}"
+                        runTest.call(test)
+                    }
+                    .sort{|r1, r2| r1["runtime"] <=> r2["runtime"] }
+                    .reverse
+
+        results2 = [
+            {
+                "name" => "Listing::printListing()",
+                "lambda" => lambda { Listing::printListing(ItemStore.new()) }
+            }
+        ]
+                    .map{|test|
+                        puts "running: #{test["name"]}"
+                        runTest.call(test)
+                    }
+                    .sort{|r1, r2| r1["runtime"] <=> r2["runtime"] }
+                    .reverse
+
+        puts ""
+
+        (results1 + results2)
+            .each{|result|
+                printTestResults.call(result, padding)
+            }
+
+        LucilleCore::pressEnterToContinue()
     end
 
     # Listing::items()
@@ -424,6 +528,68 @@ class Listing
         line
     end
 
+    # Listing::printListing(store)
+    def self.printListing(store)
+        system("clear")
+
+        spacecontrol = SpaceControl.new(CommonUtils::screenHeight() - 3)
+
+        items = Listing::items()
+
+        lockedItems, items = items.partition{|item| Locks::isLocked(item["uuid"]) }
+
+        spacecontrol.putsline ""
+        NxOpens::itemsForBoard(nil).each{|o|
+            store.register(o, false)
+            spacecontrol.putsline "(#{store.prefixString()}) (open) #{o["description"]}".yellow
+        }
+
+        NxTops::itemsInOrder()
+            .each{|item|
+                bx = Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"])
+                next if !bx.nil?
+                store.register(item, true)
+                spacecontrol.putsline Listing::itemToListingLine(store, item)
+            }
+
+        Listing::printDesktop(spacecontrol)
+
+        runningItems, items = items.partition{|item| NxBalls::itemIsRunning(item) }
+
+        (runningItems + items.take(12))
+            .each{|item|
+
+                if item["mikuType"] == "NxBoard" then
+                    NxBoards::listingDisplay(store, spacecontrol, item["uuid"])
+                    next
+                end
+
+                store.register(item, !Skips::isSkipped(item["uuid"]))
+                spacecontrol.putsline Listing::itemToListingLine(store, item)
+            }
+
+        if lockedItems.size > 0 then
+            spacecontrol.putsline ""
+            spacecontrol.putsline "locked:"
+            lockedItems
+                .each{|item|
+                    store.register(item, false)
+                    spacecontrol.putsline Listing::itemToListingLine(store, item)
+                }
+        end
+
+        spacecontrol.putsline ""
+        spacecontrol.putsline "boards:"
+        NxBoards::bottomItems().each{|item|
+            NxBoards::bottomDisplay(store, spacecontrol, item["uuid"])
+        }
+
+        spacecontrol.putsline ""
+        spacecontrol.putsline The99Percent::line()
+        spacecontrol.putsline "> anniversary | manual countdown | wave | today | ondate | drop | top | desktop".yellow
+
+    end
+
     # Listing::mainProgram2Pure()
     def self.mainProgram2Pure()
 
@@ -453,63 +619,9 @@ class Listing
             NxBoards::timeManagement()
             NxList::dataManagement()
 
-            system("clear")
             store = ItemStore.new()
-            spacecontrol = SpaceControl.new(CommonUtils::screenHeight() - 3)
 
-            items = Listing::items()
-
-            lockedItems, items = items.partition{|item| Locks::isLocked(item["uuid"]) }
-
-            spacecontrol.putsline ""
-            NxOpens::itemsForBoard(nil).each{|o|
-                store.register(o, false)
-                spacecontrol.putsline "(#{store.prefixString()}) (open) #{o["description"]}".yellow
-            }
-
-            NxTops::itemsInOrder()
-                .each{|item|
-                    bx = Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"])
-                    next if !bx.nil?
-                    store.register(item, true)
-                    spacecontrol.putsline Listing::itemToListingLine(store, item)
-                }
-
-            Listing::printDesktop(spacecontrol)
-
-            runningItems, items = items.partition{|item| NxBalls::itemIsRunning(item) }
-
-            (runningItems + items.take(12))
-                .each{|item|
-
-                    if item["mikuType"] == "NxBoard" then
-                        NxBoards::listingDisplay(store, spacecontrol, item["uuid"])
-                        next
-                    end
-
-                    store.register(item, !Skips::isSkipped(item["uuid"]))
-                    spacecontrol.putsline Listing::itemToListingLine(store, item)
-                }
-
-            if lockedItems.size > 0 then
-                spacecontrol.putsline ""
-                spacecontrol.putsline "locked:"
-                lockedItems
-                    .each{|item|
-                        store.register(item, false)
-                        spacecontrol.putsline Listing::itemToListingLine(store, item)
-                    }
-            end
-
-            spacecontrol.putsline ""
-            spacecontrol.putsline "boards:"
-            NxBoards::bottomItems().each{|item|
-                NxBoards::bottomDisplay(store, spacecontrol, item["uuid"])
-            }
-
-            spacecontrol.putsline ""
-            spacecontrol.putsline The99Percent::line()
-            spacecontrol.putsline "> anniversary | manual countdown | wave | today | ondate | drop | top | desktop".yellow
+            Listing::printListing(store)
 
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")

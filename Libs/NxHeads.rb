@@ -63,7 +63,14 @@ class NxHeads
         NxHeads::items()
             .sort{|i1, i2| i1["position"] <=> i2["position"] }
             .take(3)
-            .sort{|i1, i2| BankUtils::recoveredAverageHoursPerDay(i1["uuid"]) <=> BankUtils::recoveredAverageHoursPerDay(i2["uuid"]) }
+            .map {|item|
+                {
+                    "item" => item,
+                    "rt"   => BankUtils::recoveredAverageHoursPerDay(item["uuid"])
+                }
+            }
+            .sort{|p1, p2| p1["rt"] <=> p2["rt"] }
+            .map {|packet| packet["item"] }
     end
 
     # --------------------------------------------------

@@ -1,5 +1,7 @@
 # encoding: UTF-8
 
+$LookupsCache = {}
+
 class Lookups
 
     # ----------------------------------
@@ -88,6 +90,13 @@ class Lookups
 
     # Lookups::getValueInFileOrNull(filepath, uuid)
     def self.getValueInFileOrNull(filepath, uuid)
+        # This function can be memoised because the files are content addressed
+
+        lookupKey = "#{filepath}:#{uuid}"
+        if $LookupsCache[lookupKey] then
+            return $LookupsCache[lookupKey]
+        end
+
         value = nil
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -97,6 +106,9 @@ class Lookups
             value = JSON.parse(row["value"])
         end
         db.close
+
+        $LookupsCache[lookupKey] = value
+
         value
     end
 

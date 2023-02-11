@@ -1,5 +1,7 @@
 # encoding: UTF-8
 
+$DATABASE_CACHE = {}
+
 class ObjectStore2
 
     # ----------------------------------
@@ -7,17 +9,18 @@ class ObjectStore2
 
     # ObjectStore2::objects(foldername)
     def self.objects(foldername)
+
+        if $DATABASE_CACHE[foldername] then
+            return $DATABASE_CACHE[foldername]
+        end
+
         objects = []
         ObjectStore2::filepaths(foldername).each{|filepath|
-            db = SQLite3::Database.new(filepath)
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute("select * from objects", []) do |row|
-                objects << JSON.parse(row["object"])
-            end
-            db.close
+            objects = objects + ObjectStore2::objectsInFile(filepath)
         }
+
+        $DATABASE_CACHE[foldername] = objects.map{|object| object.freeze }
+
         objects
     end
 
@@ -192,5 +195,19 @@ class ObjectStore2
         FileUtils.rm(filepath1)
         FileUtils.rm(filepath2)
 
+    end
+
+    # ObjectStore2::objectsInFile(filepath)
+    def self.objectsInFile(filepath)
+        objects = []
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("select * from objects", []) do |row|
+            objects << JSON.parse(row["object"])
+        end
+        db.close
+        objects
     end
 end

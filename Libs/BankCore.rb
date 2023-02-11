@@ -1,5 +1,7 @@
 # encoding: UTF-8
 
+$BankVault = {}
+
 class BankCore
 
     # ----------------------------------
@@ -79,6 +81,13 @@ class BankCore
 
     # BankCore::getValueAtDateInFile(filepath, uuid, date)
     def self.getValueAtDateInFile(filepath, uuid, date)
+        # This function can be memoised because the database files are content addressed 🎉
+
+        vaultkey = "#{filepath}:#{uuid}:#{date}"
+        if $BankVault[vaultkey] then
+            return $BankVault[vaultkey]
+        end
+
         value = 0
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -88,6 +97,9 @@ class BankCore
             value = value + row["value"]
         end
         db.close
+
+        $BankVault[vaultkey] = value
+
         value
     end
 

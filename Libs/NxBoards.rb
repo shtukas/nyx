@@ -110,14 +110,28 @@ class NxBoards
     # NxBoards::listingItems()
     def self.listingItems()
         NxBoards::items()
-            .select{|board| NxBoards::completionRatio(board) < 1 }
-            .sort{|s1, s2| NxBoards::completionRatio(s1) <=> NxBoards::completionRatio(s2)}
+            .map {|board|
+                {
+                    "board" => board,
+                    "cr"    => NxBoards::completionRatio(board)
+                }
+            }
+            .select{|packet| packet["cr"] < 1 }
+            .sort{|p1, p2| p1["cr"] <=> p2["cr"] }
+            .map {|packet| packet["board"] }
     end
 
     # NxBoards::bottomItems()
     def self.bottomItems()
         NxBoards::items()
-            .sort{|s1, s2| NxBoards::completionRatio(s1) <=> NxBoards::completionRatio(s2)}
+            .map {|board|
+                {
+                    "board" => board,
+                    "cr"    => NxBoards::completionRatio(board)
+                }
+            }
+            .sort{|p1, p2| p1["cr"] <=> p2["cr"] }
+            .map {|packet| packet["board"] }
     end
 
     # NxBoards::boardItems(boarduuid)
@@ -176,14 +190,31 @@ class NxBoards
             puts "NxBoards::listingDisplay(boarduuid), board not found"
             exit
         end
-        store.register(board, false)
+
+        tops = NxTops::itemsInOrder().select{|item|
+            (lambda{
+                bx = Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"])
+                return false if bx.nil?
+                return false if bx["uuid"] != boarduuid
+                true
+            }).call()
+        }
+        waves = Waves::items().select{|item|
+            (lambda{
+                bx = Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"])
+                return false if bx.nil?
+                return false if bx["uuid"] != boarduuid
+                true
+            }).call()
+        }
+        items = NxBoards::boardItemsOrdered(board["uuid"])
+
+        store.register(board, (tops+waves+items).empty?)
         spacecontrol.putsline "(#{store.prefixString()}) #{NxBoards::toString(board)}"
         NxOpens::itemsForBoard(boarduuid).each{|item|
             store.register(item, false)
             spacecontrol.putsline "(#{store.prefixString()}) (open) #{item["description"]}".yellow
         }
-
-        items = NxBoards::boardItemsOrdered(board["uuid"])
 
         lockedItems, items = items.partition{|item| Locks::isLocked(item["uuid"]) }
 
@@ -193,18 +224,12 @@ class NxBoards
                 spacecontrol.putsline (Listing::itemToListingLine(store, item))
             }
 
-        NxTops::itemsInOrder().each{|item|
-            bx = Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"])
-            next if bx.nil?
-            next if bx["uuid"] != boarduuid
+        tops.each{|item|
             store.register(item, true)
             spacecontrol.putsline (Listing::itemToListingLine(store, item))
         }
 
-        Waves::items().each{|item|
-            bx = Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"])
-            next if bx.nil?
-            next if bx["uuid"] != boarduuid
+        waves.each{|item|
             store.register(item, true)
             spacecontrol.putsline (Listing::itemToListingLine(store, item))
         }
