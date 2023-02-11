@@ -399,10 +399,6 @@ class Listing
                 "lambda" => lambda { Anniversaries::listingItems() }
             },
             {
-                "name" => "Anniversaries::listingItems()",
-                "lambda" => lambda { Anniversaries::listingItems() }
-            },
-            {
                 "name" => "NxOndates::listingItems()",
                 "lambda" => lambda { NxOndates::listingItems() }
             },
@@ -585,7 +581,7 @@ class Listing
         }
 
         spacecontrol.putsline ""
-        spacecontrol.putsline The99Percent::line()
+        spacecontrol.putsline The99Percent::line() + " (mid point: #{NxList::midposition()})"
         spacecontrol.putsline "> anniversary | manual countdown | wave | today | ondate | drop | top | desktop".yellow
 
     end
