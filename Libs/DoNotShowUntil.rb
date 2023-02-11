@@ -20,7 +20,7 @@ class DoNotShowUntil
     def self.suffixString(item)
         unixtime = DoNotShowUntil::getUnixtimeOrNull(item["uuid"])
         return "" if unixtime.nil?
-        return "" if Time.new.to_i < unixtime
+        return "" if Time.new.to_i > unixtime
         " (not shown until: #{Time.at(unixtime).to_s})"
     end
 end

@@ -90,6 +90,7 @@ class NxBalls
     # NxBalls::pursue(item)
     def self.pursue(item)
         return item if !NxBalls::itemIsPaused(item)
+        nxball = NxBalls::getNxballOrNull(item)
         nxball["type"]          = "running"
         nxball["startunixtime"] = Time.new.to_i
         nxball["sequencestart"] = nxball["sequencestart"] || nxball["startunixtime"]
