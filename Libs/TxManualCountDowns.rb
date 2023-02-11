@@ -28,6 +28,11 @@ class TxManualCountDowns
         item
     end
 
+    # TxManualCountDowns::commit(item)
+    def self.commit(item)
+        ObjectStore2::commit("TxManualCountDowns", item)
+    end
+
     # Data
 
     # TxManualCountDowns::listingItems()
@@ -53,7 +58,7 @@ class TxManualCountDowns
         item["counter"] = item["counter"] - count
         item["lastUpdatedUnixtime"] = Time.new.to_i
         puts JSON.pretty_generate(item)
-        ObjectStore2::commit("TxManualCountDowns", item)
+        TxManualCountDowns::commit(item)
     end
 
     # TxManualCountDowns::access(item)

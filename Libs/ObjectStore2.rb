@@ -9,18 +9,12 @@ class ObjectStore2
 
     # ObjectStore2::objects(foldername)
     def self.objects(foldername)
-
-        if $DATABASE_CACHE[foldername] then
-            return $DATABASE_CACHE[foldername]
-        end
-
         objects = []
         ObjectStore2::filepaths(foldername).each{|filepath|
-            objects = objects + ObjectStore2::objectsInFile(filepath)
+            ObjectStore2::objectsInFile(filepath).each{|object|
+                objects << object
+            }
         }
-
-        $DATABASE_CACHE[foldername] = objects.map{|object| object.freeze }
-
         objects
     end
 
@@ -199,6 +193,9 @@ class ObjectStore2
 
     # ObjectStore2::objectsInFile(filepath)
     def self.objectsInFile(filepath)
+        if $DATABASE_CACHE[filepath] then
+            return $DATABASE_CACHE[filepath].map{|item| item.clone }
+        end
         objects = []
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -208,6 +205,7 @@ class ObjectStore2
             objects << JSON.parse(row["object"])
         end
         db.close
+        $DATABASE_CACHE[filepath] = objects
         objects
     end
 end
