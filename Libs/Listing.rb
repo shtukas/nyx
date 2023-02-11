@@ -1,12 +1,27 @@
 # encoding: UTF-8
 
+class SpaceControl
+
+    def initialize(remaining_vertical_space)
+        @remaining_vertical_space = remaining_vertical_space
+    end
+
+    def putsline(line)
+        vspace = CommonUtils::verticalSize(line)
+        return if vspace > @remaining_vertical_space
+        puts line
+        @remaining_vertical_space = @remaining_vertical_space - vspace
+    end
+
+end
+
 class Listing
 
     # Listing::listingCommands()
     def self.listingCommands()
         [
             "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | landing (<n>) | expose (<n>) | >> skip default | lock (<n>) | add time (<n>) | board (<n>) | destroy",
-            "[makers] anniversary | manual countdown | wave | today | ondate | drop | top",
+            "[makers] anniversary | manual countdown | wave | today | ondate | drop | top | desktop",
             "[divings] anniversaries | ondates | waves | todos | desktop | open",
             "[NxBalls] start | start * | stop | stop * | pause | pursue",
             "[NxOndate] redate",
@@ -377,23 +392,20 @@ class Listing
             NxBoards::listingItems(),
             Waves::listingItems("ns:today-or-tomorrow"),
             Waves::leisureItemsWithCircuitBreaker(),
-            NxHeads::listingItems()
+            NxHeads::listingItems(),
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
-    # Listing::printDesktop()
-    def self.printDesktop()
-        linecount = 0
+    # Listing::printDesktop(spacecontrol)
+    def self.printDesktop(spacecontrol)
         dskt = Desktop::contentsOrNull()
         if dskt and dskt.size > 0 then
             dskt = dskt.lines.map{|line| "      #{line}" }.join()
-            puts "(-->) Desktop:".green
-            puts dskt
-            linecount = linecount + (CommonUtils::verticalSize(dskt) + 1)
+            spacecontrol.putsline "(-->) Desktop:".green
+            spacecontrol.putsline dskts
         end
-        linecount
     end
 
     # Listing::itemToListingLine(store or nil, item)
@@ -407,34 +419,6 @@ class Listing
             line = line.green
         end
         line
-    end
-
-    # Listing::itemsToVerticalSpace(items)
-    def self.itemsToVerticalSpace(items)
-        items
-            .map{|item|
-                line = Listing::itemToListingLine(nil, item)
-                CommonUtils::verticalSize(line)
-            }
-            .inject(0, :+)
-    end
-
-    # Listing::printBottomBoards(store, isSimulation)
-    def self.printBottomBoards(store, isSimulation)
-        linecount = 0
-        NxBoards::bottomItems().each{|item|
-            store.register(item, false)
-            line = "#{Listing::itemToListingLine(store, item)}"
-            if !isSimulation then
-                if NxBalls::itemIsRunning(item) or NxBalls::itemIsPaused(item) then
-                    puts line.green
-                else
-                    puts line.yellow
-                end
-            end
-            linecount = linecount + CommonUtils::verticalSize(line)
-        }
-        linecount
     end
 
     # Listing::mainProgram2Pure()
@@ -468,75 +452,61 @@ class Listing
 
             system("clear")
             store = ItemStore.new()
-            vspaceleft = CommonUtils::screenHeight() - 3
-
-            puts ""
-            vspaceleft = vspaceleft - 1
-
-            puts The99Percent::line()
-            vspaceleft = vspaceleft - 1
+            spacecontrol = SpaceControl.new(CommonUtils::screenHeight() - 3)
 
             items = Listing::items()
 
-            NxBoards::boardsOrdered().each{|board|
-                store.register(board, false)
-                puts "(#{store.prefixString()}) #{NxBoards::toString(board)}".yellow
-                vspaceleft = vspaceleft - 1
-            }
-
             lockedItems, items = items.partition{|item| Locks::isLocked(item["uuid"]) }
 
-            lockedItems
+            spacecontrol.putsline ""
+            NxOpens::itemsForBoard(nil).each{|o|
+                store.register(o, false)
+                spacecontrol.putsline "(#{store.prefixString()}) (open) #{o["description"]}".yellow
+            }
+
+            NxTops::itemsInOrder()
                 .each{|item|
-                    store.register(item, false)
-                    line = Listing::itemToListingLine(store, item)
-                    puts line
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                    bx = Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"])
+                    next if !bx.nil?
+                    store.register(item, true)
+                    spacecontrol.putsline Listing::itemToListingLine(store, item)
                 }
 
-
-            puts ""
-            vspaceleft = vspaceleft - 1
-
-            NxOpens::items().each{|o|
-                store.register(o, false)
-                puts "(#{store.prefixString()}) (open) #{o["description"]}".yellow
-                vspaceleft = vspaceleft - 1
-            }
-
-            NxTops::itemsInOrder().each{|item|
-                store.register(item, true)
-                puts Listing::itemToListingLine(store, item)
-                vspaceleft = vspaceleft - 1
-            }
-
-            linecount = Listing::printDesktop()
-            vspaceleft = vspaceleft - linecount
-
-            vspaceleft = vspaceleft - NxBoards::bottomItems().size
+            Listing::printDesktop(spacecontrol)
 
             runningItems, items = items.partition{|item| NxBalls::itemIsRunning(item) }
 
-            (runningItems + items)
+            (runningItems + items.take(12))
                 .each{|item|
+
+                    if item["mikuType"] == "NxBoard" then
+                        NxBoards::listingDisplay(store, spacecontrol, item["uuid"])
+                        next
+                    end
+
                     store.register(item, !Skips::isSkipped(item["uuid"]))
-                    line = Listing::itemToListingLine(store, item)
-                    puts line
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                    break if vspaceleft <= 0
+                    spacecontrol.putsline Listing::itemToListingLine(store, item)
                 }
 
+            if lockedItems.size > 0 then
+                spacecontrol.putsline ""
+                spacecontrol.putsline "locked:"
+                lockedItems
+                    .each{|item|
+                        store.register(item, false)
+                        spacecontrol.putsline Listing::itemToListingLine(store, item)
+                    }
+            end
+
+            spacecontrol.putsline ""
+            spacecontrol.putsline "boards:"
             NxBoards::bottomItems().each{|item|
-                store.register(item, false)
-                line = "#{Listing::itemToListingLine(store, item)}"
-                if !isSimulation then
-                    if NxBalls::itemIsRunning(item) or NxBalls::itemIsPaused(item) then
-                        puts line.green
-                    else
-                        puts line.yellow
-                    end
-                end
+                NxBoards::bottomDisplay(store, spacecontrol, item["uuid"])
             }
+
+            spacecontrol.putsline ""
+            spacecontrol.putsline The99Percent::line()
+            spacecontrol.putsline "> anniversary | manual countdown | wave | today | ondate | drop | top | desktop".yellow
 
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")

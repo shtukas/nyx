@@ -1,7 +1,8 @@
 
 NxOpen:
-    "uuid"          : String
-    "mikuType"      : "NxOpen"
-    "unixtime"      : Float
-    "datetime"      : DateTime Iso 8601 UTC Zulu
-    "description"   : String
+    "uuid"        : String
+    "mikuType"    : "NxOpen"
+    "unixtime"    : Float
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "description" : String
+    "boardId"     : null or String 

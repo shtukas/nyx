@@ -169,7 +169,7 @@ class Waves
     end
 
     # -------------------------------------------------------------------------
-    # Data
+    # Data (1)
 
     # Waves::toString(item)
     def self.toString(item)
@@ -184,10 +184,15 @@ class Waves
         "(wave) #{item["description"]} (#{Waves::nx46ToString(item["nx46"])}) (coredataref: #{item["field11"]}) (#{ago})#{isPendingStr} 🌊 [#{item["priority"]}]"
     end
 
+    # -------------------------------------------------------------------------
+    # Data (2)
+    # We do not display wave that are attached to a board (the board displays them)
+
     # Waves::listingItems(priority)
     def self.listingItems(priority)
         Waves::items()
             .select{|item| item["priority"] == priority }
+            .select{|item| Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"]).nil? }
             .select{|item|
                 item["onlyOnDays"].nil? or item["onlyOnDays"].include?(CommonUtils::todayAsLowercaseEnglishWeekDayName())
             }
@@ -197,6 +202,7 @@ class Waves
     def self.topItems()
         Waves::items()
             .select{|item| item["priority"] == "ns:today" or item["nx46"]["type"] == "sticky" }
+            .select{|item| Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"]).nil? }
             .select{|item|
                 item["onlyOnDays"].nil? or item["onlyOnDays"].include?(CommonUtils::todayAsLowercaseEnglishWeekDayName())
             }

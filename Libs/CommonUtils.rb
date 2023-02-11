@@ -490,7 +490,9 @@ class CommonUtils
 
     # CommonUtils::verticalSize(displayStr)
     def self.verticalSize(displayStr)
-        displayStr.lines.map{|line| line.size/CommonUtils::screenWidth() + 1 }.inject(0, :+)
+        return 1 if displayStr == ""
+        width = CommonUtils::screenWidth()
+        displayStr.lines.map{|line| line.size/width + 1 }.inject(0, :+)
     end
 
     # CommonUtils::fileByFilenameIsSafelyOpenable(filename)

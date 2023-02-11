@@ -37,4 +37,9 @@ class NxOpens
     def self.toString(item)
         "(open) #{item["description"]}"
     end
+
+    # NxOpens::itemsForBoard(boarduuid)
+    def self.itemsForBoard(boarduuid)
+        NxOpens::items().select{|item| item["boarduuid"] == boarduuid }
+    end
 end

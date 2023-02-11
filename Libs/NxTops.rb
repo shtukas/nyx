@@ -38,7 +38,7 @@ class NxTops
 
     # NxTops::toString(item)
     def self.toString(item)
-        "(top) (#{"%5.2f" % item["ordinal"]}) #{item["description"]}#{NxBoards::toStringSuffix(item)}"
+        "(top) (#{"%5.2f" % item["ordinal"]}) #{item["description"]}"
     end
 
     # NxTops::itemsInOrder()

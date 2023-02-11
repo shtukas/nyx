@@ -89,9 +89,9 @@ class NxBoards
         }
     end
 
-    # NxBoards::interactivelyDecideNewBoardPosition(stream)
-    def self.interactivelyDecideNewBoardPosition(stream)
-        NxBoards::boardItemsOrdered(stream["uuid"])
+    # NxBoards::interactivelyDecideNewBoardPosition(board)
+    def self.interactivelyDecideNewBoardPosition(board)
+        NxBoards::boardItemsOrdered(board["uuid"])
             .first(20)
             .each{|item| puts NxBoardItems::toString(item) }
         LucilleCore::askQuestionAnswerAsString("position: ").to_f
@@ -110,7 +110,7 @@ class NxBoards
     # NxBoards::listingItems()
     def self.listingItems()
         NxBoards::items()
-            .select{|stream| NxBoards::completionRatio(stream) < 1 }
+            .select{|board| NxBoards::completionRatio(board) < 1 }
             .sort{|s1, s2| NxBoards::completionRatio(s1) <=> NxBoards::completionRatio(s2)}
     end
 
@@ -118,7 +118,6 @@ class NxBoards
     def self.bottomItems()
         NxBoards::items()
             .sort{|s1, s2| NxBoards::completionRatio(s1) <=> NxBoards::completionRatio(s2)}
-            .select{|stream| NxBoards::completionRatio(stream) >= 1 }
     end
 
     # NxBoards::boardItems(boarduuid)
@@ -140,63 +139,11 @@ class NxBoards
     # ---------------------------------------------------------
     # Ops
 
-    # NxBoards::listingProgram(stream)
-    def self.listingProgram(stream)
-
-        loop {
-
-            system("clear")
-            store = ItemStore.new()
-            vspaceleft = CommonUtils::screenHeight() - 3
-
-            linecount = Listing::printDesktop()
-            vspaceleft = vspaceleft - linecount
-
-            puts ""
-            puts "BOARD FOCUS: #{NxBoards::toString(stream)}#{NxBalls::nxballSuffixStatusIfRelevant(stream).green}"
-            puts ""
-            vspaceleft = vspaceleft - 3
-
-            items = NxBoards::boardItemsOrdered(stream["uuid"])
-
-            lockedItems, items = items.partition{|item| Locks::isLocked(item["uuid"]) }
-            lockedItems.each{|item|
-                vspaceleft = vspaceleft - CommonUtils::verticalSize(PolyFunctions::toString(item))
-            }
-
-            linecount = Listing::itemsToVerticalSpace(lockedItems)
-            vspaceleft = vspaceleft - linecount
-
-            items
-                .each{|item|
-                    store.register(item, !Skips::isSkipped(item["uuid"]))
-                    line = Listing::itemToListingLine(store, item)
-                    puts line
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                    break if vspaceleft <= 0
-                }
-
-            lockedItems
-                .each{|item|
-                    store.register(item, false)
-                    line = Listing::itemToListingLine(store, item)
-                    puts line
-                }
-
-            puts ""
-            input = LucilleCore::askQuestionAnswerAsString("> ")
-            return if input == "exit"
-            next if input == ""
-
-            Listing::listingCommandInterpreter(input, store, board)
-        }
-    end
-
     # NxBoards::timeManagement()
     def self.timeManagement()
         NxBoards::items().each{|item|
             if BankCore::getValue(item["uuid"]) >= 0 and (Time.new.to_i - item["lastResetTime"]) >= 86400*7 then
-                puts "resetting time commitment stream: #{item["description"]}"
+                puts "resetting time commitment board: #{item["description"]}"
                 BankCore::put(item["uuid"], -engine["hours"]*3600)
                 item["lastResetTime"] = Time.new.to_i
                 NxBoards::commit(item)
@@ -220,5 +167,100 @@ class NxBoards
         board = Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"])
         return "" if board.nil?
         " (board: #{board["description"]})".green
+    end
+
+    # NxBoards::listingDisplay(store, spacecontrol, boarduuid) 
+    def self.listingDisplay(store, spacecontrol, boarduuid)
+        board = NxBoards::getItemOfNull(boarduuid)
+        if board.nil? then
+            puts "NxBoards::listingDisplay(boarduuid), board not found"
+            exit
+        end
+        store.register(board, false)
+        spacecontrol.putsline "(#{store.prefixString()}) #{NxBoards::toString(board)}"
+        NxOpens::itemsForBoard(boarduuid).each{|item|
+            store.register(item, false)
+            spacecontrol.putsline "(#{store.prefixString()}) (open) #{item["description"]}".yellow
+        }
+
+        items = NxBoards::boardItemsOrdered(board["uuid"])
+
+        lockedItems, items = items.partition{|item| Locks::isLocked(item["uuid"]) }
+
+        lockedItems
+            .each{|item|
+                store.register(item, false)
+                spacecontrol.putsline (Listing::itemToListingLine(store, item))
+            }
+
+        NxTops::itemsInOrder().each{|item|
+            bx = Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"])
+            next if bx.nil?
+            next if bx["uuid"] != boarduuid
+            store.register(item, true)
+            spacecontrol.putsline (Listing::itemToListingLine(store, item))
+        }
+
+        Waves::items().each{|item|
+            bx = Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"])
+            next if bx.nil?
+            next if bx["uuid"] != boarduuid
+            store.register(item, true)
+            spacecontrol.putsline (Listing::itemToListingLine(store, item))
+        }
+
+        items.take(6)
+            .each{|item|
+                store.register(item, true)
+                spacecontrol.putsline (Listing::itemToListingLine(store, item))
+            }
+    end
+
+    # NxBoards::bottomDisplay(store, spacecontrol, boarduuid) 
+    def self.bottomDisplay(store, spacecontrol, boarduuid)
+        board = NxBoards::getItemOfNull(boarduuid)
+        padding = "      "
+        if board.nil? then
+            puts "NxBoards::bottomDisplay(boarduuid), board not found"
+            exit
+        end
+        store.register(board, false)
+        spacecontrol.putsline "(#{store.prefixString()}) #{NxBoards::toString(board)}"
+        NxOpens::itemsForBoard(boarduuid).each{|item|
+            store.register(item, false)
+            spacecontrol.putsline "#{padding}(#{store.prefixString()}) (open) #{item["description"]}".yellow
+        }
+
+        items = NxBoards::boardItemsOrdered(board["uuid"])
+
+        lockedItems, items = items.partition{|item| Locks::isLocked(item["uuid"]) }
+
+        lockedItems
+            .each{|item|
+                store.register(item, false)
+                spacecontrol.putsline (padding + Listing::itemToListingLine(store, item))
+            }
+
+        NxTops::itemsInOrder().each{|item|
+            bx = Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"])
+            next if bx.nil?
+            next if bx["uuid"] != boarduuid
+            store.register(item, false)
+            spacecontrol.putsline (padding + Listing::itemToListingLine(store, item))
+        }
+
+        Waves::items().each{|item|
+            bx = Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"])
+            next if bx.nil?
+            next if bx["uuid"] != boarduuid
+            store.register(item, false)
+            spacecontrol.putsline (padding + Listing::itemToListingLine(store, item))
+        }
+
+        items.take(6)
+            .each{|item|
+                store.register(item, false)
+                spacecontrol.putsline (padding + Listing::itemToListingLine(store, item))
+            }
     end
 end
