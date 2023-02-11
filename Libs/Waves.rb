@@ -196,6 +196,7 @@ class Waves
             .select{|item|
                 item["onlyOnDays"].nil? or item["onlyOnDays"].include?(CommonUtils::todayAsLowercaseEnglishWeekDayName())
             }
+            .sort{|w1, w2| w1["lastDoneDateTime"] <=> w2["lastDoneDateTime"] }
     end
 
     # Waves::topItems()
@@ -206,6 +207,7 @@ class Waves
             .select{|item|
                 item["onlyOnDays"].nil? or item["onlyOnDays"].include?(CommonUtils::todayAsLowercaseEnglishWeekDayName())
             }
+            .sort{|w1, w2| w1["lastDoneDateTime"] <=> w2["lastDoneDateTime"] }
     end
 
     # Waves::leisureItemsWithCircuitBreaker()
