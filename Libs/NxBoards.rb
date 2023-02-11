@@ -225,7 +225,7 @@ class NxBoards
             exit
         end
         store.register(board, false)
-        spacecontrol.putsline "(#{store.prefixString()}) #{NxBoards::toString(board)}"
+        spacecontrol.putsline "(#{store.prefixString()}) #{NxBoards::toString(board)}#{DoNotShowUntil::suffixString(board)}"
         NxOpens::itemsForBoard(boarduuid).each{|item|
             store.register(item, false)
             spacecontrol.putsline "#{padding}(#{store.prefixString()}) (open) #{item["description"]}".yellow
