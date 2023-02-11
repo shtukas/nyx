@@ -56,7 +56,7 @@ class NxHeads
 
     # NxHeads::endPosition()
     def self.endPosition()
-        ([0] + NxHeads::items().map{|item| item["position"] }).max
+        ([-4] + NxHeads::items().map{|item| item["position"] }).max
     end
 
     # NxHeads::listingItems()
