@@ -188,7 +188,6 @@ class ObjectStore2
         # Let's now delete the two files
         FileUtils.rm(filepath1)
         FileUtils.rm(filepath2)
-
     end
 
     # ObjectStore2::objectsInFile(filepath)

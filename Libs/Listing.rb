@@ -25,6 +25,7 @@ class Listing
             "[divings] anniversaries | ondates | waves | todos | desktop | open",
             "[NxBalls] start | start * | stop | stop * | pause | pursue",
             "[NxOndate] redate",
+            "[NxBoard] holiday",
             "[misc] search | speed | commands",
         ].join("\n")
     end
@@ -228,6 +229,20 @@ class Listing
             return if item.nil?
             puts JSON.pretty_generate(item)
             LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if Interpreting::match("holiday", input) then
+            item = store.getDefault()
+            return if item.nil?
+            if item["mikuType"] != "NxBoard" then
+                puts "holiday only apply to NxBoards"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            timespanInHours = item["hours"].to_f/5
+            puts "Adding #{timespanInHours*3600} seconds to #{item["description"]}"
+            BankCore::put(item["uuid"], timespanInHours*3600)
             return
         end
 
