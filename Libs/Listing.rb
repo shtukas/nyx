@@ -439,8 +439,8 @@ class Listing
                 "lambda" => lambda { Waves::listingItems("ns:today-or-tomorrow") }
             },
             {
-                "name" => "Waves::leisureItemsWithCircuitBreaker()",
-                "lambda" => lambda { Waves::leisureItemsWithCircuitBreaker() }
+                "name" => "Waves::leisureItems()",
+                "lambda" => lambda { Waves::leisureItems() }
             },
             {
                 "name" => "NxHeads::listingItems()",
@@ -514,7 +514,7 @@ class Listing
             TxManualCountDowns::listingItems(),
             NxBoards::listingItems(),
             Waves::listingItems("ns:today-or-tomorrow"),
-            Waves::leisureItemsWithCircuitBreaker(),
+            Waves::leisureItems(),
             NxHeads::listingItems(),
         ]
             .flatten

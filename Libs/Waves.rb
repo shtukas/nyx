@@ -210,13 +210,8 @@ class Waves
             .sort{|w1, w2| w1["lastDoneDateTime"] <=> w2["lastDoneDateTime"] }
     end
 
-    # Waves::leisureItemsWithCircuitBreaker()
-    def self.leisureItemsWithCircuitBreaker()
-        # We limit to 1 per hour
-        events = JSON.parse(XCache::getOrDefaultValue("2a7d27b1-c7af-4d29-a781-d44645302fa0", "[]"))
-        events = events.select{|time| (Time.new.to_i - time) < 3600 }
-        XCache::set("2a7d27b1-c7af-4d29-a781-d44645302fa0", JSON.generate(events))
-        return [] if !events.empty?
+    # Waves::leisureItems()
+    def self.leisureItems()
         Waves::listingItems("ns:leisure")
     end
 
@@ -235,13 +230,6 @@ class Waves
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
         puts "not shown until: #{Time.at(unixtime).to_s}"
         DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-
-        if item["priority"] == "ns:leisure" then
-            # Each machine has its own cache
-            events = JSON.parse(XCache::getOrDefaultValue("2a7d27b1-c7af-4d29-a781-d44645302fa0", "[]"))
-            events = events + [Time.new.to_i]
-            XCache::set("2a7d27b1-c7af-4d29-a781-d44645302fa0", JSON.generate(events))
-        end
     end
 
     # Waves::dive()
