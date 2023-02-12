@@ -84,6 +84,7 @@ class NxBalls
             BankCore::put(account["number"], timespanInSeconds)
         }
         nxball["type"] = "paused"
+        nxball["sequencestart"] = nxball["sequencestart"] || Time.new.to_i
         Lookups::commit("NxBalls", item["uuid"], nxball)
     end
 
