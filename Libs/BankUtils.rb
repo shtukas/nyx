@@ -5,7 +5,8 @@ class BankUtils
     # BankUtils::averageHoursPerDayOverThePastNDays(uuid, n)
     # n = 0 corresponds to today
     def self.averageHoursPerDayOverThePastNDays(uuid, n)
-        totalInSeconds = (-(n-1)..0).map{|indx| BankCore::getValueAtDate(uuid, CommonUtils::nDaysInTheFuture(indx)) }.inject(0, :+)
+        range = (0..n)
+        totalInSeconds = range.map{|indx| BankCore::getValueAtDate(uuid, CommonUtils::nDaysInTheFuture(-indx)) }.inject(0, :+)
         totalInHours = totalInSeconds.to_f/3600
         average = totalInHours.to_f/(n+1)
         average
