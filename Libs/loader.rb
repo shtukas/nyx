@@ -180,6 +180,7 @@ require_relative "NxList.rb"
 require_relative "NxHeads.rb"
 require_relative "NxTails.rb"
 require_relative "NxTops.rb"
+require_relative "NyxDirectories.rb"
 
 require_relative "ObjectStore2.rb"
 

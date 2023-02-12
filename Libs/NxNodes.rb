@@ -115,10 +115,7 @@ class NxNodes
                     LucilleCore::pressEnterToContinue()
                     next
                 end
-                if item["coredataref"] == "nyx-directory" then
-                    NyxDirectories::access(item["uuid"])
-                    next
-                end
+                CoreData::access(item["coredataref"])
                 next
             end
 
