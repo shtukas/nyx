@@ -75,14 +75,19 @@ class CoreData
         if referenceString.start_with?("unique-string") then
             uniquestring = referenceString.split(":")[1]
             puts "CoreData, accessing unique string: #{uniquestring}"
-            puts "not implemented yet"
-            LucilleCore::pressEnterToContinue()
+            location = Atlas::uniqueStringToLocationOrNull(uniquestring)
+            if location then
+                puts "location: #{location}"
+                LucilleCore::pressEnterToContinue()
+            end
             return
         end
         if referenceString.start_with?("text") then
             nhash = referenceString.split(":")[1]
-            puts "CoreData, accessing text: #{nhash}"
-            puts "not implemented yet"
+            text = DatablobStore::getOrNull(nhash)
+            puts "--------------------------------------------------------------"
+            puts text
+            puts "--------------------------------------------------------------"
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -91,12 +96,17 @@ class CoreData
             url = DatablobStore::getOrNull(nhash)
             puts "url: #{url}"
             CommonUtils::openUrlUsingSafari(url)
+            LucilleCore::pressEnterToContinue()
             return
         end
         if referenceString.start_with?("aion-point") then
             nhash = referenceString.split(":")[1]
             puts "CoreData, accessing aion point: #{nhash}"
-            puts "not implemented yet"
+            exportId = SecureRandom.hex(4)
+            exportFoldername = "aion-point"
+            exportFolder = "#{Config::pathToDesktop()}/#{exportFoldername}"
+            FileUtils.mkdir(exportFolder)
+            AionCore::exportHashAtFolder(DatablobStoreElizabeth.new(), nhash, exportFolder)
             LucilleCore::pressEnterToContinue()
             return
         end
