@@ -26,7 +26,7 @@ class Listing
             "[NxBalls] start | start * | stop | stop * | pause | pursue",
             "[NxOndate] redate",
             "[NxBoard] holiday",
-            "[misc] search | speed | commands",
+            "[misc] search | speed | commands | nyx",
         ].join("\n")
     end
 
@@ -271,6 +271,11 @@ class Listing
 
         if Interpreting::match("manual countdown", input) then
             TxManualCountDowns::issueNewOrNull()
+            return
+        end
+
+        if Interpreting::match("nyx", input) then
+            Nyx::main()
             return
         end
 
