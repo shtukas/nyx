@@ -61,7 +61,7 @@ class NxBoards
     # NxBoards::toString(item)
     def self.toString(item)
         dayLoadInHours = item["hours"].to_f/5
-        dayDoneInHours = BankCore::getValueAtDate(item["uuid"], CommonUtils::today())
+        dayDoneInHours = BankCore::getValueAtDate(item["uuid"], CommonUtils::today()).to_f/3600
         str0 = "(day: #{("%5.2f" % dayDoneInHours).to_s.green} of #{"%5.2f" % dayLoadInHours})"
 
         loadDoneInHours = BankCore::getValue(item["uuid"]).to_f/3600 + item["hours"]
