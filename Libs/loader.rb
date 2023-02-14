@@ -168,6 +168,8 @@ require_relative "LambdX1s.rb"
 require_relative "Lookups.rb"
 require_relative "Listing.rb"
 
+require_relative "Mappings.rb"
+
 require_relative "Nyx.rb"
 require_relative "NxNetwork.rb"
 require_relative "NxNodes.rb"

@@ -181,13 +181,6 @@ class NxBoards
         Lookups::commit("NonBoardItemToBoardMapping", item["uuid"], board)
     end
 
-    # NxBoards::toStringSuffix(item)
-    def self.toStringSuffix(item)
-        board = Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"])
-        return "" if board.nil?
-        " (board: #{board["description"]})".green
-    end
-
     # NxBoards::listingDisplay(store, spacecontrol, boarduuid) 
     def self.listingDisplay(store, spacecontrol, boarduuid)
         board = NxBoards::getItemOfNull(boarduuid)
@@ -265,10 +258,11 @@ class NxBoards
         end
         spacecontrol.putsline line
 
-        NxOpens::itemsForBoard(boarduuid).each{|item|
-            store.register(item, false)
-            spacecontrol.putsline "#{padding}(#{store.prefixString()}) (open) #{item["description"]}".yellow
-        }
+        NxOpens::itemsForBoard(boarduuid)
+            .each{|item|
+                store.register(item, false)
+                spacecontrol.putsline "#{padding}(#{store.prefixString()}) (open) #{item["description"]} #{NonBoardItemToBoardMapping::toStringSuffix(item)}".yellow
+            }
 
         items = NxBoards::boardItemsOrdered(board["uuid"])
 
