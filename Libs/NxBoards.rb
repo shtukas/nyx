@@ -60,19 +60,24 @@ class NxBoards
 
     # NxBoards::toString(item)
     def self.toString(item)
+        dayLoadInHours = item["hours"].to_f/5
+        dayDoneInHours = BankCore::getValueAtDate(item["uuid"], CommonUtils::today())
+        str0 = "(day: #{("%5.2f" % dayDoneInHours).to_s.green} of #{"%5.2f" % dayLoadInHours})"
+
         loadDoneInHours = BankCore::getValue(item["uuid"]).to_f/3600 + item["hours"]
         loadLeftInhours = item["hours"] - loadDoneInHours
+        str1 = "(done #{("%5.2f" % loadDoneInHours).to_s.green} out of #{item["hours"]})"
+
         timePassedInDays = (Time.new.to_i - item["lastResetTime"]).to_f/86400
         timeLeftInDays = 7 - timePassedInDays
-        str1 = "(done #{("%5.2f" % loadDoneInHours).to_s.green} out of #{item["hours"]})"
         str2 = 
             if timeLeftInDays > 0 then
                 "(#{timeLeftInDays.round(2)} days before reset)"
             else
                 "(late by #{-timeLeftInDays.round(2)})"
             end
-        str3 = "(cr: #{"%5.2f" % NxBoards::completionRatio(item)})"
-        "(board) #{item["description"].ljust(8)} #{str1} #{str2} #{str3}"
+
+        "(board) #{item["description"].ljust(8)} #{str0} #{str1} #{str2}"
     end
 
     # NxBoards::interactivelySelectOneOrNull()
