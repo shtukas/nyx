@@ -168,6 +168,7 @@ class NxBoards
     # NxBoards::listingDisplay(store, spacecontrol, boarduuid) 
     def self.listingDisplay(store, spacecontrol, boarduuid)
         board = NxBoards::getItemOfNull(boarduuid)
+
         if board.nil? then
             puts "NxBoards::listingDisplay(boarduuid), board not found"
             exit
@@ -181,6 +182,9 @@ class NxBoards
                 true
             }).call()
         }
+
+        ondates = NxOndates::listingItems(board)
+
         waves = Waves::items().select{|item|
             (lambda{
                 bx = Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"])
@@ -189,6 +193,7 @@ class NxBoards
                 true
             }).call()
         }
+
         items = NxBoards::boardItemsOrdered(board["uuid"])
 
         store.register(board, (tops+waves+items).empty?)
@@ -211,6 +216,11 @@ class NxBoards
             }
 
         tops.each{|item|
+            store.register(item, true)
+            spacecontrol.putsline (Listing::itemToListingLine(store, item))
+        }
+
+        ondates.each{|item|
             store.register(item, true)
             spacecontrol.putsline (Listing::itemToListingLine(store, item))
         }

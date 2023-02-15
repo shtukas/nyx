@@ -65,9 +65,10 @@ class NxOndates
         "(ondate: #{item["datetime"][0, 10]}) #{item["description"]} (coredataref: #{item["field11"]})"
     end
 
-    # NxOndates::listingItems()
-    def self.listingItems()
+    # NxOndates::listingItems(board or nil)
+    def self.listingItems(board)
         NxOndates::items()
+            .select{|item| NonBoardItemToBoardMapping::belongsToThisBoard(item, board) }
             .select{|item| item["datetime"][0, 10] <= CommonUtils::today() }
     end
 

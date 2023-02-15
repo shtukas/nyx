@@ -283,6 +283,7 @@ class Listing
             item = NxOndates::interactivelyIssueNullOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
+            NxBoards::interactivelyOffersToAttachBoard(item)
             return
         end
 
@@ -295,6 +296,7 @@ class Listing
             item = NxOpens::interactivelyIssueNullOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
+            NxBoards::interactivelyOffersToAttachBoard(item)
             return
         end
 
@@ -391,6 +393,7 @@ class Listing
             item = NxTops::interactivelyIssueNullOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
+            
             return
         end
 
@@ -509,7 +512,7 @@ class Listing
     def self.items()
         [
             Anniversaries::listingItems(),
-            NxOndates::listingItems(),
+            NxOndates::listingItems(nil),
             Waves::topItems(),
             TxManualCountDowns::listingItems(),
             NxBoards::listingItems(),
