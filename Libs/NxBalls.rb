@@ -50,6 +50,9 @@ class NxBalls
     def self.start(item)
         return if !NxBalls::itemIsBallFree(item)
         accounts = PolyFunctions::itemsToBankingAccounts(item)
+        accounts.each{|account|
+            puts "starting account: (#{account["description"]}, #{account["number"]})"
+        }
         NxBalls::issueNxBall(item, accounts)
     end
 
