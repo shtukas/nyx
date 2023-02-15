@@ -567,7 +567,7 @@ class Listing
         NxTops::itemsInOrder()
             .each{|item|
                 bx = Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"])
-                next if !bx.nil?
+                next if !(bx.nil? or NxBalls::itemIsRunning(item))
                 store.register(item, true)
                 spacecontrol.putsline Listing::itemToListingLine(store, item)
             }
