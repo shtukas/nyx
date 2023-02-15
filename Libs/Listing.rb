@@ -534,7 +534,7 @@ class Listing
     # Listing::itemToListingLine(store or nil, item)
     def self.itemToListingLine(store, item)
         storePrefix = store ? "(#{store.prefixString()})" : "     "
-        line = "#{storePrefix} #{PolyFunctions::toString(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}#{NxBoards::toStringSuffix(item)}"
+        line = "#{storePrefix} #{PolyFunctions::toString(item)}#{NxBalls::nxballSuffixStatusIfRelevant(item)}#{NonBoardItemToBoardMapping::toStringSuffix(item)}"
         if Locks::isLocked(item["uuid"]) then
             line = "#{line} [lock: #{Locks::locknameOrNull(item["uuid"])}]".yellow
         end
@@ -555,10 +555,11 @@ class Listing
         lockedItems, items = items.partition{|item| Locks::isLocked(item["uuid"]) }
 
         spacecontrol.putsline ""
-        NxOpens::itemsForBoard(nil).each{|o|
-            store.register(o, false)
-            spacecontrol.putsline "(#{store.prefixString()}) (open) #{o["description"]}".yellow
-        }
+        NxOpens::itemsBoardFree()
+            .each{|item|
+                store.register(item, false)
+                spacecontrol.putsline "(#{store.prefixString()}) (open) #{item["description"]} #{NonBoardItemToBoardMapping::toStringSuffix(item)}".yellow
+            }
 
         NxTops::itemsInOrder()
             .each{|item|

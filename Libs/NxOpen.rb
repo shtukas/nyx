@@ -38,8 +38,22 @@ class NxOpens
         "(open) #{item["description"]}"
     end
 
+    # NxOpens::itemsBoardFree()
+    def self.itemsBoardFree()
+        NxOpens::items()
+            .select{|item| !NonBoardItemToBoardMapping::hasValue(item)}
+    end
+
     # NxOpens::itemsForBoard(boarduuid)
     def self.itemsForBoard(boarduuid)
-        NxOpens::items().select{|item| item["boarduuid"] == boarduuid }
+        NxOpens::items()
+            .select{|item|
+                (lambda{|item|
+                    board = NonBoardItemToBoardMapping::getBoardOrNull(item)
+                    return false if board.nil?
+                    return false if board["uuid"] != boarduuid
+                    true
+                }).call(item)
+            }
     end
 end
