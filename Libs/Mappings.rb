@@ -1,6 +1,23 @@
 
 class NonBoardItemToBoardMapping
 
+    # NonBoardItemToBoardMapping::attach(item, board or nil)
+    def self.attach(item, board)
+        return if board.nil?
+        Lookups::commit("NonBoardItemToBoardMapping", item["uuid"], board)
+    end
+
+    # NonBoardItemToBoardMapping::interactivelyOffersToAttach(item)
+    def self.interactivelyOffersToAttach(item)
+        return if item["mikuType"] == "NxBoard"
+        return if item["mikuType"] == "NxBoardItem"
+        return if Lookups::isValued("NonBoardItemToBoardMapping", item["uuid"])
+        puts "attaching board for accounting"
+        board = NxBoards::interactivelySelectOneOrNull()
+        return if board.nil?
+        Lookups::commit("NonBoardItemToBoardMapping", item["uuid"], board)
+    end
+
     # NonBoardItemToBoardMapping::hasValue(item)
     def self.hasValue(item)
         !Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"]).nil?

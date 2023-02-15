@@ -111,7 +111,7 @@ class Listing
         if Interpreting::match("board", input) then
             item = store.getDefault()
             return if item.nil?
-            NxBoards::interactivelyOffersToAttachBoard(item)
+            NonBoardItemToBoardMapping::interactivelyOffersToAttach(item)
             return
         end
 
@@ -119,7 +119,7 @@ class Listing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            NxBoards::interactivelyOffersToAttachBoard(item)
+            NonBoardItemToBoardMapping::interactivelyOffersToAttach(item)
             return
         end
 
@@ -283,7 +283,7 @@ class Listing
             item = NxOndates::interactivelyIssueNullOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
-            NxBoards::interactivelyOffersToAttachBoard(item)
+            NonBoardItemToBoardMapping::interactivelyOffersToAttach(item)
             return
         end
 
@@ -296,7 +296,7 @@ class Listing
             item = NxOpens::interactivelyIssueNullOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
-            NxBoards::interactivelyOffersToAttachBoard(item)
+            NonBoardItemToBoardMapping::interactivelyOffersToAttach(item)
             return
         end
 
@@ -393,7 +393,6 @@ class Listing
             item = NxTops::interactivelyIssueNullOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
-            
             return
         end
 

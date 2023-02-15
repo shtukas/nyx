@@ -16,12 +16,25 @@ class NxTops
         ObjectStore2::destroy("NxTops", uuid)
     end
 
+    # NxTops::interactivelyDecideOrdinalOrNull(board)
+    def self.interactivelyDecideOrdinalOrNull(board)
+        if board.nil? then
+            LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+        else
+            NxTops::itemsForBoard(board).each{|item|
+                puts NxTops::toString(item)
+            }
+            LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+        end
+    end
+
     # NxTops::interactivelyIssueNullOrNull()
     def self.interactivelyIssueNullOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid  = SecureRandom.uuid
-        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+        board = NxBoards::interactivelySelectOneOrNull()
+        ordinal = NxTops::interactivelyDecideOrdinalOrNull(board)
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxTop",
@@ -32,7 +45,7 @@ class NxTops
         }
         puts JSON.pretty_generate(item)
         NxTops::commit(item)
-        NxBoards::interactivelyOffersToAttachBoard(item)
+        NonBoardItemToBoardMapping::attach(item, board)
         item
     end
 
@@ -44,5 +57,16 @@ class NxTops
     # NxTops::itemsInOrder()
     def self.itemsInOrder()
         NxTops::items().sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
+    end
+
+    # NxTops::itemsForBoard(board or nil)
+    def self.itemsForBoard(board)
+        NxTops::itemsInOrder()
+            .select{|item| NonBoardItemToBoardMapping::belongsToThisBoard(item, board) }
+    end
+
+    # NxTops::listingItems(board or nil)
+    def self.listingItems(board)
+        NxTops::itemsForBoard(board)
     end
 end

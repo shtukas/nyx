@@ -154,17 +154,6 @@ class NxBoards
         }
     end
 
-    # NxBoards::interactivelyOffersToAttachBoard(item)
-    def self.interactivelyOffersToAttachBoard(item)
-        return if item["mikuType"] == "NxBoard"
-        return if item["mikuType"] == "NxBoardItem"
-        return if Lookups::isValued("NonBoardItemToBoardMapping", item["uuid"])
-        puts "attaching board for accounting"
-        board = NxBoards::interactivelySelectOneOrNull()
-        return if board.nil?
-        Lookups::commit("NonBoardItemToBoardMapping", item["uuid"], board)
-    end
-
     # NxBoards::listingDisplay(store, spacecontrol, boarduuid) 
     def self.listingDisplay(store, spacecontrol, boarduuid)
         board = NxBoards::getItemOfNull(boarduuid)
