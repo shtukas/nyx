@@ -158,7 +158,7 @@ class NxBoards
         NxBoards::items().each{|item|
             if BankCore::getValue(item["uuid"]) >= 0 and (Time.new.to_i - item["lastResetTime"]) >= 86400*7 then
                 puts "resetting time commitment board: #{item["description"]}"
-                BankCore::put(item["uuid"], -engine["hours"]*3600)
+                BankCore::put(item["uuid"], -item["hours"]*3600)
                 item["lastResetTime"] = Time.new.to_i
                 NxBoards::commit(item)
             end
