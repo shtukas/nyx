@@ -386,6 +386,7 @@ class Listing
             item = NxOndates::interactivelyIssueNewTodayOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
+            NonBoardItemToBoardMapping::interactivelyOffersToAttach(item)
             return
         end
 
