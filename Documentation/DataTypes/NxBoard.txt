@@ -1,8 +1,10 @@
 
 NxBoard:
-    "uuid"        : String
-    "mikuType"    : "NxBoard"
-    "unixtime"    : Float
-    "datetime"    : DateTime Iso 8601 UTC Zulu
-    "description" : String
-    "hours"       : Float
+    "uuid"          : String
+    "mikuType"      : "NxBoard"
+    "unixtime"      : Float
+    "datetime"      : DateTime Iso 8601 UTC Zulu
+    "description"   : String
+    "hours"         : Float
+    "lastResetTime" : Unixtime
+    "capsule"       : String # this is the bank account number of the time commitment

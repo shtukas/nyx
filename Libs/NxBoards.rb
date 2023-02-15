@@ -26,32 +26,16 @@ class NxBoards
         uuid = SecureRandom.uuid
         hours = LucilleCore::askQuestionAnswerAsString("hours: ").to_f
         item = {
-            "uuid"        => uuid,
-            "mikuType"    => "NxBoard",
-            "unixtime"    => Time.new.to_i,
-            "datetime"    => Time.new.utc.iso8601,
-            "description" => description,
-            "hours"       => hours
+            "uuid"          => uuid,
+            "mikuType"      => "NxBoard",
+            "unixtime"      => Time.new.to_i,
+            "datetime"      => Time.new.utc.iso8601,
+            "description"   => description,
+            "hours"         => hours,
+            "lastResetTime" => 0,
+            "capsule"       => SecureRandom.hex
         }
         NxBoards::commit(item)
-        item
-    end
-
-    # NxBoards::issueLine(line, boarduuid, boardposition)
-    def self.issueLine(line, boarduuid, boardposition)
-        description = line
-        uuid  = SecureRandom.uuid
-        item = {
-            "uuid"        => uuid,
-            "mikuType"    => "NxBoardItem",
-            "unixtime"    => Time.new.to_i,
-            "datetime"    => Time.new.utc.iso8601,
-            "description" => description,
-            "field11"     => nil,
-            "boarduuid"     => boarduuid,
-            "boardposition" => boardposition
-        }
-        NxBoardItems::commit(item)
         item
     end
 
@@ -64,7 +48,7 @@ class NxBoards
         dayDoneInHours = BankCore::getValueAtDate(item["uuid"], CommonUtils::today()).to_f/3600
         str0 = "(day: #{("%5.2f" % dayDoneInHours).to_s.green} of #{"%5.2f" % dayLoadInHours})"
 
-        loadDoneInHours = BankCore::getValue(item["uuid"]).to_f/3600 + item["hours"]
+        loadDoneInHours = BankCore::getValue(item["capsule"]).to_f/3600 + item["hours"]
         loadLeftInhours = item["hours"] - loadDoneInHours
         str1 = "(done #{("%5.2f" % loadDoneInHours).to_s.green} out of #{item["hours"]})"
 
@@ -161,9 +145,9 @@ class NxBoards
     # NxBoards::timeManagement()
     def self.timeManagement()
         NxBoards::items().each{|item|
-            if BankCore::getValue(item["uuid"]) >= 0 and (Time.new.to_i - item["lastResetTime"]) >= 86400*7 then
-                puts "resetting time commitment board: #{item["description"]}"
-                BankCore::put(item["uuid"], -item["hours"]*3600)
+            if BankCore::getValue(item["capsule"]) >= 0 and (Time.new.to_i - item["lastResetTime"]) >= 86400*7 then
+                puts "resetting board's capsule time commitment: #{item["description"]}"
+                BankCore::put(item["capsule"], -item["hours"]*3600)
                 item["lastResetTime"] = Time.new.to_i
                 NxBoards::commit(item)
             end

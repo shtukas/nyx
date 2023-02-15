@@ -9,46 +9,34 @@ class PolyFunctions
                 "description" => item["description"],
                 "number"      => item["uuid"]
             }
+            accounts << {
+                "description" => "capsule: #{item["capsule"]}",
+                "number"      => item["capsule"]
+            }
             return accounts
         end
 
         if item["mikuType"] == "NxBoardItem" then
             accounts << {
-                "description" => nil,
+                "description" => "[self]",
                 "number"      => item["uuid"]
             }
             boarduuid = item["boarduuid"]
-            stream = NxBoards::getItemOfNull(boarduuid)
-            accounts << {
-                "description" => "stream: #{stream["description"]}",
-                "number"      => boarduuid
-            }
-            return accounts
-        end
-
-        if item["mikuType"] == "NxBoardFirstItem" then
-            accounts << {
-                "description" => "stream: #{item["stream"]["description"]}",
-                "number"      => item["stream"]["uuid"]
-            }
-            accounts << {
-                "description" => nil,
-                "number"      => item["todo"]["uuid"]
-            }
+            board = NxBoards::getItemOfNull(boarduuid)
+            extraAccounts = PolyFunctions::itemsToBankingAccounts(board)
+            accounts = accounts + extraAccounts
             return accounts
         end
 
         accounts << {
-            "description" => nil,
+            "description" => "[self]",
             "number"      => item["uuid"]
         }
 
         board = Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"])
         if board then
-            accounts << {
-                "description" => board["description"],
-                "number"      => board["uuid"]
-            }
+            extraAccounts = PolyFunctions::itemsToBankingAccounts(board)
+            accounts = accounts + extraAccounts
         end
 
         accounts
@@ -67,9 +55,6 @@ class PolyFunctions
         end
         if item["mikuType"] == "NxBoardItem" then
             return NxBoardItems::toString(item)
-        end
-        if item["mikuType"] == "NxBoardFirstItem" then
-            return item["description"]
         end
         if item["mikuType"] == "NxNode" then
             return NxNodes::toString(item)

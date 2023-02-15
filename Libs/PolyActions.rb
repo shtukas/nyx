@@ -25,12 +25,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxBoardFirstItem" then
-            todo = item["todo"]
-            PolyActions::access(todo)
-            return
-        end
-
         if item["mikuType"] == "NxOndate" then
             NxOndates::access(item)
             return
@@ -102,12 +96,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxBoardFirstItem" then
-            todo = item["todo"]
-            PolyActions::done(todo)
-            return
-        end
-
         if item["mikuType"] == "NxOpen" then
             if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green} ? '", true) then
                 NxOpens::destroy(item["uuid"])
@@ -174,30 +162,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxBoardFirstItem" then
-
-            todo = item["todo"]
-
-            NxBalls::start(todo)
-
-            options = ["done (destroy)", "run in background", "do not display until"]
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", options)
-            return if option.nil?
-            if option == "done (destroy)" then
-                NxBoardItems::destroy(todo["uuid"])
-            end
-            if option == "run in background" then
-                return
-            end
-            if option == "do not show until" then
-                unixtime = CommonUtils::interactivelySelectUnixtimeUsingDateCodeOrNull()
-                return if unixtime.nil?
-                DoNotShowUntil::setUnixtime(todo["uuid"], unixtime)
-            end
-
-            return
-        end
-
         if item["mikuType"] == "NxOndate" then
             NxBalls::start(item)
             NxOndates::access(item)
@@ -212,28 +176,6 @@ class PolyActions
             end
             if option == "redate" then
                 NxOndates::redate(item)
-            end
-            return
-        end
-
-        if item["mikuType"] == "NxBoard" then
-            if NxBalls::itemIsRunning(item) then
-                if LucilleCore::askQuestionAnswerAsBoolean("We are running, would you like to stop ? ".green, true) then
-                    NxBalls::stop(item)
-                end
-                return
-            end
-            if NxBalls::itemIsPaused(item) then
-                if LucilleCore::askQuestionAnswerAsBoolean("We are paused would you like to pursue ? ".green, true) then
-                    NxBalls::pursue(item)
-                end
-                return
-            end
-            if NxBalls::itemIsBallFree(item) then
-                if LucilleCore::askQuestionAnswerAsBoolean("Would you like to start ? ".green, true) then
-                    NxBalls::start(item)
-                end
-                return
             end
             return
         end
