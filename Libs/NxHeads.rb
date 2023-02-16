@@ -45,6 +45,23 @@ class NxHeads
         item
     end
 
+    # NxHeads::netflix(title)
+    def self.netflix(title)
+        uuid  = SecureRandom.uuid
+        position = NxList::midposition()
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NxHead",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => "Watch '#{title}' on Netflix",
+            "field11"     => nil,
+            "position"    => position
+        }
+        NxHeads::commit(item)
+        item
+    end
+
     # --------------------------------------------------
     # Data
 

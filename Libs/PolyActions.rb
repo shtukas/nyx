@@ -340,4 +340,15 @@ class PolyActions
             BankCore::put(account["number"], timeInSeconds)
         }
     end
+
+    # PolyActions::editDescription(item)
+    def self.editDescription(item)
+        puts "edit description:"
+        item["description"] = CommonUtils::editTextSynchronously(item["description"])
+        if item["mikuType"] == "NxHead" then
+            NxHeads::commit(item)
+            return
+        end
+        raise "not implemented for mikuType: #{item["mikuType"]}"
+    end
 end

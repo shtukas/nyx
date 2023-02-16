@@ -126,9 +126,7 @@ class Listing
         if Interpreting::match("description", input) then
             item = store.getDefault()
             return if item.nil?
-            puts "edit description:"
-            item["description"] = CommonUtils::editTextSynchronously(item["description"])
-            raise "not implemented"
+            PolyActions::editDescription(item)
             return
         end
 
@@ -136,9 +134,7 @@ class Listing
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            puts "edit description:"
-            item["description"] = CommonUtils::editTextSynchronously(item["description"])
-            raise "not implemented"
+            PolyActions::editDescription(item)
             return
         end
 
@@ -268,6 +264,11 @@ class Listing
         if Interpreting::match("manual countdown", input) then
             TxManualCountDowns::issueNewOrNull()
             return
+        end
+
+        if Interpreting::match("netflix", input) then
+            title = LucilleCore::askQuestionAnswerAsString("title: ")
+            NxHeads::netflix(title)
         end
 
         if Interpreting::match("note", input) then
