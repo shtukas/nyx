@@ -527,27 +527,42 @@ class Listing
         LucilleCore::pressEnterToContinue()
     end
 
-    # Listing::sheduler1items()
-    def self.sheduler1items()
+    # Listing::scheduler1data()
+    def self.scheduler1data()
         [
             {
+                "name"      => "wave/leisure",
                 "account"   => "d36d653e-80e0-4141-b9ff-f26197bbce2b",
                 "generator" => lambda{ Waves::leisureItems() } 
             },
             {
+                "name"      => "projects",
                 "account"   => "21560980-1162-4293-a7f6-42c666862485",
                 "generator" => lambda{ NxProjects::listingItems() } 
             },
             {
+                "name"      => "head",
                 "account"   => "cfad053c-bb83-4728-a3c5-4fb357845fd9",
                 "generator" => lambda{ NxHeads::listingItems() } 
             }
-        ].map{|packet|
+        ]
+        .map{|packet|
             packet["rt"] = BankUtils::recoveredAverageHoursPerDay(packet["account"])
             packet
         }
         .sort{|p1, p2| p1["rt"] <=> p2["rt"] }
-        .first["generator"].call()
+    end
+
+    # Listing::scheduler1line()
+    def self.scheduler1line()
+        a1 = Listing::scheduler1data().map{|packet| "#{packet["name"]}: #{packet["rt"].round(2)}" }
+        "(scheduler1, #{a1.join(", ")})"
+    end
+
+    # Listing::sheduler1items()
+    def self.sheduler1items()
+        Listing::scheduler1data()
+            .first["generator"].call()
     end
 
     # Listing::items()
@@ -646,9 +661,9 @@ class Listing
         }
 
         spacecontrol.putsline ""
+        spacecontrol.putsline "> #{Listing::scheduler1line()}"
         spacecontrol.putsline The99Percent::line() + " (mid point: #{NxList::midposition()})"
         spacecontrol.putsline "> anniversary | manual countdown | wave | today | ondate | drop | top | desktop".yellow
-
     end
 
     # Listing::mainProgram2Pure()
