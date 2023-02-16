@@ -5,7 +5,7 @@ class CoreData
 
     # CoreData::coreDataReferenceTypes()
     def self.coreDataReferenceTypes()
-        ["nyx directory", "unique string", "text", "url", "aion point", "Dx8Unit"]
+        ["nyx directory", "unique string", "text", "url", "aion point", "Dx8Unit", "OpenCycle Directory"]
     end
 
     # CoreData::interactivelySelectCoreDataReferenceType()
@@ -52,6 +52,10 @@ class CoreData
             unitId = LucilleCore::askQuestionAnswerAsString("Dx8Unit Id: ")
             return "Dx8UnitId:#{unitId}"
         end
+        if referencetype == "OpenCycle Directory" then
+            fname = LucilleCore::askQuestionAnswerAsString("OpenCycle directory name: ")
+            return "open-cycle:#{fname}"
+        end
         raise "(error: f75b2797-99e5-49d0-8d49-40b44beb538c) unsupported core data reference type: #{referencetype}"
     end
 
@@ -81,6 +85,9 @@ class CoreData
         end
         if referenceString.start_with?("Dx8UnitId") then
             return " (Dx8Unit)"
+        end
+        if referenceString.start_with?("open-cycle") then
+            return " (#{referenceString})"
         end
         raise "CoreData, I do not know how to string '#{referenceString}'"
     end
@@ -145,6 +152,13 @@ class CoreData
             Dx8Units::access(unitId)
             return
         end
+        if referenceString.start_with?("open-cycle") then
+            fname = referenceString.split(":")[1]
+            directoryFilepath = "#{Config::pathToGalaxy()}/OpenCycles/#{fname}"
+            system("open '#{directoryFilepath}'")
+            return
+        end
+
         raise "CoreData, I do not know how to access '#{referenceString}'"
     end
 
@@ -214,6 +228,10 @@ class CoreData
         if referenceString.start_with?("Dx8UnitId") then
             unitId = referenceString.split(":")[1]
             Dx8Units::access(unitId)
+            return
+        end
+        if referenceString.start_with?("open-cycle") then
+            CoreData::access(referenceString)
             return
         end
         raise "CoreData, I do not know how to edit '#{referenceString}'"
