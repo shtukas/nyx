@@ -28,6 +28,30 @@ class PolyFunctions
             return accounts
         end
 
+        # scheduler1 "d36d653e-80e0-4141-b9ff-f26197bbce2b" monitors Waves::leisureItems() which are exactly the Wave priority:ns:leisure items
+        if item["mikuType"] == "Wave" and item["priority"] == "ns:leisure" then
+            accounts << {
+                "description" => "scheduler1 (d3)",
+                "number"      => "d36d653e-80e0-4141-b9ff-f26197bbce2b"
+            }
+        end
+
+        # scheduler1 "21560980-1162-4293-a7f6-42c666862485" monitors NxProjects::listingItems() which are the NxProject items
+        if item["mikuType"] == "NxProject" then
+            accounts << {
+                "description" => "scheduler1 (21)",
+                "number"      => "21560980-1162-4293-a7f6-42c666862485"
+            }
+        end
+
+        # scheduler1 "cfad053c-bb83-4728-a3c5-4fb357845fd9" monitors the NxHeads::listingItems() is are the NxHead items
+        if item["mikuType"] == "NxHead" then
+            accounts << {
+                "description" => "scheduler1 (cf)",
+                "number"      => "cfad053c-bb83-4728-a3c5-4fb357845fd9"
+            }
+        end
+
         accounts << {
             "description" => "[self]",
             "number"      => item["uuid"]
@@ -64,6 +88,9 @@ class PolyFunctions
         end
         if item["mikuType"] == "NxOndate" then
             return NxOndates::toString(item)
+        end
+        if item["mikuType"] == "NxProject" then
+            return NxProjects::toString(item)
         end
         if item["mikuType"] == "NxTail" then
             return NxTails::toString(item)

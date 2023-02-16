@@ -188,11 +188,11 @@ class Waves
     # Data (2)
     # We do not display wave that are attached to a board (the board displays them)
 
-    # Waves::listingItems(priority)
-    def self.listingItems(priority)
+    # Waves::itemForPriority(priority)
+    def self.itemForPriority(priority)
         Waves::items()
             .select{|item| item["priority"] == priority }
-            .select{|item| Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"]).nil? }
+            .select{|item| !NonBoardItemToBoardMapping::hasValue(item) }
             .select{|item|
                 item["onlyOnDays"].nil? or item["onlyOnDays"].include?(CommonUtils::todayAsLowercaseEnglishWeekDayName())
             }
@@ -203,16 +203,21 @@ class Waves
     def self.topItems()
         Waves::items()
             .select{|item| item["priority"] == "ns:today" or item["nx46"]["type"] == "sticky" }
-            .select{|item| Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"]).nil? }
+            .select{|item| !NonBoardItemToBoardMapping::hasValue(item) }
             .select{|item|
                 item["onlyOnDays"].nil? or item["onlyOnDays"].include?(CommonUtils::todayAsLowercaseEnglishWeekDayName())
             }
             .sort{|w1, w2| w1["lastDoneDateTime"] <=> w2["lastDoneDateTime"] }
     end
 
+    # Waves::timedItems()
+    def self.timedItems()
+        Waves::itemForPriority("ns:today-or-tomorrow")
+    end
+
     # Waves::leisureItems()
     def self.leisureItems()
-        Waves::listingItems("ns:leisure")
+        Waves::itemForPriority("ns:leisure")
     end
 
     # -------------------------------------------------------------------------

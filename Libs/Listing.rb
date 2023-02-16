@@ -21,7 +21,7 @@ class Listing
     def self.listingCommands()
         [
             "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | landing (<n>) | expose (<n>) | >> skip default | lock (<n>) | add time (<n>) | board (<n>) | destroy",
-            "[makers] anniversary | manual countdown | wave | today | ondate | drop | top | desktop",
+            "[makers] anniversary | manual countdown | wave | today | ondate | drop | top | desktop | project",
             "[divings] anniversaries | ondates | waves | todos | desktop | open",
             "[NxBalls] start | start * | stop | stop * | pause | pursue",
             "[NxOndate] redate",
@@ -326,6 +326,14 @@ class Listing
             return
         end
 
+        if Interpreting::match("project", input) then
+            item = NxProjects::interactivelyIssueNewOrNull()
+            return if item.nil?
+            puts JSON.pretty_generate(item)
+            NonBoardItemToBoardMapping::interactivelyOffersToAttach(item)
+            return
+        end
+
         if Interpreting::match("redate", input) then
             item = store.getDefault()
             return if item.nil?
@@ -434,8 +442,8 @@ class Listing
                 "lambda" => lambda { NxBoards::listingItems() }
             },
             {
-                "name" => "Waves::listingItems(ns:today-or-tomorrow)",
-                "lambda" => lambda { Waves::listingItems("ns:today-or-tomorrow") }
+                "name" => "Waves::itemForPriority(ns:today-or-tomorrow)",
+                "lambda" => lambda { Waves::itemForPriority("ns:today-or-tomorrow") }
             },
             {
                 "name" => "Waves::leisureItems()",
@@ -446,8 +454,8 @@ class Listing
                 "lambda" => lambda { NxHeads::listingItems() }
             },
             {
-                "name" => "Waves::listingItems(ns:leisure)",
-                "lambda" => lambda { Waves::listingItems("ns:leisure") }
+                "name" => "Waves::itemForPriority(ns:leisure)",
+                "lambda" => lambda { Waves::itemForPriority("ns:leisure") }
             },
         ]
 
@@ -504,6 +512,29 @@ class Listing
         LucilleCore::pressEnterToContinue()
     end
 
+    # Listing::sheduler1items()
+    def self.sheduler1items()
+        [
+            {
+                "account"   => "d36d653e-80e0-4141-b9ff-f26197bbce2b",
+                "generator" => lambda{ Waves::leisureItems() } 
+            },
+            {
+                "account"   => "21560980-1162-4293-a7f6-42c666862485",
+                "generator" => lambda{ NxProjects::listingItems() } 
+            },
+            {
+                "account"   => "cfad053c-bb83-4728-a3c5-4fb357845fd9",
+                "generator" => lambda{ NxHeads::listingItems() } 
+            }
+        ].map{|packet|
+            packet["rt"] = BankUtils::recoveredAverageHoursPerDay(packet["account"])
+            packet
+        }
+        .sort{|p1, p2| p1["rt"] <=> p2["rt"] }
+        .first["generator"].call()
+    end
+
     # Listing::items()
     def self.items()
         [
@@ -512,9 +543,8 @@ class Listing
             Waves::topItems(),
             TxManualCountDowns::listingItems(),
             NxBoards::listingItems(),
-            Waves::listingItems("ns:today-or-tomorrow"),
-            Waves::leisureItems(),
-            NxHeads::listingItems(),
+            Waves::timedItems(),
+            Listing::sheduler1items(),
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }

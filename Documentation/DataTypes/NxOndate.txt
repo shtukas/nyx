@@ -1,7 +1,7 @@
 NxOndate
-    "uuid"        => uuid,
-    "mikuType"    => "NxOndate",
-    "unixtime"    => Time.new.to_i,
-    "datetime"    => datetime,
+    "uuid"        => uuid
+    "mikuType"    => "NxOndate"
+    "unixtime"    => Float
+    "datetime"    => DateTime Iso 8601 UTC Zulu
     "description" => description,
     "field11"     => coredataref
