@@ -19,9 +19,16 @@ class NxTops
     # NxTops::interactivelyDecideOrdinalOrNull(board)
     def self.interactivelyDecideOrdinalOrNull(board)
         if board.nil? then
+            existingItems = NxTops::itemsInOrder()
+            return 1 if existingItems.empty?
+            existingItems.each{|item|
+                puts NxTops::toString(item)
+            }
             LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
         else
-            NxTops::itemsForBoard(board).each{|item|
+            existingItems = NxTops::itemsForBoard(board)
+            return 1 if existingItems.empty?
+            existingItems.each{|item|
                 puts NxTops::toString(item)
             }
             LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
