@@ -97,43 +97,50 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxOpen" then
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green} ? '", true) then
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green}' ? ", true) then
                 NxOpens::destroy(item["uuid"])
             end
             return
         end
 
         if item["mikuType"] == "NxOndate" then
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green} ? '", true) then
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green}' ? ", true) then
                 NxOndates::destroy(item["uuid"])
             end
             return
         end
 
         if item["mikuType"] == "NxBoardItem" then
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green} ? '", true) then
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green}' ? ", true) then
                 NxBoardItems::destroy(item["uuid"])
             end
             return
         end
 
         if item["mikuType"] == "NxTop" then
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green} ? '", true) then
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green}' ? ", true) then
                 NxTops::destroy(item["uuid"])
             end
             return
         end
 
         if item["mikuType"] == "NxHead" then
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green} ? '", true) then
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green}' ? ", true) then
                 NxHeads::destroy(item["uuid"])
             end
             return
         end
 
         if item["mikuType"] == "NxTail" then
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green} ? '", true) then
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green}' ? ", true) then
                 NxTails::destroy(item["uuid"])
+            end
+            return
+        end
+
+        if item["mikuType"] == "NxProject" then
+            if LucilleCore::askQuestionAnswerAsBoolean("You are about to destroy a NxProject, #{PolyFunctions::toString(item).green}, are you sure ? ", true) then
+                NxProjects::destroy(item["uuid"])
             end
             return
         end
