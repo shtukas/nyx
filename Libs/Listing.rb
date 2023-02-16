@@ -25,7 +25,7 @@ class Listing
             "[divings] anniversaries | ondates | waves | todos | desktop | open",
             "[NxBalls] start | start * | stop | stop * | pause | pursue",
             "[NxOndate] redate",
-            "[NxBoard] holiday",
+            "[NxBoard] holiday <n>",
             "[misc] search | speed | commands | nyx",
         ].join("\n")
     end
@@ -66,10 +66,7 @@ class Listing
             item = store.getDefault()
             return if item.nil?
             timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
-            PolyFunctions::itemsToBankingAccounts(item).each{|account|
-                puts "Adding #{timeInHours*3600} seconds to item: #{account["description"]}"
-                BankCore::put(account["number"], timeInHours*3600)
-            }
+            PolyActions::addTimeToItem(item, timeInHours*3600)
         end
 
         if Interpreting::match("add time *", input) then
@@ -77,10 +74,7 @@ class Listing
             item = store.get(ordinal.to_i)
             return if item.nil?
             timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
-            PolyFunctions::itemsToBankingAccounts(item).each{|account|
-                puts "Adding #{timeInHours*3600} seconds to item: #{account["description"]}"
-                BankCore::put(account["number"], timeInHours*3600)
-            }
+            PolyActions::addTimeToItem(item, timeInHours*3600)
         end
 
         if Interpreting::match("access", input) then
@@ -232,17 +226,19 @@ class Listing
             return
         end
 
-        if Interpreting::match("holiday", input) then
-            item = store.getDefault()
+        if Interpreting::match("holiday *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
             return if item.nil?
             if item["mikuType"] != "NxBoard" then
                 puts "holiday only apply to NxBoards"
                 LucilleCore::pressEnterToContinue()
                 return
             end
-            timespanInHours = item["hours"].to_f/5
-            puts "Adding #{timespanInHours*3600} seconds to #{item["description"]}"
-            BankCore::put(item["uuid"], timespanInHours*3600)
+            timeInHours = item["hours"].to_f/5
+            if LucilleCore::askQuestionAnswerAsBoolean("> confirm adding holiday time to '#{PolyFunctions::toString(item).green}' amounting #{timeInHours.round(2).to_s.green} hours: ") then
+                PolyActions::addTimeToItem(item, timeInHours*3600)
+            end
             return
         end
 

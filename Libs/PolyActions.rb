@@ -325,4 +325,12 @@ class PolyActions
     def self.start(item)
         NxBalls::start(item)
     end
+
+    # PolyActions::addTimeToItem(item, timeInSeconds)
+    def self.addTimeToItem(item, timeInSeconds)
+        PolyFunctions::itemsToBankingAccounts(item).each{|account|
+            puts "Adding #{timeInSeconds} seconds to account: #{account["description"]}"
+            BankCore::put(account["number"], timeInSeconds)
+        }
+    end
 end
