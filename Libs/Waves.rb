@@ -174,14 +174,14 @@ class Waves
     # Waves::toString(item)
     def self.toString(item)
         ago = "#{((Time.new.to_i - DateTime.parse(item["lastDoneDateTime"]).to_time.to_i).to_f/86400).round(2)} days ago"
-        "(wave) #{item["description"]} (#{Waves::nx46ToString(item["nx46"])}) (coredataref: #{item["field11"]}) (#{ago}) 🌊 [#{item["priority"]}]"
+        "(wave) #{item["description"]} (#{Waves::nx46ToString(item["nx46"])})#{CoreData::referenceStringToSuffixString(item["field11"])} (#{ago}) 🌊 [#{item["priority"]}]"
     end
 
     # Waves::toStringForSearch(item)
     def self.toStringForSearch(item)
         ago = "#{((Time.new.to_i - DateTime.parse(item["lastDoneDateTime"]).to_time.to_i).to_f/86400).round(2)} days ago"
         isPendingStr = DoNotShowUntil::isVisible(item["uuid"]) ? " (pending)".green : ""
-        "(wave) #{item["description"]} (#{Waves::nx46ToString(item["nx46"])}) (coredataref: #{item["field11"]}) (#{ago})#{isPendingStr} 🌊 [#{item["priority"]}]"
+        "(wave) #{item["description"]} (#{Waves::nx46ToString(item["nx46"])})#{CoreData::referenceStringToSuffixString(item["field11"])} (#{ago})#{isPendingStr} 🌊 [#{item["priority"]}]"
     end
 
     # -------------------------------------------------------------------------

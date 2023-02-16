@@ -55,6 +55,36 @@ class CoreData
         raise "(error: f75b2797-99e5-49d0-8d49-40b44beb538c) unsupported core data reference type: #{referencetype}"
     end
 
+    # CoreData::referenceStringToSuffixString(referenceString)
+    def self.referenceStringToSuffixString(referenceString)
+        if referenceString.nil? then
+            return ""
+        end
+        if referenceString == "null" then
+            return ""
+        end
+        if referenceString.start_with?("nyx-directory") then
+            return " (nyx directory)"
+        end
+        if referenceString.start_with?("unique-string") then
+            str = referenceString.split(":")[1]
+            return " (unique string: #{str})"
+        end
+        if referenceString.start_with?("text") then
+            return " (text)"
+        end
+        if referenceString.start_with?("url") then
+            return " (url)"
+        end
+        if referenceString.start_with?("aion-point") then
+            return " (aion point)"
+        end
+        if referenceString.start_with?("Dx8UnitId") then
+            return " (Dx8Unit)"
+        end
+        raise "CoreData, I do not know how to string '#{referenceString}'"
+    end
+
     # CoreData::access(referenceString)
     def self.access(referenceString)
         if referenceString.nil? then
