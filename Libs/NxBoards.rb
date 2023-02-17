@@ -1,6 +1,9 @@
 
 class NxBoards
 
+    # --------------------------------------------
+    # IO
+
     # NxBoards::items()
     def self.items()
         ObjectStore2::objects("NxBoards")

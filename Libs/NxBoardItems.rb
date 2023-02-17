@@ -47,7 +47,7 @@ class NxBoardItems
 
     # NxBoardItems::toString(item)
     def self.toString(item)
-        "(pos: #{"%8.3f" % item["boardposition"]}) #{item["description"]}"
+        "(pos: #{"%8.3f" % item["boardposition"]}) #{item["description"]}#{CoreData::referenceStringToSuffixString(item["field11"])}"
     end
 
     # --------------------------------------------------
