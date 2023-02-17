@@ -25,6 +25,11 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NxBoardItem" then
+            CoreData::access(item["field11"])
+            return
+        end
+
         if item["mikuType"] == "NxOndate" then
             NxOndates::access(item)
             return
