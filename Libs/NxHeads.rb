@@ -71,6 +71,11 @@ class NxHeads
         "(stream) (#{"%5.2f" % rt}) #{item["description"]} (pos: #{item["position"].round(3)})"
     end
 
+    # NxHeads::startZone()
+    def self.startZone()
+        NxHeads::items().map{|item| item["position"] }.sort.take(3).inject(0, :+).to_f/3
+    end
+
     # NxHeads::endPosition()
     def self.endPosition()
         ([-4] + NxHeads::items().map{|item| item["position"] }).max
