@@ -81,7 +81,9 @@ class NxBoards
 
     # NxBoards::interactivelyDecideNewBoardPosition(board)
     def self.interactivelyDecideNewBoardPosition(board)
-        NxBoards::boardItemsOrdered(board["uuid"])
+        boardItems = NxBoards::boardItemsOrdered(board["uuid"])
+        return 1 if boardItems.empty?
+        boardItems
             .first(20)
             .each{|item| puts NxBoardItems::toString(item) }
         LucilleCore::askQuestionAnswerAsString("position: ").to_f

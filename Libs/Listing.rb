@@ -194,7 +194,8 @@ class Listing
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             return if option.nil?
             if option == "NxBoard" then
-                NxBoardItems::interactivelyIssueNewOrNull()
+                board = NxBoards::interactivelySelectOne()
+                NxBoardItems::interactivelyIssueNewOrNull(board)
             end
             if option == "NxList" then
                 NxHeads::interactivelyIssueNewOrNull()
