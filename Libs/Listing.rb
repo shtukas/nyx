@@ -12,7 +12,6 @@ class SpaceControl
         puts line
         @remaining_vertical_space = @remaining_vertical_space - vspace
     end
-
 end
 
 class Listing
@@ -696,6 +695,8 @@ class Listing
 
             NxBoards::timeManagement()
             NxList::dataManagement()
+
+            NxOpenCycles::program()
 
             store = ItemStore.new()
 

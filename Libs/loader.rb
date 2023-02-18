@@ -187,6 +187,7 @@ require_relative "NxProject.rb"
 require_relative "NxNote.rb"
 
 require_relative "ObjectStore2.rb"
+require_relative "NxOpenCycles.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"
