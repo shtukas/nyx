@@ -231,9 +231,9 @@ class Listing
                 LucilleCore::pressEnterToContinue()
                 return
             end
-            timeInHours = item["hours"].to_f/5
-            if LucilleCore::askQuestionAnswerAsBoolean("> confirm adding holiday time to '#{PolyFunctions::toString(item).green}' amounting #{timeInHours.round(2).to_s.green} hours: ") then
-                PolyActions::addTimeToItem(item, timeInHours*3600)
+            unixtime = CommonUtils::unixtimeAtComingMidnightAtGivenTimeZone(CommonUtils::getLocalTimeZone()) + 3600*3 # 3 am
+            if LucilleCore::askQuestionAnswerAsBoolean("> confirm today holiday for '#{PolyFunctions::toString(item).green}': ") then
+                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
             end
             return
         end
