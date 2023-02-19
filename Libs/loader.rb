@@ -185,6 +185,7 @@ require_relative "NxProject.rb"
 require_relative "NxNote.rb"
 require_relative "NxBoardItems.rb"
 require_relative "NxOpenCycles.rb"
+require_relative "NxOrbitals.rb"
 
 require_relative "ObjectStore2.rb"
 
