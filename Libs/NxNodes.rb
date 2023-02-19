@@ -83,7 +83,7 @@ class NxNodes
             store = ItemStore.new()
 
             puts ""
-            linked = NxNetwork::linkednodes(item["uuid"])
+            linked = NxLinks::linkednodes(item["uuid"])
             linked.each{|linkednode|
                 store.register(linkednode, false)
                 puts "- (#{store.prefixString()}) #{PolyFunctions::toString(linkednode)}"
@@ -117,7 +117,7 @@ class NxNodes
             if command == "link" then
                 node2 = NxNodes::architectNodeOrNull()
                 if node2 then
-                    NxNetwork::link(item["uuid"], node2["uuid"])
+                    NxLinks::link(item["uuid"], node2["uuid"])
                     NxNodes::landing(node2)
                 end
                 next
