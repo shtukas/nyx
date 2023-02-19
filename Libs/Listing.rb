@@ -624,7 +624,9 @@ class Listing
 
         activeItems, items = items.partition{|item| NxBalls::itemIsActive(item) }
 
-        (activeItems + items.take(12))
+        runningItems, pausedItems = activeItems.partition{|item| NxBalls::itemIsRunning(item) }
+
+        (runningItems + pausedItems + items.take(12))
             .each{|item|
 
                 if item["mikuType"] == "NxBoard" then
