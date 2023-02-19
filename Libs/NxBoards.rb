@@ -246,43 +246,5 @@ class NxBoards
             line = line.green
         end
         spacecontrol.putsline line
-
-        NxOpens::itemsForBoard(boarduuid)
-            .each{|item|
-                store.register(item, false)
-                spacecontrol.putsline "#{padding}(#{store.prefixString()}) (open) #{item["description"]} #{NonBoardItemToBoardMapping::toStringSuffix(item)}".yellow
-            }
-
-        items = NxBoards::boardItemsOrdered(board["uuid"])
-
-        lockedItems, items = items.partition{|item| Locks::isLocked(item["uuid"]) }
-
-        lockedItems
-            .each{|item|
-                store.register(item, false)
-                spacecontrol.putsline (padding + Listing::itemToListingLine(store, item))
-            }
-
-        NxTops::itemsInOrder().each{|item|
-            bx = Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"])
-            next if bx.nil?
-            next if bx["uuid"] != boarduuid
-            store.register(item, false)
-            spacecontrol.putsline (padding + Listing::itemToListingLine(store, item))
-        }
-
-        Waves::items().each{|item|
-            bx = Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"])
-            next if bx.nil?
-            next if bx["uuid"] != boarduuid
-            store.register(item, false)
-            spacecontrol.putsline (padding + Listing::itemToListingLine(store, item))
-        }
-
-        items.take(6)
-            .each{|item|
-                store.register(item, false)
-                spacecontrol.putsline (padding + Listing::itemToListingLine(store, item))
-            }
     end
 end
