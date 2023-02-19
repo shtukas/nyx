@@ -185,6 +185,7 @@ require_relative "NxTops.rb"
 require_relative "NyxDirectories.rb"
 require_relative "NxProject.rb"
 require_relative "NxNote.rb"
+require_relative "NightSky.rb"
 
 require_relative "ObjectStore2.rb"
 require_relative "NxOpenCycles.rb"
