@@ -57,6 +57,11 @@ class NxProjects
             .sort{|p1, p2| BankUtils::recoveredAverageHoursPerDay(p1["uuid"]) <=> BankUtils::recoveredAverageHoursPerDay(p2["uuid"]) }
     end
 
+    # NxProjects::listingRunningItems()
+    def self.listingRunningItems()
+        NxProjects::items().select{|item| NxBalls::itemIsActive(item) }
+    end
+
     # --------------------------------------------------
     # Operations
 

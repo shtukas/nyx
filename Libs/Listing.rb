@@ -19,7 +19,7 @@ class Listing
     # Listing::listingCommands()
     def self.listingCommands()
         [
-            "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | landing (<n>) | expose (<n>) | >> skip default | lock (<n>) | add time (<n>) | board (<n>) | note (<n>) | destroy",
+            "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | landing (<n>) | expose (<n>) | >> skip default | lock (<n>) | add time <n> | board (<n>) | note (<n>) | destroy <n>",
             "[makers] anniversary | manual countdown | wave | today | ondate | drop | top | desktop | project",
             "[divings] anniversaries | ondates | waves | todos | desktop | open",
             "[NxBalls] start | start * | stop | stop * | pause | pursue",
@@ -59,13 +59,6 @@ class Listing
             return if item.nil?
             Skips::skip(item["uuid"], Time.new.to_f + 3600*1.5)
             return
-        end
-
-        if Interpreting::match("add time", input) then
-            item = store.getDefault()
-            return if item.nil?
-            timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
-            PolyActions::addTimeToItem(item, timeInHours*3600)
         end
 
         if Interpreting::match("add time *", input) then
@@ -142,24 +135,11 @@ class Listing
             return
         end
 
-        if Interpreting::match("destroy", input) then
-            item = store.getDefault()
-            return if item.nil?
-            raise "not implemented"
-            if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{PolyFunctions::toString(item).green}' ") then
-                
-            end
-            return
-        end
-
         if Interpreting::match("destroy *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            raise "not implemented"
-            if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{PolyFunctions::toString(item).green}' ") then
-                
-            end
+            PolyActions::destroy(item)
             return
         end
 
@@ -554,6 +534,11 @@ class Listing
         .sort{|p1, p2| p1["rt"] <=> p2["rt"] }
     end
 
+    # Listing::scheduler1runningItems()
+    def self.scheduler1runningItems()
+        Waves::leisureRunningItems() + NxProjects::listingRunningItems() + NxHeads::listingRunningItems()
+    end
+
     # Listing::scheduler1line()
     def self.scheduler1line()
         a1 = Listing::scheduler1data().map{|packet| "#{packet["name"]}: #{packet["rt"].round(2)}" }
@@ -562,8 +547,14 @@ class Listing
 
     # Listing::sheduler1items()
     def self.sheduler1items()
-        Listing::scheduler1data()
-            .first["generator"].call()
+        items = Listing::scheduler1runningItems() + Listing::scheduler1data().first["generator"].call()
+        items.reduce([]){|selected, item|
+            if selected.map{|i| i["uuid"] }.include?(item["uuid"]) then
+                selected
+            else
+                selected + [item]
+            end
+        }
     end
 
     # Listing::items()
@@ -631,9 +622,11 @@ class Listing
 
         Listing::printDesktop(spacecontrol)
 
-        runningItems, items = items.partition{|item| NxBalls::itemIsRunning(item) }
+        activeItems, items = items.partition{|item| NxBalls::itemIsActive(item) }
 
-        (runningItems + items.take(12))
+        runningItems, pausedItems = activeItems.partition{|item| NxBalls::itemIsRunning(item) }
+
+        (runningItems + pausedItems + items.take(12))
             .each{|item|
 
                 if item["mikuType"] == "NxBoard" then
@@ -655,11 +648,11 @@ class Listing
                 }
         end
 
-        spacecontrol.putsline ""
-        spacecontrol.putsline "boards:"
-        NxBoards::bottomItems().each{|item|
-            NxBoards::bottomDisplay(store, spacecontrol, item["uuid"])
-        }
+        #spacecontrol.putsline ""
+        #spacecontrol.putsline "boards:"
+        #NxBoards::bottomItems().each{|item|
+        #    NxBoards::bottomDisplay(store, spacecontrol, item["uuid"])
+        #}
 
         spacecontrol.putsline ""
         spacecontrol.putsline "> #{Listing::scheduler1line()}"

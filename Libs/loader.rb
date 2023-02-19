@@ -171,7 +171,7 @@ require_relative "Listing.rb"
 require_relative "Mappings.rb"
 
 require_relative "Nyx.rb"
-require_relative "NxNetwork.rb"
+require_relative "NxLinks.rb"
 require_relative "NxNodes.rb"
 require_relative "NxBalls.rb"
 require_relative "NxOndates.rb"

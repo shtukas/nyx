@@ -38,6 +38,11 @@ class NxBalls
         nxball["type"] == "paused"
     end
 
+    # NxBalls::itemIsActive(item)
+    def self.itemIsActive(item)
+        NxBalls::itemIsRunning(item) or NxBalls::itemIsPaused(item)
+    end
+
     # NxBalls::itemIsBallFree(item)
     def self.itemIsBallFree(item)
         NxBalls::getNxballOrNull(item).nil?

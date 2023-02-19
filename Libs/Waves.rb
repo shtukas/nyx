@@ -24,6 +24,11 @@ class Waves
         ObjectStore2::commit("Waves", item)
     end
 
+    # Waves::destroy(itemuuid)
+    def self.destroy(itemuuid)
+        ObjectStore2::destroy("Waves", itemuuid)
+    end
+
     # --------------------------------------------------
     # Making
 
@@ -218,6 +223,11 @@ class Waves
     # Waves::leisureItems()
     def self.leisureItems()
         Waves::itemForPriority("ns:leisure")
+    end
+
+    # Waves::leisureRunningItems()
+    def self.leisureRunningItems()
+        Waves::itemForPriority("ns:leisure").select{|item| NxBalls::itemIsActive(item) }
     end
 
     # -------------------------------------------------------------------------

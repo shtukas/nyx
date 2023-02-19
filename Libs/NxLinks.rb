@@ -1,8 +1,8 @@
 # encoding: UTF-8
 
-class NxNetwork
+class NxLinks
 
-    # NxNetwork::link(uuid1, uuid2)
+    # NxLinks::link(uuid1, uuid2)
     def self.link(uuid1, uuid2)
         return if uuid1 == uuid2
         return if NxNodes::getOrNull(uuid1).nil?
@@ -26,7 +26,7 @@ class NxNetwork
         end
     end
 
-    # NxNetwork::unlink(uuid1, uuid2)
+    # NxLinks::unlink(uuid1, uuid2)
     def self.unlink(uuid1, uuid2)
         dir1 = "#{Config::pathToNyx()}/Network/#{uuid1}"
         filepath1 = "#{dir1}/#{uuid2}.link"
@@ -41,7 +41,7 @@ class NxNetwork
         end
     end
 
-    # NxNetwork::linkeduuids(uuid)
+    # NxLinks::linkeduuids(uuid)
     def self.linkeduuids(uuid)
         dir = "#{Config::pathToNyx()}/Network/#{uuid}"
         return [] if !File.exist?(dir)
@@ -49,9 +49,9 @@ class NxNetwork
             .map{|filepath| File.basename(filepath).gsub(".link", "") }
     end
 
-    # NxNetwork::linkednodes(uuid)
+    # NxLinks::linkednodes(uuid)
     def self.linkednodes(uuid)
-        NxNetwork::linkeduuids(uuid)
+        NxLinks::linkeduuids(uuid)
             .map{|linkeduuid| NxNodes::getOrNull(linkeduuid) }
             .compact
     end
