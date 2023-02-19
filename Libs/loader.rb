@@ -9,7 +9,7 @@ require 'time'
 
 require 'securerandom'
 # SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
-# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.hex(5) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
 require 'fileutils'
@@ -171,7 +171,6 @@ require_relative "Mappings.rb"
 
 require_relative "Nyx.rb"
 require_relative "NxLinks.rb"
-require_relative "NxNodes.rb"
 require_relative "NxBalls.rb"
 require_relative "NxOndates.rb"
 require_relative "NxBoards.rb"
@@ -186,7 +185,7 @@ require_relative "NxNote.rb"
 require_relative "NightSky.rb"
 require_relative "NxBoardItems.rb"
 require_relative "NxOpenCycles.rb"
-require_relative "NxOrbitals.rb"
+require_relative "NxOrbital.rb"
 
 require_relative "ObjectStore2.rb"
 

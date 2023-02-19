@@ -1,5 +1,0 @@
-
-class NxOrbitals
-
-
-end

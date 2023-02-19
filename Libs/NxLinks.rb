@@ -5,8 +5,6 @@ class NxLinks
     # NxLinks::link(uuid1, uuid2)
     def self.link(uuid1, uuid2)
         return if uuid1 == uuid2
-        return if NxNodes::getOrNull(uuid1).nil?
-        return if NxNodes::getOrNull(uuid2).nil?
         dir1 = "#{Config::pathToNyx()}/Network/#{uuid1}"
         if !File.exist?(dir1) then
             FileUtils::mkdir(dir1)
@@ -49,10 +47,10 @@ class NxLinks
             .map{|filepath| File.basename(filepath).gsub(".link", "") }
     end
 
-    # NxLinks::linkednodes(uuid)
-    def self.linkednodes(uuid)
+    # NxLinks::linkedorbitals(uuid) # Array[NxOrbitals]
+    def self.linkedorbitals(uuid)
         NxLinks::linkeduuids(uuid)
-            .map{|linkeduuid| NxNodes::getOrNull(linkeduuid) }
+            .map{|linkeduuid| NightSky::getOrNull(linkeduuid) }
             .compact
     end
 end
