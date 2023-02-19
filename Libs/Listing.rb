@@ -648,11 +648,11 @@ class Listing
                 }
         end
 
-        #spacecontrol.putsline ""
-        #spacecontrol.putsline "boards:"
-        #NxBoards::bottomItems().each{|item|
-        #    NxBoards::bottomDisplay(store, spacecontrol, item["uuid"])
-        #}
+        spacecontrol.putsline ""
+        spacecontrol.putsline "boards:"
+        NxBoards::bottomItems().each{|item|
+            NxBoards::bottomDisplay(store, spacecontrol, item["uuid"])
+        }
 
         spacecontrol.putsline ""
         spacecontrol.putsline "> #{Listing::scheduler1line()}"

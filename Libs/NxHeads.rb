@@ -92,6 +92,7 @@ class NxHeads
                     "rt"   => BankUtils::recoveredAverageHoursPerDay(item["uuid"])
                 }
             }
+            .select{|packet| packet["rt"] < 1 } # This ensure that there might be a moment where it's time to go to bed
             .sort{|p1, p2| p1["rt"] <=> p2["rt"] }
             .map {|packet| packet["item"] }
     end
