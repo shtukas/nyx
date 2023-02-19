@@ -96,6 +96,11 @@ class NxHeads
             .map {|packet| packet["item"] }
     end
 
+    # NxHeads::listingRunningItems()
+    def self.listingRunningItems()
+        NxHeads::items().select{|item| NxBalls::itemIsActive(item) }
+    end
+
     # --------------------------------------------------
     # Operations
 

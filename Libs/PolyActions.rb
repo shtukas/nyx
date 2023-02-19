@@ -357,4 +357,21 @@ class PolyActions
         end
         raise "not implemented for mikuType: #{item["mikuType"]}"
     end
+
+    # PolyActions::destroy(item)
+    def self.destroy(item)
+        allowedMikuTypes = ["Wave"]
+        if !allowedMikuTypes.include?(item["mikuType"]) then
+            puts "destruction operation is only valid for: #{allowedMikuTypes.join(", ")}"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if !LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{PolyFunctions::toString(item).green}' ") then
+            return
+        end
+        if item["mikuType"] == "Wave" then
+            Waves::destroy(item["uuid"])
+            return
+        end
+    end
 end
