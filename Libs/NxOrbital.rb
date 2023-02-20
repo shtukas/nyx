@@ -3,7 +3,7 @@ class NxOrbital
 
     # NxOrbital.new(filepath)
     def initialize(filepath)
-         @filepath= filepath
+         @filepath = filepath
     end
 
     # ----------------------------------------------------
