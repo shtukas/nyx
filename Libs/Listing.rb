@@ -638,23 +638,18 @@ class Listing
                 spacecontrol.putsline Listing::itemToListingLine(store, item)
             }
 
-        if lockedItems.size > 0 then
-            spacecontrol.putsline ""
-            spacecontrol.putsline "locked:"
-            lockedItems
-                .each{|item|
-                    store.register(item, false)
-                    spacecontrol.putsline Listing::itemToListingLine(store, item)
-                }
-        end
-
         spacecontrol.putsline ""
-        spacecontrol.putsline "boards:"
+
+        lockedItems
+            .each{|item|
+                store.register(item, false)
+                spacecontrol.putsline Listing::itemToListingLine(store, item)
+            }
+
         NxBoards::bottomItems().each{|item|
             NxBoards::bottomDisplay(store, spacecontrol, item["uuid"])
         }
 
-        spacecontrol.putsline ""
         spacecontrol.putsline "> #{Listing::scheduler1line()}"
         spacecontrol.putsline The99Percent::line() + " (start zone: #{NxHeads::startZone()}, mid point: #{NxList::midposition()})"
         spacecontrol.putsline "> anniversary | manual countdown | wave | today | ondate | drop | top | desktop".yellow
