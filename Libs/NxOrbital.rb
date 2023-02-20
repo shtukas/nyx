@@ -32,13 +32,13 @@ class NxOrbital
         db.close
     end
 
-    def collection_get(cname)
+    def collection(collection) # Array[{key, collection, data}]
         records = []
         db = SQLite3::Database.new(@filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        db.execute("select * from orbital where _collection_=?", [cname]) do |row|
+        db.execute("select * from orbital where _collection_=?", [collection]) do |row|
             records << {
                 "key"        => row["_key_"],
                 "collection" => row["_collection_"],
@@ -87,6 +87,14 @@ class NxOrbital
         self.get("coredataref")
     end
 
+    def linkeduuids()
+        collection("linked").map{|item| item["data"] }
+    end
+
+    def linked_orbitals()
+        linkeduuids().map{|linkeduuid| NightSky::getOrNull(linkeduuid) }
+    end
+
     # ----------------------------------------------------
     # Convenience Setters
 
@@ -94,4 +102,12 @@ class NxOrbital
         self.set("coredataref", coredataref)
     end
 
+    def linkeduuids_add(linkeduuid)
+        return if self.linkeduuids().include?(linkeduuid)
+        collection_add("linked:#{linkeduuid}", "linked", linkeduuid)
+    end
+
+    def linkeduuids_remove(linkeduuid)
+        collection_remove("linked:#{linkeduuid}")
+    end
 end

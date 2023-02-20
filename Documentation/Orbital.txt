@@ -4,3 +4,12 @@ Each orbital is a collection of records (key: text, collection: text, data: blob
 
 Used as a key value store, we consider records of the form (key, null, data). Used to manipulate sets we consider records of the form (null, collection-name, data)
 
+key                  ;            ; data
+uuid
+unixtime
+datetime
+description
+coredataref
+
+key                  ; collection ; data
+linked:<linkeduuid>  ; linked     ; <linkeduuid>

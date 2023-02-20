@@ -65,11 +65,12 @@ class NightSky
             store = ItemStore.new()
 
             puts ""
-            linked = NxLinks::linkedorbitals(orbital.uuid())
-            linked.each{|linkedorbital|
-                store.register(linkedorbital, false)
-                puts "- (#{store.prefixString()}) #{linkedorbital.toString()}"
-            }
+            orbital
+                .linked_orbitals()
+                .each{|linkedorbital|
+                    store.register(linkedorbital, false)
+                    puts "- (#{store.prefixString()}) #{linkedorbital.toString()}"
+                }
 
             puts ""
             puts "commands: access | link | coredata"
@@ -99,7 +100,7 @@ class NightSky
             if command == "link" then
                 orbital2 = NightSky::architectOrbitalOrNull()
                 if orbital2 then
-                    NxLinks::link(orbital.uuid(), orbital2.uuid())
+                    orbital.linkeduuids_add(orbital2.uuid())
                     NightSky::landing(orbital2)
                 end
                 next
@@ -138,5 +139,4 @@ class NightSky
         end
         nil
     end
-
 end
