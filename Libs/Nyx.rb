@@ -11,22 +11,23 @@ class Nyx
     # Nyx::main()
     def self.main()
         loop {
-            options = ["search", "make new node", "list nodes"]
+            options = ["search", "make new orbital", "list orbitals"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             break if option.nil?
             if option == "search" then
                 SearchNyx::run()
             end
-            if option == "make new node" then
-                node = NightSky::interactiveSpawn()
-                NightSky::landing(node)
+            if option == "make new orbital" then
+                orbital = NightSky::interactivelyIssueNewNxOrbitalNull()
+                next if orbital.nil?
+                NightSky::landing(orbital)
             end
-            if option == "list nodes" then
+            if option == "list orbitals" then
                 loop {
                     items = NightSky::orbitals().sort{|n1, n2| n1.unixtime() <=> n2.unixtime() }
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", items, lambda{|node| NxNodes::toString(node) })
-                    break if node.nil?
-                    NightSky::landing(node)
+                    orbital = LucilleCore::selectEntityFromListOfEntitiesOrNull("orbital", items, lambda{|orbital| orbital.toString() })
+                    break if orbital.nil?
+                    NightSky::landing(orbital)
                 }
             end
         }

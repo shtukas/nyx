@@ -5,6 +5,9 @@
 
 class NightSky
 
+    # ------------------------------------
+    # Makers
+
     # NightSky::spawn(uuid, description, coredataref)
     def self.spawn(uuid, description, coredataref)
         filename = "#{SecureRandom.hex(5)}.nyx-orbital.#{SecureRandom.hex(5)}"
@@ -23,6 +26,18 @@ class NightSky
         orbital.set("coredataref", coredataref)
         orbital
     end
+
+    # NightSky::interactivelyIssueNewNxOrbitalNull()
+    def self.interactivelyIssueNewNxOrbitalNull()
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
+        uuid  = SecureRandom.uuid
+        coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
+        NightSky::spawn(uuid, description, coredataref)
+    end
+
+    # ------------------------------------
+    # Makers
 
     # NightSky::orbitals()
     def self.orbitals()
@@ -44,13 +59,13 @@ class NightSky
         nil
     end
 
-    # NightSky::interactivelyIssueNewNxOrbitalNull()
-    def self.interactivelyIssueNewNxOrbitalNull()
-        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-        return nil if description == ""
-        uuid  = SecureRandom.uuid
-        coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
-        NightSky::spawn(uuid, description, coredataref)
+    # ------------------------------------
+    # Operations
+
+    # NightSky::link(orbital1, orbital2)
+    def self.link(orbital1, orbital2)
+        orbital1.linkeduuids_add(orbital2.uuid())
+        orbital2.linkeduuids_add(orbital1.uuid())
     end
 
     # NightSky::landing(orbital)
@@ -100,7 +115,7 @@ class NightSky
             if command == "link" then
                 orbital2 = NightSky::architectOrbitalOrNull()
                 if orbital2 then
-                    orbital.linkeduuids_add(orbital2.uuid())
+                    NightSky::link(orbital, orbital2)
                     NightSky::landing(orbital2)
                 end
                 next
@@ -123,7 +138,7 @@ class NightSky
     end
 
     # NightSky::architectOrbitalOrNull()
-    def self.architectNodeOrNull()
+    def self.architectOrbitalOrNull()
         options = ["select || new", "new"]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
         return nil if option.nil?
@@ -132,10 +147,10 @@ class NightSky
             if orbital then
                 return orbital
             end
-            return NightSky::interactiveSpawn()
+            return NightSky::interactivelyIssueNewNxOrbitalNull()
         end
         if option == "new" then
-            return NightSky::interactiveSpawn()
+            return NightSky::interactivelyIssueNewNxOrbitalNull()
         end
         nil
     end

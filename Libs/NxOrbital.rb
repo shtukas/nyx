@@ -80,7 +80,7 @@ class NxOrbital
     end
 
     def toString()
-        "(orbital) #{self.get("description")}"
+        "#{self.get("description")}"
     end
 
     def coredataref()
