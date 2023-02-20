@@ -84,7 +84,7 @@ class NightSky
                 .linked_orbitals()
                 .each{|linkedorbital|
                     store.register(linkedorbital, false)
-                    puts "- (#{store.prefixString()}) #{linkedorbital.toString()}"
+                    puts "#{store.prefixString()}: #{linkedorbital.toString()}"
                 }
 
             puts ""
