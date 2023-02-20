@@ -423,7 +423,7 @@ class Listing
             },
             {
                 "name" => "NxOndates::listingItems()",
-                "lambda" => lambda { NxOndates::listingItems() }
+                "lambda" => lambda { NxOndates::listingItems(nil) }
             },
             {
                 "name" => "Waves::topItems()",
@@ -606,6 +606,9 @@ class Listing
         lockedItems, items = items.partition{|item| Locks::isLocked(item["uuid"]) }
 
         spacecontrol.putsline ""
+
+        Listing::printDesktop(spacecontrol)
+
         NxOpens::itemsBoardFree()
             .each{|item|
                 store.register(item, false)
@@ -619,8 +622,6 @@ class Listing
                 store.register(item, true)
                 spacecontrol.putsline Listing::itemToListingLine(store, item)
             }
-
-        Listing::printDesktop(spacecontrol)
 
         activeItems, items = items.partition{|item| NxBalls::itemIsActive(item) }
 
