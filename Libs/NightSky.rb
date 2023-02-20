@@ -149,7 +149,7 @@ class NightSky
                 }
 
             puts ""
-            puts "commands: access | link | coredata"
+            puts "commands: access | link | coredata | move to desktop"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -187,6 +187,11 @@ class NightSky
                 coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(orbital.uuid())
                 orbital.coredataref_set(coredataref)
                 next
+            end
+
+            if command == "move to desktop" then
+                orbital.move_to_desktop()
+                break
             end
         }
     end

@@ -110,4 +110,14 @@ class NxOrbital
     def linkeduuids_remove(linkeduuid)
         collection_remove("linked:#{linkeduuid}")
     end
+
+    # ----------------------------------------------------
+    # operations
+
+    def move_to_desktop()
+        filepath1 = @filepath
+        filepath2 = "#{Config::pathToDesktop()}/#{File.basename(filepath1)}"
+        FileUtils.mv(filepath1, filepath2)
+        @filepath = filepath2
+    end
 end
