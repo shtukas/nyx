@@ -10,8 +10,8 @@ class Atlas
     # Atlas::scanroots()
     def self.scanroots()
         roots = []
-        roots << "/Users/pascal/Desktop"
-        roots << "/Users/pascal/Galaxy"
+        roots << "#{Config::userHomeDirectory()}/Desktop"
+        roots << "#{Config::userHomeDirectory()}/Galaxy"
         roots
     end
 
