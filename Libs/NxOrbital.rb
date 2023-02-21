@@ -99,6 +99,16 @@ class NxOrbital
         linkeduuids().map{|linkeduuid| NightSky::getOrNull(linkeduuid) }
     end
 
+    def companion_directory_or_null()
+        components = NightSky::filenameComponentsOrNull(File.basename(@filepath))
+        if components.nil? then
+            raise "(error: 41365d27-718a-4f56-8748-df61a15933d6) this should not have happened: #{@filepath}"
+        end
+        directory = "#{File.dirname(@filepath)}/#{components["main"]}"
+        return nil if !File.exist?(directory)
+        directory
+    end
+
     # ----------------------------------------------------
     # Convenience Setters
 
@@ -119,6 +129,15 @@ class NxOrbital
     # operations
 
     def move_to_desktop()
+        if companion_directory_or_null() then
+            puts "We have a companion directory"
+            puts "I am moving you there"
+            LucilleCore::pressEnterToContinue()
+            system("open '#{companion_directory_or_null()}'")
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
         filepath1 = @filepath
         filepath2 = "#{Config::pathToDesktop()}/#{File.basename(filepath1)}"
         FileUtils.mv(filepath1, filepath2)

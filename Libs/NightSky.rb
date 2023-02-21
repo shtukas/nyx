@@ -161,6 +161,9 @@ class NightSky
             puts "> filepath: #{orbital.filepath()}"
             puts "> uuid: #{orbital.uuid()}"
             puts "> coredataref: #{orbital.coredataref()}"
+            if orbital.companion_directory_or_null() then
+                puts "> companion directory: #{orbital.companion_directory_or_null()}"
+            end
 
             store = ItemStore.new()
 
