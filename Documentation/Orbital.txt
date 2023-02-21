@@ -20,3 +20,4 @@ Orbital file names follow a strict structure
 
 <main>.nyx-orbital.<hexstring>
 
+The NightSky folder contains individual files, each containing an orbital uuid.

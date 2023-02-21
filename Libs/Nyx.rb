@@ -11,7 +11,7 @@ class Nyx
     # Nyx::main()
     def self.main()
         loop {
-            options = ["search", "new orbital", "list orbitals"]
+            options = ["search", "new orbital", "list orbitals", "fs scan"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             break if option.nil?
             if option == "search" then
@@ -29,6 +29,9 @@ class Nyx
                     break if orbital.nil?
                     NightSky::landing(orbital)
                 }
+            end
+            if option == "fs scan" then
+                NightSky::fs_scan()
             end
         }
     end

@@ -25,7 +25,7 @@ class Atlas
     def self.locationEnumerator(roots)
         Enumerator.new do |filepaths|
             roots.each{|root|
-                if File.exists?(root) then
+                if File.exist?(root) then
                     begin
                         Find.find(root) do |path|
                             filepaths << path
@@ -52,7 +52,7 @@ class Atlas
     # Atlas::uniqueStringToLocationOrNull(uniquestring)
     def self.uniqueStringToLocationOrNull(uniquestring)
         filepath = XCache::getOrNull("932fce73-2582-468b-bacc-ebdb4f140654:#{uniquestring}")
-        if filepath and File.exists?(filepath) and Atlas::locationIsTarget(filepath, uniquestring) then
+        if filepath and File.exist?(filepath) and Atlas::locationIsTarget(filepath, uniquestring) then
             return filepath
         end
         filepath = Atlas::uniqueStringToLocationOrNullUseTheForce(uniquestring)
