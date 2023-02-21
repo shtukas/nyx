@@ -569,7 +569,7 @@ class Listing
             Listing::sheduler1items(),
         ]
             .flatten
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBalls::itemIsActive(item["uuid"]) }
     end
 
     # Listing::printDesktop(spacecontrol)
@@ -677,7 +677,7 @@ class Listing
             LucilleCore::locationsAtFolder("#{ENV['HOME']}/Galaxy/DataHub/NxTails-FrontElements-BufferIn")
                 .each{|location|
                     next if File.basename(location).start_with?(".")
-                    item = NxTails::bufferInImport(location)
+                    item = NxHeads::bufferInImport(location)
                     puts "Picked up from NxTails-FrontElements-BufferIn: #{JSON.pretty_generate(item)}"
                     LucilleCore::removeFileSystemLocation(location)
                 }

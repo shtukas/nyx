@@ -111,7 +111,7 @@ class NxBoards
                     "cr"    => NxBoards::completionRatio(board)
                 }
             }
-            .select{|packet| packet["cr"] < 1 }
+            .select{|packet| packet["cr"] < 1 or NxBalls::itemIsActive(packet["board"]) }
             .sort{|p1, p2| p1["cr"] <=> p2["cr"] }
             .map {|packet| packet["board"] }
     end
@@ -119,6 +119,7 @@ class NxBoards
     # NxBoards::bottomItems()
     def self.bottomItems()
         NxBoards::items()
+            .select{|board| !NxBalls::itemIsActive(board) }
             .map {|board|
                 {
                     "board" => board,
@@ -180,14 +181,16 @@ class NxBoards
 
         ondates = NxOndates::listingItems(board)
 
-        waves = Waves::items().select{|item|
-            (lambda{
-                bx = Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"])
-                return false if bx.nil?
-                return false if bx["uuid"] != boarduuid
-                true
-            }).call()
-        }
+        waves = Waves::items()
+            .select{|item|
+                (lambda{
+                    bx = Lookups::getValueOrNull("NonBoardItemToBoardMapping", item["uuid"])
+                    return false if bx.nil?
+                    return false if bx["uuid"] != boarduuid
+                    true
+                }).call()
+            }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBalls::itemIsActive(item["uuid"]) }
 
         items = NxBoards::boardItemsOrdered(board["uuid"])
 
@@ -211,22 +214,26 @@ class NxBoards
             }
 
         tops.each{|item|
+            next if !DoNotShowUntil::isVisible(item["uuid"]) and !NxBalls::itemIsRunning(item["uuid"])
             store.register(item, true)
             spacecontrol.putsline (Listing::itemToListingLine(store, item))
         }
 
         ondates.each{|item|
+            next if !DoNotShowUntil::isVisible(item["uuid"]) and !NxBalls::itemIsRunning(item["uuid"])
             store.register(item, true)
             spacecontrol.putsline (Listing::itemToListingLine(store, item))
         }
 
         waves.each{|item|
+            next if !DoNotShowUntil::isVisible(item["uuid"]) and !NxBalls::itemIsRunning(item["uuid"])
             store.register(item, true)
             spacecontrol.putsline (Listing::itemToListingLine(store, item))
         }
 
         items.take(6)
             .each{|item|
+                next if !DoNotShowUntil::isVisible(item["uuid"]) and !NxBalls::itemIsRunning(item["uuid"])
                 store.register(item, true)
                 spacecontrol.putsline (Listing::itemToListingLine(store, item))
             }

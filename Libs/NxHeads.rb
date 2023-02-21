@@ -62,6 +62,45 @@ class NxHeads
         item
     end
 
+    # NxHeads::viennaUrl(url)
+    def self.viennaUrl(url)
+        description = "(vienna) #{url}"
+        uuid  = SecureRandom.uuid
+        coredataref = "url:#{DatablobStore::put(url)}"
+        position = NxList::midposition()
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NxHead",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "field11"     => coredataref,
+            "position"    => position
+        }
+        NxTails::commit(item)
+        item
+    end
+
+    # NxHeads::bufferInImport(location)
+    def self.bufferInImport(location)
+        description = File.basename(location)
+        uuid = SecureRandom.uuid
+        nhash = AionCore::commitLocationReturnHash(DatablobStoreElizabeth.new(), location)
+        coredataref = "aion-point:#{nhash}"
+        position = NxList::midposition()
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NxHead",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "field11"     => coredataref,
+            "position"    => position
+        }
+        NxTails::commit(item)
+        item
+    end
+
     # --------------------------------------------------
     # Data
 

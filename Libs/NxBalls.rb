@@ -130,5 +130,4 @@ class NxBalls
         return "" if nxball.nil?
         " #{NxBalls::nxBallToString(nxball)}"
     end
-
 end
