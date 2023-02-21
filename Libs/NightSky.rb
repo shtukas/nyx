@@ -14,6 +14,8 @@ class NightSky
     end
 
     # NightSky::filenameComponentsOrNull(filename)
+    # "1main0.nyx-orbital.12345678"
+    # {"main"=>"1main0", "suffix"=>"12345678"}
     def self.filenameComponentsOrNull(filename)
         return nil if !filename.include?(".nyx-orbital.")
         p1 = filename.index(".nyx-orbital.")
@@ -25,15 +27,12 @@ class NightSky
         }
     end
 
-    # "1main0.nyx-orbital.12345678"
-    # {"main"=>"1main0", "suffix"=>"12345678"}
-
     # NightSky::galaxyFilepathEnumerator()
     def self.galaxyFilepathEnumerator()
         roots = ["#{Config::userHomeDirectory()}/Desktop", "#{Config::userHomeDirectory()}/Galaxy"]
         Enumerator.new do |filepaths|
             roots.each{|root|
-                if File.exists?(root) then
+                if File.exist?(root) then
                     begin
                         Find.find(root) do |path|
                             filepaths << path
@@ -91,18 +90,11 @@ class NightSky
     # ------------------------------------
     # Data
 
-    # NightSky::orbitals()
-    def self.orbitals()
-        LucilleCore::locationsAtFolder("#{Config::pathToGalaxy()}/Nyx/Orbitals")
-            .select{|filepath| filepath.include?(".nyx-orbital.") }
-            .map{|filepath| NxOrbital.new(filepath) }
-    end
-
     # NightSky::getOrNull(uuid)
     def self.getOrNull(uuid)
         filepath = XCache::getOrNull("f1e45aa7-db4d-40d3-bb57-d7c9ca02c1bb:#{uuid}")
         if filepath then
-            if File.exists?(filepath) then
+            if File.exist?(filepath) then
                 orbital = NxOrbital.new(filepath)
                 if orbital.uuid() == uuid then
                     return orbital
@@ -110,6 +102,7 @@ class NightSky
             end
         end
 
+        puts "> locate orbital use the force: #{uuid}"
         filepath = NightSky::locateOrbitalByUUIDOrNull_UseTheForce(uuid)
 
         if filepath then
@@ -119,8 +112,38 @@ class NightSky
         filepath
     end
 
+    # NightSky::ordinaluuids()
+    def self.ordinaluuids()
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NightSky")
+            .select{|filepath| filepath[0, 1] != "." }
+            .map{|filepath| IO.read(filepath).strip }
+    end
+
+    # NightSky::orbitals()
+    def self.orbitals()
+        NightSky::ordinaluuids()
+            .map{|uuid| NightSky::getOrNull(uuid) }
+            .compact
+    end
+
     # ------------------------------------
     # Operations
+
+    # NightSky::fs_scan()
+    def self.fs_scan()
+        orbitaluuids = NightSky::ordinaluuids()
+        NightSky::galaxyFilepathEnumerator().each{|filepath|
+            next if !NightSky::isOrbital(filepath)
+            puts "fs scan: #{filepath}"
+            orbital = NxOrbital.new(filepath)
+            XCache::set("f1e45aa7-db4d-40d3-bb57-d7c9ca02c1bb:#{orbital.uuid()}", filepath)
+            next if orbitaluuids.include?(orbital.uuid())
+            File.open("#{Config::pathToDataCenter()}/NightSky/#{CommonUtils::timeStringL22()}", "w"){|f|
+                f.write(orbital.uuid())
+            }
+            orbitaluuids << orbital.uuid()
+        }
+    end
 
     # NightSky::link(orbital1, orbital2)
     def self.link(orbital1, orbital2)
@@ -135,6 +158,7 @@ class NightSky
             system('clear')
 
             puts orbital.toString()
+            puts "> filepath: #{orbital.filepath()}"
             puts "> uuid: #{orbital.uuid()}"
             puts "> coredataref: #{orbital.coredataref()}"
 

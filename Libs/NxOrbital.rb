@@ -3,7 +3,7 @@ class NxOrbital
 
     # NxOrbital.new(filepath)
     def initialize(filepath)
-         @filepath= filepath
+         @filepath = filepath
     end
 
     # ----------------------------------------------------
@@ -70,6 +70,10 @@ class NxOrbital
 
     # ----------------------------------------------------
     # Convenience Getters
+
+    def filepath()
+        @filepath
+    end
 
     def uuid()
         self.get("uuid")
