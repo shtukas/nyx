@@ -7,4 +7,6 @@ NxBoard:
     "description"   : String
     "hours"         : Float
     "lastResetTime" : Unixtime
-    "capsule"       : String # this is the bank account number of the time commitment
+    "capsule"       : String # This is the bank account number of the time commitment.
+                             # Time is being borrowed, and progressively paid back, therefore
+                             # at reset a negtive value is added.

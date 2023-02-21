@@ -577,7 +577,7 @@ class Listing
         dskt = Desktop::contents()
         if dskt and dskt.size > 0 then
             dskt = dskt.lines.map{|line| "      #{line}" }.join()
-            spacecontrol.putsline "(-->) Desktop:".green
+            spacecontrol.putsline "Desktop:".green
             spacecontrol.putsline dskt
         end
     end
