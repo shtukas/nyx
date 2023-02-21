@@ -131,7 +131,7 @@ class Listing
         end
 
         if Interpreting::match("desktop", input) then
-            system("open '#{Desktop::desktopFolderPath()}'")
+            system("open '#{Desktop::filepath()}'")
             return
         end
 
@@ -574,11 +574,11 @@ class Listing
 
     # Listing::printDesktop(spacecontrol)
     def self.printDesktop(spacecontrol)
-        dskt = Desktop::contentsOrNull()
+        dskt = Desktop::contents()
         if dskt and dskt.size > 0 then
             dskt = dskt.lines.map{|line| "      #{line}" }.join()
             spacecontrol.putsline "(-->) Desktop:".green
-            spacecontrol.putsline dskts
+            spacecontrol.putsline dskt
         end
     end
 

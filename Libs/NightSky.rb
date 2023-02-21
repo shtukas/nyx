@@ -6,6 +6,58 @@
 class NightSky
 
     # ------------------------------------
+    # Utils
+
+    # NightSky::isOrbital(filepath)
+    def self.isOrbital(filepath)
+        File.basename(filepath).include?(".nyx-orbital.")
+    end
+
+    # NightSky::filenameComponentsOrNull(filename)
+    def self.filenameComponentsOrNull(filename)
+        return nil if !filename.include?(".nyx-orbital.")
+        p1 = filename.index(".nyx-orbital.")
+        s1 = filename[0, p1]
+        s2 = filename[p1+13, filename.size]
+        {
+            "main"   => s1,
+            "suffix" => s2
+        }
+    end
+
+    # "1main0.nyx-orbital.12345678"
+    # {"main"=>"1main0", "suffix"=>"12345678"}
+
+    # NightSky::galaxyFilepathEnumerator()
+    def self.galaxyFilepathEnumerator()
+        roots = ["#{Config::userHomeDirectory()}/Desktop", "#{Config::userHomeDirectory()}/Galaxy"]
+        Enumerator.new do |filepaths|
+            roots.each{|root|
+                if File.exists?(root) then
+                    begin
+                        Find.find(root) do |path|
+                            filepaths << path
+                        end
+                    rescue
+                    end
+                end
+            }
+        end
+    end
+
+    # NightSky::locateOrbitalByUUIDOrNull_UseTheForce(uuid)
+    def self.locateOrbitalByUUIDOrNull_UseTheForce(uuid)
+        NightSky::galaxyFilepathEnumerator().each{|filepath|
+            next if !NightSky::isOrbital(filepath)
+            orbital = NxOrbital.new(filepath)
+            return filepath if orbital.uuid() == uuid
+            # We haven't yet found the ordinal that we are looking for but we are going to
+            # make sure we remember what we have learnt just there, for future reference
+            XCache::set("f1e45aa7-db4d-40d3-bb57-d7c9ca02c1bb:#{orbital.uuid()}", filepath)
+        }
+    end
+
+    # ------------------------------------
     # Makers
 
     # NightSky::spawn(uuid, description, coredataref)
@@ -48,15 +100,23 @@ class NightSky
 
     # NightSky::getOrNull(uuid)
     def self.getOrNull(uuid)
-        LucilleCore::locationsAtFolder("#{Config::pathToGalaxy()}/Nyx/Orbitals")
-        .select{|filepath| filepath.include?(".nyx-orbital.") }
-        .each{|filepath|
-            orbital = NxOrbital.new(filepath)
-            if orbital.uuid() == uuid then
-                return orbital
+        filepath = XCache::getOrNull("f1e45aa7-db4d-40d3-bb57-d7c9ca02c1bb:#{uuid}")
+        if filepath then
+            if File.exists?(filepath) then
+                orbital = NxOrbital.new(filepath)
+                if orbital.uuid() == uuid then
+                    return orbital
+                end
             end
-        }
-        nil
+        end
+
+        filepath = NightSky::locateOrbitalByUUIDOrNull_UseTheForce(uuid)
+
+        if filepath then
+            XCache::set("f1e45aa7-db4d-40d3-bb57-d7c9ca02c1bb:#{uuid}", filepath)
+        end
+
+        filepath
     end
 
     # NightSky::ordinaluuids()
@@ -87,6 +147,7 @@ class NightSky
             system('clear')
 
             puts orbital.toString()
+            puts "> uuid: #{orbital.uuid()}"
             puts "> coredataref: #{orbital.coredataref()}"
 
             store = ItemStore.new()
@@ -96,11 +157,11 @@ class NightSky
                 .linked_orbitals()
                 .each{|linkedorbital|
                     store.register(linkedorbital, false)
-                    puts "- (#{store.prefixString()}) #{linkedorbital.toString()}"
+                    puts "#{store.prefixString()}: #{linkedorbital.toString()}"
                 }
 
             puts ""
-            puts "commands: access | link | coredata"
+            puts "commands: access | link | coredata | move to desktop"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -138,6 +199,11 @@ class NightSky
                 coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(orbital.uuid())
                 orbital.coredataref_set(coredataref)
                 next
+            end
+
+            if command == "move to desktop" then
+                orbital.move_to_desktop()
+                break
             end
         }
     end
