@@ -37,7 +37,7 @@ class NightSky
     end
 
     # ------------------------------------
-    # Makers
+    # Data
 
     # NightSky::orbitals()
     def self.orbitals()
@@ -59,8 +59,20 @@ class NightSky
         nil
     end
 
+    # NightSky::ordinaluuids()
+    def self.ordinaluuids()
+        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NightSky")
+            .select{|filepath| filepath[0, 1] != "." }
+            .map{|filepath| IO.read(filepath).strip }
+    end
+
     # ------------------------------------
     # Operations
+
+    # NightSky::fs_scan()
+    def self.fs_scan()
+        
+    end
 
     # NightSky::link(orbital1, orbital2)
     def self.link(orbital1, orbital2)
