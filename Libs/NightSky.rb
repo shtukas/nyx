@@ -158,6 +158,7 @@ class NightSky
             system('clear')
 
             puts orbital.toString()
+            puts "> filepath: #{orbital.filepath()}"
             puts "> uuid: #{orbital.uuid()}"
             puts "> coredataref: #{orbital.coredataref()}"
 

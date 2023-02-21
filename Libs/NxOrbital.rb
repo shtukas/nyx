@@ -71,6 +71,10 @@ class NxOrbital
     # ----------------------------------------------------
     # Convenience Getters
 
+    def filepath()
+        @filepath
+    end
+
     def uuid()
         self.get("uuid")
     end
