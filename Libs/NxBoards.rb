@@ -62,7 +62,7 @@ class NxBoards
             if timeLeftInDays > 0 then
                 "(#{timeLeftInDays.round(2)} days before reset)"
             else
-                "(late by #{-timeLeftInDays.round(2)})"
+                "(late by #{-timeLeftInDays.round(2)} days)"
             end
 
         "(board) #{item["description"].ljust(8)} #{str0} #{str1} #{str2}"
