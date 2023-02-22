@@ -83,8 +83,8 @@ class NxOrbital
         self.get("unixtime")
     end
 
-    def toString()
-        "#{self.get("description")}"
+    def description()
+        self.get("description")
     end
 
     def coredataref()
@@ -96,7 +96,9 @@ class NxOrbital
     end
 
     def linked_orbitals()
-        linkeduuids().map{|linkeduuid| NightSky::getOrNull(linkeduuid) }
+        linkeduuids()
+            .map{|linkeduuid| NightSky::getOrNull(linkeduuid) }
+            .compact
     end
 
     def companion_directory_or_null()

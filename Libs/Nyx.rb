@@ -15,7 +15,7 @@ class Nyx
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             break if option.nil?
             if option == "search" then
-                SearchNyx::run()
+                NightSky::search_action()
             end
             if option == "new orbital" then
                 orbital = NightSky::interactivelyIssueNewNxOrbitalNull()
@@ -25,7 +25,7 @@ class Nyx
             if option == "list orbitals" then
                 loop {
                     orbitals = NightSky::orbitals().sort{|n1, n2| n1.unixtime() <=> n2.unixtime() }
-                    orbital = LucilleCore::selectEntityFromListOfEntitiesOrNull("orbital", orbitals, lambda{|orbital| orbital.toString() })
+                    orbital = LucilleCore::selectEntityFromListOfEntitiesOrNull("orbital", orbitals, lambda{|orbital| orbital.description() })
                     break if orbital.nil?
                     NightSky::landing(orbital)
                 }
@@ -36,3 +36,4 @@ class Nyx
         }
     end
 end
+
