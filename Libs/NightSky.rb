@@ -152,13 +152,15 @@ class NightSky
         orbital2.linkeduuids_add(orbital1.uuid())
     end
 
-    # NightSky::landing(orbital)
+    # NightSky::landing(orbital) # nil or orbital
+    # This function is originally used as action, a landing, but can also return the orbital
+    # when the user issues "fox", and this matters during a fox search
     def self.landing(orbital)
         loop {
 
             system('clear')
 
-            puts orbital.to_string()
+            puts orbital.description()
             puts "> filepath: #{orbital.filepath()}"
             puts "> uuid: #{orbital.uuid()}"
             puts "> coredataref: #{orbital.coredataref()}"
@@ -173,11 +175,11 @@ class NightSky
                 .linked_orbitals()
                 .each{|linkedorbital|
                     store.register(linkedorbital, false)
-                    puts "#{store.prefixString()}: #{linkedorbital.to_string()}"
+                    puts "#{store.prefixString()}: #{linkedorbital.description()}"
                 }
 
             puts ""
-            puts "commands: access | link | coredata | move to desktop"
+            puts "commands: access | link | coredata | move to desktop | fox"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -187,7 +189,10 @@ class NightSky
                 indx = command.to_i
                 linkedorbital = store.get(indx)
                 next if linkedorbital.nil?
-                NightSky::landing(linkedorbital)
+                o = NightSky::landing(linkedorbital)
+                if o then
+                    return o
+                end
                 next
             end
 
@@ -205,7 +210,10 @@ class NightSky
                 orbital2 = NightSky::architectOrbitalOrNull()
                 if orbital2 then
                     NightSky::link(orbital, orbital2)
-                    NightSky::landing(orbital2)
+                    o = NightSky::landing(orbital2)
+                    if o then
+                        return o
+                    end
                 end
                 next
             end
@@ -221,14 +229,20 @@ class NightSky
                 orbital.move_to_desktop()
                 break
             end
+
+            if command == "fox" then
+                return orbital
+            end
         }
+
+        nil
     end
 
     # NightSky::interactivelySelectOrbitalOrNull()
     def self.interactivelySelectOrbitalOrNull()
         # This function is going to evolve as we get more nodes, but it's gonna do for the moment
         orbitals = NightSky::orbitals()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("orbitals", orbitals, lambda{|orbital| orbital.to_string() })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("orbitals", orbitals, lambda{|orbital| orbital.description() })
     end
 
     # NightSky::architectOrbitalOrNull()
@@ -249,8 +263,95 @@ class NightSky
         nil
     end
 
-    # NightSky::foxSearch()
-    def self.foxSearch()
-
+    # NightSky::nx20s() # Array[Nx20]
+    def self.nx20s()
+        NightSky::orbitals()
+            .map{|orbital|
+                {
+                    "announce" => orbital.description(),
+                    "unixtime" => orbital.unixtime(),
+                    "orbital"  => orbital
+                }
+            }
     end
+
+    # NightSky::search_action()
+    def self.search_action()
+        loop {
+            system('clear')
+            fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort) : ")
+            break if fragment == ""
+            selected = NightSky::nx20s()
+                            .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
+            if selected.empty? then
+                puts "Could not find a matching element for '#{fragment}'"
+                LucilleCore::pressEnterToContinue()
+                next
+            end
+            loop {
+                system('clear')
+                selected = NightSky::nx20s()
+                                .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
+                                .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+                nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("orbital", selected, lambda{|i| i["announce"] })
+                break if nx20.nil?
+                NightSky::landing(nx20["orbital"])
+            }
+        }
+        nil
+    end
+
+    # NightSky::search_fox() nil or ordinal
+    def self.search_fox()
+        puts "> entering fox search"
+        LucilleCore::pressEnterToContinue()
+        loop {
+            system('clear')
+            fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort) : ")
+            if fragment == "" then
+                if LucilleCore::askQuestionAnswerAsBoolean("continue search ? ") then
+                    next
+                else
+                    return nil
+                end
+            else
+                # continue
+            end
+
+            nx20s = NightSky::nx20s()
+                            .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
+
+            if nx20s.size > 0 then
+                nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("orbital", nx20s, lambda{|i| i["announce"] })
+                if nx20 then
+                    orbital = nx20["orbital"]
+                    option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["return '#{orbital.description()}'", "landing on '#{orbital.description()}'"])
+                    next if nx20.nil?
+                    if option == "return '#{orbital.description()}'" then
+                        return orbital
+                    end
+                    if option == "landing on '#{orbital.description()}'" then
+                        o = NightSky::landing(orbital)
+                        if o then
+                            return o
+                        end
+                    end
+                else
+                    if LucilleCore::askQuestionAnswerAsBoolean("continue search ? ") then
+                        next
+                    else
+                        return nil
+                    end
+                end
+            else
+                if LucilleCore::askQuestionAnswerAsBoolean("continue search ? ") then
+                    next
+                else
+                    return nil
+                end
+            end
+        }
+        nil
+    end
+
 end

@@ -83,8 +83,8 @@ class NxOrbital
         self.get("unixtime")
     end
 
-    def to_string()
-        "#{self.get("description")}"
+    def description()
+        self.get("description")
     end
 
     def coredataref()
