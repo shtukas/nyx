@@ -11,7 +11,7 @@ class PrimitiveFiles
 
         nhash = CommonUtils::filepathToContentHash(filepath)
 
-        operator = DatablobStoreElizabeth.new()
+        operator = Datablobs1Elizabeth.new()
 
         parts = []
         partSizeInBytes = 1024*1024 # 1 MegaBytes
@@ -34,7 +34,7 @@ class PrimitiveFiles
             puts "primitive parts, dotted extension is malformed".red
             raise "(error: 02:36)"
         end
-        operator = DatablobStoreElizabeth.new()
+        operator = Datablobs1Elizabeth.new()
         parts.each{|nhash|
             blob = operator.getBlobOrNull(nhash)
             if blob.nil? then
