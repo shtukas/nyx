@@ -373,7 +373,7 @@ class Listing
         end
 
         if Interpreting::match("search", input) then
-            SearchCatalyst::run()
+            CatalystSearch::run()
             return
         end
 

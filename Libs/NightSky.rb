@@ -63,6 +63,7 @@ class NightSky
     def self.spawn(uuid, description, coredataref)
         filename = "#{SecureRandom.hex(5)}.nyx-orbital.#{SecureRandom.hex(5)}"
         filepath = "#{Config::pathToGalaxy()}/Nyx/Orbitals/#{filename}"
+        XCache::set("f1e45aa7-db4d-40d3-bb57-d7c9ca02c1bb:#{uuid}", filepath)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -105,11 +106,11 @@ class NightSky
         puts "> locate orbital use the force: #{uuid}"
         filepath = NightSky::locateOrbitalByUUIDOrNull_UseTheForce(uuid)
 
-        if filepath then
-            XCache::set("f1e45aa7-db4d-40d3-bb57-d7c9ca02c1bb:#{uuid}", filepath)
-        end
+        return nil if filepath.nil?
 
-        filepath
+        XCache::set("f1e45aa7-db4d-40d3-bb57-d7c9ca02c1bb:#{uuid}", filepath)
+
+        NxOrbital.new(filepath)
     end
 
     # NightSky::ordinaluuids()
@@ -157,7 +158,7 @@ class NightSky
 
             system('clear')
 
-            puts orbital.toString()
+            puts orbital.to_string()
             puts "> filepath: #{orbital.filepath()}"
             puts "> uuid: #{orbital.uuid()}"
             puts "> coredataref: #{orbital.coredataref()}"
@@ -172,7 +173,7 @@ class NightSky
                 .linked_orbitals()
                 .each{|linkedorbital|
                     store.register(linkedorbital, false)
-                    puts "#{store.prefixString()}: #{linkedorbital.toString()}"
+                    puts "#{store.prefixString()}: #{linkedorbital.to_string()}"
                 }
 
             puts ""
@@ -227,7 +228,7 @@ class NightSky
     def self.interactivelySelectOrbitalOrNull()
         # This function is going to evolve as we get more nodes, but it's gonna do for the moment
         orbitals = NightSky::orbitals()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("orbitals", orbitals, lambda{|orbital| orbital.toString() })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("orbitals", orbitals, lambda{|orbital| orbital.to_string() })
     end
 
     # NightSky::architectOrbitalOrNull()
@@ -246,5 +247,10 @@ class NightSky
             return NightSky::interactivelyIssueNewNxOrbitalNull()
         end
         nil
+    end
+
+    # NightSky::foxSearch()
+    def self.foxSearch()
+
     end
 end
