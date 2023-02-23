@@ -647,7 +647,7 @@ class Listing
         }
 
         spacecontrol.putsline "> #{Listing::scheduler1line()}"
-        spacecontrol.putsline The99Percent::line() + " (start zone: #{NxHeads::startZone()}, mid point: #{NxList::midposition()})"
+        spacecontrol.putsline The99Percent::line()
         spacecontrol.putsline "> anniversary | manual countdown | wave | today | ondate | drop | top | desktop".yellow
     end
 
