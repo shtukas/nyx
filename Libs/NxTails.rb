@@ -50,7 +50,9 @@ class NxTails
 
     # NxTails::frontPosition()
     def self.frontPosition()
-        ([0] + NxTails::items().map{|item| item["position"] }).min
+        positions = NxTails::items().map{|item| item["position"] }
+        return 0 if positions.empty?
+        positions.min
     end
 
     # NxTails::getFrontElementOrNull()

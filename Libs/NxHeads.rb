@@ -101,6 +101,26 @@ class NxHeads
         item
     end
 
+    # NxHeads::priority()
+    def self.priority()
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
+        uuid  = SecureRandom.uuid
+        coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
+        position = NxHeads::startPosition() - 1
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NxHead",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => description,
+            "field11"     => coredataref,
+            "position"    => position
+        }
+        NxHeads::commit(item)
+        item
+    end
+
     # --------------------------------------------------
     # Data
 
@@ -115,9 +135,18 @@ class NxHeads
         NxHeads::items().map{|item| item["position"] }.sort.take(3).inject(0, :+).to_f/3
     end
 
+    # NxHeads::startPosition()
+    def self.startPosition()
+        positions = NxHeads::items().map{|item| item["position"] }
+        return NxTails::frontPosition() - 1 if positions.empty?
+        positions.min
+    end
+
     # NxHeads::endPosition()
     def self.endPosition()
-        ([-4] + NxHeads::items().map{|item| item["position"] }).max
+        positions = NxHeads::items().map{|item| item["position"] }
+        return NxTails::frontPosition() - 1 if positions.empty?
+        positions.max
     end
 
     # NxHeads::listingItems()

@@ -20,7 +20,7 @@ class Listing
     def self.listingCommands()
         [
             "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | landing (<n>) | expose (<n>) | >> skip default | lock (<n>) | add time <n> | board (<n>) | note (<n>) | destroy <n>",
-            "[makers] anniversary | manual countdown | wave | today | ondate | drop | top | desktop | project",
+            "[makers] anniversary | manual countdown | wave | today | ondate | drop | top | desktop | project | priority",
             "[divings] anniversaries | ondates | waves | todos | desktop | open",
             "[NxBalls] start | start * | stop | stop * | pause | pursue",
             "[NxOndate] redate",
@@ -324,6 +324,14 @@ class Listing
 
         if Interpreting::match("project", input) then
             item = NxProjects::interactivelyIssueNewOrNull()
+            return if item.nil?
+            puts JSON.pretty_generate(item)
+            NonBoardItemToBoardMapping::interactivelyOffersToAttach(item)
+            return
+        end
+
+        if Interpreting::match("priority", input) then
+            item = NxHeads::priority()
             return if item.nil?
             puts JSON.pretty_generate(item)
             NonBoardItemToBoardMapping::interactivelyOffersToAttach(item)

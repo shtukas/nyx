@@ -1,6 +1,11 @@
 
 class NxList
 
+    # NxList::priorityposition()
+    def self.priorityposition()
+        0.5 * (NxHeads::endPosition() + NxTails::frontPosition())
+    end
+
     # NxList::midposition()
     def self.midposition()
         0.5 * (NxHeads::endPosition() + NxTails::frontPosition())
