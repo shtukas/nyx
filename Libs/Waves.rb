@@ -6,27 +6,17 @@ class Waves
 
     # Waves::items()
     def self.items()
-        ObjectStore2::objects("Waves")
-    end
-
-    # Waves::getExistingFilepathForUUIDOrNull(uuid)
-    def self.getExistingFilepathForUUIDOrNull(uuid)
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/Wave")
-            .select{|filepath|
-                obj = JSON.parse(IO.read(filepath))
-                obj["uuid"] == uuid
-            }
-            .first
+        N1DataIO::getMikuType("Waves")
     end
 
     # Waves::commit(item)
     def self.commit(item)
-        ObjectStore2::commit("Waves", item)
+        N1DataIO::commitObject(item)
     end
 
     # Waves::destroy(itemuuid)
     def self.destroy(itemuuid)
-        ObjectStore2::destroy("Waves", itemuuid)
+        N1DataIO::destroy(itemuuid)
     end
 
     # --------------------------------------------------
@@ -169,7 +159,7 @@ class Waves
             "field11"          => coredataref,
             "priority"         => priority
         }
-        ObjectStore2::commit("Waves", item)
+        N1DataIO::commitObject(item)
         item
     end
 
@@ -239,7 +229,7 @@ class Waves
         # Marking the item as being done 
         puts "done-ing: #{Waves::toString(item)}"
         item["lastDoneDateTime"] = Time.now.utc.iso8601
-        ObjectStore2::commit("Waves", item)
+        N1DataIO::commitObject(item)
 
         # We control display using DoNotShowUntil
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
