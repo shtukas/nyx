@@ -11,13 +11,13 @@ reference strings categories:
     - "unique-string:#{uniquestring}""
 
     - "text:#{nhash}"
-      The fragment is the named hash of the text in Datablobs1
+      The fragment is the named hash of the text in DatablobStore
 
     - "aion-point:#{nhash}"
       The nhash is the named hash of the root of the aion hierarchy
 
     - "url:#{nhash}"
-      The nhash is the named hash of the url in the Datablobs1
+      The nhash is the named hash of the url in the DatablobStore
 
     - "file:#{nhash}"
       We do not specifically create those but we have them in stock, 

@@ -153,7 +153,6 @@ require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)
 # DoNotShowUntil::isVisible(uid)
 require_relative "Dx8Units.rb"
-require_relative "Datablobs1.rb"
 require_relative "Desktop"
 
 require_relative "Locks.rb"

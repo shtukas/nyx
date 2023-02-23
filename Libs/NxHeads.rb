@@ -66,7 +66,7 @@ class NxHeads
     def self.viennaUrl(url)
         description = "(vienna) #{url}"
         uuid  = SecureRandom.uuid
-        coredataref = "url:#{Datablobs1::put(url)}"
+        coredataref = "url:#{N1DataIO::putBlob(url)}"
         position = NxList::midposition()
         item = {
             "uuid"        => uuid,
@@ -85,7 +85,7 @@ class NxHeads
     def self.bufferInImport(location)
         description = File.basename(location)
         uuid = SecureRandom.uuid
-        nhash = AionCore::commitLocationReturnHash(Datablobs1Elizabeth.new(), location)
+        nhash = AionCore::commitLocationReturnHash(DatablobStoreElizabeth.new(), location)
         coredataref = "aion-point:#{nhash}"
         position = NxList::midposition()
         item = {
