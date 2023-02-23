@@ -89,7 +89,11 @@ class NxBoards
         boardItems
             .first(20)
             .each{|item| puts NxBoardItems::toString(item) }
-        LucilleCore::askQuestionAnswerAsString("position: ").to_f
+        loop {
+            position = LucilleCore::askQuestionAnswerAsString("position: ")
+            next if position == ""
+            return position.to_f
+        }
     end
 
     # NxBoards::rtTarget(item)
