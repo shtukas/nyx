@@ -1,16 +1,94 @@
 
+# create table elements (uuid string primary key, mikuType string, nhash string)
+
 class N1DataIO
 
-    # N1DataIO::blobsRepositoryFolderPath()
-    def self.blobsRepositoryFolderPath()
-        "#{Config::pathToDataCenter()}/N1Data/datablobs"
+    # --------------------------------------
+    # Utils
+
+    # N1DataIO::n1dataFolderpath()
+    def self.n1dataFolderpath()
+        "#{Config::pathToDataCenter()}/N1Data"
     end
+
+    # N1DataIO::getIndicesExistingFilepaths()
+    def self.getIndicesExistingFilepaths()
+        LucilleCore::locationsAtFolder("#{N1DataIO::n1dataFolderpath()}/objects-indices")
+            .select{|filepath| filepath[-7, 7] == ".sqlite" }
+    end
+
+    # N1DataIO::renameIndexFile(filepath)
+    def self.renameIndexFile(filepath)
+        filepath2 = "#{N1DataIO::n1dataFolderpath()}/objects-indices/SHA256-#{Digest::SHA256.file(filepath).hexdigest}.sqlite"
+        return if filepath == filepath2
+        return if File.exist?(filepath2)
+        FileUtils.mv(filepath, filepath2)
+    end
+
+    # N1DataIO::indexFileCardinal(filepath)
+    def self.indexFileCardinal(filepath)
+        count = nil
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("select count(*) as _count_ from elements", []) do |row|
+            count = row["_count_"]
+        end
+        db.close
+        count
+    end
+
+    # N1DataIO::deleteUUIDAtIndexFilepath(filepath, uuid)
+    def self.deleteUUIDAtIndexFilepath(filepath, uuid)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "delete from elements where uuid=?", [uuid]
+        db.close
+        if N1DataIO::indexFileCardinal(filepath) > 0 then
+            N1DataIO::renameIndexFile(filepath)
+        else
+            FileUtils.rm(filepath)
+        end
+    end
+
+    # N1DataIO::destroyUUIDInIndexFiles(filepaths, uuid)
+    def self.destroyUUIDInIndexFiles(filepaths, uuid)
+        filepaths.each{|filepath|
+            N1DataIO::deleteUUIDAtIndexFilepath(filepath, uuid)
+        }
+    end
+
+    # N1DataIO::updateIndex(uuid, mikuType, nhash)
+    def self.updateIndex(uuid, mikuType, nhash)
+        filepaths = N1DataIO::getIndicesExistingFilepaths()
+
+        filepath = "#{N1DataIO::n1dataFolderpath()}/objects-indices/#{CommonUtils::timeStringL22()}.sqlite"
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("create table elements (uuid string primary key, mikuType string, nhash string)", [])
+        db.execute "insert into elements (uuid, mikuType, nhash) values (?, ?, ?)", [uuid, mikuType, nhash]
+        db.close
+
+        N1DataIO::renameIndexFile(filepath)
+
+        N1DataIO::destroyUUIDInIndexFiles(filepaths, uuid)
+    end
+
+
+
+    # --------------------------------------
+    # Interface
 
     # N1DataIO::putBlob(datablob)
     def self.putBlob(datablob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(datablob)}"
         filename = "#{nhash}.data"
-        folderpath = "#{N1DataIO::blobsRepositoryFolderPath()}/#{nhash[7, 2]}"
+        folderpath = "#{N1DataIO::n1dataFolderpath()}/datablobs/#{nhash[7, 2]}"
         if !File.exist?(folderpath) then
             FileUtils.mkdir(folderpath)
         end
@@ -30,7 +108,7 @@ class N1DataIO
     # N1DataIO::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
         filename = "#{nhash}.data"
-        folderpath = "#{N1DataIO::blobsRepositoryFolderPath()}/#{nhash[7, 2]}"
+        folderpath = "#{N1DataIO::n1dataFolderpath()}/datablobs/#{nhash[7, 2]}"
         filepath = "#{folderpath}/#{filename}"
         return nil if !File.exist?(filepath)
         blob = IO.read(filepath)
@@ -47,17 +125,58 @@ class N1DataIO
 
     # N1DataIO::commitObject(object)
     def self.commitObject(object)
-
+        if object["uuid"].nil? then
+            raise "object is missing uuid: #{JSON.pretty_generate(object)}"
+        end
+        if object["mikuType"].nil? then
+            raise "object is missing mikuType: #{JSON.pretty_generate(object)}"
+        end
+        datablob = JSON.generate(object)
+        nhash = N1DataIO::putBlob(datablob)
+        N1DataIO::updateIndex(object["uuid"], object["mikuType"], nhash)
     end
 
     # N1DataIO::getObjectOrNull(uuid)
     def self.getObjectOrNull(uuid)
-
+        object = nil
+        N1DataIO::getIndicesExistingFilepaths().each{|filepath|
+            db = SQLite3::Database.new(filepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("select * from elements where uuid=?", [uuid]) do |row|
+                nhash = row["nhash"]
+                datablob = N1DataIO::getBlobOrNull(nhash)
+                object = JSON.parse(datablob)
+            end
+            db.close
+            break if object
+        }
+        object
     end
 
     # N1DataIO::getMikuType(mikuType)
     def self.getMikuType(mikuType)
+        objects = []
+        N1DataIO::getIndicesExistingFilepaths().each{|filepath|
+            db = SQLite3::Database.new(filepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("select * from elements where mikuType=?", [mikuType]) do |row|
+                nhash = row["nhash"]
+                datablob = N1DataIO::getBlobOrNull(nhash)
+                objects << JSON.parse(datablob)
+            end
+            db.close
+        }
+        objects
+    end
 
+    # N1DataIO::destroy(uuid)
+    def self.destroy(uuid)
+        filepaths = N1DataIO::getIndicesExistingFilepaths()
+        N1DataIO::destroyUUIDInIndexFiles(filepaths, uuid)
     end
 end
 
