@@ -144,13 +144,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxProject" then
-            if LucilleCore::askQuestionAnswerAsBoolean("You are about to destroy a NxProject, #{PolyFunctions::toString(item).green}, are you sure ? ", true) then
-                NxProjects::destroy(item["uuid"])
-            end
-            return
-        end
-
         if item["mikuType"] == "TxManualCountDown" then
             TxManualCountDowns::performUpdate(item)
             return

@@ -1,9 +1,0 @@
-NxProject
-    "uuid"        => UUID,
-    "mikuType"    => "NxProject",
-    "unixtime"    => Float
-    "datetime"    => DateTime Iso 8601 UTC Zulu,
-    "description" => String,
-    "field11"     => coredataref
-    "position"    => Float
-    "isActive"    => Boolean

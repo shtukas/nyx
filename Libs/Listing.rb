@@ -20,7 +20,7 @@ class Listing
     def self.listingCommands()
         [
             "[all] .. | <datecode> | access (<n>) | do not show until <n> | done (<n>) | landing (<n>) | expose (<n>) | >> skip default | lock (<n>) | add time <n> | board (<n>) | note (<n>) | destroy <n>",
-            "[makers] anniversary | manual countdown | wave | today | ondate | drop | top | desktop | project | priority",
+            "[makers] anniversary | manual countdown | wave | today | ondate | drop | top | desktop | priority",
             "[divings] anniversaries | ondates | waves | todos | desktop | open",
             "[NxBalls] start | start * | stop | stop * | pause | pursue",
             "[NxOndate] redate",
@@ -322,14 +322,6 @@ class Listing
             return
         end
 
-        if Interpreting::match("project", input) then
-            item = NxProjects::interactivelyIssueNewOrNull()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
-            NonBoardItemToBoardMapping::interactivelyOffersToAttach(item)
-            return
-        end
-
         if Interpreting::match("priority", input) then
             item = NxHeads::priority()
             return if item.nil?
@@ -525,11 +517,6 @@ class Listing
                 "generator" => lambda{ Waves::leisureItems() } 
             },
             {
-                "name"      => "projects",
-                "account"   => "21560980-1162-4293-a7f6-42c666862485",
-                "generator" => lambda{ NxProjects::listingItems() } 
-            },
-            {
                 "name"      => "head",
                 "account"   => "cfad053c-bb83-4728-a3c5-4fb357845fd9",
                 "generator" => lambda{ NxHeads::listingItems() } 
@@ -544,7 +531,7 @@ class Listing
 
     # Listing::scheduler1runningItems()
     def self.scheduler1runningItems()
-        Waves::leisureRunningItems() + NxProjects::listingRunningItems() + NxHeads::listingRunningItems()
+        Waves::leisureRunningItems() + NxHeads::listingRunningItems()
     end
 
     # Listing::scheduler1line()
