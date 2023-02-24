@@ -7,6 +7,9 @@ class N1DataIO
     # --------------------------------------
     # Utils
 
+    IndexSplitSymbol = ","
+    IndexFileMaxCount = 122 # the original number of waves
+
     # N1DataIO::n1dataFolderpath()
     def self.n1dataFolderpath()
         "#{Config::pathToDataCenter()}/N1Data"
@@ -20,11 +23,11 @@ class N1DataIO
 
     # N1DataIO::renameIndexFile(filepath)
     def self.renameIndexFile(filepath)
-        tokens = File.basename(filepath).gsub(".sqlite", "").split(",") # we remove the .sqlite and split on `;`
+        tokens = File.basename(filepath).gsub(".sqlite", "").split(IndexSplitSymbol) # we remove the .sqlite and split on `;`
         if tokens.size == 2 then
-            filepath2 = "#{N1DataIO::n1dataFolderpath()}/objects-indices/#{tokens[0]},#{CommonUtils::timeStringL22()}.sqlite" # we keep the creation l22 and set the update l22
+            filepath2 = "#{N1DataIO::n1dataFolderpath()}/objects-indices/#{tokens[0]}#{IndexSplitSymbol}#{CommonUtils::timeStringL22()}.sqlite" # we keep the creation l22 and set the update l22
         else
-            filepath2 = "#{N1DataIO::n1dataFolderpath()}/objects-indices/#{CommonUtils::timeStringL22()},#{CommonUtils::timeStringL22()}.sqlite"
+            filepath2 = "#{N1DataIO::n1dataFolderpath()}/objects-indices/#{CommonUtils::timeStringL22()}#{IndexSplitSymbol}#{CommonUtils::timeStringL22()}.sqlite"
         end
         FileUtils.mv(filepath, filepath2)
     end
@@ -84,7 +87,7 @@ class N1DataIO
     def self.updateIndex(uuid, mikuType, nhash)
         filepathszero = N1DataIO::getIndicesExistingFilepaths()
 
-        filepath = "#{N1DataIO::n1dataFolderpath()}/objects-indices/#{CommonUtils::timeStringL22()},#{CommonUtils::timeStringL22()}.sqlite"
+        filepath = "#{N1DataIO::n1dataFolderpath()}/objects-indices/#{CommonUtils::timeStringL22()}#{IndexSplitSymbol}#{CommonUtils::timeStringL22()}.sqlite"
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -96,7 +99,48 @@ class N1DataIO
         N1DataIO::deleteUUIDInIndexFiles(filepathszero, uuid)
     end
 
+    # N1DataIO::filemerge()
+    def self.filemerge()
+        filepaths = N1DataIO::getIndicesExistingFilepaths()
+        return if filepaths.count <= IndexFileMaxCount
 
+        filepath1, filepath2 = filepaths.sort.reverse.take(2)
+
+        filepath = "#{N1DataIO::n1dataFolderpath()}/objects-indices/#{CommonUtils::timeStringL22()}#{IndexSplitSymbol}#{CommonUtils::timeStringL22()}.sqlite"
+        db3 = SQLite3::Database.new(filepath)
+        db3.busy_timeout = 117
+        db3.busy_handler { |count| true }
+        db3.results_as_hash = true
+        db3.execute("create table elements (uuid string primary key, mikuType string, nhash string)", [])
+
+        # We move all the objects from db1 to db3
+
+        db1 = SQLite3::Database.new(filepath1)
+        db1.busy_timeout = 117
+        db1.busy_handler { |count| true }
+        db1.results_as_hash = true
+        db1.execute("select * from elements", []) do |row|
+            db3.execute "insert into elements (uuid, mikuType, nhash) values (?, ?, ?)", [row["uuid"], row["mikuType"], row["nhash"]]
+        end
+        db1.close
+
+        # We move all the objects from db2 to db3
+
+        db2 = SQLite3::Database.new(filepath2)
+        db2.busy_timeout = 117
+        db2.busy_handler { |count| true }
+        db2.results_as_hash = true
+        db2.execute("select * from objects", []) do |row|
+            db3.execute "insert into elements (uuid, mikuType, nhash) values (?, ?, ?)", [row["uuid"], row["mikuType"], row["nhash"]]
+        end
+        db2.close
+
+        db3.close
+
+        # Let's now delete the two files
+        FileUtils.rm(filepath1)
+        FileUtils.rm(filepath2)
+    end
 
     # --------------------------------------
     # Interface
@@ -151,6 +195,7 @@ class N1DataIO
         datablob = JSON.generate(object)
         nhash = N1DataIO::putBlob(datablob)
         N1DataIO::updateIndex(object["uuid"], object["mikuType"], nhash)
+        N1DataIO::filemerge()
     end
 
     # N1DataIO::getObjectOrNull(uuid)
