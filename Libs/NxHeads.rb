@@ -151,7 +151,7 @@ class NxHeads
 
     # NxHeads::listingItems()
     def self.listingItems()
-        NxHeads::items()
+        items = NxHeads::items()
             .sort{|i1, i2| i1["position"] <=> i2["position"] }
             .take(3)
             .map {|item|
@@ -160,7 +160,26 @@ class NxHeads
                     "rt"   => BankUtils::recoveredAverageHoursPerDay(item["uuid"])
                 }
             }
-            .select{|packet| packet["rt"] < 1 } # This ensure that there might be a moment where it's time to go to bed
+            .select{|packet| packet["rt"] < 1 }
+            .sort{|p1, p2| p1["rt"] <=> p2["rt"] }
+            .map {|packet| packet["item"] }
+
+        return items if items.size > 0
+
+        # If we reach this point it means that all first three items have a rt >= 1,
+        # let's try the next three and we stop at them.
+
+        NxHeads::items()
+            .sort{|i1, i2| i1["position"] <=> i2["position"] }
+            .drop(3)
+            .take(3)
+            .map {|item|
+                {
+                    "item" => item,
+                    "rt"   => BankUtils::recoveredAverageHoursPerDay(item["uuid"])
+                }
+            }
+            .select{|packet| packet["rt"] < 1 }
             .sort{|p1, p2| p1["rt"] <=> p2["rt"] }
             .map {|packet| packet["item"] }
     end
