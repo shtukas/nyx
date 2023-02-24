@@ -1,5 +1,6 @@
 
 # create table elements (uuid string primary key, mikuType string, nhash string)
+# File naming convention: <l22>,<l22>.sqlite
 
 class N1DataIO
 
@@ -19,9 +20,12 @@ class N1DataIO
 
     # N1DataIO::renameIndexFile(filepath)
     def self.renameIndexFile(filepath)
-        filepath2 = "#{N1DataIO::n1dataFolderpath()}/objects-indices/SHA256-#{Digest::SHA256.file(filepath).hexdigest}.sqlite"
-        return if filepath == filepath2
-        return if File.exist?(filepath2)
+        tokens = File.basename(filepath).gsub(".sqlite", "").split(",") # we remove the .sqlite and split on `;`
+        if tokens.size == 2 then
+            filepath2 = "#{N1DataIO::n1dataFolderpath()}/objects-indices/#{tokens[0]},#{CommonUtils::timeStringL22()}.sqlite" # we keep the creation l22 and set the update l22
+        else
+            filepath2 = "#{N1DataIO::n1dataFolderpath()}/objects-indices/#{CommonUtils::timeStringL22()},#{CommonUtils::timeStringL22()}.sqlite"
+        end
         FileUtils.mv(filepath, filepath2)
     end
 
@@ -39,8 +43,23 @@ class N1DataIO
         count
     end
 
+    # N1DataIO::indexFileCarriesUUID(filepath, uuid)
+    def self.indexFileCarriesUUID(filepath, uuid)
+        flag = false
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("select uuid from elements where uuid=?", [uuid]) do |row|
+            flag = true
+        end
+        db.close
+        flag
+    end
+
     # N1DataIO::deleteUUIDAtIndexFilepath(filepath, uuid)
     def self.deleteUUIDAtIndexFilepath(filepath, uuid)
+        return if !N1DataIO::indexFileCarriesUUID(filepath, uuid)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -54,8 +73,8 @@ class N1DataIO
         end
     end
 
-    # N1DataIO::destroyUUIDInIndexFiles(filepaths, uuid)
-    def self.destroyUUIDInIndexFiles(filepaths, uuid)
+    # N1DataIO::deleteUUIDInIndexFiles(filepaths, uuid)
+    def self.deleteUUIDInIndexFiles(filepaths, uuid)
         filepaths.each{|filepath|
             N1DataIO::deleteUUIDAtIndexFilepath(filepath, uuid)
         }
@@ -63,9 +82,9 @@ class N1DataIO
 
     # N1DataIO::updateIndex(uuid, mikuType, nhash)
     def self.updateIndex(uuid, mikuType, nhash)
-        filepaths = N1DataIO::getIndicesExistingFilepaths()
+        filepathszero = N1DataIO::getIndicesExistingFilepaths()
 
-        filepath = "#{N1DataIO::n1dataFolderpath()}/objects-indices/#{CommonUtils::timeStringL22()}.sqlite"
+        filepath = "#{N1DataIO::n1dataFolderpath()}/objects-indices/#{CommonUtils::timeStringL22()},#{CommonUtils::timeStringL22()}.sqlite"
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -74,9 +93,7 @@ class N1DataIO
         db.execute "insert into elements (uuid, mikuType, nhash) values (?, ?, ?)", [uuid, mikuType, nhash]
         db.close
 
-        N1DataIO::renameIndexFile(filepath)
-
-        N1DataIO::destroyUUIDInIndexFiles(filepaths, uuid)
+        N1DataIO::deleteUUIDInIndexFiles(filepathszero, uuid)
     end
 
 
@@ -176,7 +193,7 @@ class N1DataIO
     # N1DataIO::destroy(uuid)
     def self.destroy(uuid)
         filepaths = N1DataIO::getIndicesExistingFilepaths()
-        N1DataIO::destroyUUIDInIndexFiles(filepaths, uuid)
+        N1DataIO::deleteUUIDInIndexFiles(filepaths, uuid)
     end
 end
 
