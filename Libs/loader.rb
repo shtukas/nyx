@@ -47,7 +47,6 @@ checkLocation = lambda{|location|
 } 
 
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-Config.json")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub/NxTails-FrontElements-BufferIn")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub/Stargate-DataCenter")
 checkLocation.call("#{ENV['HOME']}/Galaxy/Nyx")
 checkLocation.call("#{ENV['HOME']}/Galaxy/LucilleOS/Libraries/Ruby-Libraries")
@@ -140,67 +139,23 @@ require "#{Config::userHomeDirectory()}/Galaxy/LucilleOS/Libraries/Ruby-Librarie
 
 # ------------------------------------------------------------
 
-require_relative "Anniversaries.rb"
-
-require_relative "BankCore.rb"
-require_relative "BankUtils.rb"
-
-require_relative "Catalyst.rb"
 require_relative "CoreData.rb"
 require_relative "CommonUtils.rb"
 
-require_relative "DoNotShowUntil.rb"
-# DoNotShowUntil::setUnixtime(uid, unixtime)
-# DoNotShowUntil::isVisible(uid)
 require_relative "Dx8Units.rb"
-require_relative "Desktop"
-
-require_relative "Locks.rb"
 
 require_relative "Galaxy.rb"
 
-require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"
 
-require_relative "LambdX1s.rb"
-require_relative "Lookups.rb"
-require_relative "Listing.rb"
-
-require_relative "Mappings.rb"
-
 require_relative "Nyx.rb"
-require_relative "NxBalls.rb"
-require_relative "NxOndates.rb"
-require_relative "NxBoards.rb"
-require_relative "NxOpen.rb"
-require_relative "NxList.rb"
-require_relative "NxHeads.rb"
-require_relative "NxTails.rb"
-require_relative "NxTops.rb"
 require_relative "NyxDirectories.rb"
-require_relative "NxNote.rb"
 require_relative "NightSky.rb"
-require_relative "NxBoardItems.rb"
-require_relative "NxOpenCycles.rb"
 require_relative "NxOrbital.rb"
 require_relative "N1DataIO.rb"
-require_relative "NxTimeCapsules.rb"
-
-require_relative "ObjectStore2.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"
-require_relative "PolyActions.rb"
-require_relative "PolyFunctions.rb"
-
-require_relative "SectionsType0141.rb"
-require_relative "Stargate.rb"
-require_relative "Skips.rb"
-
-require_relative "TxManualCountDowns.rb"
-require_relative "The99Percent.rb"
-
-require_relative "Waves.rb"
 
 # ------------------------------------------------------------
 

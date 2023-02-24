@@ -1,1 +1,0 @@
-We can get all the backups in a search looking for `backup`.

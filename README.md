@@ -1,18 +1,4 @@
 
-# Stargate
-
-Stargate is the umbrella name given to two program that share the same code: Catalyst and Nyx.
-
-### Install
-
-```
-$ bundle install
-```
-
-### Catalyst
-
-Catalyst is an advanced task management system.
-
 ### Nyx
 
 Nyx is a file system.

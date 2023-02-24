@@ -1,8 +1,0 @@
-NxNode 
-    "uuid"         : String
-    "mikuType"     : "NxNode"
-    "unixtime"     : Float
-    "datetime"     : DateTime Iso 8601 UTC Zulu
-    "description"  : String
-    "coredataref"  : nil or String
-
