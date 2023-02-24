@@ -520,6 +520,11 @@ class Listing
                 "name"      => "head",
                 "account"   => "cfad053c-bb83-4728-a3c5-4fb357845fd9",
                 "generator" => lambda{ NxHeads::listingItems() } 
+            },
+            {
+                "name"      => "open cycles (general)",
+                "account"   => "1057b16e-d486-4451-a165-67c92dfd5268",
+                "generator" => lambda{ NxOpenCycles::listingItems() }
             }
         ]
         .map{|packet|
