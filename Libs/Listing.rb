@@ -679,7 +679,7 @@ class Listing
 
             NxBoards::timeManagement()
             NxList::dataManagement()
-
+            NxTimeCapsules::operate()
             NxOpenCycles::program()
 
             store = ItemStore.new()

@@ -156,6 +156,16 @@ class NxBoards
     # NxBoards::timeManagement()
     def self.timeManagement()
         NxBoards::items().each{|item|
+
+            # If the board's capsule is over flowing, meaning its positive value is moer than 50% of the time commitment for the board
+            # Meaning we did more than 100% of time commitment then we issue NxTimeCapsules
+            if BankCore::getValue(item["capsule"]) >= 0.5*item["hours"]*3600 then
+                puts "NxBoards::timeManagement(), code to be written"
+                exit
+            end
+
+            # We perform a reset, when we have filled the capsule (not to be confused with NxTimeCapsule)
+            # and it's been more than a week. This last condition allows enjoying free time if the capsule was filled quickly.
             if BankCore::getValue(item["capsule"]) >= 0 and (Time.new.to_i - item["lastResetTime"]) >= 86400*7 then
                 puts "resetting board's capsule time commitment: #{item["description"]}"
                 BankCore::put(item["capsule"], -item["hours"]*3600)

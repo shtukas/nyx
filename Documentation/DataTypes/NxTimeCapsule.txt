@@ -1,0 +1,11 @@
+
+NxTimeCapsule:
+    "uuid"          : String
+    "mikuType"      : "NxTimeCapsule"
+    "unixtime"      : Float
+    "account"       : String
+    "value"         : Float
+
+A NxTimeCapsule is a promise of a bank update operation. When the time reaches `unixtime`, the value (algebraic value) is added to the bank account. They were introduced to smooth NxBoard time management after bursts of activity.
+
+
