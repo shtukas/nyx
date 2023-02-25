@@ -59,10 +59,21 @@ class NightSky
     # ------------------------------------
     # Makers
 
-    # NightSky::spawn(uuid, description, coredataref)
-    def self.spawn(uuid, description, coredataref)
-        filename = "#{SecureRandom.hex(5)}.nyx-orbital.#{SecureRandom.hex(5)}"
-        filepath = "#{Config::pathToGalaxy()}/Nyx/Orbitals/#{filename}"
+    # NightSky::spawn(uuid, description, locationdirective)
+    def self.spawn(uuid, description, locationdirective)
+
+        filepath = (lambda { |locationdirective|
+            if locationdirective == "nest" then
+                filename = "#{SecureRandom.hex(5)}.nyx-orbital.#{SecureRandom.hex(5)}"
+                return "#{Config::pathToGalaxy()}/Nyx/Orbitals/#{filename}"
+            end
+            if locationdirective == "desktop" then
+                filename = "#{CommonUtils::sanitiseStringForFilenaming(description)}.nyx-orbital.#{SecureRandom.hex(5)}"
+                return "#{Config::pathToDesktop()}/#{filename}"
+            end
+            raise "(error 6e423c07-c897-44ef-a27c-71c285b4b6da) unsupported location directive"
+        }).call(locationdirective)
+        
         XCache::set("f1e45aa7-db4d-40d3-bb57-d7c9ca02c1bb:#{uuid}", filepath)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -75,16 +86,18 @@ class NightSky
         orbital.set("unixtime", Time.new.to_i)
         orbital.set("datetime", Time.new.utc.iso8601)
         orbital.set("description", description)
-        orbital.set("coredataref", coredataref)
         orbital
     end
 
     # NightSky::interactivelyIssueNewNxOrbitalNull()
     def self.interactivelyIssueNewNxOrbitalNull()
+        locationdirectives = ["nest", "desktop"]
+        locationdirective = LucilleCore::selectEntityFromListOfEntitiesOrNull("location", locationdirectives)
+        return nil if locationdirective.nil?
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid  = SecureRandom.uuid
-        orbital = NightSky::spawn(uuid, description, nil)
+        orbital = NightSky::spawn(uuid, description, locationdirective)
         coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(orbital)
         if coredataref then
             orbital.coredataref_set(coredataref)
