@@ -115,7 +115,7 @@ class NightSky
 
     # NightSky::ordinaluuids()
     def self.ordinaluuids()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataCenter()}/NightSky")
+        LucilleCore::locationsAtFolder(Config::pathToNightSkyIndex())
             .select{|filepath| filepath[0, 1] != "." }
             .map{|filepath| IO.read(filepath).strip }
     end
@@ -139,7 +139,7 @@ class NightSky
             orbital = NxOrbital.new(filepath)
             XCache::set("f1e45aa7-db4d-40d3-bb57-d7c9ca02c1bb:#{orbital.uuid()}", filepath)
             next if orbitaluuids.include?(orbital.uuid())
-            File.open("#{Config::pathToDataCenter()}/NightSky/#{CommonUtils::timeStringL22()}", "w"){|f|
+            File.open("#{Config::pathToNightSkyIndex()}/#{CommonUtils::timeStringL22()}", "w"){|f|
                 f.write(orbital.uuid())
             }
             orbitaluuids << orbital.uuid()

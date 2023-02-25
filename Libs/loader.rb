@@ -152,7 +152,7 @@ require_relative "Nyx.rb"
 require_relative "NyxDirectories.rb"
 require_relative "NightSky.rb"
 require_relative "NxOrbital.rb"
-require_relative "N1DataIO.rb"
+require_relative "../../catalyst/Libs/N1DataIO.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"
