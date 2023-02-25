@@ -1,4 +1,4 @@
-Orbitals are the nodes of the Nyx network.
+NxNodes are the nodes of the Nyx network.
 
 Each orbital is a collection of records of the form (key: text, collection: text, data: blob)
 
@@ -18,6 +18,6 @@ linked:<linkeduuid>  ; linked     ; <linkeduuid>
 
 Orbital file names follow a strict structure
 
-<main>.nyx-orbital.<hexstring>
+<main>.nyxnode.<hexstring>
 
-The NightSky folder contains individual files, each containing an orbital uuid.
+The ~/Galaxy/Nyx/Index directory contains individual files, each containing an orbital uuid.

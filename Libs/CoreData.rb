@@ -45,7 +45,7 @@ class CoreData
         if referencetype == "aion point" then
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            nhash = AionCore::commitLocationReturnHash(ElizabethOrbital.new(orbital), location)
+            nhash = AionCore::commitLocationReturnHash(Elizabeth.new(orbital), location)
             return "aion-point:#{nhash}" 
         end
         if referencetype == "Dx8Unit" then
@@ -143,7 +143,7 @@ class CoreData
             exportFoldername = "aion-point"
             exportFolder = "#{Config::pathToDesktop()}/#{exportFoldername}"
             FileUtils.mkdir(exportFolder)
-            AionCore::exportHashAtFolder(ElizabethOrbital.new(orbital), nhash, exportFolder)
+            AionCore::exportHashAtFolder(Elizabeth.new(orbital), nhash, exportFolder)
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -265,7 +265,7 @@ class CoreData
         end
         if referenceString.start_with?("aion-point") then
             nhash = referenceString.split(":")[1]
-            operator = ElizabethOrbital.new(orbital)
+            operator = Elizabeth.new(orbital)
             AionFsck::structureCheckAionHashRaiseErrorIfAny(operator, nhash)
             return
         end

@@ -11,31 +11,31 @@ class Nyx
     # Nyx::main()
     def self.main()
         loop {
-            options = ["search", "new orbital", "list orbitals", "fs scan", "fsck"]
+            options = ["search", "new node", "list nodes", "fs scan", "fsck"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             break if option.nil?
             if option == "search" then
                 NightSky::search_action()
             end
-            if option == "new orbital" then
-                orbital = NightSky::interactivelyIssueNewNxOrbitalNull()
-                next if orbital.nil?
-                NightSky::landing(orbital)
+            if option == "new node" then
+                node = NightSky::interactivelyIssueNewNxNodeNull()
+                next if node.nil?
+                NightSky::landing(node)
             end
-            if option == "list orbitals" then
+            if option == "list nodes" then
                 loop {
-                    orbitals = NightSky::orbitals().sort{|n1, n2| n1.unixtime() <=> n2.unixtime() }
-                    orbital = LucilleCore::selectEntityFromListOfEntitiesOrNull("orbital", orbitals, lambda{|orbital| orbital.description() })
-                    break if orbital.nil?
-                    NightSky::landing(orbital)
+                    nodes = NightSky::nodes().sort{|n1, n2| n1.unixtime() <=> n2.unixtime() }
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| node.description() })
+                    break if node.nil?
+                    NightSky::landing(node)
                 }
             end
             if option == "fs scan" then
                 NightSky::fs_scan()
             end
             if option == "fsck" then
-                NightSky::orbitalEnumeratorFromFSEnumeration().each{|orbital|
-                    orbital.fsck()
+                NightSky::nodeEnumeratorFromFSEnumeration().each{|node|
+                    node.fsck()
                 }
             end
         }

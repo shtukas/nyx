@@ -150,7 +150,7 @@ require_relative "ItemStore.rb"
 require_relative "Nyx.rb"
 require_relative "NyxDirectories.rb"
 require_relative "NightSky.rb"
-require_relative "NxOrbital.rb"
+require_relative "NxNode.rb"
 
 require_relative "ProgrammableBooleans.rb"
 

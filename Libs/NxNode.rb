@@ -1,7 +1,7 @@
 
-class NxOrbital
+class NxNode
 
-    # NxOrbital.new(filepath)
+    # NxNode.new(filepath)
     def initialize(filepath)
          @filepath = filepath
     end
@@ -95,7 +95,7 @@ class NxOrbital
         collection("linked").map{|item| item["data"] }
     end
 
-    def linked_orbitals()
+    def linked_nodes()
         linkeduuids()
             .map{|linkeduuid| NightSky::getOrNull(linkeduuid) }
             .compact
@@ -153,27 +153,27 @@ class NxOrbital
     end
 
     def fsck()
-        puts "(orbital #{self.uuid()}) fsck..."
+        puts "(node #{self.uuid()}) fsck..."
         CoreData::fsckRightOrError(self.coredataref(), self)
-        CommonUtils::putsOnPreviousLine("(orbital #{self.uuid()}) ✅")
+        CommonUtils::putsOnPreviousLine("(node #{self.uuid()}) ✅")
     end
 end
 
-class ElizabethOrbital
+class Elizabeth
 
-    def initialize(orbital)
-        @orbital = orbital
+    def initialize(node)
+        @node = node
     end
 
     def putBlob(datablob)
         nhash1 = "SHA256-#{Digest::SHA256.hexdigest(datablob)}"
-        nhash2 = @orbital.put_blob(datablob)
+        nhash2 = @node.put_blob(datablob)
 
         if nhash2 != nhash1 then
             raise "(error: 88b68200-1a95-4ba3-ad2a-f6ffe6c9fb88) something incredibly wrong just happened"
         end
 
-        nhash3 = "SHA256-#{Digest::SHA256.hexdigest(@orbital.get(nhash1))}"
+        nhash3 = "SHA256-#{Digest::SHA256.hexdigest(@node.get(nhash1))}"
         if nhash3 != nhash1 then
             raise "(error: 43070006-dcaf-48b7-ac43-025ed2351336) something incredibly wrong just happened"
         end
@@ -186,7 +186,7 @@ class ElizabethOrbital
     end
 
     def getBlobOrNull(nhash)
-        @orbital.get(nhash)
+        @node.get(nhash)
     end
 
     def readBlobErrorIfNotFound(nhash)
