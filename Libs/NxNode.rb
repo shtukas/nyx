@@ -92,11 +92,11 @@ class NxNode
     end
 
     def linkeduuids()
-        collection("linked").map{|item| item["data"] }
+        self.collection("linked").map{|item| item["data"] }
     end
 
     def linked_nodes()
-        linkeduuids()
+        self.linkeduuids()
             .map{|linkeduuid| NightSky::getOrNull(linkeduuid) }
             .compact
     end
@@ -120,11 +120,11 @@ class NxNode
 
     def linkeduuids_add(linkeduuid)
         return if self.linkeduuids().include?(linkeduuid)
-        collection_add("linked:#{linkeduuid}", "linked", linkeduuid)
+        self.collection_add("linked:#{linkeduuid}", "linked", linkeduuid)
     end
 
     def linkeduuids_remove(linkeduuid)
-        collection_remove("linked:#{linkeduuid}")
+        self.collection_remove("linked:#{linkeduuid}")
     end
 
     def put_blob(blob)
@@ -190,7 +190,7 @@ class Elizabeth
     end
 
     def readBlobErrorIfNotFound(nhash)
-        blob = getBlobOrNull(nhash)
+        blob = self.getBlobOrNull(nhash)
         return blob if blob
         puts "(error: 585b8f91-4369-4dd7-a134-f00d9e7f4391) could not find blob, nhash: #{nhash}"
         raise "(error: 987f8b3e-ff09-4b6a-9809-da6732b39be1, nhash: #{nhash})" if blob.nil?
@@ -198,7 +198,7 @@ class Elizabeth
 
     def datablobCheck(nhash)
         begin
-            blob = readBlobErrorIfNotFound(nhash)
+            blob = self.readBlobErrorIfNotFound(nhash)
             status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
             if !status then
                 puts "(error: d97f7216-afeb-40bd-a37c-0d5966e6a0d0) incorrect blob, exists but doesn't have the right nhash: #{nhash}"

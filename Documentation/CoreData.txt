@@ -5,9 +5,6 @@ reference strings categories:
 
     - "null" (when the node doesn't have one, for instance navigation nodes)
 
-    - "nyx-directory:{directoryId}"
-      The directory Id is the name of the directory in { Galaxy/Nyx/Directories }
-
     - "unique-string:#{uniquestring}""
 
     - "text:#{nhash}"

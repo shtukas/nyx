@@ -1,5 +1,9 @@
-#!/bin/zsh
+#!/usr/bin/ruby
 
-cd ~/Galaxy/Software/github.com/shtukas/nyx
-rbenv local 3.2.0
-ruby bin/nyx.rb
+# encoding: UTF-8
+
+require_relative "Libs/loader.rb"
+
+# ----------------------------------------------------------------------------
+
+Nyx::main()

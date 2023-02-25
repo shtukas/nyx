@@ -65,7 +65,7 @@ class NightSky
         filepath = (lambda { |locationdirective|
             if locationdirective == "nest" then
                 filename = "#{SecureRandom.hex(5)}.nyxnode.#{SecureRandom.hex(5)}"
-                return "#{Config::pathToGalaxy()}/Nyx/Nest/#{filename}"
+                return "#{Config::pathToNest()}/#{filename}"
             end
             if locationdirective == "desktop" then
                 filename = "#{CommonUtils::sanitiseStringForFilenaming(description)}.nyxnode.#{SecureRandom.hex(5)}"
@@ -73,8 +73,7 @@ class NightSky
             end
             raise "(error 6e423c07-c897-44ef-a27c-71c285b4b6da) unsupported location directive"
         }).call(locationdirective)
-        
-        XCache::set("f1e45aa7-db4d-40d3-bb57-d7c9ca02c1bb:#{uuid}", filepath)
+
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -86,6 +85,11 @@ class NightSky
         node.set("unixtime", Time.new.to_i)
         node.set("datetime", Time.new.utc.iso8601)
         node.set("description", description)
+
+        File.open("#{Config::pathToNightSkyIndex()}/#{node.uuid()}", "w"){|f| f.write(node.uuid()) }
+        
+        XCache::set("f1e45aa7-db4d-40d3-bb57-d7c9ca02c1bb:#{uuid}", filepath)
+
         node
     end
 
@@ -168,9 +172,7 @@ class NightSky
             node = NxNode.new(filepath)
             XCache::set("f1e45aa7-db4d-40d3-bb57-d7c9ca02c1bb:#{node.uuid()}", filepath)
             next if nodeuuids.include?(node.uuid())
-            File.open("#{Config::pathToNightSkyIndex()}/#{CommonUtils::timeStringL22()}", "w"){|f|
-                f.write(node.uuid())
-            }
+            File.open("#{Config::pathToNightSkyIndex()}/#{node.uuid()}", "w"){|f| f.write(node.uuid()) }
             nodeuuids << node.uuid()
         }
     end
@@ -190,11 +192,11 @@ class NightSky
             system('clear')
 
             puts node.description()
-            puts "> filepath: #{node.filepath()}"
             puts "> uuid: #{node.uuid()}"
             puts "> coredataref: #{node.coredataref()}"
+            puts "> filepath : #{node.filepath()}"
             if node.companion_directory_or_null() then
-                puts "> companion directory: #{node.companion_directory_or_null()}"
+                puts "> companion: #{node.companion_directory_or_null()}"
             end
 
             store = ItemStore.new()
@@ -208,7 +210,7 @@ class NightSky
                 }
 
             puts ""
-            puts "commands: access | link | coredata | move to desktop | fox"
+            puts "commands: access | link | coredata | fox | companion | out nest"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -254,14 +256,24 @@ class NightSky
                 next
             end
 
-            if command == "move to desktop" then
+            if command == "out nest" then
+                if !node.filepath().start_with?(Config::pathToNest()) then
+                    puts "You con only out nest node that are in the nest. This node is currently at: #{node.filepath()}"
+                    LucilleCore::pressEnterToContinue()
+                    next
+                end
                 node.move_to_desktop()
-                break
+                next
             end
 
             if command == "fox" then
                 return node
             end
+
+            if command == "companion" then
+                return system("open '#{node.companion_directory_or_null()}'")
+            end
+
         }
 
         nil

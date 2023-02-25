@@ -5,7 +5,7 @@ class CoreData
 
     # CoreData::coreDataReferenceTypes()
     def self.coreDataReferenceTypes()
-        ["nyx directory", "unique string", "text", "url", "aion point", "Dx8Unit", "OpenCycle Directory"]
+        ["text", "url", "aion point", "unique string", "Dx8Unit"]
     end
 
     # CoreData::interactivelySelectCoreDataReferenceType()
@@ -21,12 +21,6 @@ class CoreData
         referencetype = CoreData::interactivelySelectCoreDataReferenceType()
         if referencetype.nil? then
             return "null"
-        end
-        if referencetype == "nyx directory" then
-            folderpath = NyxDirectories::makeNew(orbital.uuid())
-            system("open '#{folderpath}'")
-            LucilleCore::pressEnterToContinue()
-            return "nyx-directory:#{orbital.uuid()}"
         end
         if referencetype == "unique string" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (if needed use Nx01-#{SecureRandom.hex[0, 12]}): ")
@@ -52,10 +46,6 @@ class CoreData
             unitId = LucilleCore::askQuestionAnswerAsString("Dx8Unit Id: ")
             return "Dx8UnitId:#{unitId}"
         end
-        if referencetype == "OpenCycle Directory" then
-            fname = LucilleCore::askQuestionAnswerAsString("OpenCycle directory name: ")
-            return "open-cycle:#{fname}"
-        end
         raise "(error: f75b2797-99e5-49d0-8d49-40b44beb538c) unsupported core data reference type: #{referencetype}"
     end
 
@@ -66,9 +56,6 @@ class CoreData
         end
         if referenceString == "null" then
             return ""
-        end
-        if referenceString.start_with?("nyx-directory") then
-            return " (nyx directory)"
         end
         if referenceString.start_with?("unique-string") then
             str = referenceString.split(":")[1]
@@ -86,9 +73,6 @@ class CoreData
         if referenceString.start_with?("Dx8UnitId") then
             return " (Dx8Unit)"
         end
-        if referenceString.start_with?("open-cycle") then
-            return " (#{referenceString})"
-        end
         raise "CoreData, I do not know how to string '#{referenceString}'"
     end
 
@@ -102,11 +86,6 @@ class CoreData
         if referenceString == "null" then
             puts "Accessing null reference string. Nothing to do."
             LucilleCore::pressEnterToContinue()
-            return
-        end
-        if referenceString.start_with?("nyx-directory") then
-            directoryId = referenceString.split(":")[1]
-            NyxDirectories::access(directoryId)
             return
         end
         if referenceString.start_with?("unique-string") then
@@ -152,13 +131,6 @@ class CoreData
             Dx8Units::access(unitId)
             return
         end
-        if referenceString.start_with?("open-cycle") then
-            fname = referenceString.split(":")[1]
-            directoryFilepath = "#{Config::pathToGalaxy()}/OpenCycles/#{fname}"
-            system("open '#{directoryFilepath}'")
-            return
-        end
-
         raise "CoreData, I do not know how to access '#{referenceString}'"
     end
 
@@ -166,11 +138,6 @@ class CoreData
     def self.edit(referenceString, orbital)
         if referenceString == "null" then
             return CoreData::interactivelyMakeNewReferenceStringOrNull(orbital)
-        end
-        if referenceString.start_with?("nyx-directory") then
-            directoryId = referenceString.split(":")[1]
-            NyxDirectories::access(directoryId)
-            return
         end
         if referenceString.start_with?("unique-string") then
             uniquestring = referenceString.split(":")[1]
@@ -230,10 +197,6 @@ class CoreData
             Dx8Units::access(unitId)
             return
         end
-        if referenceString.start_with?("open-cycle") then
-            CoreData::access(referenceString, orbital)
-            return
-        end
         raise "CoreData, I do not know how to edit '#{referenceString}'"
     end
 
@@ -243,9 +206,6 @@ class CoreData
             return
         end
         if referenceString == "null" then
-            return
-        end
-        if referenceString.start_with?("nyx-directory") then
             return
         end
         if referenceString.start_with?("unique-string") then
@@ -272,10 +232,6 @@ class CoreData
         if referenceString.start_with?("Dx8UnitId") then
             return
         end
-        if referenceString.start_with?("open-cycle") then
-            return
-        end
-
         raise "CoreData, I do not know how to fsck '#{referenceString}'"
     end
 end

@@ -20,6 +20,11 @@ class Config
 
     # Config::pathToNightSkyIndex()
     def self.pathToNightSkyIndex()
-        "#{Config::userHomeDirectory()}/Galaxy/DataHub/NightSky"
+        "#{Config::pathToGalaxy()}/Nyx/Index"
+    end
+
+    # Config::pathToNest()
+    def self.pathToNest()
+        "#{Config::pathToGalaxy()}/Nyx/Nest"
     end
 end
