@@ -153,8 +153,9 @@ class NxOrbital
     end
 
     def fsck()
-        puts "(orbital #{self.uuid()}) fsck"
+        puts "(orbital #{self.uuid()}) fsck..."
         CoreData::fsckRightOrError(self.coredataref(), self)
+        CommonUtils::putsOnPreviousLine("(orbital #{self.uuid()}) ✅")
     end
 end
 

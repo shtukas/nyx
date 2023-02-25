@@ -11,7 +11,7 @@ class Nyx
     # Nyx::main()
     def self.main()
         loop {
-            options = ["search", "new orbital", "list orbitals", "fs scan"]
+            options = ["search", "new orbital", "list orbitals", "fs scan", "fsck"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             break if option.nil?
             if option == "search" then
@@ -32,6 +32,11 @@ class Nyx
             end
             if option == "fs scan" then
                 NightSky::fs_scan()
+            end
+            if option == "fsck" then
+                NightSky::orbitalEnumeratorFromFSEnumeration().each{|orbital|
+                    orbital.fsck()
+                }
             end
         }
     end

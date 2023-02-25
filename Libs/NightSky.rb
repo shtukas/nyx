@@ -136,7 +136,9 @@ class NightSky
         Enumerator.new do |orbitals|
             NightSky::galaxyFilepathEnumerator().each{|filepath|
                 next if !NightSky::isOrbital(filepath)
-                orbitals << NxOrbital.new(filepath)
+                orbital = NxOrbital.new(filepath)
+                XCache::set("f1e45aa7-db4d-40d3-bb57-d7c9ca02c1bb:#{orbital.uuid()}", filepath)
+                orbitals << orbital
             }
         end
     end
