@@ -47,7 +47,6 @@ checkLocation = lambda{|location|
 } 
 
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-Config.json")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub/Stargate-DataCenter")
 checkLocation.call("#{ENV['HOME']}/Galaxy/Nyx")
 checkLocation.call("#{ENV['HOME']}/Galaxy/LucilleOS/Libraries/Ruby-Libraries")
 checkLocation.call("#{ENV['HOME']}/x-space/xcache-v1-days")
@@ -152,9 +151,7 @@ require_relative "Nyx.rb"
 require_relative "NyxDirectories.rb"
 require_relative "NightSky.rb"
 require_relative "NxOrbital.rb"
-require_relative "../../catalyst/Libs/N1Data.rb"
 
-require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"
 
 # ------------------------------------------------------------

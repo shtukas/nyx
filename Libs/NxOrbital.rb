@@ -127,6 +127,12 @@ class NxOrbital
         collection_remove("linked:#{linkeduuid}")
     end
 
+    def put_blob(blob)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        self.set(nhash, blob)
+        nhash
+    end
+
     # ----------------------------------------------------
     # operations
 
@@ -144,5 +150,61 @@ class NxOrbital
         filepath2 = "#{Config::pathToDesktop()}/#{File.basename(filepath1)}"
         FileUtils.mv(filepath1, filepath2)
         @filepath = filepath2
+    end
+
+    def fsck()
+        puts "(orbital #{self.uuid()}) fsck"
+        CoreData::fsckRightOrError(self.coredataref(), self)
+    end
+end
+
+class ElizabethOrbital
+
+    def initialize(orbital)
+        @orbital = orbital
+    end
+
+    def putBlob(datablob)
+        nhash1 = "SHA256-#{Digest::SHA256.hexdigest(datablob)}"
+        nhash2 = @orbital.put_blob(datablob)
+
+        if nhash2 != nhash1 then
+            raise "(error: 88b68200-1a95-4ba3-ad2a-f6ffe6c9fb88) something incredibly wrong just happened"
+        end
+
+        nhash3 = "SHA256-#{Digest::SHA256.hexdigest(@orbital.get(nhash1))}"
+        if nhash3 != nhash1 then
+            raise "(error: 43070006-dcaf-48b7-ac43-025ed2351336) something incredibly wrong just happened"
+        end
+
+        nhash1
+    end
+
+    def filepathToContentHash(filepath)
+        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
+    end
+
+    def getBlobOrNull(nhash)
+        @orbital.get(nhash)
+    end
+
+    def readBlobErrorIfNotFound(nhash)
+        blob = getBlobOrNull(nhash)
+        return blob if blob
+        puts "(error: 585b8f91-4369-4dd7-a134-f00d9e7f4391) could not find blob, nhash: #{nhash}"
+        raise "(error: 987f8b3e-ff09-4b6a-9809-da6732b39be1, nhash: #{nhash})" if blob.nil?
+    end
+
+    def datablobCheck(nhash)
+        begin
+            blob = readBlobErrorIfNotFound(nhash)
+            status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
+            if !status then
+                puts "(error: d97f7216-afeb-40bd-a37c-0d5966e6a0d0) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
+            end
+            return status
+        rescue
+            false
+        end
     end
 end

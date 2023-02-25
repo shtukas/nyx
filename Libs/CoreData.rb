@@ -14,8 +14,8 @@ class CoreData
         LucilleCore::selectEntityFromListOfEntitiesOrNull("coredata reference type", types)
     end
 
-    # CoreData::interactivelyMakeNewReferenceStringOrNull(uuid) # payload string
-    def self.interactivelyMakeNewReferenceStringOrNull(uuid)
+    # CoreData::interactivelyMakeNewReferenceStringOrNull(orbital) # payload string
+    def self.interactivelyMakeNewReferenceStringOrNull(orbital)
         # This function is called during the making of a new node (or when we are issuing a new payload of an existing node)
         # It does stuff and returns a payload string or null
         referencetype = CoreData::interactivelySelectCoreDataReferenceType()
@@ -23,10 +23,10 @@ class CoreData
             return "null"
         end
         if referencetype == "nyx directory" then
-            folderpath = NyxDirectories::makeNew(uuid)
+            folderpath = NyxDirectories::makeNew(orbital.uuid())
             system("open '#{folderpath}'")
             LucilleCore::pressEnterToContinue()
-            return "nyx-directory:#{uuid}"
+            return "nyx-directory:#{orbital.uuid()}"
         end
         if referencetype == "unique string" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (if needed use Nx01-#{SecureRandom.hex[0, 12]}): ")
@@ -34,18 +34,18 @@ class CoreData
         end
         if referencetype == "text" then
             text = CommonUtils::editTextSynchronously("")
-            nhash = N1Data::putBlob(text)
+            nhash = orbital.put_blob(text)
             return "text:#{nhash}"
         end
         if referencetype == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url: ")
-            nhash = N1Data::putBlob(url)
+            nhash = orbital.put_blob(url)
             return "url:#{nhash}"
         end
         if referencetype == "aion point" then
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            nhash = AionCore::commitLocationReturnHash(DatablobStoreElizabeth.new(), location)
+            nhash = AionCore::commitLocationReturnHash(ElizabethOrbital.new(orbital), location)
             return "aion-point:#{nhash}" 
         end
         if referencetype == "Dx8Unit" then
@@ -92,8 +92,8 @@ class CoreData
         raise "CoreData, I do not know how to string '#{referenceString}'"
     end
 
-    # CoreData::access(referenceString)
-    def self.access(referenceString)
+    # CoreData::access(referenceString, orbital)
+    def self.access(referenceString, orbital)
         if referenceString.nil? then
             puts "Accessing null reference string. Nothing to do."
             LucilleCore::pressEnterToContinue()
@@ -121,7 +121,7 @@ class CoreData
         end
         if referenceString.start_with?("text") then
             nhash = referenceString.split(":")[1]
-            text = N1Data::getBlobOrNull(nhash)
+            text = orbital.get(nhash)
             puts "--------------------------------------------------------------"
             puts text
             puts "--------------------------------------------------------------"
@@ -130,7 +130,7 @@ class CoreData
         end
         if referenceString.start_with?("url") then
             nhash = referenceString.split(":")[1]
-            url = N1Data::getBlobOrNull(nhash)
+            url = orbital.get(nhash)
             puts "url: #{url}"
             CommonUtils::openUrlUsingSafari(url)
             LucilleCore::pressEnterToContinue()
@@ -143,7 +143,7 @@ class CoreData
             exportFoldername = "aion-point"
             exportFolder = "#{Config::pathToDesktop()}/#{exportFoldername}"
             FileUtils.mkdir(exportFolder)
-            AionCore::exportHashAtFolder(DatablobStoreElizabeth.new(), nhash, exportFolder)
+            AionCore::exportHashAtFolder(ElizabethOrbital.new(orbital), nhash, exportFolder)
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -162,10 +162,10 @@ class CoreData
         raise "CoreData, I do not know how to access '#{referenceString}'"
     end
 
-    # CoreData::edit(referenceString) # new reference string
-    def self.edit(referenceString)
+    # CoreData::edit(referenceString, orbital) # new reference string
+    def self.edit(referenceString, orbital)
         if referenceString == "null" then
-            return CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
+            return CoreData::interactivelyMakeNewReferenceStringOrNull(orbital)
         end
         if referenceString.start_with?("nyx-directory") then
             directoryId = referenceString.split(":")[1]
@@ -231,9 +231,51 @@ class CoreData
             return
         end
         if referenceString.start_with?("open-cycle") then
-            CoreData::access(referenceString)
+            CoreData::access(referenceString, orbital)
             return
         end
         raise "CoreData, I do not know how to edit '#{referenceString}'"
+    end
+
+    # CoreData::fsckRightOrError(referenceString, orbital)
+    def self.fsckRightOrError(referenceString, orbital)
+        if referenceString.nil? then
+            return
+        end
+        if referenceString == "null" then
+            return
+        end
+        if referenceString.start_with?("nyx-directory") then
+            return
+        end
+        if referenceString.start_with?("unique-string") then
+            return
+        end
+        if referenceString.start_with?("text") then
+            nhash = referenceString.split(":")[1]
+            text = orbital.get(nhash)
+            return if text
+            raise "missing text at orbital #{orbital.uuid()} for referenceString: #{referenceString}"
+        end
+        if referenceString.start_with?("url") then
+            nhash = referenceString.split(":")[1]
+            url = orbital.get(nhash)
+            return if url
+            raise "missing url at orbital #{orbital.uuid()} for referenceString: #{referenceString}"
+        end
+        if referenceString.start_with?("aion-point") then
+            nhash = referenceString.split(":")[1]
+            operator = ElizabethOrbital.new(orbital)
+            AionFsck::structureCheckAionHashRaiseErrorIfAny(operator, nhash)
+            return
+        end
+        if referenceString.start_with?("Dx8UnitId") then
+            return
+        end
+        if referenceString.start_with?("open-cycle") then
+            return
+        end
+
+        raise "CoreData, I do not know how to fsck '#{referenceString}'"
     end
 end

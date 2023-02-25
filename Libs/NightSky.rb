@@ -84,8 +84,12 @@ class NightSky
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid  = SecureRandom.uuid
-        coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(uuid)
-        NightSky::spawn(uuid, description, coredataref)
+        orbital = NightSky::spawn(uuid, description, nil)
+        coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(orbital)
+        if coredataref then
+            orbital.coredataref_set(coredataref)
+        end
+        orbital
     end
 
     # ------------------------------------
@@ -125,6 +129,16 @@ class NightSky
         NightSky::ordinaluuids()
             .map{|uuid| NightSky::getOrNull(uuid) }
             .compact
+    end
+
+    # NightSky::orbitalEnumeratorFromFSEnumeration()
+    def self.orbitalEnumeratorFromFSEnumeration()
+        Enumerator.new do |orbitals|
+            NightSky::galaxyFilepathEnumerator().each{|filepath|
+                next if !NightSky::isOrbital(filepath)
+                orbitals << NxOrbital.new(filepath)
+            }
+        end
     end
 
     # ------------------------------------
@@ -202,7 +216,7 @@ class NightSky
                     LucilleCore::pressEnterToContinue()
                     next
                 end
-                CoreData::access(orbital.coredataref())
+                CoreData::access(orbital.coredataref(), orbital)
                 next
             end
 
@@ -220,7 +234,7 @@ class NightSky
 
             if command == "coredata" then
                 next if !LucilleCore::askQuestionAnswerAsBoolean("Confirm update of CoreData payload ? ", true)
-                coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(orbital.uuid())
+                coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(orbital)
                 orbital.coredataref_set(coredataref)
                 next
             end
