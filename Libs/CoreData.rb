@@ -5,7 +5,7 @@ class CoreData
 
     # CoreData::coreDataReferenceTypes()
     def self.coreDataReferenceTypes()
-        ["text", "url", "aion point", "unique string", "Dx8Unit"]
+        ["text", "url", "aion point", "unique string"]
     end
 
     # CoreData::interactivelySelectCoreDataReferenceType()
@@ -14,82 +14,127 @@ class CoreData
         LucilleCore::selectEntityFromListOfEntitiesOrNull("coredata reference type", types)
     end
 
-    # CoreData::interactivelyMakeNewReferenceStringOrNull(orbital) # payload string
-    def self.interactivelyMakeNewReferenceStringOrNull(orbital)
+    # CoreData::interactivelyMakeNewReferenceOrNull(orbital) # payload string
+    def self.interactivelyMakeNewReferenceOrNull(orbital)
         # This function is called during the making of a new node (or when we are issuing a new payload of an existing node)
         # It does stuff and returns a payload string or null
         referencetype = CoreData::interactivelySelectCoreDataReferenceType()
         if referencetype.nil? then
-            return "null"
-        end
-        if referencetype == "unique string" then
-            uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (if needed use Nx01-#{SecureRandom.hex[0, 12]}): ")
-            return "unique-string:#{uniquestring}"
+            return {
+                "uuid"        => SecureRandom.uuid,
+                "unixtime"    => Time.new.to_f,
+                "description" => nil,
+                "type"        => "null"
+            }
         end
         if referencetype == "text" then
             text = CommonUtils::editTextSynchronously("")
-            nhash = orbital.put_blob(text)
-            return "text:#{nhash}"
+            return {
+                "uuid"         => SecureRandom.uuid,
+                "unixtime"     => Time.new.to_f,
+                "description"  => nil,
+                "type"         => "text",
+                "uniquestring" => uniquestring
+            }
         end
         if referencetype == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url: ")
-            nhash = orbital.put_blob(url)
-            return "url:#{nhash}"
+            return {
+                "uuid"        => SecureRandom.uuid,
+                "unixtime"    => Time.new.to_f,
+                "description" => nil,
+                "type"        => "url",
+                "url"         => url
+            }
         end
         if referencetype == "aion point" then
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
             nhash = AionCore::commitLocationReturnHash(Elizabeth.new(orbital), location)
-            return "aion-point:#{nhash}" 
+            return {
+                "uuid"        => SecureRandom.uuid,
+                "unixtime"    => Time.new.to_f,
+                "description" => nil,
+                "type"        => "aion-point",
+                "nhash"       => nhash
+            }
         end
-        if referencetype == "Dx8Unit" then
-            unitId = LucilleCore::askQuestionAnswerAsString("Dx8Unit Id: ")
-            return "Dx8UnitId:#{unitId}"
+        if referencetype == "unique string" then
+            uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (if needed use Nx01-#{SecureRandom.hex[0, 12]}): ")
+            return {
+                "uuid"         => SecureRandom.uuid,
+                "unixtime"     => Time.new.to_f,
+                "description"  => nil,
+                "type"         => "unique-string",
+                "uniquestring" => uniquestring
+            }
         end
         raise "(error: f75b2797-99e5-49d0-8d49-40b44beb538c) unsupported core data reference type: #{referencetype}"
     end
 
-    # CoreData::referenceStringToSuffixString(referenceString)
-    def self.referenceStringToSuffixString(referenceString)
-        if referenceString.nil? then
-            return ""
+    # CoreData::referenceToString(reference)
+    def self.referenceToString(reference)
+        if reference.nil? then
+            return "core data: null"
         end
-        if referenceString == "null" then
-            return ""
+        if reference["type"] == "null" then
+            return "core data: null"
         end
-        if referenceString.start_with?("unique-string") then
-            str = referenceString.split(":")[1]
-            return " (unique string: #{str})"
+        if reference["type"] == "text" then
+            return "core data: text"
         end
-        if referenceString.start_with?("text") then
-            return " (text)"
+        if reference["type"] == "url" then
+            return "core data: url"
         end
-        if referenceString.start_with?("url") then
-            return " (url)"
+        if reference["type"] == "aion-point" then
+            return "core data: aion-point"
         end
-        if referenceString.start_with?("aion-point") then
-            return " (aion point)"
+        if reference["type"] == "unique-string" then
+            return "core data: unique-string"
         end
-        if referenceString.start_with?("Dx8UnitId") then
-            return " (Dx8Unit)"
-        end
-        raise "CoreData, I do not know how to string '#{referenceString}'"
+        raise "CoreData, I do not know how to string '#{reference}'"
     end
 
-    # CoreData::access(referenceString, orbital)
-    def self.access(referenceString, orbital)
-        if referenceString.nil? then
+    # CoreData::access(reference, orbital)
+    def self.access(reference, orbital)
+        if reference.nil? then
             puts "Accessing null reference string. Nothing to do."
             LucilleCore::pressEnterToContinue()
             return
         end
-        if referenceString == "null" then
+        if reference["type"] == "null" then
             puts "Accessing null reference string. Nothing to do."
             LucilleCore::pressEnterToContinue()
             return
         end
-        if referenceString.start_with?("unique-string") then
-            uniquestring = referenceString.split(":")[1]
+        if reference["type"] == "text" then
+            text = reference["text"]
+            puts "--------------------------------------------------------------"
+            puts text
+            puts "--------------------------------------------------------------"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if reference["type"] == "url" then
+            url = reference["url"]
+            puts "url: #{url}"
+            CommonUtils::openUrlUsingSafari(url)
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if reference["type"] == "aion-point" then
+            nhash = reference["nhash"]
+            puts "CoreData, accessing aion point: #{nhash}"
+            exportId = SecureRandom.hex(4)
+            exportFoldername = "aion-point-#{exportId}"
+            exportFolder = "#{Config::pathToDesktop()}/#{exportFoldername}"
+            FileUtils.mkdir(exportFolder)
+            AionCore::exportHashAtFolder(Elizabeth.new(orbital), nhash, exportFolder)
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if reference["type"] == "unique-string" then
+            uniquestring = reference["uniquestring"]
             puts "CoreData, accessing unique string: #{uniquestring}"
             location = Atlas::uniqueStringToLocationOrNull(uniquestring)
             if location then
@@ -98,77 +143,42 @@ class CoreData
             end
             return
         end
-        if referenceString.start_with?("text") then
-            nhash = referenceString.split(":")[1]
-            text = orbital.get(nhash)
-            puts "--------------------------------------------------------------"
-            puts text
-            puts "--------------------------------------------------------------"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        if referenceString.start_with?("url") then
-            nhash = referenceString.split(":")[1]
-            url = orbital.get(nhash)
-            puts "url: #{url}"
-            CommonUtils::openUrlUsingSafari(url)
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        if referenceString.start_with?("aion-point") then
-            nhash = referenceString.split(":")[1]
-            puts "CoreData, accessing aion point: #{nhash}"
-            exportId = SecureRandom.hex(4)
-            exportFoldername = "aion-point"
-            exportFolder = "#{Config::pathToDesktop()}/#{exportFoldername}"
-            FileUtils.mkdir(exportFolder)
-            AionCore::exportHashAtFolder(Elizabeth.new(orbital), nhash, exportFolder)
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        if referenceString.start_with?("Dx8UnitId") then
-            unitId = referenceString.split(":")[1]
-            Dx8Units::access(unitId)
-            return
-        end
-        raise "CoreData, I do not know how to access '#{referenceString}'"
+        raise "CoreData, I do not know how to access '#{reference}'"
     end
 
-    # CoreData::edit(referenceString, orbital) # new reference string
-    def self.edit(referenceString, orbital)
-        if referenceString == "null" then
-            return CoreData::interactivelyMakeNewReferenceStringOrNull(orbital)
+    # CoreData::edit(reference, orbital) # new reference
+    def self.edit(reference, orbital)
+        if reference.nil? then
+            return CoreData::interactivelyMakeNewReferenceOrNull(orbital)
         end
-        if referenceString.start_with?("unique-string") then
-            uniquestring = referenceString.split(":")[1]
-            puts "CoreData, editing unique string: #{uniquestring}"
-            puts "not implemented yet"
-            LucilleCore::pressEnterToContinue()
-            return
+        if reference["type"] == "null" then
+            return CoreData::interactivelyMakeNewReferenceOrNull(orbital)
         end
-        if referenceString.start_with?("text") then
-            nhash = referenceString.split(":")[1]
+        if reference["type"] == "null" then
+            puts "Accessing null reference string. Making a new one."
+            return CoreData::interactivelyMakeNewReferenceOrNull(orbital) 
+        end
+        if reference["type"] == "text" then
+            text = reference["text"]
             puts "CoreData, editing text: #{nhash}"
             puts "not implemented yet"
             LucilleCore::pressEnterToContinue()
             return
         end
-        if referenceString.start_with?("url") then
-            nhash = referenceString.split(":")[1]
+        if reference["type"] == "url" then
+            url = reference["url"]
             puts "CoreData, editing url: #{nhash}"
             puts "not implemented yet"
             LucilleCore::pressEnterToContinue()
             return
         end
-        if referenceString.start_with?("aion-point") then
-            rootnhash = referenceString.split(":")[1]
-
+        if reference["type"] == "aion-point" then
+            rootnhash = reference["nhash"]
             exportLocation = "#{ENV['HOME']}/Desktop/aion-point-#{SecureRandom.hex(4)}"
             FileUtils.mkdir(exportLocation)
             AionCore::exportHashAtFolder(rootnhash, exportLocation)
             puts "Item exported at #{exportLocation} for edition"
             LucilleCore::pressEnterToContinue()
-
             acquireLocationInsideExportFolder = lambda {|exportLocation|
                 locations = LucilleCore::locationsAtFolder(exportLocation).select{|loc| File.basename(loc)[0, 1] != "."}
                 if locations.size == 0 then
@@ -189,49 +199,46 @@ class CoreData
             location = acquireLocationInsideExportFolder.call(exportLocation)
             puts "reading: #{location}"
             rootnhash = AionCore::commitLocationReturnHash(location)
-
-            return "aion-point:#{rootnhash}"
+            reference["nhash"] = rootnhash
+            return reference
         end
-        if referenceString.start_with?("Dx8UnitId") then
-            unitId = referenceString.split(":")[1]
-            Dx8Units::access(unitId)
+        if reference["type"] == "unique-string" then
+            uniquestring = reference["uniquestring"]
+            puts "CoreData, editing unique string: #{uniquestring}"
+            puts "not implemented yet"
+            LucilleCore::pressEnterToContinue()
             return
         end
-        raise "CoreData, I do not know how to edit '#{referenceString}'"
+        raise "CoreData, I do not know how to edit '#{reference}'"
     end
 
-    # CoreData::fsckRightOrError(referenceString, orbital)
-    def self.fsckRightOrError(referenceString, orbital)
-        if referenceString.nil? then
+    # CoreData::fsckRightOrError(reference, orbital)
+    def self.fsckRightOrError(reference, orbital)
+        if reference.nil? then
             return
         end
-        if referenceString == "null" then
+        if reference["type"] == "null" then
             return
         end
-        if referenceString.start_with?("unique-string") then
-            return
-        end
-        if referenceString.start_with?("text") then
-            nhash = referenceString.split(":")[1]
-            text = orbital.get(nhash)
+        if reference["type"] == "text" then
+            text = reference["text"]
             return if text
-            raise "missing text at orbital #{orbital.uuid()} for referenceString: #{referenceString}"
+            raise "missing text at orbital #{orbital.uuid()} for reference: #{reference}"
         end
-        if referenceString.start_with?("url") then
-            nhash = referenceString.split(":")[1]
-            url = orbital.get(nhash)
+        if reference["type"] == "url" then
+            url = reference["url"]
             return if url
-            raise "missing url at orbital #{orbital.uuid()} for referenceString: #{referenceString}"
+            raise "missing url at orbital #{orbital.uuid()} for reference: #{reference}"
         end
-        if referenceString.start_with?("aion-point") then
-            nhash = referenceString.split(":")[1]
+        if reference["type"] == "aion-point" then
+            rootnhash = reference["nhash"]
             operator = Elizabeth.new(orbital)
-            AionFsck::structureCheckAionHashRaiseErrorIfAny(operator, nhash)
+            AionFsck::structureCheckAionHashRaiseErrorIfAny(operator, rootnhash)
             return
         end
-        if referenceString.start_with?("Dx8UnitId") then
+        if reference["type"] == "unique-string" then
             return
         end
-        raise "CoreData, I do not know how to fsck '#{referenceString}'"
+        raise "CoreData, I do not know how to fsck '#{reference}'"
     end
 end

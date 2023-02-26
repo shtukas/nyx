@@ -11,10 +11,8 @@ if ARGV[0] == "node" then
     exit if description == ""
     uuid  = SecureRandom.uuid
     node = NightSky::spawn(uuid, description, "desktop")
-    coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(node)
-    if coredataref then
-        node.coredataref_set(coredataref)
-    end
+    coredataref = CoreData::interactivelyMakeNewReferenceOrNull(node)
+    node.coredataref_set(coredataref)
     NightSky::landing(node)
     exit
 end

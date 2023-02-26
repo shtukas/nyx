@@ -1,27 +1,41 @@
 
-The principal design idea of CoreData is that we refer to specific storage units by a single string, called a Core Date Reference String, or just _reference string_. Note that mutations of the data may result in the string being updated, in any case the holder should always assume that an edit results in the string being updated.
+CoreData references are json object that represent data, more exactly nodes payloads.
 
-reference strings categories:
+NxCoreDataRef {
+    "uuid"        : String
+    "unixtime"    : Float
+    "description" : nil or string
+    "type"        : "null"
+}
 
-    - "null" (when the node doesn't have one, for instance navigation nodes)
+NxCoreDataRef {
+    "uuid"        : String
+    "unixtime"    : Float
+    "description" : nil or string
+    "type"        : "text"
+    "text"        : string
+}
 
-    - "unique-string:#{uniquestring}""
+NxCoreDataRef {
+    "uuid"        : String
+    "unixtime"    : Float
+    "description" : nil or string
+    "type"        : "url"
+    "url          : string
+}
 
-    - "text:#{nhash}"
-      The fragment is the named hash of the text in DatablobStore
+NxCoreDataRef {
+    "uuid"        : String
+    "unixtime"    : Float
+    "description" : nil or string
+    "type"        : "aion-point"
+    "nhash"       : string
+}
 
-    - "aion-point:#{nhash}"
-      The nhash is the named hash of the root of the aion hierarchy
-
-    - "url:#{nhash}"
-      The nhash is the named hash of the url in the DatablobStore
-
-    - "file:#{nhash}"
-      We do not specifically create those but we have them in stock, 
-      we got them from NxTodos when we migrated, from Nx113 to CoreData 
-      The nhash points at an object of the form
-        {
-            "dottedExtension" => String
-            "nhash"           => String
-            "parts"           => Array[String]
-        }
+NxCoreDataRef {
+    "uuid"         : String
+    "unixtime"     : Float
+    "description"  : nil or string
+    "type"         : "unique-string"
+    "uniquestring" : string
+}

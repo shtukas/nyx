@@ -91,7 +91,7 @@ class NightSky
         return nil if description == ""
         uuid  = SecureRandom.uuid
         node = NightSky::spawn(uuid, description, locationdirective)
-        coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(node)
+        coredataref = CoreData::interactivelyMakeNewReferenceOrNull(node)
         if coredataref then
             node.coredataref_set(coredataref)
         end
@@ -248,8 +248,10 @@ class NightSky
 
             if command == "coredata" then
                 next if !LucilleCore::askQuestionAnswerAsBoolean("Confirm update of CoreData payload ? ", true)
-                coredataref = CoreData::interactivelyMakeNewReferenceStringOrNull(node)
-                node.coredataref_set(coredataref)
+                coredataref = CoreData::interactivelyMakeNewReferenceOrNull(node)
+                if coredataref then
+                    node.coredataref_set(coredataref)
+                end
                 next
             end
 

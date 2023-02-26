@@ -28,7 +28,9 @@ class NxNode
         db.busy_handler { |count| true }
         db.results_as_hash = true
         db.execute "delete from orbital where _key_=?", [key]
-        db.execute "insert into orbital (_key_, _data_) values (?, ?)", [key, data]
+        if !data.nil? then
+            db.execute "insert into orbital (_key_, _data_) values (?, ?)", [key, data]
+        end
         db.close
     end
 
@@ -88,7 +90,10 @@ class NxNode
     end
 
     def coredataref()
-        self.get("coredataref")
+        ref = self.get("coredataref")
+        return nil if ref.nil?
+        return nil if ref == ""
+        JSON.parse(ref)
     end
 
     def linkeduuids()
@@ -111,7 +116,11 @@ class NxNode
     # Convenience Setters
 
     def coredataref_set(coredataref)
-        self.set("coredataref", coredataref)
+        if coredataref.nil? then
+            self.set("coredataref", nil)
+            return
+        end
+        self.set("coredataref", JSON.generate(coredataref))
     end
 
     def linkeduuids_add(linkeduuid)
@@ -144,9 +153,9 @@ class NxNode
     end
 
     def fsck()
-        puts "(node #{self.uuid()}) fsck..."
+        puts "node: #{self.uuid()} fsck..."
         CoreData::fsckRightOrError(self.coredataref(), self)
-        CommonUtils::putsOnPreviousLine("(node #{self.uuid()}) ✅")
+        CommonUtils::putsOnPreviousLine("node: #{self.uuid()} ✅")
     end
 end
 
