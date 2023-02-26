@@ -18,6 +18,6 @@ linked:<linkeduuid>  ; linked     ; <linkeduuid>
 
 Orbital file names follow a strict structure
 
-<main>.nyxnode.<hexstring>
+<main>.nyxnode
 
 The ~/Galaxy/DataHub/Nyx/Index directory contains individual files, each named after and containing an orbital uuid.

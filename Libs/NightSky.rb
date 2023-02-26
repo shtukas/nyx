@@ -51,11 +51,11 @@ class NightSky
 
         filepath = (lambda { |locationdirective|
             if locationdirective == "nest" then
-                filename = "#{SecureRandom.hex(5)}.nyxnode.#{SecureRandom.hex(5)}"
+                filename = "#{SecureRandom.hex(5)}.nyxnode"
                 return "#{Config::pathToNest()}/#{filename}"
             end
             if locationdirective == "desktop" then
-                filename = "#{CommonUtils::sanitiseStringForFilenaming(description)}.nyxnode.#{SecureRandom.hex(5)}"
+                filename = "#{CommonUtils::sanitiseStringForFilenaming(description)}-#{SecureRandom.hex(2)}.nyxnode"
                 return "#{Config::pathToDesktop()}/#{filename}"
             end
             raise "(error 6e423c07-c897-44ef-a27c-71c285b4b6da) unsupported location directive"
@@ -82,6 +82,7 @@ class NightSky
 
     # NightSky::interactivelyIssueNewNxNodeNull()
     def self.interactivelyIssueNewNxNodeNull()
+        puts "> create a new nyx node"
         locationdirectives = ["nest", "desktop"]
         locationdirective = LucilleCore::selectEntityFromListOfEntitiesOrNull("location", locationdirectives)
         return nil if locationdirective.nil?
@@ -185,9 +186,9 @@ class NightSky
             system('clear')
 
             puts node.description().green
-            puts "> uuid: #{node.uuid()}"
-            puts "> filepath : #{node.filepath()}"
-            puts "> coredataref: #{node.coredataref()}"
+            puts "- uuid: #{node.uuid()}"
+            puts "- filepath : #{node.filepath()}"
+            puts "- coredataref: #{node.coredataref()}"
 
             store = ItemStore.new()
 
@@ -196,7 +197,7 @@ class NightSky
                 .linked_nodes()
                 .each{|linkednode|
                     store.register(linkednode, false)
-                    puts "#{store.prefixString()}: #{linkednode.description()}"
+                    puts "(#{store.prefixString()}) #{linkednode.description()}"
                 }
 
             puts ""
@@ -281,9 +282,7 @@ class NightSky
 
     # NightSky::interactivelySelectOrbitalOrNull()
     def self.interactivelySelectOrbitalOrNull()
-        # This function is going to evolve as we get more nodes, but it's gonna do for the moment
-        nodes = NightSky::nodes()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("nodes", nodes, lambda{|node| node.description() })
+        NightSky::select()
     end
 
     # NightSky::architectOrbitalOrNull()
@@ -342,7 +341,7 @@ class NightSky
         nil
     end
 
-    # NightSky::select() nil or ordinal
+    # NightSky::select() nil or node
     def self.select()
         puts "> entering fox search"
         LucilleCore::pressEnterToContinue()
