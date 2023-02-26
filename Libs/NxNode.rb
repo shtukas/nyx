@@ -111,6 +111,10 @@ class NxNode
         directory
     end
 
+    def add_note(note)
+        self.collection_add(note["uuid"], "note", JSON.generate(note))
+    end
+
     # ----------------------------------------------------
     # Convenience Setters
 

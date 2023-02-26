@@ -5,15 +5,16 @@ Each orbital is a collection of records of the form (key: text, collection: text
 Used as a key value store, we consider records of the form (key, null, data). Used to manipulate sets we consider records of the form (null, collection-name, data)
 
 ---------------------------------------------------
-key                  ;            ; data
+key                  |            | data
 uuid
 unixtime
 datetime
 description
 coredataref
 
-key                  ; collection ; data
-linked:<linkeduuid>  ; linked     ; <linkeduuid>
+key                  | collection | data
+linked:<linkeduuid>  | linked     | <linkeduuid>
+<uuid>               | note       | NxNote json encoded
 ---------------------------------------------------
 
 Orbital file names follow a strict structure
@@ -21,3 +22,4 @@ Orbital file names follow a strict structure
 <main>.nyxnode.<hexstring>
 
 The ~/Galaxy/Nyx/Index directory contains individual files, each containing an orbital uuid.
+
