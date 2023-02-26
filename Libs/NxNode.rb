@@ -130,6 +130,10 @@ class NxNode
         self.set("coredataref", JSON.generate(coredataref))
     end
 
+    def description_set(description)
+        self.set("description", description)
+    end
+
     def linkeduuids_add(linkeduuid)
         return if self.linkeduuids().include?(linkeduuid)
         self.collection_add("linked:#{linkeduuid}", "linked", linkeduuid)

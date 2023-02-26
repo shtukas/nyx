@@ -226,7 +226,7 @@ class NightSky
             end
 
             puts ""
-            puts "commands: access | link | coredata | note | selecct | out nest | envelop | destroy"
+            puts "commands: description | access | link | coredata | note | selecct | out nest | envelop | destroy"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -248,6 +248,13 @@ class NightSky
                 if item["mikuType"] == "CoreDataRef" then
                     CoreDataRefs::landing(item)
                 end
+                next
+            end
+
+            if command == "description" then
+                description = LucilleCore::askQuestionAnswerAsString("description: ")
+                next if description == ""
+                node.description_set(description)
                 next
             end
 
