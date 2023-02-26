@@ -101,6 +101,12 @@ class NxNode
             .compact
     end
 
+    def notes()
+        self.collection("note")
+            .map{|xnote| JSON.parse(xnote["data"]) }
+            .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
+    end
+
     # ----------------------------------------------------
     # Convenience Setters
 
@@ -121,6 +127,10 @@ class NxNode
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
         self.set(nhash, blob)
         nhash
+    end
+
+    def add_note(note)
+        self.collection_add(note["uuid"], "note", JSON.generate(note))
     end
 
     # ----------------------------------------------------

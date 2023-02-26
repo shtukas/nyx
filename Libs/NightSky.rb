@@ -194,6 +194,11 @@ class NightSky
             store = ItemStore.new()
 
             puts ""
+            node.notes().each{|note|
+                puts "- #{note["line"]}"
+            }
+
+            puts ""
             node
                 .linked_nodes()
                 .each{|linkednode|
@@ -202,7 +207,7 @@ class NightSky
                 }
 
             puts ""
-            puts "commands: access | link | coredata | selecct | out nest | envelop | destroy"
+            puts "commands: access | link | coredata | note | selecct | out nest | envelop | destroy"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -275,6 +280,12 @@ class NightSky
             if command == "destroy" then
                 puts "We haven't implemented that one yet"
                 LucilleCore::pressEnterToContinue()
+            end
+
+            if command == "note" then
+                note = NxNote::makeNoteOrNull()
+                next if note.nil?
+                node.add_note(note)
             end
         }
 
