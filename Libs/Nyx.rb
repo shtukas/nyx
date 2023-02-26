@@ -11,11 +11,12 @@ class Nyx
     # Nyx::main()
     def self.main()
         loop {
+            system("clear")
             options = ["search", "new node", "list nodes", "fs scan", "fsck"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             break if option.nil?
             if option == "search" then
-                NightSky::search_action()
+                NightSky::search()
             end
             if option == "new node" then
                 node = NightSky::interactivelyIssueNewNxNodeNull()

@@ -10,21 +10,7 @@ class NightSky
 
     # NightSky::isNyxNode(filepath)
     def self.isNyxNode(filepath)
-        File.basename(filepath).include?(".nyxnode.")
-    end
-
-    # NightSky::filenameComponentsOrNull(filename)
-    # "1main0.nyxnode.12345678"
-    # {"main"=>"1main0", "suffix"=>"12345678"}
-    def self.filenameComponentsOrNull(filename)
-        return nil if !filename.include?(".nyxnode.")
-        p1 = filename.index(".nyxnode.")
-        s1 = filename[0, p1]
-        s2 = filename[p1+13, filename.size]
-        {
-            "main"   => s1,
-            "suffix" => s2
-        }
+        File.basename(filepath)[-8, 8] == ".nyxnode"
     end
 
     # NightSky::galaxyFilepathEnumerator()
@@ -54,6 +40,7 @@ class NightSky
             # make sure we remember what we have learnt just there, for future reference
             XCache::set("f1e45aa7-db4d-40d3-bb57-d7c9ca02c1bb:#{node.uuid()}", filepath)
         }
+        nil
     end
 
     # ------------------------------------
@@ -64,11 +51,12 @@ class NightSky
 
         filepath = (lambda { |locationdirective|
             if locationdirective == "nest" then
-                filename = "#{SecureRandom.hex(5)}.nyxnode.#{SecureRandom.hex(5)}"
-                return "#{Config::pathToNest()}/#{filename}"
+                filename = "#{SecureRandom.hex(5)}.nyxnode"
+                folder1 = LucilleCore::indexsubfolderpath(Config::pathToNest(), 100)
+                return "#{folder1}/#{filename}"
             end
             if locationdirective == "desktop" then
-                filename = "#{CommonUtils::sanitiseStringForFilenaming(description)}.nyxnode.#{SecureRandom.hex(5)}"
+                filename = "#{CommonUtils::sanitiseStringForFilenaming(description)}-#{SecureRandom.hex(2)}.nyxnode"
                 return "#{Config::pathToDesktop()}/#{filename}"
             end
             raise "(error 6e423c07-c897-44ef-a27c-71c285b4b6da) unsupported location directive"
@@ -95,6 +83,7 @@ class NightSky
 
     # NightSky::interactivelyIssueNewNxNodeNull()
     def self.interactivelyIssueNewNxNodeNull()
+        puts "> create a new nyx node"
         locationdirectives = ["nest", "desktop"]
         locationdirective = LucilleCore::selectEntityFromListOfEntitiesOrNull("location", locationdirectives)
         return nil if locationdirective.nil?
@@ -116,7 +105,7 @@ class NightSky
     def self.getOrNull(uuid)
         filepath = XCache::getOrNull("f1e45aa7-db4d-40d3-bb57-d7c9ca02c1bb:#{uuid}")
         if filepath then
-            if File.exist?(filepath) then
+            if File.exist?(filepath) and NightSky::isNyxNode(filepath) then
                 node = NxNode.new(filepath)
                 if node.uuid() == uuid then
                     return node
@@ -124,18 +113,24 @@ class NightSky
             end
         end
 
-        puts "> locate node use the force: #{uuid}"
+        puts "> locate node #{uuid} (use the force)"
         filepath = NightSky::locateOrbitalByUUIDOrNull_UseTheForce(uuid)
 
-        return nil if filepath.nil?
+        if filepath.nil? then
+            puts "I could not locate uuid: #{uuid}"
+            puts "Going to remove it from the Index"
+            LucilleCore::pressEnterToContinue()
+            FileUtils.rm("#{Config::pathToNightSkyIndex()}/#{uuid}")
+            return nil
+        end
 
         XCache::set("f1e45aa7-db4d-40d3-bb57-d7c9ca02c1bb:#{uuid}", filepath)
 
         NxNode.new(filepath)
     end
 
-    # NightSky::nodeuuids()
-    def self.nodeuuids()
+    # NightSky::nodeuuidsFromIndex()
+    def self.nodeuuidsFromIndex()
         LucilleCore::locationsAtFolder(Config::pathToNightSkyIndex())
             .select{|filepath| filepath[0, 1] != "." }
             .map{|filepath| IO.read(filepath).strip }
@@ -143,7 +138,7 @@ class NightSky
 
     # NightSky::nodes()
     def self.nodes()
-        NightSky::nodeuuids()
+        NightSky::nodeuuidsFromIndex()
             .map{|uuid| NightSky::getOrNull(uuid) }
             .compact
     end
@@ -165,7 +160,7 @@ class NightSky
 
     # NightSky::fs_scan()
     def self.fs_scan()
-        nodeuuids = NightSky::nodeuuids()
+        nodeuuids = NightSky::nodeuuidsFromIndex()
         NightSky::galaxyFilepathEnumerator().each{|filepath|
             next if !NightSky::isNyxNode(filepath)
             puts "fs scan: #{filepath}"
@@ -191,13 +186,10 @@ class NightSky
 
             system('clear')
 
-            puts node.description()
-            puts "> uuid: #{node.uuid()}"
-            puts "> coredataref: #{node.coredataref()}"
-            puts "> filepath : #{node.filepath()}"
-            if node.companion_directory_or_null() then
-                puts "> companion: #{node.companion_directory_or_null()}"
-            end
+            puts node.description().green
+            puts "- uuid: #{node.uuid()}"
+            puts "- filepath : #{node.filepath()}"
+            puts "- coredataref: #{node.coredataref()}"
 
             store = ItemStore.new()
 
@@ -206,11 +198,11 @@ class NightSky
                 .linked_nodes()
                 .each{|linkednode|
                     store.register(linkednode, false)
-                    puts "#{store.prefixString()}: #{linkednode.description()}"
+                    puts "(#{store.prefixString()}) #{linkednode.description()}"
                 }
 
             puts ""
-            puts "commands: access | link | coredata | fox | companion | out nest"
+            puts "commands: access | link | coredata | selecct | out nest | envelop | destroy"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -266,14 +258,24 @@ class NightSky
                 next
             end
 
-            if command == "fox" then
+            if command == "envelop" then
+                if node.filepath().start_with?(Config::pathToNest()) then
+                    puts "You are in the nest, this node doesn't have an envelop per se"
+                    LucilleCore::pressEnterToContinue()
+                    next
+                end
+                system("open '#{File.dirname(node.filepath())}'")
+                next
+            end
+
+            if command == "select" then
                 return node
             end
 
-            if command == "companion" then
-                return system("open '#{node.companion_directory_or_null()}'")
+            if command == "destroy" then
+                puts "We haven't implemented that one yet"
+                LucilleCore::pressEnterToContinue()
             end
-
         }
 
         nil
@@ -281,9 +283,7 @@ class NightSky
 
     # NightSky::interactivelySelectOrbitalOrNull()
     def self.interactivelySelectOrbitalOrNull()
-        # This function is going to evolve as we get more nodes, but it's gonna do for the moment
-        nodes = NightSky::nodes()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("nodes", nodes, lambda{|node| node.description() })
+        NightSky::select()
     end
 
     # NightSky::architectOrbitalOrNull()
@@ -316,8 +316,8 @@ class NightSky
             }
     end
 
-    # NightSky::search_action()
-    def self.search_action()
+    # NightSky::search()
+    def self.search()
         loop {
             system('clear')
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort) : ")
@@ -342,8 +342,8 @@ class NightSky
         nil
     end
 
-    # NightSky::search_fox() nil or ordinal
-    def self.search_fox()
+    # NightSky::select() nil or node
+    def self.select()
         puts "> entering fox search"
         LucilleCore::pressEnterToContinue()
         loop {
@@ -394,5 +394,4 @@ class NightSky
         }
         nil
     end
-
 end
