@@ -52,7 +52,8 @@ class NightSky
         filepath = (lambda { |locationdirective|
             if locationdirective == "nest" then
                 filename = "#{SecureRandom.hex(5)}.nyxnode"
-                return "#{Config::pathToNest()}/#{filename}"
+                folder1 = LucilleCore::indexsubfolderpath(Config::pathToNest(), 100)
+                return "#{folder1}/#{filename}"
             end
             if locationdirective == "desktop" then
                 filename = "#{CommonUtils::sanitiseStringForFilenaming(description)}-#{SecureRandom.hex(2)}.nyxnode"
