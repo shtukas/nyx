@@ -198,10 +198,10 @@ class NightSky
 
             system('clear')
 
-            puts node.description()
+            puts node.description().green
             puts "> uuid: #{node.uuid()}"
-            puts "> coredataref: #{node.coredataref()}"
             puts "> filepath : #{node.filepath()}"
+            puts "> coredataref: #{node.coredataref()}"
             if node.companion_directory_or_null() then
                 puts "> companion: #{node.companion_directory_or_null()}"
             end
@@ -323,8 +323,8 @@ class NightSky
             }
     end
 
-    # NightSky::search_action()
-    def self.search_action()
+    # NightSky::search()
+    def self.search()
         loop {
             system('clear')
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort) : ")
@@ -349,8 +349,8 @@ class NightSky
         nil
     end
 
-    # NightSky::search_fox() nil or ordinal
-    def self.search_fox()
+    # NightSky::select() nil or ordinal
+    def self.select()
         puts "> entering fox search"
         LucilleCore::pressEnterToContinue()
         loop {
@@ -401,5 +401,4 @@ class NightSky
         }
         nil
     end
-
 end

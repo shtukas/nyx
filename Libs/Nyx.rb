@@ -16,7 +16,7 @@ class Nyx
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             break if option.nil?
             if option == "search" then
-                NightSky::search_action()
+                NightSky::search()
             end
             if option == "new node" then
                 node = NightSky::interactivelyIssueNewNxNodeNull()
