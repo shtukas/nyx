@@ -226,7 +226,7 @@ class NightSky
             end
 
             puts ""
-            puts "commands: description | access | link | coredata | note | selecct | out nest | envelop | destroy"
+            puts "commands: description | access | link | coredata | note | select | out nest | envelop | destroy"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
