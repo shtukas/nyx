@@ -91,7 +91,7 @@ class NightSky
         return nil if description == ""
         uuid  = SecureRandom.uuid
         node = NightSky::spawn(uuid, description, locationdirective)
-        coredataref = CoreData::interactivelyMakeNewReferenceOrNull(node)
+        coredataref = CoreDataRefs::interactivelyMakeNewReferenceOrNull(node)
         if coredataref then
             node.coredataref_set(coredataref)
         end
@@ -189,22 +189,38 @@ class NightSky
             puts node.description().green
             puts "- uuid: #{node.uuid()}"
             puts "- filepath : #{node.filepath()}"
-            puts "- coredataref: #{node.coredataref()}"
 
             store = ItemStore.new()
 
-            puts ""
-            node.notes().each{|note|
-                puts "- #{note["line"]}"
-            }
-
-            puts ""
-            node
-                .linked_nodes()
-                .each{|linkednode|
-                    store.register(linkednode, false)
-                    puts "(#{store.prefixString()}) #{linkednode.description()}"
+            coredatarefs = node.coredatarefs()
+            if coredatarefs.size > 0 then
+                puts ""
+                puts "coredatarefs:"
+                coredatarefs.each{|ref|
+                    store.register(ref, false)
+                    puts "    - #{CoreDataRefs::toString(ref)}"
                 }
+            end
+
+            notes = node.notes()
+            if notes.size > 0 then
+                puts ""
+                puts "notes:"
+                notes.each{|note|
+                    store.register(note, false)
+                    puts "    - #{note["line"]}"
+                }
+            end
+
+            linkednodes = node.linked_nodes()
+            if linkednodes.size > 0 then
+                puts ""
+                linkednodes
+                    .each{|linkednode|
+                        store.register(linkednode, false)
+                        puts "(#{store.prefixString()}) #{linkednode.description()}"
+                    }
+            end
 
             puts ""
             puts "commands: access | link | coredata | note | selecct | out nest | envelop | destroy"
@@ -230,7 +246,7 @@ class NightSky
                     LucilleCore::pressEnterToContinue()
                     next
                 end
-                CoreData::access(node.coredataref(), node)
+                CoreDataRefs::access(node.coredataref(), node)
                 next
             end
 
@@ -248,7 +264,7 @@ class NightSky
 
             if command == "coredata" then
                 next if !LucilleCore::askQuestionAnswerAsBoolean("Confirm update of CoreData payload ? ", true)
-                coredataref = CoreData::interactivelyMakeNewReferenceOrNull(node)
+                coredataref = CoreDataRefs::interactivelyMakeNewReferenceOrNull(node)
                 if coredataref then
                     node.coredataref_set(coredataref)
                 end
@@ -287,7 +303,7 @@ class NightSky
             if command == "note" then
                 note = NxNote::makeNoteOrNull()
                 next if note.nil?
-                node.add_note(note)
+                node.note_add(note)
             end
         }
 

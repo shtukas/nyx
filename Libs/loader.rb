@@ -137,7 +137,7 @@ require "#{Config::userHomeDirectory()}/Galaxy/LucilleOS/Libraries/Ruby-Librarie
 
 # ------------------------------------------------------------
 
-require_relative "CoreData.rb"
+require_relative "CoreDataRefs.rb"
 require_relative "CommonUtils.rb"
 
 require_relative "Dx8Units.rb"

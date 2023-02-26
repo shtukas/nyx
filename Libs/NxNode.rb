@@ -112,6 +112,12 @@ class NxNode
             .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
     end
 
+    def coredatarefs()
+        self.collection("coredata-reference")
+            .map{|ref| JSON.parse(ref["data"]) }
+            .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
+    end
+
     # ----------------------------------------------------
     # Convenience Setters
 
@@ -138,8 +144,13 @@ class NxNode
         nhash
     end
 
-    def add_note(note)
+    def note_add(note)
         self.collection_add(note["uuid"], "note", JSON.generate(note))
+    end
+
+    def coredataref_add(ref)
+        return if ref.nil?
+        self.collection_add(ref["uuid"], "coredata-reference", JSON.generate(ref))
     end
 
     # ----------------------------------------------------
@@ -154,7 +165,7 @@ class NxNode
 
     def fsck()
         puts "node: #{self.uuid()} fsck..."
-        CoreData::fsckRightOrError(self.coredataref(), self)
+        CoreDataRefs::fsckRightOrError(self.coredataref(), self)
         CommonUtils::putsOnPreviousLine("node: #{self.uuid()} ✅")
     end
 end

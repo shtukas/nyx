@@ -1,27 +1,28 @@
 
 # encoding: UTF-8
 
-class CoreData
+class CoreDataRefs
 
-    # CoreData::coreDataReferenceTypes()
+    # CoreDataRefs::coreDataReferenceTypes()
     def self.coreDataReferenceTypes()
         ["text", "url", "aion point", "unique string"]
     end
 
-    # CoreData::interactivelySelectCoreDataReferenceType()
+    # CoreDataRefs::interactivelySelectCoreDataReferenceType()
     def self.interactivelySelectCoreDataReferenceType()
-        types = CoreData::coreDataReferenceTypes()
+        types = CoreDataRefs::coreDataReferenceTypes()
         LucilleCore::selectEntityFromListOfEntitiesOrNull("coredata reference type", types)
     end
 
-    # CoreData::interactivelyMakeNewReferenceOrNull(orbital) # payload string
+    # CoreDataRefs::interactivelyMakeNewReferenceOrNull(orbital) # payload string
     def self.interactivelyMakeNewReferenceOrNull(orbital)
         # This function is called during the making of a new node (or when we are issuing a new payload of an existing node)
         # It does stuff and returns a payload string or null
-        referencetype = CoreData::interactivelySelectCoreDataReferenceType()
+        referencetype = CoreDataRefs::interactivelySelectCoreDataReferenceType()
         if referencetype.nil? then
             return {
                 "uuid"        => SecureRandom.uuid,
+                "mikuType"    => "CoreDataRef",
                 "unixtime"    => Time.new.to_f,
                 "description" => nil,
                 "type"        => "null"
@@ -31,6 +32,7 @@ class CoreData
             text = CommonUtils::editTextSynchronously("")
             return {
                 "uuid"         => SecureRandom.uuid,
+                "mikuType"    => "CoreDataRef",
                 "unixtime"     => Time.new.to_f,
                 "description"  => nil,
                 "type"         => "text",
@@ -41,6 +43,7 @@ class CoreData
             url = LucilleCore::askQuestionAnswerAsString("url: ")
             return {
                 "uuid"        => SecureRandom.uuid,
+                "mikuType"    => "CoreDataRef",
                 "unixtime"    => Time.new.to_f,
                 "description" => nil,
                 "type"        => "url",
@@ -53,6 +56,7 @@ class CoreData
             nhash = AionCore::commitLocationReturnHash(Elizabeth.new(orbital), location)
             return {
                 "uuid"        => SecureRandom.uuid,
+                "mikuType"    => "CoreDataRef",
                 "unixtime"    => Time.new.to_f,
                 "description" => nil,
                 "type"        => "aion-point",
@@ -63,6 +67,7 @@ class CoreData
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (if needed use Nx01-#{SecureRandom.hex[0, 12]}): ")
             return {
                 "uuid"         => SecureRandom.uuid,
+                "mikuType"     => "CoreDataRef",
                 "unixtime"     => Time.new.to_f,
                 "description"  => nil,
                 "type"         => "unique-string",
@@ -72,8 +77,8 @@ class CoreData
         raise "(error: f75b2797-99e5-49d0-8d49-40b44beb538c) unsupported core data reference type: #{referencetype}"
     end
 
-    # CoreData::referenceToString(reference)
-    def self.referenceToString(reference)
+    # CoreDataRefs::toString(reference)
+    def self.toString(reference)
         if reference.nil? then
             return "core data: null"
         end
@@ -95,7 +100,7 @@ class CoreData
         raise "CoreData, I do not know how to string '#{reference}'"
     end
 
-    # CoreData::access(reference, orbital)
+    # CoreDataRefs::access(reference, orbital)
     def self.access(reference, orbital)
         if reference.nil? then
             puts "Accessing null reference string. Nothing to do."
@@ -146,17 +151,17 @@ class CoreData
         raise "CoreData, I do not know how to access '#{reference}'"
     end
 
-    # CoreData::edit(reference, orbital) # new reference
+    # CoreDataRefs::edit(reference, orbital) # new reference
     def self.edit(reference, orbital)
         if reference.nil? then
-            return CoreData::interactivelyMakeNewReferenceOrNull(orbital)
+            return CoreDataRefs::interactivelyMakeNewReferenceOrNull(orbital)
         end
         if reference["type"] == "null" then
-            return CoreData::interactivelyMakeNewReferenceOrNull(orbital)
+            return CoreDataRefs::interactivelyMakeNewReferenceOrNull(orbital)
         end
         if reference["type"] == "null" then
             puts "Accessing null reference string. Making a new one."
-            return CoreData::interactivelyMakeNewReferenceOrNull(orbital) 
+            return CoreDataRefs::interactivelyMakeNewReferenceOrNull(orbital) 
         end
         if reference["type"] == "text" then
             text = reference["text"]
@@ -212,7 +217,7 @@ class CoreData
         raise "CoreData, I do not know how to edit '#{reference}'"
     end
 
-    # CoreData::fsckRightOrError(reference, orbital)
+    # CoreDataRefs::fsckRightOrError(reference, orbital)
     def self.fsckRightOrError(reference, orbital)
         if reference.nil? then
             return
