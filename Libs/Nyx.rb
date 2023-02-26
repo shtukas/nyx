@@ -11,6 +11,7 @@ class Nyx
     # Nyx::main()
     def self.main()
         loop {
+            system("clear")
             options = ["search", "new node", "list nodes", "fs scan", "fsck"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             break if option.nil?

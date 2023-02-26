@@ -54,6 +54,7 @@ class NightSky
             # make sure we remember what we have learnt just there, for future reference
             XCache::set("f1e45aa7-db4d-40d3-bb57-d7c9ca02c1bb:#{node.uuid()}", filepath)
         }
+        nil
     end
 
     # ------------------------------------
@@ -116,7 +117,7 @@ class NightSky
     def self.getOrNull(uuid)
         filepath = XCache::getOrNull("f1e45aa7-db4d-40d3-bb57-d7c9ca02c1bb:#{uuid}")
         if filepath then
-            if File.exist?(filepath) then
+            if File.exist?(filepath) and NightSky::isNyxNode(filepath) then
                 node = NxNode.new(filepath)
                 if node.uuid() == uuid then
                     return node
@@ -124,10 +125,16 @@ class NightSky
             end
         end
 
-        puts "> locate node use the force: #{uuid}"
+        puts "> locate node #{uuid} (use the force)"
         filepath = NightSky::locateOrbitalByUUIDOrNull_UseTheForce(uuid)
 
-        return nil if filepath.nil?
+        if filepath.nil? then
+            puts "I could not locate uuid: #{uuid}"
+            puts "Going to remove it from the Index"
+            LucilleCore::pressEnterToContinue()
+            FileUtils.rm("#{Config::pathToNightSkyIndex()}/#{uuid}")
+            return nil
+        end
 
         XCache::set("f1e45aa7-db4d-40d3-bb57-d7c9ca02c1bb:#{uuid}", filepath)
 
