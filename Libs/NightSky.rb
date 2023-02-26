@@ -200,7 +200,7 @@ class NightSky
                 }
 
             puts ""
-            puts "commands: access | link | coredata | fox | out nest"
+            puts "commands: access | link | coredata | selecct | out nest | envelop | destroy"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -256,8 +256,23 @@ class NightSky
                 next
             end
 
-            if command == "fox" then
+            if command == "envelop" then
+                if node.filepath().start_with?(Config::pathToNest()) then
+                    puts "You are in the nest, this node doesn't have an envelop per se"
+                    LucilleCore::pressEnterToContinue()
+                    next
+                end
+                system("open '#{File.dirname(node.filepath())}'")
+                next
+            end
+
+            if command == "select" then
                 return node
+            end
+
+            if command == "destroy" then
+                puts "We haven't implemented that one yet"
+                LucilleCore::pressEnterToContinue()
             end
         }
 
