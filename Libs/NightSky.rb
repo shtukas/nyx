@@ -117,10 +117,13 @@ class NightSky
         filepath = NightSky::locateOrbitalByUUIDOrNull_UseTheForce(uuid)
 
         if filepath.nil? then
-            puts "I could not locate uuid: #{uuid}"
-            puts "Going to remove it from the Index"
+            puts "> I could not locate uuid: #{uuid}"
+            puts "> Going to remove it from the Index"
             LucilleCore::pressEnterToContinue()
-            FileUtils.rm("#{Config::pathToNightSkyIndex()}/#{uuid}")
+            indexFilepath = "#{Config::pathToNightSkyIndex()}/#{uuid}"
+            if File.exist?(indexFilepath) then
+                FileUtils.rm("#{Config::pathToNightSkyIndex()}/#{uuid}")
+            end
             return nil
         end
 
@@ -198,7 +201,7 @@ class NightSky
                 puts "coredatarefs:"
                 coredatarefs.each{|ref|
                     store.register(ref, false)
-                    puts "    - #{CoreDataRefs::toString(ref)}"
+                    puts "(#{store.prefixString()}) #{CoreDataRefs::toString(ref)}"
                 }
             end
 
@@ -208,7 +211,7 @@ class NightSky
                 puts "notes:"
                 notes.each{|note|
                     store.register(note, false)
-                    puts "    - #{note["line"]}"
+                    puts "(#{store.prefixString()}) #{note["line"]}"
                 }
             end
 
@@ -231,22 +234,37 @@ class NightSky
 
             if CommonUtils::isInteger(command) then
                 indx = command.to_i
-                linkednode = store.get(indx)
-                next if linkednode.nil?
-                o = NightSky::landing(linkednode)
-                if o then
-                    return o
+                item = store.get(indx)
+                next if item.nil?
+                if item.class == "NxNode" then
+                    o = NightSky::landing(linkednode)
+                    if o then
+                        return o
+                    end
+                end
+                if item["mikuType"] == "NxNote" then
+                    NxNote::landing(item)
+                end
+                if item["mikuType"] == "CoreDataRef" then
+                    CoreDataRefs::landing(item)
                 end
                 next
             end
 
             if command == "access" then
-                if node.coredataref().nil? then
-                    puts "This nyx node doesn't have a coredataref"
+                coredatarefs = node.coredatarefs()
+                if coredatarefs.empty? then
+                    puts "This node doesn't have any payload"
                     LucilleCore::pressEnterToContinue()
                     next
                 end
-                CoreDataRefs::access(node.coredataref(), node)
+                if coredatarefs.size == 1 then
+                    CoreDataRefs::access(coredatarefs.first, node)
+                    next
+                end
+                coredataref = LucilleCore::selectEntityFromListOfEntitiesOrNull("ref", coredatarefs, lambda{|ref| CoreDataRefs::toString(ref) })
+                next if coredataref.nil?
+                CoreDataRefs::access(coredataref, node)
                 next
             end
 

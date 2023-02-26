@@ -11,4 +11,10 @@ class NxNote
             "line"     => line
         }
     end
+
+    # NxNote::landing(note)
+    def self.landing(note)
+        puts "NxNote::landing not implemented yet"
+        LucilleCore::pressEnterToContinue() 
+    end
 end

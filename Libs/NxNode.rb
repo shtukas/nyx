@@ -89,20 +89,21 @@ class NxNode
         self.get("description")
     end
 
-    def coredataref()
-        ref = self.get("coredataref")
-        return nil if ref.nil?
-        return nil if ref == ""
-        JSON.parse(ref)
-    end
-
     def linkeduuids()
         self.collection("linked").map{|item| item["data"] }
     end
 
     def linked_nodes()
         self.linkeduuids()
-            .map{|linkeduuid| NightSky::getOrNull(linkeduuid) }
+            .map{|linkeduuid|
+                lnode = NightSky::getOrNull(linkeduuid)
+                if lnode.nil? then
+                    puts "> looks like we could not locate a node for uuid: #{linkeduuid}"
+                    puts "> going to remove it from the node's inventory"
+                    linkeduuids_remove(linkeduuid)
+                end
+                lnode
+            }
             .compact
     end
 

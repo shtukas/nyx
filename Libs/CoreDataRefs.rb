@@ -80,22 +80,22 @@ class CoreDataRefs
     # CoreDataRefs::toString(reference)
     def self.toString(reference)
         if reference.nil? then
-            return "core data: null"
+            return "core data (#{reference["uuid"][0, 2]}): null"
         end
         if reference["type"] == "null" then
-            return "core data: null"
+            return "core data (#{reference["uuid"][0, 2]}): null"
         end
         if reference["type"] == "text" then
-            return "core data: text"
+            return "core data (#{reference["uuid"][0, 2]}): text"
         end
         if reference["type"] == "url" then
-            return "core data: url"
+            return "core data (#{reference["uuid"][0, 2]}): url"
         end
         if reference["type"] == "aion-point" then
-            return "core data: aion-point"
+            return "core data (#{reference["uuid"][0, 2]}): aion-point"
         end
         if reference["type"] == "unique-string" then
-            return "core data: unique-string"
+            return "core data (#{reference["uuid"][0, 2]}): unique-string"
         end
         raise "CoreData, I do not know how to string '#{reference}'"
     end
@@ -245,5 +245,11 @@ class CoreDataRefs
             return
         end
         raise "CoreData, I do not know how to fsck '#{reference}'"
+    end
+
+    # CoreDataRefs::landing(note)
+    def self.landing(note)
+        puts "CoreDataRefs::landing not implemented yet"
+        LucilleCore::pressEnterToContinue() 
     end
 end
