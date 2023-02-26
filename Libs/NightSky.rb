@@ -10,21 +10,7 @@ class NightSky
 
     # NightSky::isNyxNode(filepath)
     def self.isNyxNode(filepath)
-        File.basename(filepath).include?(".nyxnode.")
-    end
-
-    # NightSky::filenameComponentsOrNull(filename)
-    # "1main0.nyxnode.12345678"
-    # {"main"=>"1main0", "suffix"=>"12345678"}
-    def self.filenameComponentsOrNull(filename)
-        return nil if !filename.include?(".nyxnode.")
-        p1 = filename.index(".nyxnode.")
-        s1 = filename[0, p1]
-        s2 = filename[p1+13, filename.size]
-        {
-            "main"   => s1,
-            "suffix" => s2
-        }
+        File.basename(filepath)[-8, 8] == ".nyxnode"
     end
 
     # NightSky::galaxyFilepathEnumerator()
@@ -141,8 +127,8 @@ class NightSky
         NxNode.new(filepath)
     end
 
-    # NightSky::nodeuuids()
-    def self.nodeuuids()
+    # NightSky::nodeuuidsFromIndex()
+    def self.nodeuuidsFromIndex()
         LucilleCore::locationsAtFolder(Config::pathToNightSkyIndex())
             .select{|filepath| filepath[0, 1] != "." }
             .map{|filepath| IO.read(filepath).strip }
@@ -150,7 +136,7 @@ class NightSky
 
     # NightSky::nodes()
     def self.nodes()
-        NightSky::nodeuuids()
+        NightSky::nodeuuidsFromIndex()
             .map{|uuid| NightSky::getOrNull(uuid) }
             .compact
     end
@@ -172,7 +158,7 @@ class NightSky
 
     # NightSky::fs_scan()
     def self.fs_scan()
-        nodeuuids = NightSky::nodeuuids()
+        nodeuuids = NightSky::nodeuuidsFromIndex()
         NightSky::galaxyFilepathEnumerator().each{|filepath|
             next if !NightSky::isNyxNode(filepath)
             puts "fs scan: #{filepath}"
@@ -202,9 +188,6 @@ class NightSky
             puts "> uuid: #{node.uuid()}"
             puts "> filepath : #{node.filepath()}"
             puts "> coredataref: #{node.coredataref()}"
-            if node.companion_directory_or_null() then
-                puts "> companion: #{node.companion_directory_or_null()}"
-            end
 
             store = ItemStore.new()
 
@@ -217,7 +200,7 @@ class NightSky
                 }
 
             puts ""
-            puts "commands: access | link | coredata | fox | companion | out nest"
+            puts "commands: access | link | coredata | fox | out nest"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -276,11 +259,6 @@ class NightSky
             if command == "fox" then
                 return node
             end
-
-            if command == "companion" then
-                return system("open '#{node.companion_directory_or_null()}'")
-            end
-
         }
 
         nil

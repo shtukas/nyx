@@ -20,4 +20,4 @@ Orbital file names follow a strict structure
 
 <main>.nyxnode.<hexstring>
 
-The ~/Galaxy/Nyx/Index directory contains individual files, each containing an orbital uuid.
+The ~/Galaxy/DataHub/Nyx/Index directory contains individual files, each named after and containing an orbital uuid.
