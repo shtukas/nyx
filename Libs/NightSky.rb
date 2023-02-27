@@ -74,7 +74,7 @@ class NightSky
         node.set("datetime", Time.new.utc.iso8601)
         node.set("description", description)
 
-        File.open("#{Config::pathToNightSkyIndex()}/#{node.uuid()}", "w"){|f| f.write(node.uuid()) }
+        NightSkyIndex::add_uuid_to_index(node.uuid())
         
         XCache::set("f1e45aa7-db4d-40d3-bb57-d7c9ca02c1bb:#{uuid}", filepath)
 
@@ -120,10 +120,7 @@ class NightSky
             puts "> I could not locate uuid: #{uuid}"
             puts "> Going to remove it from the Index"
             LucilleCore::pressEnterToContinue()
-            indexFilepath = "#{Config::pathToNightSkyIndex()}/#{uuid}"
-            if File.exist?(indexFilepath) then
-                FileUtils.rm("#{Config::pathToNightSkyIndex()}/#{uuid}")
-            end
+            NightSkyIndex::remove_uuid_from_index(uuid)
             return nil
         end
 
@@ -170,7 +167,7 @@ class NightSky
             node = NxNode.new(filepath)
             XCache::set("f1e45aa7-db4d-40d3-bb57-d7c9ca02c1bb:#{node.uuid()}", filepath)
             next if nodeuuids.include?(node.uuid())
-            File.open("#{Config::pathToNightSkyIndex()}/#{node.uuid()}", "w"){|f| f.write(node.uuid()) }
+            NightSkyIndex::add_uuid_to_index(node.uuid())
             nodeuuids << node.uuid()
         }
     end
@@ -321,8 +318,15 @@ class NightSky
             end
 
             if command == "destroy" then
-                puts "We haven't implemented that one yet"
-                LucilleCore::pressEnterToContinue()
+                puts "> request to destroy nyx node: #{node.description()}"
+                code = LucilleCore::askQuestionAnswerAsString("Enter node uuid: ")
+                if code == node.uuid() then
+                    if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction: ") then
+                        NightSkyIndex::remove_uuid_from_index(node.uuid())
+                        FileUtils.rm(node.filepath())
+                        return
+                    end
+                end
             end
 
             if command == "note" then
