@@ -32,11 +32,11 @@ class CoreDataRefs
             text = CommonUtils::editTextSynchronously("")
             return {
                 "uuid"         => SecureRandom.uuid,
-                "mikuType"    => "CoreDataRef",
+                "mikuType"     => "CoreDataRef",
                 "unixtime"     => Time.new.to_f,
                 "description"  => nil,
                 "type"         => "text",
-                "uniquestring" => uniquestring
+                "text"         => text
             }
         end
         if referencetype == "url" then
