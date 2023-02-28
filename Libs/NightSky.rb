@@ -1,8 +1,6 @@
 
 # encoding: UTF-8
 
-# NightSky keep track of the NxNode, that are the nodes of the Nyx network
-
 class NightSky
 
     # ------------------------------------
@@ -81,7 +79,7 @@ class NightSky
         node
     end
 
-    # NightSky::interactivelyIssueNewNxNodeNull()
+    # NightSky::interactivelyIssueNewNxNodeNull() # nil or node
     def self.interactivelyIssueNewNxNodeNull()
         puts "> create a new nyx node"
         locationdirectives = ["nest", "desktop"]
@@ -90,12 +88,7 @@ class NightSky
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid  = SecureRandom.uuid
-        node = NightSky::spawn(uuid, description, locationdirective)
-        coredataref = CoreDataRefs::interactivelyMakeNewReferenceOrNull(node)
-        if coredataref then
-            node.coredataref_set(coredataref)
-        end
-        node
+        NightSky::spawn(uuid, description, locationdirective)
     end
 
     # ------------------------------------
@@ -243,7 +236,7 @@ class NightSky
                     NxNote::landing(item)
                 end
                 if item["mikuType"] == "CoreDataRef" then
-                    CoreDataRefs::landing(item)
+                    CoreDataRefs::landing(item, node)
                 end
                 next
             end
@@ -285,10 +278,9 @@ class NightSky
             end
 
             if command == "coredata" then
-                next if !LucilleCore::askQuestionAnswerAsBoolean("Confirm update of CoreData payload ? ", true)
                 coredataref = CoreDataRefs::interactivelyMakeNewReferenceOrNull(node)
                 if coredataref then
-                    node.coredataref_set(coredataref)
+                    node.coredataref_add(coredataref)
                 end
                 next
             end

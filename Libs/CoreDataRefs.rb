@@ -14,8 +14,8 @@ class CoreDataRefs
         LucilleCore::selectEntityFromListOfEntitiesOrNull("coredata reference type", types)
     end
 
-    # CoreDataRefs::interactivelyMakeNewReferenceOrNull(orbital) # payload string
-    def self.interactivelyMakeNewReferenceOrNull(orbital)
+    # CoreDataRefs::interactivelyMakeNewReferenceOrNull(node) # payload string
+    def self.interactivelyMakeNewReferenceOrNull(node)
         # This function is called during the making of a new node (or when we are issuing a new payload of an existing node)
         # It does stuff and returns a payload string or null
         referencetype = CoreDataRefs::interactivelySelectCoreDataReferenceType()
@@ -53,7 +53,7 @@ class CoreDataRefs
         if referencetype == "aion point" then
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            nhash = AionCore::commitLocationReturnHash(Elizabeth.new(orbital), location)
+            nhash = AionCore::commitLocationReturnHash(Elizabeth.new(node), location)
             return {
                 "uuid"        => SecureRandom.uuid,
                 "mikuType"    => "CoreDataRef",
@@ -100,8 +100,8 @@ class CoreDataRefs
         raise "CoreData, I do not know how to string '#{reference}'"
     end
 
-    # CoreDataRefs::access(reference, orbital)
-    def self.access(reference, orbital)
+    # CoreDataRefs::access(reference, node)
+    def self.access(reference, node)
         if reference.nil? then
             puts "Accessing null reference string. Nothing to do."
             LucilleCore::pressEnterToContinue()
@@ -134,7 +134,7 @@ class CoreDataRefs
             exportFoldername = "aion-point-#{exportId}"
             exportFolder = "#{Config::pathToDesktop()}/#{exportFoldername}"
             FileUtils.mkdir(exportFolder)
-            AionCore::exportHashAtFolder(Elizabeth.new(orbital), nhash, exportFolder)
+            AionCore::exportHashAtFolder(Elizabeth.new(node), nhash, exportFolder)
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -151,17 +151,17 @@ class CoreDataRefs
         raise "CoreData, I do not know how to access '#{reference}'"
     end
 
-    # CoreDataRefs::edit(reference, orbital) # new reference
-    def self.edit(reference, orbital)
+    # CoreDataRefs::edit(reference, node) # new reference
+    def self.edit(reference, node)
         if reference.nil? then
-            return CoreDataRefs::interactivelyMakeNewReferenceOrNull(orbital)
+            return CoreDataRefs::interactivelyMakeNewReferenceOrNull(node)
         end
         if reference["type"] == "null" then
-            return CoreDataRefs::interactivelyMakeNewReferenceOrNull(orbital)
+            return CoreDataRefs::interactivelyMakeNewReferenceOrNull(node)
         end
         if reference["type"] == "null" then
             puts "Accessing null reference string. Making a new one."
-            return CoreDataRefs::interactivelyMakeNewReferenceOrNull(orbital) 
+            return CoreDataRefs::interactivelyMakeNewReferenceOrNull(node) 
         end
         if reference["type"] == "text" then
             text = reference["text"]
@@ -217,8 +217,8 @@ class CoreDataRefs
         raise "CoreData, I do not know how to edit '#{reference}'"
     end
 
-    # CoreDataRefs::fsckRightOrError(reference, orbital)
-    def self.fsckRightOrError(reference, orbital)
+    # CoreDataRefs::fsckRightOrError(reference, node)
+    def self.fsckRightOrError(reference, node)
         if reference.nil? then
             return
         end
@@ -228,16 +228,16 @@ class CoreDataRefs
         if reference["type"] == "text" then
             text = reference["text"]
             return if text
-            raise "missing text at orbital #{orbital.uuid()} for reference: #{reference}"
+            raise "missing text at node #{node.uuid()} for reference: #{reference}"
         end
         if reference["type"] == "url" then
             url = reference["url"]
             return if url
-            raise "missing url at orbital #{orbital.uuid()} for reference: #{reference}"
+            raise "missing url at node #{node.uuid()} for reference: #{reference}"
         end
         if reference["type"] == "aion-point" then
             rootnhash = reference["nhash"]
-            operator = Elizabeth.new(orbital)
+            operator = Elizabeth.new(node)
             AionFsck::structureCheckAionHashRaiseErrorIfAny(operator, rootnhash)
             return
         end
@@ -247,9 +247,10 @@ class CoreDataRefs
         raise "CoreData, I do not know how to fsck '#{reference}'"
     end
 
-    # CoreDataRefs::landing(note)
-    def self.landing(note)
-        puts "CoreDataRefs::landing not implemented yet"
-        LucilleCore::pressEnterToContinue() 
+    # CoreDataRefs::landing(reference, node)
+    def self.landing(reference, node)
+        puts "At the moment, landing is just access"
+        LucilleCore::pressEnterToContinue()
+        CoreDataRefs::access(reference, node)
     end
 end

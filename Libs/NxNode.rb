@@ -122,14 +122,6 @@ class NxNode
     # ----------------------------------------------------
     # Convenience Setters
 
-    def coredataref_set(coredataref)
-        if coredataref.nil? then
-            self.set("coredataref", nil)
-            return
-        end
-        self.set("coredataref", JSON.generate(coredataref))
-    end
-
     def description_set(description)
         self.set("description", description)
     end
