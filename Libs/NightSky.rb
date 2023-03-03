@@ -60,6 +60,8 @@ class NightSky
             raise "(error 6e423c07-c897-44ef-a27c-71c285b4b6da) unsupported location directive"
         }).call(locationdirective)
 
+        taxonomy = NightSky::selectOneTaxonomyOrNull()
+
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -71,6 +73,10 @@ class NightSky
         node.set("unixtime", Time.new.to_i)
         node.set("datetime", Time.new.utc.iso8601)
         node.set("description", description)
+
+        if taxonomy then
+            node.set("taxonomy", taxonomy)
+        end
 
         NightSkyIndex::add_uuid_to_index(node.uuid())
         
@@ -148,6 +154,16 @@ class NightSky
         end
     end
 
+    # NightSky::taxonomies()
+    def self.taxonomies()
+        ["Person", "Geolocation", "Entity", "Documentation", "Concept", "Technology", "Organization", "Event"]
+    end
+
+    # NightSky::selectOneTaxonomyOrNull()
+    def self.selectOneTaxonomyOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("taxonomy", NightSky::taxonomies())
+    end
+
     # ------------------------------------
     # Operations
 
@@ -182,6 +198,7 @@ class NightSky
             puts node.description().green
             puts "- uuid: #{node.uuid()}"
             puts "- filepath : #{node.filepath()}"
+            puts "- taxonomy: #{node.get("taxonomy")}"
 
             store = ItemStore.new()
 
@@ -217,6 +234,14 @@ class NightSky
 
             puts ""
             puts "commands: description | access | link | coredata | note | select | out nest | envelop | destroy"
+
+            if node.get("taxonomy").nil? then
+                puts "> taxonomy not found, let's set one:"
+                taxonomy = NightSky::selectOneTaxonomyOrNull()
+                if taxonomy then
+                    node.set("taxonomy", taxonomy)
+                end
+            end
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
