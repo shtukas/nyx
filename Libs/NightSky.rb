@@ -163,6 +163,7 @@ class NightSky
             "Event",
             "News (Article/Video); Documentary",
             "Quote",
+            "Pascal Brain Dump",
             "Misc."
         ]
     end
@@ -391,12 +392,20 @@ class NightSky
     def self.nx20s()
         NightSky::nodes()
             .map{|node|
-                {
-                    "announce" => node.description(),
-                    "unixtime" => node.unixtime(),
-                    "node"  => node
-                }
+                [
+                    {
+                        "announce" => node.description(),
+                        "unixtime" => node.unixtime(),
+                        "node"     => node
+                    },
+                    {
+                        "announce" => node.uuid(),
+                        "unixtime" => node.unixtime(),
+                        "node"     => node
+                    }
+                ]
             }
+            .flatten
     end
 
     # NightSky::search()
