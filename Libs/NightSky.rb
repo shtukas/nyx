@@ -156,7 +156,11 @@ class NightSky
 
     # NightSky::taxonomies()
     def self.taxonomies()
-        ["Person", "Geolocation", "Entity", "Documentation", "Concept", "Technology", "Organization", "Event"]
+        [
+            "Person", "Geolocation", "Entity", 
+            "Documentation", "Concept", "Technology", "Organization", "Event",
+            "News Story"
+        ]
     end
 
     # NightSky::selectOneTaxonomyOrNull()
