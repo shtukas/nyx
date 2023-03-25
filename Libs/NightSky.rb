@@ -158,8 +158,12 @@ class NightSky
     def self.taxonomies()
         [
             "Person", "Geolocation", "Entity", 
-            "Documentation", "Concept", "Technology", "Organization", "Event",
-            "News Story"
+            "Documentation", "Concept", "Technology", "Organization", 
+            "Commercial Company",
+            "Event",
+            "News (Article/Video); Documentary",
+            "Quote",
+            "Misc."
         ]
     end
 
