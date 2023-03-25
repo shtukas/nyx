@@ -260,11 +260,12 @@ class NightSky
                 indx = command.to_i
                 item = store.get(indx)
                 next if item.nil?
-                if item.class == "NxNode" then
-                    o = NightSky::landing(linkednode)
+                if item.class.to_s == "NxNode" then
+                    o = NightSky::landing(item)
                     if o then
                         return o
                     end
+                    next
                 end
                 if item["mikuType"] == "NxNote" then
                     NxNote::landing(item)
