@@ -152,6 +152,8 @@ require_relative "NightSky.rb"
 require_relative "NxNode.rb"
 require_relative "NxNote.rb"
 require_relative "NightSkyIndex.rb"
+require_relative "N1Data.rb"
+require_relative "N3Objects.rb"
 
 require_relative "ProgrammableBooleans.rb"
 
