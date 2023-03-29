@@ -60,6 +60,8 @@ class NightSky
             raise "(error 6e423c07-c897-44ef-a27c-71c285b4b6da) unsupported location directive"
         }).call(locationdirective)
 
+        taxonomy = NightSky::selectOneTaxonomyOrNull()
+
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -71,6 +73,10 @@ class NightSky
         node.set("unixtime", Time.new.to_i)
         node.set("datetime", Time.new.utc.iso8601)
         node.set("description", description)
+
+        if taxonomy then
+            node.set("taxonomy", taxonomy)
+        end
 
         NightSkyIndex::add_uuid_to_index(node.uuid())
         
@@ -148,6 +154,25 @@ class NightSky
         end
     end
 
+    # NightSky::taxonomies()
+    def self.taxonomies()
+        [
+            "Person", "Geolocation", "Entity", 
+            "Documentation", "Concept", "Technology", "Organization", 
+            "Commercial Company",
+            "Event",
+            "News (Article/Video); Documentary",
+            "Quote",
+            "Pascal Brain Dump",
+            "Misc."
+        ]
+    end
+
+    # NightSky::selectOneTaxonomyOrNull()
+    def self.selectOneTaxonomyOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("taxonomy", NightSky::taxonomies())
+    end
+
     # ------------------------------------
     # Operations
 
@@ -182,6 +207,7 @@ class NightSky
             puts node.description().green
             puts "- uuid: #{node.uuid()}"
             puts "- filepath : #{node.filepath()}"
+            puts "- taxonomy: #{node.get("taxonomy")}"
 
             store = ItemStore.new()
 
@@ -218,6 +244,14 @@ class NightSky
             puts ""
             puts "commands: description | access | link | coredata | note | select | out nest | envelop | destroy"
 
+            if node.get("taxonomy").nil? then
+                puts "> taxonomy not found, let's set one:"
+                taxonomy = NightSky::selectOneTaxonomyOrNull()
+                if taxonomy then
+                    node.set("taxonomy", taxonomy)
+                end
+            end
+
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == ""
@@ -226,11 +260,12 @@ class NightSky
                 indx = command.to_i
                 item = store.get(indx)
                 next if item.nil?
-                if item.class == "NxNode" then
-                    o = NightSky::landing(linkednode)
+                if item.class.to_s == "NxNode" then
+                    o = NightSky::landing(item)
                     if o then
                         return o
                     end
+                    next
                 end
                 if item["mikuType"] == "NxNote" then
                     NxNote::landing(item)
@@ -358,12 +393,20 @@ class NightSky
     def self.nx20s()
         NightSky::nodes()
             .map{|node|
-                {
-                    "announce" => node.description(),
-                    "unixtime" => node.unixtime(),
-                    "node"  => node
-                }
+                [
+                    {
+                        "announce" => node.description(),
+                        "unixtime" => node.unixtime(),
+                        "node"     => node
+                    },
+                    {
+                        "announce" => node.uuid(),
+                        "unixtime" => node.unixtime(),
+                        "node"     => node
+                    }
+                ]
             }
+            .flatten
     end
 
     # NightSky::search()

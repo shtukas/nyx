@@ -8,16 +8,19 @@ Used as a key value store, we consider records of the form (key, null, data). Us
 -------------------------------------------------------------------
 key                 |                    | data
 uuid
-unixtime
+unixtime                                                            float
 datetime
 description
 coredataref
+taxonomy
 
 key                 | collection         | data
 linked:<linkeduuid> | linked             | <linkeduuid>
 <uuid>              | note               | NxNote json encoded
 <uuid>              | coredata-reference | CoreDataRef json encoded
 -------------------------------------------------------------------
+
+Unless otherwise specified the data of the key / value store are strings. unxitime is a float.
 
 Orbital file names follow a strict structure
 
