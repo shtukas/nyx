@@ -1,3 +1,4 @@
+
 NxNodes are the nodes of the Nyx network.
 
 Each orbital is a collection of records of the form (key: text, collection: text, data: blob)
@@ -23,3 +24,18 @@ Orbital file names follow a strict structure
 <main>.nyxnode
 
 The ~/Galaxy/DataHub/Nyx/Index directory contains individual files, each named after and containing an orbital uuid.
+
+--------------------------------
+
+NxNodes are the nodes of the Nyx network
+
+Todo:
+
+[] Design the objects database. Simple but with a crew system, in addition to the mikuTypes
+[] Design new notes.
+[] Move the notes to the object database.
+
+[] Design new nodes
+[] Create the new nodes
+[] Run a fsck to bring the datablobs to N1Data
+[] replace the existing objects with beacons

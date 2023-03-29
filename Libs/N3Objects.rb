@@ -2,9 +2,6 @@
 # create table objects (uuid string primary key, mikuType string, object string)
 # File naming convention: <l22>,<l22>.sqlite
 
-$N3Objects_Cache_MikuTypesAtFile = {}
-$N3Objects_Cache_ObjectAtFile = {}
-
 class N3Objects
 
     # The primary version of this file is in catalyst
@@ -180,11 +177,6 @@ class N3Objects
 
     # N3Objects::getMikuTypeAtFile(mikuType, filepath)
     def self.getMikuTypeAtFile(mikuType, filepath)
-        cachekey = "#{mikuType}:#{filepath}"
-        if $N3Objects_Cache_MikuTypesAtFile[cachekey] then
-            return $N3Objects_Cache_MikuTypesAtFile[cachekey].clone
-        end
-
         objects = []
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -194,20 +186,11 @@ class N3Objects
             objects << JSON.parse(row["object"])
         end
         db.close
-
-        $N3Objects_Cache_MikuTypesAtFile[cachekey] = objects
-
         objects
     end
 
     # N3Objects::getAtFilepathOrNull(uuid, filepath)
     def self.getAtFilepathOrNull(uuid, filepath)
-        key = "#{uuid}:#{filepath}"
-        if $N3Objects_Cache_ObjectAtFile[key] then
-            object = $N3Objects_Cache_ObjectAtFile[key].clone
-            return ( object == "null" ? nil : object )
-        end
-
         object = nil
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -217,9 +200,6 @@ class N3Objects
             object = JSON.parse(row["object"])
         end
         db.close
-
-        $N3Objects_Cache_ObjectAtFile[key] = ( object ? object : "null" )
-
         object
     end
 
