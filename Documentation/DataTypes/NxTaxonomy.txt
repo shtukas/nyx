@@ -1,0 +1,9 @@
+Part of a NxNode's sphere
+
+{
+    "uuid"     : String
+    "mikuType" : "NxTaxonomy"
+    "unixtime" : Integer
+    "owner"    : String
+    "name"     : String
+}

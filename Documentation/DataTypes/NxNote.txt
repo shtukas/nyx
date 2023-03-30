@@ -1,8 +1,9 @@
+Part of a NxNode's sphere
 
-NxNotes belong to NxNodes, and carried inside the NxNode.
-
-NxNote {
+{
     "uuid"     : String
+    "mikuType" : "NxNote"
     "unixtime" : Float
+    "owner"    : String
     "line"     : String
 }

@@ -32,13 +32,13 @@ The ~/Galaxy/DataHub/Nyx/Index directory contains individual files, each named a
 
 NxNodes are the nodes of the Nyx network
 
-Todo:
+{
+    "uuid"        : String
+    "mikuType"    : "NxNode"
+    "unixtime"    : Integer # defaults to creation but that be set 
+                         # to the most contextually relevant time for that 
+                         # particular node
+    "description" : String
+}
 
-[] Design the objects database. Simple but with a crew system, in addition to the mikuTypes
-[] Design new notes.
-[] Move the notes to the object database.
-
-[] Design new nodes
-[] Create the new nodes
-[] Run a fsck to bring the datablobs to N1Data
-[] replace the existing objects with beacons
+Nodes have additional objects that are attached to them, we refer to that collection as the "sphere". The types are NxCoreDataPayload, NxTaxonomy, NxNote.

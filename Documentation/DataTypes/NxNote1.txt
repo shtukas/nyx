@@ -1,0 +1,8 @@
+
+NxNotes belong to NxNodes, and carried inside the NxNode.
+
+NxNote {
+    "uuid"     : String
+    "unixtime" : Float
+    "line"     : String
+}
