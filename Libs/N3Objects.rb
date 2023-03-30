@@ -158,6 +158,8 @@ class N3Objects
     # N3Objects::update(uuid, mikuType, object)
     def self.update(uuid, mikuType, object)
 
+        object["n3timestamp"] = Time.new.to_f
+
         # Make a record of the existing files
         filepathszero = N3Objects::getExistingFilepathsSorted()
 
@@ -203,6 +205,50 @@ class N3Objects
         object
     end
 
+    # --------------------------------------
+    # Interface
+
+    # N3Objects::commit(object)
+    def self.commit(object)
+        if object["uuid"].nil? then
+            raise "object is missing uuid: #{JSON.pretty_generate(object)}"
+        end
+        if object["mikuType"].nil? then
+            raise "object is missing mikuType: #{JSON.pretty_generate(object)}"
+        end
+        object["n3timestamp"] = Time.new.to_f
+        N3Objects::update(object["uuid"], object["mikuType"], object)
+    end
+
+    # N3Objects::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        objects = []
+        N3Objects::getExistingFilepathsSorted().each{|filepath|
+            objects << N3Objects::getAtFilepathOrNull(uuid, filepath)
+        }
+        objects
+            .compact
+            .sort_by{|object| object["n3timestamp"] }
+            .reverse # oldest one is now first
+            .first
+    end
+
+    # N3Objects::getMikuType(mikuType)
+    def self.getMikuType(mikuType)
+        objects = []
+        N3Objects::getExistingFilepathsSorted().each{|filepath|
+            N3Objects::getMikuTypeAtFile(mikuType, filepath).each{|object|
+                objects << object
+            }
+        }
+        objects
+            .sort_by{|object| object["n3timestamp"] } # oldest first
+            .reduce({}){|data, ob|
+                data[ob["uuid"]] = ob # given the order in which they are presented, older ones will override newer ones
+            }
+            .values
+    end
+
     # N3Objects::getall()
     def self.getall()
         objects = []
@@ -217,41 +263,11 @@ class N3Objects
             db.close
         }
         objects
-    end
-
-    # --------------------------------------
-    # Interface
-
-    # N3Objects::commit(object)
-    def self.commit(object)
-        if object["uuid"].nil? then
-            raise "object is missing uuid: #{JSON.pretty_generate(object)}"
-        end
-        if object["mikuType"].nil? then
-            raise "object is missing mikuType: #{JSON.pretty_generate(object)}"
-        end
-        N3Objects::update(object["uuid"], object["mikuType"], object)
-    end
-
-    # N3Objects::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        object = nil
-        N3Objects::getExistingFilepathsSorted().each{|filepath|
-            object = N3Objects::getAtFilepathOrNull(uuid, filepath)
-            break if object
-        }
-        object
-    end
-
-    # N3Objects::getMikuType(mikuType)
-    def self.getMikuType(mikuType)
-        objects = []
-        N3Objects::getExistingFilepathsSorted().each{|filepath|
-            N3Objects::getMikuTypeAtFile(mikuType, filepath).each{|object|
-                objects << object
+            .sort_by{|object| object["n3timestamp"] } # oldest first
+            .reduce({}){|data, ob|
+                data[ob["uuid"]] = ob # given the order in which they are presented, older ones will override newer ones
             }
-        }
-        objects
+            .values
     end
 
     # N3Objects::getMikuTypeCount(mikuType)
