@@ -245,6 +245,7 @@ class N3Objects
             .sort_by{|object| object["n3timestamp"] } # oldest first
             .reduce({}){|data, ob|
                 data[ob["uuid"]] = ob # given the order in which they are presented, newer ones will override older ones
+                data
             }
             .values
     end
@@ -266,6 +267,7 @@ class N3Objects
             .sort_by{|object| object["n3timestamp"] } # oldest first
             .reduce({}){|data, ob|
                 data[ob["uuid"]] = ob # given the order in which they are presented, newer ones will override older ones
+                data
             }
             .values
     end
