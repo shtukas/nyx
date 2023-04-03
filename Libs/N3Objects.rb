@@ -142,7 +142,7 @@ class N3Objects
                 db1.results_as_hash = true
                 db1.execute("select * from objects", []) do |row|
                     next if uuids2.include?(row["uuid"]) # The assumption is that the one in file2 is newer
-                    db2.execute "insert into objects (uuid, mikuType, object) values (?, ?, ?)", [row["uuid"], row["mikuType"], row["object"]] # we copy as encoded json
+                    db2.execute "insert into objects (uuid, owner, mikuType, object) values (?, ?, ?, ?)", [row["uuid"], row["owner"], row["mikuType"], row["object"]] # we copy object as encoded json
                 end
 
                 db1.close
@@ -155,8 +155,8 @@ class N3Objects
         end
     end
 
-    # N3Objects::update(uuid, mikuType, object)
-    def self.update(uuid, mikuType, object)
+    # N3Objects::update(object)
+    def self.update(object)
 
         object["n3timestamp"] = Time.new.to_f
 
@@ -169,12 +169,12 @@ class N3Objects
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        db.execute("create table objects (uuid string primary key, mikuType string, object string)", [])
-        db.execute "insert into objects (uuid, mikuType, object) values (?, ?, ?)", [uuid, mikuType, JSON.generate(object)]
+        db.execute("create table objects (uuid string primary key, owner string, mikuType string, object string)", [])
+        db.execute "insert into objects (uuid, owner, mikuType, object) values (?, ?, ?, ?)", [object["uuid"], object["owner"], object["mikuType"], JSON.generate(object)]
         db.close
 
         # Remove the object from the previously existing files
-        N3Objects::deleteAtFiles(filepathszero, uuid)
+        N3Objects::deleteAtFiles(filepathszero, object["uuid"])
     end
 
     # N3Objects::getMikuTypeAtFile(mikuType, filepath)
@@ -185,6 +185,20 @@ class N3Objects
         db.busy_handler { |count| true }
         db.results_as_hash = true
         db.execute("select * from objects where mikuType=?", [mikuType]) do |row|
+            objects << JSON.parse(row["object"])
+        end
+        db.close
+        objects
+    end
+
+    # N3Objects::getSphereAtFile(owner, filepath)
+    def self.getSphereAtFile(owner, filepath)
+        objects = []
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("select * from objects where owner=?", [owner]) do |row|
             objects << JSON.parse(row["object"])
         end
         db.close
@@ -217,7 +231,7 @@ class N3Objects
             raise "object is missing mikuType: #{JSON.pretty_generate(object)}"
         end
         object["n3timestamp"] = Time.new.to_f
-        N3Objects::update(object["uuid"], object["mikuType"], object)
+        N3Objects::update(object["uuid"], object)
     end
 
     # N3Objects::getOrNull(uuid)
@@ -250,6 +264,23 @@ class N3Objects
             .values
     end
 
+    # N3Objects::getSphere(owner)
+    def self.getSphere(owner)
+        objects = []
+        N3Objects::getExistingFilepathsSorted().each{|filepath|
+            N3Objects::getSphereAtFile(owner, filepath).each{|object|
+                objects << object
+            }
+        }
+        objects
+            .sort_by{|object| object["n3timestamp"] } # oldest first
+            .reduce({}){|data, ob|
+                data[ob["uuid"]] = ob # given the order in which they are presented, newer ones will override older ones
+                data
+            }
+            .values
+    end
+
     # N3Objects::getall()
     def self.getall()
         objects = []
@@ -270,22 +301,6 @@ class N3Objects
                 data
             }
             .values
-    end
-
-    # N3Objects::getMikuTypeCount(mikuType)
-    def self.getMikuTypeCount(mikuType)
-        count = 0
-        N3Objects::getExistingFilepathsSorted().each{|filepath|
-            db = SQLite3::Database.new(filepath)
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute("select count(*) as _count_ from objects where mikuType=?", [mikuType]) do |row|
-                count = count + row["_count_"]
-            end
-            db.close
-        }
-        count
     end
 
     # N3Objects::destroy(uuid)
