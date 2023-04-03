@@ -1,5 +1,5 @@
 
-NxNotes belong to NxNodes, and carried inside the NxNode.
+NxNotes are owned by NxNodes and carry lines of text
 
 NxNote {
     "uuid"     : String
