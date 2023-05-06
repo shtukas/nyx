@@ -47,16 +47,16 @@ checkLocation = lambda{|location|
 } 
 
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-Config.json")
-checkLocation.call("#{ENV['HOME']}/Galaxy/LucilleOS/Libraries/Ruby-Libraries")
+checkLocation.call("#{ENV['HOME']}/Galaxy/Software/Lucille-Ruby-Libraries")
 checkLocation.call("#{ENV['HOME']}/x-space/xcache-v1-days")
 
 # ------------------------------------------------------------
 
 require_relative "Config.rb"
 
-require "#{Config::userHomeDirectory()}/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
+require "#{Config::userHomeDirectory()}/Galaxy/Software/Lucille-Ruby-Libraries/LucilleCore.rb"
 
-require "#{Config::userHomeDirectory()}/Galaxy/LucilleOS/Libraries/Ruby-Libraries/XCache.rb"
+require "#{Config::userHomeDirectory()}/Galaxy/Software/Lucille-Ruby-Libraries/XCache.rb"
 =begin
     XCache::set(key, value)
     XCache::getOrNull(key)
@@ -69,15 +69,7 @@ require "#{Config::userHomeDirectory()}/Galaxy/LucilleOS/Libraries/Ruby-Librarie
     XCache::filepath(key)
 =end
 
-require "#{Config::userHomeDirectory()}/Galaxy/LucilleOS/Libraries/Ruby-Libraries/XCacheSets.rb"
-=begin
-    XCacheSets::values(setuuid: String): Array[Value]
-    XCacheSets::set(setuuid: String, valueuuid: String, value)
-    XCacheSets::getOrNull(setuuid: String, valueuuid: String): nil | Value
-    XCacheSets::destroy(setuuid: String, valueuuid: String)
-=end
-
-require "#{Config::userHomeDirectory()}/Galaxy/LucilleOS/Libraries/Ruby-Libraries/AionCore.rb"
+require "#{Config::userHomeDirectory()}/Galaxy/Software/Lucille-Ruby-Libraries/AionCore.rb"
 =begin
 
 The operator is an object that has meet the following signatures
@@ -125,14 +117,6 @@ AionCore::exportHashAtFolder(operator, nhash, targetReconstructionFolderpath)
 
 AionFsck::structureCheckAionHashRaiseErrorIfAny(operator, nhash)
 
-=end
-
-require "#{Config::userHomeDirectory()}/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury2.rb"
-=begin
-    Mercury2::put(channel, value)
-    Mercury2::readFirstOrNull(channel)
-    Mercury2::dequeue(channel)
-    Mercury2::empty?(channel)
 =end
 
 # ------------------------------------------------------------
