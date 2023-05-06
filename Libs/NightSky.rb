@@ -270,7 +270,7 @@ class NightSky
                 if item["mikuType"] == "NxNote" then
                     NxNote::landing(item)
                 end
-                if item["mikuType"] == "CoreDataRef" then
+                if item["mikuType"] == "NxCoreDataRef" then
                     CoreDataRefs::landing(item, node)
                 end
                 next

@@ -1,11 +1,5 @@
-Part of a NxNode's sphere
-
-NxNotes are owned by NxNodes and carry lines of text
-
-NxNote {
+NxNote
     "uuid"     : String
     "mikuType" : "NxNote"
     "unixtime" : Float
-    "owner"    : String
-    "line"     : String
-}
+    "text"     : String

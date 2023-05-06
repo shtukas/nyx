@@ -3,44 +3,45 @@ CoreData references are json object that represent data, more exactly nodes payl
 
 NxCoreDataRef {
     "uuid"        : String
-    "mikuType"    : "CoreDataRef"
+    "mikuType"    : "NxCoreDataRef"
     "unixtime"    : Float
-    "description" : nil or string
     "type"        : "null"
+    "description" : nil or string
+
 }
 
 NxCoreDataRef {
     "uuid"        : String
-    "mikuType"    : "CoreDataRef"
+    "mikuType"    : "NxCoreDataRef"
     "unixtime"    : Float
-    "description" : nil or string
     "type"        : "text"
+    "description" : nil or string
     "text"        : string
 }
 
 NxCoreDataRef {
     "uuid"        : String
-    "mikuType"    : "CoreDataRef"
+    "mikuType"    : "NxCoreDataRef"
     "unixtime"    : Float
-    "description" : nil or string
     "type"        : "url"
+    "description" : nil or string
     "url          : string
 }
 
 NxCoreDataRef {
     "uuid"        : String
-    "mikuType"    : "CoreDataRef"
+    "mikuType"    : "NxCoreDataRef"
     "unixtime"    : Float
-    "description" : nil or string
     "type"        : "aion-point"
+    "description" : nil or string
     "nhash"       : string
 }
 
 NxCoreDataRef {
     "uuid"         : String
-    "mikuType"     : "CoreDataRef"
+    "mikuType"     : "NxCoreDataRef"
     "unixtime"     : Float
-    "description"  : nil or string
     "type"         : "unique-string"
+    "description"  : nil or string
     "uniquestring" : string
 }

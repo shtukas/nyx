@@ -85,6 +85,10 @@ class NxNode
         self.get("unixtime")
     end
 
+    def datetime()
+        self.get("datetime")
+    end
+
     def description()
         self.get("description")
     end

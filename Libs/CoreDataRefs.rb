@@ -22,7 +22,7 @@ class CoreDataRefs
         if referencetype.nil? then
             return {
                 "uuid"        => SecureRandom.uuid,
-                "mikuType"    => "CoreDataRef",
+                "mikuType"    => "NxCoreDataRef",
                 "unixtime"    => Time.new.to_f,
                 "description" => nil,
                 "type"        => "null"
@@ -32,7 +32,7 @@ class CoreDataRefs
             text = CommonUtils::editTextSynchronously("")
             return {
                 "uuid"         => SecureRandom.uuid,
-                "mikuType"     => "CoreDataRef",
+                "mikuType"     => "NxCoreDataRef",
                 "unixtime"     => Time.new.to_f,
                 "description"  => nil,
                 "type"         => "text",
@@ -43,7 +43,7 @@ class CoreDataRefs
             url = LucilleCore::askQuestionAnswerAsString("url: ")
             return {
                 "uuid"        => SecureRandom.uuid,
-                "mikuType"    => "CoreDataRef",
+                "mikuType"    => "NxCoreDataRef",
                 "unixtime"    => Time.new.to_f,
                 "description" => nil,
                 "type"        => "url",
@@ -56,7 +56,7 @@ class CoreDataRefs
             nhash = AionCore::commitLocationReturnHash(Elizabeth.new(node), location)
             return {
                 "uuid"        => SecureRandom.uuid,
-                "mikuType"    => "CoreDataRef",
+                "mikuType"    => "NxCoreDataRef",
                 "unixtime"    => Time.new.to_f,
                 "description" => nil,
                 "type"        => "aion-point",
@@ -67,7 +67,7 @@ class CoreDataRefs
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (if needed use Nx01-#{SecureRandom.hex[0, 12]}): ")
             return {
                 "uuid"         => SecureRandom.uuid,
-                "mikuType"     => "CoreDataRef",
+                "mikuType"     => "NxCoreDataRef",
                 "unixtime"     => Time.new.to_f,
                 "description"  => nil,
                 "type"         => "unique-string",

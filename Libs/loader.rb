@@ -119,11 +119,32 @@ AionFsck::structureCheckAionHashRaiseErrorIfAny(operator, nhash)
 
 =end
 
-require_relative "Blades.rb"
+require "#{Config::userHomeDirectory()}/Galaxy/Software/Lucille-Ruby-Libraries/Blades.rb"
 
-require_relative "MikuTypes.rb"
+=begin
+Blades
+    Blades::init(mikuType, uuid)
+    Blades::tokenToFilepath(token)
+    Blades::setAttribute2(uuid, attribute_name, value)
+    Blades::getAttributeOrNull1(filepath, attribute_name)
+    Blades::getMandatoryAttribute1(filepath, attribute_name)
+    Blades::addToSet1(filepath, set_id, element_id, value)
+    Blades::removeFromSet1(filpath, set_id, element_id)
+    Blades::putDatablob1(filepath, key, datablob)
+    Blades::getDatablobOrNull1(filepath, key)
+=end
+
+require "#{Config::userHomeDirectory()}/Galaxy/Software/Lucille-Ruby-Libraries/MikuTypes.rb"
+
+=begin
+MikuTypes
+    MikuTypes::mikuTypeUUIDsCached(mikuType) # Cached
+    MikuTypes::mikuTypeUUIDsEnumeratorFromDiskScan(mikuType)
+=end
 
 # ------------------------------------------------------------
+
+require_relative "BladeAdaptation.rb"
 
 require_relative "CoreDataRefs.rb"
 require_relative "CommonUtils.rb"
@@ -138,10 +159,8 @@ require_relative "Nyx.rb"
 require_relative "NyxDirectories.rb"
 require_relative "NightSky.rb"
 require_relative "NxNode.rb"
-require_relative "NxNote.rb"
 require_relative "NightSkyIndex.rb"
 require_relative "N1Data.rb"
-require_relative "N3Objects.rb"
 
 require_relative "ProgrammableBooleans.rb"
 

@@ -1,0 +1,25 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "Libs/loader.rb"
+
+# ----------------------------------------------------------------------------
+
+if ARGV[0] == "node" then
+    description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+    exit if description == ""
+    uuid  = SecureRandom.uuid
+    node = NightSky::spawn(uuid, description, "desktop")
+    coredataref = CoreDataRefs::interactivelyMakeNewReferenceOrNull(node)
+    node.coredataref_add(coredataref)
+    NightSky::landing(node)
+    exit
+end
+
+if ARGV[0] == "search" then
+    NightSky::search()
+    exit
+end
+
+Nyx::main()
