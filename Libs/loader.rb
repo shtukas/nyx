@@ -119,6 +119,10 @@ AionFsck::structureCheckAionHashRaiseErrorIfAny(operator, nhash)
 
 =end
 
+require_relative "Blades.rb"
+
+require_relative "MikuTypes.rb"
+
 # ------------------------------------------------------------
 
 require_relative "CoreDataRefs.rb"
