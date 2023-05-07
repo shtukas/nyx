@@ -149,8 +149,8 @@ class CoreDataRefs
         raise "CoreData, I do not know how to access '#{reference}'"
     end
 
-    # CoreDataRefs::edit(reference, uuid) # new reference
-    def self.edit(reference, uuid)
+    # CoreDataRefs::edit(uuid, reference) # new reference
+    def self.edit(uuid, reference)
         if reference.nil? then
             return CoreDataRefs::interactivelyMakeNewReferenceOrNull(uuid)
         end
