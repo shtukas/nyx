@@ -14,10 +14,8 @@ class CoreDataRefs
         LucilleCore::selectEntityFromListOfEntitiesOrNull("coredata reference type", types)
     end
 
-    # CoreDataRefs::interactivelyMakeNewReferenceOrNull(node) # payload string
-    def self.interactivelyMakeNewReferenceOrNull(node)
-        # This function is called during the making of a new node (or when we are issuing a new payload of an existing node)
-        # It does stuff and returns a payload string or null
+    # CoreDataRefs::interactivelyMakeNewReferenceOrNull(uuid) # NxCoreDataRef
+    def self.interactivelyMakeNewReferenceOrNull(uuid)
         referencetype = CoreDataRefs::interactivelySelectCoreDataReferenceType()
         if referencetype.nil? then
             return {
@@ -53,7 +51,7 @@ class CoreDataRefs
         if referencetype == "aion point" then
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            nhash = AionCore::commitLocationReturnHash(Elizabeth.new(node), location)
+            nhash = AionCore::commitLocationReturnHash(BladeElizabeth.new(uuid), location)
             return {
                 "uuid"        => SecureRandom.uuid,
                 "mikuType"    => "NxCoreDataRef",
@@ -100,8 +98,8 @@ class CoreDataRefs
         raise "CoreData, I do not know how to string '#{reference}'"
     end
 
-    # CoreDataRefs::access(reference, node)
-    def self.access(reference, node)
+    # CoreDataRefs::access(uuid, reference)
+    def self.access(uuid, reference)
         if reference.nil? then
             puts "Accessing null reference string. Nothing to do."
             LucilleCore::pressEnterToContinue()
@@ -151,17 +149,17 @@ class CoreDataRefs
         raise "CoreData, I do not know how to access '#{reference}'"
     end
 
-    # CoreDataRefs::edit(reference, node) # new reference
-    def self.edit(reference, node)
+    # CoreDataRefs::edit(reference, uuid) # new reference
+    def self.edit(reference, uuid)
         if reference.nil? then
-            return CoreDataRefs::interactivelyMakeNewReferenceOrNull(node)
+            return CoreDataRefs::interactivelyMakeNewReferenceOrNull(uuid)
         end
         if reference["type"] == "null" then
-            return CoreDataRefs::interactivelyMakeNewReferenceOrNull(node)
+            return CoreDataRefs::interactivelyMakeNewReferenceOrNull(uuid)
         end
         if reference["type"] == "null" then
             puts "Accessing null reference string. Making a new one."
-            return CoreDataRefs::interactivelyMakeNewReferenceOrNull(node) 
+            return CoreDataRefs::interactivelyMakeNewReferenceOrNull(uuid) 
         end
         if reference["type"] == "text" then
             text = reference["text"]
@@ -217,8 +215,16 @@ class CoreDataRefs
         raise "CoreData, I do not know how to edit '#{reference}'"
     end
 
-    # CoreDataRefs::fsckRightOrError(reference, node)
-    def self.fsckRightOrError(reference, node)
+    # CoreDataRefs::landing(uuid, reference)
+    def self.landing(uuid, reference)
+        puts "At the moment, landing is just access"
+        LucilleCore::pressEnterToContinue()
+        CoreDataRefs::access(uuid, reference)
+    end
+
+    # CoreDataRefs::fsck(uuid, reference)
+    def self.fsck(uuid, reference)
+        puts "CoreDataRefs::fsck(uuid: #{uuid}, reference: #{JSON.pretty_generate(reference)})"
         if reference.nil? then
             return
         end
@@ -226,31 +232,19 @@ class CoreDataRefs
             return
         end
         if reference["type"] == "text" then
-            text = reference["text"]
-            return if text
-            raise "missing text at node #{node.uuid()} for reference: #{reference}"
+            return
         end
         if reference["type"] == "url" then
-            url = reference["url"]
-            return if url
-            raise "missing url at node #{node.uuid()} for reference: #{reference}"
+            return
         end
         if reference["type"] == "aion-point" then
-            rootnhash = reference["nhash"]
-            operator = Elizabeth.new(node)
-            AionFsck::structureCheckAionHashRaiseErrorIfAny(operator, rootnhash)
+            nhash = reference["nhash"]
+            AionFsck::structureCheckAionHashRaiseErrorIfAny(BladeElizabeth.new(uuid), nhash)
             return
         end
         if reference["type"] == "unique-string" then
             return
         end
         raise "CoreData, I do not know how to fsck '#{reference}'"
-    end
-
-    # CoreDataRefs::landing(reference, node)
-    def self.landing(reference, node)
-        puts "At the moment, landing is just access"
-        LucilleCore::pressEnterToContinue()
-        CoreDataRefs::access(reference, node)
     end
 end

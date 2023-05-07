@@ -1,5 +1,0 @@
-
-Nyx Objects, by convention have at least 
-    - uuid
-    - unixtime
-    - owner

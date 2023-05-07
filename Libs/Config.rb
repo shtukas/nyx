@@ -12,24 +12,4 @@ class Config
     def self.pathToDesktop()
         "#{Config::userHomeDirectory()}/Desktop"
     end
-
-    # Config::pathToGalaxy()
-    def self.pathToGalaxy()
-        "#{Config::userHomeDirectory()}/Galaxy"
-    end
-
-    # Config::pathToNyx()
-    def self.pathToNyx()
-        "#{Config::pathToGalaxy()}/DataHub/Nyx"
-    end
-
-    # Config::pathToNightSkyIndex()
-    def self.pathToNightSkyIndex()
-        "#{Config::pathToGalaxy()}/DataHub/Nyx/Index"
-    end
-
-    # Config::pathToNest()
-    def self.pathToNest()
-        "#{Config::pathToGalaxy()}/DataHub/Nyx/Nest"
-    end
 end

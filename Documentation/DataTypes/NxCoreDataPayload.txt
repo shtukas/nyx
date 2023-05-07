@@ -1,9 +1,0 @@
-Part of a NxNode's sphere
-
-{
-    "uuid"     : String
-    "mikuType" : "NxCoreDataPayload"
-    "unixtime" : Integer
-    "owner"    : String
-    "type"     : String
-}

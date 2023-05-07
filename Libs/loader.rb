@@ -46,7 +46,6 @@ checkLocation = lambda{|location|
     end
 } 
 
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate-Config.json")
 checkLocation.call("#{ENV['HOME']}/Galaxy/Software/Lucille-Ruby-Libraries")
 checkLocation.call("#{ENV['HOME']}/x-space/xcache-v1-days")
 
@@ -119,35 +118,14 @@ AionFsck::structureCheckAionHashRaiseErrorIfAny(operator, nhash)
 
 =end
 
-require "#{Config::userHomeDirectory()}/Galaxy/Software/Lucille-Ruby-Libraries/Blades.rb"
-
-=begin
-Blades
-    Blades::init(mikuType, uuid)
-    Blades::tokenToFilepath(token)
-    Blades::setAttribute2(uuid, attribute_name, value)
-    Blades::getAttributeOrNull1(filepath, attribute_name)
-    Blades::getMandatoryAttribute1(filepath, attribute_name)
-    Blades::addToSet1(filepath, set_id, element_id, value)
-    Blades::removeFromSet1(filpath, set_id, element_id)
-    Blades::putDatablob1(filepath, key, datablob)
-    Blades::getDatablobOrNull1(filepath, key)
-=end
-
-require "#{Config::userHomeDirectory()}/Galaxy/Software/Lucille-Ruby-Libraries/MikuTypes.rb"
-
-=begin
-MikuTypes
-    MikuTypes::mikuTypeUUIDsCached(mikuType) # Cached
-    MikuTypes::mikuTypeUUIDsEnumeratorFromDiskScan(mikuType)
-=end
+require "#{Config::userHomeDirectory()}/Galaxy/Software/Lucille-Ruby-Libraries/Solingen.rb"
 
 # ------------------------------------------------------------
 
-require_relative "BladeAdaptation.rb"
+require_relative "Atlas.rb"
 
-require_relative "CoreDataRefs.rb"
 require_relative "CommonUtils.rb"
+require_relative "CoreDataRefs.rb"
 
 require_relative "Dx8Units.rb"
 
@@ -155,21 +133,16 @@ require_relative "Galaxy.rb"
 
 require_relative "ItemStore.rb"
 
+require_relative "LinkedNodes.rb"
+
+require_relative "NxNodes.rb"
 require_relative "Nyx.rb"
-require_relative "NyxDirectories.rb"
-require_relative "NightSky.rb"
-require_relative "NxNode.rb"
-require_relative "NightSkyIndex.rb"
-require_relative "N1Data.rb"
+require_relative "NxTaxonomies.rb"
 
 require_relative "ProgrammableBooleans.rb"
 
-# ------------------------------------------------------------
+require_relative "Search.rb"
 
-$bank_database_semaphore = Mutex.new
-$dnsu_database_semaphore = Mutex.new
-$owner_items_mapping_database_semaphore = Mutex.new
-$links_database_semaphore = Mutex.new
-$arrows_database_semaphore = Mutex.new
+require_relative "UniqueStrings.rb"
 
 # ------------------------------------------------------------

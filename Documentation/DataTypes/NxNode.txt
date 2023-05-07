@@ -1,52 +1,14 @@
 NxNodes are the nodes of the Nyx network.
 
 NxNode (Blade)
-    uuid    : String
-    unixtime: Float
-    datetime: DateTime Iso 8601 UTC Zulu
+    uuid        : String
+    unixtime    : Float
+    datetime    : DateTime Iso 8601 UTC Zulu
+    description : String
 
 Sets
     NxCoreDataRefs: Array[NxCoreDataRef]
-    taxonomy      : Array[String]
-                        "Person"
-                        "Geolocation"
-                        "Entity"
-                        "Documentation"
-                        "Concept"
-                        "Technology"
-                        "Organization"
-                        "Commercial Entity"
-                        "Event"
-                        "News (Image/Article/Video)"
-                        "Documentary"
-                        "Funny"
-                        "Quote"
-                        "Pascal Brain Dump"
-                        "Interesting"
-                        "Personal Diary"
+    taxonomy      : Array[NxTaxonomy]
     linkeduuids   : Array[String]
-    notes         : Array[String]
+    notes         : Array[NxNote]
 
-
-Unless otherwise specified the data of the key / value store are strings. unxitime is a float.
-
-Orbital file names follow a strict structure
-
-<main>.nyxnode
-
-The ~/Galaxy/DataHub/Nyx/Index directory contains individual files, each named after and containing an orbital uuid.
-
---------------------------------
-
-NxNodes are the nodes of the Nyx network
-
-{
-    "uuid"        : String
-    "mikuType"    : "NxNode"
-    "unixtime"    : Integer # defaults to creation but that be set 
-                         # to the most contextually relevant time for that 
-                         # particular node
-    "description" : String
-}
-
-Nodes have additional objects that are attached to them, we refer to that collection as the "sphere". The types are NxCoreDataPayload, NxTaxonomy, NxNote.
