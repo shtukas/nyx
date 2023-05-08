@@ -13,10 +13,9 @@ class Nyx
         loop {
             system("clear")
             options = [
-                "new node", 
-                "search", 
-                "list nodes", 
-                "blades mikutypes fs scan", 
+                "new node",
+                "search",
+                "list nodes",
                 "fsck"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
@@ -31,19 +30,16 @@ class Nyx
             end
             if option == "list nodes" then
                 loop {
-                    nodes = NxNodes::nodes().sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
+                    nodes = Solingen::mikuTypeItems("NxNode").sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| node["description"] })
                     break if node.nil?
                     NxNodes::landing(node)
                 }
             end
-            if option == "blades mikutypes fs scan" then
-                MikuTypes::scan()
-            end
             if option == "fsck" then
-                MikuTypes::mikuTypeUUIDsCached("NxNode").each{|uuid|
-                    Solingen::getSet2(uuid, "NxCoreDataRefs").each{|ref|
-                        CoreDataRefs::fsck(uuid, ref)
+                Solingen::mikuTypeItems("NxNode").each{|node|
+                    Solingen::getSet2(node["uuid"], "NxCoreDataRefs").each{|ref|
+                        CoreDataRefs::fsck(node["uuid"], ref)
                     }
                 }
             end
