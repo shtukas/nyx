@@ -64,7 +64,7 @@ class NxNodes
                 puts "coredatarefs:"
                 coredatarefs.each{|ref|
                     store.register(ref, false)
-                    puts "(#{store.prefixString()}) #{CoreDataRefs::toString(ref)}"
+                    puts "#{store.prefixString()}: #{CoreDataRefs::toString(ref)}"
                 }
             end
 
@@ -73,7 +73,7 @@ class NxNodes
                 puts "notes:"
                 notes.each{|note|
                     store.register(note, false)
-                    puts "(#{store.prefixString()}) #{note["line"]}"
+                    puts "#{store.prefixString()}: #{note["line"]}"
                 }
             end
 
@@ -83,7 +83,7 @@ class NxNodes
                 linkednodes
                     .each{|linkednode|
                         store.register(linkednode, false)
-                        puts "(#{store.prefixString()}) (node) #{linkednode["description"]}"
+                        puts "#{store.prefixString()}: (node) #{linkednode["description"]}"
                     }
             end
 
