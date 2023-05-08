@@ -83,7 +83,7 @@ class NxNodes
                 linkednodes
                     .each{|linkednode|
                         store.register(linkednode, false)
-                        puts "(#{store.prefixString()}) #{NxNodes::toString(linkednode)}"
+                        puts "(#{store.prefixString()}) (node) #{linkednode["description"]}"
                     }
             end
 
