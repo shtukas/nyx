@@ -77,7 +77,7 @@ class NxNodes
                 }
             end
 
-            linkednodes = LinkedNodes::linkedNodes(uuid)
+            linkednodes = Links::nodes(uuid)
             if linkednodes.size > 0 then
                 puts ""
                 linkednodes
@@ -148,7 +148,7 @@ class NxNodes
             if command == "link add" then
                 node2 = NxNodes::architectNodeOrNull()
                 if node2 then
-                    LinkedNodes::link(node, node2)
+                    Links::link(node["uuid"], node2["uuid"])
                     o = NxNodes::landing(node2)
                     if o then
                         return o
