@@ -44,12 +44,14 @@ class NxNodes
             system('clear')
 
             description = Solingen::getMandatoryAttribute2(uuid, "description")
+            datetime = Solingen::getSet2(uuid, "datetime")
             coredatarefs = Solingen::getSet2(uuid, "NxCoreDataRefs")
             taxonomy = Solingen::getSet2(uuid, "taxonomy")
             notes = Solingen::getSet2(uuid, "notes")
 
             puts description.green
             puts "- uuid: #{uuid}"
+            puts "- datetime: #{datetime}"
             puts "- taxonomy: #{taxonomy.join(", ")}"
             if taxonomy.size == 0 then
                 puts "You do not have a taxonomy, run `taxonomy`"
