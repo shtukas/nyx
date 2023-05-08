@@ -1,7 +1,7 @@
 class NxTaxonomies
 
-    # NxTaxonomies::NxTaxonomies()
-    def self.NxTaxonomies()
+    # NxTaxonomies::nxTaxonomies()
+    def self.nxTaxonomies()
         [
             "Person",
             "Geolocation",
