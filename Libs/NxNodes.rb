@@ -98,7 +98,7 @@ class NxNodes
                 indx = command.to_i
                 item = store.get(indx)
                 next if item.nil?
-                if item.class.to_s == "NxNode" then
+                if item["mikuType"] == "NxNode" then
                     o = NxNodes::landing(item)
                     if o then
                         return o
