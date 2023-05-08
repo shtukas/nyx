@@ -21,7 +21,11 @@ class NxNodes
         Solingen::setAttribute2(uuid, "datetime", datetime)
         Solingen::setAttribute2(uuid, "description", description)
 
-        NxNodes::landing(uuid)
+        node = Solingen::getItemOrNull(uuid)
+        if node.nil? then
+            raise "I could not recover newly created node: #{uuid}"
+        end
+        NxNodes::landing(node)
     end
 
     # ------------------------------------
