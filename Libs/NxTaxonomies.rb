@@ -24,6 +24,6 @@ class NxTaxonomies
 
     # NxTaxonomies::selectOneTaxonomyOrNull()
     def self.selectOneTaxonomyOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("taxonomy", NxNodes::nxTaxonomies())
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("taxonomy", NxTaxonomies::nxTaxonomies())
     end
 end

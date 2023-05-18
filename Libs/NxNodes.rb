@@ -21,7 +21,11 @@ class NxNodes
         Solingen::setAttribute2(uuid, "datetime", datetime)
         Solingen::setAttribute2(uuid, "description", description)
 
-        NxNodes::program(uuid)
+        node = Solingen::getItemOrNull(uuid)
+        if node.nil? then
+            raise "I could not recover newly created node: #{uuid}"
+        end
+        NxNodes::program(node)
     end
 
     # ------------------------------------
@@ -45,12 +49,14 @@ class NxNodes
             system('clear')
 
             description = Solingen::getMandatoryAttribute2(uuid, "description")
+            datetime = Solingen::getSet2(uuid, "datetime")
             coredatarefs = Solingen::getSet2(uuid, "NxCoreDataRefs")
             taxonomy = Solingen::getSet2(uuid, "taxonomy")
             notes = Solingen::getSet2(uuid, "notes")
 
             puts description.green
             puts "- uuid: #{uuid}"
+            puts "- datetime: #{datetime}"
             puts "- taxonomy: #{taxonomy.join(", ")}"
             if taxonomy.size == 0 then
                 puts "You do not have a taxonomy, run `taxonomy`"
@@ -63,7 +69,7 @@ class NxNodes
                 puts "coredatarefs:"
                 coredatarefs.each{|ref|
                     store.register(ref, false)
-                    puts "(#{store.prefixString()}) #{CoreDataRefs::toString(ref)}"
+                    puts "#{store.prefixString()}: #{CoreDataRefs::toString(ref)}"
                 }
             end
 
@@ -76,14 +82,14 @@ class NxNodes
                 }
             end
 
-            linkednodes = LinkedNodes::linkedNodes(uuid)
+            linkednodes = Links::nodes(uuid)
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"
                 linkednodes
                     .each{|linkednode|
                         store.register(linkednode, false)
-                        puts "(#{store.prefixString()}) #{NxNodes::toString(linkednode)}"
+                        puts "#{store.prefixString()}: (node) #{linkednode["description"]}"
                     }
             end
 
@@ -145,7 +151,7 @@ class NxNodes
             if command == "link add" then
                 node2 = NxNodes::architectNodeOrNull()
                 if node2 then
-                    LinkedNodes::link(node, node2)
+                    Links::link(node["uuid"], node2["uuid"])
                     o = NxNodes::program(node2)
                     if o then
                         return o
