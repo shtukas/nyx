@@ -99,6 +99,7 @@ class CoreDataRefs
     end
 
     # CoreDataRefs::access(uuid, reference)
+    # uuid is the node / blade uuid
     def self.access(uuid, reference)
         if reference.nil? then
             puts "Accessing null reference string. Nothing to do."
@@ -132,7 +133,7 @@ class CoreDataRefs
             exportFoldername = "aion-point-#{exportId}"
             exportFolder = "#{Config::pathToDesktop()}/#{exportFoldername}"
             FileUtils.mkdir(exportFolder)
-            AionCore::exportHashAtFolder(Elizabeth.new(node), nhash, exportFolder)
+            AionCore::exportHashAtFolder(BladeElizabeth.new(uuid), nhash, exportFolder)
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -215,9 +216,9 @@ class CoreDataRefs
         raise "CoreData, I do not know how to edit '#{reference}'"
     end
 
-    # CoreDataRefs::landing(uuid, reference)
-    def self.landing(uuid, reference)
-        puts "At the moment, landing is just access"
+    # CoreDataRefs::program(uuid, reference)
+    def self.program(uuid, reference)
+        puts "At the moment, program is just access"
         LucilleCore::pressEnterToContinue()
         CoreDataRefs::access(uuid, reference)
     end

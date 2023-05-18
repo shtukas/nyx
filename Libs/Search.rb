@@ -22,11 +22,12 @@ class Search
                 if selected.empty? then
                     puts "Could not find a matching element for '#{fragment}'"
                     LucilleCore::pressEnterToContinue()
+                    break
                 else
                     selected = selected.select{|node| Solingen::getItemOrNull(node["uuid"]) } # In case something has changed, we want the ones that have survived
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", selected, lambda{|i| i["description"] })
                     break if node.nil?
-                    NxNodes::landing(node)
+                    NxNodes::program(node)
                 end
             }
         }
@@ -62,7 +63,7 @@ class Search
                         return node
                     end
                     if option == "landing on '#{node["description"]}'" then
-                        o = NxNodes::landing(node)
+                        o = NxNodes::program(node)
                         if o then
                             return o
                         end

@@ -6,8 +6,8 @@ class NxNodes
     # ------------------------------------
     # Makers
 
-    # NxNodes::NxNodesinteractivelyIssueNewNxNodeOrNull() # nil or node
-    def self.NxNodesinteractivelyIssueNewNxNodeOrNull()
+    # NxNodes::interactivelyIssueNewOrNull() # nil or node
+    def self.interactivelyIssueNewOrNull()
 
         uuid = SecureRandom.uuid
         unixtime = Time.new.to_i
@@ -21,19 +21,24 @@ class NxNodes
         Solingen::setAttribute2(uuid, "datetime", datetime)
         Solingen::setAttribute2(uuid, "description", description)
 
-        NxNodes::landing(uuid)
+        NxNodes::program(uuid)
     end
 
     # ------------------------------------
     # Data
 
+    # NxNodes::toString(node)
+    def self.toString(node)
+        "(node) #{node["description"]}"
+    end
+
     # ------------------------------------
     # Operations
 
-    # NxNodes::landing(node) # nil or uuid2
+    # NxNodes::program(node) # nil or uuid2
     # This function is originally used as action, a landing, but can also return a uuid
     # when the user issues "fox", and this matters during a fox search
-    def self.landing(node)
+    def self.program(node)
         uuid = node["uuid"]
         loop {
 
@@ -67,13 +72,14 @@ class NxNodes
                 puts "notes:"
                 notes.each{|note|
                     store.register(note, false)
-                    puts "(#{store.prefixString()}) #{note["line"]}"
+                    puts "(#{store.prefixString()}) #{NxNotes::toString(note)}"
                 }
             end
 
             linkednodes = LinkedNodes::linkedNodes(uuid)
             if linkednodes.size > 0 then
                 puts ""
+                puts "related nodes:"
                 linkednodes
                     .each{|linkednode|
                         store.register(linkednode, false)
@@ -92,18 +98,15 @@ class NxNodes
                 indx = command.to_i
                 item = store.get(indx)
                 next if item.nil?
-                if item.class.to_s == "NxNode" then
-                    o = NxNodes::landing(item)
-                    if o then
-                        return o
-                    end
-                    next
+                if item["mikuType"] == "NxNode" then
+                    NxNodes::program(item)
                 end
                 if item["mikuType"] == "NxNote" then
-                    NxNote::landing(item)
+                    NxNotes::program(item)
                 end
                 if item["mikuType"] == "NxCoreDataRef" then
-                    CoreDataRefs::landing(item, node)
+                    reference = item
+                    CoreDataRefs::program(node["uuid"], reference)
                 end
                 next
             end
@@ -143,7 +146,7 @@ class NxNodes
                 node2 = NxNodes::architectNodeOrNull()
                 if node2 then
                     LinkedNodes::link(node, node2)
-                    o = NxNodes::landing(node2)
+                    o = NxNodes::program(node2)
                     if o then
                         return o
                     end
@@ -170,7 +173,7 @@ class NxNodes
             end
 
             if command == "note add" then
-                note = NxNote::makeNoteOrNull()
+                note = NxNotes::interactivelyIssueNewOrNull()
                 next if note.nil?
                 Solingen::addToSet2(uuid, "notes", note["uuid"], note)
             end
@@ -211,10 +214,10 @@ class NxNodes
             if node then
                 return node
             end
-            return NxNodes::NxNodesinteractivelyIssueNewNxNodeOrNull()
+            return NxNodes::interactivelyIssueNewOrNull()
         end
         if option == "new" then
-            return NxNodes::NxNodesinteractivelyIssueNewNxNodeOrNull()
+            return NxNodes::interactivelyIssueNewOrNull()
         end
         nil
     end
