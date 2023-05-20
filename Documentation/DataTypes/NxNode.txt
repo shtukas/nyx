@@ -12,3 +12,21 @@ Sets
     linkeduuids   : Array[String]
     notes         : Array[NxNote]
 
+NxTaxonomy:
+    "Person",
+    "Geolocation",
+    "Entity",
+    "Documentation",
+    "Concept",
+    "Technology",
+    "Organization",
+    "Event",
+    "News (Image/Article/Video)",
+    "Documentary",
+    "Funny",
+    "Quote",
+    "Pascal Explains",
+    "Interesting",
+    "Personal Diary",
+    "Review",
+
