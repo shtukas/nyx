@@ -27,28 +27,34 @@ class CoreDataRefs
             }
         end
         if referencetype == "text" then
+            description = LucilleCore::askQuestionAnswerAsString("description (not the text) (can be left empty): ")
+            description = description.size > 0 ? description : nil
             text = CommonUtils::editTextSynchronously("")
             return {
                 "uuid"         => SecureRandom.uuid,
                 "mikuType"     => "NxCoreDataRef",
                 "unixtime"     => Time.new.to_f,
-                "description"  => nil,
+                "description"  => description,
                 "type"         => "text",
                 "text"         => text
             }
         end
         if referencetype == "url" then
+            description = LucilleCore::askQuestionAnswerAsString("description (can be left empty): ")
+            description = description.size > 0 ? description : nil
             url = LucilleCore::askQuestionAnswerAsString("url: ")
             return {
                 "uuid"        => SecureRandom.uuid,
                 "mikuType"    => "NxCoreDataRef",
                 "unixtime"    => Time.new.to_f,
-                "description" => nil,
+                "description" => description,
                 "type"        => "url",
                 "url"         => url
             }
         end
         if referencetype == "aion point" then
+            description = LucilleCore::askQuestionAnswerAsString("description (can be left empty): ")
+            description = description.size > 0 ? description : nil
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
             nhash = AionCore::commitLocationReturnHash(BladeElizabeth.new(uuid), location)
@@ -56,18 +62,20 @@ class CoreDataRefs
                 "uuid"        => SecureRandom.uuid,
                 "mikuType"    => "NxCoreDataRef",
                 "unixtime"    => Time.new.to_f,
-                "description" => nil,
+                "description" => description,
                 "type"        => "aion-point",
                 "nhash"       => nhash
             }
         end
         if referencetype == "unique string" then
+            description = LucilleCore::askQuestionAnswerAsString("description (can be left empty): ")
+            description = description.size > 0 ? description : nil
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (if needed use Nx01-#{SecureRandom.hex[0, 12]}): ")
             return {
                 "uuid"         => SecureRandom.uuid,
                 "mikuType"     => "NxCoreDataRef",
                 "unixtime"     => Time.new.to_f,
-                "description"  => nil,
+                "description"  => description,
                 "type"         => "unique-string",
                 "uniquestring" => uniquestring
             }
@@ -77,23 +85,24 @@ class CoreDataRefs
 
     # CoreDataRefs::toString(reference)
     def self.toString(reference)
+        return reference["description"] if reference["description"]
         if reference.nil? then
-            return "core data (#{reference["uuid"][0, 2]}): null"
+            return "(core data #{reference["uuid"][0, 2]}, null)"
         end
         if reference["type"] == "null" then
-            return "core data (#{reference["uuid"][0, 2]}): null"
+            return "(core data #{reference["uuid"][0, 2]}, null)"
         end
         if reference["type"] == "text" then
-            return "core data (#{reference["uuid"][0, 2]}): text"
+            return "(core data #{reference["uuid"][0, 2]}, text)"
         end
         if reference["type"] == "url" then
-            return "core data (#{reference["uuid"][0, 2]}): url"
+            return "(core data #{reference["uuid"][0, 2]}, text)"
         end
         if reference["type"] == "aion-point" then
-            return "core data (#{reference["uuid"][0, 2]}): aion-point"
+            return "(core data #{reference["uuid"][0, 2]}, aion-point)"
         end
         if reference["type"] == "unique-string" then
-            return "core data (#{reference["uuid"][0, 2]}): unique-string"
+            return "(core data #{reference["uuid"][0, 2]}, unique-string)"
         end
         raise "CoreData, I do not know how to string '#{reference}'"
     end
