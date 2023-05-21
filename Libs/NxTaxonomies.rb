@@ -16,10 +16,11 @@ class NxTaxonomies
             "Documentary",
             "Funny",
             "Quote",
-            "Pascal Pascal Explains",
+            "Pascal Explains",
             "Interesting",
             "Personal Diary",
-            "Review"
+            "Review",
+            "Definition"
         ]
     end
 

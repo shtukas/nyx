@@ -49,7 +49,7 @@ class NxNodes
             system('clear')
 
             description = Solingen::getMandatoryAttribute2(uuid, "description")
-            datetime = Solingen::getSet2(uuid, "datetime")
+            datetime = Solingen::getAttributeOrNull2(uuid, "datetime")
             coredatarefs = Solingen::getSet2(uuid, "NxCoreDataRefs")
             taxonomy = Solingen::getSet2(uuid, "taxonomy")
             notes = Solingen::getSet2(uuid, "notes")
