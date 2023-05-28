@@ -7,9 +7,4 @@ class Config
     def self.userHomeDirectory()
         ENV['HOME']
     end
-
-    # Config::pathToDesktop()
-    def self.pathToDesktop()
-        "#{Config::userHomeDirectory()}/Desktop"
-    end
 end

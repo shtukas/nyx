@@ -303,7 +303,7 @@ class CommonUtils
 
     # CommonUtils::interactivelySelectDesktopLocationOrNull() 
     def self.interactivelySelectDesktopLocationOrNull()
-        CommonUtils::interactivelySelectLocationAtSpecifiedDirectoryOrNull(Config::pathToDesktop())
+        CommonUtils::interactivelySelectLocationAtSpecifiedDirectoryOrNull("#{Config::userHomeDirectory()}/Desktop")
     end
 
     # CommonUtils::interactivelySelectDesktopLocation()
