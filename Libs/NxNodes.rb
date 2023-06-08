@@ -118,7 +118,7 @@ class NxNodes
             end
 
             if command == "description" then
-                description = LucilleCore::askQuestionAnswerAsString("description: ")
+                description = CommonUtils::editTextSynchronously(Solingen::getMandatoryAttribute2(uuid, "description"))
                 next if description == ""
                 Solingen::setAttribute2(uuid, "description", description)
                 next
