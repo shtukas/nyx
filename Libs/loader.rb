@@ -128,6 +128,8 @@ require_relative "CommonUtils.rb"
 require_relative "CoreDataRefs.rb"
 
 require_relative "Dx8Units.rb"
+require_relative "DarkMatter.rb"
+require_relative "DarkEnergy.rb"
 
 require_relative "Galaxy.rb"
 

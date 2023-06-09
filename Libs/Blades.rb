@@ -333,48 +333,19 @@ class Blades
 
     # Blades::putDatablob1(filepath, datablob) # nhash
     def self.putDatablob1(filepath, datablob)
-        raise "(error: 5d9d44cb-79af-4aa9-8e7b-d5639dcb4359) filepath: #{filepath}" if !File.exist?(filepath)
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(datablob)}"
-        puts "Blades::putDatablob1(#{filepath}, nhash: #{nhash})".green
-
-        # Befoere putting a blob, we check the size of the file
-        if File.size(filepath) >= 1024*1024*100 then # 100 Mb
-            # The current file is too big
-            # Now the question is, is there a next ?
-            nextuuid = Blades::getAttributeOrNull1(filepath, "next")
-            if nextuuid then
-                return Blades::putDatablob2(nextuuid, datablob)
-            else
-                # There is no next
-                nextuuid = SecureRandom.uuid
-                puts "Making NEXT (#{nextuuid})".green
-                currentuuid = Blades::getMandatoryAttribute1(filepath, "uuid")
-                Blades::init("NxPure", nextuuid)
-                Blades::setAttribute2(nextuuid, "previous", currentuuid)
-                Blades::setAttribute1(filepath, "next", nextuuid) # We mark `next` after we know the next blade is ready
-                return Blades::putDatablob2(nextuuid, datablob)
-            end
-        end
-
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute "insert into records (record_uuid, operation_unixtime, operation_type, _name_, _data_) values (?, ?, ?, ?, ?)", [SecureRandom.uuid, Time.new.to_f, "datablob", nhash, datablob]
-        db.close
-        Blades::rename(filepath)
-        nhash
+        DarkMatter::putBlob(datablob)
     end
 
     # Blades::putDatablob2(uuid, datablob) # nhash
     def self.putDatablob2(uuid, datablob)
-        filepath = Blades::uuidToFilepathOrNull(uuid)
-        raise "(error: 137dfd88-5ba1-4d2e-88ae-069b8d20b339) uuid: #{uuid}" if filepath.nil?
-        Blades::putDatablob1(filepath, datablob)
+        DarkMatter::putBlob(datablob)
     end
 
     # Blades::getDatablobOrNull1(filepath, nhash)
     def self.getDatablobOrNull1(filepath, nhash)
+        blob = DarkMatter::getBlobOrNull(nhash)
+        return blob if blob
+
         raise "(error: 273139ba-e4ef-4345-a4de-2594ce77c563) filepath: #{filepath}" if !File.exist?(filepath)
         datablob = nil
         db = SQLite3::Database.new(filepath)
@@ -393,11 +364,13 @@ class Blades
             if nextuuid then
                 datablob = Blades::getDatablobOrNull2(nextuuid, nhash)
                 if datablob then
+                    DarkMatter::putBlob(datablob)
                     return datablob # 🎉
                 end
             end
         end
 
+        DarkMatter::putBlob(datablob)
         datablob
     end
 
@@ -423,7 +396,7 @@ class BladeElizabeth
     end
 
     def putBlob(datablob) # nhash
-        Blades::putDatablob2(@uuid, datablob)
+        DarkMatter::putBlob(datablob)
     end
 
     def filepathToContentHash(filepath)
