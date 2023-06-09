@@ -1,32 +1,11 @@
 NxNodes are the nodes of the Nyx network.
 
-NxNode (Blade)
-    uuid        : String
-    unixtime    : Float
-    datetime    : DateTime Iso 8601 UTC Zulu
-    description : String
-
-Sets
-    NxCoreDataRefs: Array[NxCoreDataRef]
+NxNode
+    uuid          : String
+    unixtime      : Float
+    datetime      : DateTime Iso 8601 UTC Zulu
+    description   : String
+    linkeduuids   : Array["String"]
     taxonomy      : Array[NxTaxonomy]
-    linkeduuids   : Array[String]
     notes         : Array[NxNote]
-
-NxTaxonomy:
-    "Person",
-    "Geolocation",
-    "Entity",
-    "Documentation",
-    "Concept",
-    "Technology",
-    "Organization",
-    "Event",
-    "News (Image/Article/Video)",
-    "Documentary",
-    "Funny",
-    "Quote",
-    "Pascal Explains",
-    "Interesting",
-    "Personal Diary",
-    "Review",
-
+    coreDataRefs  : Array[NxCoreDataRef]

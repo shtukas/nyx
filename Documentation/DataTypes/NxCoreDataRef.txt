@@ -7,7 +7,6 @@ NxCoreDataRef {
     "unixtime"    : Float
     "type"        : "null"
     "description" : nil or string
-
 }
 
 NxCoreDataRef {

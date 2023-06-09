@@ -1,4 +1,3 @@
-
 # encoding: UTF-8
 
 class CoreDataRefs
@@ -270,6 +269,13 @@ class CoreDataRefs
         CoreDataRefs::access(uuid, reference)
     end
 
+    # CoreDataRefs::fsckItem(item)
+    def self.fsckItem(item)
+        item["coreDataRefs"].each{|ref|
+            CoreDataRefs::fsck(item["uuid"], ref)
+        }
+    end
+
     # CoreDataRefs::fsck(uuid, reference)
     def self.fsck(uuid, reference)
         puts "CoreDataRefs::fsck(uuid: #{uuid}, reference: #{JSON.pretty_generate(reference)})"
@@ -291,6 +297,9 @@ class CoreDataRefs
             return
         end
         if reference["type"] == "unique-string" then
+            return
+        end
+        if reference["type"] == "fs-beacon" then
             return
         end
         raise "CoreData, I do not know how to fsck '#{reference}'"
