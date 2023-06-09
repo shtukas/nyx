@@ -30,16 +30,16 @@ class Nyx
             end
             if option == "list nodes" then
                 loop {
-                    nodes = Solingen::mikuTypeItems("NxNode").sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
+                    nodes = DarkEnergy::mikuType("NxNode").sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| node["description"] })
                     break if node.nil?
                     NxNodes::program(node)
                 }
             end
             if option == "fsck" then
-                Solingen::mikuTypeItems("NxNode").each{|node|
-                    Solingen::getSet2(node["uuid"], "NxCoreDataRefs").each{|ref|
-                        CoreDataRefs::fsck(node["uuid"], ref)
+                DarkEnergy::mikuType("NxNode").each{|node|
+                    node["coreDataRefs"].each{|ref|
+                        CoreDataRefs::fsck(ref)
                     }
                 }
             end

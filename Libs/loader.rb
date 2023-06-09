@@ -118,8 +118,6 @@ AionFsck::structureCheckAionHashRaiseErrorIfAny(operator, nhash)
 
 =end
 
-require_relative "Solingen.rb"
-
 # ------------------------------------------------------------
 
 require_relative "Atlas.rb"
@@ -133,8 +131,6 @@ require_relative "DarkSpace.rb"
 require_relative "Galaxy.rb"
 
 require_relative "ItemStore.rb"
-
-require_relative "Links.rb"
 
 require_relative "NxNodes.rb"
 require_relative "Nyx.rb"

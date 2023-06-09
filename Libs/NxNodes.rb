@@ -16,12 +16,12 @@ class NxNodes
         description = LucilleCore::pressEnterToContinue("description (empty to abort): ")
         return nil if description == ""
 
-        Solingen::init("NxNode", uuid)
-        Solingen::setAttribute2(uuid, "unixtime", unixtime)
-        Solingen::setAttribute2(uuid, "datetime", datetime)
-        Solingen::setAttribute2(uuid, "description", description)
+        DarkEnergy::init("NxNode", uuid)
+        DarkEnergy::patch(uuid, "unixtime", unixtime)
+        DarkEnergy::patch(uuid, "datetime", datetime)
+        DarkEnergy::patch(uuid, "description", description)
 
-        node = Solingen::getItemOrNull(uuid)
+        node = DarkEnergy::itemOrNull(uuid)
         if node.nil? then
             raise "I could not recover newly created node: #{uuid}"
         end
@@ -48,11 +48,11 @@ class NxNodes
 
             system('clear')
 
-            description = Solingen::getMandatoryAttribute2(uuid, "description")
-            datetime = Solingen::getAttributeOrNull2(uuid, "datetime")
-            coredatarefs = Solingen::getSet2(uuid, "NxCoreDataRefs")
-            taxonomy = Solingen::getSet2(uuid, "taxonomy")
-            notes = Solingen::getSet2(uuid, "notes")
+            description  = node["description"]
+            datetime     = node["datetime"]
+            coredatarefs = node["coreDataRefs"]
+            taxonomy     = node["taxonomy"]
+            notes        = node["notes"]
 
             puts description.green
             puts "- uuid: #{uuid}"
@@ -82,7 +82,7 @@ class NxNodes
                 }
             end
 
-            linkednodes = Links::nodes(uuid)
+            linkednodes = node["linkeduuids"].map{|id| DarkEnergy::itemOrNull(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"
@@ -112,46 +112,52 @@ class NxNodes
                 end
                 if item["mikuType"] == "NxCoreDataRef" then
                     reference = item
-                    CoreDataRefs::program(node["uuid"], reference)
+                    CoreDataRefs::program(reference)
                 end
                 next
             end
 
             if command == "description" then
-                description = CommonUtils::editTextSynchronously(Solingen::getMandatoryAttribute2(uuid, "description"))
+                description = CommonUtils::editTextSynchronously(DarkEnergy::read(uuid, "description"))
                 next if description == ""
-                Solingen::setAttribute2(uuid, "description", description)
+                DarkEnergy::patch(uuid, "description", description)
                 next
             end
 
             if command == "access" then
-                coredatarefs = Solingen::getSet2(uuid, "NxCoreDataRefs")
+                coredatarefs = node["coreDataRefs"]
                 if coredatarefs.empty? then
                     puts "This node doesn't have any payload"
                     LucilleCore::pressEnterToContinue()
                     next
                 end
                 if coredatarefs.size == 1 then
-                    CoreDataRefs::access(uuid, coredatarefs.first)
+                    CoreDataRefs::access(coredatarefs.first)
                     next
                 end
                 coredataref = LucilleCore::selectEntityFromListOfEntitiesOrNull("ref", coredatarefs, lambda{|ref| CoreDataRefs::toString(ref) })
                 next if coredataref.nil?
-                CoreDataRefs::access(uuid, coredataref)
+                CoreDataRefs::access(coredataref)
                 next
             end
 
             if command == "taxonomy" then
                 taxonomy = NxTaxonomies::selectOneTaxonomyOrNull()
                 next if taxonomy.nil?
-                Solingen::addToSet2(uuid, "taxonomy", taxonomy, taxonomy)
+                node["taxonomy"] = (node["taxonomy"] + [taxonomy]).uniq
+                DarkEnergy::commit(node)
                 next
             end
 
             if command == "link add" then
                 node2 = NxNodes::architectNodeOrNull()
                 if node2 then
-                    Links::link(node["uuid"], node2["uuid"])
+                    node["linkeduuids"] = (node["linkeduuids"] + [node2["uuid"]]).uniq
+                    DarkEnergy::commit(node)
+
+                    node2["linkeduuids"] = (node2["linkeduuids"] + [node["uuid"]]).uniq
+                    DarkEnergy::commit(node2)
+
                     o = NxNodes::program(node2)
                     if o then
                         return o
@@ -167,9 +173,10 @@ class NxNodes
             end
 
             if command == "coredata add" then
-                coredataref = CoreDataRefs::interactivelyMakeNewReferenceOrNull(uuid)
+                coredataref = CoreDataRefs::interactivelyMakeNewReferenceOrNull()
                 next if coredataref.nil?
-                Solingen::addToSet2(uuid, "NxCoreDataRefs", coredataref["uuid"], coredataref)
+                node["coreDataRefs"] = (node["coreDataRefs"] + [coredataref]).uniq
+                DarkEnergy::commit(node)
             end
 
             if command == "coredata remove" then
@@ -181,7 +188,8 @@ class NxNodes
             if command == "note add" then
                 note = NxNotes::interactivelyIssueNewOrNull()
                 next if note.nil?
-                Solingen::addToSet2(uuid, "notes", note["uuid"], note)
+                node["notes"] = node["notes"] + [note]
+                DarkEnergy::commit(node)
             end
 
             if command == "note remove" then
@@ -195,7 +203,7 @@ class NxNodes
                 code2 = LucilleCore::askQuestionAnswerAsString("Enter destruction code (#{code1}): ")
                 if code1 == code2 then
                     if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction: ") then
-                        Solingen::destroy(uuid)
+                        DarkEnergy::destroy(uuid)
                         return
                     end
                 end

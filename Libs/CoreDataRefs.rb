@@ -13,8 +13,8 @@ class CoreDataRefs
         LucilleCore::selectEntityFromListOfEntitiesOrNull("coredata reference type", types)
     end
 
-    # CoreDataRefs::interactivelyMakeNewReferenceOrNull(uuid) # NxCoreDataRef
-    def self.interactivelyMakeNewReferenceOrNull(uuid)
+    # CoreDataRefs::interactivelyMakeNewReferenceOrNull() # NxCoreDataRef
+    def self.interactivelyMakeNewReferenceOrNull()
         referencetype = CoreDataRefs::interactivelySelectCoreDataReferenceType()
         if referencetype.nil? then
             return {
@@ -56,7 +56,7 @@ class CoreDataRefs
             description = description.size > 0 ? description : nil
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            nhash = AionCore::commitLocationReturnHash(BladeElizabeth.new(uuid), location)
+            nhash = AionCore::commitLocationReturnHash(DarkMatterElizabeth.new(), location)
             return {
                 "uuid"        => SecureRandom.uuid,
                 "mikuType"    => "NxCoreDataRef",
@@ -130,9 +130,8 @@ class CoreDataRefs
         raise "CoreData, I do not know how to string '#{reference}'"
     end
 
-    # CoreDataRefs::access(uuid, reference)
-    # uuid is the node / blade uuid
-    def self.access(uuid, reference)
+    # CoreDataRefs::access(reference)
+    def self.access(reference)
         if reference.nil? then
             puts "Accessing null reference string. Nothing to do."
             LucilleCore::pressEnterToContinue()
@@ -165,7 +164,7 @@ class CoreDataRefs
             exportFoldername = "aion-point-#{exportId}"
             exportFolder = "#{Config::userHomeDirectory()}/Desktop/#{exportFoldername}"
             FileUtils.mkdir(exportFolder)
-            AionCore::exportHashAtFolder(BladeElizabeth.new(uuid), nhash, exportFolder)
+            AionCore::exportHashAtFolder(DarkMatterElizabeth.new(), nhash, exportFolder)
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -196,89 +195,23 @@ class CoreDataRefs
         raise "CoreData, I do not know how to access '#{reference}'"
     end
 
-    # CoreDataRefs::edit(uuid, reference) # new reference
-    def self.edit(uuid, reference)
-        if reference.nil? then
-            return CoreDataRefs::interactivelyMakeNewReferenceOrNull(uuid)
-        end
-        if reference["type"] == "null" then
-            return CoreDataRefs::interactivelyMakeNewReferenceOrNull(uuid)
-        end
-        if reference["type"] == "null" then
-            puts "Accessing null reference string. Making a new one."
-            return CoreDataRefs::interactivelyMakeNewReferenceOrNull(uuid) 
-        end
-        if reference["type"] == "text" then
-            text = reference["text"]
-            puts "CoreData, editing text: #{nhash}"
-            puts "not implemented yet"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        if reference["type"] == "url" then
-            url = reference["url"]
-            puts "CoreData, editing url: #{nhash}"
-            puts "not implemented yet"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        if reference["type"] == "aion-point" then
-            rootnhash = reference["nhash"]
-            exportLocation = "#{ENV['HOME']}/Desktop/aion-point-#{SecureRandom.hex(4)}"
-            FileUtils.mkdir(exportLocation)
-            AionCore::exportHashAtFolder(rootnhash, exportLocation)
-            puts "Item exported at #{exportLocation} for edition"
-            LucilleCore::pressEnterToContinue()
-            acquireLocationInsideExportFolder = lambda {|exportLocation|
-                locations = LucilleCore::locationsAtFolder(exportLocation).select{|loc| File.basename(loc)[0, 1] != "."}
-                if locations.size == 0 then
-                    puts "I am in the middle of a CoreData aion-point edit. I cannot see anything inside the export folder"
-                    puts "Exit"
-                    exit
-                end
-                if locations.size == 1 then
-                    return locations[0]
-                end
-                if locations.size > 1 then
-                    puts "I am in the middle of a CoreData aion-point edit. I found more than one location in the export folder."
-                    puts "Exit"
-                    exit
-                end
-            }
-
-            location = acquireLocationInsideExportFolder.call(exportLocation)
-            puts "reading: #{location}"
-            rootnhash = AionCore::commitLocationReturnHash(location)
-            reference["nhash"] = rootnhash
-            return reference
-        end
-        if reference["type"] == "unique-string" then
-            uniquestring = reference["uniquestring"]
-            puts "CoreData, editing unique string: #{uniquestring}"
-            puts "not implemented yet"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        raise "CoreData, I do not know how to edit '#{reference}'"
-    end
-
-    # CoreDataRefs::program(uuid, reference)
-    def self.program(uuid, reference)
+    # CoreDataRefs::program(reference)
+    def self.program(reference)
         puts "At the moment, program is just access"
         LucilleCore::pressEnterToContinue()
-        CoreDataRefs::access(uuid, reference)
+        CoreDataRefs::access(reference)
     end
 
     # CoreDataRefs::fsckItem(item)
     def self.fsckItem(item)
         item["coreDataRefs"].each{|ref|
-            CoreDataRefs::fsck(item["uuid"], ref)
+            CoreDataRefs::fsck(ref)
         }
     end
 
-    # CoreDataRefs::fsck(uuid, reference)
-    def self.fsck(uuid, reference)
-        puts "CoreDataRefs::fsck(uuid: #{uuid}, reference: #{JSON.pretty_generate(reference)})"
+    # CoreDataRefs::fsck(reference)
+    def self.fsck(reference)
+        puts "CoreDataRefs::fsck(#{JSON.pretty_generate(reference)})"
         if reference.nil? then
             return
         end
@@ -293,7 +226,7 @@ class CoreDataRefs
         end
         if reference["type"] == "aion-point" then
             nhash = reference["nhash"]
-            AionFsck::structureCheckAionHashRaiseErrorIfAny(BladeElizabeth.new(uuid), nhash)
+            AionFsck::structureCheckAionHashRaiseErrorIfAny(DarkMatterElizabeth.new(), nhash)
             return
         end
         if reference["type"] == "unique-string" then
