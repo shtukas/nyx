@@ -1,11 +1,14 @@
 NxNodes are the nodes of the Nyx network.
 
 NxNode
+    # common interface
     uuid          : String
     unixtime      : Float
     datetime      : DateTime Iso 8601 UTC Zulu
     description   : String
-    linkeduuids   : Array["String"]
+    linkeduuids   : Array[String]
     taxonomy      : Array[NxTaxonomy]
     notes         : Array[NxNote]
+
+    # generic nodes hold an array of NxCoreDataRef
     coreDataRefs  : Array[NxCoreDataRef]

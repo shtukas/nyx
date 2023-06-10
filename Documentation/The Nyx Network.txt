@@ -1,0 +1,22 @@
+
+With the redesign we did on June 9th (2023), the Nyx types (and in particular their representation on disk) are simplier.
+
+Conceptually things are also simple:
+
+- Nyx is a network of nodes and the link between them. 
+- Each node carries the links to its neighbours on the network.
+- The common Interface between all nodes is
+    - uuid          : String
+    - unixtime      : Float
+    - datetime      : DateTime Iso 8601 UTC Zulu
+    - description   : String
+    - linkeduuids   : Array[String]
+    - taxonomy      : Array[NxTaxonomy]
+    - notes         : Array[NxNote]
+
+- The only common functions they all must implement are 
+    - toString
+    - program # the equivalent of the old landing
+
+- Node types are
+    - NxNode
