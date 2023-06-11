@@ -31,6 +31,7 @@ class NxNodes
             raise "I could not recover newly created node: #{uuid}"
         end
         NxNodes::program(node)
+        DarkEnergy::itemOrNull(uuid) # in case it was modified during the program dive
     end
 
     # ------------------------------------
@@ -44,9 +45,7 @@ class NxNodes
     # ------------------------------------
     # Operations
 
-    # NxNodes::program(node) # nil or uuid2
-    # This function is originally used as action, a landing, but can also return a uuid
-    # when the user issues "fox", and this matters during a fox search
+    # NxNodes::program(node) # nil or node (to get the node issue `select`)
     def self.program(node)
         uuid = node["uuid"]
         loop {
@@ -100,7 +99,7 @@ class NxNodes
             end
 
             puts ""
-            puts "commands: description | access | taxonomy | link add/remove | coredata add/remove | note add/remove | destroy"
+            puts "commands: description | access | taxonomy | connect | disconnect | coredata | coredata remove | note | note remove | destroy"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -111,7 +110,10 @@ class NxNodes
                 item = store.get(indx)
                 next if item.nil?
                 if item["mikuType"] == "NxNode" then
-                    NxNodes::program(item)
+                    x = NxNodes::program(item)
+                    if x then
+                        return x # was selected during a dive
+                    end
                 end
                 if item["mikuType"] == "NxNote" then
                     NxNotes::program(item)
@@ -121,6 +123,10 @@ class NxNodes
                     CoreDataRefs::program(reference)
                 end
                 next
+            end
+
+            if command == "select" then
+                return node
             end
 
             if command == "description" then
@@ -155,7 +161,7 @@ class NxNodes
                 next
             end
 
-            if command == "link add" then
+            if command == "connect" then
                 node2 = NxNodes::architectNodeOrNull()
                 if node2 then
                     node["linkeduuids"] = (node["linkeduuids"] + [node2["uuid"]]).uniq
@@ -163,22 +169,17 @@ class NxNodes
 
                     node2["linkeduuids"] = (node2["linkeduuids"] + [node["uuid"]]).uniq
                     DarkEnergy::commit(node2)
-
-                    o = NxNodes::program(node2)
-                    if o then
-                        return o
-                    end
                 end
                 next
             end
 
-            if command == "link remove" then
+            if command == "disconnect" then
                 puts "link remove is not implemented yet"
                 LucilleCore::pressEnterToContinue()
                 next
             end
 
-            if command == "coredata add" then
+            if command == "coredata" then
                 coredataref = CoreDataRefs::interactivelyMakeNewReferenceOrNull()
                 next if coredataref.nil?
                 node["coreDataRefs"] = (node["coreDataRefs"] + [coredataref]).uniq
@@ -191,7 +192,7 @@ class NxNodes
                 next
             end
 
-            if command == "note add" then
+            if command == "note" then
                 note = NxNotes::interactivelyIssueNewOrNull()
                 next if note.nil?
                 node["notes"] = node["notes"] + [note]
@@ -219,26 +220,60 @@ class NxNodes
         nil
     end
 
-    # NxNodes::interactivelySelectNodeOrNull()
-    def self.interactivelySelectNodeOrNull()
-        Search::select()
+    # NxNodes::getNodeOrNullUsingSelectionAndNavigation() nil or node
+    def self.getNodeOrNullUsingSelectionAndNavigation()
+        puts "get node using selection and navigation".green
+        sleep 0.5
+        loop {
+            fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort and return null) : ")
+            return nil if fragment == ""
+            loop {
+                selected = DarkEnergy::mikuType('NxNode')
+                            .select{|node| Search::match(node, fragment) }
+
+                if selected.empty? then
+                    puts "Could not find a matching element for '#{fragment}'"
+                    if LucilleCore::askQuestionAnswerAsBoolean("search more ? ", false) then
+                        break
+                    else
+                        return nil
+                    end
+                else
+                    selected = selected.select{|node| DarkEnergy::itemOrNull(node["uuid"]) } # In case something has changed, we want the ones that have survived
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", selected, lambda{|i| i["description"] })
+                    if node.nil? then
+                        if LucilleCore::askQuestionAnswerAsBoolean("search more ? ", false) then
+                            break
+                        else
+                            return nil
+                        end
+                    end
+                    node = NxNodes::program(node)
+                    if node then
+                        return node # was `select`ed
+                    end
+                end
+            }
+        }
     end
 
     # NxNodes::architectNodeOrNull()
     def self.architectNodeOrNull()
-        options = ["select || new", "new"]
-        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-        return nil if option.nil?
-        if option == "select || new" then
-            node = NxNodes::interactivelySelectNodeOrNull()
-            if node then
-                return node
+        loop {
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["search and maybe `select`", "build and return"])
+            return nil if option.nil?
+            if option == "search and maybe `select`" then
+                node = NxNodes::getNodeOrNullUsingSelectionAndNavigation()
+                if node then
+                    return node
+                end
             end
-            return NxNodes::interactivelyIssueNewOrNull()
-        end
-        if option == "new" then
-            return NxNodes::interactivelyIssueNewOrNull()
-        end
-        nil
+            if option == "build and return" then
+                node = NxNodes::interactivelyIssueNewOrNull()
+                if node then
+                    return node
+                end
+            end
+        }
     end
 end
