@@ -21,6 +21,11 @@ class NxNodes
         DarkEnergy::patch(uuid, "datetime", datetime)
         DarkEnergy::patch(uuid, "description", description)
 
+        DarkEnergy::patch(uuid, "coreDataRefs", [])
+        DarkEnergy::patch(uuid, "taxonomy", [])
+        DarkEnergy::patch(uuid, "notes", [])
+        DarkEnergy::patch(uuid, "linkeduuids", [])
+
         node = DarkEnergy::itemOrNull(uuid)
         if node.nil? then
             raise "I could not recover newly created node: #{uuid}"
@@ -53,6 +58,7 @@ class NxNodes
             coredatarefs = node["coreDataRefs"]
             taxonomy     = node["taxonomy"]
             notes        = node["notes"]
+            linkeduuids  = node["linkeduuids"]
 
             puts description.green
             puts "- uuid: #{uuid}"
@@ -82,7 +88,7 @@ class NxNodes
                 }
             end
 
-            linkednodes = node["linkeduuids"].map{|id| DarkEnergy::itemOrNull(id) }.compact
+            linkednodes = linkeduuids.map{|id| DarkEnergy::itemOrNull(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"
