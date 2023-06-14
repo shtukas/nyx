@@ -147,7 +147,7 @@ class PositiveSpace
         loop {
             filepath = PositiveSpace::getFirstJournalItemOrNull()
             break if filepath.nil?
-            puts "PositiveSpace::maintenance(): journal process: #{filepath}"
+            puts "PositiveSpace::maintenance(): journal process: #{filepath}".green
             item = JSON.parse(IO.read(filepath))
             if item["mikuType"] == "NxDeleted" then
                 PositiveSpace::database_destroy(item["uuid"])
@@ -306,6 +306,15 @@ class DarkEnergy
 
     # DarkEnergy::mikuTypeCount(mikuType)
     def self.mikuTypeCount(mikuType)
-        DarkEnergy::mikuType(mikuType).size
+        count = 0
+        db = SQLite3::Database.new(PositiveSpace::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("select count(*) as _c_ from energy where mikuType=?", [mikuType]) do |row|
+            count = row["_c_"]
+        end
+        db.close
+        count
     end
 end
