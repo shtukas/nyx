@@ -48,6 +48,7 @@ checkLocation = lambda{|location|
 
 checkLocation.call("#{ENV['HOME']}/Galaxy/Software/Lucille-Ruby-Libraries")
 checkLocation.call("#{ENV['HOME']}/x-space/xcache-v1-days")
+require_relative "#{ENV['HOME']}/Galaxy/DataHub/Kerrigan/DarkSpace.rb"
 
 # ------------------------------------------------------------
 
@@ -126,7 +127,6 @@ require_relative "CommonUtils.rb"
 require_relative "CoreDataRefs.rb"
 
 require_relative "Dx8Units.rb"
-require_relative "DarkSpace.rb"
 
 require_relative "Galaxy.rb"
 
