@@ -13,8 +13,8 @@ class CoreDataRefs
         LucilleCore::selectEntityFromListOfEntitiesOrNull("coredata reference type", types)
     end
 
-    # CoreDataRefs::interactivelyMakeNewReferenceOrNull() # NxCoreDataRef
-    def self.interactivelyMakeNewReferenceOrNull()
+    # CoreDataRefs::interactivelyMakeNewReferenceOrNull(uuid) # NxCoreDataRef
+    def self.interactivelyMakeNewReferenceOrNull(uuid)
         referencetype = CoreDataRefs::interactivelySelectCoreDataReferenceType()
         if referencetype.nil? then
             return {
@@ -56,7 +56,7 @@ class CoreDataRefs
             description = description.size > 0 ? description : nil
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            nhash = AionCore::commitLocationReturnHash(DarkMatterElizabeth.new(), location)
+            nhash = AionCore::commitLocationReturnHash(DarkMatterElizabeth.new(uuid), location)
             return {
                 "uuid"        => SecureRandom.uuid,
                 "mikuType"    => "NxCoreDataRef",
@@ -130,8 +130,8 @@ class CoreDataRefs
         raise "CoreData, I do not know how to string '#{reference}'"
     end
 
-    # CoreDataRefs::access(reference)
-    def self.access(reference)
+    # CoreDataRefs::access(uuid, reference)
+    def self.access(uuid, reference)
         if reference.nil? then
             puts "Accessing null reference string. Nothing to do."
             LucilleCore::pressEnterToContinue()
@@ -164,7 +164,7 @@ class CoreDataRefs
             exportFoldername = "aion-point-#{exportId}"
             exportFolder = "#{Config::userHomeDirectory()}/Desktop/#{exportFoldername}"
             FileUtils.mkdir(exportFolder)
-            AionCore::exportHashAtFolder(DarkMatterElizabeth.new(), nhash, exportFolder)
+            AionCore::exportHashAtFolder(DarkMatterElizabeth.new(uuid), nhash, exportFolder)
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -195,23 +195,23 @@ class CoreDataRefs
         raise "CoreData, I do not know how to access '#{reference}'"
     end
 
-    # CoreDataRefs::program(reference)
-    def self.program(reference)
+    # CoreDataRefs::program(uuid, reference)
+    def self.program(uuid, reference)
         puts "At the moment, program is just access"
         LucilleCore::pressEnterToContinue()
-        CoreDataRefs::access(reference)
+        CoreDataRefs::access(uuid, reference)
     end
 
     # CoreDataRefs::fsckItem(item)
     def self.fsckItem(item)
         item["coreDataRefs"].each{|ref|
-            CoreDataRefs::fsck(ref)
+            CoreDataRefs::fsck(item["uuid"], ref)
         }
     end
 
-    # CoreDataRefs::fsck(reference)
-    def self.fsck(reference)
-        puts "CoreDataRefs::fsck(#{JSON.pretty_generate(reference)})"
+    # CoreDataRefs::fsck(uuid, reference)
+    def self.fsck(uuid, reference)
+        puts "CoreDataRefs::fsck(#{uuid}, #{JSON.pretty_generate(reference)})"
         if reference.nil? then
             return
         end
@@ -226,7 +226,7 @@ class CoreDataRefs
         end
         if reference["type"] == "aion-point" then
             nhash = reference["nhash"]
-            AionFsck::structureCheckAionHashRaiseErrorIfAny(DarkMatterElizabeth.new(), nhash)
+            AionFsck::structureCheckAionHashRaiseErrorIfAny(DarkMatterElizabeth.new(uuid), nhash)
             return
         end
         if reference["type"] == "unique-string" then
