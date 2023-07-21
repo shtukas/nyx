@@ -74,7 +74,7 @@ class NxNodes
                 puts "coredatarefs:"
                 coredatarefs.each{|ref|
                     store.register(ref, false)
-                    puts "#{store.prefixString()}: #{CoreDataRefs::toString(ref)}"
+                    puts "#{store.prefixString()}: #{CoreDataRefsNxCDRs::toString(ref)}"
                 }
             end
 
@@ -120,7 +120,7 @@ class NxNodes
                 end
                 if item["mikuType"] == "NxCoreDataRef" then
                     reference = item
-                    CoreDataRefs::program(node["uuid"], reference)
+                    CoreDataRefsNxCDRs::program(node["uuid"], reference)
                 end
                 next
             end
@@ -144,12 +144,12 @@ class NxNodes
                     next
                 end
                 if coredatarefs.size == 1 then
-                    CoreDataRefs::access(node["uuid"], coredatarefs.first)
+                    CoreDataRefsNxCDRs::access(node["uuid"], coredatarefs.first)
                     next
                 end
-                coredataref = LucilleCore::selectEntityFromListOfEntitiesOrNull("ref", coredatarefs, lambda{|ref| CoreDataRefs::toString(ref) })
+                coredataref = LucilleCore::selectEntityFromListOfEntitiesOrNull("ref", coredatarefs, lambda{|ref| CoreDataRefsNxCDRs::toString(ref) })
                 next if coredataref.nil?
-                CoreDataRefs::access(node["uuid"], coredataref)
+                CoreDataRefsNxCDRs::access(node["uuid"], coredataref)
                 next
             end
 
@@ -180,7 +180,7 @@ class NxNodes
             end
 
             if command == "coredata" then
-                coredataref = CoreDataRefs::interactivelyMakeNewReferenceOrNull(node["uuid"])
+                coredataref = CoreDataRefsNxCDRs::interactivelyMakeNewReferenceOrNull(node["uuid"])
                 next if coredataref.nil?
                 node["coreDataRefs"] = (node["coreDataRefs"] + [coredataref]).uniq
                 DarkEnergy::commit(node)

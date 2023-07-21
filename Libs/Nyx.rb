@@ -39,7 +39,7 @@ class Nyx
             if option == "fsck" then
                 DarkEnergy::mikuType("NxNode").each{|node|
                     node["coreDataRefs"].each{|ref|
-                        CoreDataRefs::fsck(node["uuid"], ref)
+                        CoreDataRefsNxCDRs::fsck(node["uuid"], ref)
                     }
                 }
             end
