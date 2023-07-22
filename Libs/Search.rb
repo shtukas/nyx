@@ -16,7 +16,7 @@ class Search
 
             loop {
                 system('clear')
-                selected = BladesItemised::mikuType('NxNode')
+                selected = BladesGI::mikuType('NxNode')
                             .select{|node| Search::match(node, fragment) }
 
                 if selected.empty? then

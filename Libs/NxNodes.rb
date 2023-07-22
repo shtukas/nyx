@@ -228,7 +228,7 @@ class NxNodes
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort and return null) : ")
             return nil if fragment == ""
             loop {
-                selected = BladesItemised::mikuType('NxNode')
+                selected = BladesGI::mikuType('NxNode')
                             .select{|node| Search::match(node, fragment) }
 
                 if selected.empty? then

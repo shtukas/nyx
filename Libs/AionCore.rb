@@ -1,4 +1,4 @@
-# require "/Users/pascal/Galaxy/Software/Lucille-Ruby-Libraries/AionCore.rb"
+# require "/Users/pascal/Galaxy/DataHub/Lucille-Ruby-Libraries/AionCore.rb"
 =begin
 
 The operator is an object that has meet the following signatures
