@@ -16,7 +16,7 @@ class Search
 
             loop {
                 system('clear')
-                selected = DarkEnergy::mikuType('NxNode')
+                selected = BladesItemised::mikuType('NxNode')
                             .select{|node| Search::match(node, fragment) }
 
                 if selected.empty? then
@@ -24,7 +24,7 @@ class Search
                     LucilleCore::pressEnterToContinue()
                     break
                 else
-                    selected = selected.select{|node| DarkEnergy::itemOrNull(node["uuid"]) } # In case something has changed, we want the ones that have survived
+                    selected = selected.select{|node| BladesGI::itemOrNull(node["uuid"]) } # In case something has changed, we want the ones that have survived
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", selected, lambda{|i| i["description"] })
                     break if node.nil?
                     NxNodes::program(node)

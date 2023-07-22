@@ -46,7 +46,9 @@ There is currently no prevention against the cache becoming arbitrarily big.
 
 =end
 
-XSPACE_XCACHE_V1_FOLDER_PATH = "#{ENV['HOME']}/x-space/xcache-v1-days"
+if !defined?(XSPACE_XCACHE_V1_FOLDER_PATH) then
+    XSPACE_XCACHE_V1_FOLDER_PATH = "#{ENV['HOME']}/x-space/xcache-v1-days"
+end
 
 class XCachePaths1
 

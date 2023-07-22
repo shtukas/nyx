@@ -29,8 +29,13 @@ require 'digest/sha1'
 
 # ----------------------------------------------------------------------
 
-LUCILLE_CORE_ICON_FILENAME     = 'Icon'+["0D"].pack("H*")
-LUCILLE_CORE_DS_STORE_FILENAME = '.DS_Store'
+if !defined?(LUCILLE_CORE_ICON_FILENAME) then
+    LUCILLE_CORE_ICON_FILENAME = 'Icon'+["0D"].pack("H*")
+end
+
+if !defined?(LUCILLE_CORE_DS_STORE_FILENAME) then
+    LUCILLE_CORE_DS_STORE_FILENAME = '.DS_Store'
+end
 
 class LucilleCore
 

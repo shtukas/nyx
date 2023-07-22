@@ -48,8 +48,9 @@ checkLocation = lambda{|location|
 
 checkLocation.call("#{ENV['HOME']}/Galaxy/Software/Lucille-Ruby-Libraries")
 checkLocation.call("#{ENV['HOME']}/x-space/xcache-v1-days")
-require_relative "#{ENV['HOME']}/Galaxy/DataHub/Kerrigan/DarkSpace.rb"
-require_relative "#{ENV['HOME']}/Galaxy/DataHub/Kerrigan/CoreDataRefsNxCDRs.rb"
+
+require_relative "#{ENV['HOME']}/Galaxy/DataHub/Blades/Libraries/Ruby/BladesGI.rb"
+require_relative "#{ENV['HOME']}/Galaxy/Software/Lucille-Ruby-Libraries/CoreDataRefsNxCDRs.rb"
 
 # ------------------------------------------------------------
 

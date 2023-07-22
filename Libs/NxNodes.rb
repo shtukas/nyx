@@ -16,22 +16,22 @@ class NxNodes
         description = LucilleCore::pressEnterToContinue("description (empty to abort): ")
         return nil if description == ""
 
-        DarkEnergy::init("NxNode", uuid)
-        DarkEnergy::patch(uuid, "unixtime", unixtime)
-        DarkEnergy::patch(uuid, "datetime", datetime)
-        DarkEnergy::patch(uuid, "description", description)
+        BladesGI::init("NxNode", uuid)
+        BladesGI::setAttribute2(uuid, "unixtime", unixtime)
+        BladesGI::setAttribute2(uuid, "datetime", datetime)
+        BladesGI::setAttribute2(uuid, "description", description)
 
-        DarkEnergy::patch(uuid, "coreDataRefs", [])
-        DarkEnergy::patch(uuid, "taxonomy", [])
-        DarkEnergy::patch(uuid, "notes", [])
-        DarkEnergy::patch(uuid, "linkeduuids", [])
+        BladesGI::setAttribute2(uuid, "coreDataRefs", [])
+        BladesGI::setAttribute2(uuid, "taxonomy", [])
+        BladesGI::setAttribute2(uuid, "notes", [])
+        BladesGI::setAttribute2(uuid, "linkeduuids", [])
 
-        node = DarkEnergy::itemOrNull(uuid)
+        node = BladesGI::itemOrNull(uuid)
         if node.nil? then
             raise "I could not recover newly created node: #{uuid}"
         end
         NxNodes::program(node)
-        DarkEnergy::itemOrNull(uuid) # in case it was modified during the program dive
+        BladesGI::itemOrNull(uuid) # in case it was modified during the program dive
     end
 
     # ------------------------------------
@@ -87,7 +87,7 @@ class NxNodes
                 }
             end
 
-            linkednodes = linkeduuids.map{|id| DarkEnergy::itemOrNull(id) }.compact
+            linkednodes = linkeduuids.map{|id| BladesGI::itemOrNull(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"
@@ -130,9 +130,9 @@ class NxNodes
             end
 
             if command == "description" then
-                description = CommonUtils::editTextSynchronously(DarkEnergy::read(uuid, "description"))
+                description = CommonUtils::editTextSynchronously(node["description"])
                 next if description == ""
-                DarkEnergy::patch(uuid, "description", description)
+                BladesGI::setAttribute2(uuid, "description", description)
                 next
             end
 
@@ -157,7 +157,7 @@ class NxNodes
                 taxonomy = NxTaxonomies::selectOneTaxonomyOrNull()
                 next if taxonomy.nil?
                 node["taxonomy"] = (node["taxonomy"] + [taxonomy]).uniq
-                DarkEnergy::commit(node)
+                BladesGI::setAttribute2(node["uuid"], "taxonomy", node["taxonomy"])
                 next
             end
 
@@ -165,10 +165,10 @@ class NxNodes
                 node2 = NxNodes::architectNodeOrNull()
                 if node2 then
                     node["linkeduuids"] = (node["linkeduuids"] + [node2["uuid"]]).uniq
-                    DarkEnergy::commit(node)
+                    BladesGI::setAttribute2(node["uuid"], "linkeduuids", node["linkeduuids"])
 
                     node2["linkeduuids"] = (node2["linkeduuids"] + [node["uuid"]]).uniq
-                    DarkEnergy::commit(node2)
+                    BladesGI::setAttribute2(node2["uuid"], "linkeduuids", node2["linkeduuids"])
                 end
                 next
             end
@@ -183,7 +183,7 @@ class NxNodes
                 coredataref = CoreDataRefsNxCDRs::interactivelyMakeNewReferenceOrNull(node["uuid"])
                 next if coredataref.nil?
                 node["coreDataRefs"] = (node["coreDataRefs"] + [coredataref]).uniq
-                DarkEnergy::commit(node)
+                BladesGI::setAttribute2(node["uuid"], "coreDataRefs", node["coreDataRefs"])
             end
 
             if command == "coredata remove" then
@@ -196,7 +196,7 @@ class NxNodes
                 note = NxNotes::interactivelyIssueNewOrNull()
                 next if note.nil?
                 node["notes"] = node["notes"] + [note]
-                DarkEnergy::commit(node)
+                BladesGI::setAttribute2(node["uuid"], "notes", node["notes"])
             end
 
             if command == "note remove" then
@@ -210,7 +210,7 @@ class NxNodes
                 code2 = LucilleCore::askQuestionAnswerAsString("Enter destruction code (#{code1}): ")
                 if code1 == code2 then
                     if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction: ") then
-                        DarkEnergy::destroy(uuid)
+                        BladesGI::destroy(uuid)
                         return
                     end
                 end
@@ -228,7 +228,7 @@ class NxNodes
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort and return null) : ")
             return nil if fragment == ""
             loop {
-                selected = DarkEnergy::mikuType('NxNode')
+                selected = BladesItemised::mikuType('NxNode')
                             .select{|node| Search::match(node, fragment) }
 
                 if selected.empty? then
@@ -239,7 +239,7 @@ class NxNodes
                         return nil
                     end
                 else
-                    selected = selected.select{|node| DarkEnergy::itemOrNull(node["uuid"]) } # In case something has changed, we want the ones that have survived
+                    selected = selected.select{|node| BladesGI::itemOrNull(node["uuid"]) } # In case something has changed, we want the ones that have survived
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", selected, lambda{|i| i["description"] })
                     if node.nil? then
                         if LucilleCore::askQuestionAnswerAsBoolean("search more ? ", false) then
