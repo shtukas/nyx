@@ -3,11 +3,6 @@
 
 class Nyx
 
-    # Nyx::pathToNyx()
-    def self.pathToNyx()
-        "#{Config::pathToGalaxy()}/Nyx"
-    end
-
     # Nyx::main()
     def self.main()
         loop {
