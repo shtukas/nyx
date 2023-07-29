@@ -24,20 +24,20 @@ class Nyx
                 Search::searchAndDive()
             end
             if option == "new node" then
-                node = NxNodes::interactivelyIssueNewOrNull()
+                node = Nx101s::interactivelyIssueNewOrNull()
                 next if node.nil?
-                NxNodes::program(node)
+                Nx101s::program(node)
             end
             if option == "list nodes" then
                 loop {
-                    nodes = BladesGI::mikuType("NxNode").sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
+                    nodes = BladesGI::mikuType("Nx101").sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| node["description"] })
                     break if node.nil?
-                    NxNodes::program(node)
+                    Nx101s::program(node)
                 }
             end
             if option == "fsck" then
-                BladesGI::mikuType("NxNode").each{|node|
+                BladesGI::mikuType("Nx101").each{|node|
                     node["coreDataRefs"].each{|ref|
                         CoreDataRefsNxCDRs::fsck(node["uuid"], ref)
                     }

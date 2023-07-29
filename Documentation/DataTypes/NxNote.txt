@@ -1,5 +1,0 @@
-NxNote
-    "uuid"     : String
-    "mikuType" : "NxNote"
-    "unixtime" : Float
-    "text"     : String

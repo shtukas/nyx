@@ -19,4 +19,4 @@ Conceptually things are also simple:
     - program # the equivalent of the old landing
 
 - Node types are
-    - NxNode
+    - Nx101

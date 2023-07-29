@@ -2,9 +2,9 @@
 # encoding: UTF-8
 class Search
 
-    # Search::match(node, fragment)
-    def self.match(node, fragment)
-        node["description"].downcase.include?(fragment.downcase)
+    # Search::match(item, fragment)
+    def self.match(item, fragment)
+        NyxNodes::toString(item).downcase.include?(fragment.downcase)
     end
 
     # Search::searchAndDive()
@@ -16,19 +16,19 @@ class Search
 
             loop {
                 system('clear')
-                selected = BladesGI::mikuType('NxNode')
-                            .select{|node| Search::match(node, fragment) }
+                selected = NyxNodes::allNetworkItems()
+                            .select{|item| Search::match(item, fragment) }
 
                 if selected.empty? then
                     puts "Could not find a matching element for '#{fragment}'"
                     LucilleCore::pressEnterToContinue()
                     break
-                else
-                    selected = selected.select{|node| BladesGI::itemOrNull(node["uuid"]) } # In case something has changed, we want the ones that have survived
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", selected, lambda{|i| i["description"] })
-                    break if node.nil?
-                    NxNodes::program(node)
                 end
+
+                selected = selected.select{|item| NyxNodes::itemOrNull(item["uuid"]) } # In case something has changed, we want the ones that have survived
+                item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", selected, lambda{|i| i["description"] })
+                break if item.nil?
+                NyxNodes::program(item)
             }
         }
     end

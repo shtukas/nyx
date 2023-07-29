@@ -1,12 +1,63 @@
 
 # encoding: UTF-8
 
-class NxNodes
+class NxNotes
 
     # ------------------------------------
     # Makers
 
-    # NxNodes::interactivelyIssueNewOrNull() # nil or node
+    # NxNotes::interactivelyIssueNewOrNull() # nil or node
+    def self.interactivelyIssueNewOrNull()
+        text = CommonUtils::editTextSynchronously("")
+        {
+            "uuid"     => SecureRandom.uuid,
+            "mikuType" => "NxNote",
+            "unixtime" => Time.new.to_i,
+            "text"     => text
+        }
+    end
+
+    # ------------------------------------
+    # Data
+
+    # NxNotes::toString(note)
+    def self.toString(note)
+        lines = note["text"].strip.lines
+        if lines.empty? then
+            return "(empty note)"
+        end
+        "(note) #{lines.first}"
+    end
+
+    # ------------------------------------
+    # Operations
+
+    # NxNotes::program(note)
+    def self.program(note)
+        loop {
+            system('clear')
+
+            puts "--------------------------------------"
+            puts note["text"]
+            puts "--------------------------------------"
+
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["edit"])
+            return if action.nil?
+            if action == "edit" then
+                puts "edit is actually not yet impemented"
+                LucilleCore::pressEnterToContinue()
+            end
+        }
+        nil
+    end
+end
+
+class Nx101s
+
+    # ------------------------------------
+    # Makers
+
+    # Nx101s::interactivelyIssueNewOrNull() # nil or node
     def self.interactivelyIssueNewOrNull()
 
         uuid = SecureRandom.uuid
@@ -16,7 +67,7 @@ class NxNodes
         description = LucilleCore::pressEnterToContinue("description (empty to abort): ")
         return nil if description == ""
 
-        BladesGI::init("NxNode", uuid)
+        BladesGI::init("Nx101", uuid)
         BladesGI::setAttribute2(uuid, "unixtime", unixtime)
         BladesGI::setAttribute2(uuid, "datetime", datetime)
         BladesGI::setAttribute2(uuid, "description", description)
@@ -30,14 +81,14 @@ class NxNodes
         if node.nil? then
             raise "I could not recover newly created node: #{uuid}"
         end
-        NxNodes::program(node)
+        Nx101s::program(node)
         BladesGI::itemOrNull(uuid) # in case it was modified during the program dive
     end
 
     # ------------------------------------
     # Data
 
-    # NxNodes::toString(node)
+    # Nx101s::toString(node)
     def self.toString(node)
         "(node) #{node["description"]}"
     end
@@ -45,7 +96,7 @@ class NxNodes
     # ------------------------------------
     # Operations
 
-    # NxNodes::program(node) # nil or node (to get the node issue `select`)
+    # Nx101s::program(node) # nil or node (to get the node issue `select`)
     def self.program(node)
         uuid = node["uuid"]
         loop {
@@ -109,8 +160,8 @@ class NxNodes
                 indx = command.to_i
                 item = store.get(indx)
                 next if item.nil?
-                if item["mikuType"] == "NxNode" then
-                    x = NxNodes::program(item)
+                if item["mikuType"] == "Nx101" then
+                    x = Nx101s::program(item)
                     if x then
                         return x # was selected during a dive
                     end
@@ -162,7 +213,7 @@ class NxNodes
             end
 
             if command == "connect" then
-                node2 = NxNodes::architectNodeOrNull()
+                node2 = Nx101s::architectNodeOrNull()
                 if node2 then
                     node["linkeduuids"] = (node["linkeduuids"] + [node2["uuid"]]).uniq
                     BladesGI::setAttribute2(node["uuid"], "linkeduuids", node["linkeduuids"])
@@ -220,7 +271,7 @@ class NxNodes
         nil
     end
 
-    # NxNodes::getNodeOrNullUsingSelectionAndNavigation() nil or node
+    # Nx101s::getNodeOrNullUsingSelectionAndNavigation() nil or node
     def self.getNodeOrNullUsingSelectionAndNavigation()
         puts "get node using selection and navigation".green
         sleep 0.5
@@ -228,7 +279,7 @@ class NxNodes
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort and return null) : ")
             return nil if fragment == ""
             loop {
-                selected = BladesGI::mikuType('NxNode')
+                selected = BladesGI::mikuType('Nx101')
                             .select{|node| Search::match(node, fragment) }
 
                 if selected.empty? then
@@ -248,7 +299,7 @@ class NxNodes
                             return nil
                         end
                     end
-                    node = NxNodes::program(node)
+                    node = Nx101s::program(node)
                     if node then
                         return node # was `select`ed
                     end
@@ -257,19 +308,19 @@ class NxNodes
         }
     end
 
-    # NxNodes::architectNodeOrNull()
+    # Nx101s::architectNodeOrNull()
     def self.architectNodeOrNull()
         loop {
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["search and maybe `select`", "build and return"])
             return nil if option.nil?
             if option == "search and maybe `select`" then
-                node = NxNodes::getNodeOrNullUsingSelectionAndNavigation()
+                node = Nx101s::getNodeOrNullUsingSelectionAndNavigation()
                 if node then
                     return node
                 end
             end
             if option == "build and return" then
-                node = NxNodes::interactivelyIssueNewOrNull()
+                node = Nx101s::interactivelyIssueNewOrNull()
                 if node then
                     return node
                 end

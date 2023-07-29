@@ -1,6 +1,5 @@
-NxNodes are the nodes of the Nyx network.
 
-NxNode
+Nx101
     # common interface
     uuid          : String
     unixtime      : Float
@@ -12,3 +11,9 @@ NxNode
 
     # generic nodes hold an array of NxCoreDataRef
     coreDataRefs  : Array[NxCoreDataRef]
+
+NxNote
+    "uuid"     : String
+    "mikuType" : "NxNote"
+    "unixtime" : Float
+    "text"     : String

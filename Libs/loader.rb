@@ -49,11 +49,12 @@ checkLocation = lambda{|location|
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub/Lucille-Ruby-Libraries")
 checkLocation.call("#{ENV['HOME']}/x-space/xcache-v1-days")
 
-require_relative "#{ENV['HOME']}/Galaxy/DataHub/Lucille-Ruby-Libraries/BladesGI.rb"
-require_relative "#{ENV['HOME']}/Galaxy/DataHub/Lucille-Ruby-Libraries/CoreDataRefsNxCDRs.rb"
+require "#{ENV['HOME']}/Galaxy/DataHub/Lucille-Ruby-Libraries/BladesGI.rb"
+require "#{ENV['HOME']}/Galaxy/DataHub/Lucille-Ruby-Libraries/CoreDataRefsNxCDRs.rb"
 
-require_relative "#{ENV['HOME']}/Galaxy/DataHub/Lucille-Ruby-Libraries/LucilleCore.rb"
+require "#{ENV['HOME']}/Galaxy/DataHub/Lucille-Ruby-Libraries/LucilleCore.rb"
 
+require "#{ENV['HOME']}/Galaxy/DataHub/Lucille-Ruby-Libraries/XCache.rb"
 =begin
     XCache::set(key, value)
     XCache::getOrNull(key)
@@ -65,7 +66,6 @@ require_relative "#{ENV['HOME']}/Galaxy/DataHub/Lucille-Ruby-Libraries/LucilleCo
 
     XCache::filepath(key)
 =end
-require_relative "#{ENV['HOME']}/Galaxy/DataHub/Lucille-Ruby-Libraries/XCache.rb"
 
 # ------------------------------------------------------------
 
@@ -133,10 +133,9 @@ require_relative "Galaxy.rb"
 
 require_relative "ItemStore.rb"
 
-require_relative "NxNodes.rb"
+require_relative "Nx101s.rb"
 require_relative "Nyx.rb"
 require_relative "NxTaxonomies.rb"
-require_relative "NxNotes.rb"
 
 require_relative "ProgrammableBooleans.rb"
 
