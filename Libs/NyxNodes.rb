@@ -1,3 +1,4 @@
+
 class NyxNodes
 
     # NyxNodes::toString(item)
@@ -25,6 +26,16 @@ class NyxNodes
     def self.notes(item)
         if item["mikuType"] == "Nx101" then
             return item["notes"]
+        end
+    end
+
+    # NyxNodes::tags(item)
+    def self.tags(item)
+        if item["mikuType"] == "Nx101" then
+            return []
+        end
+        if item["mikuType"] == "DxFSNode" then
+            return DxFSNodes::tags(item)
         end
     end
 
