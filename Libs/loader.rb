@@ -137,6 +137,7 @@ require_relative "ItemStore.rb"
 require_relative "Nx101s.rb"
 require_relative "Nyx.rb"
 require_relative "NxTaxonomies.rb"
+require_relative "NyxNodes.rb"
 
 require_relative "ProgrammableBooleans.rb"
 
