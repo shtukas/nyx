@@ -34,9 +34,6 @@ class NyxNodes
         if item["mikuType"] == "Nx101" then
             return []
         end
-        if item["mikuType"] == "DxFSNode" then
-            return DxFSNodes::tags(item)
-        end
     end
 
     # NyxNodes::program(item)
