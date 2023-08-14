@@ -125,7 +125,7 @@ class Nx101s
                 puts "coredatarefs:"
                 coredatarefs.each{|ref|
                     store.register(ref, false)
-                    puts "#{store.prefixString()}: #{CoreDataRefsNxCDRs::toString(ref)}"
+                    puts "(#{store.prefixString()}) #{CoreDataRefsNxCDRs::toString(ref)}"
                 }
             end
 
@@ -145,7 +145,7 @@ class Nx101s
                 linkednodes
                     .each{|linkednode|
                         store.register(linkednode, false)
-                        puts "#{store.prefixString()}: (node) #{linkednode["description"]}"
+                        puts "(#{store.prefixString()}) (node) #{linkednode["description"]}"
                     }
             end
 
