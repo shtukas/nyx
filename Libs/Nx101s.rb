@@ -67,7 +67,7 @@ class Nx101s
         description = LucilleCore::pressEnterToContinue("description (empty to abort): ")
         return nil if description == ""
 
-        Cubes::init("Nx101", uuid)
+        Cubes::init(nil, "Nx101", uuid)
         Cubes::setAttribute2(uuid, "unixtime", unixtime)
         Cubes::setAttribute2(uuid, "datetime", datetime)
         Cubes::setAttribute2(uuid, "description", description)
