@@ -136,9 +136,12 @@ require_relative "ItemStore.rb"
 require_relative "Nx101s.rb"
 require_relative "Nyx.rb"
 require_relative "NxTaxonomies.rb"
-require_relative "NyxNodes.rb"
+require_relative "NxAvaldi.rb"
+require_relative "NxNotes.rb"
 
 require_relative "ProgrammableBooleans.rb"
+require_relative "PolyActions.rb"
+require_relative "PolyFunctions.rb"
 
 require_relative "Search.rb"
 

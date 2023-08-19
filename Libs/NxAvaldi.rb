@@ -1,12 +1,12 @@
 
 # encoding: UTF-8
 
-class Nx101s
+class NxAvaldis
 
     # ------------------------------------
     # Makers
 
-    # Nx101s::interactivelyIssueNewOrNull() # nil or node
+    # NxAvaldis::interactivelyIssueNewOrNull() # nil or node
     def self.interactivelyIssueNewOrNull()
 
         uuid = SecureRandom.uuid
@@ -16,48 +16,40 @@ class Nx101s
         description = LucilleCore::pressEnterToContinue("description (empty to abort): ")
         return nil if description == ""
 
-        Cubes::init(nil, "Nx101", uuid)
+        # We create Avaldies on the Desktop and then we move them to the target folder.
+
+        Cubes::init("#{Config::userHomeDirectory()}/Desktop", "NxAvaldi", uuid)
+
         Cubes::setAttribute2(uuid, "unixtime", unixtime)
         Cubes::setAttribute2(uuid, "datetime", datetime)
         Cubes::setAttribute2(uuid, "description", description)
 
-        Cubes::setAttribute2(uuid, "coreDataRefs", [])
-        Cubes::setAttribute2(uuid, "taxonomy", [])
-        Cubes::setAttribute2(uuid, "notes", [])
-        Cubes::setAttribute2(uuid, "linkeduuids", [])
-
-        node = Cubes::itemOrNull(uuid)
-        if node.nil? then
-            raise "I could not recover newly created node: #{uuid}"
-        end
-        Nx101s::program(node)
-        Cubes::itemOrNull(uuid) # in case it was modified during the program dive
+        Cubes::itemOrNull(uuid)
     end
 
     # ------------------------------------
     # Data
 
-    # Nx101s::toString(node)
+    # NxAvaldis::toString(node)
     def self.toString(node)
-        "(101) #{node["description"]}"
+        "(node: avaldi) #{node["description"]}"
     end
 
     # ------------------------------------
     # Operations
 
-    # Nx101s::program(node) # nil or node (to get the node issue `select`)
-    def self.program(node)
-        uuid = node["uuid"]
+    # NxAvaldis::program(item) # nil or item (to get the item issue `select`)
+    def self.program(item)
+        uuid = item["uuid"]
         loop {
 
             system('clear')
 
-            description  = node["description"]
-            datetime     = node["datetime"]
-            coredatarefs = node["coreDataRefs"]
-            taxonomy     = node["taxonomy"]
-            notes        = node["notes"]
-            linkeduuids  = node["linkeduuids"]
+            description  = item["description"]
+            datetime     = item["datetime"]
+            taxonomy     = Cub3sX::getSet2(uuid, "taxonomy")
+            notes        = Cub3sX::getSet2(uuid, "notes")
+            linkeduuids  = Cub3sX::getSet2(uuid, "linkeduuids")
 
             puts description.green
             puts "- uuid: #{uuid}"
@@ -68,15 +60,6 @@ class Nx101s
             end
 
             store = ItemStore.new()
-
-            if coredatarefs.size > 0 then
-                puts ""
-                puts "coredatarefs:"
-                coredatarefs.each{|ref|
-                    store.register(ref, false)
-                    puts "(#{store.prefixString()}) #{PolyFunctions::toString(linkednode)}"
-                }
-            end
 
             if notes.size > 0 then
                 puts ""
@@ -94,12 +77,12 @@ class Nx101s
                 linkednodes
                     .each{|linkednode|
                         store.register(linkednode, false)
-                        puts "(#{store.prefixString()}) (node) #{linkednode["description"]}"
+                        puts "(#{store.prefixString()}) #{PolyFunctions::toString(linkednode)}"
                     }
             end
 
             puts ""
-            puts "commands: description | access | taxonomy | connect | disconnect | coredata | coredata remove | note | note remove | destroy"
+            puts "commands: description | access | taxonomy | connect | disconnect | note | note remove | destroy"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -125,27 +108,20 @@ class Nx101s
             end
 
             if command == "access" then
-                coredatarefs = node["coreDataRefs"]
-                if coredatarefs.empty? then
-                    puts "This node doesn't have any payload"
+                filepath = Cub3sX::uuidToFilepathOrNull(item["uuid"])
+                if filepath.nil? then
+                    puts "Cubes/Cub3sX could not find a filepath for this Avaldi"
                     LucilleCore::pressEnterToContinue()
                     next
                 end
-                if coredatarefs.size == 1 then
-                    CoreDataRefsNxCDRs::access(node["uuid"], coredatarefs.first)
-                    next
-                end
-                coredataref = LucilleCore::selectEntityFromListOfEntitiesOrNull("ref", coredatarefs, lambda{|ref| CoreDataRefsNxCDRs::toString(ref) })
-                next if coredataref.nil?
-                CoreDataRefsNxCDRs::access(node["uuid"], coredataref)
+                system("open '#{File.dirname(filepath)}'")
                 next
             end
 
             if command == "taxonomy" then
                 taxonomy = NxTaxonomies::selectOneTaxonomyOrNull()
                 next if taxonomy.nil?
-                node["taxonomy"] = (node["taxonomy"] + [taxonomy]).uniq
-                Cubes::setAttribute2(node["uuid"], "taxonomy", node["taxonomy"])
+                Cub3sX::addToSet2(item["uuid"], "taxonomy", taxonomy, taxonomy)
                 next
             end
 
@@ -183,8 +159,7 @@ class Nx101s
             if command == "note" then
                 note = NxNotes::interactivelyIssueNewOrNull()
                 next if note.nil?
-                node["notes"] = node["notes"] + [note]
-                Cubes::setAttribute2(node["uuid"], "notes", node["notes"])
+                Cub3sX::addToSet2(item["uuid"], "notes", note["uuid"], note)
             end
 
             if command == "note remove" then

@@ -5,15 +5,7 @@ Nx101
     unixtime      : Float
     datetime      : DateTime Iso 8601 UTC Zulu
     description   : String
+    coreDataRefs  : Array[NxCoreDataRef]
     linkeduuids   : Array[String]
     taxonomy      : Array[NxTaxonomy]
     notes         : Array[NxNote]
-
-    # generic nodes hold an array of NxCoreDataRef
-    coreDataRefs  : Array[NxCoreDataRef]
-
-NxNote
-    "uuid"     : String
-    "mikuType" : "NxNote"
-    "unixtime" : Float
-    "text"     : String

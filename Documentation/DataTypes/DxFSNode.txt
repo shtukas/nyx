@@ -1,7 +1,0 @@
-
-{
-    "uuid"        : String
-    "mikuType"    : "DxFSNode"
-    "description" : String
-    "tags"        : Array[String]
-}

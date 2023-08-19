@@ -8,7 +8,8 @@ class Nyx
         loop {
             system("clear")
             options = [
-                "new node",
+                "new node (101)",
+                "new node (avaldi)",
                 "search",
                 "list nodes",
                 "fsck"
@@ -18,8 +19,13 @@ class Nyx
             if option == "search" then
                 Search::searchAndDive()
             end
-            if option == "new node" then
+            if option == "new node (101)" then
                 node = Nx101s::interactivelyIssueNewOrNull()
+                next if node.nil?
+                Nx101s::program(node)
+            end
+            if option == "new node (avaldi)" then
+                node = NxAvaldis::interactivelyIssueNewOrNull()
                 next if node.nil?
                 Nx101s::program(node)
             end
