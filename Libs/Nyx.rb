@@ -25,14 +25,14 @@ class Nyx
             end
             if option == "list nodes" then
                 loop {
-                    nodes = BladesGI::mikuType("Nx101").sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
+                    nodes = Cubes::mikuType("Nx101").sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| node["description"] })
                     break if node.nil?
                     Nx101s::program(node)
                 }
             end
             if option == "fsck" then
-                BladesGI::mikuType("Nx101").each{|node|
+                Cubes::mikuType("Nx101").each{|node|
                     node["coreDataRefs"].each{|ref|
                         CoreDataRefsNxCDRs::fsck(node["uuid"], ref)
                     }

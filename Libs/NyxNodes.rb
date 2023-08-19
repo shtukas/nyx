@@ -45,11 +45,11 @@ class NyxNodes
 
     # NyxNodes::allNetworkItems()
     def self.allNetworkItems()
-        BladesGI::mikuType('Nx101')
+        Cubes::mikuType('Nx101')
     end
 
     # NyxNodes::itemOrNull(uuid)
     def self.itemOrNull(uuid)
-        BladesGI::itemOrNull(uuid)
+        Cubes::itemOrNull(uuid)
     end
 end

@@ -67,22 +67,22 @@ class Nx101s
         description = LucilleCore::pressEnterToContinue("description (empty to abort): ")
         return nil if description == ""
 
-        BladesGI::init("Nx101", uuid)
-        BladesGI::setAttribute2(uuid, "unixtime", unixtime)
-        BladesGI::setAttribute2(uuid, "datetime", datetime)
-        BladesGI::setAttribute2(uuid, "description", description)
+        Cubes::init("Nx101", uuid)
+        Cubes::setAttribute2(uuid, "unixtime", unixtime)
+        Cubes::setAttribute2(uuid, "datetime", datetime)
+        Cubes::setAttribute2(uuid, "description", description)
 
-        BladesGI::setAttribute2(uuid, "coreDataRefs", [])
-        BladesGI::setAttribute2(uuid, "taxonomy", [])
-        BladesGI::setAttribute2(uuid, "notes", [])
-        BladesGI::setAttribute2(uuid, "linkeduuids", [])
+        Cubes::setAttribute2(uuid, "coreDataRefs", [])
+        Cubes::setAttribute2(uuid, "taxonomy", [])
+        Cubes::setAttribute2(uuid, "notes", [])
+        Cubes::setAttribute2(uuid, "linkeduuids", [])
 
-        node = BladesGI::itemOrNull(uuid)
+        node = Cubes::itemOrNull(uuid)
         if node.nil? then
             raise "I could not recover newly created node: #{uuid}"
         end
         Nx101s::program(node)
-        BladesGI::itemOrNull(uuid) # in case it was modified during the program dive
+        Cubes::itemOrNull(uuid) # in case it was modified during the program dive
     end
 
     # ------------------------------------
@@ -138,7 +138,7 @@ class Nx101s
                 }
             end
 
-            linkednodes = linkeduuids.map{|id| BladesGI::itemOrNull(id) }.compact
+            linkednodes = linkeduuids.map{|id| Cubes::itemOrNull(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"
@@ -183,7 +183,7 @@ class Nx101s
             if command == "description" then
                 description = CommonUtils::editTextSynchronously(node["description"])
                 next if description == ""
-                BladesGI::setAttribute2(uuid, "description", description)
+                Cubes::setAttribute2(uuid, "description", description)
                 next
             end
 
@@ -208,7 +208,7 @@ class Nx101s
                 taxonomy = NxTaxonomies::selectOneTaxonomyOrNull()
                 next if taxonomy.nil?
                 node["taxonomy"] = (node["taxonomy"] + [taxonomy]).uniq
-                BladesGI::setAttribute2(node["uuid"], "taxonomy", node["taxonomy"])
+                Cubes::setAttribute2(node["uuid"], "taxonomy", node["taxonomy"])
                 next
             end
 
@@ -216,10 +216,10 @@ class Nx101s
                 node2 = Nx101s::architectNodeOrNull()
                 if node2 then
                     node["linkeduuids"] = (node["linkeduuids"] + [node2["uuid"]]).uniq
-                    BladesGI::setAttribute2(node["uuid"], "linkeduuids", node["linkeduuids"])
+                    Cubes::setAttribute2(node["uuid"], "linkeduuids", node["linkeduuids"])
 
                     node2["linkeduuids"] = (node2["linkeduuids"] + [node["uuid"]]).uniq
-                    BladesGI::setAttribute2(node2["uuid"], "linkeduuids", node2["linkeduuids"])
+                    Cubes::setAttribute2(node2["uuid"], "linkeduuids", node2["linkeduuids"])
                 end
                 next
             end
@@ -234,7 +234,7 @@ class Nx101s
                 coredataref = CoreDataRefsNxCDRs::interactivelyMakeNewReferenceOrNull(node["uuid"])
                 next if coredataref.nil?
                 node["coreDataRefs"] = (node["coreDataRefs"] + [coredataref]).uniq
-                BladesGI::setAttribute2(node["uuid"], "coreDataRefs", node["coreDataRefs"])
+                Cubes::setAttribute2(node["uuid"], "coreDataRefs", node["coreDataRefs"])
             end
 
             if command == "coredata remove" then
@@ -247,7 +247,7 @@ class Nx101s
                 note = NxNotes::interactivelyIssueNewOrNull()
                 next if note.nil?
                 node["notes"] = node["notes"] + [note]
-                BladesGI::setAttribute2(node["uuid"], "notes", node["notes"])
+                Cubes::setAttribute2(node["uuid"], "notes", node["notes"])
             end
 
             if command == "note remove" then
@@ -261,7 +261,7 @@ class Nx101s
                 code2 = LucilleCore::askQuestionAnswerAsString("Enter destruction code (#{code1}): ")
                 if code1 == code2 then
                     if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction: ") then
-                        BladesGI::destroy(uuid)
+                        Cubes::destroy(uuid)
                         return
                     end
                 end
@@ -279,7 +279,7 @@ class Nx101s
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort and return null) : ")
             return nil if fragment == ""
             loop {
-                selected = BladesGI::mikuType('Nx101')
+                selected = Cubes::mikuType('Nx101')
                             .select{|node| Search::match(node, fragment) }
 
                 if selected.empty? then
@@ -290,7 +290,7 @@ class Nx101s
                         return nil
                     end
                 else
-                    selected = selected.select{|node| BladesGI::itemOrNull(node["uuid"]) } # In case something has changed, we want the ones that have survived
+                    selected = selected.select{|node| Cubes::itemOrNull(node["uuid"]) } # In case something has changed, we want the ones that have survived
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", selected, lambda{|i| i["description"] })
                     if node.nil? then
                         if LucilleCore::askQuestionAnswerAsBoolean("search more ? ", false) then
