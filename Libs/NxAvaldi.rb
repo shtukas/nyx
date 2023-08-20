@@ -54,9 +54,11 @@ class NxAvaldis
             puts description.green
             puts "- uuid: #{uuid}"
             puts "- datetime: #{datetime}"
-            puts "- taxonomy: #{taxonomy.join(", ")}"
+            
             if taxonomy.size == 0 then
                 puts "You do not have a taxonomy, run `taxonomy`"
+            else
+                puts "- taxonomy: #{taxonomy.join(", ")}"
             end
 
             store = ItemStore.new()
