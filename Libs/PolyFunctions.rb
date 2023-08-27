@@ -14,6 +14,9 @@ class PolyFunctions
         if item["mikuType"] == "NxAvaldi" then
             return NxAvaldis::toString(item)
         end
+        if item["mikuType"] == "NxCoreDataRef" then
+            return CoreDataRefsNxCDRs::toString(item)
+        end
         raise "(error: f0b8340c-9ed8-4046-b102-7e461cedef21) unsupported miku type: #{item["mikuType"]}"
     end
 

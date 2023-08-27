@@ -74,7 +74,7 @@ class Nx101s
                 puts "coredatarefs:"
                 coredatarefs.each{|ref|
                     store.register(ref, false)
-                    puts "(#{store.prefixString()}) #{PolyFunctions::toString(linkednode)}"
+                    puts "(#{store.prefixString()}) #{PolyFunctions::toString(ref)}"
                 }
             end
 
@@ -109,6 +109,13 @@ class Nx101s
                 indx = command.to_i
                 item = store.get(indx)
                 next if item.nil?
+
+                if item["mikuType"] == "NxCoreDataRef" then
+                    reference = item
+                    CoreDataRefsNxCDRs::program(node["uuid"], reference)
+                    next
+                end
+
                 PolyActions::program(item)
                 next
             end
