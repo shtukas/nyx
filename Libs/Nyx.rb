@@ -27,7 +27,7 @@ class Nyx
             if option == "new node (avaldi)" then
                 node = NxAvaldis::interactivelyIssueNewOrNull()
                 next if node.nil?
-                Nx101s::program(node)
+                NxAvaldis::program(node)
             end
             if option == "list nodes" then
                 loop {
