@@ -1,10 +1,7 @@
 
-With the redesign we did on June 9th (2023), the Nyx types (and in particular their representation on disk) are simplier.
-
-Conceptually things are also simple:
-
-Nyx is a network of nodes and the link between them. 
-Each node carries the links to its neighbours on the network.
+General Principles:
+    1. Nyx is a network of nodes and the links between them. 
+    2. Each node carries the links to its neighbours on the network.
 
 The common Interface between all nodes is
     - uuid          : String
@@ -12,12 +9,11 @@ The common Interface between all nodes is
     - datetime      : DateTime Iso 8601 UTC Zulu
     - description   : String
     - linkeduuids   : Array[String]
-    - taxonomy      : Array[NxTaxonomy]
     - notes         : Array[NxNote]
     - tags          : Array[String]
-    - toString
-    - program # the equivalent of the old landing
-
+    - toString      : String
+    - program       # the equivalent of the old landing
+    - searchTraces  : Array[NxST1]
 
 - Node types are
     - Nx101 
@@ -27,3 +23,4 @@ The common Interface between all nodes is
     - NxAvaldi
         Cube files that exist on the Galaxy hierarchy, define a node and their 
         contents is the contents of the folder where they reside.
+
