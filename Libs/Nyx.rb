@@ -8,9 +8,9 @@ class Nyx
         loop {
             system("clear")
             options = [
+                "search",
                 "new node (101)",
                 "new node (avaldi)",
-                "search",
                 "list nodes",
                 "fsck"
             ]
