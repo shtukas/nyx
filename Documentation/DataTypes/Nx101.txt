@@ -7,5 +7,4 @@ Nx101
     description   : String
     coreDataRefs  : Array[NxCoreDataRef]
     linkeduuids   : Array[String]
-    taxonomy      : Array[NxTaxonomy]
     notes         : Array[NxNote]

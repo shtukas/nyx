@@ -47,19 +47,12 @@ class NxAvaldis
 
             description  = item["description"]
             datetime     = item["datetime"]
-            taxonomy     = Cub3sX::getSet2(uuid, "taxonomy")
             notes        = Cub3sX::getSet2(uuid, "notes")
             linkeduuids  = Cub3sX::getSet2(uuid, "linkeduuids")
 
             puts description.green
             puts "- uuid: #{uuid}"
             puts "- datetime: #{datetime}"
-            
-            if taxonomy.size == 0 then
-                puts "You do not have a taxonomy, run `taxonomy`"
-            else
-                puts "- taxonomy: #{taxonomy.join(", ")}"
-            end
 
             store = ItemStore.new()
 
@@ -84,7 +77,7 @@ class NxAvaldis
             end
 
             puts ""
-            puts "commands: description | access | taxonomy | connect | disconnect | note | note remove | destroy"
+            puts "commands: description | access | connect | disconnect | note | note remove | destroy"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -117,13 +110,6 @@ class NxAvaldis
                     next
                 end
                 system("open '#{File.dirname(filepath)}'")
-                next
-            end
-
-            if command == "taxonomy" then
-                taxonomy = NxTaxonomies::selectOneTaxonomyOrNull()
-                next if taxonomy.nil?
-                Cub3sX::addToSet2(item["uuid"], "taxonomy", taxonomy, taxonomy)
                 next
             end
 

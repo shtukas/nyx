@@ -9,6 +9,5 @@ NxAvaldi
 
 Sets:
     - linkeduuids -> String
-    - taxonomy    -> NxTaxonomy
     - notes       -> NxNote
     - tags        -> String

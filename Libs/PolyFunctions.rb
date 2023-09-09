@@ -31,17 +31,6 @@ class PolyFunctions
         raise "(error: 4645d069-ff48-4d57-91d6-9cb980d34403) unsupported miku type: #{item["mikuType"]}"
     end
 
-    # PolyFunctions::taxonomy(item)
-    def self.taxonomy(item)
-        if item["mikuType"] == "Nx101" then
-            return item["taxonomy"]
-        end
-        if item["mikuType"] == "NxAvaldi" then
-            return Cub3sX::getSet2(item["uuid"], "taxonomy")
-        end
-        raise "(error: 16a6bfce-49d5-4dc5-af8e-7ec0d2bdd1db) unsupported miku type: #{item["mikuType"]}"
-    end
-
     # PolyFunctions::notes(item)
     def self.notes(item)
         if item["mikuType"] == "Nx101" then

@@ -22,7 +22,6 @@ class Nx101s
         Cubes::setAttribute2(uuid, "description", description)
 
         Cubes::setAttribute2(uuid, "coreDataRefs", [])
-        Cubes::setAttribute2(uuid, "taxonomy", [])
         Cubes::setAttribute2(uuid, "notes", [])
         Cubes::setAttribute2(uuid, "linkeduuids", [])
 
@@ -55,17 +54,12 @@ class Nx101s
             description  = node["description"]
             datetime     = node["datetime"]
             coredatarefs = node["coreDataRefs"]
-            taxonomy     = node["taxonomy"]
             notes        = node["notes"]
             linkeduuids  = node["linkeduuids"]
 
             puts description.green
             puts "- uuid: #{uuid}"
             puts "- datetime: #{datetime}"
-            puts "- taxonomy: #{taxonomy.join(", ")}"
-            if taxonomy.size == 0 then
-                puts "You do not have a taxonomy, run `taxonomy`"
-            end
 
             store = ItemStore.new()
 
@@ -99,7 +93,7 @@ class Nx101s
             end
 
             puts ""
-            puts "commands: description | access | taxonomy | connect | disconnect | coredata | coredata remove | note | note remove | destroy"
+            puts "commands: description | access | connect | disconnect | coredata | coredata remove | note | note remove | destroy"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -145,14 +139,6 @@ class Nx101s
                 coredataref = LucilleCore::selectEntityFromListOfEntitiesOrNull("ref", coredatarefs, lambda{|ref| CoreDataRefsNxCDRs::toString(ref) })
                 next if coredataref.nil?
                 CoreDataRefsNxCDRs::access(node["uuid"], coredataref)
-                next
-            end
-
-            if command == "taxonomy" then
-                taxonomy = NxTaxonomies::selectOneTaxonomyOrNull()
-                next if taxonomy.nil?
-                node["taxonomy"] = (node["taxonomy"] + [taxonomy]).uniq
-                Cubes::setAttribute2(node["uuid"], "taxonomy", node["taxonomy"])
                 next
             end
 
