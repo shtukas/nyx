@@ -31,6 +31,27 @@ class PolyFunctions
         raise "(error: 4645d069-ff48-4d57-91d6-9cb980d34403) unsupported miku type: #{item["mikuType"]}"
     end
 
+    # PolyFunctions::connect1(node, uuid)
+    def self.connect1(node, uuid)
+        if node["mikuType"] == "Nx101" then
+            linkeduuids = (node["linkeduuids"] + [uuid]).uniq
+            Cubes::setAttribute2(node["uuid"], "linkeduuids", linkeduuids)
+            return
+        end
+        if node["mikuType"] == "NxAvaldi" then
+            Cub3sX::addToSet2(node["uuid"], "linkeduuids", uuid, uuid)
+            return
+        end
+    end
+
+    # PolyFunctions::connect2(node)
+    def self.connect2(node)
+        node2 = PolyFunctions::architectNodeOrNull()
+        return if node2.nil?
+        PolyFunctions::connect1(node, node2["uuid"])
+        PolyFunctions::connect1(node2, node["uuid"])
+    end
+
     # PolyFunctions::notes(item)
     def self.notes(item)
         if item["mikuType"] == "Nx101" then
@@ -49,6 +70,16 @@ class PolyFunctions
         end
         if item["mikuType"] == "NxAvaldi" then
             return Cub3sX::getSet2(item["uuid"], "tags")
+        end
+    end
+
+    # PolyFunctions::program(item)
+    def self.program(item)
+        if item["mikuType"] == "Nx101" then
+            return Nx101s::program(item)
+        end
+        if item["mikuType"] == "NxAvaldi" then
+            return NxAvaldis::program(item)
         end
     end
 
@@ -101,7 +132,7 @@ class PolyFunctions
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort and return null) : ")
             return nil if fragment == ""
             loop {
-                selected = Cubes::mikuType('Nx101')
+                selected = PolyFunctions::allNetworkItems()
                             .select{|node| Search::match(node, fragment) }
 
                 if selected.empty? then
@@ -121,7 +152,7 @@ class PolyFunctions
                             return nil
                         end
                     end
-                    node = Nx101s::program(node)
+                    node = PolyFunctions::program(node)
                     if node then
                         return node # was `select`ed
                     end

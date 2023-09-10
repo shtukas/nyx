@@ -46,8 +46,10 @@ class Nx101s
 
     # Nx101s::program(node) # nil or node (to get the node issue `select`)
     def self.program(node)
-        uuid = node["uuid"]
         loop {
+
+            node = Cubes::itemOrNull(node["uuid"])
+            return if node.nil?
 
             system('clear')
 
@@ -58,7 +60,7 @@ class Nx101s
             linkeduuids  = node["linkeduuids"]
 
             puts description.green
-            puts "- uuid: #{uuid}"
+            puts "- uuid: #{node["uuid"]}"
             puts "- datetime: #{datetime}"
 
             store = ItemStore.new()
@@ -93,7 +95,7 @@ class Nx101s
             end
 
             puts ""
-            puts "commands: description | access | connect | disconnect | coredata | coredata remove | note | note remove | destroy"
+            puts "commands: select | description | access | connect | disconnect | coredata | coredata remove | note | note remove | destroy"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -121,7 +123,7 @@ class Nx101s
             if command == "description" then
                 description = CommonUtils::editTextSynchronously(node["description"])
                 next if description == ""
-                Cubes::setAttribute2(uuid, "description", description)
+                Cubes::setAttribute2(node["uuid"], "description", description)
                 next
             end
 
@@ -143,14 +145,7 @@ class Nx101s
             end
 
             if command == "connect" then
-                node2 = PolyFunctions::architectNodeOrNull()
-                if node2 then
-                    node["linkeduuids"] = (node["linkeduuids"] + [node2["uuid"]]).uniq
-                    Cubes::setAttribute2(node["uuid"], "linkeduuids", node["linkeduuids"])
-
-                    node2["linkeduuids"] = (node2["linkeduuids"] + [node["uuid"]]).uniq
-                    Cubes::setAttribute2(node2["uuid"], "linkeduuids", node2["linkeduuids"])
-                end
+                PolyFunctions::connect2(node)
                 next
             end
 
@@ -186,7 +181,7 @@ class Nx101s
             end
 
             if command == "destroy" then
-                PolyActions::destroy(uuid, description)
+                PolyActions::destroy(node["uuid"], description)
             end
         }
 

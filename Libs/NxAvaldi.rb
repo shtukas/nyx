@@ -6,7 +6,7 @@ class NxAvaldis
     # ------------------------------------
     # Makers
 
-    # NxAvaldis::interactivelyIssueNewOrNull() # nil or node
+    # NxAvaldis::interactivelyIssueNewOrNull() # nil or item
     def self.interactivelyIssueNewOrNull()
 
         uuid = SecureRandom.uuid
@@ -30,9 +30,9 @@ class NxAvaldis
     # ------------------------------------
     # Data
 
-    # NxAvaldis::toString(node)
-    def self.toString(node)
-        "(node: avaldi) #{node["description"]}"
+    # NxAvaldis::toString(item)
+    def self.toString(item)
+        "(item: avaldi) #{item["description"]}"
     end
 
     # ------------------------------------
@@ -40,22 +40,23 @@ class NxAvaldis
 
     # NxAvaldis::program(item) # nil or item (to get the item issue `select`)
     def self.program(item)
-        uuid = item["uuid"]
         loop {
+
+            item = Cubes::itemOrNull(item["uuid"])
+            return if item.nil?
 
             system('clear')
 
             description  = item["description"]
             datetime     = item["datetime"]
-            notes        = Cub3sX::getSet2(uuid, "notes")
-            linkeduuids  = Cub3sX::getSet2(uuid, "linkeduuids")
 
             puts description.green
-            puts "- uuid: #{uuid}"
+            puts "- uuid: #{item["uuid"]}"
             puts "- datetime: #{datetime}"
 
             store = ItemStore.new()
 
+            notes = Cub3sX::getSet2(item["uuid"], "notes")
             if notes.size > 0 then
                 puts ""
                 puts "notes:"
@@ -65,7 +66,7 @@ class NxAvaldis
                 }
             end
 
-            linkednodes = linkeduuids.map{|id| Cubes::itemOrNull(id) }.compact
+            linkednodes = Cub3sX::getSet2(item["uuid"], "linkeduuids").map{|id| Cubes::itemOrNull(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"
@@ -77,7 +78,7 @@ class NxAvaldis
             end
 
             puts ""
-            puts "commands: description | access | connect | disconnect | note | note remove | destroy"
+            puts "commands: select | description | access | connect | disconnect | note | note remove | destroy"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -92,13 +93,13 @@ class NxAvaldis
             end
 
             if command == "select" then
-                return node
+                return item
             end
 
             if command == "description" then
-                description = CommonUtils::editTextSynchronously(node["description"])
+                description = CommonUtils::editTextSynchronously(item["description"])
                 next if description == ""
-                Cubes::setAttribute2(uuid, "description", description)
+                Cubes::setAttribute2(item["uuid"], "description", description)
                 next
             end
 
@@ -114,32 +115,12 @@ class NxAvaldis
             end
 
             if command == "connect" then
-                node2 = PolyFunctions::architectNodeOrNull()
-                if node2 then
-                    node["linkeduuids"] = (node["linkeduuids"] + [node2["uuid"]]).uniq
-                    Cubes::setAttribute2(node["uuid"], "linkeduuids", node["linkeduuids"])
-
-                    node2["linkeduuids"] = (node2["linkeduuids"] + [node["uuid"]]).uniq
-                    Cubes::setAttribute2(node2["uuid"], "linkeduuids", node2["linkeduuids"])
-                end
+                PolyFunctions::connect2(item)
                 next
             end
 
             if command == "disconnect" then
-                puts "link remove is not implemented yet"
-                LucilleCore::pressEnterToContinue()
-                next
-            end
-
-            if command == "coredata" then
-                coredataref = CoreDataRefsNxCDRs::interactivelyMakeNewReferenceOrNull(node["uuid"])
-                next if coredataref.nil?
-                node["coreDataRefs"] = (node["coreDataRefs"] + [coredataref]).uniq
-                Cubes::setAttribute2(node["uuid"], "coreDataRefs", node["coreDataRefs"])
-            end
-
-            if command == "coredata remove" then
-                puts "coredata remove is not implemented yet"
+                puts "link remove is not implemented yet for avaldi"
                 LucilleCore::pressEnterToContinue()
                 next
             end
@@ -151,12 +132,12 @@ class NxAvaldis
             end
 
             if command == "note remove" then
-                puts "note remove is not implemented yet"
+                puts "note remove is not implemented yet for avaldi"
                 LucilleCore::pressEnterToContinue()
             end
 
             if command == "destroy" then
-                PolyActions::destroy(uuid, description)
+                PolyActions::destroy(item["uuid"], description)
             end
         }
 
