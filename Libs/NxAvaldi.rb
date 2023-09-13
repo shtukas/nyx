@@ -24,6 +24,9 @@ class NxAvaldis
         Cubes::setAttribute2(uuid, "datetime", datetime)
         Cubes::setAttribute2(uuid, "description", description)
 
+        puts "Move the NyxAvaldi file from the Desktop to its natural location"
+        LucilleCore::pressEnterToContinue()
+
         Cubes::itemOrNull(uuid)
     end
 
