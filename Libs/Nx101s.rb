@@ -160,6 +160,7 @@ class Nx101s
                 next if coredataref.nil?
                 node["coreDataRefs"] = (node["coreDataRefs"] + [coredataref]).uniq
                 Cubes::setAttribute2(node["uuid"], "coreDataRefs", node["coreDataRefs"])
+                next
             end
 
             if command == "coredata remove" then
@@ -173,15 +174,18 @@ class Nx101s
                 next if note.nil?
                 node["notes"] = node["notes"] + [note]
                 Cubes::setAttribute2(node["uuid"], "notes", node["notes"])
+                next
             end
 
             if command == "note remove" then
                 puts "note remove is not implemented yet"
                 LucilleCore::pressEnterToContinue()
+                next
             end
 
             if command == "destroy" then
                 PolyActions::destroy(node["uuid"], description)
+                next
             end
         }
 
