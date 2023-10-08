@@ -23,6 +23,7 @@ class Fsck
             end
 
             if item["type"] == "aion-point" then
+                exit
                 nhash = item["nhash"]
                 AionFsck::structureCheckAionHashRaiseErrorIfAny(C3xElizabeth.new(item["uuid"]), nhash)
                 return
@@ -41,7 +42,6 @@ class Fsck
 
         if item["mikuType"] == "Nx101" then
             item["coreDataRefs"].each{|ref|
-                CoreDataRefsNxCDRs::fsck(item["uuid"], ref)
                 Fsck::fsckItem(ref)
             }
             return

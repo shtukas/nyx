@@ -201,40 +201,4 @@ class CoreDataRefsNxCDRs
         LucilleCore::pressEnterToContinue()
         CoreDataRefsNxCDRs::access(uuid, reference)
     end
-
-    # CoreDataRefsNxCDRs::fsckItem(item)
-    def self.fsckItem(item)
-        item["coreDataRefs"].each{|ref|
-            CoreDataRefsNxCDRs::fsck(item["uuid"], ref)
-        }
-    end
-
-    # CoreDataRefsNxCDRs::fsck(uuid, reference)
-    def self.fsck(uuid, reference)
-        puts "CoreDataRefsNxCDRs::fsck(#{uuid}, #{JSON.pretty_generate(reference)})"
-        if reference.nil? then
-            return
-        end
-        if reference["type"] == "null" then
-            return
-        end
-        if reference["type"] == "text" then
-            return
-        end
-        if reference["type"] == "url" then
-            return
-        end
-        if reference["type"] == "aion-point" then
-            nhash = reference["nhash"]
-            AionFsck::structureCheckAionHashRaiseErrorIfAny(C3xElizabeth.new(uuid), nhash)
-            return
-        end
-        if reference["type"] == "unique-string" then
-            return
-        end
-        if reference["type"] == "fs-beacon" then
-            return
-        end
-        raise "CoreData, I do not know how to fsck '#{reference}'"
-    end
 end

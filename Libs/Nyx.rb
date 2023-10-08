@@ -38,11 +38,7 @@ class Nyx
                 }
             end
             if option == "fsck" then
-                Cubes::mikuType("Nx101").each{|node|
-                    node["coreDataRefs"].each{|ref|
-                        CoreDataRefsNxCDRs::fsck(node["uuid"], ref)
-                    }
-                }
+                Fsck::fsckAll()
             end
         }
     end

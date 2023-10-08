@@ -390,59 +390,9 @@ class Cub3sX
         Datablobs::putBlob(datablob)
     end
 
-    # Cub3sX::getDatablobOrNull1(filepath, nhash)
-    def self.getDatablobOrNull1(filepath, nhash)
-        blob = Datablobs::getBlobOrNull(nhash)
-        return blob if blob
-
-        puts "seeking datablob: #{nhash}".green
-
-        raise "(error: 273139ba-e4ef-4345-a4de-2594ce77c563) filepath: #{filepath}" if !File.exist?(filepath)
-        datablob = nil
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute("select * from entries where operation_type=? and _name1_=? order by operation_unixtime", ["datablob", nhash]) do |row|
-            datablob = row["_data_"]
-        end
-        db.close
-
-        if datablob then
-            nhash_check = "SHA256-#{Digest::SHA256.hexdigest(datablob)}"
-            if nhash_check == nhash then
-                Datablobs::putBlob(datablob)
-                return datablob
-            else
-                puts "[4eb9459c-401f-4a23-8cbb-fc9158c2ccc2] we got a datablob but it wasn't correct (filepath: #{filepath}, nhash: #{nhash})".green
-                return nil # we got a datablob but it wasn't correct
-            end
-        end
-
-        nextuuid = Cub3sX::getAttributeOrNull1(filepath, "next")
-        if nextuuid then
-            datablob = Cub3sX::getDatablobOrNull2(nextuuid, nhash)
-            if datablob then
-                Datablobs::putBlob(datablob)
-                return datablob # 🎉
-            end
-        end
-
-        nil
-    end
-
     # Cub3sX::getDatablobOrNull2(uuid, nhash)
     def self.getDatablobOrNull2(uuid, nhash)
-        blob = Datablobs::getBlobOrNull(nhash)
-        return blob if blob
-        puts "seeking datablob: #{nhash}".green
-
-        filepath = Cub3sX::uuidToFilepathOrNull(uuid)
-        raise "(error: bee6247e-c798-44a9-b72b-62773f75254e) uuid: #{uuid}" if filepath.nil?
-        blob = Cub3sX::getDatablobOrNull1(filepath, nhash)
-
-        Datablobs::putBlob(blob)
-        blob
+        Datablobs::getBlobOrNull(nhash)
     end
 
     # Cub3sX::destroy(uuid)
