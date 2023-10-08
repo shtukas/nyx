@@ -3,7 +3,7 @@ class EventsTimeline
 
     # EventsTimeline::eventsTimelineLocation()
     def self.eventsTimelineLocation()
-        "#{Config::userHomeDirectory()}/Galaxy/DataHub/catalyst/Instance-Data-Directories/#{Config::thisInstanceId()}/events-timeline"
+        "#{Config::userHomeDirectory()}/Galaxy/DataHub/nyx/Instance-Data-Directories/#{Config::thisInstanceId()}/events-timeline"
     end
 
     # EventsTimeline::firstFilepathOrNull()
@@ -38,21 +38,6 @@ class EventsTimeline
 
     # EventsTimeline::digestEvent(event)
     def self.digestEvent(event)
-
-        if event["eventType"] == "DoNotShowUntil2" then
-            targetId = event["payload"]["targetId"]
-            unixtime = event["payload"]["unixtime"]
-
-            filepath = "#{Config::userHomeDirectory()}/Galaxy/DataHub/catalyst/Instance-Data-Directories/#{Config::thisInstanceId()}/databases/DoNotShowUntil.sqlite3"
-            db = SQLite3::Database.new(filepath)
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute "delete from DoNotShowUntil where _id_=?", [targetId]
-            db.execute "insert into DoNotShowUntil (_id_, _unixtime_) values (?, ?)", [targetId, unixtime]
-            db.close
-            return
-        end
 
         if event["eventType"] == "ItemInit" then
             uuid = event["payload"]["uuid"]
@@ -100,20 +85,6 @@ class EventsTimeline
             db.busy_handler { |count| true }
             db.results_as_hash = true
             db.execute "delete from Items where _uuid_=?", [itemuuid]
-            db.close
-            return
-        end
-
-        if event["eventType"] == "BankDeposit" then
-            uuid = event["payload"]["uuid"]
-            date = event["payload"]["date"]
-            value = event["payload"]["value"]
-            filepath = "#{Config::userHomeDirectory()}/Galaxy/DataHub/catalyst/Instance-Data-Directories/#{Config::thisInstanceId()}/databases/Bank.sqlite3"
-            db = SQLite3::Database.new(filepath)
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute "insert into Bank (_recorduuid_, _id_, _date_, _value_) values (?, ?, ?, ?)", [SecureRandom.uuid, uuid, date, value]
             db.close
             return
         end
