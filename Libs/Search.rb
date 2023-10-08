@@ -16,7 +16,7 @@ class Search
 
             loop {
                 system('clear')
-                selected = PolyFunctions::allNetworkItems()
+                selected = ItemsDatabase::all()
                             .select{|item| Search::match(item, fragment) }
 
                 if selected.empty? then

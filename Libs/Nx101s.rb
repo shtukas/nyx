@@ -16,21 +16,21 @@ class Nx101s
         description = LucilleCore::pressEnterToContinue("description (empty to abort): ")
         return nil if description == ""
 
-        PolyActions::init(uuid, "Nx101")
-        PolyActions::setAttribute2(uuid, "unixtime", unixtime)
-        PolyActions::setAttribute2(uuid, "datetime", datetime)
-        PolyActions::setAttribute2(uuid, "description", description)
+        Broadcasts::publishItemInit(uuid, "Nx101")
+        Broadcasts::publishItemAttributeUpdate(uuid, "unixtime", unixtime)
+        Broadcasts::publishItemAttributeUpdate(uuid, "datetime", datetime)
+        Broadcasts::publishItemAttributeUpdate(uuid, "description", description)
 
-        PolyActions::setAttribute2(uuid, "coreDataRefs", [])
-        PolyActions::setAttribute2(uuid, "notes", [])
-        PolyActions::setAttribute2(uuid, "linkeduuids", [])
+        Broadcasts::publishItemAttributeUpdate(uuid, "coreDataRefs", [])
+        Broadcasts::publishItemAttributeUpdate(uuid, "notes", [])
+        Broadcasts::publishItemAttributeUpdate(uuid, "linkeduuids", [])
 
-        node = PolyFunctions::itemOrNull2(uuid)
+        node = ItemsDatabase::itemOrNull2(uuid)
         if node.nil? then
             raise "I could not recover newly created node: #{uuid}"
         end
         Nx101s::program(node)
-        PolyFunctions::itemOrNull2(uuid) # in case it was modified during the program dive
+        ItemsDatabase::itemOrNull2(uuid) # in case it was modified during the program dive
     end
 
     # ------------------------------------
@@ -48,7 +48,7 @@ class Nx101s
     def self.program(node)
         loop {
 
-            node = PolyFunctions::itemOrNull2(node["uuid"])
+            node = ItemsDatabase::itemOrNull2(node["uuid"])
             return if node.nil?
 
             system('clear')
@@ -84,7 +84,7 @@ class Nx101s
                 }
             end
 
-            linkednodes = linkeduuids.map{|id| PolyFunctions::itemOrNull2(id) }.compact
+            linkednodes = linkeduuids.map{|id| ItemsDatabase::itemOrNull2(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"
@@ -124,7 +124,7 @@ class Nx101s
             if command == "description" then
                 description = CommonUtils::editTextSynchronously(node["description"])
                 next if description == ""
-                PolyActions::setAttribute2(node["uuid"], "description", description)
+                Broadcasts::publishItemAttributeUpdate(node["uuid"], "description", description)
                 next
             end
 
@@ -160,7 +160,7 @@ class Nx101s
                 coredataref = CoreDataRefsNxCDRs::interactivelyMakeNewReferenceOrNull(node["uuid"])
                 next if coredataref.nil?
                 node["coreDataRefs"] = (node["coreDataRefs"] + [coredataref]).uniq
-                PolyActions::setAttribute2(node["uuid"], "coreDataRefs", node["coreDataRefs"])
+                Broadcasts::publishItemAttributeUpdate(node["uuid"], "coreDataRefs", node["coreDataRefs"])
                 next
             end
 
@@ -173,8 +173,8 @@ class Nx101s
             if command == "note" then
                 note = NxNotes::interactivelyIssueNewOrNull()
                 next if note.nil?
-                node["notes"] = node["notes"] + [note]
-                PolyActions::setAttribute2(node["uuid"], "notes", node["notes"])
+                node["notes"] = (node["notes"] || []) + [note]
+                Broadcasts::publishItemAttributeUpdate(node["uuid"], "notes", node["notes"])
                 next
             end
 

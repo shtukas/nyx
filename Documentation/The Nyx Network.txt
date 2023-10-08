@@ -1,7 +1,6 @@
 
 General Principles:
-    1. Nyx is a network of nodes and the links between them. 
-    2. Each node carries the links to its neighbours on the network.
+    - Nyx is a network of nodes and the links between them.
 
 The common Interface between all nodes is
     - uuid          : String
@@ -16,11 +15,5 @@ The common Interface between all nodes is
     - searchTraces  : Array[NxST1]
 
 - Node types are
-    - Nx101 
-        The old legacy data carrier, some of them aion-points) that live in 
-        DataHub/Cubes
-
+    - Nx101
     - NxAvaldi
-        Cube files that exist on the Galaxy hierarchy, define a node and their 
-        contents is the contents of the folder where they reside.
-

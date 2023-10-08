@@ -1,0 +1,32 @@
+
+-- Events ----------------------------------------------------------------------
+
+{
+    "uuid"     : string
+    "unixtime" : Float
+    "eventType": "ItemInit"
+    "payload": {
+        "uuid"     : string,
+        "mikuType" : string
+    }
+}
+
+{
+    "uuid"     : string
+    "unixtime" : Float
+    "eventType": "ItemAttributeUpdate"
+    "payload": {
+        "itemuuid" : string,
+        "attname"  : string,
+        "attvalue" : string
+    }
+}
+
+{
+    "uuid": string
+    "unixtime" : Float
+    "eventType": "ItemDestroy2"
+    "payload": {
+        "uuid" : string,
+    }
+}

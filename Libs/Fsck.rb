@@ -56,7 +56,7 @@ class Fsck
 
     # Fsck::fsckAll()
     def self.fsckAll()
-        PolyFunctions::allNetworkItems().each{|item|
+        ItemsDatabase::all().each{|item|
             Fsck::fsckItem(item)
         }
     end

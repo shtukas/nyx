@@ -18,18 +18,18 @@ class NxAvaldis
 
         # We create Avaldies on the Desktop and then we move them to the target folder.
 
-        PolyActions::init(uuid, "NxAvaldi")
+        Broadcasts::publishItemInit(uuid, "NxAvaldi")
 
-        PolyActions::setAttribute2(uuid, "unixtime", unixtime)
-        PolyActions::setAttribute2(uuid, "datetime", datetime)
-        PolyActions::setAttribute2(uuid, "description", description)
+        Broadcasts::publishItemAttributeUpdate(uuid, "unixtime", unixtime)
+        Broadcasts::publishItemAttributeUpdate(uuid, "datetime", datetime)
+        Broadcasts::publishItemAttributeUpdate(uuid, "description", description)
 
         filepath = "#{Config::userHomeDirectory()}/Desktop/nyx-avalni-#{SecureRandom.hex(4)}.cub4x"
         File.open(filepath, "w"){|f| f.write(uuid) }
         puts "Move the NyxAvaldi file from the Desktop to its natural location"
         LucilleCore::pressEnterToContinue()
 
-        PolyFunctions::itemOrNull2(uuid)
+        ItemsDatabase::itemOrNull2(uuid)
     end
 
     # ------------------------------------
@@ -47,7 +47,7 @@ class NxAvaldis
     def self.program(item)
         loop {
 
-            item = PolyFunctions::itemOrNull2(item["uuid"])
+            item = ItemsDatabase::itemOrNull2(item["uuid"])
             return if item.nil?
 
             system('clear')
@@ -73,7 +73,7 @@ class NxAvaldis
                 }
             end
 
-            linkednodes = linkeduuids.map{|id| PolyFunctions::itemOrNull2(id) }.compact
+            linkednodes = linkeduuids.map{|id| ItemsDatabase::itemOrNull2(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"
@@ -106,7 +106,7 @@ class NxAvaldis
             if command == "description" then
                 description = CommonUtils::editTextSynchronously(item["description"])
                 next if description == ""
-                PolyActions::setAttribute2(item["uuid"], "description", description)
+                Broadcasts::publishItemAttributeUpdate(item["uuid"], "description", description)
                 next
             end
 
@@ -138,8 +138,8 @@ class NxAvaldis
             if command == "note" then
                 note = NxNotes::interactivelyIssueNewOrNull()
                 next if note.nil?
-                notes = item["notes"] + [note]
-                PolyActions::setAttribute2(item["uuid"], "notes", notes)
+                notes = (item["notes"] || []) + [note]
+                Broadcasts::publishItemAttributeUpdate(item["uuid"], "notes", notes)
             end
 
             if command == "note remove" then

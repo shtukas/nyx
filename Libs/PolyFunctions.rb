@@ -1,57 +1,9 @@
 
 class PolyFunctions
 
-    # PolyFunctions::allNetworkItems2()
-    def self.allNetworkItems2()
-        items = []
-        filepath = "#{Config::userHomeDirectory()}/Galaxy/DataHub/nyx/databases/Items.sqlite3"
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute("select * from Items", []) do |row|
-            items << JSON.parse(row["_item_"])
-        end
-        db.close
-        items
-    end
-
-    # PolyFunctions::mikuType2(mikuType)
-    def self.mikuType2(mikuType)
-        items = []
-        filepath = "#{Config::userHomeDirectory()}/Galaxy/DataHub/nyx/databases/Items.sqlite3"
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute("select * from Items where _mikuType_=?", [mikuType]) do |row|
-            items << JSON.parse(row["_item_"])
-        end
-        db.close
-        items
-    end
-
-    # PolyFunctions::itemOrNull2(uuid)
-    def self.itemOrNull2(uuid)
-        item = nil
-        filepath = "#{Config::userHomeDirectory()}/Galaxy/DataHub/nyx/databases/Items.sqlite3"
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute("select * from Items where _uuid_=?", [uuid]) do |row|
-            item = JSON.parse(row["_item_"])
-        end
-        db.close
-        item
-    end
-
-    # --------------------------------------------
-
-
     # PolyFunctions::itemOrNull(uuid)
     def self.itemOrNull(uuid)
-        PolyFunctions::itemOrNull2(uuid)
+        ItemsDatabase::itemOrNull2(uuid)
     end
 
     # PolyFunctions::toString(item)
@@ -83,12 +35,12 @@ class PolyFunctions
     def self.connect1(node, uuid)
         if node["mikuType"] == "Nx101" then
             linkeduuids = (node["linkeduuids"] + [uuid]).uniq
-            PolyActions::setAttribute2(node["uuid"], "linkeduuids", linkeduuids)
+            Broadcasts::publishItemAttributeUpdate(node["uuid"], "linkeduuids", linkeduuids)
             return
         end
         if node["mikuType"] == "NxAvaldi" then
             linkeduuids = (node["linkeduuids"] + [uuid]).uniq
-            PolyActions::setAttribute2(node["uuid"], "linkeduuids", linkeduuids)
+            Broadcasts::publishItemAttributeUpdate(node["uuid"], "linkeduuids", linkeduuids)
             return
         end
     end
@@ -130,11 +82,6 @@ class PolyFunctions
         if item["mikuType"] == "NxAvaldi" then
             return NxAvaldis::program(item)
         end
-    end
-
-    # PolyFunctions::allNetworkItems()
-    def self.allNetworkItems()
-        PolyFunctions::mikuType2('Nx101') + PolyFunctions::mikuType2('NxAvaldi')
     end
 
     # PolyFunctions::interactivelyIssueNewOrNull()
@@ -181,7 +128,7 @@ class PolyFunctions
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort and return null) : ")
             return nil if fragment == ""
             loop {
-                selected = PolyFunctions::allNetworkItems()
+                selected = ItemsDatabase::all()
                             .select{|node| Search::match(node, fragment) }
 
                 if selected.empty? then
@@ -192,7 +139,7 @@ class PolyFunctions
                         return nil
                     end
                 else
-                    selected = selected.select{|node| PolyFunctions::itemOrNull2(node["uuid"]) } # In case something has changed, we want the ones that have survived
+                    selected = selected.select{|node| ItemsDatabase::itemOrNull2(node["uuid"]) } # In case something has changed, we want the ones that have survived
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", selected, lambda{|i| i["description"] })
                     if node.nil? then
                         if LucilleCore::askQuestionAnswerAsBoolean("search more ? ", false) then
