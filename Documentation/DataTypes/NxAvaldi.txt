@@ -1,13 +1,9 @@
-NxAvaldis are the first Galaxy-wide objects created (for Nyx) after the introduction of Cubes
-
 NxAvaldi
     "uuid"        : String
     "mikuType"    : "NxAvaldi"
     "unixtime"    : Float
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : String
-
-Sets:
-    - linkeduuids -> String
-    - notes       -> NxNote
-    - tags        -> String
+    "linkeduuids" : String
+    "notes"       : NxNote
+    "tags"        : String

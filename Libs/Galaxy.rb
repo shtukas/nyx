@@ -39,4 +39,19 @@ class Galaxy
         }
         nil
     end
+
+    # Galaxy::cub4xFilepathOrNull(uuid)
+    def self.cub4xFilepathOrNull(uuid)
+        roots = [
+            "#{Config::userHomeDirectory()}/Galaxy"
+        ]
+        Galaxy::locationEnumerator(roots).each{|filepath|
+            if File.basename(filepath)[-6, 6] == ".cub4x" then
+                if IO.read(filepath).strip == uuid then
+                    return filepath
+                end
+            end
+        }
+        nil
+    end
 end

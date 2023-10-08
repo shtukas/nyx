@@ -16,21 +16,21 @@ class Nx101s
         description = LucilleCore::pressEnterToContinue("description (empty to abort): ")
         return nil if description == ""
 
-        Cubes::init(nil, "Nx101", uuid)
-        Cubes::setAttribute2(uuid, "unixtime", unixtime)
-        Cubes::setAttribute2(uuid, "datetime", datetime)
-        Cubes::setAttribute2(uuid, "description", description)
+        PolyActions::init(uuid, "Nx101")
+        PolyActions::setAttribute2(uuid, "unixtime", unixtime)
+        PolyActions::setAttribute2(uuid, "datetime", datetime)
+        PolyActions::setAttribute2(uuid, "description", description)
 
-        Cubes::setAttribute2(uuid, "coreDataRefs", [])
-        Cubes::setAttribute2(uuid, "notes", [])
-        Cubes::setAttribute2(uuid, "linkeduuids", [])
+        PolyActions::setAttribute2(uuid, "coreDataRefs", [])
+        PolyActions::setAttribute2(uuid, "notes", [])
+        PolyActions::setAttribute2(uuid, "linkeduuids", [])
 
-        node = Cubes::itemOrNull(uuid)
+        node = PolyFunctions::itemOrNull2(uuid)
         if node.nil? then
             raise "I could not recover newly created node: #{uuid}"
         end
         Nx101s::program(node)
-        Cubes::itemOrNull(uuid) # in case it was modified during the program dive
+        PolyFunctions::itemOrNull2(uuid) # in case it was modified during the program dive
     end
 
     # ------------------------------------
@@ -48,19 +48,20 @@ class Nx101s
     def self.program(node)
         loop {
 
-            node = Cubes::itemOrNull(node["uuid"])
+            node = PolyFunctions::itemOrNull2(node["uuid"])
             return if node.nil?
 
             system('clear')
 
             description  = node["description"]
             datetime     = node["datetime"]
-            coredatarefs = node["coreDataRefs"]
-            notes        = node["notes"]
-            linkeduuids  = node["linkeduuids"]
+            coredatarefs = node["coreDataRefs"] || []
+            notes        = node["notes"] || []
+            linkeduuids  = node["linkeduuids"] || []
 
             puts description.green
             puts "- uuid: #{node["uuid"]}"
+            puts "- mikuType: #{node["mikuType"]}"
             puts "- datetime: #{datetime}"
 
             store = ItemStore.new()
@@ -83,7 +84,7 @@ class Nx101s
                 }
             end
 
-            linkednodes = linkeduuids.map{|id| Cubes::itemOrNull(id) }.compact
+            linkednodes = linkeduuids.map{|id| PolyFunctions::itemOrNull2(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"
@@ -123,7 +124,7 @@ class Nx101s
             if command == "description" then
                 description = CommonUtils::editTextSynchronously(node["description"])
                 next if description == ""
-                Cubes::setAttribute2(node["uuid"], "description", description)
+                PolyActions::setAttribute2(node["uuid"], "description", description)
                 next
             end
 
@@ -159,7 +160,7 @@ class Nx101s
                 coredataref = CoreDataRefsNxCDRs::interactivelyMakeNewReferenceOrNull(node["uuid"])
                 next if coredataref.nil?
                 node["coreDataRefs"] = (node["coreDataRefs"] + [coredataref]).uniq
-                Cubes::setAttribute2(node["uuid"], "coreDataRefs", node["coreDataRefs"])
+                PolyActions::setAttribute2(node["uuid"], "coreDataRefs", node["coreDataRefs"])
                 next
             end
 
@@ -173,7 +174,7 @@ class Nx101s
                 note = NxNotes::interactivelyIssueNewOrNull()
                 next if note.nil?
                 node["notes"] = node["notes"] + [note]
-                Cubes::setAttribute2(node["uuid"], "notes", node["notes"])
+                PolyActions::setAttribute2(node["uuid"], "notes", node["notes"])
                 next
             end
 

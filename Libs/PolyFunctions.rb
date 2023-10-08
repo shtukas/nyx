@@ -1,9 +1,57 @@
 
 class PolyFunctions
 
+    # PolyFunctions::allNetworkItems2()
+    def self.allNetworkItems2()
+        items = []
+        filepath = "#{Config::userHomeDirectory()}/Galaxy/DataHub/nyx/databases/Items.sqlite3"
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("select * from Items", []) do |row|
+            items << JSON.parse(row["_item_"])
+        end
+        db.close
+        items
+    end
+
+    # PolyFunctions::mikuType2(mikuType)
+    def self.mikuType2(mikuType)
+        items = []
+        filepath = "#{Config::userHomeDirectory()}/Galaxy/DataHub/nyx/databases/Items.sqlite3"
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("select * from Items where _mikuType_=?", [mikuType]) do |row|
+            items << JSON.parse(row["_item_"])
+        end
+        db.close
+        items
+    end
+
+    # PolyFunctions::itemOrNull2(uuid)
+    def self.itemOrNull2(uuid)
+        item = nil
+        filepath = "#{Config::userHomeDirectory()}/Galaxy/DataHub/nyx/databases/Items.sqlite3"
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("select * from Items where _uuid_=?", [uuid]) do |row|
+            item = JSON.parse(row["_item_"])
+        end
+        db.close
+        item
+    end
+
+    # --------------------------------------------
+
+
     # PolyFunctions::itemOrNull(uuid)
     def self.itemOrNull(uuid)
-        Cubes::itemOrNull(uuid)
+        PolyFunctions::itemOrNull2(uuid)
     end
 
     # PolyFunctions::toString(item)
@@ -26,7 +74,7 @@ class PolyFunctions
             return item["linkeduuids"]
         end
         if item["mikuType"] == "NxAvaldi" then
-            return Cub3sX::getSet2(item["uuid"], "linkeduuids")
+            return item["linkeduuids"]
         end
         raise "(error: 4645d069-ff48-4d57-91d6-9cb980d34403) unsupported miku type: #{item["mikuType"]}"
     end
@@ -35,11 +83,12 @@ class PolyFunctions
     def self.connect1(node, uuid)
         if node["mikuType"] == "Nx101" then
             linkeduuids = (node["linkeduuids"] + [uuid]).uniq
-            Cubes::setAttribute2(node["uuid"], "linkeduuids", linkeduuids)
+            PolyActions::setAttribute2(node["uuid"], "linkeduuids", linkeduuids)
             return
         end
         if node["mikuType"] == "NxAvaldi" then
-            Cub3sX::addToSet2(node["uuid"], "linkeduuids", uuid, uuid)
+            linkeduuids = (node["linkeduuids"] + [uuid]).uniq
+            PolyActions::setAttribute2(node["uuid"], "linkeduuids", linkeduuids)
             return
         end
     end
@@ -58,7 +107,7 @@ class PolyFunctions
             return item["notes"]
         end
         if item["mikuType"] == "NxAvaldi" then
-            return Cub3sX::getSet2(item["uuid"], "notes")
+            return item["notes"]
         end
         raise "(error: 137f9265-d3f0-45c2-8cc6-5bfd36481572) unsupported miku type: #{item["mikuType"]}"
     end
@@ -69,7 +118,7 @@ class PolyFunctions
             return []
         end
         if item["mikuType"] == "NxAvaldi" then
-            return Cub3sX::getSet2(item["uuid"], "tags")
+            return item["tags"]
         end
     end
 
@@ -85,7 +134,7 @@ class PolyFunctions
 
     # PolyFunctions::allNetworkItems()
     def self.allNetworkItems()
-        Cubes::mikuType('Nx101') + Cubes::mikuType('NxAvaldi')
+        PolyFunctions::mikuType2('Nx101') + PolyFunctions::mikuType2('NxAvaldi')
     end
 
     # PolyFunctions::interactivelyIssueNewOrNull()
@@ -143,7 +192,7 @@ class PolyFunctions
                         return nil
                     end
                 else
-                    selected = selected.select{|node| Cubes::itemOrNull(node["uuid"]) } # In case something has changed, we want the ones that have survived
+                    selected = selected.select{|node| PolyFunctions::itemOrNull2(node["uuid"]) } # In case something has changed, we want the ones that have survived
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", selected, lambda{|i| i["description"] })
                     if node.nil? then
                         if LucilleCore::askQuestionAnswerAsBoolean("search more ? ", false) then

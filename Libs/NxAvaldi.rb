@@ -18,16 +18,18 @@ class NxAvaldis
 
         # We create Avaldies on the Desktop and then we move them to the target folder.
 
-        Cubes::init("#{Config::userHomeDirectory()}/Desktop", "NxAvaldi", uuid)
+        PolyActions::init(uuid, "NxAvaldi")
 
-        Cubes::setAttribute2(uuid, "unixtime", unixtime)
-        Cubes::setAttribute2(uuid, "datetime", datetime)
-        Cubes::setAttribute2(uuid, "description", description)
+        PolyActions::setAttribute2(uuid, "unixtime", unixtime)
+        PolyActions::setAttribute2(uuid, "datetime", datetime)
+        PolyActions::setAttribute2(uuid, "description", description)
 
+        filepath = "#{Config::userHomeDirectory()}/Desktop/nyx-avalni-#{SecureRandom.hex(4)}.cub4x"
+        File.open(filepath, "w"){|f| f.write(uuid) }
         puts "Move the NyxAvaldi file from the Desktop to its natural location"
         LucilleCore::pressEnterToContinue()
 
-        Cubes::itemOrNull(uuid)
+        PolyFunctions::itemOrNull2(uuid)
     end
 
     # ------------------------------------
@@ -45,21 +47,23 @@ class NxAvaldis
     def self.program(item)
         loop {
 
-            item = Cubes::itemOrNull(item["uuid"])
+            item = PolyFunctions::itemOrNull2(item["uuid"])
             return if item.nil?
 
             system('clear')
 
             description  = item["description"]
             datetime     = item["datetime"]
+            notes        = item["notes"] || []
+            linkeduuids  = item["linkeduuids"] || []
 
             puts description.green
             puts "- uuid: #{item["uuid"]}"
+            puts "- mikuType: #{item["mikuType"]}"
             puts "- datetime: #{datetime}"
 
             store = ItemStore.new()
 
-            notes = Cub3sX::getSet2(item["uuid"], "notes")
             if notes.size > 0 then
                 puts ""
                 puts "notes:"
@@ -69,7 +73,7 @@ class NxAvaldis
                 }
             end
 
-            linkednodes = Cub3sX::getSet2(item["uuid"], "linkeduuids").map{|id| Cubes::itemOrNull(id) }.compact
+            linkednodes = linkeduuids.map{|id| PolyFunctions::itemOrNull2(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"
@@ -102,18 +106,21 @@ class NxAvaldis
             if command == "description" then
                 description = CommonUtils::editTextSynchronously(item["description"])
                 next if description == ""
-                Cubes::setAttribute2(item["uuid"], "description", description)
+                PolyActions::setAttribute2(item["uuid"], "description", description)
                 next
             end
 
             if command == "access" then
-                filepath = Cub3sX::uuidToFilepathOrNull(item["uuid"])
+                # We are looking for a .cub4x files that contains the uuid of the item
+                puts "locating .cub4x file..."
+                filepath = Galaxy::cub4xFilepathOrNull(item["uuid"])
                 if filepath.nil? then
-                    puts "Cubes/Cub3sX could not find a filepath for this Avaldi"
+                    puts "I could not locate the .cub4x file for this Avalni item"
                     LucilleCore::pressEnterToContinue()
                     next
+                else
+                    system("open '#{File.dirname(filepath)}'")
                 end
-                system("open '#{File.dirname(filepath)}'")
                 next
             end
 
@@ -131,7 +138,8 @@ class NxAvaldis
             if command == "note" then
                 note = NxNotes::interactivelyIssueNewOrNull()
                 next if note.nil?
-                Cub3sX::addToSet2(item["uuid"], "notes", note["uuid"], note)
+                notes = item["notes"] + [note]
+                PolyActions::setAttribute2(item["uuid"], "notes", notes)
             end
 
             if command == "note remove" then

@@ -25,7 +25,7 @@ class Fsck
             if item["type"] == "aion-point" then
                 exit
                 nhash = item["nhash"]
-                AionFsck::structureCheckAionHashRaiseErrorIfAny(C3xElizabeth.new(item["uuid"]), nhash)
+                AionFsck::structureCheckAionHashRaiseErrorIfAny(Elizabeth.new(), nhash)
                 return
             end
 

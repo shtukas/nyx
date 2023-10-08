@@ -56,7 +56,7 @@ class CoreDataRefsNxCDRs
             description = description.size > 0 ? description : nil
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            nhash = AionCore::commitLocationReturnHash(C3xElizabeth.new(uuid), location)
+            nhash = AionCore::commitLocationReturnHash(Elizabeth.new(), location)
             return {
                 "uuid"        => SecureRandom.uuid,
                 "mikuType"    => "NxCoreDataRef",
@@ -164,7 +164,7 @@ class CoreDataRefsNxCDRs
             exportFoldername = "aion-point-#{exportId}"
             exportFolder = "#{Config::userHomeDirectory()}/Desktop/#{exportFoldername}"
             FileUtils.mkdir(exportFolder)
-            AionCore::exportHashAtFolder(C3xElizabeth.new(uuid), nhash, exportFolder)
+            AionCore::exportHashAtFolder(Elizabeth.new(), nhash, exportFolder)
             LucilleCore::pressEnterToContinue()
             return
         end
