@@ -116,7 +116,7 @@ class CoreDataRefsNxCDRs
             return "(core data #{reference["uuid"][0, 2]}, text)"
         end
         if reference["type"] == "url" then
-            return "(core data #{reference["uuid"][0, 2]}, text)"
+            return "(core data #{reference["uuid"][0, 2]}, url)"
         end
         if reference["type"] == "aion-point" then
             return "(core data #{reference["uuid"][0, 2]}, aion-point)"
