@@ -34,12 +34,12 @@ class PolyFunctions
     # PolyFunctions::connect1(node, uuid)
     def self.connect1(node, uuid)
         if node["mikuType"] == "Nx101" then
-            linkeduuids = (node["linkeduuids"] + [uuid]).uniq
+            linkeduuids = ((node["linkeduuids"] || []) + [uuid]).uniq
             Broadcasts::publishItemAttributeUpdate(node["uuid"], "linkeduuids", linkeduuids)
             return
         end
         if node["mikuType"] == "NxAvaldi" then
-            linkeduuids = (node["linkeduuids"] + [uuid]).uniq
+            linkeduuids = ((node["linkeduuids"] || []) + [uuid]).uniq
             Broadcasts::publishItemAttributeUpdate(node["uuid"], "linkeduuids", linkeduuids)
             return
         end
