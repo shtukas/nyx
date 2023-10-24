@@ -130,8 +130,11 @@ class NxAvaldis
             end
 
             if command == "disconnect" then
-                puts "link remove is not implemented yet for avaldi"
-                LucilleCore::pressEnterToContinue()
+                linkednodes = linkeduuids.map{|id| ItemsDatabase::itemOrNull2(id) }.compact
+                i2 = LucilleCore::selectEntityFromListOfEntitiesOrNull("connected", linkednodes, lambda { |item| PolyFunctions::toString(item) })
+                next if i2.nil?
+                linkeduuids = linkeduuids - [i2["uuid"]]
+                Broadcasts::publishItemAttributeUpdate(item["uuid"], "linkeduuids", linkeduuids)
                 next
             end
 
