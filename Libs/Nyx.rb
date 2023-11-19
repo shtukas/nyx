@@ -12,6 +12,7 @@ class Nyx
                 "search",
                 "new node: 101",
                 "new node: avaldi",
+                "new node: url",
                 "new node: aion-point",
                 "list nodes",
                 "fsck"
@@ -30,6 +31,11 @@ class Nyx
                 node = NxAvaldi::interactivelyIssueNewOrNull()
                 next if node.nil?
                 NxAvaldi::program(node)
+            end
+            if option == "new node: url" then
+                node = NxUrl1005::interactivelyIssueNewOrNull()
+                next if node.nil?
+                NxUrl1005::program(node)
             end
             if option == "new node: aion-point" then
                 node = NxAionPoints0849::interactivelyIssueNewOrNull()

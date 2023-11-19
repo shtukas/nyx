@@ -20,6 +20,9 @@ class PolyFunctions
         if item["mikuType"] == "NxAionPoints0849" then
             return NxAionPoints0849::toString(item)
         end
+        if item["mikuType"] == "NxUrl1005" then
+            return NxUrl1005::toString(item)
+        end
         raise "(error: f0b8340c-9ed8-4046-b102-7e461cedef21) unsupported miku type: #{item["mikuType"]}"
     end
 
@@ -32,6 +35,9 @@ class PolyFunctions
             return item["linkeduuids"]
         end
         if item["mikuType"] == "NxAionPoints0849" then
+            return item["linkeduuids"]
+        end
+        if item["mikuType"] == "NxUrl1005" then
             return item["linkeduuids"]
         end
         raise "(error: 4645d069-ff48-4d57-91d6-9cb980d34403) unsupported miku type: #{item["mikuType"]}"
@@ -49,7 +55,12 @@ class PolyFunctions
             Broadcasts::publishItemAttributeUpdate(node["uuid"], "linkeduuids", linkeduuids)
             return
         end
-        if item["mikuType"] == "NxAionPoints0849" then
+        if node["mikuType"] == "NxAionPoints0849" then
+            linkeduuids = ((node["linkeduuids"] || []) + [uuid]).uniq
+            Broadcasts::publishItemAttributeUpdate(node["uuid"], "linkeduuids", linkeduuids)
+            return
+        end
+        if node["mikuType"] == "NxUrl1005" then
             linkeduuids = ((node["linkeduuids"] || []) + [uuid]).uniq
             Broadcasts::publishItemAttributeUpdate(node["uuid"], "linkeduuids", linkeduuids)
             return
@@ -75,6 +86,9 @@ class PolyFunctions
         if item["mikuType"] == "NxAionPoints0849" then
             return item["notes"]
         end
+        if item["mikuType"] == "NxUrl1005" then
+            return item["notes"]
+        end
         raise "(error: 137f9265-d3f0-45c2-8cc6-5bfd36481572) unsupported miku type: #{item["mikuType"]}"
     end
 
@@ -89,6 +103,10 @@ class PolyFunctions
         if item["mikuType"] == "NxAionPoints0849" then
             return NxAionPoints0849::program(item)
         end
+        if item["mikuType"] == "NxUrl1005" then
+            return NxUrl1005::program(item)
+        end
+        raise "(error: b7f0ce47-6a82-4bb3-808a-31775128d3b5) unsupported miku type: #{item["mikuType"]}"
     end
 
     # PolyFunctions::interactivelyIssueNewOrNull()
@@ -96,6 +114,7 @@ class PolyFunctions
         options = [
             "new node: 101",
             "new node: avaldi",
+            "new node: url",
             "new node: aion-point",
         ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
@@ -105,6 +124,9 @@ class PolyFunctions
         end
         if option == "new node: avaldi" then
             return NxAvaldi::interactivelyIssueNewOrNull()
+        end
+        if option == "new node: url" then
+            return NxUrl1005::interactivelyIssueNewOrNull()
         end
         if option == "new node: aion-point" then
             return NxAionPoints0849::interactivelyIssueNewOrNull()

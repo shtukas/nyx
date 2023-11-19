@@ -144,6 +144,7 @@ require_relative "Nyx.rb"
 require_relative "NxAvaldi.rb"
 require_relative "NxNote.rb"
 require_relative "NxAionPoints0849.rb"
+require_relative "NxUrl1005.rb"
 
 require_relative "ProgrammableBooleans.rb"
 require_relative "PolyActions.rb"
