@@ -6,4 +6,3 @@ NxAvaldi
     "description" : String
     "linkeduuids" : String
     "notes"       : NxNote
-    "tags"        : String

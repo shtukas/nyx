@@ -1,10 +1,10 @@
 
-class NxNotes
+class NxNote
 
     # ------------------------------------
     # Makers
 
-    # NxNotes::interactivelyIssueNewOrNull() # nil or node
+    # NxNote::interactivelyIssueNewOrNull() # nil or node
     def self.interactivelyIssueNewOrNull()
         text = CommonUtils::editTextSynchronously("")
         {
@@ -18,7 +18,7 @@ class NxNotes
     # ------------------------------------
     # Data
 
-    # NxNotes::toString(note)
+    # NxNote::toString(note)
     def self.toString(note)
         lines = note["text"].strip.lines
         if lines.empty? then
@@ -30,7 +30,7 @@ class NxNotes
     # ------------------------------------
     # Operations
 
-    # NxNotes::program(note)
+    # NxNote::program(note)
     def self.program(note)
         loop {
             system('clear')

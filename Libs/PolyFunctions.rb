@@ -9,13 +9,16 @@ class PolyFunctions
     # PolyFunctions::toString(item)
     def self.toString(item)
         if item["mikuType"] == "Nx101" then
-            return Nx101s::toString(item)
+            return Nx101::toString(item)
         end
         if item["mikuType"] == "NxAvaldi" then
-            return NxAvaldis::toString(item)
+            return NxAvaldi::toString(item)
         end
         if item["mikuType"] == "NxCoreDataRef" then
             return CoreDataRefsNxCDRs::toString(item)
+        end
+        if item["mikuType"] == "NxAionPoints0849" then
+            return NxAionPoints0849::toString(item)
         end
         raise "(error: f0b8340c-9ed8-4046-b102-7e461cedef21) unsupported miku type: #{item["mikuType"]}"
     end
@@ -26,6 +29,9 @@ class PolyFunctions
             return item["linkeduuids"]
         end
         if item["mikuType"] == "NxAvaldi" then
+            return item["linkeduuids"]
+        end
+        if item["mikuType"] == "NxAionPoints0849" then
             return item["linkeduuids"]
         end
         raise "(error: 4645d069-ff48-4d57-91d6-9cb980d34403) unsupported miku type: #{item["mikuType"]}"
@@ -39,6 +45,11 @@ class PolyFunctions
             return
         end
         if node["mikuType"] == "NxAvaldi" then
+            linkeduuids = ((node["linkeduuids"] || []) + [uuid]).uniq
+            Broadcasts::publishItemAttributeUpdate(node["uuid"], "linkeduuids", linkeduuids)
+            return
+        end
+        if item["mikuType"] == "NxAionPoints0849" then
             linkeduuids = ((node["linkeduuids"] || []) + [uuid]).uniq
             Broadcasts::publishItemAttributeUpdate(node["uuid"], "linkeduuids", linkeduuids)
             return
@@ -61,42 +72,42 @@ class PolyFunctions
         if item["mikuType"] == "NxAvaldi" then
             return item["notes"]
         end
+        if item["mikuType"] == "NxAionPoints0849" then
+            return item["notes"]
+        end
         raise "(error: 137f9265-d3f0-45c2-8cc6-5bfd36481572) unsupported miku type: #{item["mikuType"]}"
-    end
-
-    # PolyFunctions::tags(item)
-    def self.tags(item)
-        if item["mikuType"] == "Nx101" then
-            return []
-        end
-        if item["mikuType"] == "NxAvaldi" then
-            return item["tags"]
-        end
     end
 
     # PolyFunctions::program(item)
     def self.program(item)
         if item["mikuType"] == "Nx101" then
-            return Nx101s::program(item)
+            return Nx101::program(item)
         end
         if item["mikuType"] == "NxAvaldi" then
-            return NxAvaldis::program(item)
+            return NxAvaldi::program(item)
+        end
+        if item["mikuType"] == "NxAionPoints0849" then
+            return NxAionPoints0849::program(item)
         end
     end
 
     # PolyFunctions::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
         options = [
-            "node: 101",
-            "node: avaldi",
+            "new node: 101",
+            "new node: avaldi",
+            "new node: aion-point",
         ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
         return if option.nil?
-        if option == "node: 101" then
-            return Nx101s::interactivelyIssueNewOrNull()
+        if option == "new node: 101" then
+            return Nx101::interactivelyIssueNewOrNull()
         end
-        if option == "node: avaldi" then
-            return NxAvaldis::interactivelyIssueNewOrNull()
+        if option == "new node: avaldi" then
+            return NxAvaldi::interactivelyIssueNewOrNull()
+        end
+        if option == "new node: aion-point" then
+            return NxAionPoints0849::interactivelyIssueNewOrNull()
         end
     end
 

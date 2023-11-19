@@ -1,12 +1,12 @@
 
 # encoding: UTF-8
 
-class NxAvaldis
+class NxAvaldi
 
     # ------------------------------------
     # Makers
 
-    # NxAvaldis::interactivelyIssueNewOrNull() # nil or item
+    # NxAvaldi::interactivelyIssueNewOrNull() # nil or item
     def self.interactivelyIssueNewOrNull()
 
         uuid = SecureRandom.uuid
@@ -35,7 +35,7 @@ class NxAvaldis
     # ------------------------------------
     # Data
 
-    # NxAvaldis::toString(item)
+    # NxAvaldi::toString(item)
     def self.toString(item)
         "(item: avaldi) #{item["description"]}"
     end
@@ -43,7 +43,7 @@ class NxAvaldis
     # ------------------------------------
     # Operations
 
-    # NxAvaldis::program(item) # nil or item (to get the item issue `select`)
+    # NxAvaldi::program(item) # nil or item (to get the item issue `select`)
     def self.program(item)
         loop {
 
@@ -69,7 +69,7 @@ class NxAvaldis
                 puts "notes:"
                 notes.each{|note|
                     store.register(note, false)
-                    puts "(#{store.prefixString()}) #{NxNotes::toString(note)}"
+                    puts "(#{store.prefixString()}) #{NxNote::toString(note)}"
                 }
             end
 
@@ -139,7 +139,7 @@ class NxAvaldis
             end
 
             if command == "note" then
-                note = NxNotes::interactivelyIssueNewOrNull()
+                note = NxNote::interactivelyIssueNewOrNull()
                 next if note.nil?
                 notes = (item["notes"] || []) + [note]
                 Broadcasts::publishItemAttributeUpdate(item["uuid"], "notes", notes)

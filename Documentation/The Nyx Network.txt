@@ -9,7 +9,6 @@ The common Interface between all nodes is
     - description   : String
     - linkeduuids   : Array[String]
     - notes         : Array[NxNote]
-    - tags          : Array[String]
     - toString      : String
     - program       # the equivalent of the old landing
     - searchTraces  : Array[NxST1]

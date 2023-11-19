@@ -1,12 +1,12 @@
 
 # encoding: UTF-8
 
-class Nx101s
+class NxAionPoints0849
 
     # ------------------------------------
     # Makers
 
-    # Nx101s::interactivelyIssueNewOrNull() # nil or node
+    # NxAionPoints0849::interactivelyIssueNewOrNull() # nil or node
     def self.interactivelyIssueNewOrNull()
 
         uuid = SecureRandom.uuid
@@ -16,12 +16,16 @@ class Nx101s
         description = LucilleCore::pressEnterToContinue("description (empty to abort): ")
         return nil if description == ""
 
-        Broadcasts::publishItemInit(uuid, "Nx101")
+        location = CommonUtils::interactivelySelectDesktopLocationOrNull()
+        return nil if location.nil?
+        nhash = AionCore::commitLocationReturnHash(Elizabeth.new(), location)
+
+        Broadcasts::publishItemInit(uuid, "NxAionPoints0849")
         Broadcasts::publishItemAttributeUpdate(uuid, "unixtime", unixtime)
         Broadcasts::publishItemAttributeUpdate(uuid, "datetime", datetime)
         Broadcasts::publishItemAttributeUpdate(uuid, "description", description)
 
-        Broadcasts::publishItemAttributeUpdate(uuid, "coreDataRefs", [])
+        Broadcasts::publishItemAttributeUpdate(uuid, "nhash", nhash)
         Broadcasts::publishItemAttributeUpdate(uuid, "notes", [])
         Broadcasts::publishItemAttributeUpdate(uuid, "linkeduuids", [])
 
@@ -29,22 +33,21 @@ class Nx101s
         if node.nil? then
             raise "I could not recover newly created node: #{uuid}"
         end
-        Nx101s::program(node)
         ItemsDatabase::itemOrNull2(uuid) # in case it was modified during the program dive
     end
 
     # ------------------------------------
     # Data
 
-    # Nx101s::toString(node)
+    # NxAionPoints0849::toString(node)
     def self.toString(node)
-        "(101) #{node["description"]}"
+        "(aion-point) #{node["description"]}"
     end
 
     # ------------------------------------
     # Operations
 
-    # Nx101s::program(node) # nil or node (to get the node issue `select`)
+    # NxAionPoints0849::program(node) # nil or node (to get the node issue `select`)
     def self.program(node)
         loop {
 
@@ -55,7 +58,6 @@ class Nx101s
 
             description  = node["description"]
             datetime     = node["datetime"]
-            coredatarefs = node["coreDataRefs"] || []
             notes        = node["notes"] || []
             linkeduuids  = node["linkeduuids"] || []
 
@@ -66,21 +68,12 @@ class Nx101s
 
             store = ItemStore.new()
 
-            if coredatarefs.size > 0 then
-                puts ""
-                puts "coredatarefs:"
-                coredatarefs.each{|ref|
-                    store.register(ref, false)
-                    puts "(#{store.prefixString()}) #{PolyFunctions::toString(ref)}"
-                }
-            end
-
             if notes.size > 0 then
                 puts ""
                 puts "notes:"
                 notes.each{|note|
                     store.register(note, false)
-                    puts "(#{store.prefixString()}) #{NxNotes::toString(note)}"
+                    puts "(#{store.prefixString()}) #{NxNote::toString(note)}"
                 }
             end
 
@@ -96,7 +89,7 @@ class Nx101s
             end
 
             puts ""
-            puts "commands: select | description | access | connect | disconnect | coredata | coredata remove | note | note remove | destroy"
+            puts "commands: select | description | access | update (aion-point) | connect | disconnect | note | note remove | destroy"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -129,19 +122,22 @@ class Nx101s
             end
 
             if command == "access" then
-                coredatarefs = node["coreDataRefs"]
-                if coredatarefs.empty? then
-                    puts "This node doesn't have any payload"
-                    LucilleCore::pressEnterToContinue()
-                    next
-                end
-                if coredatarefs.size == 1 then
-                    CoreDataRefsNxCDRs::access(node["uuid"], coredatarefs.first)
-                    next
-                end
-                coredataref = LucilleCore::selectEntityFromListOfEntitiesOrNull("ref", coredatarefs, lambda{|ref| CoreDataRefsNxCDRs::toString(ref) })
-                next if coredataref.nil?
-                CoreDataRefsNxCDRs::access(node["uuid"], coredataref)
+                nhash = node["nhash"]
+                puts "CoreData, accessing aion point: #{nhash}"
+                exportId = SecureRandom.hex(4)
+                exportFoldername = "aion-point-#{exportId}"
+                exportFolder = "#{Config::userHomeDirectory()}/Desktop/#{exportFoldername}"
+                FileUtils.mkdir(exportFolder)
+                AionCore::exportHashAtFolder(Elizabeth.new(), nhash, exportFolder)
+                LucilleCore::pressEnterToContinue()
+                next
+            end
+
+            if command == "update" then
+                location = CommonUtils::interactivelySelectDesktopLocationOrNull()
+                next nil if location.nil?
+                nhash = AionCore::commitLocationReturnHash(Elizabeth.new(), location)
+                Broadcasts::publishItemAttributeUpdate(node["uuid"], "nhash", nhash)
                 next
             end
 
@@ -156,22 +152,8 @@ class Nx101s
                 next
             end
 
-            if command == "coredata" then
-                coredataref = CoreDataRefsNxCDRs::interactivelyMakeNewReferenceOrNull(node["uuid"])
-                next if coredataref.nil?
-                node["coreDataRefs"] = (node["coreDataRefs"] + [coredataref]).uniq
-                Broadcasts::publishItemAttributeUpdate(node["uuid"], "coreDataRefs", node["coreDataRefs"])
-                next
-            end
-
-            if command == "coredata remove" then
-                puts "coredata remove is not implemented yet"
-                LucilleCore::pressEnterToContinue()
-                next
-            end
-
             if command == "note" then
-                note = NxNotes::interactivelyIssueNewOrNull()
+                note = NxNote::interactivelyIssueNewOrNull()
                 next if note.nil?
                 node["notes"] = (node["notes"] || []) + [note]
                 Broadcasts::publishItemAttributeUpdate(node["uuid"], "notes", node["notes"])
