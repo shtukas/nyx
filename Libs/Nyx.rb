@@ -6,7 +6,6 @@ class Nyx
     # Nyx::main()
     def self.main()
         loop {
-            EventsTimeline::procesLine()
             system("clear")
             options = [
                 "search",
