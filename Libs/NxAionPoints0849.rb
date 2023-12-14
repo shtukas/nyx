@@ -29,11 +29,11 @@ class NxAionPoints0849
         Broadcasts::publishItemAttributeUpdate(uuid, "notes", [])
         Broadcasts::publishItemAttributeUpdate(uuid, "linkeduuids", [])
 
-        node = ItemsDatabase::itemOrNull2(uuid)
+        node = Cubes::itemOrNull(uuid)
         if node.nil? then
             raise "I could not recover newly created node: #{uuid}"
         end
-        ItemsDatabase::itemOrNull2(uuid) # in case it was modified during the program dive
+        Cubes::itemOrNull(uuid) # in case it was modified during the program dive
     end
 
     # ------------------------------------
@@ -51,7 +51,7 @@ class NxAionPoints0849
     def self.program(node)
         loop {
 
-            node = ItemsDatabase::itemOrNull2(node["uuid"])
+            node = Cubes::itemOrNull(node["uuid"])
             return if node.nil?
 
             system('clear')
@@ -77,7 +77,7 @@ class NxAionPoints0849
                 }
             end
 
-            linkednodes = linkeduuids.map{|id| ItemsDatabase::itemOrNull2(id) }.compact
+            linkednodes = linkeduuids.map{|id| Cubes::itemOrNull(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"
@@ -128,7 +128,7 @@ class NxAionPoints0849
                 exportFoldername = "aion-point-#{exportId}"
                 exportFolder = "#{Config::userHomeDirectory()}/Desktop/#{exportFoldername}"
                 FileUtils.mkdir(exportFolder)
-                AionCore::exportHashAtFolder(Elizabeth.new(), nhash, exportFolder)
+                AionCore::exportHashAtFolder(Elizabeth.new(node["uuid"]), nhash, exportFolder)
                 LucilleCore::pressEnterToContinue()
                 next
             end
@@ -136,7 +136,7 @@ class NxAionPoints0849
             if command == "update" then
                 location = CommonUtils::interactivelySelectDesktopLocationOrNull()
                 next nil if location.nil?
-                nhash = AionCore::commitLocationReturnHash(Elizabeth.new(), location)
+                nhash = AionCore::commitLocationReturnHash(Elizabeth.new(node["uuid"]), location)
                 Broadcasts::publishItemAttributeUpdate(node["uuid"], "nhash", nhash)
                 next
             end

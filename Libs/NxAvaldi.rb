@@ -29,7 +29,7 @@ class NxAvaldi
         puts "Move the NyxAvaldi file from the Desktop to its natural location"
         LucilleCore::pressEnterToContinue()
 
-        ItemsDatabase::itemOrNull2(uuid)
+        Cubes::itemOrNull(uuid)
     end
 
     # ------------------------------------
@@ -47,7 +47,7 @@ class NxAvaldi
     def self.program(item)
         loop {
 
-            item = ItemsDatabase::itemOrNull2(item["uuid"])
+            item = Cubes::itemOrNull(item["uuid"])
             return if item.nil?
 
             system('clear')
@@ -73,7 +73,7 @@ class NxAvaldi
                 }
             end
 
-            linkednodes = linkeduuids.map{|id| ItemsDatabase::itemOrNull2(id) }.compact
+            linkednodes = linkeduuids.map{|id| Cubes::itemOrNull(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"
@@ -130,7 +130,7 @@ class NxAvaldi
             end
 
             if command == "disconnect" then
-                linkednodes = linkeduuids.map{|id| ItemsDatabase::itemOrNull2(id) }.compact
+                linkednodes = linkeduuids.map{|id| Cubes::itemOrNull(id) }.compact
                 i2 = LucilleCore::selectEntityFromListOfEntitiesOrNull("connected", linkednodes, lambda { |item| PolyFunctions::toString(item) })
                 next if i2.nil?
                 linkeduuids = linkeduuids - [i2["uuid"]]

@@ -3,7 +3,7 @@ class PolyFunctions
 
     # PolyFunctions::itemOrNull(uuid)
     def self.itemOrNull(uuid)
-        ItemsDatabase::itemOrNull2(uuid)
+        Cubes::itemOrNull(uuid)
     end
 
     # PolyFunctions::toString(item)
@@ -161,7 +161,7 @@ class PolyFunctions
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort and return null) : ")
             return nil if fragment == ""
             loop {
-                selected = ItemsDatabase::all()
+                selected = Cubes::items()
                             .select{|node| Search::match(node, fragment) }
 
                 if selected.empty? then
@@ -172,7 +172,7 @@ class PolyFunctions
                         return nil
                     end
                 else
-                    selected = selected.select{|node| ItemsDatabase::itemOrNull2(node["uuid"]) } # In case something has changed, we want the ones that have survived
+                    selected = selected.select{|node| Cubes::itemOrNull(node["uuid"]) } # In case something has changed, we want the ones that have survived
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", selected, lambda{|i| i["description"] })
                     if node.nil? then
                         if LucilleCore::askQuestionAnswerAsBoolean("search more ? ", false) then

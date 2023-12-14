@@ -65,7 +65,7 @@ class Fsck
 
     # Fsck::fsckAll()
     def self.fsckAll()
-        ItemsDatabase::all().each{|item|
+        Cubes::items().each{|item|
             Fsck::fsckItem(item["uuid"], item)
         }
     end

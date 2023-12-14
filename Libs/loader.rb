@@ -129,12 +129,10 @@ require_relative "CoreDataRefsNxCDRs.rb"
 require_relative "Cubes.rb"
 
 require_relative "Dx8Units.rb"
-require_relative "Datablobs.rb"
 
 require_relative "Galaxy.rb"
 
 require_relative "ItemStore.rb"
-require_relative "ItemsDatabase.rb"
 
 require_relative "Fsck.rb"
 

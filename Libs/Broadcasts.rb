@@ -62,19 +62,19 @@ class Broadcasts
 
     # Broadcasts::publishItemInit(uuid, mikuType)
     def self.publishItemInit(uuid, mikuType)
-        ItemsDatabase::itemInit(uuid, mikuType)
+        Cubes::itemInit(uuid, mikuType)
         Broadcasts::publish(Broadcasts::makeItemInit(uuid, mikuType))
     end
 
     # Broadcasts::publishItemAttributeUpdate(itemuuid, attname, attvalue)
     def self.publishItemAttributeUpdate(itemuuid, attname, attvalue)
-        ItemsDatabase::itemAttributeUpdate(itemuuid, attname, attvalue)
+        Cubes::setAttribute(itemuuid, attname, attvalue)
         Broadcasts::publish(Broadcasts::makeItemAttributeUpdate(itemuuid, attname, attvalue))
     end
 
     # Broadcasts::publishItemDestroy(itemuuid)
     def self.publishItemDestroy(itemuuid)
-        ItemsDatabase::itemDestroy(itemuuid)
+        Cubes::destroy(itemuuid)
         Broadcasts::publish(Broadcasts::makeItemDestroy(itemuuid))
     end
 end

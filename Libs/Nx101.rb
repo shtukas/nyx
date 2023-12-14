@@ -25,11 +25,11 @@ class Nx101
         Broadcasts::publishItemAttributeUpdate(uuid, "notes", [])
         Broadcasts::publishItemAttributeUpdate(uuid, "linkeduuids", [])
 
-        node = ItemsDatabase::itemOrNull2(uuid)
+        node = Cubes::itemOrNull(uuid)
         if node.nil? then
             raise "I could not recover newly created node: #{uuid}"
         end
-        ItemsDatabase::itemOrNull2(uuid) # in case it was modified during the program dive
+        Cubes::itemOrNull(uuid) # in case it was modified during the program dive
     end
 
     # ------------------------------------
@@ -47,7 +47,7 @@ class Nx101
     def self.program(node)
         loop {
 
-            node = ItemsDatabase::itemOrNull2(node["uuid"])
+            node = Cubes::itemOrNull(node["uuid"])
             return if node.nil?
 
             system('clear')
@@ -83,7 +83,7 @@ class Nx101
                 }
             end
 
-            linkednodes = linkeduuids.map{|id| ItemsDatabase::itemOrNull2(id) }.compact
+            linkednodes = linkeduuids.map{|id| Cubes::itemOrNull(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"

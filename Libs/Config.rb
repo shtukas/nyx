@@ -22,11 +22,6 @@ class Config
         JSON.parse(IO.read("#{Config::userHomeDirectory()}/Galaxy/DataHub/catalyst/instanceIds.json"))
     end
 
-    # Config::pathToItemsDatabase()
-    def self.pathToItemsDatabase()
-        "#{Config::userHomeDirectory()}/Galaxy/DataHub/nyx/Instance-Data-Directories/#{Config::thisInstanceId()}/databases/Items.sqlite3"
-    end
-
     # Config::eventsTimeline()
     def self.eventsTimeline()
         "#{Config::userHomeDirectory()}/Galaxy/DataHub/nyx/Instance-Data-Directories/#{Config::thisInstanceId()}/events-timeline"

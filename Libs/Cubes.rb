@@ -165,21 +165,8 @@ class Cubes
     # Cubes::putBlob(uuid, blob)
     def self.putBlob(uuid, blob) # nhash
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        #if bx = Cubes::getBlobOrNull(uuid, nhash) then
-        #    return nhash
-        #send
-        filepath = Cubes::existingFilepathOrNull(uuid)
-        if filepath.nil? then
-            filepath = "/tmp/#{SecureRandom.hex}"
-            puts "> create item file: #{filepath}".yellow
-            db = SQLite3::Database.new(filepath)
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute("create table _cube_ (_recorduuid_ text primary key, _recordTime_ float, _recordType_ string, _name_ text, _value_ blob)", [])
-            db.execute "insert into _cube_ (_recorduuid_, _recordTime_, _recordType_, _name_, _value_) values (?, ?, ?, ?, ?)", [SecureRandom.hex(10), Time.new.to_f, "attribute", "uuid", JSON.generate(uuid)]
-            db.close
-            Cubes::relocate(filepath)
+        if bx = Cubes::getBlobOrNull(uuid, nhash) then
+            return nhash
         end
         filepath = Cubes::existingFilepathOrNull(uuid)
         if filepath.nil? then
@@ -233,19 +220,6 @@ class Elizabeth
     end
 
     def putBlob(datablob) # nhash
-        filepath = Cubes::existingFilepathOrNull(uuid)
-        if filepath.nil? then
-            filepath = "/tmp/#{SecureRandom.hex}"
-            puts "> create item file: #{filepath}".yellow
-            db = SQLite3::Database.new(filepath)
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute("create table _cube_ (_recorduuid_ text primary key, _recordTime_ float, _recordType_ string, _name_ text, _value_ blob)", [])
-            db.execute "insert into _cube_ (_recorduuid_, _recordTime_, _recordType_, _name_, _value_) values (?, ?, ?, ?, ?)", [SecureRandom.hex(10), Time.new.to_f, "attribute", "uuid", JSON.generate(@uuid)]
-            db.close
-            Cubes::relocate(filepath)
-        end
         Cubes::putBlob(@uuid, datablob)
     end
 
