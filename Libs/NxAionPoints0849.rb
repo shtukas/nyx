@@ -18,8 +18,8 @@ class NxAionPoints0849
 
         location = CommonUtils::interactivelySelectDesktopLocationOrNull()
         return nil if location.nil?
-        nhash = AionCore::commitLocationReturnHash(Elizabeth.new(), location)
 
+        nhash = AionCore::commitLocationReturnHash(Elizabeth.new(uuid), location)
         Broadcasts::publishItemInit(uuid, "NxAionPoints0849")
         Broadcasts::publishItemAttributeUpdate(uuid, "unixtime", unixtime)
         Broadcasts::publishItemAttributeUpdate(uuid, "datetime", datetime)
