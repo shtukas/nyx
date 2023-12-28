@@ -6,4 +6,9 @@ require_relative "Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
+Thread.new {
+    sleep 30
+    Cubes::maintenance()
+}
+
 Nyx::main()
