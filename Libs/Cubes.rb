@@ -57,6 +57,71 @@ class Cubes
         filepath2
     end
 
+    # Cubes::merge(filepath1, filepath2)
+    def self.merge(filepath1, filepath2)
+        filepath = "/tmp/#{SecureRandom.hex}"
+        puts "> merging files:".yellow
+        puts "    #{filepath1}".yellow
+        puts "    #{filepath2}".yellow
+
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("create table _cube_ (_recorduuid_ text primary key, _recordTime_ float, _recordType_ string, _name_ text, _value_ blob)", [])
+
+        db1 = SQLite3::Database.new(filepath1)
+        db1.busy_timeout = 117
+        db1.busy_handler { |count| true }
+        db1.results_as_hash = true
+        # We extract the most recent value
+        db1.execute("select * from _cube_", []) do |row|
+            db.execute "insert into _cube_ (_recorduuid_, _recordTime_, _recordType_, _name_, _value_) values (?, ?, ?, ?, ?)", [row["_recorduuid_"], row["_recordTime_"], row["_recordType_"], row["_name_"], row["_value_"]]
+        end
+        db1.close
+
+        db2 = SQLite3::Database.new(filepath2)
+        db2.busy_timeout = 117
+        db2.busy_handler { |count| true }
+        db2.results_as_hash = true
+        # We extract the most recent value
+        db2.execute("select * from _cube_", []) do |row|
+            db.execute("delete from _cube_ where _recorduuid_=?", [row["_recorduuid_"]])
+            db.execute "insert into _cube_ (_recorduuid_, _recordTime_, _recordType_, _name_, _value_) values (?, ?, ?, ?, ?)", [row["_recorduuid_"], row["_recordTime_"], row["_recordType_"], row["_name_"], row["_value_"]]
+        end
+        db2.close
+
+        db.close
+
+        FileUtils.rm(filepath1)
+        FileUtils.rm(filepath2)
+
+        Cubes::relocate(filepath)
+    end
+
+    # Cubes::maintenance()
+    def self.maintenance()
+        filepaths = []
+        Find.find("#{Config::userHomeDirectory()}/Galaxy/DataHub/nyx/Cubes") do |path|
+            next if !path.include?(".nyx-cube")
+            next if File.basename(path).start_with?('.') # avoiding: .syncthing.82aafe48c87c22c703b32e35e614f4d7.catalyst-cube.tmp 
+            filepaths << path
+        end
+        mapping = {}
+        filepaths.each{|filepath|
+            uuid = Cubes::uuidFromFile(filepath)
+            mapping[uuid] = (mapping[uuid] || []) + [filepath]
+        }
+        mapping.each{|uuid, filepaths|
+            next if filepaths.size == 1
+            if filepaths.size == 0 then
+                raise "(error: ab8e-9926a61562b4) this should not happen: uuid: #{uuid}, filepaths: #{filepaths.join(", ")}"
+            end
+            filepath1, filepath2 = filepaths
+            Cubes::merge(filepath1, filepath2)
+        }
+    end
+
     # ----------------------------------------
     # File Management (2)
 
