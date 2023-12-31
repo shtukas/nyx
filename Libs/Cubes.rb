@@ -17,7 +17,6 @@ class Cubes
         db.execute "insert into _cube_ (_recorduuid_, _recordTime_, _recordType_, _name_, _value_) values (?, ?, ?, ?, ?)", [SecureRandom.hex(10), Time.new.to_f, "attribute", "uuid", JSON.generate(uuid)]
         db.execute "insert into _cube_ (_recorduuid_, _recordTime_, _recordType_, _name_, _value_) values (?, ?, ?, ?, ?)", [SecureRandom.hex(10), Time.new.to_f, "attribute", "mikuType", JSON.generate(mikuType)]
         db.close
-        FileUtils.chmod(0755, filepath)
         Cubes::relocate(filepath)
     end
 
@@ -29,8 +28,8 @@ class Cubes
             return filepath
         end
 
-        LucilleCore::locationsAtFolder("#{Config::userHomeDirectory()}/Galaxy/DataHub/nyx/Cubes")
-            .select{|location| location[-14, 14] == ".nyx-cube" }
+        LucilleCore::locationsAtFolder(Config::pathToCubes())
+            .select{|location| location[-9, 9] == ".nyx-cube" }
             .each{|filepath|
                 u1 = Cubes::uuidFromFile(filepath)
                 XCache::set("e0cd5f8b-b33e-4adc-a294-ac7909a8147e:#{u1}", filepath)
@@ -44,14 +43,13 @@ class Cubes
 
     # Cubes::relocate(filepath1)
     def self.relocate(filepath1)
-        folderpath2 = "#{Config::userHomeDirectory()}/Galaxy/DataHub/nyx/Cubes"
+        folderpath2 = Config::pathToCubes()
         filename2 = "#{Digest::SHA1.file(filepath1).hexdigest}.nyx-cube"
         filepath2 = "#{folderpath2}/#{filename2}"
         return filepath1 if (filepath1 == filepath2)
         puts "filepath1: #{filepath1}".yellow
         puts "filepath2: #{filepath2}".yellow
         FileUtils.mv(filepath1, filepath2)
-        FileUtils.chmod(0755, filepath2)
         uuid = Cubes::uuidFromFile(filepath2)
         XCache::set("e0cd5f8b-b33e-4adc-a294-ac7909a8147e:#{uuid}", filepath2)
 
@@ -97,15 +95,13 @@ class Cubes
         FileUtils.rm(filepath1)
         FileUtils.rm(filepath2)
 
-        FileUtils.chmod(0755, filepath)
-
         Cubes::relocate(filepath)
     end
 
     # Cubes::maintenance()
     def self.maintenance()
         filepaths = []
-        Find.find("#{Config::userHomeDirectory()}/Galaxy/DataHub/nyx/Cubes") do |path|
+        Find.find(Config::pathToCubes()) do |path|
             next if !path.include?(".nyx-cube")
             next if File.basename(path).start_with?('.') # avoiding: .syncthing.82aafe48c87c22c703b32e35e614f4d7.catalyst-cube.tmp 
             filepaths << path
@@ -267,7 +263,7 @@ class Cubes
     # Cubes::items()
     def self.items()
         items = []
-        Find.find("#{Config::userHomeDirectory()}/Galaxy/DataHub/nyx/Cubes") do |path|
+        Find.find(Config::pathToCubes()) do |path|
             next if !path.include?(".nyx-cube")
             next if File.basename(path).start_with?('.') # .syncthing.82aafe48c87c22c703b32e35e614f4d7.nyx-cube.tmp 
             items << Cubes::filepathToItem(path)

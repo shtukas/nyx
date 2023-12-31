@@ -553,14 +553,6 @@ class CommonUtils
         "#{folder}/#{locationNameOnDesktop}"
     end
 
-    # CommonUtils::moveFileToBinTimeline(location)
-    def self.moveFileToBinTimeline(location)
-        return if !File.exist?(location)
-        directory = "#{Config::userHomeDirectory()}/x-space/bin-timeline/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
-        FileUtils.mkpath(directory)
-        FileUtils.mv(location, directory)
-    end
-
     # CommonUtils::uniqueStringLocationUsingPartialGalaxySearchOrNull(uniquestring)
     def self.uniqueStringLocationUsingPartialGalaxySearchOrNull(uniquestring)
         roots = [

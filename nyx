@@ -1,5 +1,7 @@
 #!/bin/zsh
 
-cd ~/Galaxy/Software/github.com/shtukas/nyx
+SCRIPT_PATH="$0:a:h"
+echo $SCRIPT_PATH
+cd $SCRIPT_PATH
 export RBENV_VERSION=3.2.0
-ruby command-nyx
+ruby nyx-core

@@ -26,6 +26,7 @@ class Search
                 end
 
                 selected = selected.select{|item| PolyFunctions::itemOrNull(item["uuid"]) } # In case something has changed, we want the ones that have survived
+
                 item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", selected, lambda{|i| i["description"] })
                 break if item.nil?
                 PolyActions::program(item)
