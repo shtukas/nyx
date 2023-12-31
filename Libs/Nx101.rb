@@ -16,14 +16,14 @@ class Nx101
         description = LucilleCore::pressEnterToContinue("description (empty to abort): ")
         return nil if description == ""
 
-        Broadcasts::publishItemInit(uuid, "Nx101")
-        Broadcasts::publishItemAttributeUpdate(uuid, "unixtime", unixtime)
-        Broadcasts::publishItemAttributeUpdate(uuid, "datetime", datetime)
-        Broadcasts::publishItemAttributeUpdate(uuid, "description", description)
+        Cubes::itemInit(uuid, "Nx101")
+        Cubes::setAttribute(uuid, "unixtime", unixtime)
+        Cubes::setAttribute(uuid, "datetime", datetime)
+        Cubes::setAttribute(uuid, "description", description)
 
-        Broadcasts::publishItemAttributeUpdate(uuid, "coreDataRefs", [])
-        Broadcasts::publishItemAttributeUpdate(uuid, "notes", [])
-        Broadcasts::publishItemAttributeUpdate(uuid, "linkeduuids", [])
+        Cubes::setAttribute(uuid, "coreDataRefs", [])
+        Cubes::setAttribute(uuid, "notes", [])
+        Cubes::setAttribute(uuid, "linkeduuids", [])
 
         node = Cubes::itemOrNull(uuid)
         if node.nil? then
@@ -123,7 +123,7 @@ class Nx101
             if command == "description" then
                 description = CommonUtils::editTextSynchronously(node["description"])
                 next if description == ""
-                Broadcasts::publishItemAttributeUpdate(node["uuid"], "description", description)
+                Cubes::setAttribute(node["uuid"], "description", description)
                 next
             end
 
@@ -159,7 +159,7 @@ class Nx101
                 coredataref = CoreDataRefsNxCDRs::interactivelyMakeNewReferenceOrNull(node["uuid"])
                 next if coredataref.nil?
                 node["coreDataRefs"] = (node["coreDataRefs"] + [coredataref]).uniq
-                Broadcasts::publishItemAttributeUpdate(node["uuid"], "coreDataRefs", node["coreDataRefs"])
+                Cubes::setAttribute(node["uuid"], "coreDataRefs", node["coreDataRefs"])
                 next
             end
 
@@ -173,7 +173,7 @@ class Nx101
                 note = NxNote::interactivelyIssueNewOrNull()
                 next if note.nil?
                 node["notes"] = (node["notes"] || []) + [note]
-                Broadcasts::publishItemAttributeUpdate(node["uuid"], "notes", node["notes"])
+                Cubes::setAttribute(node["uuid"], "notes", node["notes"])
                 next
             end
 

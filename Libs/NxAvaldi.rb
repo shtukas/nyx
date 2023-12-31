@@ -18,11 +18,11 @@ class NxAvaldi
 
         # We create Avaldies on the Desktop and then we move them to the target folder.
 
-        Broadcasts::publishItemInit(uuid, "NxAvaldi")
+        Cubes::itemInit(uuid, "NxAvaldi")
 
-        Broadcasts::publishItemAttributeUpdate(uuid, "unixtime", unixtime)
-        Broadcasts::publishItemAttributeUpdate(uuid, "datetime", datetime)
-        Broadcasts::publishItemAttributeUpdate(uuid, "description", description)
+        Cubes::setAttribute(uuid, "unixtime", unixtime)
+        Cubes::setAttribute(uuid, "datetime", datetime)
+        Cubes::setAttribute(uuid, "description", description)
 
         filepath = "#{Config::userHomeDirectory()}/Desktop/nyx-avalni-#{SecureRandom.hex(4)}.cub4x"
         File.open(filepath, "w"){|f| f.write(uuid) }
@@ -106,7 +106,7 @@ class NxAvaldi
             if command == "description" then
                 description = CommonUtils::editTextSynchronously(item["description"])
                 next if description == ""
-                Broadcasts::publishItemAttributeUpdate(item["uuid"], "description", description)
+                Cubes::setAttribute(item["uuid"], "description", description)
                 next
             end
 
@@ -134,7 +134,7 @@ class NxAvaldi
                 i2 = LucilleCore::selectEntityFromListOfEntitiesOrNull("connected", linkednodes, lambda { |item| PolyFunctions::toString(item) })
                 next if i2.nil?
                 linkeduuids = linkeduuids - [i2["uuid"]]
-                Broadcasts::publishItemAttributeUpdate(item["uuid"], "linkeduuids", linkeduuids)
+                Cubes::setAttribute(item["uuid"], "linkeduuids", linkeduuids)
                 next
             end
 
@@ -142,7 +142,7 @@ class NxAvaldi
                 note = NxNote::interactivelyIssueNewOrNull()
                 next if note.nil?
                 notes = (item["notes"] || []) + [note]
-                Broadcasts::publishItemAttributeUpdate(item["uuid"], "notes", notes)
+                Cubes::setAttribute(item["uuid"], "notes", notes)
             end
 
             if command == "note remove" then

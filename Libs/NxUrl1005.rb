@@ -19,14 +19,14 @@ class NxUrl1005
         url = LucilleCore::askQuestionAnswerAsString("url: ")
         return nil if url == ""
 
-        Broadcasts::publishItemInit(uuid, "NxUrl1005")
-        Broadcasts::publishItemAttributeUpdate(uuid, "unixtime", unixtime)
-        Broadcasts::publishItemAttributeUpdate(uuid, "datetime", datetime)
-        Broadcasts::publishItemAttributeUpdate(uuid, "description", description)
+        Cubes::itemInit(uuid, "NxUrl1005")
+        Cubes::setAttribute(uuid, "unixtime", unixtime)
+        Cubes::setAttribute(uuid, "datetime", datetime)
+        Cubes::setAttribute(uuid, "description", description)
 
-        Broadcasts::publishItemAttributeUpdate(uuid, "url", url)
-        Broadcasts::publishItemAttributeUpdate(uuid, "notes", [])
-        Broadcasts::publishItemAttributeUpdate(uuid, "linkeduuids", [])
+        Cubes::setAttribute(uuid, "url", url)
+        Cubes::setAttribute(uuid, "notes", [])
+        Cubes::setAttribute(uuid, "linkeduuids", [])
 
         node = Cubes::itemOrNull(uuid)
         if node.nil? then
@@ -116,7 +116,7 @@ class NxUrl1005
             if command == "description" then
                 description = CommonUtils::editTextSynchronously(node["description"])
                 next if description == ""
-                Broadcasts::publishItemAttributeUpdate(node["uuid"], "description", description)
+                Cubes::setAttribute(node["uuid"], "description", description)
                 next
             end
 
@@ -131,7 +131,7 @@ class NxUrl1005
             if command == "update" then
                 url = LucilleCore::askQuestionAnswerAsString("url: ")
                 next if url == ""
-                Broadcasts::publishItemAttributeUpdate(node["uuid"], "url", url)
+                Cubes::setAttribute(node["uuid"], "url", url)
                 next
             end
 
@@ -150,7 +150,7 @@ class NxUrl1005
                 note = NxNote::interactivelyIssueNewOrNull()
                 next if note.nil?
                 node["notes"] = (node["notes"] || []) + [note]
-                Broadcasts::publishItemAttributeUpdate(node["uuid"], "notes", node["notes"])
+                Cubes::setAttribute(node["uuid"], "notes", node["notes"])
                 next
             end
 

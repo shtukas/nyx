@@ -47,22 +47,22 @@ class PolyFunctions
     def self.connect1(node, uuid)
         if node["mikuType"] == "Nx101" then
             linkeduuids = ((node["linkeduuids"] || []) + [uuid]).uniq
-            Broadcasts::publishItemAttributeUpdate(node["uuid"], "linkeduuids", linkeduuids)
+            Cubes::setAttribute(node["uuid"], "linkeduuids", linkeduuids)
             return
         end
         if node["mikuType"] == "NxAvaldi" then
             linkeduuids = ((node["linkeduuids"] || []) + [uuid]).uniq
-            Broadcasts::publishItemAttributeUpdate(node["uuid"], "linkeduuids", linkeduuids)
+            Cubes::setAttribute(node["uuid"], "linkeduuids", linkeduuids)
             return
         end
         if node["mikuType"] == "NxAionPoints0849" then
             linkeduuids = ((node["linkeduuids"] || []) + [uuid]).uniq
-            Broadcasts::publishItemAttributeUpdate(node["uuid"], "linkeduuids", linkeduuids)
+            Cubes::setAttribute(node["uuid"], "linkeduuids", linkeduuids)
             return
         end
         if node["mikuType"] == "NxUrl1005" then
             linkeduuids = ((node["linkeduuids"] || []) + [uuid]).uniq
-            Broadcasts::publishItemAttributeUpdate(node["uuid"], "linkeduuids", linkeduuids)
+            Cubes::setAttribute(node["uuid"], "linkeduuids", linkeduuids)
             return
         end
     end

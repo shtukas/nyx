@@ -43,7 +43,7 @@ class PolyActions
         code2 = LucilleCore::askQuestionAnswerAsString("Enter destruction code (#{code1}): ")
         if code1 == code2 then
             if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction: ") then
-                Broadcasts::publishItemDestroy(uuid)
+                Cubes::destroy(uuid)
                 return
             end
         end

@@ -20,14 +20,14 @@ class NxAionPoints0849
         return nil if location.nil?
 
         nhash = AionCore::commitLocationReturnHash(Elizabeth.new(uuid), location)
-        Broadcasts::publishItemInit(uuid, "NxAionPoints0849")
-        Broadcasts::publishItemAttributeUpdate(uuid, "unixtime", unixtime)
-        Broadcasts::publishItemAttributeUpdate(uuid, "datetime", datetime)
-        Broadcasts::publishItemAttributeUpdate(uuid, "description", description)
+        Cubes::itemInit(uuid, "NxAionPoints0849")
+        Cubes::setAttribute(uuid, "unixtime", unixtime)
+        Cubes::setAttribute(uuid, "datetime", datetime)
+        Cubes::setAttribute(uuid, "description", description)
 
-        Broadcasts::publishItemAttributeUpdate(uuid, "nhash", nhash)
-        Broadcasts::publishItemAttributeUpdate(uuid, "notes", [])
-        Broadcasts::publishItemAttributeUpdate(uuid, "linkeduuids", [])
+        Cubes::setAttribute(uuid, "nhash", nhash)
+        Cubes::setAttribute(uuid, "notes", [])
+        Cubes::setAttribute(uuid, "linkeduuids", [])
 
         node = Cubes::itemOrNull(uuid)
         if node.nil? then
@@ -117,7 +117,7 @@ class NxAionPoints0849
             if command == "description" then
                 description = CommonUtils::editTextSynchronously(node["description"])
                 next if description == ""
-                Broadcasts::publishItemAttributeUpdate(node["uuid"], "description", description)
+                Cubes::setAttribute(node["uuid"], "description", description)
                 next
             end
 
@@ -137,7 +137,7 @@ class NxAionPoints0849
                 location = CommonUtils::interactivelySelectDesktopLocationOrNull()
                 next nil if location.nil?
                 nhash = AionCore::commitLocationReturnHash(Elizabeth.new(node["uuid"]), location)
-                Broadcasts::publishItemAttributeUpdate(node["uuid"], "nhash", nhash)
+                Cubes::setAttribute(node["uuid"], "nhash", nhash)
                 next
             end
 
@@ -156,7 +156,7 @@ class NxAionPoints0849
                 note = NxNote::interactivelyIssueNewOrNull()
                 next if note.nil?
                 node["notes"] = (node["notes"] || []) + [note]
-                Broadcasts::publishItemAttributeUpdate(node["uuid"], "notes", node["notes"])
+                Cubes::setAttribute(node["uuid"], "notes", node["notes"])
                 next
             end
 
