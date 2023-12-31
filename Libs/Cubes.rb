@@ -17,6 +17,7 @@ class Cubes
         db.execute "insert into _cube_ (_recorduuid_, _recordTime_, _recordType_, _name_, _value_) values (?, ?, ?, ?, ?)", [SecureRandom.hex(10), Time.new.to_f, "attribute", "uuid", JSON.generate(uuid)]
         db.execute "insert into _cube_ (_recorduuid_, _recordTime_, _recordType_, _name_, _value_) values (?, ?, ?, ?, ?)", [SecureRandom.hex(10), Time.new.to_f, "attribute", "mikuType", JSON.generate(mikuType)]
         db.close
+        FileUtils.chmod(0755, filepath)
         Cubes::relocate(filepath)
     end
 
@@ -50,7 +51,7 @@ class Cubes
         puts "filepath1: #{filepath1}".yellow
         puts "filepath2: #{filepath2}".yellow
         FileUtils.mv(filepath1, filepath2)
-
+        FileUtils.chmod(0755, filepath2)
         uuid = Cubes::uuidFromFile(filepath2)
         XCache::set("e0cd5f8b-b33e-4adc-a294-ac7909a8147e:#{uuid}", filepath2)
 
@@ -95,6 +96,8 @@ class Cubes
 
         FileUtils.rm(filepath1)
         FileUtils.rm(filepath2)
+
+        FileUtils.chmod(0755, filepath)
 
         Cubes::relocate(filepath)
     end
