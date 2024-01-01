@@ -19,8 +19,10 @@ class NxAionPoints0849
         location = CommonUtils::interactivelySelectDesktopLocationOrNull()
         return nil if location.nil?
 
-        nhash = AionCore::commitLocationReturnHash(Elizabeth.new(uuid), location)
         Cubes::itemInit(uuid, "NxAionPoints0849")
+
+        nhash = AionCore::commitLocationReturnHash(Elizabeth.new(uuid), location)
+
         Cubes::setAttribute(uuid, "unixtime", unixtime)
         Cubes::setAttribute(uuid, "datetime", datetime)
         Cubes::setAttribute(uuid, "description", description)

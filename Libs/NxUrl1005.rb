@@ -20,6 +20,7 @@ class NxUrl1005
         return nil if url == ""
 
         Cubes::itemInit(uuid, "NxUrl1005")
+
         Cubes::setAttribute(uuid, "unixtime", unixtime)
         Cubes::setAttribute(uuid, "datetime", datetime)
         Cubes::setAttribute(uuid, "description", description)
