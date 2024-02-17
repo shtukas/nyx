@@ -51,7 +51,7 @@ class Px44
 
     # Px44::toStringSuffix(px44)
     def self.toStringSuffix(px44)
-        return px44 if ""
+        return "" if px44.nil?
         if px44["type"] == "text" then
             return " (text)"
         end

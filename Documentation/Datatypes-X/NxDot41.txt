@@ -7,4 +7,4 @@ NxDot41
     "payload"     : null or Px44
     "linkeduuids" : String
     "notes"       : Array[NxNote]
-    "searchTags"  : Array[String]
+    "tags"        : Array[String]
