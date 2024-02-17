@@ -21,11 +21,6 @@ class Nyx
             if option == "search" then
                 Search::searchAndDive()
             end
-            if option == "new node: 101" then
-                node = Nx101::interactivelyIssueNewOrNull()
-                next if node.nil?
-                Nx101::program(node)
-            end
             if option == "new node: url" then
                 node = NxUrl1005::interactivelyIssueNewOrNull()
                 next if node.nil?
@@ -38,10 +33,10 @@ class Nyx
             end
             if option == "list nodes" then
                 loop {
-                    nodes = Cubes::items().sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
+                    nodes = NxDot41s::items().sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| node["description"] })
                     break if node.nil?
-                    Nx101::program(node)
+                    NxDot41s::program(node)
                 }
             end
             if option == "fsck" then

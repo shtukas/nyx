@@ -72,6 +72,9 @@ class Px44
         if px44["type"] == "blade" then
             return " (blade)"
         end
+        if px44["type"] == "nyx-fs-beacon" then
+            return " (nyx-fs-beacon)"
+        end
         if px44["type"] == "unique-string" then
             return " (unique-string)"
         end
@@ -131,5 +134,36 @@ class Px44
             return
         end
         raise "(error: ee2b7a4b-a34a-4ea6-9f3e-c41be1d1a69c) Px44: #{px44}"
+    end
+
+    # Px44::fsck(px44)
+    def self.fsck(px44)
+        return if px44.nil?
+        if px44["type"] == "text" then
+            return
+        end
+        if px44["type"] == "url" then
+            return
+        end
+        if px44["type"] == "blade" then
+            #Bx26
+            #    filename : String
+            #    nhash    : String
+            bx26 = px44["bx26"]
+            filename = bx26["filename"]
+            filepath = BladeCore::filenameToFilepath(filename)
+            nhash = bx26["nhash"]
+            operator = BladeElizabeth.new(filepath)
+            puts "Px44::fsck, filepath: #{filepath}, nhash: #{nhash}"
+            AionFsck::structureCheckAionHashRaiseErrorIfAny(operator, nhash)
+            return
+        end
+        if px44["type"] == "nyx-fs-beacon" then
+            return
+        end
+        if px44["type"] == "unique-string" then
+            return
+        end
+        raise "(error: 4456ba26-1439-47f4-871b-f3c00e384438) Px44: #{px44}"
     end
 end

@@ -69,15 +69,6 @@ class NxDot41s
         items
     end
 
-    # NxDot41s::destroy(uuid)
-    def self.destroy(uuid)
-        nhash = Digest::SHA1.hexdigest(uuid)
-        folderpath = "#{Config::pathToData()}/NxDot41"
-        filepath = "#{folderpath}/#{nhash}.json"
-        return if !File.exist?(filepath)
-        FileUtils.rm(filepath)
-    end
-
     # ------------------------------------
     # Operations
 
@@ -194,5 +185,19 @@ class NxDot41s
         }
 
         nil
+    end
+
+    # NxDot41s::destroy(uuid)
+    def self.destroy(uuid)
+        nhash = Digest::SHA1.hexdigest(uuid)
+        folderpath = "#{Config::pathToData()}/NxDot41"
+        filepath = "#{folderpath}/#{nhash}.json"
+        return if !File.exist?(filepath)
+        FileUtils.rm(filepath)
+    end
+
+    # NxDot41s::fsck(item)
+    def self.fsck(item)
+        Px44::fsck(item["payload"])
     end
 end

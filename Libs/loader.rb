@@ -136,7 +136,6 @@ require_relative "ItemStore.rb"
 
 require_relative "Fsck.rb"
 
-require_relative "Nx101.rb"
 require_relative "Nyx.rb"
 require_relative "NxNote.rb"
 require_relative "NxAionPoints0849.rb"

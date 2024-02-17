@@ -8,8 +8,8 @@ class PolyFunctions
 
     # PolyFunctions::toString(item)
     def self.toString(item)
-        if item["mikuType"] == "Nx101" then
-            return Nx101::toString(item)
+        if item["mikuType"] == "NxDot41" then
+            return NxDot41::toString(item)
         end
         if item["mikuType"] == "NxCoreDataRef" then
             return CoreDataRefsNxCDRs::toString(item)
@@ -25,7 +25,7 @@ class PolyFunctions
 
     # PolyFunctions::linkeduuids(item)
     def self.linkeduuids(item)
-        if item["mikuType"] == "Nx101" then
+        if item["mikuType"] == "NxDot41" then
             return item["linkeduuids"]
         end
         if item["mikuType"] == "NxAionPoints0849" then
@@ -39,9 +39,9 @@ class PolyFunctions
 
     # PolyFunctions::connect1(node, uuid)
     def self.connect1(node, uuid)
-        if node["mikuType"] == "Nx101" then
-            linkeduuids = ((node["linkeduuids"] || []) + [uuid]).uniq
-            Cubes::setAttribute(node["uuid"], "linkeduuids", linkeduuids)
+        if node["mikuType"] == "NxDot41" then
+            node["linkeduuids"] = (node["linkeduuids"] + [uuid]).uniq
+            NxDot41s::commit(node)
             return
         end
         if node["mikuType"] == "NxAionPoints0849" then
@@ -66,7 +66,7 @@ class PolyFunctions
 
     # PolyFunctions::notes(item)
     def self.notes(item)
-        if item["mikuType"] == "Nx101" then
+        if item["mikuType"] == "NxDot41" then
             return item["notes"]
         end
         if item["mikuType"] == "NxAionPoints0849" then
@@ -80,8 +80,8 @@ class PolyFunctions
 
     # PolyFunctions::program(item)
     def self.program(item)
-        if item["mikuType"] == "Nx101" then
-            return Nx101::program(item)
+        if item["mikuType"] == "NxDot41" then
+            return NxDot41::program(item)
         end
         if item["mikuType"] == "NxAionPoints0849" then
             return NxAionPoints0849::program(item)
@@ -90,27 +90,6 @@ class PolyFunctions
             return NxUrl1005::program(item)
         end
         raise "(error: b7f0ce47-6a82-4bb3-808a-31775128d3b5) unsupported miku type: #{item["mikuType"]}"
-    end
-
-    # PolyFunctions::interactivelyIssueNewOrNull()
-    def self.interactivelyIssueNewOrNull()
-        options = [
-            "new node: 101",
-            "new node: avaldi",
-            "new node: url",
-            "new node: aion-point",
-        ]
-        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
-        return if option.nil?
-        if option == "new node: 101" then
-            return Nx101::interactivelyIssueNewOrNull()
-        end
-        if option == "new node: url" then
-            return NxUrl1005::interactivelyIssueNewOrNull()
-        end
-        if option == "new node: aion-point" then
-            return NxAionPoints0849::interactivelyIssueNewOrNull()
-        end
     end
 
     # PolyFunctions::architectNodeOrNull()
@@ -125,7 +104,7 @@ class PolyFunctions
                 end
             end
             if option == "build and return" then
-                node = PolyFunctions::interactivelyIssueNewOrNull()
+                node = NxDot41s::interactivelyIssueNewOrNull()
                 if node then
                     return node
                 end
