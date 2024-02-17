@@ -35,12 +35,6 @@ class Fsck
             raise "(error: 060852c5-227b-4a07-8548-ee3265dd3d2a) cannot fsck #{item}"
         end
 
-        if item["mikuType"] == "NxAionPoints0849" then
-            nhash = item["nhash"]
-            AionFsck::structureCheckAionHashRaiseErrorIfAny(Elizabeth.new(referenceuuid), item["nhash"])
-            return
-        end
-
         if item["mikuType"] == "NxUrl1005" then
             return
         end

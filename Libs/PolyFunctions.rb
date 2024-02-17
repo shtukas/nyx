@@ -14,9 +14,6 @@ class PolyFunctions
         if item["mikuType"] == "NxCoreDataRef" then
             return CoreDataRefsNxCDRs::toString(item)
         end
-        if item["mikuType"] == "NxAionPoints0849" then
-            return NxAionPoints0849::toString(item)
-        end
         if item["mikuType"] == "NxUrl1005" then
             return NxUrl1005::toString(item)
         end
@@ -26,9 +23,6 @@ class PolyFunctions
     # PolyFunctions::linkeduuids(item)
     def self.linkeduuids(item)
         if item["mikuType"] == "NxDot41" then
-            return item["linkeduuids"]
-        end
-        if item["mikuType"] == "NxAionPoints0849" then
             return item["linkeduuids"]
         end
         if item["mikuType"] == "NxUrl1005" then
@@ -42,11 +36,6 @@ class PolyFunctions
         if node["mikuType"] == "NxDot41" then
             node["linkeduuids"] = (node["linkeduuids"] + [uuid]).uniq
             NxDot41s::commit(node)
-            return
-        end
-        if node["mikuType"] == "NxAionPoints0849" then
-            linkeduuids = ((node["linkeduuids"] || []) + [uuid]).uniq
-            Cubes::setAttribute(node["uuid"], "linkeduuids", linkeduuids)
             return
         end
         if node["mikuType"] == "NxUrl1005" then
@@ -69,9 +58,6 @@ class PolyFunctions
         if item["mikuType"] == "NxDot41" then
             return item["notes"]
         end
-        if item["mikuType"] == "NxAionPoints0849" then
-            return item["notes"]
-        end
         if item["mikuType"] == "NxUrl1005" then
             return item["notes"]
         end
@@ -82,9 +68,6 @@ class PolyFunctions
     def self.program(item)
         if item["mikuType"] == "NxDot41" then
             return NxDot41::program(item)
-        end
-        if item["mikuType"] == "NxAionPoints0849" then
-            return NxAionPoints0849::program(item)
         end
         if item["mikuType"] == "NxUrl1005" then
             return NxUrl1005::program(item)

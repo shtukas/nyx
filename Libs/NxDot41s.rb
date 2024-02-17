@@ -29,6 +29,8 @@ class NxDot41s
         node["notes"] = []
         node["tags"] = []
 
+        NxDot41s::fsck(node)
+
         NxDot41s::commit(node)
 
         node
@@ -53,6 +55,7 @@ class NxDot41s
 
     # NxDot41s::commit(node)
     def self.commit(node)
+        NxDot41s::fsck(node)
         nhash = Digest::SHA1.hexdigest(node["uuid"])
         folderpath = "#{Config::pathToData()}/NxDot41"
         filepath = "#{folderpath}/#{nhash}.json"

@@ -9,10 +9,7 @@ class Nyx
             system("clear")
             options = [
                 "search",
-                "new node: 101",
-                "new node: avaldi",
-                "new node: url",
-                "new node: aion-point",
+                "new node",
                 "list nodes",
                 "fsck"
             ]
@@ -21,15 +18,10 @@ class Nyx
             if option == "search" then
                 Search::searchAndDive()
             end
-            if option == "new node: url" then
-                node = NxUrl1005::interactivelyIssueNewOrNull()
+            if option == "new node" then
+                node = NxDot41s::interactivelyIssueNewOrNull()
                 next if node.nil?
                 NxUrl1005::program(node)
-            end
-            if option == "new node: aion-point" then
-                node = NxAionPoints0849::interactivelyIssueNewOrNull()
-                next if node.nil?
-                NxAionPoints0849::program(node)
             end
             if option == "list nodes" then
                 loop {
@@ -38,9 +30,6 @@ class Nyx
                     break if node.nil?
                     NxDot41s::program(node)
                 }
-            end
-            if option == "fsck" then
-                Fsck::fsckAll()
             end
         }
     end
