@@ -112,8 +112,10 @@ class Blades
         }
     end
 
-    # Blades::access(filename, nhash)
-    def self.access(filename, nhash)
+    # Blades::access(bx26)
+    def self.access(bx26)
+        filename = bx26["filename"]
+        nhash    = bx26["nhash"]
         filepath = BladeCore::filenameToFilepath(filename)
         puts "accessing blade: #{filepath}"
         exportId = SecureRandom.hex(4)

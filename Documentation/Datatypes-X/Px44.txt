@@ -1,0 +1,20 @@
+
+Px44 {
+    "type" : "text"
+    "text" : string
+}
+
+Px44 {
+    "type" : "url"
+    "url   : string
+}
+
+Px44 {
+    "type" : "blade"
+    "bx26" : Bx26
+}
+
+Px44 {
+    "type"         : "unique-string"
+    "uniquestring" : string
+}

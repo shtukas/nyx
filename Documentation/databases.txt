@@ -1,3 +1,0 @@
-
-Items.sqlite3
-create table Items (_uuid_ string primary key, _mikuType_ string, _item_ string);

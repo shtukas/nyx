@@ -1,0 +1,10 @@
+NxDot41
+    "uuid"        : String
+    "mikuType"    : "NxDot41"
+    "unixtime"    : Float
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "description" : String
+    "payload"     : null or Px44
+    "linkeduuids" : String
+    "notes"       : Array[NxNote]
+    "searchTags"  : Array[String]

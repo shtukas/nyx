@@ -42,7 +42,7 @@ class NxNote
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["edit"])
             return if action.nil?
             if action == "edit" then
-                puts "edit is actually not yet impemented"
+                puts "NxNote edit is not yet impemented"
                 LucilleCore::pressEnterToContinue()
             end
         }
