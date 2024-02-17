@@ -75,6 +75,20 @@ class NxDot41s
     # ------------------------------------
     # Operations
 
+    # NxDot41s::connect1(node, uuid)
+    def self.connect1(node, uuid)
+        node["linkeduuids"] = (node["linkeduuids"] + [uuid]).uniq
+        NxDot41s::commit(node)
+    end
+
+    # NxDot41s::connect2(node)
+    def self.connect2(node)
+        node2 = PolyFunctions::architectNodeOrNull()
+        return if node2.nil?
+        NxDot41s::connect1(node, node2["uuid"])
+        NxDot41s::connect1(node2, node["uuid"])
+    end
+
     # NxDot41s::program(node) # nil or node (to get the node issue `select`)
     def self.program(node)
         loop {
@@ -157,7 +171,7 @@ class NxDot41s
             end
 
             if command == "connect" then
-                PolyFunctions::connect2(node)
+                NxDot41s::connect2(node)
                 next
             end
 
@@ -192,6 +206,12 @@ class NxDot41s
 
     # NxDot41s::destroy(uuid)
     def self.destroy(uuid)
+        puts "> request to destroy nyx node: #{uuid}"
+        code1 = SecureRandom.hex(2)
+        code2 = LucilleCore::askQuestionAnswerAsString("Confirm by entering destruction code (#{code1}): ")
+        if code1 != code2 then
+            return
+        end
         nhash = Digest::SHA1.hexdigest(uuid)
         folderpath = "#{Config::pathToData()}/NxDot41"
         filepath = "#{folderpath}/#{nhash}.json"

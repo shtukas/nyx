@@ -134,11 +134,8 @@ require_relative "Galaxy.rb"
 
 require_relative "ItemStore.rb"
 
-require_relative "Fsck.rb"
-
 require_relative "Nyx.rb"
 require_relative "NxNote.rb"
-require_relative "NxUrl1005.rb"
 require_relative "NxDot41s.rb"
 
 require_relative "ProgrammableBooleans.rb"

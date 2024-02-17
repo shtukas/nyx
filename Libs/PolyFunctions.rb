@@ -14,65 +14,7 @@ class PolyFunctions
         if item["mikuType"] == "NxCoreDataRef" then
             return CoreDataRefsNxCDRs::toString(item)
         end
-        if item["mikuType"] == "NxUrl1005" then
-            return NxUrl1005::toString(item)
-        end
         raise "(error: f0b8340c-9ed8-4046-b102-7e461cedef21) unsupported miku type: #{item["mikuType"]}"
-    end
-
-    # PolyFunctions::linkeduuids(item)
-    def self.linkeduuids(item)
-        if item["mikuType"] == "NxDot41" then
-            return item["linkeduuids"]
-        end
-        if item["mikuType"] == "NxUrl1005" then
-            return item["linkeduuids"]
-        end
-        raise "(error: 4645d069-ff48-4d57-91d6-9cb980d34403) unsupported miku type: #{item["mikuType"]}"
-    end
-
-    # PolyFunctions::connect1(node, uuid)
-    def self.connect1(node, uuid)
-        if node["mikuType"] == "NxDot41" then
-            node["linkeduuids"] = (node["linkeduuids"] + [uuid]).uniq
-            NxDot41s::commit(node)
-            return
-        end
-        if node["mikuType"] == "NxUrl1005" then
-            linkeduuids = ((node["linkeduuids"] || []) + [uuid]).uniq
-            Cubes::setAttribute(node["uuid"], "linkeduuids", linkeduuids)
-            return
-        end
-    end
-
-    # PolyFunctions::connect2(node)
-    def self.connect2(node)
-        node2 = PolyFunctions::architectNodeOrNull()
-        return if node2.nil?
-        PolyFunctions::connect1(node, node2["uuid"])
-        PolyFunctions::connect1(node2, node["uuid"])
-    end
-
-    # PolyFunctions::notes(item)
-    def self.notes(item)
-        if item["mikuType"] == "NxDot41" then
-            return item["notes"]
-        end
-        if item["mikuType"] == "NxUrl1005" then
-            return item["notes"]
-        end
-        raise "(error: 137f9265-d3f0-45c2-8cc6-5bfd36481572) unsupported miku type: #{item["mikuType"]}"
-    end
-
-    # PolyFunctions::program(item)
-    def self.program(item)
-        if item["mikuType"] == "NxDot41" then
-            return NxDot41::program(item)
-        end
-        if item["mikuType"] == "NxUrl1005" then
-            return NxUrl1005::program(item)
-        end
-        raise "(error: b7f0ce47-6a82-4bb3-808a-31775128d3b5) unsupported miku type: #{item["mikuType"]}"
     end
 
     # PolyFunctions::architectNodeOrNull()
@@ -123,7 +65,7 @@ class PolyFunctions
                             return nil
                         end
                     end
-                    node = PolyFunctions::program(node)
+                    node = NxDot41::program(node)
                     if node then
                         return node # was `select`ed
                     end

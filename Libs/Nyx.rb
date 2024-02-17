@@ -21,7 +21,7 @@ class Nyx
             if option == "new node" then
                 node = NxDot41s::interactivelyIssueNewOrNull()
                 next if node.nil?
-                NxUrl1005::program(node)
+                NxDot41s::program(node)
             end
             if option == "list nodes" then
                 loop {
