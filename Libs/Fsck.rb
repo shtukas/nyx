@@ -32,10 +32,6 @@ class Fsck
                 return
             end
 
-            if item["type"] == "fs-beacon" then
-                return
-            end
-
             raise "(error: 060852c5-227b-4a07-8548-ee3265dd3d2a) cannot fsck #{item}"
         end
 

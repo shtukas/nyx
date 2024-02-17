@@ -24,22 +24,6 @@ class Galaxy
         end
     end
 
-    # Galaxy::fsBeaconToFilepathOrNull(beaconId)
-    def self.fsBeaconToFilepathOrNull(beaconId)
-        roots = [
-            "#{Config::userHomeDirectory()}/Galaxy"
-        ]
-        Galaxy::locationEnumerator(roots).each{|filepath|
-            if File.basename(filepath)[-14, 14] == ".nyx.fs-beacon" then
-                beacon = JSON.parse(IO.read(filepath))
-                if beacon["beaconId"] == beaconId then
-                    return filepath
-                end
-            end
-        }
-        nil
-    end
-
     # Galaxy::cub4xFilepathOrNull(uuid)
     def self.cub4xFilepathOrNull(uuid)
         roots = [

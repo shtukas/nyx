@@ -1,0 +1,4 @@
+Nyx-Blade
+Blades are immutable content addressed files. They are a key value store for binary data.
+
+create table blade (_key_ text primary key, _value_ blob);

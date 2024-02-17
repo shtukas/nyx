@@ -28,7 +28,7 @@ class Cubes
             return filepath
         end
 
-        LucilleCore::locationsAtFolder(Config::pathToCubes())
+        LucilleCore::locationsAtFolder("#{Config::pathToData()}/Cubes")
             .select{|location| location[-9, 9] == ".nyx-cube" }
             .each{|filepath|
                 u1 = Cubes::uuidFromFile(filepath)
@@ -43,7 +43,7 @@ class Cubes
 
     # Cubes::relocate(filepath1)
     def self.relocate(filepath1)
-        folderpath2 = Config::pathToCubes()
+        folderpath2 = "#{Config::pathToData()}/Cubes"
         filename2 = "#{Digest::SHA1.file(filepath1).hexdigest}.nyx-cube"
         filepath2 = "#{folderpath2}/#{filename2}"
         return filepath1 if (filepath1 == filepath2)
@@ -101,7 +101,7 @@ class Cubes
     # Cubes::maintenance()
     def self.maintenance()
         filepaths = []
-        Find.find(Config::pathToCubes()) do |path|
+        Find.find("#{Config::pathToData()}/Cubes") do |path|
             next if !path.include?(".nyx-cube")
             next if File.basename(path).start_with?('.') # avoiding: .syncthing.82aafe48c87c22c703b32e35e614f4d7.catalyst-cube.tmp 
             filepaths << path
@@ -263,7 +263,7 @@ class Cubes
     # Cubes::items()
     def self.items()
         items = []
-        Find.find(Config::pathToCubes()) do |path|
+        Find.find("#{Config::pathToData()}/Cubes") do |path|
             next if !path.include?(".nyx-cube")
             next if File.basename(path).start_with?('.') # .syncthing.82aafe48c87c22c703b32e35e614f4d7.nyx-cube.tmp 
             items << Cubes::filepathToItem(path)

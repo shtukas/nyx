@@ -4,7 +4,7 @@ class CoreDataRefsNxCDRs
 
     # CoreDataRefsNxCDRs::coreDataReferenceTypes()
     def self.coreDataReferenceTypes()
-        ["text", "url", "aion point", "fs beacon", "unique string"]
+        ["text", "url", "aion point", "unique string"]
     end
 
     # CoreDataRefsNxCDRs::interactivelySelectCoreDataReferenceType()
@@ -66,27 +66,6 @@ class CoreDataRefsNxCDRs
                 "nhash"       => nhash
             }
         end
-        if referencetype == "fs beacon" then
-            description = LucilleCore::askQuestionAnswerAsString("description (can be left empty): ")
-            description = description.size > 0 ? description : nil
-            beaconId = SecureRandom.hex
-            beacon = {
-                "beaconId" => beaconId
-            }
-            filename = "#{CommonUtils::sanitiseStringForFilenaming(description)}.nyx.fs-beacon"
-            filepath = "#{Config::userHomeDirectory()}/Desktop/#{filename}"
-            File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(beacon)) }
-            puts "I have put the file on the Desktop. Move it and"
-            LucilleCore::pressEnterToContinue()
-            return {
-                "uuid"         => SecureRandom.uuid,
-                "mikuType"     => "NxCoreDataRef",
-                "unixtime"     => Time.new.to_f,
-                "description"  => description,
-                "type"         => "fs-beacon",
-                "beaconId"     => beaconId
-            }
-        end
         if referencetype == "unique string" then
             description = LucilleCore::askQuestionAnswerAsString("description (can be left empty): ")
             description = description.size > 0 ? description : nil
@@ -120,9 +99,6 @@ class CoreDataRefsNxCDRs
         end
         if reference["type"] == "aion-point" then
             return "(core data #{reference["uuid"][0, 2]}, aion-point)"
-        end
-        if reference["type"] == "fs-beacon" then
-            return "(core data #{reference["uuid"][0, 2]}, fs-beacon)"
         end
         if reference["type"] == "unique-string" then
             return "(core data #{reference["uuid"][0, 2]}, unique-string)"
@@ -166,20 +142,6 @@ class CoreDataRefsNxCDRs
             FileUtils.mkdir(exportFolder)
             AionCore::exportHashAtFolder(Elizabeth.new(uuid), nhash, exportFolder)
             LucilleCore::pressEnterToContinue()
-            return
-        end
-        if reference["type"] == "fs-beacon" then
-            beaconId = reference["beaconId"]
-            filepath = Galaxy::fsBeaconToFilepathOrNull(beaconId)
-            if filepath.nil? then
-                puts "I could not locate beacon with Id: #{beaconId}"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            puts "beacon location: #{filepath}"
-            if LucilleCore::askQuestionAnswerAsBoolean("open folder: #{File.dirname(filepath)} ? ", true) then
-                system("open '#{File.dirname(filepath)}'")
-            end
             return
         end
         if reference["type"] == "unique-string" then

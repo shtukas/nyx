@@ -44,18 +44,3 @@ NxCoreDataRef {
     "description"  : nil or string
     "uniquestring" : string
 }
-
-NxCoreDataRef {
-    "uuid"         : String
-    "mikuType"     : "NxCoreDataRef"
-    "unixtime"     : Float
-    "type"         : "fs-beacon"
-    "description"  : nil or string
-    "beaconId"     : string
-}
-
-FsBeacons are a slightly fancier version of files that just carry a unique string
-{
-    "beaconId" => beaconId
-}
-filename: <something>.nyx.fs-beacon

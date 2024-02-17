@@ -3,15 +3,15 @@ General Principles:
     - Nyx is a network of nodes and the links between them.
 
 The common Interface between all nodes is
-    - uuid          : String
-    - unixtime      : Float
-    - datetime      : DateTime Iso 8601 UTC Zulu
-    - description   : String
-    - linkeduuids   : Array[String]
-    - notes         : Array[NxNote]
-    - toString      : String
-    - program       # the equivalent of the old landing
-    - searchTraces  : Array[NxST1]
+    - uuid        : String
+    - unixtime    : Float
+    - datetime    : DateTime Iso 8601 UTC Zulu
+    - description : String
+    - linkeduuids : Array[String]
+    - notes       : Array[NxNote]
+    - toString    : String
+    - searchTags  : Array[NxST1]
+    - program     # the equivalent of the old landing
 
 - Node types are
     - Nx101
