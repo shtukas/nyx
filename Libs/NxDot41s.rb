@@ -104,7 +104,7 @@ class NxDot41s
             puts "- description: "+node["description"].green
             puts "- uuid       : #{node["uuid"]}"
             puts "- datetime   : #{datetime}"
-            puts "- payload    : #{Px44::toStringSuffix(node["payload"])}"
+            puts "- payload    : #{Px44::toStringSuffix(node["payload"]).strip}"
 
             store = ItemStore.new()
 

@@ -1,15 +1,10 @@
 
 class PolyFunctions
 
-    # PolyFunctions::itemOrNull(uuid)
-    def self.itemOrNull(uuid)
-        Cubes::itemOrNull(uuid)
-    end
-
     # PolyFunctions::toString(item)
     def self.toString(item)
         if item["mikuType"] == "NxDot41" then
-            return NxDot41::toString(item)
+            return NxDot41s::toString(item)
         end
         if item["mikuType"] == "NxCoreDataRef" then
             return CoreDataRefsNxCDRs::toString(item)
@@ -45,7 +40,7 @@ class PolyFunctions
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort and return null) : ")
             return nil if fragment == ""
             loop {
-                selected = Cubes::items()
+                selected = NxDot41s::items()
                             .select{|node| Search::match(node, fragment) }
 
                 if selected.empty? then
@@ -56,7 +51,7 @@ class PolyFunctions
                         return nil
                     end
                 else
-                    selected = selected.select{|node| Cubes::itemOrNull(node["uuid"]) } # In case something has changed, we want the ones that have survived
+                    selected = selected.select{|node| NxDot41s::getOrNull(node["uuid"]) } # In case something has changed, we want the ones that have survived
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", selected, lambda{|i| i["description"] })
                     if node.nil? then
                         if LucilleCore::askQuestionAnswerAsBoolean("search more ? ", false) then
@@ -65,7 +60,7 @@ class PolyFunctions
                             return nil
                         end
                     end
-                    node = NxDot41::program(node)
+                    node = NxDot41s::program(node)
                     if node then
                         return node # was `select`ed
                     end

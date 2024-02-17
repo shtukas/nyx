@@ -11,7 +11,7 @@ class PolyActions
             CoreDataRefsNxCDRs::program(node["uuid"], reference)
         end
         if item["mikuType"] == "NxDot41" then
-            x = NxDot41::program(item)
+            x = NxDot41s::program(item)
             if x then
                 return x # was selected during a dive
             end

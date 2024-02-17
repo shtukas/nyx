@@ -11,7 +11,6 @@ class Nyx
                 "search",
                 "new node",
                 "list nodes",
-                "fsck"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             break if option.nil?
