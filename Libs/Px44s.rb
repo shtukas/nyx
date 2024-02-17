@@ -4,7 +4,7 @@ class Px44
 
     # Px44::types()
     def self.types()
-        ["text", "url", "blade", "unique string"]
+        ["text", "url", "blade", "nyx-fs-beacon", "unique string"]
     end
 
     # Px44::interactivelySelectType()
@@ -37,6 +37,17 @@ class Px44
             return {
                 "type" => "blade",
                 "bx26" => Blades::forge(location)
+            }
+        end
+        if type == "nyx-fs-beacon" then
+            id = SecureRandom.hex
+            filepath = "#{Config::userHomeDirectory()}/Desktop/beacon-#{id[0, 4]}.nyx-fs-beacon"
+            File.open(filepath, "w"){|f| f.write(id) }
+            puts "I put a .nyx-fs-beacon file on the Desktop. Add it to the target location."
+            LucilleCore::pressEnterToContinue()
+            return {
+                "type" => "nyx-fs-beacon",
+                "id"   => id
             }
         end
         if type == "unique string" then
@@ -87,6 +98,27 @@ class Px44
         if px44["type"] == "blade" then
             Blades::access(px44["bx26"])
             return
+        end
+        if px44["type"] == "nyx-fs-beacon" then
+            searchX = lambda{|id|
+                roots = [
+                    "#{Config::userHomeDirectory()}/Galaxy"
+                ]
+                Galaxy::locationEnumerator(roots).each{|filepath|
+                    if File.basename(filepath)[-14, 14] == ".nyx-fs-beacon" then
+                        if IO.read(filepath).strip == id then
+                            return filepath
+                        end
+                    end
+                }
+                nil
+            }
+            id = px44["id"]
+            filepath = searchX.call(id)
+            puts "nyx fs beacon located: #{filepath}"
+            folderpath = File.dirname(filepath)
+            system("open '#{folderpath}'")
+            LucilleCore::pressEnterToContinue()
         end
         if px44["type"] == "unique-string" then
             uniquestring = px44["uniquestring"]

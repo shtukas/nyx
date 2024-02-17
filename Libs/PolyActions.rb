@@ -16,12 +16,6 @@ class PolyActions
                 return x # was selected during a dive
             end
         end
-        if item["mikuType"] == "NxAvaldi" then
-            x = NxAvaldi::program(item)
-            if x then
-                return x # was selected during a dive
-            end
-        end
         if item["mikuType"] == "NxAionPoints0849" then
             x = NxAionPoints0849::program(item)
             if x then

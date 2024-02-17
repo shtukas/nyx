@@ -1,8 +1,0 @@
-NxAvaldi
-    "uuid"        : String
-    "mikuType"    : "NxAvaldi"
-    "unixtime"    : Float
-    "datetime"    : DateTime Iso 8601 UTC Zulu
-    "description" : String
-    "linkeduuids" : String
-    "notes"       : Array[NxNote]

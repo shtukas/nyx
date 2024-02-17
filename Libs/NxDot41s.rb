@@ -59,6 +59,16 @@ class NxDot41s
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(node)) }
     end
 
+    # NxDot41s::items()
+    def self.items()
+        items = []
+        Find.find("#{Config::pathToData()}/NxDot41") do |path|
+            next if path[-5, 5] != '.json'
+            items << JSON.parse(IO.read(path))
+        end
+        items
+    end
+
     # NxDot41s::destroy(uuid)
     def self.destroy(uuid)
         nhash = Digest::SHA1.hexdigest(uuid)

@@ -26,11 +26,6 @@ class Nyx
                 next if node.nil?
                 Nx101::program(node)
             end
-            if option == "new node: avaldi" then
-                node = NxAvaldi::interactivelyIssueNewOrNull()
-                next if node.nil?
-                NxAvaldi::program(node)
-            end
             if option == "new node: url" then
                 node = NxUrl1005::interactivelyIssueNewOrNull()
                 next if node.nil?

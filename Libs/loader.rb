@@ -138,7 +138,6 @@ require_relative "Fsck.rb"
 
 require_relative "Nx101.rb"
 require_relative "Nyx.rb"
-require_relative "NxAvaldi.rb"
 require_relative "NxNote.rb"
 require_relative "NxAionPoints0849.rb"
 require_relative "NxUrl1005.rb"

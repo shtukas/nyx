@@ -42,10 +42,6 @@ class Fsck
             return
         end
 
-        if item["mikuType"] == "NxAvaldi" then
-            return
-        end
-
         if item["mikuType"] == "NxAionPoints0849" then
             nhash = item["nhash"]
             AionFsck::structureCheckAionHashRaiseErrorIfAny(Elizabeth.new(referenceuuid), item["nhash"])

@@ -11,9 +11,6 @@ class PolyFunctions
         if item["mikuType"] == "Nx101" then
             return Nx101::toString(item)
         end
-        if item["mikuType"] == "NxAvaldi" then
-            return NxAvaldi::toString(item)
-        end
         if item["mikuType"] == "NxCoreDataRef" then
             return CoreDataRefsNxCDRs::toString(item)
         end
@@ -31,9 +28,6 @@ class PolyFunctions
         if item["mikuType"] == "Nx101" then
             return item["linkeduuids"]
         end
-        if item["mikuType"] == "NxAvaldi" then
-            return item["linkeduuids"]
-        end
         if item["mikuType"] == "NxAionPoints0849" then
             return item["linkeduuids"]
         end
@@ -46,11 +40,6 @@ class PolyFunctions
     # PolyFunctions::connect1(node, uuid)
     def self.connect1(node, uuid)
         if node["mikuType"] == "Nx101" then
-            linkeduuids = ((node["linkeduuids"] || []) + [uuid]).uniq
-            Cubes::setAttribute(node["uuid"], "linkeduuids", linkeduuids)
-            return
-        end
-        if node["mikuType"] == "NxAvaldi" then
             linkeduuids = ((node["linkeduuids"] || []) + [uuid]).uniq
             Cubes::setAttribute(node["uuid"], "linkeduuids", linkeduuids)
             return
@@ -80,9 +69,6 @@ class PolyFunctions
         if item["mikuType"] == "Nx101" then
             return item["notes"]
         end
-        if item["mikuType"] == "NxAvaldi" then
-            return item["notes"]
-        end
         if item["mikuType"] == "NxAionPoints0849" then
             return item["notes"]
         end
@@ -96,9 +82,6 @@ class PolyFunctions
     def self.program(item)
         if item["mikuType"] == "Nx101" then
             return Nx101::program(item)
-        end
-        if item["mikuType"] == "NxAvaldi" then
-            return NxAvaldi::program(item)
         end
         if item["mikuType"] == "NxAionPoints0849" then
             return NxAionPoints0849::program(item)
@@ -121,9 +104,6 @@ class PolyFunctions
         return if option.nil?
         if option == "new node: 101" then
             return Nx101::interactivelyIssueNewOrNull()
-        end
-        if option == "new node: avaldi" then
-            return NxAvaldi::interactivelyIssueNewOrNull()
         end
         if option == "new node: url" then
             return NxUrl1005::interactivelyIssueNewOrNull()

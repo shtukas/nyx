@@ -18,3 +18,8 @@ Px44 {
     "type"         : "unique-string"
     "uniquestring" : string
 }
+
+Px44 {
+    "type" : "nyx-fs-beacon"
+    "id"   : string
+}
