@@ -1,3 +1,4 @@
+Px44 is a content type for a nyx node (a NxDot41).
 
 Px44 {
     "type" : "text"

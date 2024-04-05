@@ -1,3 +1,0 @@
-Bx26
-    filename : String
-    nhash    : String

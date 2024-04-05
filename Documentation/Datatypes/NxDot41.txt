@@ -1,3 +1,5 @@
+NxDot41s are the nyx nodes. They are JSON objects located in data/NxDot41
+
 NxDot41
     "uuid"        : String
     "mikuType"    : "NxDot41"

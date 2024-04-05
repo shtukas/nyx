@@ -129,7 +129,7 @@ class NxDot41s
             end
 
             puts ""
-            puts "commands: select | description | access | payload | connect | disconnect | note | note remove | destroy"
+            puts "commands: select | description | access | payload | connect | disconnect | note | note remove | expose | destroy"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -161,8 +161,6 @@ class NxDot41s
             end
 
             if command == "payload" then
-                url = LucilleCore::askQuestionAnswerAsString("url: ")
-                next if url == ""
                 payload = Px44::interactivelyMakeNewOrNull()
                 next if payload.nil?
                 node["payload"] = payload
@@ -191,6 +189,12 @@ class NxDot41s
 
             if command == "note remove" then
                 puts "note remove is not implemented yet"
+                LucilleCore::pressEnterToContinue()
+                next
+            end
+
+            if command == "expose" then
+                puts JSON.pretty_generate(node)
                 LucilleCore::pressEnterToContinue()
                 next
             end
