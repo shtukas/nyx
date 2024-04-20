@@ -40,7 +40,7 @@ class PolyFunctions
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort and return null) : ")
             return nil if fragment == ""
             loop {
-                selected = NxDot41s::items()
+                selected = NyxNodesGI::nodes()
                             .select{|node| Search::match(node, fragment) }
 
                 if selected.empty? then
@@ -60,7 +60,7 @@ class PolyFunctions
                             return nil
                         end
                     end
-                    node = NxDot41s::program(node)
+                    node = NyxNodesGI::program(node)
                     if node then
                         return node # was `select`ed
                     end

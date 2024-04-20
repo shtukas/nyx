@@ -16,7 +16,7 @@ class Search
 
             loop {
                 system('clear')
-                selected = NxDot41s::items()
+                selected = NyxNodesGI::nodes()
                             .select{|item| Search::match(item, fragment) }
 
                 if selected.empty? then
@@ -25,11 +25,11 @@ class Search
                     break
                 end
 
-                selected = selected.select{|item| NxDot41s::getOrNull(item["uuid"]) } # In case something has changed, we want the ones that have survived
+                selected = selected.select{|item| NyxNodesGI::getOrNull(item["uuid"]) } # In case something has changed, we want the ones that have survived
 
                 item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", selected, lambda{|i| i["description"] })
                 break if item.nil?
-                PolyActions::program(item)
+                NyxNodesGI::landing(item)
             }
         }
     end

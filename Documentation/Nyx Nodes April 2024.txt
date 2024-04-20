@@ -1,0 +1,21 @@
+
+April 2024:
+
+We are moving to a new set of nyx nodes.
+
+Type 1:
+    filename    : name.nyx1-location.trace.json
+    content type: JSON
+    purpose     : exists in one version in the file system. It refers to a location in Galaxy and that location is the directory in which it resides.
+    location    : in the directory that they refer to
+
+Type 2:
+    filename: name.nyx2-data-carrier.trace.sqlite3
+    contents: metadata and binary blobs
+    purpose : immutable data carrier.
+
+Type 3:
+    filename    : name.nyx3-navigation.trace.json
+    content type: JSON
+    purpose     : navigation nodes
+    location    : anywhere in Galaxy, but their default position is going to be the timeline.

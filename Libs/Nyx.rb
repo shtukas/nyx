@@ -10,7 +10,7 @@ class Nyx
             options = [
                 "search",
                 "new node",
-                "list nodes",
+                "dive nodes",
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             break if option.nil?
@@ -18,16 +18,16 @@ class Nyx
                 Search::searchAndDive()
             end
             if option == "new node" then
-                node = NxDot41s::interactivelyIssueNewOrNull()
+                node = NyxNodesGI::interactivelyMakeNewNodeOrNull()
                 next if node.nil?
-                NxDot41s::program(node)
+                NyxNodesGI::program(node)
             end
-            if option == "list nodes" then
+            if option == "dive nodes" then
                 loop {
-                    nodes = NxDot41s::items().sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
+                    nodes = NyxNodesGI::nodes().sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| node["description"] })
                     break if node.nil?
-                    NxDot41s::program(node)
+                    NyxNodesGI::program(node)
                 }
             end
         }
