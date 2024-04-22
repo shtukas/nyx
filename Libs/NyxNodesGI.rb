@@ -8,20 +8,6 @@ class NyxNodesGI
         NxType1FileSystemNodes::items()
     end
 
-    # NyxNodesGI::program(node)
-    def self.program(node)
-        if node["mikuType"] == "NxDot41" then
-            return NxDot41s::program(node)
-        end
-        if node["mikuType"] == "NxType3NavigationNode" then
-            return NxType3NavigationNodes::program(node)
-        end
-        if node["mikuType"] == "NxType1FileSystemNode" then
-            return NxType1FileSystemNodes::program(node)
-        end
-        raise "(error: 8ed83816) I do not know how to NyxNodesGI::program this node: #{node}"
-    end
-
     # NyxNodesGI::getOrNull(uuid)
     def self.getOrNull(uuid)
         node = NxDot41s::getOrNull(uuid)
@@ -51,7 +37,7 @@ class NyxNodesGI
         end
     end
 
-    # NyxNodesGI::landing(item)
+    # NyxNodesGI::program(item)
     def self.program(item)
         if item["mikuType"] == "NxNote" then
             NxNote::program(item)

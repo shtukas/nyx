@@ -1,6 +1,50 @@
 
 # encoding: UTF-8
 
+class NxType1FileSystemNodesIndex
+
+    # NxType1FileSystemNodesIndex::getItemsFromScratch()
+    def self.getItemsFromScratch()
+        items = []
+        Find.find("#{Config::userHomeDirectory()}/Galaxy") do |path|
+            next if !NxType1FileSystemNodes::isFileSystemNode(path)
+            items << JSON.parse(IO.read(path))
+        end
+        items
+    end
+
+    # NxType1FileSystemNodesIndex::getUUIDsFromCachedIndexOrNull()
+    def self.getUUIDsFromCachedIndexOrNull()
+        items = XCache::getOrNull("2cc14521-a090-494f-86a8-47574525fdd4")
+        return nil if items.nil?
+        JSON.parse(items)
+    end
+
+    # NxType1FileSystemNodesIndex::commitUUIDsToCache(uuids)
+    def self.commitUUIDsToCache(uuids)
+        XCache::set("2cc14521-a090-494f-86a8-47574525fdd4", JSON.generate(uuids))
+    end
+
+    # NxType1FileSystemNodesIndex::updateCacheWithNewUUID(uuid)
+    def self.updateCacheWithNewUUID(uuid)
+        uuids = XCache::getOrNull("2cc14521-a090-494f-86a8-47574525fdd4")
+        uuids = 
+            if uuids.nil? then
+                []
+            else
+                JSON.parse(uuids)
+            end
+        uuids = uuids + [uuid]
+        XCache::set("2cc14521-a090-494f-86a8-47574525fdd4", JSON.generate(uuids))
+    end
+
+    # NxType1FileSystemNodesIndex::rebuildCacheFromScratch()
+    def self.rebuildCacheFromScratch()
+        uuids = NxType1FileSystemNodesIndex::getItemsFromScratch().map{|item| item["uuid"] }
+        NxType1FileSystemNodesIndex::commitUUIDsToCache(uuids)
+    end
+end
+
 class NxType1FileSystemNodes
 
     # ------------------------------------
@@ -59,11 +103,17 @@ class NxType1FileSystemNodes
         folderpath1 = "#{Config::userHomeDirectory()}/Desktop"
         filepath = "#{folderpath1}/#{filename}"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(node)) }
+
+        # ----------------------------------------------------------------------
+        # We now update the cache with a new uuid
+
+        NxType1FileSystemNodesIndex::updateCacheWithNewUUID(node["uuid"])
+        # ----------------------------------------------------------------------
     end
 
     # NxType1FileSystemNodes::reCommit(node)
     def self.reCommit(node)
-        filepath1 = NxType1FileSystemNodes::getNodeExistingFilepathOrNull(uuid)
+        filepath1 = NxType1FileSystemNodes::getNodeExistingFilepathOrNull(node["uuid"])
         if filepath1.nil? then
             puts "I am trying to recommit this node (below) but I can't find the filepath"
             puts JSON.pretty_generate(node)
@@ -119,34 +169,14 @@ class NxType1FileSystemNodes
 
     # NxType1FileSystemNodes::items()
     def self.items()
-
-        getItemsFromScratch = lambda {
-            items = []
-            Find.find("#{Config::userHomeDirectory()}/Galaxy") do |path|
-                next if !NxType1FileSystemNodes::isFileSystemNode(path)
-                items << JSON.parse(IO.read(path))
-            end
-            items
-        }
-
-        getItemsUUIDsFromCachedIndexOrNull = lambda {
-            items = XCache::getOrNull("2cc14521-a090-494f-86a8-47574525fdd4")
-            return nil if items.nil?
-            JSON.parse(items)
-        }
-
-        commitItemsUUIDsToCache = lambda {|items|
-            XCache::set("2cc14521-a090-494f-86a8-47574525fdd4", JSON.generate(items))
-        }
-
-        uuids = getItemsUUIDsFromCachedIndexOrNull.call()
+        uuids = NxType1FileSystemNodesIndex::getUUIDsFromCachedIndexOrNull()
         if uuids then
             return uuids.map{|uuid| NxType1FileSystemNodes::getOrNull(uuid) }.compact
         end
 
-        items = getItemsFromScratch.call()
+        items = NxType1FileSystemNodesIndex::getItemsFromScratch()
         uuids = items.map{|item| item["uuid"] }
-        commitItemsUUIDsToCache.call(uuids)
+        NxType1FileSystemNodesIndex::commitUUIDsToCache(uuids)
 
         items
     end

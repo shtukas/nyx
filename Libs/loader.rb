@@ -149,3 +149,17 @@ require_relative "Search.rb"
 require_relative "UniqueStrings.rb"
 
 # ------------------------------------------------------------
+
+Thread.new {
+    loop {
+        NxType1FileSystemNodesIndex::rebuildCacheFromScratch()
+        sleep 3600
+    }
+}
+
+Thread.new {
+    loop {
+        NxType3NavigationNodesIndex::rebuildCacheFromScratch()
+        sleep 3600
+    }
+}

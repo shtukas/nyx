@@ -1,6 +1,50 @@
 
 # encoding: UTF-8
 
+class NxType3NavigationNodesIndex
+
+    # NxType3NavigationNodesIndex::getItemsFromScratch()
+    def self.getItemsFromScratch()
+        items = []
+        Find.find("#{Config::userHomeDirectory()}/Galaxy") do |path|
+            next if !NxType3NavigationNodes::isNavigationNode(path)
+            items << JSON.parse(IO.read(path))
+        end
+        items
+    end
+
+    # NxType3NavigationNodesIndex::getUUIDsFromCachedIndexOrNull()
+    def self.getUUIDsFromCachedIndexOrNull()
+        items = XCache::getOrNull("5a402c08-664f-4fbc-87df-2cc4a088e399")
+        return nil if items.nil?
+        JSON.parse(items)
+    end
+
+    # NxType3NavigationNodesIndex::commitUUIDsToCache(uuids)
+    def self.commitUUIDsToCache(uuids)
+        XCache::set("5a402c08-664f-4fbc-87df-2cc4a088e399", JSON.generate(uuids))
+    end
+
+    # NxType3NavigationNodesIndex::updateCacheWithNewUUID(uuid)
+    def self.updateCacheWithNewUUID(uuid)
+        uuids = XCache::getOrNull("5a402c08-664f-4fbc-87df-2cc4a088e399")
+        uuids = 
+            if uuids.nil? then
+                []
+            else
+                JSON.parse(uuids)
+            end
+        uuids = uuids + [uuid]
+        XCache::set("5a402c08-664f-4fbc-87df-2cc4a088e399", JSON.generate(uuids))
+    end
+
+    # NxType3NavigationNodesIndex::rebuildCacheFromScratch()
+    def self.rebuildCacheFromScratch()
+        uuids = NxType3NavigationNodesIndex::getItemsFromScratch().map{|item| item["uuid"] }
+        NxType3NavigationNodesIndex::commitUUIDsToCache(uuids)
+    end
+end
+
 class NxType3NavigationNodes
 
     # ------------------------------------
@@ -63,11 +107,17 @@ class NxType3NavigationNodes
         folderpath2 = LucilleCore::indexsubfolderpath(folderpath1)
         filepath = "#{folderpath2}/#{filename}"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(node)) }
+
+        # ----------------------------------------------------------------------
+        # We now update the cache with a new uuid
+
+        NxType3NavigationNodesIndex::updateCacheWithNewUUID(node["uuid"])
+        # ----------------------------------------------------------------------
     end
 
     # NxType3NavigationNodes::reCommit(node)
     def self.reCommit(node)
-        filepath1 = NxType3NavigationNodes::getNodeExistingFilepathOrNull(uuid)
+        filepath1 = NxType3NavigationNodes::getNodeExistingFilepathOrNull(node["uuid"])
         if filepath1.nil? then
             puts "I am trying to recommit this node (below) but I can't find the filepath"
             puts JSON.pretty_generate(node)
@@ -123,34 +173,13 @@ class NxType3NavigationNodes
 
     # NxType3NavigationNodes::items()
     def self.items()
-        getItemsFromScratch = lambda {
-            items = []
-            Find.find("#{Config::userHomeDirectory()}/Galaxy") do |path|
-                next if !NxType3NavigationNodes::isNavigationNode(path)
-                items << JSON.parse(IO.read(path))
-            end
-            items
-        }
-
-        getItemsUUIDsFromCachedIndexOrNull = lambda {
-            items = XCache::getOrNull("5a402c08-664f-4fbc-87df-2cc4a088e399")
-            return nil if items.nil?
-            JSON.parse(items)
-        }
-
-        commitItemsUUIDsToCache = lambda {|items|
-            XCache::set("5a402c08-664f-4fbc-87df-2cc4a088e399", JSON.generate(items))
-        }
-
-        uuids = getItemsUUIDsFromCachedIndexOrNull.call()
+        uuids = NxType3NavigationNodesIndex::getUUIDsFromCachedIndexOrNull()
         if uuids then
-            return uuids.map{|uuid| NxType1FileSystemNodes::getOrNull(uuid) }.compact
+            return uuids.map{|uuid| NxType3NavigationNodes::getOrNull(uuid) }.compact
         end
-
-        items = getItemsFromScratch.call()
+        items = NxType3NavigationNodesIndex::getItemsFromScratch()
         uuids = items.map{|item| item["uuid"] }
-        commitItemsUUIDsToCache.call(uuids)
-
+        NxType3NavigationNodesIndex::commitUUIDsToCache(uuids)
         items
     end
 

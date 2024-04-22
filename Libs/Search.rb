@@ -29,7 +29,7 @@ class Search
 
                 item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", selected, lambda{|i| i["description"] })
                 break if item.nil?
-                NyxNodesGI::landing(item)
+                NyxNodesGI::program(item)
             }
         }
     end
