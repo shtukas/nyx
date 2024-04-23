@@ -75,20 +75,6 @@ class NxDot41s
     # ------------------------------------
     # Operations
 
-    # NxDot41s::connect1(node, uuid)
-    def self.connect1(node, uuid)
-        node["linkeduuids"] = (node["linkeduuids"] + [uuid]).uniq
-        NxDot41s::commit(node)
-    end
-
-    # NxDot41s::connect2(node)
-    def self.connect2(node)
-        node2 = PolyFunctions::architectNodeOrNull()
-        return if node2.nil?
-        NxDot41s::connect1(node, node2["uuid"])
-        NxDot41s::connect1(node2, node["uuid"])
-    end
-
     # NxDot41s::program(node) # nil or node (to get the node issue `select`)
     def self.program(node)
         loop {
@@ -169,7 +155,7 @@ class NxDot41s
             end
 
             if command == "connect" then
-                NxDot41s::connect2(node)
+                NyxNodesGI::connect2(node)
                 next
             end
 

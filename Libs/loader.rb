@@ -141,7 +141,6 @@ require_relative "NyxNodesGI.rb"
 require_relative "NxType1FileSystemNodes.rb"
 
 require_relative "ProgrammableBooleans.rb"
-require_relative "PolyFunctions.rb"
 require_relative "Px44s.rb"
 
 require_relative "Search.rb"
