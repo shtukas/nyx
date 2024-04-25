@@ -73,16 +73,19 @@ class NyxNodesGI
     # NyxNodesGI::connect1(node, uuid)
     def self.connect1(node, uuid)
         node["linkeduuids"] = (node["linkeduuids"] + [uuid]).uniq
-        if item["mikuType"] == "NxDot41" then
+        if node["mikuType"] == "NxDot41" then
             NxDot41s::commit(node)
+            return
         end
-        if item["mikuType"] == "NxType3NavigationNode" then
+        if node["mikuType"] == "NxType3NavigationNode" then
             NxType3NavigationNodes::reCommit(node)
+            return
         end
-        if item["mikuType"] == "NxType1FileSystemNode" then
+        if node["mikuType"] == "NxType1FileSystemNode" then
             NxType1FileSystemNodes::reCommit(node)
+            return
         end
-        raise "(error: a0c86621) I do not know how to NyxNodesGI::connect1 this node: #{item}"
+        raise "(error: a0c86621) I do not know how to NyxNodesGI::connect1 this node: #{node}"
     end
 
     # NyxNodesGI::connect2(node)
