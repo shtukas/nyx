@@ -197,7 +197,8 @@ class NxType3NavigationNodes
             description  = node["description"]
             datetime     = node["datetime"]
 
-            puts "- description: "+node["description"].green
+            puts "- description: #{node["description"].green}"
+            puts "- mikuType   : #{node["mikuType"].green}"
             puts "- uuid       : #{node["uuid"]}"
             puts "- datetime   : #{datetime}"
 
@@ -212,7 +213,7 @@ class NxType3NavigationNodes
                 }
             end
 
-            linkednodes = node["linkeduuids"].map{|id| NxType3NavigationNodes::getOrNull(id) }.compact
+            linkednodes = node["linkeduuids"].map{|id| NyxNodesGI::getOrNull(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"
@@ -234,7 +235,7 @@ class NxType3NavigationNodes
                 indx = command.to_i
                 item = store.get(indx)
                 next if item.nil?
-                NxType3NavigationNodes::program(item)
+                NyxNodesGI::program(item)
                 next
             end
 

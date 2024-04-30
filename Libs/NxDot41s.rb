@@ -87,7 +87,8 @@ class NxDot41s
             description  = node["description"]
             datetime     = node["datetime"]
 
-            puts "- description: "+node["description"].green
+            puts "- description: #{node["description"].green}"
+            puts "- mikuType   : #{node["mikuType"].green}"
             puts "- uuid       : #{node["uuid"]}"
             puts "- datetime   : #{datetime}"
             puts "- payload    : #{Px44::toStringSuffix(node["payload"]).strip}"
@@ -103,7 +104,7 @@ class NxDot41s
                 }
             end
 
-            linkednodes = node["linkeduuids"].map{|id| NxDot41s::getOrNull(id) }.compact
+            linkednodes = node["linkeduuids"].map{|id| NyxNodesGI::getOrNull(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"
@@ -125,7 +126,7 @@ class NxDot41s
                 indx = command.to_i
                 item = store.get(indx)
                 next if item.nil?
-                NxDot41s::program(item)
+                NyxNodesGI::program(item)
                 next
             end
 

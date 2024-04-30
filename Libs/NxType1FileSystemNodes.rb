@@ -197,6 +197,7 @@ class NxType1FileSystemNodes
             datetime     = node["datetime"]
 
             puts "- description: #{node["description"].green}"
+            puts "- mikuType   : #{node["mikuType"].green}"
             puts "- uuid       : #{node["uuid"]}"
             puts "- datetime   : #{datetime}"
 
@@ -211,7 +212,7 @@ class NxType1FileSystemNodes
                 }
             end
 
-            linkednodes = node["linkeduuids"].map{|id| NxType1FileSystemNodes::getOrNull(id) }.compact
+            linkednodes = node["linkeduuids"].map{|id| NyxNodesGI::getOrNull(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"
@@ -233,7 +234,7 @@ class NxType1FileSystemNodes
                 indx = command.to_i
                 item = store.get(indx)
                 next if item.nil?
-                NxType1FileSystemNodes::program(item)
+                NyxNodesGI::program(item)
                 next
             end
 
