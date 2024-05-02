@@ -41,31 +41,21 @@ class NyxNodesGI
     def self.program(item)
         if item["mikuType"] == "NxNote" then
             NxNote::program(item)
+            return nil
         end
         if item["mikuType"] == "NxCoreDataRef" then
             reference = item
             CoreDataRefsNxCDRs::program(node["uuid"], reference)
+            return nil
         end
         if item["mikuType"] == "NxDot41" then
-            x = NxDot41s::program(item)
-            if x then
-                return x # was selected during a landing/program
-            end
-            return
+            return NxDot41s::program(item)
         end
         if item["mikuType"] == "NxType3NavigationNode" then
-            x = NxType3NavigationNodes::program(item)
-            if x then
-                return x # was selected during a landing/program
-            end
-            return
+            return NxType3NavigationNodes::program(item)
         end
         if item["mikuType"] == "NxType1FileSystemNode" then
-            x = NxType1FileSystemNodes::program(item)
-            if x then
-                return x # was selected during a landing/program
-            end
-            return
+            return NxType1FileSystemNodes::program(item)
         end
         raise "(error: adaa46f8) I do not know how to NyxNodesGI::program this node: #{item}"
     end
@@ -99,7 +89,7 @@ class NyxNodesGI
     # NyxNodesGI::architectNodeOrNull()
     def self.architectNodeOrNull()
         loop {
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["search and maybe `select`", "build and return"])
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["search and maybe `select`", "interactively make new"])
             return nil if option.nil?
             if option == "search and maybe `select`" then
                 node = NyxNodesGI::getNodeOrNullUsingSelectionAndNavigation()
@@ -107,7 +97,7 @@ class NyxNodesGI
                     return node
                 end
             end
-            if option == "build and return" then
+            if option == "interactively make new" then
                 node = NyxNodesGI::interactivelyMakeNewNodeOrNull()
                 if node then
                     return node
@@ -119,7 +109,6 @@ class NyxNodesGI
     # NyxNodesGI::getNodeOrNullUsingSelectionAndNavigation() nil or node
     def self.getNodeOrNullUsingSelectionAndNavigation()
         puts "get node using selection and navigation".green
-        sleep 0.5
         loop {
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort and return null) : ")
             return nil if fragment == ""
