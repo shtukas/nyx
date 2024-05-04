@@ -120,8 +120,8 @@ class Blades
         puts "accessing blade: #{filepath}"
         exportId = SecureRandom.hex(4)
         exportFoldername = "aion-point-#{exportId}"
-        exportFolder = "#{Config::userHomeDirectory()}/x-space/xcache-v1-days/#{exportFoldername}"
-        FileUtils.mkdir(exportFolder)
+        exportFolder = "#{Config::userHomeDirectory()}/x-space/xcache-v1-days/#{CommonUtils::today()}/#{exportFoldername}"
+        FileUtils.mkpath(exportFolder)
         operator = BladeElizabeth.new(filepath)
         AionCore::exportHashAtFolder(operator, nhash, exportFolder)
         system("open '#{exportFolder}'")

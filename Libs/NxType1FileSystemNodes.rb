@@ -224,7 +224,7 @@ class NxType1FileSystemNodes
             end
 
             puts ""
-            puts "commands: select | description | connect | disconnect | note | note remove | expose | destroy"
+            puts "commands: select | access |description | connect | disconnect | note | note remove | expose | destroy"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -240,6 +240,19 @@ class NxType1FileSystemNodes
 
             if command == "select" then
                 return node
+            end
+
+            if command == "access" then
+                filepath = NxType1FileSystemNodes::getNodeExistingFilepathOrNull(node["uuid"])
+                if filepath.nil? then
+                    puts "I could not access the file path for '#{node["description"].green}' 🤔"
+                    LucilleCore::pressEnterToContinue()
+                    return
+                end
+                puts "accessing #{File.dirname(filepath)}"
+                system("open '#{File.dirname(filepath)}'")
+                LucilleCore::pressEnterToContinue()
+                next
             end
 
             if command == "description" then
