@@ -150,12 +150,8 @@ class Px44
             #    filename : String
             #    nhash    : String
             bx26 = px44["bx26"]
-            filename = bx26["filename"]
-            filepath = BladeCore::filenameToFilepath(filename)
             nhash = bx26["nhash"]
-            operator = BladeElizabeth.new(filepath)
-            puts "Px44::fsck, filepath: #{filepath}, nhash: #{nhash}"
-            AionFsck::structureCheckAionHashRaiseErrorIfAny(operator, nhash)
+            AionFsck::structureCheckAionHashRaiseErrorIfAny(Elizabeth.new(), nhash)
             return
         end
         if px44["type"] == "nyx-fs-beacon" then

@@ -18,20 +18,18 @@ class NxDot41s
 
         payload = Px44::interactivelyMakeNewOrNull()
 
-        node = {}
-        node["uuid"] = uuid
-        node["mikuType"] = "NxDot41"
-        node["unixtime"] = Time.new.to_i
-        node["datetime"] = Time.new.utc.iso8601
-        node["description"] = description
-        node["payload"] = payload
-        node["linkeduuids"] = []
-        node["notes"] = []
-        node["tags"] = []
+        Items::itemInit(uuid, "NxDot41")
+        Items::setAttribute(uuid, "unixtime", Time.new.to_i)
+        Items::setAttribute(uuid, "datetime", Time.new.utc.iso8601)
+        Items::setAttribute(uuid, "description", description)
+        Items::setAttribute(uuid, "payload", payload)
+        Items::setAttribute(uuid, "linkeduuids", [])
+        Items::setAttribute(uuid, "notes", [])
+        Items::setAttribute(uuid, "tags", [])
+
+        node = Items::itemOrNull(uuid)
 
         NxDot41s::fsck(node)
-
-        NxDot41s::commit(node)
 
         node
     end
@@ -44,34 +42,6 @@ class NxDot41s
         "#{node["description"]}#{Px44::toStringSuffix(node["payload"])}"
     end
 
-    # NxDot41s::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        nhash = Digest::SHA1.hexdigest(uuid)
-        folderpath = "#{Config::pathToData()}/NxDot41"
-        filepath = "#{folderpath}/#{nhash}.json"
-        return nil if !File.exist?(filepath)
-        JSON.parse(IO.read(filepath))
-    end
-
-    # NxDot41s::commit(node)
-    def self.commit(node)
-        NxDot41s::fsck(node)
-        nhash = Digest::SHA1.hexdigest(node["uuid"])
-        folderpath = "#{Config::pathToData()}/NxDot41"
-        filepath = "#{folderpath}/#{nhash}.json"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(node)) }
-    end
-
-    # NxDot41s::items()
-    def self.items()
-        items = []
-        Find.find("#{Config::pathToData()}/NxDot41") do |path|
-            next if path[-5, 5] != '.json'
-            items << JSON.parse(IO.read(path))
-        end
-        items
-    end
-
     # ------------------------------------
     # Operations
 
@@ -79,7 +49,7 @@ class NxDot41s
     def self.program(node)
         loop {
 
-            node = NxDot41s::getOrNull(node["uuid"])
+            node = Items::itemOrNull(node["uuid"])
             return if node.nil?
 
             system('clear')
@@ -104,7 +74,7 @@ class NxDot41s
                 }
             end
 
-            linkednodes = node["linkeduuids"].map{|id| NyxNodesGI::getOrNull(id) }.compact
+            linkednodes = node["linkeduuids"].map{|id| Items::itemOrNull(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"
@@ -137,8 +107,7 @@ class NxDot41s
             if command == "description" then
                 description = CommonUtils::editTextSynchronously(node["description"])
                 next if description == ""
-                node["description"] = description
-                NxDot41s::commit(node)
+                Items::setAttribute(node["uuid"], "description",description)
                 next
             end
 
@@ -150,8 +119,7 @@ class NxDot41s
             if command == "payload" then
                 payload = Px44::interactivelyMakeNewOrNull()
                 next if payload.nil?
-                node["payload"] = payload
-                NxDot41s::commit(node)
+                Items::setAttribute(node["uuid"], "payload",payload)
                 next
             end
 
@@ -170,7 +138,7 @@ class NxDot41s
                 note = NxNote::interactivelyIssueNewOrNull()
                 next if note.nil?
                 node["notes"] << note
-                NxDot41s::commit(node)
+                Items::setAttribute(node["uuid"], "notes", node["notes"])
                 next
             end
 
@@ -187,27 +155,12 @@ class NxDot41s
             end
 
             if command == "destroy" then
-                NxDot41s::destroy(node["uuid"])
+                Items::destroy(node["uuid"])
                 next
             end
         }
 
         nil
-    end
-
-    # NxDot41s::destroy(uuid)
-    def self.destroy(uuid)
-        puts "> request to destroy nyx node: #{uuid}"
-        code1 = SecureRandom.hex(2)
-        code2 = LucilleCore::askQuestionAnswerAsString("Confirm by entering destruction code (#{code1}): ")
-        if code1 != code2 then
-            return
-        end
-        nhash = Digest::SHA1.hexdigest(uuid)
-        folderpath = "#{Config::pathToData()}/NxDot41"
-        filepath = "#{folderpath}/#{nhash}.json"
-        return if !File.exist?(filepath)
-        FileUtils.rm(filepath)
     end
 
     # NxDot41s::fsck(item)

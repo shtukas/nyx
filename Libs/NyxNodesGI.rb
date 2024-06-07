@@ -3,23 +3,9 @@ class NyxNodesGI
 
     # NyxNodesGI::nodes()
     def self.nodes()
-        NxDot41s::items() +
-        NxType3NavigationNodes::items() +
-        NxType1FileSystemNodes::items()
-    end
-
-    # NyxNodesGI::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        node = NxDot41s::getOrNull(uuid)
-        return node if node
-
-        node = NxType3NavigationNodes::getOrNull(uuid)
-        return node if node
-
-        node = NxType1FileSystemNodes::getOrNull(uuid)
-        return node if node
-
-        nil
+        Items::mikuType("NxDot41") +
+        Items::mikuType("NxType3NavigationNode") +
+        Items::mikuType("NxType1FileSystemNode")
     end
 
     # NyxNodesGI::interactivelyMakeNewNodeOrNull()
@@ -43,11 +29,6 @@ class NyxNodesGI
             NxNote::program(item)
             return nil
         end
-        if item["mikuType"] == "NxCoreDataRef" then
-            reference = item
-            CoreDataRefsNxCDRs::program(node["uuid"], reference)
-            return nil
-        end
         if item["mikuType"] == "NxDot41" then
             return NxDot41s::program(item)
         end
@@ -63,19 +44,7 @@ class NyxNodesGI
     # NyxNodesGI::connect1(node, uuid)
     def self.connect1(node, uuid)
         node["linkeduuids"] = (node["linkeduuids"] + [uuid]).uniq
-        if node["mikuType"] == "NxDot41" then
-            NxDot41s::commit(node)
-            return
-        end
-        if node["mikuType"] == "NxType3NavigationNode" then
-            NxType3NavigationNodes::reCommit(node)
-            return
-        end
-        if node["mikuType"] == "NxType1FileSystemNode" then
-            NxType1FileSystemNodes::reCommit(node)
-            return
-        end
-        raise "(error: a0c86621) I do not know how to NyxNodesGI::connect1 this node: #{node}"
+        Items::setAttribute(node["uuid"], "linkeduuids", node["linkeduuids"])
     end
 
     # NyxNodesGI::connect2(node)
@@ -124,7 +93,7 @@ class NyxNodesGI
                         return nil
                     end
                 else
-                    selected = selected.select{|node| NxDot41s::getOrNull(node["uuid"]) } # In case something has changed, we want the ones that have survived
+                    selected = selected.select{|node| Items::itemOrNull(node["uuid"]) } # In case something has changed, we want the ones that have survived
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", selected, lambda{|i| i["description"] })
                     if node.nil? then
                         if LucilleCore::askQuestionAnswerAsBoolean("search more ? ", false) then
@@ -140,16 +109,5 @@ class NyxNodesGI
                 end
             }
         }
-    end
-
-    # NyxNodesGI::toString(item)
-    def self.toString(item)
-        if item["mikuType"] == "NxDot41" then
-            return NxDot41s::toString(item)
-        end
-        if item["mikuType"] == "NxCoreDataRef" then
-            return CoreDataRefsNxCDRs::toString(item)
-        end
-        raise "(error: f0b8340c-9ed8-4046-b102-7e461cedef21) unsupported miku type: #{item["mikuType"]}"
     end
 end

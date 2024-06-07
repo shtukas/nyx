@@ -1,7 +1,7 @@
 
 CoreData references are json object that represent data, more exactly nodes payloads.
 
-NxCoreDataRef {
+NxPayload {
     "uuid"        : String
     "mikuType"    : "NxCoreDataRef"
     "unixtime"    : Float
@@ -9,7 +9,7 @@ NxCoreDataRef {
     "description" : nil or string
 }
 
-NxCoreDataRef {
+NxPayload {
     "uuid"        : String
     "mikuType"    : "NxCoreDataRef"
     "unixtime"    : Float
@@ -18,7 +18,7 @@ NxCoreDataRef {
     "text"        : string
 }
 
-NxCoreDataRef {
+NxPayload {
     "uuid"        : String
     "mikuType"    : "NxCoreDataRef"
     "unixtime"    : Float
@@ -27,7 +27,7 @@ NxCoreDataRef {
     "url          : string
 }
 
-NxCoreDataRef {
+NxPayload {
     "uuid"        : String
     "mikuType"    : "NxCoreDataRef"
     "unixtime"    : Float
@@ -36,7 +36,7 @@ NxCoreDataRef {
     "nhash"       : string
 }
 
-NxCoreDataRef {
+NxPayload {
     "uuid"         : String
     "mikuType"     : "NxCoreDataRef"
     "unixtime"     : Float

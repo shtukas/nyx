@@ -1,126 +1,7 @@
 
 # encoding: UTF-8
 
-class NxType1FileSystemNodesIndex
-
-    # NxType1FileSystemNodesIndex::getItemsFromScratch()
-    def self.getItemsFromScratch()
-        items = []
-        Find.find("#{Config::userHomeDirectory()}/Galaxy") do |path|
-            next if !NxType1FileSystemNodes::isFileSystemNode(path)
-            items << JSON.parse(IO.read(path))
-        end
-        items
-    end
-
-    # NxType1FileSystemNodesIndex::getUUIDsFromCachedIndexOrNull()
-    def self.getUUIDsFromCachedIndexOrNull()
-        items = XCache::getOrNull("2cc14521-a090-494f-86a8-47574525fdd4")
-        return nil if items.nil?
-        JSON.parse(items)
-    end
-
-    # NxType1FileSystemNodesIndex::commitUUIDsToCache(uuids)
-    def self.commitUUIDsToCache(uuids)
-        XCache::set("2cc14521-a090-494f-86a8-47574525fdd4", JSON.generate(uuids))
-    end
-
-    # NxType1FileSystemNodesIndex::updateCacheWithNewUUID(uuid)
-    def self.updateCacheWithNewUUID(uuid)
-        uuids = XCache::getOrNull("2cc14521-a090-494f-86a8-47574525fdd4")
-        uuids = 
-            if uuids.nil? then
-                []
-            else
-                JSON.parse(uuids)
-            end
-        uuids = uuids + [uuid]
-        XCache::set("2cc14521-a090-494f-86a8-47574525fdd4", JSON.generate(uuids))
-    end
-
-    # NxType1FileSystemNodesIndex::rebuildCacheFromScratch()
-    def self.rebuildCacheFromScratch()
-        uuids = NxType1FileSystemNodesIndex::getItemsFromScratch().map{|item| item["uuid"] }
-        NxType1FileSystemNodesIndex::commitUUIDsToCache(uuids)
-    end
-end
-
 class NxType1FileSystemNodes
-
-    # ------------------------------------
-    # Basic IO
-
-    # NxType1FileSystemNodes::fsck(item)
-    def self.fsck(item)
-
-    end
-
-    # NxType1FileSystemNodes::isFileSystemNode(filepath)
-    def self.isFileSystemNode(filepath)
-        b1 = File.basename(filepath)[-5, 5] == ".json"
-        b2 = File.basename(filepath).include?(".nyx1-location.")
-        b1 and b2
-    end
-
-    # NxType1FileSystemNodes::readUuidFromFilepath(filepath)
-    def self.readUuidFromFilepath(filepath)
-        object = JSON.parse(IO.read(filepath))
-        if object["uuid"].nil? then
-            raise "Could not determine uuid for file system node: #{filepath}"
-        end
-        object["uuid"]
-    end
-
-    # NxType1FileSystemNodes::getNodeExistingFilepathOrNull(uuid)
-    def self.getNodeExistingFilepathOrNull(uuid)
-        bruteforce = lambda{|uuid|
-            Find.find("#{Config::userHomeDirectory()}/Galaxy") do |path|
-                next if !NxType1FileSystemNodes::isFileSystemNode(path)
-                next if NxType1FileSystemNodes::readUuidFromFilepath(path) != uuid
-                return path
-            end
-            nil
-        }
-
-        filepath = XCache::getOrNull("0324d06f-1506:#{uuid}")
-        if filepath and File.exist?(filepath) then
-            return filepath
-        end
-
-        filepath = bruteforce.call(uuid)
-
-        if filepath then
-            XCache::set("0324d06f-1506:#{uuid}", filepath)
-        end
-
-        filepath
-    end
-
-    # NxType1FileSystemNodes::firstCommit(node)
-    def self.firstCommit(node)
-        NxType1FileSystemNodes::fsck(node)
-        filename = "#{SecureRandom.hex(5)}.nyx1-location.#{SecureRandom.hex(2)}.json"
-        folderpath1 = "#{Config::userHomeDirectory()}/Desktop"
-        filepath = "#{folderpath1}/#{filename}"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(node)) }
-
-        # ----------------------------------------------------------------------
-        # We now update the cache with a new uuid
-
-        NxType1FileSystemNodesIndex::updateCacheWithNewUUID(node["uuid"])
-        # ----------------------------------------------------------------------
-    end
-
-    # NxType1FileSystemNodes::reCommit(node)
-    def self.reCommit(node)
-        filepath1 = NxType1FileSystemNodes::getNodeExistingFilepathOrNull(node["uuid"])
-        if filepath1.nil? then
-            puts "I am trying to recommit this node (below) but I can't find the filepath"
-            puts JSON.pretty_generate(node)
-            raise "(error: ebaadd66)"
-        end
-        File.open(filepath1, "w"){|f| f.puts(JSON.pretty_generate(node)) }
-    end
 
     # ------------------------------------
     # Makers
@@ -135,21 +16,20 @@ class NxType1FileSystemNodes
         description = LucilleCore::pressEnterToContinue("description (file system location) (empty to abort): ")
         return nil if description == ""
 
-        node = {}
-        node["uuid"] = uuid
-        node["mikuType"] = "NxType1FileSystemNode"
-        node["unixtime"] = Time.new.to_i
-        node["datetime"] = Time.new.utc.iso8601
-        node["description"] = description
-        node["linkeduuids"] = []
-        node["notes"] = []
-        node["tags"] = []
+        Items::itemInit(uuid, "NxType1FileSystemNode")
+        Items::setAttribute(uuid, "unixtime", Time.new.to_i)
+        Items::setAttribute(uuid, "datetime", Time.new.utc.iso8601)
+        Items::setAttribute(uuid, "description", description)
+        Items::setAttribute(uuid, "linkeduuids", [])
+        Items::setAttribute(uuid, "notes", [])
+        Items::setAttribute(uuid, "tags", [])
+
+        node = Items::itemOrNull(uuid)
 
         NxType1FileSystemNodes::fsck(node)
 
-        NxType1FileSystemNodes::firstCommit(node)
-
         node
+
     end
 
     # ------------------------------------
@@ -160,27 +40,6 @@ class NxType1FileSystemNodes
         "📍 #{node["description"]}"
     end
 
-    # NxType1FileSystemNodes::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        filepath = NxType1FileSystemNodes::getNodeExistingFilepathOrNull(uuid)
-        return nil if filepath.nil?
-        JSON.parse(IO.read(filepath))
-    end
-
-    # NxType1FileSystemNodes::items()
-    def self.items()
-        uuids = NxType1FileSystemNodesIndex::getUUIDsFromCachedIndexOrNull()
-        if uuids then
-            return uuids.map{|uuid| NxType1FileSystemNodes::getOrNull(uuid) }.compact
-        end
-
-        items = NxType1FileSystemNodesIndex::getItemsFromScratch()
-        uuids = items.map{|item| item["uuid"] }
-        NxType1FileSystemNodesIndex::commitUUIDsToCache(uuids)
-
-        items
-    end
-
     # ------------------------------------
     # Operations
 
@@ -188,7 +47,7 @@ class NxType1FileSystemNodes
     def self.program(node)
         loop {
 
-            node = NxType1FileSystemNodes::getOrNull(node["uuid"])
+            node = Items::itemOrNull(node["uuid"])
             return if node.nil?
 
             system('clear')
@@ -212,7 +71,7 @@ class NxType1FileSystemNodes
                 }
             end
 
-            linkednodes = node["linkeduuids"].map{|id| NyxNodesGI::getOrNull(id) }.compact
+            linkednodes = node["linkeduuids"].map{|id| Items::itemOrNull(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"
@@ -224,7 +83,7 @@ class NxType1FileSystemNodes
             end
 
             puts ""
-            puts "commands: select | access |description | connect | disconnect | note | note remove | expose | destroy"
+            puts "commands: select | access | description | connect | disconnect | note | note remove | expose | destroy"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -243,14 +102,7 @@ class NxType1FileSystemNodes
             end
 
             if command == "access" then
-                filepath = NxType1FileSystemNodes::getNodeExistingFilepathOrNull(node["uuid"])
-                if filepath.nil? then
-                    puts "I could not access the file path for '#{node["description"].green}' 🤔"
-                    LucilleCore::pressEnterToContinue()
-                    return
-                end
-                puts "accessing #{File.dirname(filepath)}"
-                system("open '#{File.dirname(filepath)}'")
+                puts "access has not been implemented yet"
                 LucilleCore::pressEnterToContinue()
                 next
             end
@@ -258,8 +110,7 @@ class NxType1FileSystemNodes
             if command == "description" then
                 description = CommonUtils::editTextSynchronously(node["description"])
                 next if description == ""
-                node["description"] = description
-                NxType1FileSystemNodes::reCommit(node)
+                Items::setAttribute(node["uuid"], "description", description)
                 next
             end
 
@@ -278,7 +129,7 @@ class NxType1FileSystemNodes
                 note = NxNote::interactivelyIssueNewOrNull()
                 next if note.nil?
                 node["notes"] << note
-                NxType1FileSystemNodes::reCommit(node)
+                Items::setAttribute(node["uuid"], "notes", node["notes"])
                 next
             end
 
@@ -295,7 +146,7 @@ class NxType1FileSystemNodes
             end
 
             if command == "destroy" then
-                NxType1FileSystemNodes::destroy(node["uuid"])
+                Items::destroy(node["uuid"])
                 next
             end
         }
@@ -303,11 +154,8 @@ class NxType1FileSystemNodes
         nil
     end
 
-    # NxType1FileSystemNodes::destroy(uuid)
-    def self.destroy(uuid)
-        puts "> request to destroy nyx node: #{uuid}"
-        filepath1 = NxType1FileSystemNodes::getNodeExistingFilepathOrNull(uuid)
-        return if filepath1.nil?
-        FileUtils.rm(filepath)
+    # NxType1FileSystemNodes::fsck(item)
+    def self.fsck(item)
+
     end
 end

@@ -122,15 +122,15 @@ AionFsck::structureCheckAionHashRaiseErrorIfAny(operator, nhash)
 
 require_relative "Atlas.rb"
 
-require_relative "Blades.rb"
-
 require_relative "CommonUtils.rb"
-require_relative "CoreDataRefsNxCDRs.rb"
 
-require_relative "Dx8Units.rb"
+require_relative "Datablobs.rb"
+
+require_relative "Fsck.rb"
 
 require_relative "Galaxy.rb"
 
+require_relative "Items.rb"
 require_relative "ItemStore.rb"
 
 require_relative "Nyx.rb"
@@ -148,17 +148,3 @@ require_relative "Search.rb"
 require_relative "UniqueStrings.rb"
 
 # ------------------------------------------------------------
-
-Thread.new {
-    loop {
-        NxType1FileSystemNodesIndex::rebuildCacheFromScratch()
-        sleep 3600
-    }
-}
-
-Thread.new {
-    loop {
-        NxType3NavigationNodesIndex::rebuildCacheFromScratch()
-        sleep 3600
-    }
-}

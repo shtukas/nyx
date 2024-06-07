@@ -5,6 +5,9 @@ class Nyx
 
     # Nyx::main()
     def self.main()
+        if Config::isPrimaryInstance() then
+            Items::processJournal()
+        end
         loop {
             system("clear")
             options = [
