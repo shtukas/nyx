@@ -135,16 +135,12 @@ require_relative "ItemStore.rb"
 
 require_relative "Nyx.rb"
 require_relative "NxNote.rb"
-require_relative "NxDot41s.rb"
-require_relative "NxType3NavigationNodes.rb"
+require_relative "Sx0138s.rb"
 require_relative "NyxNodesGI.rb"
-require_relative "NxType1FileSystemNodes.rb"
 
 require_relative "ProgrammableBooleans.rb"
 require_relative "Px44s.rb"
 
 require_relative "Search.rb"
-
-require_relative "UniqueStrings.rb"
 
 # ------------------------------------------------------------

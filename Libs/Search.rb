@@ -16,7 +16,7 @@ class Search
 
             loop {
                 system('clear')
-                selected = NyxNodesGI::nodes()
+                selected = Items::mikuType("Sx0138")
                             .select{|item| Search::match(item, fragment) }
 
                 if selected.empty? then
@@ -29,7 +29,7 @@ class Search
 
                 item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", selected, lambda{|i| i["description"] })
                 break if item.nil?
-                NyxNodesGI::program(item)
+                Sx0138s::program(item)
             }
         }
     end

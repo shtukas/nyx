@@ -1,5 +1,0 @@
-Bx26 is the coordinates of a aion point. We specify the file (a blade) that contain the data and the root nhash. The file is immutable.
-
-Bx26
-    filename : String
-    nhash    : String

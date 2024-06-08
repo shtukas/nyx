@@ -21,16 +21,16 @@ class Nyx
                 Search::searchAndDive()
             end
             if option == "new node" then
-                node = NyxNodesGI::interactivelyMakeNewNodeOrNull()
+                node = Sx0138s::interactivelyIssueNewOrNull()
                 next if node.nil?
-                NyxNodesGI::program(node)
+                Sx0138s::program(node)
             end
             if option == "dive nodes" then
                 loop {
-                    nodes = NyxNodesGI::nodes().sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
+                    nodes = Items::mikuType("Sx0138").sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| node["description"] })
                     break if node.nil?
-                    NyxNodesGI::program(node)
+                    Sx0138s::program(node)
                 }
             end
         }

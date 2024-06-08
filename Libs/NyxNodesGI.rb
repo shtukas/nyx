@@ -1,42 +1,14 @@
 
 class NyxNodesGI
 
-    # NyxNodesGI::nodes()
-    def self.nodes()
-        Items::mikuType("NxDot41") +
-        Items::mikuType("NxType3NavigationNode") +
-        Items::mikuType("NxType1FileSystemNode")
-    end
-
-    # NyxNodesGI::interactivelyMakeNewNodeOrNull()
-    def self.interactivelyMakeNewNodeOrNull()
-        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("node type", ["navigation", "data carrier", "file system location"])
-        return nil if option.nil?
-        if option == "navigation" then
-            return NxType3NavigationNodes::interactivelyIssueNewOrNull()
-        end
-        if option == "data carrier" then
-            return NxDot41s::interactivelyIssueNewOrNull()
-        end
-        if option == "file system location" then
-            return NxType1FileSystemNodes::interactivelyIssueNewOrNull()
-        end
-    end
-
     # NyxNodesGI::program(item)
     def self.program(item)
         if item["mikuType"] == "NxNote" then
             NxNote::program(item)
             return nil
         end
-        if item["mikuType"] == "NxDot41" then
-            return NxDot41s::program(item)
-        end
-        if item["mikuType"] == "NxType3NavigationNode" then
-            return NxType3NavigationNodes::program(item)
-        end
-        if item["mikuType"] == "NxType1FileSystemNode" then
-            return NxType1FileSystemNodes::program(item)
+        if item["mikuType"] == "Sx0138" then
+            return Sx0138s::program(item)
         end
         raise "(error: adaa46f8) I do not know how to NyxNodesGI::program this node: #{item}"
     end
@@ -67,7 +39,7 @@ class NyxNodesGI
                 end
             end
             if option == "interactively make new" then
-                node = NyxNodesGI::interactivelyMakeNewNodeOrNull()
+                node = Sx0138s::interactivelyIssueNewOrNull()
                 if node then
                     return node
                 end
@@ -82,7 +54,7 @@ class NyxNodesGI
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort and return null) : ")
             return nil if fragment == ""
             loop {
-                selected = NyxNodesGI::nodes()
+                selected = Items::mikuType("Sx0138")
                             .select{|node| Search::match(node, fragment) }
 
                 if selected.empty? then
@@ -102,7 +74,7 @@ class NyxNodesGI
                             return nil
                         end
                     end
-                    node = NyxNodesGI::program(node)
+                    node = Sx0138s::program(node)
                     if node then
                         return node # was `select`ed
                     end

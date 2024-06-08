@@ -1,0 +1,13 @@
+
+Sx0138 are the nodes of the Nyx Network
+
+Sx0138
+    uuid        : String
+    mikutype    : "Sx0138"
+    unixtime    : Float
+    datetime    : DateTime Iso 8601 UTC Zulu
+    description : String
+    payload     : null or Px44
+    linkeduuids : String
+    notes       : Array[NxNote]
+    tags        : Array[String]

@@ -4,7 +4,7 @@ class Px44
 
     # Px44::types()
     def self.types()
-        ["text", "url", "blade", "nyx-fs-beacon", "unique string"]
+        ["text", "url", "aion-point", "beacon", "unique string"]
     end
 
     # Px44::interactivelySelectType()
@@ -31,23 +31,28 @@ class Px44
                 "url"  => url
             }
         end
-        if type == "blade" then
+        if type == "aion-point" then
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
             return {
-                "type" => "blade",
-                "bx26" => Blades::forge(location)
+                "type" => "aion-point",
+                "nhash" => AionCore::commitLocationReturnHash(Elizabeth.new(), location)
             }
         end
-        if type == "nyx-fs-beacon" then
-            id = SecureRandom.hex
-            filepath = "#{Config::userHomeDirectory()}/Desktop/beacon-#{id[0, 4]}.nyx-fs-beacon"
-            File.open(filepath, "w"){|f| f.write(id) }
-            puts "I put a .nyx-fs-beacon file on the Desktop. Add it to the target location."
+        if type == "beacon" then
+
+            beaconId = SecureRandom.uuid
+            beacon = {
+                "id" => beaconId
+            }
+            beaconFilepath = "#{Config::userHomeDirectory()}/Desktop/#{SecureRandom.hex(4)}.nyx29-beacon.json"
+            File.open(beaconFilepath, "w"){|f| f.puts(JSON.pretty_generate(beacon)) }
+            puts "I have put the beacon file on the Desktop, please move to destination"
             LucilleCore::pressEnterToContinue()
+
             return {
-                "type" => "nyx-fs-beacon",
-                "id"   => id
+                "type" => "beacon",
+                "id"   => beaconId
             }
         end
         if type == "unique string" then
@@ -63,22 +68,7 @@ class Px44
     # Px44::toStringSuffix(px44)
     def self.toStringSuffix(px44)
         return "" if px44.nil?
-        if px44["type"] == "text" then
-            return " (text)"
-        end
-        if px44["type"] == "url" then
-            return " (url)"
-        end
-        if px44["type"] == "blade" then
-            return " (blade)"
-        end
-        if px44["type"] == "nyx-fs-beacon" then
-            return " (nyx-fs-beacon)"
-        end
-        if px44["type"] == "unique-string" then
-            return " (unique-string)"
-        end
-        raise "(error: ee2b7a4b-a34a-4ea6-9f3e-c41be1d1a69c) Px44: #{px44}"
+        " (#{px44["type"]})"
     end
 
     # Px44::access(px44)
@@ -98,18 +88,26 @@ class Px44
             LucilleCore::pressEnterToContinue()
             return
         end
-        if px44["type"] == "blade" then
-            Blades::access(px44["bx26"])
+        if px44["type"] == "aion-point" then
+            nhash = px44["nhash"]
+            puts "accessing aion point: #{nhash}"
+            exportId = SecureRandom.hex(4)
+            exportFoldername = "#{exportId}-aion-point"
+            exportFolderpath = "#{ENV['HOME']}/x-space/xcache-v1-days/#{Time.new.to_s[0, 10]}/#{exportFoldername}"
+            FileUtils.mkpath(exportFolderpath)
+            AionCore::exportHashAtFolder(Elizabeth.new(), nhash, exportFolderpath)
+            system("open '#{exportFolderpath}'")
+            LucilleCore::pressEnterToContinue()
             return
         end
-        if px44["type"] == "nyx-fs-beacon" then
+        if px44["type"] == "beacon" then
             searchX = lambda{|id|
                 roots = [
                     "#{Config::userHomeDirectory()}/Galaxy"
                 ]
                 Galaxy::locationEnumerator(roots).each{|filepath|
-                    if File.basename(filepath)[-14, 14] == ".nyx-fs-beacon" then
-                        if IO.read(filepath).strip == id then
+                    if File.basename(filepath)[-18, 18] == ".nyx29-beacon.json" then
+                        if JSON.parse(IO.read(filepath))["id"] == id then
                             return filepath
                         end
                     end
@@ -118,10 +116,17 @@ class Px44
             }
             id = px44["id"]
             filepath = searchX.call(id)
-            puts "nyx fs beacon located: #{filepath}"
-            folderpath = File.dirname(filepath)
-            system("open '#{folderpath}'")
-            LucilleCore::pressEnterToContinue()
+            if filepath then
+                puts "nyx fs beacon located: #{filepath}"
+                folderpath = File.dirname(filepath)
+                system("open '#{folderpath}'")
+                LucilleCore::pressEnterToContinue()
+                return
+            else
+                puts "I could not locate beacon id: #{id} within Galaxy"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
         end
         if px44["type"] == "unique-string" then
             uniquestring = px44["uniquestring"]
@@ -145,16 +150,12 @@ class Px44
         if px44["type"] == "url" then
             return
         end
-        if px44["type"] == "blade" then
-            #Bx26
-            #    filename : String
-            #    nhash    : String
-            bx26 = px44["bx26"]
-            nhash = bx26["nhash"]
+        if px44["type"] == "aion-point" then
+            nhash = px44["nhash"]
             AionFsck::structureCheckAionHashRaiseErrorIfAny(Elizabeth.new(), nhash)
             return
         end
-        if px44["type"] == "nyx-fs-beacon" then
+        if px44["type"] == "beacon" then
             return
         end
         if px44["type"] == "unique-string" then

@@ -1,50 +1,35 @@
 
 # encoding: UTF-8
 
-class NxType3NavigationNodes
-
-    # ------------------------------------
-    # Basic IO
-
-    # NxType3NavigationNodes::fsck(item)
-    def self.fsck(item)
-    end
+class Sx0138s
 
     # ------------------------------------
     # Makers
 
-    # NxType3NavigationNodes::interactivelyIssueNewOrNull() # nil or node
+    # Sx0138s::interactivelyIssueNewOrNull() # nil or node
     def self.interactivelyIssueNewOrNull()
 
         uuid = SecureRandom.uuid
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
 
-        description = LucilleCore::pressEnterToContinue("description (navigation) (empty to abort): ")
+        description = LucilleCore::pressEnterToContinue("description (empty to abort): ")
         return nil if description == ""
 
-        beaconId = SecureRandom.uuid
-        beacon = {
-            "id" => beaconId,
-            "description" => "beacon for nyx's NxType1FileSystemNode"
-        }
-        beaconFilepath = "#{Config::userHomeDirectory()}/Desktop/#{SecureRandom.hex(4)}.nyx29-beacon.json"
-        File.open(beaconFilepath, "w"){|f| f.puts(JSON.pretty_generate(beacon)) }
-        puts "I have put the beacon file on the Desktop, please move to destination"
-        LucilleCore::pressEnterToContinue()
+        payload = Px44::interactivelyMakeNewOrNull()
 
-        Items::itemInit(uuid, "NxType3NavigationNode")
+        Items::itemInit(uuid, "Sx0138")
         Items::setAttribute(uuid, "unixtime", Time.new.to_i)
         Items::setAttribute(uuid, "datetime", Time.new.utc.iso8601)
         Items::setAttribute(uuid, "description", description)
-        Items::setAttribute(uuid, "beaconId", beaconId)
+        Items::setAttribute(uuid, "payload", payload)
         Items::setAttribute(uuid, "linkeduuids", [])
         Items::setAttribute(uuid, "notes", [])
         Items::setAttribute(uuid, "tags", [])
 
         node = Items::itemOrNull(uuid)
 
-        NxType3NavigationNodes::fsck(node)
+        Sx0138s::fsck(node)
 
         node
     end
@@ -52,15 +37,15 @@ class NxType3NavigationNodes
     # ------------------------------------
     # Data
 
-    # NxType3NavigationNodes::toString(node)
+    # Sx0138s::toString(node)
     def self.toString(node)
-        "🧭 #{node["description"]}"
+        "#{node["description"]}#{Px44::toStringSuffix(node["payload"])}"
     end
 
     # ------------------------------------
     # Operations
 
-    # NxType3NavigationNodes::program(node) # nil or node (to get the node issue `select`)
+    # Sx0138s::program(node) # nil or node (to get the node issue `select`)
     def self.program(node)
         loop {
 
@@ -76,6 +61,7 @@ class NxType3NavigationNodes
             puts "- mikuType   : #{node["mikuType"].green}"
             puts "- uuid       : #{node["uuid"]}"
             puts "- datetime   : #{datetime}"
+            puts "- payload    : #{Px44::toStringSuffix(node["payload"]).strip}"
 
             store = ItemStore.new()
 
@@ -100,7 +86,7 @@ class NxType3NavigationNodes
             end
 
             puts ""
-            puts "commands: select | access | description | connect | disconnect | note | note remove | expose | destroy"
+            puts "commands: select | description | access | payload | connect | disconnect | note | note remove | expose | destroy"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -118,16 +104,22 @@ class NxType3NavigationNodes
                 return node
             end
 
-            if command == "access" then
-                puts "not implemented yet, you need to look for the beacon"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-
             if command == "description" then
                 description = CommonUtils::editTextSynchronously(node["description"])
                 next if description == ""
-                Items::setAttribute(node["uuid"], "description", description)
+                Items::setAttribute(node["uuid"], "description",description)
+                next
+            end
+
+            if command == "access" then
+                Px44::access(node["payload"])
+                next
+            end
+
+            if command == "payload" then
+                payload = Px44::interactivelyMakeNewOrNull()
+                next if payload.nil?
+                Items::setAttribute(node["uuid"], "payload",payload)
                 next
             end
 
@@ -169,5 +161,10 @@ class NxType3NavigationNodes
         }
 
         nil
+    end
+
+    # Sx0138s::fsck(item)
+    def self.fsck(item)
+        Px44::fsck(item["payload"])
     end
 end
