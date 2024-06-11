@@ -165,6 +165,8 @@ class Sx0138s
 
     # Sx0138s::fsck(item)
     def self.fsck(item)
-        Px44::fsck(item["payload"])
+        if item["payload"] then
+            Px44::fsck(item["payload"])
+        end
     end
 end
