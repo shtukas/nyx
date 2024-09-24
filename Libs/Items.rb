@@ -1,5 +1,7 @@
 # encoding: UTF-8
 
+# Keep this file absolutely in sync with the same in Catalyst
+
 =begin
 
 Updates:
@@ -26,6 +28,8 @@ class Items
 
     # ----------------------------------------
     # Core
+
+    # Keep this file absolutely in sync with the same in Catalyst
 
     # Items::commitItemToDatabase(item)
     def self.commitItemToDatabase(item)
@@ -83,16 +87,8 @@ class Items
 
     # Items::upgradeItemsWithAttributesJournal(items, journal)
     def self.upgradeItemsWithAttributesJournal(items, journal)
+        items = items + journal.select{|update| update["updateType"] == "init" }
         journal.each{|update|
-
-            if update["updateType"] == "init" then
-                item = {
-                    "uuid" => update["uuid"],
-                    "mikuType" => update["mikuType"]
-                }
-                items = items + [item]
-            end
-
             if update["updateType"] == "set-attribute" then
                 uuid = update["uuid"]
                 attrname = update["attrname"]
@@ -104,7 +100,6 @@ class Items
                     item
                 }
             end
-
             if update["updateType"] == "destroy" then
                 uuid = update["uuid"]
                 items = items.select{|item| item["uuid"] != uuid}
@@ -115,6 +110,8 @@ class Items
 
     # ----------------------------------------
     # Interface
+
+    # Keep this file absolutely in sync with the same in Catalyst
 
     # Items::itemInit(uuid, mikuType)
     def self.itemInit(uuid, mikuType)
@@ -137,8 +134,9 @@ class Items
             item = JSON.parse(row["_item_"])
         end
         db.close
-        return nil if item.nil?
-        Items::upgradeItemsWithAttributesJournal([item], Items::attributesJournal()).first
+        Items::upgradeItemsWithAttributesJournal([item].compact, Items::attributesJournal())
+            .select{|item| item["uuid"] == uuid }
+            .first
     end
 
     # Items::items()
@@ -167,6 +165,7 @@ class Items
         end
         db.close
         Items::upgradeItemsWithAttributesJournal(items, Items::attributesJournal())
+            .select{|item| item["mikuType"] == mikuType }
     end
 
     # Items::setAttribute(uuid, attrname, attrvalue)
