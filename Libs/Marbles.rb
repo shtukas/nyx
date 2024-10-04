@@ -2,6 +2,11 @@
 
 class Marbles
 
+    # Marbles::repository()
+    def self.repository()
+        "#{Config::userHomeDirectory()}/Galaxy/DataHub/Nyx/data/Marbles"
+    end
+
     # --------------------------------------------------
     # Initialization
 
@@ -41,6 +46,19 @@ class Marbles
         FileUtils.rm(filepath)
     end
 
+    # Marbles::normaliseFilepath(filepath1)
+    def self.normaliseFilepath(filepath1)
+        if !File.exist?(filepath1) then
+            raise "(error: 0dc0c2e5) trying to Marbles::normaliseFilepath, filepath: #{filepath}"
+        end
+        filepath2 = "#{Marbles::repository()}/#{Digest::SHA1.file(filepath1).hexdigest[0, 16]}.nyx17"
+        if filepath1 == filepath2 then
+            return filepath1
+        end
+        FileUtils.mv(filepath1, filepath2)
+        filepath2
+    end
+
     # --------------------------------------------------
     # Basic file IO, on filepaths
 
@@ -61,7 +79,7 @@ class Marbles
         item
     end
 
-    # Marbles::updateAttribute1(filepath, attrname, attrvalue)
+    # Marbles::updateAttribute1(filepath, attrname, attrvalue) # filepath
     def self.updateAttribute1(filepath, attrname, attrvalue)
         if !File.exist?(filepath) then
             raise "(error: ebf92c7b) trying to Marbles::updateAttribute1, filepath: #{filepath}"
@@ -112,56 +130,7 @@ class Marbles
     end
 
     # --------------------------------------------------
-    # Basic file IO, on uuids, may cause file renames
-
-    # Marbles::updateAttribute2(uuid, attrname, attrvalue)
-    def self.updateAttribute2(uuid, attrname, attrvalue)
-        filepath = Marbles::find2(uuid)
-        if filepath.nil? then
-            raise "(error: 1e65dcd3) could not find filepath for uuid: #{uuid}"
-        end
-        Marbles::updateAttribute1(filepath, attrname, attrvalue)
-    end
-
-    # Marbles::putBlob2(uuid, datablob)
-    def self.putBlob2(uuid, datablob)
-        puts "writing datablob into uuid #{uuid}".yellow
-        filepath = Marbles::find2(uuid)
-        if filepath.nil? then
-            raise "(error: b8e1a355) could not find filepath for uuid: #{uuid}"
-        end
-        Marbles::putBlob1(filepath, datablob)
-    end
-
-    # Marbles::getBlob2(uuid, nhash)
-    def self.getBlob2(uuid, nhash)
-        filepath = Marbles::find2(uuid)
-        if filepath.nil? then
-            raise "(error: 4430e73c) could not find filepath for uuid: #{uuid}"
-        end
-        Marbles::getBlob1(filepath, nhash)
-    end
-
-    # Marbles::itemOrNull(uuid)
-    def self.itemOrNull(uuid)
-        filepath = Marbles::find2(uuid)
-        if filepath.nil? then
-            raise "(error: 7cf4b64d) could not find filepath for uuid: #{uuid}"
-        end
-        Marbles::itemOrError(filepath)
-    end
-
-    # Marbles::destroy2(uuid)
-    def self.destroy2(uuid)
-        filepath = Marbles::find2(uuid)
-        if filepath.nil? then
-            raise "(error: c4d367b7) could not find filepath for uuid: #{uuid}"
-        end
-        Marbles::destroy1(filepath)
-    end
-
-    # --------------------------------------------------
-    # Collection management
+    # Finding
 
     # Take a uuid and find the file corresponding to that uuid or null
 
@@ -209,6 +178,63 @@ class Marbles
 
         filepath
     end
+
+    # --------------------------------------------------
+    # Basic file IO, on uuids, may cause file renames
+
+    # Marbles::updateAttribute2(uuid, attrname, attrvalue) # filepath
+    def self.updateAttribute2(uuid, attrname, attrvalue)
+        filepath = Marbles::find2(uuid)
+        if filepath.nil? then
+            raise "(error: 1e65dcd3) could not find filepath for uuid: #{uuid}"
+        end
+        Marbles::updateAttribute1(filepath, attrname, attrvalue)
+        filepath = Marbles::normaliseFilepath(filepath)
+        XCache::set("82cccf8a-7717-421a-9f1e-306a22c5d1d0:#{uuid}", filepath)
+    end
+
+    # Marbles::putBlob2(uuid, datablob)
+    def self.putBlob2(uuid, datablob)
+        puts "writing datablob into uuid #{uuid}".yellow
+        filepath = Marbles::find2(uuid)
+        if filepath.nil? then
+            raise "(error: b8e1a355) could not find filepath for uuid: #{uuid}"
+        end
+        nhash = Marbles::putBlob1(filepath, datablob)
+        filepath = Marbles::normaliseFilepath(filepath)
+        XCache::set("82cccf8a-7717-421a-9f1e-306a22c5d1d0:#{uuid}", filepath)
+        nhash
+    end
+
+    # Marbles::getBlob2(uuid, nhash)
+    def self.getBlob2(uuid, nhash)
+        filepath = Marbles::find2(uuid)
+        if filepath.nil? then
+            raise "(error: 4430e73c) could not find filepath for uuid: #{uuid}"
+        end
+        Marbles::getBlob1(filepath, nhash)
+    end
+
+    # Marbles::itemOrNull(uuid)
+    def self.itemOrNull(uuid)
+        filepath = Marbles::find2(uuid)
+        if filepath.nil? then
+            raise "(error: 7cf4b64d) could not find filepath for uuid: #{uuid}"
+        end
+        Marbles::itemOrError(filepath)
+    end
+
+    # Marbles::destroy2(uuid)
+    def self.destroy2(uuid)
+        filepath = Marbles::find2(uuid)
+        if filepath.nil? then
+            raise "(error: c4d367b7) could not find filepath for uuid: #{uuid}"
+        end
+        Marbles::destroy1(filepath)
+    end
+
+    # --------------------------------------------------
+    # Collection
 
     # Marbles::filepathEnumeration()
     def self.filepathEnumeration()

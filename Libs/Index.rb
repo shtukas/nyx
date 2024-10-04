@@ -17,7 +17,6 @@ class Index
 
         Marbles::filepathEnumeration().each{|filepath|
             item = Marbles::itemOrError(filepath)
-            puts JSON.pretty_generate(item).yellow
 
             db = SQLite3::Database.new(databaseFilepath)
             db.busy_timeout = 117
@@ -28,13 +27,12 @@ class Index
             db.execute("insert into Items (_uuid_, _mikuType_, _item_) values (?, ?, ?)", [item["uuid"], item["mikuType"], JSON.generate(item)])
             db.commit
             db.close
-
         }
     end
 
     # Index::filepath()
     def self.filepath()
-        filepath = XCache::filepath("5f777c11-3c76-4769-8d5b-06e128d38150")
+        filepath = XCache::filepath("5f777c11-3c76-4769-8d5b-06e128d38150:#{CommonUtils::today()}")
         Index::ensure(filepath)
         filepath
     end
@@ -66,7 +64,7 @@ class Index
         db.close
     end
 
-    # Interface::itemOrNull(uuid)
+    # Index::itemOrNull(uuid)
     def self.itemOrNull(uuid)
         item = nil
         db = SQLite3::Database.new(Index::filepath())

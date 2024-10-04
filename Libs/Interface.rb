@@ -2,8 +2,6 @@
 
 class Interface
 
-    # Keep this file absolutely in sync with the same in Catalyst
-
     # Interface::itemInit(uuid)
     def self.itemInit(uuid)
         filepath = "/Users/pascal/Galaxy/DataHub/Nyx/data/Marbles/#{SecureRandom.hex}.nyx17"
@@ -42,15 +40,15 @@ class Interface
     # Index::setAttribute(uuid, attrname, attrvalue)
     def self.setAttribute(uuid, attrname, attrvalue)
 
+        # marble update:
+        Marbles::updateAttribute2(uuid, attrname, attrvalue)
+
         # Index update:
-        item = Interface::itemOrNull(uuid)
+        item = Index::itemOrNull(uuid)
         if item then
             item[attrname] = attrvalue
             Index::commitItem(item)
         end
-
-        # marble update:
-        Marbles::updateAttribute2(uuid, attrname, attrvalue)
     end
 
     # Index::destroy(uuid)
