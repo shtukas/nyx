@@ -16,20 +16,25 @@ class Sx0138s
         description = LucilleCore::pressEnterToContinue("description (empty to abort): ")
         return nil if description == ""
 
-        payload = Px44::interactivelyMakeNewOrNull()
+        # The item has not been initialised yet, so we do not provide a uuid
+        # This will cause the data blobs to be XCached. 
+        # But then the fsck will take care of writting them to the marble.
+        payload = Px44::interactivelyMakeNewOrNull(nil) 
 
-        Items::itemInit(uuid, "Sx0138")
-        Items::setAttribute(uuid, "unixtime", Time.new.to_i)
-        Items::setAttribute(uuid, "datetime", Time.new.utc.iso8601)
-        Items::setAttribute(uuid, "description", description)
-        Items::setAttribute(uuid, "payload", payload)
-        Items::setAttribute(uuid, "linkeduuids", [])
-        Items::setAttribute(uuid, "notes", [])
-        Items::setAttribute(uuid, "tags", [])
+        Interface::itemInit(uuid)
+        Index::setAttribute(uuid, "unixtime", Time.new.to_i)
+        Index::setAttribute(uuid, "datetime", Time.new.utc.iso8601)
+        Index::setAttribute(uuid, "description", description)
+        Index::setAttribute(uuid, "payload", payload)
+        Index::setAttribute(uuid, "linkeduuids", [])
+        Index::setAttribute(uuid, "notes", [])
+        Index::setAttribute(uuid, "tags", [])
 
-        node = Items::itemOrNull(uuid)
+        node = Interface::itemOrNull(uuid)
 
-        Sx0138s::fsck(node)
+        # Do not remove this line, that check perform the writing of datablobs 
+        # into the marble.
+        Sx0138s::fsck(node) 
 
         node
     end
@@ -49,7 +54,7 @@ class Sx0138s
     def self.program(node)
         loop {
 
-            node = Items::itemOrNull(node["uuid"])
+            node = Interface::itemOrNull(node["uuid"])
             return if node.nil?
 
             system('clear')
@@ -74,7 +79,7 @@ class Sx0138s
                 }
             end
 
-            linkednodes = node["linkeduuids"].map{|id| Items::itemOrNull(id) }.compact
+            linkednodes = node["linkeduuids"].map{|id| Interface::itemOrNull(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"
@@ -107,19 +112,19 @@ class Sx0138s
             if command == "description" then
                 description = CommonUtils::editTextSynchronously(node["description"])
                 next if description == ""
-                Items::setAttribute(node["uuid"], "description",description)
+                Index::setAttribute(node["uuid"], "description",description)
                 next
             end
 
             if command == "access" then
-                Px44::access(node["payload"])
+                Px44::access(node["uuid"], node["payload"])
                 next
             end
 
             if command == "payload" then
-                payload = Px44::interactivelyMakeNewOrNull()
+                payload = Px44::interactivelyMakeNewOrNull(node["uuid"])
                 next if payload.nil?
-                Items::setAttribute(node["uuid"], "payload",payload)
+                Index::setAttribute(node["uuid"], "payload",payload)
                 next
             end
 
@@ -138,7 +143,7 @@ class Sx0138s
                 note = NxNote::interactivelyIssueNewOrNull()
                 next if note.nil?
                 node["notes"] << note
-                Items::setAttribute(node["uuid"], "notes", node["notes"])
+                Index::setAttribute(node["uuid"], "notes", node["notes"])
                 next
             end
 
@@ -155,7 +160,7 @@ class Sx0138s
             end
 
             if command == "destroy" then
-                Items::destroy(node["uuid"])
+                Index::destroy(node["uuid"])
                 next
             end
         }
@@ -166,7 +171,7 @@ class Sx0138s
     # Sx0138s::fsck(item)
     def self.fsck(item)
         if item["payload"] then
-            Px44::fsck(item["payload"])
+            Px44::fsck(item["uuid"], item["payload"])
         end
     end
 end

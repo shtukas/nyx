@@ -13,8 +13,8 @@ class Px44
         LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
     end
 
-    # Px44::interactivelyMakeNewOrNull()
-    def self.interactivelyMakeNewOrNull()
+    # Px44::interactivelyMakeNewOrNull(uuid)
+    def self.interactivelyMakeNewOrNull(uuid)
         type = Px44::interactivelySelectType()
         return nil if type.nil?
         if type == "text" then
@@ -36,7 +36,7 @@ class Px44
             return nil if location.nil?
             return {
                 "type" => "aion-point",
-                "nhash" => AionCore::commitLocationReturnHash(Elizabeth.new(), location)
+                "nhash" => AionCore::commitLocationReturnHash(Elizabeth.new(uuid), location)
             }
         end
         if type == "beacon" then
@@ -71,8 +71,10 @@ class Px44
         " (#{px44["type"]})"
     end
 
-    # Px44::access(px44)
-    def self.access(px44)
+    # Px44::access(uuid, px44)
+    def self.access(uuid, px44)
+        # The uuid is used to know where to find the datablobs in case of an aion-point
+
         return if px44.nil?
         if px44["type"] == "text" then
             puts "--------------------------------------------------------------"
@@ -95,7 +97,7 @@ class Px44
             exportFoldername = "#{exportId}-aion-point"
             exportFolderpath = "#{ENV['HOME']}/x-space/xcache-v1-days/#{Time.new.to_s[0, 10]}/#{exportFoldername}"
             FileUtils.mkpath(exportFolderpath)
-            AionCore::exportHashAtFolder(Elizabeth.new(), nhash, exportFolderpath)
+            AionCore::exportHashAtFolder(Elizabeth.new(uuid), nhash, exportFolderpath)
             system("open '#{exportFolderpath}'")
             LucilleCore::pressEnterToContinue()
             return
@@ -141,8 +143,9 @@ class Px44
         raise "(error: ee2b7a4b-a34a-4ea6-9f3e-c41be1d1a69c) Px44: #{px44}"
     end
 
-    # Px44::fsck(px44)
-    def self.fsck(px44)
+    # Px44::fsck(uuid, px44)
+    def self.fsck(uuid, px44)
+        # The uuid is used to know where to find the datablobs in case of an aion point.
         return if px44.nil?
         if px44["type"] == "text" then
             return
@@ -152,7 +155,7 @@ class Px44
         end
         if px44["type"] == "aion-point" then
             nhash = px44["nhash"]
-            AionFsck::structureCheckAionHashRaiseErrorIfAny(Elizabeth.new(), nhash)
+            AionFsck::structureCheckAionHashRaiseErrorIfAny(Elizabeth.new(uuid), nhash)
             return
         end
         if px44["type"] == "beacon" then

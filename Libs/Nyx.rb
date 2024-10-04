@@ -5,9 +5,6 @@ class Nyx
 
     # Nyx::main()
     def self.main()
-        if Config::isPrimaryInstance() then
-            Items::processJournal()
-        end
         loop {
             system("clear")
             options = [
@@ -27,7 +24,7 @@ class Nyx
             end
             if option == "dive nodes" then
                 loop {
-                    nodes = Items::mikuType("Sx0138").sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
+                    nodes = Interface::items().sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| node["description"] })
                     break if node.nil?
                     Sx0138s::program(node)

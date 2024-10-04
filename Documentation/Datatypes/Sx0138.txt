@@ -1,5 +1,5 @@
 
-Sx0138 are the nodes of the Nyx Network
+Sx0138 are the nodes of the Nyx Network. They are currently implemented as marbles.
 
 Sx0138
     uuid        : String
@@ -8,6 +8,6 @@ Sx0138
     datetime    : DateTime Iso 8601 UTC Zulu
     description : String
     payload     : null or Px44
-    linkeduuids : String
-    notes       : Array[NxNote]
-    tags        : Array[String]
+    linkeduuids : null or Array[String]
+    notes       : null or Array[NxNote]
+    tags        : null or Array[String]

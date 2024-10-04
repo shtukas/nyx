@@ -16,7 +16,7 @@ class NyxNodesGI
     # NyxNodesGI::connect1(node, uuid)
     def self.connect1(node, uuid)
         node["linkeduuids"] = (node["linkeduuids"] + [uuid]).uniq
-        Items::setAttribute(node["uuid"], "linkeduuids", node["linkeduuids"])
+        Index::setAttribute(node["uuid"], "linkeduuids", node["linkeduuids"])
     end
 
     # NyxNodesGI::connect2(node)
@@ -54,7 +54,7 @@ class NyxNodesGI
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort and return null) : ")
             return nil if fragment == ""
             loop {
-                selected = Items::mikuType("Sx0138")
+                selected = Interface::items()
                             .select{|node| Search::match(node, fragment) }
 
                 if selected.empty? then
@@ -65,7 +65,7 @@ class NyxNodesGI
                         return nil
                     end
                 else
-                    selected = selected.select{|node| Items::itemOrNull(node["uuid"]) } # In case something has changed, we want the ones that have survived
+                    selected = selected.select{|node| Interface::itemOrNull(node["uuid"]) } # In case something has changed, we want the ones that have survived
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", selected, lambda{|i| i["description"] })
                     if node.nil? then
                         if LucilleCore::askQuestionAnswerAsBoolean("search more ? ", false) then
