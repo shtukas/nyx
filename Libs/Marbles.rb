@@ -134,12 +134,52 @@ class Marbles
 
     # Take a uuid and find the file corresponding to that uuid or null
 
-    # Marbles::find1(uuid) # filepath or null
-    def self.find1(uuid)
-        roots = [
+    # Marbles::reduce(filepath1, filepath2)
+    def self.reduce(filepath1, filepath2)
+        # This function takes two files, we are going to check that they have the same uuid
+        # and merge them into a new file.
+        if Marbles::itemOrError(filepath1)["uuid"] != Marbles::itemOrError(filepath2)["uuid"] then
+            raise "(error: 74a580dd) cannot Marbles::reduce, with filepath1: #{filepath1}, filepath2: #{filepath2}, we have uuid1: #{Marbles::itemOrError(filepath1)["uuid"]} and uuid2: #{Marbles::itemOrError(filepath2)["uuid"]}"
+        end
+        puts "merging:"
+        puts "    filepath: #{filepath1}"
+        puts "    filepath: #{filepath2}"
+    end
+
+    # Marbles::monitorForDuplicateItems()
+    def self.monitorForDuplicateItems()
+        structure1 = {}
+        roots = Marbles::searchRoots()
+        Galaxy::locationEnumerator(roots).each{|filepath|
+            if File.basename(filepath)[-6, 6] == ".nyx17" then
+                item = Marbles::itemOrError(filepath)
+                uuid = item["uuid"]
+                if structure1[uuid].nil? then
+                    structure1[uuid] = []
+                end
+                structure1[uuid] << filepath
+            end
+        }
+        structure1.values.each{|filepaths|
+            if filepaths.size > 1 then
+                filepath1 = filepaths[0]
+                filepath2 = filepaths[1]
+                Marbles::reduce(filepath1, filepath2)
+            end
+        }
+    end
+
+    # Marbles::searchRoots()
+    def self.searchRoots()
+        [
             "#{Config::userHomeDirectory()}/Desktop",
             "#{Config::userHomeDirectory()}/Galaxy"
         ]
+    end
+
+    # Marbles::find1(uuid) # filepath or null
+    def self.find1(uuid)
+        roots = Marbles::searchRoots()
         Galaxy::locationEnumerator(roots).each{|filepath|
             if File.basename(filepath)[-6, 6] == ".nyx17" then
                 # We have a marble file, we now need to probe it to know if it's the file we are looking for
@@ -239,10 +279,7 @@ class Marbles
     # Marbles::filepathEnumeration()
     def self.filepathEnumeration()
         Enumerator.new do |filepaths|
-            roots = [
-                "#{Config::userHomeDirectory()}/Desktop",
-                "#{Config::userHomeDirectory()}/Galaxy"
-            ]
+            roots = Marbles::searchRoots()
             Galaxy::locationEnumerator(roots).each{|filepath|
                 if File.basename(filepath)[-6, 6] == ".nyx17" then
                     filepaths << filepath
