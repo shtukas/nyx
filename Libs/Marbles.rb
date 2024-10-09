@@ -106,6 +106,7 @@ class Marbles
         db.busy_handler { |count| true }
         db.results_as_hash = true
         db.transaction
+        db.execute("delete from datablobs where key=?", [nhash])
         db.execute("insert into datablobs (key, datablob) values (?, ?)", [nhash, datablob])
         db.commit
         db.close
@@ -138,16 +139,59 @@ class Marbles
     def self.reduce(filepath1, filepath2)
         # This function takes two files, we are going to check that they have the same uuid
         # and merge them into a new file.
-        if Marbles::itemOrError(filepath1)["uuid"] != Marbles::itemOrError(filepath2)["uuid"] then
-            raise "(error: 74a580dd) cannot Marbles::reduce, with filepath1: #{filepath1}, filepath2: #{filepath2}, we have uuid1: #{Marbles::itemOrError(filepath1)["uuid"]} and uuid2: #{Marbles::itemOrError(filepath2)["uuid"]}"
+        uuid1 = Marbles::itemOrError(filepath1)["uuid"]
+        uuid2 = Marbles::itemOrError(filepath2)["uuid"]
+        if uuid1 != uuid2 then
+            raise "(error: 74a580dd) cannot Marbles::reduce, with filepath1: #{filepath1}, filepath2: #{filepath2}; we have uuid1: #{uuid1} and uuid2: #{uuid2}"
         end
         puts "merging:"
-        puts "    filepath: #{filepath1}"
-        puts "    filepath: #{filepath2}"
+        puts "    filepath1: #{filepath1}"
+        puts "    filepath2: #{filepath2}"
+
+        # We are creating a new file in the /tmp (filepath3), 
+
+        filepath3 = "/tmp/#{SecureRandom.hex(10)}"
+        db3 = SQLite3::Database.new(filepath3)
+        db3.busy_timeout = 117
+        db3.busy_handler { |count| true }
+        db3.results_as_hash = true
+        db3.transaction
+        db3.execute("CREATE TABLE object (recorduuid string, recordTime float, attributeName string, attributeValue blob);", [])
+        db3.execute("CREATE TABLE datablobs (key string, datablob blob);", [])
+        db3.commit
+
+        # then moving in the data from filepath1, into filepath3
+        # then moving in the data from filepath2, into filepath3
+
+        [filepath1, filepath2].each{|filepathx|
+            dbx = SQLite3::Database.new(filepathx)
+            dbx.busy_timeout = 117
+            dbx.busy_handler { |count| true }
+            dbx.results_as_hash = true
+            dbx.execute("select * from object", []) do |row|
+                db3.execute("delete from object where recorduuid=?", [row["recorduuid"]])
+                db3.execute("insert into object (recorduuid, recordTime, attributeName, attributeValue) values (?, ?, ?, ?)", [row["recorduuid"], row["recordTime"], row["attributeName"], row["attributeValue"]])
+            end
+            dbx.execute("select * from datablobs", []) do |row|
+                db3.execute("delete from datablobs where key=?", [row["key"]])
+                db3.execute("insert into datablobs (key, datablob) values (?, ?)", [row["key"], row["datablob"]])
+            end
+            dbx.close
+        }
+        db3.close
+
+        # then moving the new file to the correct place
+        filepath4 = "#{Config::userHomeDirectory()}/Galaxy/DataHub/Nyx/data/Marbles/#{SecureRandom.hex}.nyx17"
+        FileUtils.mv(filepath3, filepath4)
+
+        # then deleting filepath1
+        # then deleting filepath2
+        FileUtils.rm(filepath1)
+        FileUtils.rm(filepath2)
     end
 
-    # Marbles::monitorForDuplicateItems()
-    def self.monitorForDuplicateItems()
+    # Marbles::removeDuplicateItems()
+    def self.removeDuplicateItems()
         structure1 = {}
         roots = Marbles::searchRoots()
         Galaxy::locationEnumerator(roots).each{|filepath|

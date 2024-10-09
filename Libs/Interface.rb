@@ -4,7 +4,7 @@ class Interface
 
     # Interface::itemInit(uuid)
     def self.itemInit(uuid)
-        filepath = "/Users/pascal/Galaxy/DataHub/Nyx/data/Marbles/#{SecureRandom.hex}.nyx17"
+        filepath = "#{Config::userHomeDirectory()}/Galaxy/DataHub/Nyx/data/Marbles/#{SecureRandom.hex}.nyx17"
         Marbles::initiate(filepath, uuid)
         item = {
             "uuid" => uuid,
