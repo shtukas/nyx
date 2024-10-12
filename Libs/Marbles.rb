@@ -332,6 +332,15 @@ class Marbles
         end
     end
 
+    # Marbles::itemEnumeratorFromDisk()
+    def self.itemEnumeratorFromDisk()
+        Enumerator.new do |items|
+            Marbles::filepathEnumeration().each{|filepath|
+                items << Marbles::itemOrError(filepath)
+            }
+        end
+    end
+
 end
 
 

@@ -16,7 +16,7 @@ class NyxNodesGI
     # NyxNodesGI::connect1(node, uuid)
     def self.connect1(node, uuid)
         node["linkeduuids"] = (node["linkeduuids"] + [uuid]).uniq
-        Index::setAttribute(node["uuid"], "linkeduuids", node["linkeduuids"])
+        Interface::setAttribute(node["uuid"], "linkeduuids", node["linkeduuids"])
     end
 
     # NyxNodesGI::connect2(node)

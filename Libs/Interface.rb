@@ -23,10 +23,10 @@ class Interface
         Index::items()
     end
 
-    # Index::mikuType(mikuType)
+    # Interface::mikuType(mikuType)
     def self.mikuType(mikuType)
         items = []
-        db = SQLite3::Database.new(Index::filepath())
+        db = SQLite3::Database.new(Index::filepathWithCertainty())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -37,7 +37,7 @@ class Interface
         items
     end
 
-    # Index::setAttribute(uuid, attrname, attrvalue)
+    # Interface::setAttribute(uuid, attrname, attrvalue)
     def self.setAttribute(uuid, attrname, attrvalue)
 
         # marble update:
@@ -51,7 +51,7 @@ class Interface
         end
     end
 
-    # Index::destroy(uuid)
+    # Interface::destroy(uuid)
     def self.destroy(uuid)
         Index::delete(uuid)
         Marbles::destroy2(uuid)

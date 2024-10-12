@@ -22,13 +22,14 @@ class Sx0138s
         payload = Px44::interactivelyMakeNewOrNull(nil) 
 
         Interface::itemInit(uuid)
-        Index::setAttribute(uuid, "unixtime", Time.new.to_i)
-        Index::setAttribute(uuid, "datetime", Time.new.utc.iso8601)
-        Index::setAttribute(uuid, "description", description)
-        Index::setAttribute(uuid, "payload", payload)
-        Index::setAttribute(uuid, "linkeduuids", [])
-        Index::setAttribute(uuid, "notes", [])
-        Index::setAttribute(uuid, "tags", [])
+        Interface::setAttribute(uuid, "mikuType", "Sx0138")
+        Interface::setAttribute(uuid, "unixtime", Time.new.to_i)
+        Interface::setAttribute(uuid, "datetime", Time.new.utc.iso8601)
+        Interface::setAttribute(uuid, "description", description)
+        Interface::setAttribute(uuid, "payload", payload)
+        Interface::setAttribute(uuid, "linkeduuids", [])
+        Interface::setAttribute(uuid, "notes", [])
+        Interface::setAttribute(uuid, "tags", [])
 
         node = Interface::itemOrNull(uuid)
 
@@ -58,6 +59,9 @@ class Sx0138s
             return if node.nil?
 
             system('clear')
+
+            #puts JSON.pretty_generate(node)
+            #puts Marbles::find2(node["uuid"])
 
             description  = node["description"]
             datetime     = node["datetime"]
@@ -112,7 +116,7 @@ class Sx0138s
             if command == "description" then
                 description = CommonUtils::editTextSynchronously(node["description"])
                 next if description == ""
-                Index::setAttribute(node["uuid"], "description",description)
+                Interface::setAttribute(node["uuid"], "description",description)
                 next
             end
 
@@ -124,7 +128,7 @@ class Sx0138s
             if command == "payload" then
                 payload = Px44::interactivelyMakeNewOrNull(node["uuid"])
                 next if payload.nil?
-                Index::setAttribute(node["uuid"], "payload",payload)
+                Interface::setAttribute(node["uuid"], "payload",payload)
                 next
             end
 
@@ -143,7 +147,7 @@ class Sx0138s
                 note = NxNote::interactivelyIssueNewOrNull()
                 next if note.nil?
                 node["notes"] << note
-                Index::setAttribute(node["uuid"], "notes", node["notes"])
+                Interface::setAttribute(node["uuid"], "notes", node["notes"])
                 next
             end
 
@@ -160,7 +164,7 @@ class Sx0138s
             end
 
             if command == "destroy" then
-                Index::destroy(node["uuid"])
+                Interface::destroy(node["uuid"])
                 next
             end
         }
