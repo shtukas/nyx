@@ -358,7 +358,7 @@ class Elizabeth
         if @uuid then
             Marbles::putBlob2(@uuid, datablob)
         else
-            nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+            nhash = "SHA256-#{Digest::SHA256.hexdigest(datablob)}"
             XCache::set("2a46e9c0-7c50-4bf4-ab61-d5a1b8220cef:#{nhash}", datablob)
             nhash
         end
