@@ -105,7 +105,7 @@ class Sx0138s
                 indx = command.to_i
                 item = store.get(indx)
                 next if item.nil?
-                NyxNodesGI::program(item)
+                PolyFunctions::program(item)
                 next
             end
 
@@ -133,7 +133,7 @@ class Sx0138s
             end
 
             if command == "connect" then
-                NyxNodesGI::connect2(node)
+                PolyFunctions::connect2(node)
                 next
             end
 

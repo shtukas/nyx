@@ -1,7 +1,7 @@
 
-class NyxNodesGI
+class PolyFunctions
 
-    # NyxNodesGI::program(item)
+    # PolyFunctions::program(item)
     def self.program(item)
         if item["mikuType"] == "NxNote" then
             NxNote::program(item)
@@ -10,30 +10,30 @@ class NyxNodesGI
         if item["mikuType"] == "Sx0138" then
             return Sx0138s::program(item)
         end
-        raise "(error: adaa46f8) I do not know how to NyxNodesGI::program this node: #{item}"
+        raise "(error: adaa46f8) I do not know how to PolyFunctions::program this node: #{item}"
     end
 
-    # NyxNodesGI::connect1(node, uuid)
+    # PolyFunctions::connect1(node, uuid)
     def self.connect1(node, uuid)
         node["linkeduuids"] = (node["linkeduuids"] + [uuid]).uniq
         Interface::setAttribute(node["uuid"], "linkeduuids", node["linkeduuids"])
     end
 
-    # NyxNodesGI::connect2(node)
+    # PolyFunctions::connect2(node)
     def self.connect2(node)
-        node2 = NyxNodesGI::architectNodeOrNull()
+        node2 = PolyFunctions::architectNodeOrNull()
         return if node2.nil?
-        NyxNodesGI::connect1(node, node2["uuid"])
-        NyxNodesGI::connect1(node2, node["uuid"])
+        PolyFunctions::connect1(node, node2["uuid"])
+        PolyFunctions::connect1(node2, node["uuid"])
     end
 
-    # NyxNodesGI::architectNodeOrNull()
+    # PolyFunctions::architectNodeOrNull()
     def self.architectNodeOrNull()
         loop {
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["search and maybe `select`", "interactively make new"])
             return nil if option.nil?
             if option == "search and maybe `select`" then
-                node = NyxNodesGI::getNodeOrNullUsingSelectionAndNavigation()
+                node = PolyFunctions::getNodeOrNullUsingSelectionAndNavigation()
                 if node then
                     return node
                 end
@@ -47,7 +47,7 @@ class NyxNodesGI
         }
     end
 
-    # NyxNodesGI::getNodeOrNullUsingSelectionAndNavigation() nil or node
+    # PolyFunctions::getNodeOrNullUsingSelectionAndNavigation() nil or node
     def self.getNodeOrNullUsingSelectionAndNavigation()
         puts "get node using selection and navigation".green
         loop {
