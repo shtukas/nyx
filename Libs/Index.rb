@@ -4,16 +4,10 @@ class Index
 
     # Index::filepath()
     def self.filepath()
-        XCache::filepath("5f777c11-3c76-4769-8d5b-06e128d38150:#{CommonUtils::today()}")
-    end
+        filepath = XCache::filepath("5f777c11-3c76-4769-8d5b-06e128d38150:#{CommonUtils::today()}")
+        return filepath if File.exist?(filepath)
 
-    # Index::buildIndex(databaseFilepath)
-    def self.buildIndex(databaseFilepath)
-
-        if File.exist?(databaseFilepath) then
-            FileUtils.rm(databaseFilepath)
-        end
-
+        databaseFilepath = filepath
         db = SQLite3::Database.new(databaseFilepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -23,7 +17,6 @@ class Index
 
         Marbles::filepathEnumeration().each{|filepath|
             item = Marbles::itemOrError(filepath)
-
             db = SQLite3::Database.new(databaseFilepath)
             db.busy_timeout = 117
             db.busy_handler { |count| true }
@@ -34,29 +27,14 @@ class Index
             db.commit
             db.close
         }
-    end
 
-    # Index::filepathWithCertainty()
-    def self.filepathWithCertainty()
-        filepath = Index::filepath()
-        if File.exist?(filepath) then
-            return filepath
-        end
-        puts "Could not find the index, rebuilding...".yellow
-        sleep 1
-        Index::buildIndex(filepath)
         filepath
-    end
-
-    # Index::rebuildIndex()
-    def self.rebuildIndex()
-        Index::buildIndex(Index::filepath())
     end
 
     # Index::items()
     def self.items()
         items = []
-        db = SQLite3::Database.new(Index::filepathWithCertainty())
+        db = SQLite3::Database.new(Index::filepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -69,7 +47,7 @@ class Index
 
     # Index::commitItem(item)
     def self.commitItem(item)
-        db = SQLite3::Database.new(Index::filepathWithCertainty())
+        db = SQLite3::Database.new(Index::filepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -83,7 +61,7 @@ class Index
     # Index::itemOrNull(uuid)
     def self.itemOrNull(uuid)
         item = nil
-        db = SQLite3::Database.new(Index::filepathWithCertainty())
+        db = SQLite3::Database.new(Index::filepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -96,7 +74,7 @@ class Index
 
     # Index::delete(uuid)
     def self.delete(uuid)
-        db = SQLite3::Database.new(Index::filepathWithCertainty())
+        db = SQLite3::Database.new(Index::filepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true

@@ -26,7 +26,7 @@ class Interface
     # Interface::mikuType(mikuType)
     def self.mikuType(mikuType)
         items = []
-        db = SQLite3::Database.new(Index::filepathWithCertainty())
+        db = SQLite3::Database.new(Index::filepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true

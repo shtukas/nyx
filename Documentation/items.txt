@@ -12,4 +12,4 @@ CREATE TABLE datablobs (key string, datablob blob);
 
 Nyx marble files have the suffix .nyx17
 
-At the moment we store all marbles files in ~/Galaxy/DataHub/Nyx/data/Marbles.
+At the moment we store all marbles files in ~/Galaxy/DataHub/Nyx/data/Marbles
