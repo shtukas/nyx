@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby "3.2.0"
+ruby "3.4.1"
 
 gem 'date'
 gem 'colorize'
