@@ -4,7 +4,7 @@ Nyx is a network of nodes. Nodes are abstract datatypes that need to have the eq
 
 - a description
 - a datetime (often the creation datetime, but it's mostly the "relavant" datatime, notably for items that are to be considered on a timeline)
-- the list of node uuids that this node is connected to (this defines bidirectional edges between nodes of the graph)
+- the list of node uuids that this node is linked to (this defines bidirectional edges between nodes of the graph)
 - a list of notes, pieces of text, attached to the node (this allows for notes to be added to nodes whose main payload is not text)
 - a list of tags, used for search (in addition of the description)
 
@@ -22,8 +22,8 @@ Example:
 uuid: f32643f9-72b0-46e0-9b54-41554b53a9f7
 description: This is a description
 datetime: 2025-02-26T14:29:32Z
-connected: da0c2a46-834f-4289-be60-675a8d1508a9
-connected: e5cca6c6-ec91-4b78-8234-c93943dba945
+linkeduuid: da0c2a46-834f-4289-be60-675a8d1508a9
+linkeduuid: e5cca6c6-ec91-4b78-8234-c93943dba945
 tag: mercury
 tag: venus
 tag: earth
