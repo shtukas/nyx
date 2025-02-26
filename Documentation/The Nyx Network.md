@@ -27,8 +27,8 @@ linkeduuid: e5cca6c6-ec91-4b78-8234-c93943dba945
 tag: mercury
 tag: venus
 tag: earth
-note: {"uuid": "6e163b59-8f2c-4a79-8f3c-434840968c5c", "datetime": "2025-02-26T14:31:43Z", "note": "This is a note"}
-note: {"uuid": "4b63b290-3c1f-40ee-b87a-798342505a68", "datetime": "2025-02-26T14:33:09Z", "note": "This is another note"}
+note: {"uuid": "6e163b59-8f2c-4a79-8f3c-434840968c5c", "datetime": "2025-02-26T14:31:43Z", "text": "This is a note"}
+note: {"uuid": "4b63b290-3c1f-40ee-b87a-798342505a68", "datetime": "2025-02-26T14:33:09Z", "text": "This is another note"}
 payload: {"uuid": "4b63b290-3c1f-40ee-b87a-798342505a68", "datetime": "2025-02-26T14:33:09Z", "type": "url", "url": "http://example.com"}
 ```
 
@@ -37,7 +37,7 @@ The notes are json encoded objects of the form:
 {
     "uuid": string,
     "datetime": datetime,
-    "note": string
+    "text": string
 }
 ```
 
@@ -56,3 +56,53 @@ The list of types is clarified below
 ###
 
 Some nodes are self contained, and the entire node is contained in the nyxnode-4be8.txt file, but often the payload cannot be encoded in the text file. Sometimes because it's binary data, or because the payload is more complex, for instance a Nx01 reference on disk, contained in a directory. In those cases, each payload type is using it's own techniques and conventions to manage the payload.
+
+
+### The different payload types
+
+{
+    "uuid"     : string
+    "datetime" : DateTime Iso 8601 UTC Zulu
+    "type"     : "text"
+    "text"     : string
+}
+
+{
+    "uuid"     : string
+    "datetime" : DateTime Iso 8601 UTC Zulu
+    "type": "url"
+    "url  : string
+}
+
+{
+    "uuid"     : string
+    "datetime" : DateTime Iso 8601 UTC Zulu
+    "type" : "aion-point"
+    "nhash": String
+}
+
+{
+    "uuid"     : string
+    "datetime" : DateTime Iso 8601 UTC Zulu
+    "type"        : "unique-string"
+    "uniquestring": string
+}
+
+{
+    "uuid"     : string
+    "datetime" : DateTime Iso 8601 UTC Zulu
+    "type": "beacon"
+    "id"  : string
+}
+
+    beacon file:
+        name: [something].nyx29-beacon.json
+        content:
+            {
+                "id" => beaconId
+            }
+
+
+
+
+

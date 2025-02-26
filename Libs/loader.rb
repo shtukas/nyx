@@ -139,6 +139,7 @@ require_relative "Marbles.rb"
 require_relative "Nyx.rb"
 require_relative "NxNote.rb"
 require_relative "NodeFiles.rb"
+require_relative "Note.rb"
 
 require_relative "PolyFunctions.rb"
 require_relative "ProgrammableBooleans.rb"
