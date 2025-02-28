@@ -124,15 +124,11 @@ require_relative "Atlas.rb"
 
 require_relative "CommonUtils.rb"
 
-require_relative "Fsck.rb"
-
 require_relative "Galaxy.rb"
 
-require_relative "Index.rb"
 require_relative "ItemStore.rb"
-require_relative "Interface.rb"
 
-require_relative "Marbles.rb"
+require_relative "Blades.rb"
 
 require_relative "Nyx.rb"
 require_relative "NxNote.rb"
@@ -142,7 +138,6 @@ require_relative "PolyFunctions.rb"
 require_relative "ProgrammableBooleans.rb"
 require_relative "Px44s.rb"
 
-require_relative "Sx0138s.rb"
 require_relative "Search.rb"
 
 # ------------------------------------------------------------

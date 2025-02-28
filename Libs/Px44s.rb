@@ -36,10 +36,14 @@ class Px44
         if type == "aion-point" then
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
+            filename = "#{SecureRandom.hex}.blade"
+            filepath = "#{Config::userHomeDirectory()}/Galaxy/DataHub/Nyx/data/Blades/#{filename}"
+            Blades::initiate(filepath, uuid)
             return {
-                "mikuType" => "Px44",
-                "type"     => "aion-point",
-                "nhash"    => AionCore::commitLocationReturnHash(Elizabeth.new(uuid), location)
+                "mikuType"  => "Px44",
+                "type"      => "aion-point",
+                "bladename" => filename,
+                "nhash"     => AionCore::commitLocationReturnHash(ElizabethBlade.new(filepath), location)
             }
         end
         if type == "beacon" then
@@ -70,10 +74,9 @@ class Px44
         raise "(error: f75b2797-99e5-49d0-8d49-40b44beb538c) Px44 type: #{type}"
     end
 
-    # Px44::toStringSuffix(px44)
-    def self.toStringSuffix(px44)
-        return "" if px44.nil?
-        " (#{px44["type"]})"
+    # Px44::toString(px44)
+    def self.toString(px44)
+        "(payload: #{px44["type"]})"
     end
 
     # Px44::access(uuid, px44)
@@ -97,12 +100,14 @@ class Px44
         end
         if px44["type"] == "aion-point" then
             nhash = px44["nhash"]
+            bladename = px44["bladename"]
+            bladefilepath = "#{Config::userHomeDirectory()}/Galaxy/DataHub/Nyx/data/Blades/#{bladename}"
             puts "accessing aion point: #{nhash}"
             exportId = SecureRandom.hex(4)
             exportFoldername = "#{exportId}-aion-point"
             exportFolderpath = "#{ENV['HOME']}/x-space/xcache-v1-days/#{Time.new.to_s[0, 10]}/#{exportFoldername}"
             FileUtils.mkpath(exportFolderpath)
-            AionCore::exportHashAtFolder(Elizabeth.new(uuid), nhash, exportFolderpath)
+            AionCore::exportHashAtFolder(ElizabethBlade.new(bladefilepath), nhash, exportFolderpath)
             system("open '#{exportFolderpath}'")
             LucilleCore::pressEnterToContinue()
             return
@@ -176,7 +181,15 @@ class Px44
                 raise "uuid: #{uuid}, px44: #{JSON.pretty_generate(px44)} does not have a nhash"
             end
             nhash = px44["nhash"]
-            AionFsck::structureCheckAionHashRaiseErrorIfAny(Elizabeth.new(uuid), nhash)
+            if px44["bladename"].nil? then
+                raise "uuid: #{uuid}, px44: #{JSON.pretty_generate(px44)} does not have a bladename"
+            end
+            bladename = px44["bladename"]
+            bladefilepath = "#{Config::userHomeDirectory()}/Galaxy/DataHub/Nyx/data/Blades/#{bladename}"
+            if !File.exist?(bladefilepath) then
+                raise "uuid: #{uuid}, px44: #{JSON.pretty_generate(px44)} cannot find blade file: #{bladefilepath}"
+            end
+            AionFsck::structureCheckAionHashRaiseErrorIfAny(ElizabethBlade.new(bladefilepath), nhash)
             return
         end
         if px44["type"] == "beacon" then

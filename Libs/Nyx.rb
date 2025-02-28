@@ -18,16 +18,16 @@ class Nyx
                 Search::searchAndDive()
             end
             if option == "new node" then
-                node = Sx0138s::interactivelyIssueNewOrNull()
+                node = NxNode28s::interactivelyIssueNewOrNull()
                 next if node.nil?
-                Sx0138s::program(node)
+                NxNode28s::program(node)
             end
             if option == "list nodes" then
                 loop {
-                    nodes = Interface::items().sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
+                    nodes = NxNode28s::items().sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| node["description"] })
                     break if node.nil?
-                    Sx0138s::program(node)
+                    NxNode28s::program(node)
                 }
             end
         }

@@ -13,9 +13,10 @@ Px44 {
 }
 
 Px44 {
-    "mikuType" : "Px44"
-    "type"     : "aion-point"
-    "nhash"    : String
+    "mikuType"  : "Px44"
+    "type"      : "aion-point"
+    "bladename" : String
+    "nhash"     : String
 }
 
 Px44 {
