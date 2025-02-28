@@ -10,7 +10,7 @@ class Nyx
             options = [
                 "search",
                 "new node",
-                "dive nodes",
+                "list nodes",
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             break if option.nil?
@@ -22,7 +22,7 @@ class Nyx
                 next if node.nil?
                 Sx0138s::program(node)
             end
-            if option == "dive nodes" then
+            if option == "list nodes" then
                 loop {
                     nodes = Interface::items().sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| node["description"] })

@@ -12,6 +12,4 @@ class Config
     def self.pathToData()
         "#{Config::userHomeDirectory()}/Galaxy/DataHub/Nyx/data"
     end
-
-
 end
