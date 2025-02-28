@@ -1,0 +1,13 @@
+
+NxNode28 are the nodes of the Nyx Network.
+
+NxNode28
+    uuid        : String
+    mikutype    : "NxNode28"
+    unixtime    : Float
+    datetime    : DateTime Iso 8601 UTC Zulu
+    description : String
+    payloads    : Array[Px44]
+    linkeduuids : Array[String]
+    notes       : Array[NxNote]
+    tags        : Array[String]

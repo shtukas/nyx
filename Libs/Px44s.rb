@@ -20,29 +20,33 @@ class Px44
         if type == "text" then
             text = CommonUtils::editTextSynchronously("")
             return {
-                "type" => "text",
-                "text" => text
+                "mikuType" => "Px44",
+                "type"     => "text",
+                "text"     => text
             }
         end
         if type == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url: ")
             return {
-                "type" => "url",
-                "url"  => url
+                "mikuType" => "Px44",
+                "type"     => "url",
+                "url"      => url
             }
         end
         if type == "aion-point" then
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
             return {
-                "type" => "aion-point",
-                "nhash" => AionCore::commitLocationReturnHash(Elizabeth.new(uuid), location)
+                "mikuType" => "Px44",
+                "type"     => "aion-point",
+                "nhash"    => AionCore::commitLocationReturnHash(Elizabeth.new(uuid), location)
             }
         end
         if type == "beacon" then
 
             beaconId = SecureRandom.uuid
             beacon = {
+                "type" => "Bx47",
                 "id" => beaconId
             }
             beaconFilepath = "#{Config::userHomeDirectory()}/Desktop/#{SecureRandom.hex(4)}.nyx29-beacon.json"
@@ -51,8 +55,9 @@ class Px44
             LucilleCore::pressEnterToContinue()
 
             return {
-                "type" => "beacon",
-                "id"   => beaconId
+                "mikuType" => "Px44",
+                "type"     => "beacon",
+                "id"       => beaconId
             }
         end
         if type == "unique string" then
@@ -145,25 +150,46 @@ class Px44
 
     # Px44::fsck(uuid, px44)
     def self.fsck(uuid, px44)
-        # The uuid is used to know where to find the datablobs in case of an aion point.
-        return if px44.nil?
+        if px44["mikuType"].nil? then
+            raise "uuid: #{uuid}, px44: #{JSON.pretty_generate(px44)} does not have a mikuType"
+        end
+        if px44["mikuType"] != 'Px44' then
+            raise "uuid: #{uuid}, px44: #{JSON.pretty_generate(px44)} does not have the correct mikuType"
+        end
+        if px44["type"].nil? then
+            raise "uuid: #{uuid}, px44: #{JSON.pretty_generate(px44)} does not have a type"
+        end
         if px44["type"] == "text" then
+            if px44["text"].nil? then
+                raise "uuid: #{uuid}, px44: #{JSON.pretty_generate(px44)} does not have a text"
+            end
             return
         end
         if px44["type"] == "url" then
+            if px44["url"].nil? then
+                raise "uuid: #{uuid}, px44: #{JSON.pretty_generate(px44)} does not have a url"
+            end
             return
         end
         if px44["type"] == "aion-point" then
+            if px44["nhash"].nil? then
+                raise "uuid: #{uuid}, px44: #{JSON.pretty_generate(px44)} does not have a nhash"
+            end
             nhash = px44["nhash"]
             AionFsck::structureCheckAionHashRaiseErrorIfAny(Elizabeth.new(uuid), nhash)
             return
         end
         if px44["type"] == "beacon" then
+            if px44["id"].nil? then
+                raise "uuid: #{uuid}, px44: #{JSON.pretty_generate(px44)} does not have a id"
+            end
             return
         end
         if px44["type"] == "unique-string" then
+            if px44["uniquestring"].nil? then
+                raise "uuid: #{uuid}, px44: #{JSON.pretty_generate(px44)} does not have a uniquestring"
+            end
             return
         end
-        raise "(error: 4456ba26-1439-47f4-871b-f3c00e384438) Px44: #{px44}"
     end
 end

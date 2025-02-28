@@ -1,28 +1,33 @@
-Px44 is a content type for a nyx node (a Sx0138).
+Px44 is a content type for a nyx node
 
 Px44 {
-    "type": "text"
-    "text": string
+    "mikuType" : "Px44"
+    "type"     : "text"
+    "text"     : string
 }
 
 Px44 {
-    "type": "url"
-    "url  : string
+    "mikuType" : "Px44"
+    "type"     : "url"
+    "url       : string
 }
 
 Px44 {
-    "type" : "aion-point"
-    "nhash": String
+    "mikuType" : "Px44"
+    "type"     : "aion-point"
+    "nhash"    : String
 }
 
 Px44 {
-    "type"        : "unique-string"
-    "uniquestring": string
+    "mikuType"     : "Px44"
+    "type"         : "unique-string"
+    "uniquestring" : string
 }
 
 Px44 {
-    "type": "beacon"
-    "id"  : string
+    "mikuType" : "Px44"
+    "type"     : "beacon"
+    "id"       : string
 }
 
     beacon file:
