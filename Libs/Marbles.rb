@@ -370,9 +370,6 @@ class Elizabeth
 
     def getBlobOrNull(nhash)
 
-        # Very important. The uuid can be null. In which case we store in XCache.
-        # This happen when we build a payload before the marble has been initialised.
-
         datablob = nil
 
         # --------------------------------------------------------
@@ -384,40 +381,6 @@ class Elizabeth
 
         if datablob and (nhash != "SHA256-#{Digest::SHA256.hexdigest(datablob)}") then
             datablob = nil
-        end
-
-        if datablob then
-            return datablob
-        end
-
-        # --------------------------------------------------------
-        # Attempting to retrieve from Datablobs
-
-        datablob = Datablobs::getBlobOrNull(nhash)
-
-        if datablob and (nhash != "SHA256-#{Digest::SHA256.hexdigest(datablob)}") then
-            datablob = nil
-        end
-
-        if datablob and @uuid then
-            Marbles::putBlob2(@uuid, datablob)
-        end
-
-        if datablob then
-            return datablob
-        end
-
-        # --------------------------------------------------------
-        # Attempting to retrieve from XCache
-
-        datablob = XCache::getOrNull("2a46e9c0-7c50-4bf4-ab61-d5a1b8220cef:#{nhash}")
-
-        if datablob and (nhash != "SHA256-#{Digest::SHA256.hexdigest(datablob)}") then
-            datablob = nil
-        end
-
-        if datablob and @uuid then
-            Marbles::putBlob2(@uuid, datablob)
         end
 
         datablob

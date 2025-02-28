@@ -124,8 +124,6 @@ require_relative "Atlas.rb"
 
 require_relative "CommonUtils.rb"
 
-require_relative "Datablobs.rb"
-
 require_relative "Fsck.rb"
 
 require_relative "Galaxy.rb"
