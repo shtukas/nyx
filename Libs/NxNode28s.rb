@@ -78,9 +78,14 @@ class NxNode28s
     def self.commitItemToDisk(node28)
         NxNode28s::fsckNxNode28(node28)
         text = NxNode28s::attributesToNodeFileText(node28)
+        puts text.green
         filepath1 = NxNode28s::filepathForUUIDOrNull(node28["uuid"])
         filepath2 = filepath1 || NxNode28s::newFilePath()
+        if !File.exist?(File.dirname(filepath2)) then
+            FileUtils.mkdir(File.dirname(filepath2))
+        end
         File.open(filepath2, "w"){|f| f.puts(text) }
+        NxNode28s::program(node28)
     end
 
     # NxNode28s::loadItemFromDisk(filepath)

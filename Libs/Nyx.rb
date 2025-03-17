@@ -11,6 +11,7 @@ class Nyx
                 "search",
                 "new node",
                 "list nodes",
+                "fsck",
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             break if option.nil?
@@ -28,6 +29,12 @@ class Nyx
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| node["description"] })
                     break if node.nil?
                     NxNode28s::program(node)
+                }
+            end
+            if option == "fsck" then
+                NxNode28s::items().each{|item|
+                    puts "fsck: item: #{item["uuid"]}"
+                    NxNode28s::fsckNxNode28(item)
                 }
             end
         }
