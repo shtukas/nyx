@@ -1,0 +1,12 @@
+[done] Design a new .nyx-blade
+[] Look like we already have blades, so I need to rename that.
+[] Implement the basic interface for nyx blades
+[] Migrate to nyx blades
+[] To be able to drop a blade at a location.
+[] To be able to move a blade to the desktop for manual relocation.
+
+Nyx blades are the elements of the Nyx Network which hold the data related to a particular node. It's a sqlite file with a single table that holds the node meta data and the binary blobs.
+
+create table blade (_key_ TEXT primary key, _data_ BLOB);
+
+The node is stored in against _key_ set to "node" as a JSON encoded string. The other elements in the table should be the data blobs, against their nhash.

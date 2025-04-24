@@ -37,7 +37,7 @@ class Px44
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
             filename = "#{SecureRandom.hex}.blade"
-            filepath = "#{Config::userHomeDirectory()}/Galaxy/DataHub/Nyx/data/Blades/#{filename}"
+            filepath = "#{Config::userHomeDirectory()}/Galaxy/DataHub/Nyx/data/Omegas/#{filename}"
             Blades::initiate(filepath, uuid)
             return {
                 "mikuType"  => "Px44",
@@ -101,7 +101,7 @@ class Px44
         if px44["type"] == "aion-point" then
             nhash = px44["nhash"]
             bladename = px44["bladename"]
-            bladefilepath = "#{Config::userHomeDirectory()}/Galaxy/DataHub/Nyx/data/Blades/#{bladename}"
+            bladefilepath = "#{Config::userHomeDirectory()}/Galaxy/DataHub/Nyx/data/Omegas/#{bladename}"
             puts "accessing aion point: #{nhash}"
             exportId = SecureRandom.hex(4)
             exportFoldername = "#{exportId}-aion-point"
@@ -185,7 +185,7 @@ class Px44
                 raise "uuid: #{uuid}, px44: #{JSON.pretty_generate(px44)} does not have a bladename"
             end
             bladename = px44["bladename"]
-            bladefilepath = "#{Config::userHomeDirectory()}/Galaxy/DataHub/Nyx/data/Blades/#{bladename}"
+            bladefilepath = "#{Config::userHomeDirectory()}/Galaxy/DataHub/Nyx/data/Omegas/#{bladename}"
             if !File.exist?(bladefilepath) then
                 raise "uuid: #{uuid}, px44: #{JSON.pretty_generate(px44)} cannot find blade file: #{bladefilepath}"
             end
