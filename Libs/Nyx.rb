@@ -36,6 +36,8 @@ class Nyx
                     puts "fsck: item: #{item["uuid"]}"
                     NxNode28s::fsckNxNode28(item)
                 }
+                puts "fsck completed"
+                LucilleCore::pressEnterToContinue()
             end
         }
     end

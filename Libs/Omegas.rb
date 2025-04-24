@@ -1,8 +1,8 @@
 # encoding: UTF-8
 
-class Blades
+class Omegas
 
-    # Blades::initiate(filepath, uuid)
+    # Omegas::initiate(filepath, uuid)
     def self.initiate(filepath, uuid)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -14,7 +14,7 @@ class Blades
         db.close
     end
 
-    # Blades::putBlob2(bladefilepath, datablob)
+    # Omegas::putBlob2(bladefilepath, datablob)
     def self.putBlob2(bladefilepath, datablob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(datablob)}"
         db = SQLite3::Database.new(bladefilepath)
@@ -29,7 +29,7 @@ class Blades
         nhash
     end
 
-    # Blades::getBlob2(bladefilepath, nhash)
+    # Omegas::getBlob2(bladefilepath, nhash)
     def self.getBlob2(bladefilepath, nhash)
         datablob = nil
         db = SQLite3::Database.new(bladefilepath)
@@ -51,7 +51,7 @@ class ElizabethBlade
     end
 
     def putBlob(datablob) # nhash
-        Blades::putBlob2(@bladefilepath, datablob)
+        Omegas::putBlob2(@bladefilepath, datablob)
     end
 
     def filepathToContentHash(filepath)
@@ -59,7 +59,7 @@ class ElizabethBlade
     end
 
     def getBlobOrNull(nhash)
-        datablob = Blades::getBlob2(@bladefilepath, nhash)
+        datablob = Omegas::getBlob2(@bladefilepath, nhash)
         if datablob and (nhash != "SHA256-#{Digest::SHA256.hexdigest(datablob)}") then
             datablob = nil
         end

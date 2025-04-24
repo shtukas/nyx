@@ -1,4 +1,4 @@
-Blades are sqlite3 files, with two tables
+Omegas are sqlite3 files, with two tables
 
 sqlite> .schema
 CREATE TABLE datablobs (key string, datablob blob);

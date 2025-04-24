@@ -38,7 +38,7 @@ class Px44
             return nil if location.nil?
             filename = "#{SecureRandom.hex}.blade"
             filepath = "#{Config::userHomeDirectory()}/Galaxy/DataHub/Nyx/data/Omegas/#{filename}"
-            Blades::initiate(filepath, uuid)
+            Omegas::initiate(filepath, uuid)
             return {
                 "mikuType"  => "Px44",
                 "type"      => "aion-point",

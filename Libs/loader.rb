@@ -128,7 +128,7 @@ require_relative "Galaxy.rb"
 
 require_relative "ItemStore.rb"
 
-require_relative "Blades.rb"
+require_relative "Omegas.rb"
 
 require_relative "Nyx.rb"
 require_relative "NxNote.rb"
