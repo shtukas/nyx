@@ -1,6 +1,6 @@
 [done] Design a new .nyx-blade
-[] Look like we already have blades, so I need to rename that.
-[] Implement the basic interface for nyx blades
+[done] Look like we already have blades, so I need to rename that.
+[in progress] Implement the basic interface for nyx blades
 [] Migrate to nyx blades
 [] To be able to drop a blade at a location.
 [] To be able to move a blade to the desktop for manual relocation.

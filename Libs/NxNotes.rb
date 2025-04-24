@@ -1,10 +1,10 @@
 
-class NxNote
+class NxNotes
 
     # ------------------------------------
     # Makers
 
-    # NxNote::interactivelyIssueNewOrNull() # nil or node
+    # NxNotes::interactivelyIssueNewOrNull() # nil or node
     def self.interactivelyIssueNewOrNull()
         text = CommonUtils::editTextSynchronously("").strip
         {
@@ -18,7 +18,7 @@ class NxNote
     # ------------------------------------
     # Data
 
-    # NxNote::toString(note)
+    # NxNotes::toString(note)
     def self.toString(note)
         lines = note["text"].strip.lines
         if lines.empty? then
@@ -30,7 +30,7 @@ class NxNote
     # ------------------------------------
     # Operations
 
-    # NxNote::program(note)
+    # NxNotes::program(note)
     def self.program(note)
         loop {
             system('clear')
@@ -49,7 +49,7 @@ class NxNote
         nil
     end
 
-    # NxNote::fsck(note)
+    # NxNotes::fsck(note)
     def self.fsck(note)
         if note["uuid"].nil? then
             raise "note: #{JSON.pretty_generate(note)} does not have a uuid"

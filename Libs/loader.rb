@@ -122,17 +122,17 @@ AionFsck::structureCheckAionHashRaiseErrorIfAny(operator, nhash)
 
 require_relative "Atlas.rb"
 
+require_relative "Blades.rb"
+
 require_relative "CommonUtils.rb"
 
 require_relative "Galaxy.rb"
 
 require_relative "ItemStore.rb"
 
-require_relative "Omegas.rb"
-
 require_relative "Nyx.rb"
-require_relative "NxNote.rb"
-require_relative "NxNode28s.rb"
+require_relative "NxNotes.rb"
+require_relative "NxNodes.rb"
 
 require_relative "PolyFunctions.rb"
 require_relative "ProgrammableBooleans.rb"
