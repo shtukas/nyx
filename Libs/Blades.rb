@@ -129,7 +129,9 @@ class Blades
         itemuuids = XCache::getOrNull("aec68c62-b18a-4fb4-ae34-aa4beaf78f9d:#{CommonUtils::today()}")
         if itemuuids then
             itemuuids = JSON.parse(itemuuids)
-            items = itemuuids.map{|uuid| Blades::getItemOrNull(uuid) }
+            items = itemuuids
+                .map{|uuid| Blades::getItemOrNull(uuid) }
+                .compact
             return items
         end
         items = Blades::blade_filepaths_enumeration().map{|filepath| Blades::readItemFromBladeFile(filepath) }
