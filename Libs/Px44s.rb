@@ -16,7 +16,7 @@ class Px44
     # Px44::interactivelyMakeNewOrNull(uuid)
     def self.interactivelyMakeNewOrNull(uuid)
         type = Px44::interactivelySelectType()
-        return [nil, false] if type.nil?
+        return nil if type.nil?
         if type == "text" then
             text = CommonUtils::editTextSynchronously("")
             return {

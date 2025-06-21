@@ -128,6 +128,8 @@ require_relative "CommonUtils.rb"
 
 require_relative "Galaxy.rb"
 
+require_relative "HardProblem.rb"
+
 require_relative "ItemStore.rb"
 
 require_relative "Nyx.rb"

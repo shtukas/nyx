@@ -54,7 +54,7 @@ class PolyFunctions
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort and return null) : ")
             return nil if fragment == ""
             loop {
-                selected = Blades::items()
+                selected = NxNodes::items()
                             .select{|node| Search::match(node, fragment) }
 
                 if selected.empty? then

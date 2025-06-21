@@ -25,7 +25,7 @@ class Nyx
             end
             if option == "list nodes" then
                 loop {
-                    nodes = Blades::items().sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
+                    nodes = NxNodes::items().sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| node["description"] })
                     break if node.nil?
                     NxNodes::program(node)

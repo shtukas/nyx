@@ -1,10 +1,56 @@
 
 class NxNodes
 
+    # NxNodes::interactivelyIssueNewOrNull()
+    def self.interactivelyIssueNewOrNull()
+        uuid = SecureRandom.uuid
+        filepath = Blades::makeNewFileForInProgressNodeCreation(uuid)
+        mikuType = "NxNode28"
+        datetime = Time.new.utc.iso8601
+        description = LucilleCore::pressEnterToContinue("description (empty to abort): ")
+        if description == '' then
+            FileUtils.rm(filepath)
+            return nil
+        end
+        payload = Px44::interactivelyMakeNewOrNull(uuid)
+
+        payloads    = [payload].compact
+        linkeduuids = []
+        notes       = []
+        tags        = []
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "NxNode28",
+            "datetime"    => datetime,
+            "description" => description,
+            "payloads"    => payloads,
+            "linkeduuids" => linkeduuids,
+            "notes"       => notes,
+            "tags"        => tags
+        }
+
+        Blades::commitItemToItsBladeFile(item)
+
+        HardProblem::nodeHasBeenCreated(item)
+
+        item
+    end
+
+    # -----------------------------------------------
+    # Data
+
     # NxNodes::toString(node)
     def self.toString(node)
         "#{node["description"]}#{node["payloads"].map{|payload| Px44::toString(payload) }}"
     end
+
+    # NxNodes::items()
+    def self.items()
+        HardProblem::nodes()
+    end
+
+    # -----------------------------------------------
+    # Operations
 
     # NxNodes::fsckNxNode(node28)
     def self.fsckNxNode(node28)
@@ -61,46 +107,6 @@ class NxNodes
             uuid = node28["uuid"]
             Px44::fsck(uuid, px44)
         }
-    end
-
-    # NxNodes::interactivelyIssueNewOrNull()
-    def self.interactivelyIssueNewOrNull()
-        uuid = SecureRandom.uuid
-        filepath = Blades::makeNewFileForInProgressNodeCreation(uuid)
-        mikuType = "NxNode28"
-        datetime = Time.new.utc.iso8601
-        description = LucilleCore::pressEnterToContinue("description (empty to abort): ")
-        if description == '' then
-            FileUtils.rm(filepath)
-            return nil
-        end
-        payload = Px44::interactivelyMakeNewOrNull(uuid)
-
-        payloads    = [payload].compact
-        linkeduuids = []
-        notes       = []
-        tags        = []
-        item = {
-            "uuid"        => uuid,
-            "mikuType"    => "NxNode28",
-            "datetime"    => datetime,
-            "description" => description,
-            "payloads"    => payloads,
-            "linkeduuids" => linkeduuids,
-            "notes"       => notes,
-            "tags"        => tags
-        }
-
-        Blades::commitItemToItsBladeFile(item)
-
-        itemuuids = XCache::getOrNull("aec68c62-b18a-4fb4-ae34-aa4beaf78f9d:#{CommonUtils::today()}")
-        if itemuuids then
-            itemuuids = JSON.parse(itemuuids)
-            itemuuids << uuid
-            XCache::set("aec68c62-b18a-4fb4-ae34-aa4beaf78f9d:#{CommonUtils::today()}", JSON.generate(itemuuids))
-        end
-
-        item
     end
 
     # NxNodes::program(node) # nil or node (to get the node issue `select`)

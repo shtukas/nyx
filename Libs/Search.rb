@@ -16,7 +16,7 @@ class Search
 
             loop {
                 system('clear')
-                selected = Blades::items()
+                selected = NxNodes::items()
                             .select{|item| Search::match(item, fragment) }
 
                 if selected.empty? then

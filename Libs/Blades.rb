@@ -116,28 +116,12 @@ class Blades
         if filepath then
             FileUtils.rm(filepath)
         end
-        itemuuids = XCache::getOrNull("aec68c62-b18a-4fb4-ae34-aa4beaf78f9d:#{CommonUtils::today()}")
-        if itemuuids then
-            itemuuids = JSON.parse(itemuuids)
-            itemuuids = itemuuids - [uuid]
-            XCache::set("aec68c62-b18a-4fb4-ae34-aa4beaf78f9d:#{CommonUtils::today()}", JSON.generate(itemuuids))
-        end
+        HardProblem::nodeHasBeenDestroyed(uuid)
     end
 
     # Blades::items()
     def self.items()
-        itemuuids = XCache::getOrNull("aec68c62-b18a-4fb4-ae34-aa4beaf78f9d:#{CommonUtils::today()}")
-        if itemuuids then
-            itemuuids = JSON.parse(itemuuids)
-            items = itemuuids
-                .map{|uuid| Blades::getItemOrNull(uuid) }
-                .compact
-            return items
-        end
-        items = Blades::blade_filepaths_enumeration().map{|filepath| Blades::readItemFromBladeFile(filepath) }
-        itemuuids = items.map{|item| item["uuid"] }
-        XCache::set("aec68c62-b18a-4fb4-ae34-aa4beaf78f9d:#{CommonUtils::today()}", JSON.generate(itemuuids))
-        items
+        Blades::blade_filepaths_enumeration().map{|filepath| Blades::readItemFromBladeFile(filepath) }
     end
 
     # Blades::commitItemToItsBladeFile(item)
@@ -146,7 +130,6 @@ class Blades
         if filepath.nil? then
             raise "(error: 192ba5e3) I could not find a blade file for item: #{item}"
         end
-
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -166,6 +149,7 @@ class Blades
         end
         item[attrname] = attrvalue
         Blades::commitItemToItsBladeFile(item)
+        HardProblem::nodeHasBeenUpdated(uuid)
     end
 
     # Blades::putBlob(uuid, datablob)
