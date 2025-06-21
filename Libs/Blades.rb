@@ -55,8 +55,13 @@ class Blades
     # Blades::makeNewFileForInProgressNodeCreation(uuid)
     def self.makeNewFileForInProgressNodeCreation(uuid)
 
+        directory = "#{Config::userHomeDirectory()}/Galaxy/Timeline/#{Time.new.to_s[0, 4]}/Nyx-Blades/"
+        if !File.exist?(directory) then
+            FileUtils.mkpath(directory)
+        end
+
         filename = "#{SecureRandom.hex(6)}.nyx-blade"
-        filepath = "#{Config::userHomeDirectory()}/Desktop/#{filename}"
+        filepath = "#{directory}/#{filename}"
 
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
