@@ -5,6 +5,7 @@ class Nyx
 
     # Nyx::main()
     def self.main()
+        Items::maintenance()
         loop {
             system("clear")
             options = [
