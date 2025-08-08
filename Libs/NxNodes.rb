@@ -103,6 +103,18 @@ class NxNodes
         if node28["payloads"].class.to_s != "Array" then
             raise "node28: #{JSON.pretty_generate(node28)}'s payloads is not an array"
         end
+        if node28["payloads"].any?{|px44| px44.class.to_s != "Hash" } then
+            puts "I have a node with what appears to be an incorrect payloads array"
+            puts "node:"
+            puts JSON.pretty_generate(node28)
+            if LucilleCore::askQuestionAnswerAsBoolean("Should I repair the array by discarding the non hash elements ? ") then
+                node28["payloads"] = node28["payloads"].select{|element| element.class.to_s == "Hash" }
+                puts "node (updated):"
+                puts JSON.pretty_generate(node28)
+                LucilleCore::pressEnterToContinue()
+                Blades::setAttribute(node28["uuid"], "payloads", node28["payloads"])
+            end
+        end
         node28["payloads"].each{|px44|
             uuid = node28["uuid"]
             Px44::fsck(uuid, px44)
