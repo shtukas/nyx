@@ -30,6 +30,8 @@ class Datablocks
             db.busy_handler { |count| true }
             db.results_as_hash = true
             db.transaction
+            db.execute("CREATE TABLE random (value REAL)", [])
+            db.execute("insert into random (value) values (?)", [rand])
             db.execute("create table datablock (uuid TEXT, nhash TEXT, datablob BLOB);", [])
             db.execute("CREATE INDEX index1 ON datablock(uuid, nhash);", [])
             db.commit
