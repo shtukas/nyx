@@ -8,7 +8,7 @@ class PolyFunctions
             return nil
         end
         if item["mikuType"] == "NxNode28" then
-            return NxNodes::program(item)
+            return Items::program(item)
         end
         raise "(error: adaa46f8) I do not know how to PolyFunctions::program this node: #{item}"
     end
@@ -16,7 +16,7 @@ class PolyFunctions
     # PolyFunctions::connect1(node, uuid)
     def self.connect1(node, uuid)
         node["linkeduuids"] = (node["linkeduuids"] + [uuid]).uniq
-        Blades::setAttribute(node["uuid"], "linkeduuids", node["linkeduuids"])
+        Items::setAttribute(node["uuid"], "linkeduuids", node["linkeduuids"])
     end
 
     # PolyFunctions::connect2(node)
@@ -39,7 +39,7 @@ class PolyFunctions
                 end
             end
             if option == "interactively make new" then
-                node = NxNodes::interactivelyIssueNewOrNull()
+                node = Items::interactivelyIssueNewOrNull()
                 if node then
                     return node
                 end
@@ -54,7 +54,7 @@ class PolyFunctions
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort and return null) : ")
             return nil if fragment == ""
             loop {
-                selected = NxNodes::items()
+                selected = Items::items()
                             .select{|node| Search::match(node, fragment) }
 
                 if selected.empty? then
@@ -65,7 +65,7 @@ class PolyFunctions
                         return nil
                     end
                 else
-                    selected = selected.select{|node| Blades::getItemOrNull(node["uuid"]) } # In case something has changed, we want the ones that have survived
+                    selected = selected.select{|node| Items::itemOrNull(node["uuid"]) } # In case something has changed, we want the ones that have survived
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", selected, lambda{|i| i["description"] })
                     if node.nil? then
                         if LucilleCore::askQuestionAnswerAsBoolean("search more ? ", false) then
@@ -74,7 +74,7 @@ class PolyFunctions
                             return nil
                         end
                     end
-                    node = NxNodes::program(node)
+                    node = Items::program(node)
                     if node then
                         return node # was `select`ed
                     end

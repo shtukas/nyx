@@ -39,7 +39,7 @@ class Px44
             return {
                 "mikuType"  => "Px44",
                 "type"      => "aion-point",
-                "nhash"     => AionCore::commitLocationReturnHash(ElizabethBlade.new(uuid), location)
+                "nhash"     => AionCore::commitLocationReturnHash(Elizabeth.new(uuid), location)
             }
         end
         if type == "beacon" then
@@ -101,7 +101,7 @@ class Px44
             exportFoldername = "#{exportId}-aion-point"
             exportFolderpath = "#{ENV['HOME']}/x-space/xcache-v1-days/#{Time.new.to_s[0, 10]}/#{exportFoldername}"
             FileUtils.mkpath(exportFolderpath)
-            AionCore::exportHashAtFolder(ElizabethBlade.new(uuid), nhash, exportFolderpath)
+            AionCore::exportHashAtFolder(Elizabeth.new(uuid), nhash, exportFolderpath)
             system("open '#{exportFolderpath}'")
             LucilleCore::pressEnterToContinue()
             return
@@ -175,7 +175,7 @@ class Px44
                 raise "uuid: #{uuid}, px44: #{JSON.pretty_generate(px44)} does not have a nhash"
             end
             nhash = px44["nhash"]
-            AionFsck::structureCheckAionHashRaiseErrorIfAny(ElizabethBlade.new(uuid), nhash)
+            AionFsck::structureCheckAionHashRaiseErrorIfAny(Elizabeth.new(uuid), nhash)
             return
         end
         if px44["type"] == "beacon" then
