@@ -20,6 +20,7 @@ class Px44
         if type == "text" then
             text = CommonUtils::editTextSynchronously("")
             return {
+                "uuid"     => SecureRandom.uuid,
                 "mikuType" => "Px44",
                 "type"     => "text",
                 "text"     => text
@@ -28,6 +29,7 @@ class Px44
         if type == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url: ")
             return {
+                "uuid"     => SecureRandom.uuid,
                 "mikuType" => "Px44",
                 "type"     => "url",
                 "url"      => url
@@ -37,6 +39,7 @@ class Px44
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
             return {
+                "uuid"      => SecureRandom.uuid,
                 "mikuType"  => "Px44",
                 "type"      => "aion-point",
                 "nhash"     => AionCore::commitLocationReturnHash(Elizabeth.new(uuid), location)
@@ -55,6 +58,7 @@ class Px44
             LucilleCore::pressEnterToContinue()
 
             return {
+                "uuid"     => SecureRandom.uuid,
                 "mikuType" => "Px44",
                 "type"     => "beacon",
                 "id"       => beaconId
@@ -63,6 +67,7 @@ class Px44
         if type == "unique string" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (if needed use Nx01-#{SecureRandom.hex[0, 12]}): ")
             return {
+                "uuid"         => SecureRandom.uuid,
                 "type"         => "unique-string",
                 "uniquestring" => uniquestring
             }
@@ -72,7 +77,7 @@ class Px44
 
     # Px44::toString(px44)
     def self.toString(px44)
-        "(payload: #{px44["type"]})"
+        "(payload: #{px44["uuid"]}, #{px44["type"]})"
     end
 
     # Px44::access(uuid, px44)

@@ -1,18 +1,21 @@
 Px44 is a content type for a nyx node
 
 Px44 {
+    "uuid"     : String
     "mikuType" : "Px44"
     "type"     : "text"
     "text"     : string
 }
 
 Px44 {
+    "uuid"     : String
     "mikuType" : "Px44"
     "type"     : "url"
     "url       : string
 }
 
 Px44 {
+    "uuid"      : String
     "mikuType"  : "Px44"
     "type"      : "aion-point"
     "bladename" : String
@@ -20,12 +23,14 @@ Px44 {
 }
 
 Px44 {
+    "uuid"         : String
     "mikuType"     : "Px44"
     "type"         : "unique-string"
     "uniquestring" : string
 }
 
 Px44 {
+    "uuid"     : String
     "mikuType" : "Px44"
     "type"     : "beacon"
     "id"       : string

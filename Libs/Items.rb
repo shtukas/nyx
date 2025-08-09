@@ -220,7 +220,7 @@ class Items
           "mikuType"    => "NxNode28",
           "datetime"    => Time.new.utc.iso8601,
           "description" => "Default description for initialised item. If you are reading this, something didn't happen",
-          "payloads"    => [],
+          "px44s"       => [],
           "linkeduuids" => [],
           "notes"       => [],
           "tags"        => []
@@ -287,14 +287,14 @@ class Items
         uuid = SecureRandom.uuid
         description = LucilleCore::pressEnterToContinue("description (empty to abort): ")
         return nil if description == ''
-        payload = Px44::interactivelyMakeNewOrNull(uuid)
-        payloads    = [payload].compact
+        px44 = Px44::interactivelyMakeNewOrNull(uuid)
+        px44s = [px44].compact
         item = {
             "uuid"        => uuid,
             "mikuType"    => "NxNode28",
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "payloads"    => payloads,
+            "px44s"       => px44s,
             "linkeduuids" => [],
             "notes"       => [],
             "tags"        => []
@@ -305,7 +305,7 @@ class Items
 
     # Items::toString(node)
     def self.toString(node)
-        "#{node["description"]}#{node["payloads"].map{|payload| Px44::toString(payload) }}"
+        "#{node["description"]}#{node["px44s"].map{|payload| Px44::toString(payload) }}"
     end
 
     # ------------------------------------------------------
@@ -317,6 +317,37 @@ class Items
         if !File.exist?(archive_filepath) then
             FileUtils.cp(Items::getDatabaseFilepath(), archive_filepath)
         end
+    end
+
+    # Items::payloadProgram(node)
+    def self.payloadProgram(node)
+        loop {
+            node = Items::itemOrNull(node["uuid"])
+            px44s = node["px44s"]
+            puts "px44s (#{px44s.count} items):"
+            px44s.each{|px44|
+                puts "  - #{Px44::toString(px44)}"
+            }
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull('option', ['access', 'add', 'remove'])
+            break if option.nil?
+            if option == 'access' then
+                px44 = LucilleCore::selectEntityFromListOfEntitiesOrNull("px44", px44s, lambda{|px44| Px44::toString(px44) })
+                next if px44.nil?
+                Px44::access(node["uuid"], px44)
+            end
+            if option == 'add' then
+                px44 = Px44::interactivelyMakeNewOrNull(node["uuid"])
+                next if px44.nil?
+                px44s << px44
+                Items::setAttribute(node["uuid"], "px44s", px44s)
+            end
+            if option == 'remove' then
+                px44 = LucilleCore::selectEntityFromListOfEntitiesOrNull("px44", px44s, lambda{|px44| Px44::toString(px44) })
+                next if px44.nil?
+                px44s = px44s.reject{|i| i["uuid"] == px44["uuid"] }
+                Items::setAttribute(node["uuid"], "px44s", px44s)
+            end
+        }
     end
 
     # Items::program(node) # nil or node (to get the node issue `select`)
@@ -335,8 +366,8 @@ class Items
             puts "- mikuType   : #{node["mikuType"].green}"
             puts "- uuid       : #{node["uuid"]}"
             puts "- datetime   : #{datetime}"
-            puts "- payloads   :"
-            node["payloads"].each{|payload|
+            puts "- px44s      :"
+            node["px44s"].each{|payload|
                 puts "    - #{Px44::toString(payload).strip}"
             }
 
@@ -363,7 +394,7 @@ class Items
             end
 
             puts ""
-            puts "commands: select | description | access | payloads | connect | disconnect | note | note remove | expose | destroy"
+            puts "commands: select | description | access | payload | connect | disconnect | note | note remove | expose | destroy"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -389,17 +420,17 @@ class Items
             end
 
             if command == "access" then
-                node["payloads"].each{|payload|
-                    Px44::access(node["uuid"], payload)
+                px44s = node["px44s"]
+                loop {
+                    px44 = LucilleCore::selectEntityFromListOfEntitiesOrNull("px44", px44s, lambda{|px44| Px44::toString(px44) })
+                    break if px44.nil?
+                    Px44::access(node["uuid"], px44)
                 }
                 next
             end
 
-            if command == "payloads" then
-                payload = Px44::interactivelyMakeNewOrNull(node["uuid"])
-                next if payload.nil?
-                node["payloads"] << payload
-                Items::setAttribute(node["uuid"], "payloads", node["payloads"])
+            if command == "payload" then
+                Items::payloadProgram(node)
                 next
             end
 
@@ -487,26 +518,26 @@ class Items
             raise "item: #{JSON.pretty_generate(item)}'s tags is not an array"
         end
 
-        # TODO: fsck the payloads
-        if item["payloads"].nil? then
-            raise "item: #{JSON.pretty_generate(item)} does not have a payloads"
+        # TODO: fsck the px44s
+        if item["px44s"].nil? then
+            raise "item: #{JSON.pretty_generate(item)} does not have a px44s"
         end
-        if item["payloads"].class.to_s != "Array" then
-            raise "item: #{JSON.pretty_generate(item)}'s payloads is not an array"
+        if item["px44s"].class.to_s != "Array" then
+            raise "item: #{JSON.pretty_generate(item)}'s px44s is not an array"
         end
-        if item["payloads"].any?{|px44| px44.class.to_s != "Hash" } then
-            puts "I have a node with what appears to be an incorrect payloads array"
+        if item["px44s"].any?{|px44| px44.class.to_s != "Hash" } then
+            puts "I have a node with what appears to be an incorrect px44s array"
             puts "node:"
             puts JSON.pretty_generate(item)
             if LucilleCore::askQuestionAnswerAsBoolean("Should I repair the array by discarding the non hash elements ? ") then
-                item["payloads"] = item["payloads"].select{|element| element.class.to_s == "Hash" }
+                item["px44s"] = item["px44s"].select{|element| element.class.to_s == "Hash" }
                 puts "node (updated):"
                 puts JSON.pretty_generate(item)
                 LucilleCore::pressEnterToContinue()
-                Items::setAttribute(item["uuid"], "payloads", item["payloads"])
+                Items::setAttribute(item["uuid"], "px44s", item["px44s"])
             end
         end
-        item["payloads"].each{|px44|
+        item["px44s"].each{|px44|
             uuid = item["uuid"]
             Px44::fsck(uuid, px44)
         }
