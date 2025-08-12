@@ -24,6 +24,7 @@ class Items
     def self.filepaths()
         LucilleCore::locationsAtFolder(Items::directory())
             .select{|filepath| File.basename(filepath)[-8, 8] == ".sqlite3" }
+            .select{|filepath| !File.basename(filepath).include?("sync-conflict") }
     end
 
     # Items::ensureContentAddressing(filepath)
