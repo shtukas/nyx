@@ -455,9 +455,9 @@ class NxNode28
             end
 
             if command == "connect" then
-                node = PolyFunctions::connect2(node, isSeekingSelect)
-                if node then
-                    return node # was `select`ed
+                returned_node = PolyFunctions::connect2(node, isSeekingSelect)
+                if returned_node then
+                    return returned_node # was `select`ed
                 end
                 next
             end
