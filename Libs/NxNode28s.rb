@@ -10,36 +10,36 @@ create table items (
 CREATE INDEX index1 ON items(uuid, mikuType);
 =end
 
-class Items
+class NxNode28
 
     # ------------------------------------------------------
     # Basic IO management
 
-    # Items::directory()
+    # NxNode28::directory()
     def self.directory()
         "#{Config::pathToData()}/databases/index3-items"
     end
 
-    # Items::filepaths()
+    # NxNode28::filepaths()
     def self.filepaths()
-        LucilleCore::locationsAtFolder(Items::directory())
+        LucilleCore::locationsAtFolder(NxNode28::directory())
             .select{|filepath| File.basename(filepath)[-8, 8] == ".sqlite3" }
             .select{|filepath| !File.basename(filepath).include?("sync-conflict") }
     end
 
-    # Items::ensureContentAddressing(filepath)
+    # NxNode28::ensureContentAddressing(filepath)
     def self.ensureContentAddressing(filepath)
         filename2 = "#{Digest::SHA1.file(filepath).hexdigest}.sqlite3"
-        filepath2 = "#{Items::directory()}/#{filename2}"
+        filepath2 = "#{NxNode28::directory()}/#{filename2}"
         return filepath if filepath == filepath2
         FileUtils.mv(filepath, filepath2)
         filepath2
     end
 
-    # Items::initiateDatabaseFile() -> filepath
+    # NxNode28::initiateDatabaseFile() -> filepath
     def self.initiateDatabaseFile()
         filename = "#{SecureRandom.hex}.sqlite3"
-        filepath = "#{Items::directory()}/#{filename}"
+        filepath = "#{NxNode28::directory()}/#{filename}"
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -55,10 +55,10 @@ class Items
         db.execute("CREATE INDEX items_index ON items(uuid, mikuType);", [])
         db.commit
         db.close
-        Items::ensureContentAddressing(filepath)
+        NxNode28::ensureContentAddressing(filepath)
     end
 
-    # Items::insertUpdateItemAtFile(filepath, item)
+    # NxNode28::insertUpdateItemAtFile(filepath, item)
     def self.insertUpdateItemAtFile(filepath, item)
         uuid = item["uuid"]
         utime = Time.new.to_f
@@ -73,10 +73,10 @@ class Items
         db.execute("insert into items (uuid, utime, item, mikuType, description) values (?, ?, ?, ?, ?)", [uuid, utime, JSON.generate(item), mikuType, description])
         db.commit
         db.close
-        Items::ensureContentAddressing(filepath)
+        NxNode28::ensureContentAddressing(filepath)
     end
 
-    # Items::removeEntryAtFile(filepath, uuid)
+    # NxNode28::removeEntryAtFile(filepath, uuid)
     def self.removeEntryAtFile(filepath, uuid)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -86,10 +86,10 @@ class Items
         db.execute("delete from items where uuid=?", [uuid])
         db.commit
         db.close
-        Items::ensureContentAddressing(filepath)
+        NxNode28::ensureContentAddressing(filepath)
     end
 
-    # Items::extractEntryOrNullFromFilepath(filepath, uuid)
+    # NxNode28::extractEntryOrNullFromFilepath(filepath, uuid)
     def self.extractEntryOrNullFromFilepath(filepath, uuid)
         entry = nil
         db = SQLite3::Database.new(filepath)
@@ -110,7 +110,7 @@ class Items
         entry
     end
 
-    # Items::insertUpdateEntryComponents2(filepath, utime, item)
+    # NxNode28::insertUpdateEntryComponents2(filepath, utime, item)
     def self.insertUpdateEntryComponents2(filepath, utime, item)
         mikuType = item["mikuType"]
         description = item["description"]
@@ -125,15 +125,15 @@ class Items
         db.close
     end
 
-    # Items::mergeTwoDatabaseFiles(filepath1, filepath2)
+    # NxNode28::mergeTwoDatabaseFiles(filepath1, filepath2)
     def self.mergeTwoDatabaseFiles(filepath1, filepath2)
         # The logic here is to read the items from filepath2 and
         # possibly add them to filepath1, if either:
         #   - there was no equivalent in filepath1
         #   - it's a newer record than the one in filepath1
-        Items::extractEntriesFromFile(filepath2).each{|entry2|
+        NxNode28::extractEntriesFromFile(filepath2).each{|entry2|
             shouldInject = false
-            entry1 = Items::extractEntryOrNullFromFilepath(filepath1, entry2["item"]["uuid"])
+            entry1 = NxNode28::extractEntryOrNullFromFilepath(filepath1, entry2["item"]["uuid"])
             if entry1 then
                 # We have entry1 and entry2
                 # We perform the update if entry2 is newer than entry1
@@ -145,15 +145,15 @@ class Items
                 shouldInject = true
             end
             if shouldInject then
-                Items::insertUpdateEntryComponents2(filepath1, entry2["utime"], entry2["item"])
+                NxNode28::insertUpdateEntryComponents2(filepath1, entry2["utime"], entry2["item"])
             end
         }
         # Then when we are done, we delete filepath2
         FileUtils::rm(filepath2)
-        Items::ensureContentAddressing(filepath1)
+        NxNode28::ensureContentAddressing(filepath1)
     end
 
-    # Items::extractEntriesFromFile(filepath)
+    # NxNode28::extractEntriesFromFile(filepath)
     def self.extractEntriesFromFile(filepath)
         entries = []
         db = SQLite3::Database.new(filepath)
@@ -173,14 +173,14 @@ class Items
         entries
     end
 
-    # Items::getDatabaseFilepath()
+    # NxNode28::getDatabaseFilepath()
     def self.getDatabaseFilepath()
-        filepaths = Items::filepaths()
+        filepaths = NxNode28::filepaths()
 
         # This case should not really happen (anymore), so if the condition 
         # is true, let's error noisily.
         if filepaths.size == 0 then
-            #return Items::initiateDatabaseFile()
+            #return NxNode28::initiateDatabaseFile()
             raise "(error: 8dd2daa1)"
         end
 
@@ -193,16 +193,16 @@ class Items
             # The logic here is to read the items from filepath2 and 
             # possibly add them to filepath1.
             # We get an updated filepath1 because of content addressing.
-            filepath1 = Items::mergeTwoDatabaseFiles(filepath1, filepath)
+            filepath1 = NxNode28::mergeTwoDatabaseFiles(filepath1, filepath)
         }
 
         filepath1
     end
 
-    # Items::entryOrNull(uuid)
+    # NxNode28::entryOrNull(uuid)
     def self.entryOrNull(uuid)
-        Items::filepaths().each{|filepath|
-            entry = Items::extractEntryOrNullFromFilepath(filepath, uuid)
+        NxNode28::filepaths().each{|filepath|
+            entry = NxNode28::extractEntryOrNullFromFilepath(filepath, uuid)
             return entry if entry
         }
         nil
@@ -211,9 +211,9 @@ class Items
     # ------------------------------------------------------
     # Interface
 
-    # Items::init(uuid)
+    # NxNode28::init(uuid)
     def self.init(uuid)
-        if Items::itemOrNull(uuid) then
+        if NxNode28::itemOrNull(uuid) then
             raise "(error: 0e16c053) this uuid is already in use, you cannot init it"
         end
         item = {
@@ -226,34 +226,34 @@ class Items
           "notes"       => [],
           "tags"        => []
         }
-        Items::commitItem(item)
+        NxNode28::commitItem(item)
     end
 
-    # Items::itemOrNull(uuid)
+    # NxNode28::itemOrNull(uuid)
     def self.itemOrNull(uuid)
-        entry = Items::entryOrNull(uuid)
+        entry = NxNode28::entryOrNull(uuid)
         return nil if entry.nil?
         entry["item"]
     end
 
-    # Items::commitItem(item)
+    # NxNode28::commitItem(item)
     def self.commitItem(item)
-        filepath = Items::getDatabaseFilepath()
-        Items::insertUpdateItemAtFile(filepath, item)
+        filepath = NxNode28::getDatabaseFilepath()
+        NxNode28::insertUpdateItemAtFile(filepath, item)
     end
 
-    # Items::setAttribute(uuid, attrname, attrvalue)
+    # NxNode28::setAttribute(uuid, attrname, attrvalue)
     def self.setAttribute(uuid, attrname, attrvalue)
-        item = Items::itemOrNull(uuid)
+        item = NxNode28::itemOrNull(uuid)
         return if item.nil?
         item[attrname] = attrvalue
-        Items::commitItem(item)
+        NxNode28::commitItem(item)
     end
 
-    # Items::items()
+    # NxNode28::items()
     def self.items()
         items = []
-        db = SQLite3::Database.new(Items::getDatabaseFilepath())
+        db = SQLite3::Database.new(NxNode28::getDatabaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -264,10 +264,10 @@ class Items
         items
     end
 
-    # Items::mikuType(mikuType) -> Array[Item]
+    # NxNode28::mikuType(mikuType) -> Array[Item]
     def self.mikuType(mikuType)
         items = []
-        db = SQLite3::Database.new(Items::getDatabaseFilepath())
+        db = SQLite3::Database.new(NxNode28::getDatabaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -278,12 +278,12 @@ class Items
         items
     end
 
-    # Items::deleteItem(uuid)
+    # NxNode28::deleteItem(uuid)
     def self.deleteItem(uuid)
-        Items::removeEntryAtFile(Items::getDatabaseFilepath(), uuid)
+        NxNode28::removeEntryAtFile(NxNode28::getDatabaseFilepath(), uuid)
     end
 
-    # Items::interactivelyIssueNewOrNull()
+    # NxNode28::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
         uuid = SecureRandom.uuid
         description = LucilleCore::pressEnterToContinue("description (empty to abort): ")
@@ -300,11 +300,11 @@ class Items
             "notes"       => [],
             "tags"        => []
         }
-        Items::commitItem(item)
+        NxNode28::commitItem(item)
         item
     end
 
-    # Items::toString(node)
+    # NxNode28::toString(node)
     def self.toString(node)
         "#{node["description"]}#{node["px44s"].map{|payload| Px44::toString(payload) }}"
     end
@@ -312,18 +312,18 @@ class Items
     # ------------------------------------------------------
     # Operations
 
-    # Items::maintenance()
+    # NxNode28::maintenance()
     def self.maintenance()
-        archive_filepath = "#{Items::directory()}/archives/#{CommonUtils::today()}.sqlite3"
+        archive_filepath = "#{NxNode28::directory()}/archives/#{CommonUtils::today()}.sqlite3"
         if !File.exist?(archive_filepath) then
-            FileUtils.cp(Items::getDatabaseFilepath(), archive_filepath)
+            FileUtils.cp(NxNode28::getDatabaseFilepath(), archive_filepath)
         end
     end
 
-    # Items::payloadProgram(node)
+    # NxNode28::payloadProgram(node)
     def self.payloadProgram(node)
         loop {
-            node = Items::itemOrNull(node["uuid"])
+            node = NxNode28::itemOrNull(node["uuid"])
             px44s = node["px44s"]
             puts "px44s (#{px44s.count} items):"
             px44s.each{|px44|
@@ -340,25 +340,36 @@ class Items
                 px44 = Px44::interactivelyMakeNewOrNull(node["uuid"])
                 next if px44.nil?
                 px44s << px44
-                Items::setAttribute(node["uuid"], "px44s", px44s)
+                NxNode28::setAttribute(node["uuid"], "px44s", px44s)
             end
             if option == 'remove' then
                 px44 = LucilleCore::selectEntityFromListOfEntitiesOrNull("px44", px44s, lambda{|px44| Px44::toString(px44) })
                 next if px44.nil?
                 px44s = px44s.reject{|i| i["uuid"] == px44["uuid"] }
-                Items::setAttribute(node["uuid"], "px44s", px44s)
+                NxNode28::setAttribute(node["uuid"], "px44s", px44s)
             end
         }
     end
 
-    # Items::program(node) # nil or node (to get the node issue `select`)
-    def self.program(node)
+    # NxNode28::program(node, isSeekingSelect) # nil or node
+    def self.program(node, isSeekingSelect)
+
+        # isSeekingSelect: boolean
+        # if isSeekingSelect is true, we are trying to identify a node, and in particular 
+        # The caller will be paying attention to the return value.
+
         loop {
 
-            node = Items::itemOrNull(node["uuid"])
-            return if node.nil?
+            node = NxNode28::itemOrNull(node["uuid"])
+            break if node.nil?
 
             system('clear')
+
+            if isSeekingSelect then
+                puts " ---------------------------"
+                puts "| select                    |"
+                puts " ---------------------------"
+            end
 
             description  = node["description"]
             datetime     = node["datetime"]
@@ -383,7 +394,7 @@ class Items
                 }
             end
 
-            linkednodes = node["linkeduuids"].map{|id| Items::itemOrNull(id) }.compact
+            linkednodes = node["linkeduuids"].map{|id| NxNode28::itemOrNull(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"
@@ -394,8 +405,13 @@ class Items
                     }
             end
 
-            puts ""
-            puts "commands: select | description | access | payload | connect | disconnect | note | note remove | expose | destroy"
+            if isSeekingSelect then
+                puts ""
+                puts "commands: #{"select".green} | description | access | payload | connect | disconnect | notes | expose | destroy"
+            else
+                puts ""
+                puts "commands: description | access | payload | connect | disconnect | notes | expose | destroy"
+            end
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -405,7 +421,10 @@ class Items
                 indx = command.to_i
                 item = store.get(indx)
                 next if item.nil?
-                PolyFunctions::program(item)
+                node = PolyFunctions::program(item, isSeekingSelect)
+                if node then
+                    return node # was `select`ed
+                end
                 next
             end
 
@@ -416,7 +435,7 @@ class Items
             if command == "description" then
                 description = CommonUtils::editTextSynchronously(node["description"])
                 next if description == ""
-                Items::setAttribute(node["uuid"], "description",description)
+                NxNode28::setAttribute(node["uuid"], "description",description)
                 next
             end
 
@@ -431,12 +450,15 @@ class Items
             end
 
             if command == "payload" then
-                Items::payloadProgram(node)
+                NxNode28::payloadProgram(node)
                 next
             end
 
             if command == "connect" then
-                PolyFunctions::connect2(node)
+                node = PolyFunctions::connect2(node, isSeekingSelect)
+                if node then
+                    return node # was `select`ed
+                end
                 next
             end
 
@@ -446,17 +468,19 @@ class Items
                 next
             end
 
-            if command == "note" then
-                note = NxNotes::interactivelyIssueNewOrNull()
-                next if note.nil?
-                node["notes"] << note
-                Items::setAttribute(node["uuid"], "notes", node["notes"])
-                next
-            end
-
-            if command == "note remove" then
-                puts "note remove is not implemented yet"
-                LucilleCore::pressEnterToContinue()
+            if command == "notes" then
+                option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["add new note", "remove note"])
+                next if option.nil?
+                if option == "add new note" then
+                    note = NxNotes::interactivelyIssueNewOrNull()
+                    next if note.nil?
+                    node["notes"] << note
+                    NxNode28::setAttribute(node["uuid"], "notes", node["notes"])
+                end
+                if option == "remove note" then
+                    puts "note remove is not implemented yet"
+                    LucilleCore::pressEnterToContinue()
+                end
                 next
             end
 
@@ -467,7 +491,7 @@ class Items
             end
 
             if command == "destroy" then
-                Items::deleteItem(node["uuid"])
+                NxNode28::deleteItem(node["uuid"])
                 next
             end
         }
@@ -535,7 +559,7 @@ class Items
                 puts "node (updated):"
                 puts JSON.pretty_generate(item)
                 LucilleCore::pressEnterToContinue()
-                Items::setAttribute(item["uuid"], "px44s", item["px44s"])
+                NxNode28::setAttribute(item["uuid"], "px44s", item["px44s"])
             end
         end
         item["px44s"].each{|px44|
