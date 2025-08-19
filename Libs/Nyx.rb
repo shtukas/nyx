@@ -5,7 +5,7 @@ class Nyx
 
     # Nyx::main()
     def self.main()
-        NxNode28::maintenance()
+        Nx27::maintenance()
         loop {
             system("clear")
             options = [
@@ -20,20 +20,20 @@ class Nyx
                 Search::searchAndDive()
             end
             if option == "new node" then
-                node = NxNode28::interactivelyIssueNewOrNull()
+                node = Nx27::interactivelyIssueNewOrNull()
                 next if node.nil?
-                NxNode28::program(node, false)
+                Nx27::program(node, false)
             end
             if option == "list nodes" then
                 loop {
-                    nodes = NxNode28::items().sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
+                    nodes = Nx27::items().sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| node["description"] })
                     break if node.nil?
-                    NxNode28::program(node, false)
+                    Nx27::program(node, false)
                 }
             end
             if option == "fsck" then
-                NxNode28::items().each{|item|
+                Nx27::items().each{|item|
                     puts "fsck: item: #{item["uuid"]}"
                     Item::fsckItem(item)
                 }

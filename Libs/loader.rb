@@ -133,7 +133,7 @@ require_relative "ItemStore.rb"
 
 require_relative "Nyx.rb"
 require_relative "NxNotes.rb"
-require_relative "NxNode28s.rb"
+require_relative "Nx27s.rb"
 
 require_relative "PolyFunctions.rb"
 require_relative "ProgrammableBooleans.rb"

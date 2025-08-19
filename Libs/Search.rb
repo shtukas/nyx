@@ -16,7 +16,7 @@ class Search
 
             loop {
                 system('clear')
-                selected = NxNode28::items()
+                selected = Nx27::items()
                             .select{|item| Search::match(item, fragment) }
 
                 if selected.empty? then
@@ -25,11 +25,11 @@ class Search
                     break
                 end
 
-                selected = selected.select{|item| NxNode28::itemOrNull(item["uuid"]) } # In case something has changed, we want the ones that have survived
+                selected = selected.select{|item| Nx27::itemOrNull(item["uuid"]) } # In case something has changed, we want the ones that have survived
 
                 item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", selected, lambda{|i| i["description"] })
                 break if item.nil?
-                NxNode28::program(item, false)
+                Nx27::program(item, false)
             }
         }
     end

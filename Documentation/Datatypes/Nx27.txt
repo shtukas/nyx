@@ -1,9 +1,9 @@
 
-NxNode28 are the nodes of the Nyx Network.
+Nx27 are the nodes of the Nyx Network.
 
-NxNode28
+Nx27
     uuid        : String
-    mikuType    : "NxNode28"
+    mikuType    : "Nx27"
     datetime    : DateTime Iso 8601 UTC Zulu
     description : String
     px44s       : Array[Px44]
