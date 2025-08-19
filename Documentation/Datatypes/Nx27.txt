@@ -10,8 +10,3 @@ Nx27
     linkeduuids : Array[String]
     notes       : Array[NxNote]
     tags        : Array[String]
-    fs-42       : boolean # [1] default to null which means false.
-
-[1] When this is true it means that the node is the delegate of a file on the file system. Such a node has its description derived from the name of the diretory where it is and cannot have a payload. Accessing it moves you to the filesystem location.
-
-They are created by moving a NxFS42 file which has two lines the uuid, followed by the description. If there is no second line, then the description is the name of the parent directory.
