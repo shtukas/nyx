@@ -1,5 +1,6 @@
 
-Nx27 are the nodes of the Nyx Network.
+Nx27 are one type of node of the Nyx Network. They are the nodes that live entirely in the SQL database. They can have a payload that 
+is stored in the Datablocks repository.
 
 Nx27
     uuid        : String

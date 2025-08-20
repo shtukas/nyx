@@ -1,49 +1,32 @@
 
-class Nx27
+class Fx35
 
     # ------------------------------------------------------
     # Interface
 
-    # Nx27::init(uuid)
-    def self.init(uuid)
-        if Items::itemOrNull(uuid) then
-            raise "(error: 0e16c053) this uuid is already in use, you cannot init it"
-        end
-        item = {
-          "uuid"        => uuid,
-          "mikuType"    => "Nx27",
-          "datetime"    => Time.new.utc.iso8601,
-          "description" => "Default description for initialised item. If you are reading this, something didn't happen",
-          "px44s"       => [],
-          "linkeduuids" => [],
-          "notes"       => [],
-          "tags"        => []
-        }
-        Items::commitItem(item)
-    end
-
-    # Nx27::interactivelyIssueNewOrNull()
+    # Fx35::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
         uuid = SecureRandom.uuid
-        description = LucilleCore::pressEnterToContinue("description (empty to abort): ")
-        return nil if description == ''
-        px44 = Px44::interactivelyMakeNewOrNull(uuid)
-        px44s = [px44].compact
+        description = LucilleCore::pressEnterToContinue("description (empty to get the parent folder name): ")
+        if description == '' then
+            description = nil
+        end
         item = {
             "uuid"        => uuid,
-            "mikuType"    => "Nx27",
+            "mikuType"    => "Fx35",
             "datetime"    => Time.new.utc.iso8601,
             "description" => description,
-            "px44s"       => px44s,
             "linkeduuids" => [],
             "notes"       => [],
-            "tags"        => []
+            "tags"        => [],
+            "lastKnownLocation" => nil
         }
+        filepath = "#{Config::userHomeDirectory()}/Desktop/"
         Items::commitItem(item)
         item
     end
 
-    # Nx27::toString(node)
+    # Fx35::toString(node)
     def self.toString(node)
         "#{node["description"]}#{node["px44s"].map{|payload| Px44::toString(payload) }}"
     end
@@ -51,7 +34,7 @@ class Nx27
     # ------------------------------------------------------
     # Operations
 
-    # Nx27::programPayload(node)
+    # Fx35::programPayload(node)
     def self.programPayload(node)
         loop {
             node = Items::itemOrNull(node["uuid"])
@@ -82,7 +65,7 @@ class Nx27
         }
     end
 
-    # Nx27::programNode(node, isSeekingSelect) # nil or node
+    # Fx35::programNode(node, isSeekingSelect) # nil or node
     def self.programNode(node, isSeekingSelect)
 
         # isSeekingSelect: boolean
@@ -181,7 +164,7 @@ class Nx27
             end
 
             if command == "payload" then
-                Nx27::programPayload(node)
+                Fx35::programPayload(node)
                 next
             end
 
@@ -230,7 +213,7 @@ class Nx27
         nil
     end
 
-    # Nx27::fsckItem(item)
+    # Fx35::fsckItem(item)
     def self.fsckItem(item)
         if item["uuid"].nil? then
             raise "item: #{JSON.pretty_generate(item)} is missing its uuid"
@@ -238,7 +221,7 @@ class Nx27
         if item["mikuType"].nil? then
             raise "item: #{JSON.pretty_generate(item)} is missing its mikuType"
         end
-        if item["mikuType"] != 'Nx27' then
+        if item["mikuType"] != 'Fx35' then
             raise "item: #{JSON.pretty_generate(item)} does not have the correct mikuType"
         end
         if item["description"].nil? then

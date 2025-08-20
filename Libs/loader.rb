@@ -125,11 +125,15 @@ require_relative "Atlas.rb"
 require_relative "CommonUtils.rb"
 
 require_relative "Datablocks.rb"
+
 require_relative "Elizabeth.rb"
+
+require_relative "Fx35.rb"
 
 require_relative "Galaxy.rb"
 
 require_relative "ItemStore.rb"
+require_relative "Items.rb"
 
 require_relative "Nyx.rb"
 require_relative "NxNotes.rb"

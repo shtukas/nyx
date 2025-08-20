@@ -30,8 +30,8 @@ class NxNotes
     # ------------------------------------
     # Operations
 
-    # NxNotes::program(note)
-    def self.program(note)
+    # NxNotes::programNode(note)
+    def self.programNode(note)
         loop {
             system('clear')
 
