@@ -43,9 +43,17 @@ class Nx27
         item
     end
 
+    # ------------------------------------------------------
+    # Data
+
     # Nx27::toString(node)
     def self.toString(node)
         "#{node["description"]}#{node["px44s"].map{|payload| Px44::toString(payload) }}"
+    end
+
+    # Nx27::items()
+    def self.items()
+        Items::mikuType('Nx27')
     end
 
     # ------------------------------------------------------

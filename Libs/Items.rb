@@ -246,6 +246,20 @@ class Items
         items
     end
 
+    # Items::mikuType(mikuType)
+    def self.mikuType(mikuType)
+        items = []
+        db = SQLite3::Database.new(Items::getDatabaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("select * from items where mikuType=?", [mikuType]) do |row|
+            items << JSON.parse(row["item"])
+        end
+        db.close
+        items
+    end
+
     # Items::deleteItem(uuid)
     def self.deleteItem(uuid)
         Items::removeEntryAtFile(Items::getDatabaseFilepath(), uuid)
