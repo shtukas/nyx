@@ -146,4 +146,6 @@ require_relative "Px44s.rb"
 
 require_relative "Search.rb"
 
+require_relative "Utils.rb"
+
 # ------------------------------------------------------------

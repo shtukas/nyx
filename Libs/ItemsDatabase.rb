@@ -200,6 +200,37 @@ class ItemsDatabase
     end
 
     # ------------------------------------------------------
+    # Data
+
+    # ItemsDatabase::items()
+    def self.items()
+        items = []
+        db = SQLite3::Database.new(ItemsDatabase::getDatabaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("select * from items", []) do |row|
+            items << JSON.parse(row["item"])
+        end
+        db.close
+        items
+    end
+
+    # ItemsDatabase::mikuType(mikuType)
+    def self.mikuType(mikuType)
+        items = []
+        db = SQLite3::Database.new(ItemsDatabase::getDatabaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("select * from items where mikuType=?", [mikuType]) do |row|
+            items << JSON.parse(row["item"])
+        end
+        db.close
+        items
+    end
+
+    # ------------------------------------------------------
     # Operations
 
     # ItemsDatabase::maintenance()
