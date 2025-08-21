@@ -4,66 +4,49 @@ class Fx35
     # ------------------------------------------------------
     # Interface
 
-    # Fx35::interactivelyIssueNewOrNull()
-    def self.interactivelyIssueNewOrNull()
+    # Fx35::issueNewToDesktop()
+    def self.issueNewToDesktop()
         uuid = SecureRandom.uuid
-        description = LucilleCore::pressEnterToContinue("description (empty to get the parent folder name): ")
-        if description == '' then
-            description = nil
-        end
         item = {
             "uuid"        => uuid,
             "mikuType"    => "Fx35",
             "datetime"    => Time.new.utc.iso8601,
-            "description" => description,
+            "description" => nil,
             "linkeduuids" => [],
             "notes"       => [],
             "tags"        => [],
             "lastKnownLocation" => nil
         }
-        filepath = "#{Config::userHomeDirectory()}/Desktop/"
-        Items::commitItem(item)
+        filepath = "#{Config::userHomeDirectory()}/Desktop/Fx35.nyx-fx35.json"
+        if File.exist?(filepath) then
+            puts "There is a Fx35.nyx-fx35.json file on the Desktop, please remove it"
+            LucilleCore::pressEnterToContinue()
+        end
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
+        ItemsDatabase::commitItem(item)
         item
+    end
+
+    # ------------------------------------------------------
+    # Data
+
+    # Fx35::description(item)
+    def self.description(item)
+        node["description"] ? "#{node["description"]}" : "(Fx35: #{item["uuid"]})"
     end
 
     # Fx35::toString(node)
     def self.toString(node)
-        "#{node["description"]}#{node["px44s"].map{|payload| Px44::toString(payload) }}"
+        Fx35::description(item)
+    end
+
+    # Fx35::items()
+    def self.items()
+        ItemsDatabase::mikuType('Fx35')
     end
 
     # ------------------------------------------------------
     # Operations
-
-    # Fx35::programPayload(node)
-    def self.programPayload(node)
-        loop {
-            node = Items::itemOrNull(node["uuid"])
-            px44s = node["px44s"]
-            puts "px44s (#{px44s.count} items):"
-            px44s.each{|px44|
-                puts "  - #{Px44::toString(px44)}"
-            }
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull('option', ['access', 'add', 'remove'])
-            break if option.nil?
-            if option == 'access' then
-                px44 = LucilleCore::selectEntityFromListOfEntitiesOrNull("px44", px44s, lambda{|px44| Px44::toString(px44) })
-                next if px44.nil?
-                Px44::access(node["uuid"], px44)
-            end
-            if option == 'add' then
-                px44 = Px44::interactivelyMakeNewOrNull(node["uuid"])
-                next if px44.nil?
-                px44s << px44
-                Items::setAttribute(node["uuid"], "px44s", px44s)
-            end
-            if option == 'remove' then
-                px44 = LucilleCore::selectEntityFromListOfEntitiesOrNull("px44", px44s, lambda{|px44| Px44::toString(px44) })
-                next if px44.nil?
-                px44s = px44s.reject{|i| i["uuid"] == px44["uuid"] }
-                Items::setAttribute(node["uuid"], "px44s", px44s)
-            end
-        }
-    end
 
     # Fx35::programNode(node, isSeekingSelect) # nil or node
     def self.programNode(node, isSeekingSelect)
@@ -74,7 +57,7 @@ class Fx35
 
         loop {
 
-            node = Items::itemOrNull(node["uuid"])
+            node = ItemsDatabase::itemOrNull(node["uuid"])
             break if node.nil?
 
             system('clear')
@@ -85,19 +68,15 @@ class Fx35
                 puts " ---------------------------"
             end
 
-            description  = node["description"]
+            description  = Fx35::description(item)
             datetime     = node["datetime"]
 
-            puts "- description: #{node["description"].green}"
+            puts "- description: #{description.green}"
             puts "- mikuType   : #{node["mikuType"].green}"
             puts "- uuid       : #{node["uuid"]}"
             puts "- datetime   : #{datetime}"
-            puts "- px44s      :"
-            node["px44s"].each{|payload|
-                puts "    - #{Px44::toString(payload).strip}"
-            }
 
-            store = ItemStore.new()
+            store = ListingStore.new()
 
             if node["notes"].size > 0 then
                 puts ""
@@ -108,7 +87,7 @@ class Fx35
                 }
             end
 
-            linkednodes = node["linkeduuids"].map{|id| Items::itemOrNull(id) }.compact
+            linkednodes = node["linkeduuids"].map{|id| ItemsDatabase::itemOrNull(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"
@@ -149,7 +128,7 @@ class Fx35
             if command == "description" then
                 description = CommonUtils::editTextSynchronously(node["description"])
                 next if description == ""
-                Items::setAttribute(node["uuid"], "description",description)
+                ItemsDatabase::setAttribute(node["uuid"], "description",description)
                 next
             end
 
@@ -189,7 +168,7 @@ class Fx35
                     note = NxNotes::interactivelyIssueNewOrNull()
                     next if note.nil?
                     node["notes"] << note
-                    Items::setAttribute(node["uuid"], "notes", node["notes"])
+                    ItemsDatabase::setAttribute(node["uuid"], "notes", node["notes"])
                 end
                 if option == "remove note" then
                     puts "note remove is not implemented yet"
@@ -205,7 +184,7 @@ class Fx35
             end
 
             if command == "destroy" then
-                Items::deleteItem(node["uuid"])
+                ItemsDatabase::deleteItem(node["uuid"])
                 next
             end
         }
@@ -273,7 +252,7 @@ class Fx35
                 puts "node (updated):"
                 puts JSON.pretty_generate(item)
                 LucilleCore::pressEnterToContinue()
-                Items::setAttribute(item["uuid"], "px44s", item["px44s"])
+                ItemsDatabase::setAttribute(item["uuid"], "px44s", item["px44s"])
             end
         end
         item["px44s"].each{|px44|

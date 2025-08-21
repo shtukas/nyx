@@ -16,7 +16,7 @@ class Search
 
             loop {
                 system('clear')
-                selected = Items::items()
+                selected = ItemsDatabase::items()
                             .select{|item| Search::match(item, fragment) }
 
                 if selected.empty? then
@@ -25,7 +25,7 @@ class Search
                     break
                 end
 
-                selected = selected.select{|item| Items::itemOrNull(item["uuid"]) } # In case something has changed, we want the ones that have survived
+                selected = selected.select{|item| ItemsDatabase::itemOrNull(item["uuid"]) } # In case something has changed, we want the ones that have survived
 
                 item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", selected, lambda{|i| i["description"] })
                 break if item.nil?

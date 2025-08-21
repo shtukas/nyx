@@ -132,12 +132,13 @@ require_relative "Fx35.rb"
 
 require_relative "Galaxy.rb"
 
-require_relative "ItemStore.rb"
-require_relative "Items.rb"
+require_relative "ListingStore.rb"
+require_relative "ItemsDatabase.rb"
 
 require_relative "Nyx.rb"
 require_relative "NxNotes.rb"
 require_relative "Nx27s.rb"
+require_relative "Nodes.rb"
 
 require_relative "PolyFunctions.rb"
 require_relative "ProgrammableBooleans.rb"

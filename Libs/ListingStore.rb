@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-class ItemStore
+class ListingStore
 
     def initialize() # : Integer
         @items = []
