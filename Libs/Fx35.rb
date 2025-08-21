@@ -32,11 +32,11 @@ class Fx35
 
     # Fx35::description(item)
     def self.description(item)
-        node["description"] ? "#{node["description"]}" : "(Fx35: #{item["uuid"]})"
+        item["description"] ? "#{item["description"]}" : "(Fx35: #{item["uuid"]})"
     end
 
-    # Fx35::toString(node)
-    def self.toString(node)
+    # Fx35::toString(item)
+    def self.toString(item)
         Fx35::description(item)
     end
 
@@ -68,8 +68,8 @@ class Fx35
                 puts " ---------------------------"
             end
 
-            description  = Fx35::description(item)
-            datetime     = node["datetime"]
+            description = Fx35::description(node)
+            datetime    = node["datetime"]
 
             puts "- description: #{description.green}"
             puts "- mikuType   : #{node["mikuType"].green}"
@@ -114,7 +114,7 @@ class Fx35
                 indx = command.to_i
                 item = store.get(indx)
                 next if item.nil?
-                node = PolyFunctions::programNode(item, isSeekingSelect)
+                node = Nodes::program(item, isSeekingSelect)
                 if node then
                     return node # was `select`ed
                 end
@@ -148,7 +148,7 @@ class Fx35
             end
 
             if command == "connect" then
-                returned_node = PolyFunctions::connect2(node, isSeekingSelect)
+                returned_node = Nodes::connect2(node, isSeekingSelect)
                 if returned_node then
                     return returned_node # was `select`ed
                 end
@@ -184,7 +184,7 @@ class Fx35
             end
 
             if command == "destroy" then
-                ItemsDatabase::deleteItem(node["uuid"])
+                Nodes::deleteItem(node)
                 next
             end
         }

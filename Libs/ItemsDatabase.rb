@@ -199,8 +199,43 @@ class ItemsDatabase
         filepath1
     end
 
+    # ItemsDatabase::insertUpdateItemAtFile(filepath, item)
+    def self.insertUpdateItemAtFile(filepath, item)
+        uuid = item["uuid"]
+        utime = Time.new.to_f
+        mikuType = item["mikuType"]
+        description = item["description"]
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.transaction
+        db.execute("delete from items where uuid=?", [uuid])
+        db.execute("insert into items (uuid, utime, item, mikuType, description) values (?, ?, ?, ?, ?)", [uuid, utime, JSON.generate(item), mikuType, description])
+        db.commit
+        db.close
+        ItemsDatabase::ensureContentAddressing(filepath)
+    end
+
     # ------------------------------------------------------
     # Data
+
+    # ItemsDatabase::entryOrNull(uuid)
+    def self.entryOrNull(uuid)
+        ItemsDatabase::filepaths().each{|filepath|
+            entry = ItemsDatabase::extractEntryOrNullFromFilepath(filepath, uuid)
+            return entry if entry
+        }
+        nil
+    end
+
+    # ItemsDatabase::itemOrNull(uuid)
+    def self.itemOrNull(uuid)
+        entry = ItemsDatabase::entryOrNull(uuid)
+        return nil if entry.nil?
+        entry["item"]
+    end
+
 
     # ItemsDatabase::items()
     def self.items()
@@ -232,6 +267,17 @@ class ItemsDatabase
 
     # ------------------------------------------------------
     # Operations
+
+    # ItemsDatabase::commitItem(item)
+    def self.commitItem(item)
+        filepath = ItemsDatabase::getDatabaseFilepath()
+        ItemsDatabase::insertUpdateItemAtFile(filepath, item)
+    end
+
+    # ItemsDatabase::deleteItem(uuid)
+    def self.deleteItem(uuid)
+        ItemsDatabase::removeEntryAtFile(ItemsDatabase::getDatabaseFilepath(), uuid)
+    end
 
     # ItemsDatabase::maintenance()
     def self.maintenance()

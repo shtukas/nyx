@@ -27,9 +27,9 @@ class Nyx
             if option == "list nodes" then
                 loop {
                     nodes = ItemsDatabase::items().sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| node["description"] })
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| Nodes::description(node) })
                     break if node.nil?
-                    Nx27::programNode(node, false)
+                    Nodes::program(node, false)
                 }
             end
             if option == "fsck" then

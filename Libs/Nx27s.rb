@@ -160,7 +160,7 @@ class Nx27
                 indx = command.to_i
                 item = store.get(indx)
                 next if item.nil?
-                node = PolyFunctions::programNode(item, isSeekingSelect)
+                node = Nodes::program(item, isSeekingSelect)
                 if node then
                     return node # was `select`ed
                 end
@@ -194,7 +194,7 @@ class Nx27
             end
 
             if command == "connect" then
-                returned_node = PolyFunctions::connect2(node, isSeekingSelect)
+                returned_node = Nodes::connect2(node, isSeekingSelect)
                 if returned_node then
                     return returned_node # was `select`ed
                 end
@@ -230,7 +230,7 @@ class Nx27
             end
 
             if command == "destroy" then
-                ItemsDatabase::deleteItem(node["uuid"])
+                Nodes::deleteItem(node)
                 next
             end
         }
