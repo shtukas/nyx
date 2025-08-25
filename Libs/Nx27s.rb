@@ -79,13 +79,13 @@ class Nx27
                 px44 = Px44::interactivelyMakeNewOrNull(node["uuid"])
                 next if px44.nil?
                 px44s << px44
-                ItemsDatabase::setAttribute(node["uuid"], "px44s", px44s)
+                Nodes::setAttribute(node["uuid"], "px44s", px44s)
             end
             if option == 'remove' then
                 px44 = LucilleCore::selectEntityFromListOfEntitiesOrNull("px44", px44s, lambda{|px44| Px44::toString(px44) })
                 next if px44.nil?
                 px44s = px44s.reject{|i| i["uuid"] == px44["uuid"] }
-                ItemsDatabase::setAttribute(node["uuid"], "px44s", px44s)
+                Nodes::setAttribute(node["uuid"], "px44s", px44s)
             end
         }
     end
@@ -160,9 +160,9 @@ class Nx27
                 indx = command.to_i
                 item = store.get(indx)
                 next if item.nil?
-                node = Nodes::program(item, isSeekingSelect)
-                if node then
-                    return node # was `select`ed
+                nx = Nodes::program(item, isSeekingSelect)
+                if nx then
+                    return nx # was `select`ed
                 end
                 next
             end
@@ -174,7 +174,7 @@ class Nx27
             if command == "description" then
                 description = CommonUtils::editTextSynchronously(node["description"])
                 next if description == ""
-                ItemsDatabase::setAttribute(node["uuid"], "description",description)
+                Nodes::setAttribute(node["uuid"], "description",description)
                 next
             end
 
@@ -214,7 +214,7 @@ class Nx27
                     note = NxNotes::interactivelyIssueNewOrNull()
                     next if note.nil?
                     node["notes"] << note
-                    ItemsDatabase::setAttribute(node["uuid"], "notes", node["notes"])
+                    Nodes::setAttribute(node["uuid"], "notes", node["notes"])
                 end
                 if option == "remove note" then
                     puts "note remove is not implemented yet"

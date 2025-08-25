@@ -15,9 +15,7 @@ class Nodes
 
     # Nodes::itemOrNull(uuid)
     def self.itemOrNull(uuid)
-        entry = Nodes::entryOrNull(uuid)
-        return nil if entry.nil?
-        entry["item"]
+        ItemsDatabase::itemOrNull(uuid)
     end
 
     # Nodes::nodes()
@@ -113,7 +111,16 @@ class Nodes
 
     # Nodes::setAttribute(uuid, attrname, attrvalue)
     def self.setAttribute(uuid, attrname, attrvalue)
-
+        item = Nodes::itemOrNull(uuid)
+        return if item.nil?
+        if item["mikuType"] == "Nx27" then
+            ItemsDatabase::setAttribute(uuid, attrname, attrvalue)
+            return
+        end
+        if item["mikuType"] == "Fx35" then
+            puts "I do not know how to update an attribute of a Fx35"
+            exit
+        end
     end
 
     # Nodes::deleteItem(node)
@@ -131,7 +138,7 @@ class Nodes
     # Nodes::connect1(node, uuid)
     def self.connect1(node, uuid)
         node["linkeduuids"] = (node["linkeduuids"] + [uuid]).uniq
-        ItemsDatabase::setAttribute(node["uuid"], "linkeduuids", node["linkeduuids"])
+        Nodes::setAttribute(node["uuid"], "linkeduuids", node["linkeduuids"])
     end
 
     # Nodes::connect2(node, isSeekingSelect) # nil or node

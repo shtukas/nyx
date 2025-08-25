@@ -128,7 +128,7 @@ class Fx35
             if command == "description" then
                 description = CommonUtils::editTextSynchronously(node["description"])
                 next if description == ""
-                ItemsDatabase::setAttribute(node["uuid"], "description",description)
+                Nodes::setAttribute(node["uuid"], "description",description)
                 next
             end
 
@@ -168,7 +168,7 @@ class Fx35
                     note = NxNotes::interactivelyIssueNewOrNull()
                     next if note.nil?
                     node["notes"] << note
-                    ItemsDatabase::setAttribute(node["uuid"], "notes", node["notes"])
+                    Nodes::setAttribute(node["uuid"], "notes", node["notes"])
                 end
                 if option == "remove note" then
                     puts "note remove is not implemented yet"

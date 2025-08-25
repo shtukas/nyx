@@ -43,7 +43,7 @@ class Utils
                 puts "node (updated):"
                 puts JSON.pretty_generate(item)
                 LucilleCore::pressEnterToContinue()
-                ItemsDatabase::setAttribute(item["uuid"], "px44s", item["px44s"])
+                Nodes::setAttribute(item["uuid"], "px44s", item["px44s"])
             end
         end
         item["px44s"].each{|px44|

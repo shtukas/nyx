@@ -274,6 +274,14 @@ class ItemsDatabase
         ItemsDatabase::insertUpdateItemAtFile(filepath, item)
     end
 
+    # ItemsDatabase::setAttribute(uuid, attrname, attrvalue)
+    def self.setAttribute(uuid, attrname, attrvalue)
+        item = ItemsDatabase::itemOrNull(uuid)
+        return if item.nil?
+        item[attrname] = attrvalue
+        ItemsDatabase::commitItem(item)
+    end
+
     # ItemsDatabase::deleteItem(uuid)
     def self.deleteItem(uuid)
         ItemsDatabase::removeEntryAtFile(ItemsDatabase::getDatabaseFilepath(), uuid)
