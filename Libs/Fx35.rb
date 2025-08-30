@@ -1,4 +1,45 @@
 
+class Fx35FileSystemHelpers
+
+    # Fx35FileSystemHelpers::locateOrNullUseTheForce(uuid)
+    def self.locateOrNullUseTheForce(uuid)
+        # This function take the uuid of a Fx35 and return the filepath where it is
+        Find.find("#{Config::userHomeDirectory()}/Galaxy") do |path|
+            if File.file?(path) then
+                filepath = path
+                if filepath[-14, 14] == ".nyx-fx35.json" then
+                    node = JSON.parse(IO.read(filepath))
+                    if node["uuid"] == uuid then
+                        return filepath
+                    end
+                end
+            end
+        end
+        nil
+    end
+
+    # Fx35FileSystemHelpers::locateOrNull(uuid)
+    def self.locateOrNull(uuid)
+        filepath = XCache::getOrNull("1a389ffa-2e8d-4b71-9694-4310a1ad44c1")
+        if filepath and File.exist?(filepath) then
+            node = JSON.parse(IO.read(filepath))
+            if node["uuid"] == uuid then
+                return filepath
+            end
+        end
+
+        puts "Looking for Fx35 #{uuid}"
+        filepath = Fx35FileSystemHelpers::locateOrNullUseTheForce(uuid)
+
+        if filepath then
+            XCache::set("1a389ffa-2e8d-4b71-9694-4310a1ad44c1", filepath)
+        end
+
+        filepath
+    end
+
+end
+
 class Fx35
 
     # ------------------------------------------------------
@@ -15,7 +56,6 @@ class Fx35
             "linkeduuids" => [],
             "notes"       => [],
             "tags"        => [],
-            "lastKnownLocation" => nil
         }
         filepath = "#{Config::userHomeDirectory()}/Desktop/Fx35.nyx-fx35.json"
         if File.exist?(filepath) then
@@ -133,12 +173,24 @@ class Fx35
             end
 
             if command == "access" then
-                px44s = node["px44s"]
-                loop {
-                    px44 = LucilleCore::selectEntityFromListOfEntitiesOrNull("px44", px44s, lambda{|px44| Px44::toString(px44) })
-                    break if px44.nil?
-                    Px44::access(node["uuid"], px44)
-                }
+                filepath = Fx35FileSystemHelpers::locateOrNull(node["uuid"])
+                if filepath.nil? then
+                    puts "I could not locate the file for Fx35 uuid"
+                    LucilleCore::pressEnterToContinue()
+                    next
+                end
+                directory = File.dirname(filepath)
+
+                # Let's update the description of the node in the database
+                # if it has diverged from the name of the directory
+                if node["description"] != File.basename(directory) then
+                    node["description"] = File.basename(directory)
+                    ItemsDatabase::commitItem(node)
+                end
+
+                puts "opening directory: #{directory}"
+                system("open '#{directory}'")
+                LucilleCore::pressEnterToContinue()
                 next
             end
 

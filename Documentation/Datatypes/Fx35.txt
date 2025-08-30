@@ -9,11 +9,8 @@ Fx35
     linkeduuids : Array[String]
     notes       : Array[NxNote]
     tags        : Array[String]
-    lastKnownLocation: String or null [2]
 
 [1] If null the description is the name of the parent directory
-
-[2] The original value is null because it's created on the desktop from which I am expected to move it to its intended location.
 
 One creates one of them using the cli and creating and moving the file. We do not have a maintenance process to scan the file system and update them. That kind of update is done as part of looking for them. See code for details.
 
