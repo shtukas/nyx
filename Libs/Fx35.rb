@@ -1,8 +1,11 @@
 
-class Fx35FileSystemHelpers
+class Fx35
 
-    # Fx35FileSystemHelpers::locateOrNullUseTheForce(uuid)
-    def self.locateOrNullUseTheForce(uuid)
+    # -------------------------------------------------------------------
+    # File System Helpers
+
+    # Fx35s::filenameOrNullUseTheForce(uuid)
+    def self.filenameOrNullUseTheForce(uuid)
         # This function take the uuid of a Fx35 and return the filepath where it is
         Find.find("#{Config::userHomeDirectory()}/Galaxy") do |path|
             if File.file?(path) then
@@ -18,8 +21,8 @@ class Fx35FileSystemHelpers
         nil
     end
 
-    # Fx35FileSystemHelpers::locateOrNull(uuid)
-    def self.locateOrNull(uuid)
+    # Fx35s::filenameOrNull(uuid)
+    def self.filenameOrNull(uuid)
         filepath = XCache::getOrNull("1a389ffa-2e8d-4b71-9694-4310a1ad44c1")
         if filepath and File.exist?(filepath) then
             node = JSON.parse(IO.read(filepath))
@@ -29,7 +32,7 @@ class Fx35FileSystemHelpers
         end
 
         puts "Looking for Fx35 #{uuid}"
-        filepath = Fx35FileSystemHelpers::locateOrNullUseTheForce(uuid)
+        filepath = Fx35s::filenameOrNullUseTheForce(uuid)
 
         if filepath then
             XCache::set("1a389ffa-2e8d-4b71-9694-4310a1ad44c1", filepath)
@@ -38,15 +41,11 @@ class Fx35FileSystemHelpers
         filepath
     end
 
-end
-
-class Fx35
-
     # ------------------------------------------------------
     # Interface
 
-    # Fx35::issueNewToDesktop()
-    def self.issueNewToDesktop()
+    # Fx35::issueNew()
+    def self.issueNew()
         uuid = SecureRandom.uuid
         item = {
             "uuid"        => uuid,
@@ -63,12 +62,31 @@ class Fx35
             LucilleCore::pressEnterToContinue()
         end
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
-        ItemsDatabase::commitItem(item)
+        puts "I just put a Fx35.nyx-fx35.json file on the Desktop, please move it to destination"
+        LucilleCore::pressEnterToContinue()
         item
     end
 
     # ------------------------------------------------------
     # Data
+
+    # Fx35::items()
+    def self.items()
+        items = []
+        Find.find(Blades::repository_path()) do |path|
+            if File.file?(path) and path[-14, 14] == ".nyx-fx35.json" then
+                items << JSON.parse(IO.read(path))
+            end
+        end
+        items
+    end
+
+    # Fx35s::itemOrNull(uuid)
+    def self.itemOrNull(uuid)
+        filepath = Fx35s::filenameOrNull(uuid)
+        return nil if filepath.nil?
+        JSON.parse(IO.read(filepath))
+    end
 
     # Fx35::description(item)
     def self.description(item)
@@ -80,16 +98,11 @@ class Fx35
         Fx35::description(item)
     end
 
-    # Fx35::items()
-    def self.items()
-        ItemsDatabase::mikuType('Fx35')
-    end
-
     # ------------------------------------------------------
     # Operations
 
-    # Fx35::programNode(node, isSeekingSelect) # nil or node
-    def self.programNode(node, isSeekingSelect)
+    # Fx35::program(node, isSeekingSelect) # nil or node
+    def self.program(node, isSeekingSelect)
 
         # isSeekingSelect: boolean
         # if isSeekingSelect is true, we are trying to identify a node, and in particular 
@@ -97,7 +110,7 @@ class Fx35
 
         loop {
 
-            node = ItemsDatabase::itemOrNull(node["uuid"])
+            node = Fx35s::itemOrNull(node["uuid"])
             break if node.nil?
 
             system('clear')
@@ -127,7 +140,7 @@ class Fx35
                 }
             end
 
-            linkednodes = node["linkeduuids"].map{|id| ItemsDatabase::itemOrNull(id) }.compact
+            linkednodes = node["linkeduuids"].map{|id| Nodes::itemOrNull(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"
@@ -173,21 +186,13 @@ class Fx35
             end
 
             if command == "access" then
-                filepath = Fx35FileSystemHelpers::locateOrNull(node["uuid"])
+                filepath = Fx35s::filenameOrNull(node["uuid"])
                 if filepath.nil? then
                     puts "I could not locate the file for Fx35 uuid"
                     LucilleCore::pressEnterToContinue()
                     next
                 end
                 directory = File.dirname(filepath)
-
-                # Let's update the description of the node in the database
-                # if it has diverged from the name of the directory
-                if node["description"] != File.basename(directory) then
-                    node["description"] = File.basename(directory)
-                    ItemsDatabase::commitItem(node)
-                end
-
                 puts "opening directory: #{directory}"
                 system("open '#{directory}'")
                 LucilleCore::pressEnterToContinue()
@@ -269,7 +274,7 @@ class Fx35
             raise "item: #{JSON.pretty_generate(item)}'s linkeduuids is not an array"
         end
 
-        Utils::fsckItemNotesAttribute(item)
-        Utils::fsckItemTagsAttribute(item)
+        Fsck::fsckItemNotesAttribute(item)
+        Fsck::fsckItemTagsAttribute(item)
     end
 end

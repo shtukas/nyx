@@ -4,24 +4,6 @@ class Nx27
     # ------------------------------------------------------
     # Interface
 
-    # Nx27::init(uuid)
-    def self.init(uuid)
-        if ItemsDatabase::itemOrNull(uuid) then
-            raise "(error: 0e16c053) this uuid is already in use, you cannot init it"
-        end
-        item = {
-          "uuid"        => uuid,
-          "mikuType"    => "Nx27",
-          "datetime"    => Time.new.utc.iso8601,
-          "description" => "Default description for initialised item. If you are reading this, something didn't happen",
-          "px44s"       => [],
-          "linkeduuids" => [],
-          "notes"       => [],
-          "tags"        => []
-        }
-        ItemsDatabase::commitItem(item)
-    end
-
     # Nx27::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
         uuid = SecureRandom.uuid
@@ -29,31 +11,35 @@ class Nx27
         return nil if description == ''
         px44 = Px44::interactivelyMakeNewOrNull(uuid)
         px44s = [px44].compact
-        item = {
-            "uuid"        => uuid,
-            "mikuType"    => "Nx27",
-            "datetime"    => Time.new.utc.iso8601,
-            "description" => description,
-            "px44s"       => px44s,
-            "linkeduuids" => [],
-            "notes"       => [],
-            "tags"        => []
-        }
-        ItemsDatabase::commitItem(item)
-        item
+
+        Blades::init(uuid, "Nx27")
+        Blades::setAttribute(uuid, "mikuType"    => "Nx27")
+        Blades::setAttribute(uuid, "datetime"    => Time.new.utc.iso8601)
+        Blades::setAttribute(uuid, "description" => description)
+        Blades::setAttribute(uuid, "px44s"       => px44s)
+        Blades::setAttribute(uuid, "linkeduuids" => [])
+        Blades::setAttribute(uuid, "notes"       => [])
+        Blades::setAttribute(uuid, "tags"        => [])
+
+        Blades::itemOrNull(uuid)
     end
 
     # ------------------------------------------------------
     # Data
+
+    # Nx27::items()
+    def self.items()
+        Blades::mikuType('Nx27')
+    end
 
     # Nx27::toString(node)
     def self.toString(node)
         "#{node["description"]}#{node["px44s"].map{|payload| Px44::toString(payload) }}"
     end
 
-    # Nx27::items()
-    def self.items()
-        ItemsDatabase::mikuType('Nx27')
+    # Nx27::itemOrNull(uuid)
+    def self.itemOrNull(uuid)
+        Blades::itemOrNull(uuid)
     end
 
     # ------------------------------------------------------
@@ -62,7 +48,7 @@ class Nx27
     # Nx27::programPayload(node)
     def self.programPayload(node)
         loop {
-            node = ItemsDatabase::itemOrNull(node["uuid"])
+            node = Blades::mikuType(node["uuid"])
             px44s = node["px44s"]
             puts "px44s (#{px44s.count} items):"
             px44s.each{|px44|
@@ -90,8 +76,8 @@ class Nx27
         }
     end
 
-    # Nx27::programNode(node, isSeekingSelect) # nil or node
-    def self.programNode(node, isSeekingSelect)
+    # Nx27::program(node, isSeekingSelect) # nil or node
+    def self.program(node, isSeekingSelect)
 
         # isSeekingSelect: boolean
         # if isSeekingSelect is true, we are trying to identify a node, and in particular 
@@ -99,7 +85,7 @@ class Nx27
 
         loop {
 
-            node = ItemsDatabase::itemOrNull(node["uuid"])
+            node = Nx27::itemOrNull(node["uuid"])
             break if node.nil?
 
             system('clear')
@@ -133,7 +119,7 @@ class Nx27
                 }
             end
 
-            linkednodes = node["linkeduuids"].map{|id| ItemsDatabase::itemOrNull(id) }.compact
+            linkednodes = node["linkeduuids"].map{|id| Nodes::itemOrNull(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"
@@ -263,8 +249,8 @@ class Nx27
             raise "item: #{JSON.pretty_generate(item)}'s linkeduuids is not an array"
         end
 
-        Utils::fsckItemNotesAttribute(item)
-        Utils::fsckItemTagsAttribute(item)
-        Utils::fsckItemPx44Attribute(item)
+        Fsck::fsckItemNotesAttribute(item)
+        Fsck::fsckItemTagsAttribute(item)
+        Fsck::fsckItemPx44Attribute(item)
     end
 end

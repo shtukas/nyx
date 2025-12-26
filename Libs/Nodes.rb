@@ -15,12 +15,17 @@ class Nodes
 
     # Nodes::itemOrNull(uuid)
     def self.itemOrNull(uuid)
-        ItemsDatabase::itemOrNull(uuid)
+        item = Blades::itemOrNull(uuid)
+        return item if item
+        Fx35s::itemOrNull(uuid)
     end
 
     # Nodes::nodes()
     def self.nodes()
-        ItemsDatabase::items()
+        [
+            Nx27::items(),
+            Fx35::items()
+        ].flatten
     end
 
     # Nodes::architectNodeOrNull()
@@ -29,7 +34,7 @@ class Nodes
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["search and maybe `select`", "interactively make new (automatically selected)"])
             return nil if option.nil?
             if option == "search and maybe `select`" then
-                node = Nodes::getNodeOrNullUsingSelectionAndNavigation()
+                node = Nodes::interactivelySelectNodeOrNull()
                 if node then
                     return node
                 end
@@ -43,14 +48,14 @@ class Nodes
         }
     end
 
-    # Nodes::getNodeOrNullUsingSelectionAndNavigation() nil or node
-    def self.getNodeOrNullUsingSelectionAndNavigation()
+    # Nodes::interactivelySelectNodeOrNull() nil or node
+    def self.interactivelySelectNodeOrNull()
         puts "get node using selection and navigation".green
         loop {
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort and return null) : ")
             return nil if fragment == ""
             loop {
-                selected = ItemsDatabase::items()
+                selected = Nodes::nodes()
                             .select{|node| Search::match(node, fragment) }
 
                 if selected.empty? then
@@ -61,7 +66,7 @@ class Nodes
                         return nil
                     end
                 else
-                    selected = selected.select{|node| ItemsDatabase::itemOrNull(node["uuid"]) } # In case something has changed, we want the ones that have survived
+                    selected = selected.select{|node| Nodes::itemOrNull(node["uuid"]) } # In case something has changed, we want the ones that have survived
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", selected, lambda{|i| i["description"] })
                     if node.nil? then
                         if LucilleCore::askQuestionAnswerAsBoolean("search more ? ", false) then
@@ -70,7 +75,7 @@ class Nodes
                             return nil
                         end
                     end
-                    node = Nx27::programNode(node, true)
+                    node = Nx27::program(node, true)
                     if node then
                         return node # was `select`ed
                     end
@@ -85,10 +90,10 @@ class Nodes
     # Nodes::program(item, isSeekingSelect)
     def self.program(item, isSeekingSelect)
         if item["mikuType"] == "Nx27" then
-            return Nx27::programNode(item, isSeekingSelect)
+            return Nx27::program(item, isSeekingSelect)
         end
         if item["mikuType"] == "Fx35" then
-            return Fx35::programNode(item, isSeekingSelect)
+            return Fx35::program(item, isSeekingSelect)
         end
         raise "(error: dcb2daa3-10f0)"
     end
@@ -114,7 +119,7 @@ class Nodes
         item = Nodes::itemOrNull(uuid)
         return if item.nil?
         if item["mikuType"] == "Nx27" then
-            ItemsDatabase::setAttribute(uuid, attrname, attrvalue)
+            Blades::setAttribute(uuid, attrname, attrvalue)
             return
         end
         if item["mikuType"] == "Fx35" then
@@ -126,7 +131,7 @@ class Nodes
     # Nodes::deleteItem(node)
     def self.deleteItem(node)
         if node["mikuType"] == "Nx27" then
-            ItemsDatabase::deleteItem(node["uuid"])
+            Blades::deleteItem(node["uuid"])
             return
         end
         if node["mikuType"] == "Fx35" then
@@ -149,7 +154,7 @@ class Nodes
         Nodes::connect1(node2, node["uuid"])
         # We have connected node and node2
         # We are now going to land on it and get an opportunity to select it.
-        Nx27::programNode(node2, isSeekingSelect)
+        Nx27::program(node2, isSeekingSelect)
     end
 
 end

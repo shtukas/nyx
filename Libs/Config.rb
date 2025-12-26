@@ -8,8 +8,13 @@ class Config
         ENV['HOME']
     end
 
-    # Config::pathToData()
-    def self.pathToData()
-        "#{Config::userHomeDirectory()}/Galaxy/DataHub/Nyx/data"
+    # Config::pathToGalaxy()
+    def self.pathToGalaxy()
+        "#{Config::userHomeDirectory()}/Galaxy"
+    end
+
+    # Config::pathToNyxData()
+    def self.pathToNyxData()
+        "#{Config::pathToGalaxy()}/DataHub/Nyx/data"
     end
 end

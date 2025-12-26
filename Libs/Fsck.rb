@@ -1,7 +1,7 @@
 
-class Utils
+class Fsck
 
-    # Utils::fsckItemNotesAttribute(item)
+    # Fsck::fsckItemNotesAttribute(item)
     def self.fsckItemNotesAttribute(item)
         if item["notes"].nil? then
             raise "item: #{JSON.pretty_generate(item)} does not have a notes"
@@ -14,7 +14,7 @@ class Utils
         }
     end
 
-    # Utils::fsckItemTagsAttribute(item)
+    # Fsck::fsckItemTagsAttribute(item)
     def self.fsckItemTagsAttribute(item)
         # TODO: fsck the tags
         if item["tags"].nil? then
@@ -25,7 +25,7 @@ class Utils
         end
     end
 
-    # Utils::fsckItemPx44Attribute(item)
+    # Fsck::fsckItemPx44Attribute(item)
     def self.fsckItemPx44Attribute(item)
         # TODO: fsck the px44s
         if item["px44s"].nil? then

@@ -21,7 +21,6 @@ class Px44
             text = CommonUtils::editTextSynchronously("")
             return {
                 "uuid"     => SecureRandom.uuid,
-                "mikuType" => "Px44",
                 "type"     => "text",
                 "text"     => text
             }
@@ -30,7 +29,6 @@ class Px44
             url = LucilleCore::askQuestionAnswerAsString("url: ")
             return {
                 "uuid"     => SecureRandom.uuid,
-                "mikuType" => "Px44",
                 "type"     => "url",
                 "url"      => url
             }
@@ -40,7 +38,6 @@ class Px44
             return nil if location.nil?
             return {
                 "uuid"      => SecureRandom.uuid,
-                "mikuType"  => "Px44",
                 "type"      => "aion-point",
                 "nhash"     => AionCore::commitLocationReturnHash(Elizabeth.new(uuid), location)
             }
@@ -59,7 +56,6 @@ class Px44
 
             return {
                 "uuid"     => SecureRandom.uuid,
-                "mikuType" => "Px44",
                 "type"     => "beacon",
                 "id"       => beaconId
             }
@@ -154,12 +150,6 @@ class Px44
 
     # Px44::fsck(uuid, px44)
     def self.fsck(uuid, px44)
-        if px44["mikuType"].nil? then
-            raise "uuid: #{uuid}, px44: #{JSON.pretty_generate(px44)} does not have a mikuType"
-        end
-        if px44["mikuType"] != 'Px44' then
-            raise "uuid: #{uuid}, px44: #{JSON.pretty_generate(px44)} does not have the correct mikuType"
-        end
         if px44["type"].nil? then
             raise "uuid: #{uuid}, px44: #{JSON.pretty_generate(px44)} does not have a type"
         end

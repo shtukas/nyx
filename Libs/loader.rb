@@ -131,11 +131,11 @@ require_relative "Datablocks.rb"
 require_relative "Elizabeth.rb"
 
 require_relative "Fx35.rb"
+require_relative "Fsck.rb"
 
 require_relative "Galaxy.rb"
 
 require_relative "ListingStore.rb"
-require_relative "ItemsDatabase.rb"
 
 require_relative "Nyx.rb"
 require_relative "NxNotes.rb"
@@ -146,7 +146,5 @@ require_relative "ProgrammableBooleans.rb"
 require_relative "Px44s.rb"
 
 require_relative "Search.rb"
-
-require_relative "Utils.rb"
 
 # ------------------------------------------------------------

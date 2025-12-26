@@ -25,7 +25,7 @@ class Blades
 
     # Blades::repository_path()
     def self.repository_path()
-        "#{Config::pathToData()}/blades"
+        "#{Config::pathToNyxData()}/blades"
     end
 
     # Blades::ensure_content_addressing(filepath)
@@ -44,7 +44,7 @@ class Blades
     # Blades::filepaths_enumerator()
     def self.filepaths_enumerator()
         Enumerator.new do |filepaths|
-            Find.find(Blades::repository_path()) do |path|
+            Find.find(Config::pathToGalaxy()) do |path|
                 if File.file?(path) and path[-14, 14] == ".blade.sqlite3" then
                     filepaths << path
                 end
@@ -178,7 +178,7 @@ class Blades
     def self.commitItem(item)
         uuid = item["uuid"]
         item.to_h.each{|attrname, attrvalue|
-            next if key == "uuid"
+            next if attrname == "uuid"
             Blades::setAttribute(uuid, attrname, attrvalue)
         }
     end

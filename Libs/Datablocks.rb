@@ -6,7 +6,7 @@ class Datablocks
 
     # Datablocks::directory()
     def self.directory()
-        "#{Config::pathToData()}/Datablocks"
+        "#{Config::pathToNyxData()}/Datablocks"
     end
 
     # Datablocks::filepaths()
