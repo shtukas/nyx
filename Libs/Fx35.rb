@@ -73,7 +73,7 @@ class Fx35
     # Fx35::items()
     def self.items()
         items = []
-        Find.find(Blades::repository_path()) do |path|
+        Find.find(Config::pathToGalaxy()) do |path|
             if File.file?(path) and path[-14, 14] == ".nyx-fx35.json" then
                 items << JSON.parse(IO.read(path))
             end

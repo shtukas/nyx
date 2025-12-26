@@ -18,21 +18,28 @@ mikuType itsef, as far as blades go, we only require it for NxDeleted items,
 
 =end
 
-class Blades
-
-    # -----------------------------------------------------------
-    # Private
-
-    # Blades::repository_path()
+class BladesConfig
+    # BladesConfig::repository_path()
     def self.repository_path()
         "#{Config::pathToNyxData()}/blades"
     end
+end
+
+class Blades
+
+    # --------------------------------------------------------------------------
+    # The original version of this file is Catalyst's Blades.rb
+    # Nyx has a copy of it
+    # --------------------------------------------------------------------------
+
+    # --------------------------------------------------------------------------
+    # Private
 
     # Blades::ensure_content_addressing(filepath)
     def self.ensure_content_addressing(filepath)
         return if !File.exist?(filepath)
         canonical_filename = "#{Digest::SHA1.file(filepath).hexdigest}.blade.sqlite3"
-        canonical_filepath = "#{Blades::repository_path()}/#{canonical_filename[0, 2]}/#{canonical_filename}"
+        canonical_filepath = "#{BladesConfig::repository_path()}/#{canonical_filename[0, 2]}/#{canonical_filename}"
         return if filepath == canonical_filepath
         if !File.exist?(File.dirname(canonical_filepath)) then
             FileUtils.mkdir(File.dirname(canonical_filepath))
@@ -110,17 +117,22 @@ class Blades
         item
     end
 
-    # -----------------------------------------------------------
+    # --------------------------------------------------------------------------
     # Public interface
 
-    # -----------------------------------------------------------
+    # --------------------------------------------------------------------------
+    # The original version of this file is Catalyst's Blades.rb
+    # Nyx has a copy of it
+    # --------------------------------------------------------------------------
+
+    # --------------------------------------------------------------------------
     # Items
 
     # Blades::init(uuid, mikuType)
     def self.init(uuid, mikuType)
         # create a new blade
 
-        filepath = "#{Blades::repository_path()}/#{SecureRandom.hex}.blade.sqlite3"
+        filepath = "#{BladesConfig::repository_path()}/#{SecureRandom.hex}.blade.sqlite3"
 
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -209,13 +221,18 @@ class Blades
 
     # Blades::deleteItem(uuid)
     def self.deleteItem(uuid)
-        Items::setAttribute(uuid, "unixtime", Time.new.to_i)
-        Items::setAttribute(uuid, "mikuType", 'NxDeleted')
+        Blades::setAttribute(uuid, "unixtime", Time.new.to_i)
+        Blades::setAttribute(uuid, "mikuType", 'NxDeleted')
     end
 
-    # -----------------------------------------------------------
+    # --------------------------------------------------------------------------
     # Datablobs
     # create table datablobs (nhash TEXT primary key, data BLOB);
+
+    # --------------------------------------------------------------------------
+    # The original version of this file is Catalyst's Blades.rb
+    # Nyx has a copy of it
+    # --------------------------------------------------------------------------
 
     # Blades::putBlob(uuid, datablob)
     def self.putBlob(uuid, datablob) # nhash
