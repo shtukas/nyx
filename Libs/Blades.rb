@@ -26,7 +26,7 @@ class BladesConfig
 
     # BladesConfig::cache_prefix()
     def self.cache_prefix()
-        "d5b50dac-4562-4189-8022-b47d9c011c3f"
+        "d5b50dac-4562-4189-8022-b47d9c011c4f"
     end
 end
 
@@ -83,10 +83,10 @@ class Blades
         Blades::filepaths_enumerator().each{|filepath|
             # To speed up further searches, we pick locations mapping as we go,
             # but only once per location
-            if !XCache::getFlag("#{BladesConfig::cache_prefix()}:8303974f-1b05-458b-a9c8-98f5e8344a81:#{filepath}") then
-                uuid = Blades::read_uuid_from_file_or_null(filepath)
-                XCache::set("#{BladesConfig::cache_prefix()}:4e4d5752-a99a-4ed1-87b0-eb3fccb2b881:#{uuid}", filepath)
-                XCache::setFlag("#{BladesConfig::cache_prefix()}:8303974f-1b05-458b-a9c8-98f5e8344a81:#{filepath}", true)
+            if !XCache::getFlag("#{BladesConfig::cache_prefix()}:filepath-has-been-picked-up-a9c8-98f5e8344a82:#{filepath}") then
+                uuidx = Blades::read_uuid_from_file_or_null(filepath)
+                XCache::set("#{BladesConfig::cache_prefix()}:uuid-to-filepath-87b0-eb3fccb2b881:#{uuidx}", filepath)
+                XCache::setFlag("#{BladesConfig::cache_prefix()}:filepath-has-been-picked-up-a9c8-98f5e8344a82:#{filepath}", true)
             end
             if Blades::read_uuid_from_file_or_null(filepath) == uuid then
                 return filepath
@@ -97,18 +97,17 @@ class Blades
 
     # Blades::uuidToFilepathOrNull(uuid)
     def self.uuidToFilepathOrNull(uuid)
-        filepath = XCache::getOrNull("#{BladesConfig::cache_prefix()}:4e4d5752-a99a-4ed1-87b0-eb3fccb2b881:#{uuid}")
+        filepath = XCache::getOrNull("#{BladesConfig::cache_prefix()}:uuid-to-filepath-87b0-eb3fccb2b881:#{uuid}")
         if filepath and File.exist?(filepath) then
             if Blades::read_uuid_from_file_or_null(filepath) == uuid then
                 return filepath
             end
         end
 
-        puts "searching filepath for uuid: #{uuid}".yellow
         filepath = Blades::uuidToFilepathOrNullUseTheForce(uuid)
         return nil if filepath.nil?
 
-        XCache::set("#{BladesConfig::cache_prefix()}:4e4d5752-a99a-4ed1-87b0-eb3fccb2b881:#{uuid}", filepath)
+        XCache::set("#{BladesConfig::cache_prefix()}:uuid-to-filepath-87b0-eb3fccb2b881:#{uuid}", filepath)
         filepath
     end
 
@@ -167,7 +166,7 @@ class Blades
         filepath = Blades::ensure_content_addressing(filepath)
 
         # updating the cache for reading later
-        XCache::set("#{BladesConfig::cache_prefix()}:4e4d5752-a99a-4ed1-87b0-eb3fccb2b881:#{uuid}", filepath)
+        XCache::set("#{BladesConfig::cache_prefix()}:uuid-to-filepath-87b0-eb3fccb2b881:#{uuid}", filepath)
         nil
     end
 
@@ -196,8 +195,8 @@ class Blades
         filepath = Blades::ensure_content_addressing(filepath)
 
         # updating the cache for reading later
-        XCache::set("#{BladesConfig::cache_prefix()}:4e4d5752-a99a-4ed1-87b0-eb3fccb2b881:#{uuid}", filepath)
-        XCache::setFlag("#{BladesConfig::cache_prefix()}:8303974f-1b05-458b-a9c8-98f5e8344a81:#{filepath}", true)
+        XCache::set("#{BladesConfig::cache_prefix()}:uuid-to-filepath-87b0-eb3fccb2b881:#{uuid}", filepath)
+        XCache::setFlag("#{BladesConfig::cache_prefix()}:filepath-has-been-picked-up-a9c8-98f5e8344a82:#{filepath}", true)
 
         # Maintaining: #{BladesConfig::cache_prefix()}:44a38835-4c00-4af9-a3c6-d5340b202831
         items = XCache::getOrNull("#{BladesConfig::cache_prefix()}:44a38835-4c00-4af9-a3c6-d5340b202831")
@@ -322,8 +321,8 @@ class Blades
         filepath = Blades::ensure_content_addressing(filepath)
 
         # updating the cache for reading later
-        XCache::set("#{BladesConfig::cache_prefix()}:4e4d5752-a99a-4ed1-87b0-eb3fccb2b881:#{uuid}", filepath)
-        XCache::setFlag("#{BladesConfig::cache_prefix()}:8303974f-1b05-458b-a9c8-98f5e8344a81:#{filepath}", true)
+        XCache::set("#{BladesConfig::cache_prefix()}:uuid-to-filepath-87b0-eb3fccb2b881:#{uuid}", filepath)
+        XCache::setFlag("#{BladesConfig::cache_prefix()}:filepath-has-been-picked-up-a9c8-98f5e8344a82:#{filepath}", true)
 
         nhash
     end

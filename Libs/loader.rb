@@ -33,8 +33,6 @@ require 'find'
 
 require 'thread'
 
-require 'colorize'
-
 require 'drb/drb'
 
 # ------------------------------------------------------------
