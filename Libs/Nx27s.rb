@@ -12,14 +12,14 @@ class Nx27
         px44 = Px44::interactivelyMakeNewOrNull(uuid)
         px44s = [px44].compact
 
-        Blades::init(uuid, "Nx27")
-        Blades::setAttribute(uuid, "mikuType"    => "Nx27")
+        Blades::init(uuid)
         Blades::setAttribute(uuid, "datetime"    => Time.new.utc.iso8601)
         Blades::setAttribute(uuid, "description" => description)
         Blades::setAttribute(uuid, "px44s"       => px44s)
         Blades::setAttribute(uuid, "linkeduuids" => [])
         Blades::setAttribute(uuid, "notes"       => [])
         Blades::setAttribute(uuid, "tags"        => [])
+        Blades::setAttribute(uuid, "mikuType"    => "Nx27")
 
         Blades::itemOrNull(uuid)
     end

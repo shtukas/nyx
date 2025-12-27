@@ -135,8 +135,8 @@ class Blades
 
     @memory1 = {}
 
-    # Blades::init(uuid, mikuType)
-    def self.init(uuid, mikuType)
+    # Blades::init(uuid)
+    def self.init(uuid)
         # create a new blade
 
         filepath = "#{BladesConfig::repository_path()}/#{SecureRandom.hex}.blade.sqlite3"
@@ -150,7 +150,7 @@ class Blades
         db.execute("insert into version (version) values (?)", [1])
         db.execute("create table attributes (key TEXT primary key, value TEXT)", [])
         db.execute("insert into attributes (key, value) values (?, ?)", ["uuid", JSON.generate(uuid)])
-        db.execute("insert into attributes (key, value) values (?, ?)", ["mikuType", JSON.generate(mikuType)])
+        db.execute("insert into attributes (key, value) values (?, ?)", ["mikuType", JSON.generate("NxDeleted")])
         db.execute("insert into attributes (key, value) values (?, ?)", ["unixtime", JSON.generate(Time.new.to_i)])
         db.execute("create table datablobs (nhash TEXT primary key, data BLOB)", [])
         db.commit
