@@ -24,21 +24,29 @@ class BladesConfig
         "#{Config::pathToNyxData()}/blades"
     end
 
-    # BladesConfig::cache_prefix()
-    def self.cache_prefix()
+    # BladesConfig::getCachePrefix()
+    def self.getCachePrefix()
         "d5b50dac-4562-4189-8022-b47d9c011c4f"
     end
 end
+
 
 class Blades
 
     # --------------------------------------------------------------------------
     # The original version of this file is Catalyst's Blades.rb
-    # Nyx has a copy of it
+    # Nyx has a copy of it.
+    # Do not get rid of the cache prefix, that's how we maintain dataset difference
+    # between Catalyst and Nyx.
     # --------------------------------------------------------------------------
 
     # --------------------------------------------------------------------------
     # Private
+
+    # Blades::today()
+    def self.today()
+        Time.new.to_s[0, 10]
+    end
 
     # Blades::ensure_content_addressing(filepath)
     def self.ensure_content_addressing(filepath)
@@ -83,10 +91,10 @@ class Blades
         Blades::filepaths_enumerator().each{|filepath|
             # To speed up further searches, we pick locations mapping as we go,
             # but only once per location
-            if !XCache::getFlag("#{BladesConfig::cache_prefix()}:filepath-has-been-picked-up-a9c8-98f5e8344a82:#{filepath}") then
+            if !XCache::getFlag("#{BladesConfig::getCachePrefix()}:filepath-has-been-picked-up-a9c8-98f5e8344a82:#{filepath}") then
                 uuidx = Blades::read_uuid_from_file_or_null(filepath)
-                XCache::set("#{BladesConfig::cache_prefix()}:uuid-to-filepath-87b0-eb3fccb2b881:#{uuidx}", filepath)
-                XCache::setFlag("#{BladesConfig::cache_prefix()}:filepath-has-been-picked-up-a9c8-98f5e8344a82:#{filepath}", true)
+                XCache::set("#{BladesConfig::getCachePrefix()}:uuid-to-filepath-87b0-eb3fccb2b881:#{uuidx}", filepath)
+                XCache::setFlag("#{BladesConfig::getCachePrefix()}:filepath-has-been-picked-up-a9c8-98f5e8344a82:#{filepath}", true)
             end
             if Blades::read_uuid_from_file_or_null(filepath) == uuid then
                 return filepath
@@ -97,7 +105,7 @@ class Blades
 
     # Blades::uuidToFilepathOrNull(uuid)
     def self.uuidToFilepathOrNull(uuid)
-        filepath = XCache::getOrNull("#{BladesConfig::cache_prefix()}:uuid-to-filepath-87b0-eb3fccb2b881:#{uuid}")
+        filepath = XCache::getOrNull("#{BladesConfig::getCachePrefix()}:uuid-to-filepath-87b0-eb3fccb2b881:#{uuid}")
         if filepath and File.exist?(filepath) then
             if Blades::read_uuid_from_file_or_null(filepath) == uuid then
                 return filepath
@@ -107,7 +115,7 @@ class Blades
         filepath = Blades::uuidToFilepathOrNullUseTheForce(uuid)
         return nil if filepath.nil?
 
-        XCache::set("#{BladesConfig::cache_prefix()}:uuid-to-filepath-87b0-eb3fccb2b881:#{uuid}", filepath)
+        XCache::set("#{BladesConfig::getCachePrefix()}:uuid-to-filepath-87b0-eb3fccb2b881:#{uuid}", filepath)
         filepath
     end
 
@@ -166,7 +174,7 @@ class Blades
         filepath = Blades::ensure_content_addressing(filepath)
 
         # updating the cache for reading later
-        XCache::set("#{BladesConfig::cache_prefix()}:uuid-to-filepath-87b0-eb3fccb2b881:#{uuid}", filepath)
+        XCache::set("#{BladesConfig::getCachePrefix()}:uuid-to-filepath-87b0-eb3fccb2b881:#{uuid}", filepath)
         nil
     end
 
@@ -195,17 +203,17 @@ class Blades
         filepath = Blades::ensure_content_addressing(filepath)
 
         # updating the cache for reading later
-        XCache::set("#{BladesConfig::cache_prefix()}:uuid-to-filepath-87b0-eb3fccb2b881:#{uuid}", filepath)
-        XCache::setFlag("#{BladesConfig::cache_prefix()}:filepath-has-been-picked-up-a9c8-98f5e8344a82:#{filepath}", true)
+        XCache::set("#{BladesConfig::getCachePrefix()}:uuid-to-filepath-87b0-eb3fccb2b881:#{uuid}", filepath)
+        XCache::setFlag("#{BladesConfig::getCachePrefix()}:filepath-has-been-picked-up-a9c8-98f5e8344a82:#{filepath}", true)
 
-        # Maintaining: #{BladesConfig::cache_prefix()}:44a38835-4c00-4af9-a3c6-d5340b202831
-        items = XCache::getOrNull("#{BladesConfig::cache_prefix()}:44a38835-4c00-4af9-a3c6-d5340b202831")
+        # Maintaining: #{BladesConfig::getCachePrefix()}:items-4af9-a3c6-d5340b202831:#{Blades::today()}
+        items = XCache::getOrNull("#{BladesConfig::getCachePrefix()}:items-4af9-a3c6-d5340b202831:#{Blades::today()}")
         if items then
             items = JSON.parse(items)
             item = Blades::itemOrNull(uuid)
             if item then
                 items[uuid] = item
-                XCache::set("#{BladesConfig::cache_prefix()}:44a38835-4c00-4af9-a3c6-d5340b202831", JSON.generate(items))
+                XCache::set("#{BladesConfig::getCachePrefix()}:items-4af9-a3c6-d5340b202831:#{Blades::today()}", JSON.generate(items))
             end
         end
 
@@ -243,7 +251,7 @@ class Blades
         end
 
         # We try XCache
-        data = XCache::getOrNull("#{BladesConfig::cache_prefix()}:44a38835-4c00-4af9-a3c6-d5340b202831")
+        data = XCache::getOrNull("#{BladesConfig::getCachePrefix()}:items-4af9-a3c6-d5340b202831:#{Blades::today()}")
         if data then
             data = JSON.parse(data)
             @memory1 = data
@@ -256,7 +264,7 @@ class Blades
         }
 
         @memory1 = data
-        XCache::set("#{BladesConfig::cache_prefix()}:44a38835-4c00-4af9-a3c6-d5340b202831", JSON.generate(data))
+        XCache::set("#{BladesConfig::getCachePrefix()}:items-4af9-a3c6-d5340b202831:#{Blades::today()}", JSON.generate(data))
 
         @memory1.values
     end
@@ -277,15 +285,39 @@ class Blades
 
     # Blades::deleteItem(uuid)
     def self.deleteItem(uuid)
-        Blades::setAttribute(uuid, "unixtime", Time.new.to_i)
-        Blades::setAttribute(uuid, "mikuType", 'NxDeleted')
+        #Blades::setAttribute(uuid, "unixtime", Time.new.to_i)
+        #Blades::setAttribute(uuid, "mikuType", 'NxDeleted')
+
+        Blades::destroyBlade(uuid)
 
         # Delete from XCache
-        items = XCache::getOrNull("#{BladesConfig::cache_prefix()}:44a38835-4c00-4af9-a3c6-d5340b202831")
+        items = XCache::getOrNull("#{BladesConfig::getCachePrefix()}:items-4af9-a3c6-d5340b202831:#{Blades::today()}")
         if items then
             items = JSON.parse(items)
             items.delete(uuid)
-            XCache::set("#{BladesConfig::cache_prefix()}:44a38835-4c00-4af9-a3c6-d5340b202831", JSON.generate(items))
+            XCache::set("#{BladesConfig::getCachePrefix()}:items-4af9-a3c6-d5340b202831:#{Blades::today()}", JSON.generate(items))
+        end
+
+        # Delete from @memory1
+        @memory1.delete(uuid)
+        nil
+    end
+
+    # Blades::destroyBlade(uuid)
+    def self.destroyBlade(uuid)
+
+        # Delete blade from disk
+        filepath = Blades::uuidToFilepathOrNull(uuid)
+        if filepath then
+            FileUtils.rm(filepath)
+        end
+
+        # Delete from XCache
+        items = XCache::getOrNull("#{BladesConfig::getCachePrefix()}:items-4af9-a3c6-d5340b202831:#{Blades::today()}")
+        if items then
+            items = JSON.parse(items)
+            items.delete(uuid)
+            XCache::set("#{BladesConfig::getCachePrefix()}:items-4af9-a3c6-d5340b202831:#{Blades::today()}", JSON.generate(items))
         end
 
         # Delete from @memory1
@@ -321,8 +353,8 @@ class Blades
         filepath = Blades::ensure_content_addressing(filepath)
 
         # updating the cache for reading later
-        XCache::set("#{BladesConfig::cache_prefix()}:uuid-to-filepath-87b0-eb3fccb2b881:#{uuid}", filepath)
-        XCache::setFlag("#{BladesConfig::cache_prefix()}:filepath-has-been-picked-up-a9c8-98f5e8344a82:#{filepath}", true)
+        XCache::set("#{BladesConfig::getCachePrefix()}:uuid-to-filepath-87b0-eb3fccb2b881:#{uuid}", filepath)
+        XCache::setFlag("#{BladesConfig::getCachePrefix()}:filepath-has-been-picked-up-a9c8-98f5e8344a82:#{filepath}", true)
 
         nhash
     end
