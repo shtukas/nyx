@@ -24,9 +24,35 @@ class BladesConfig
         "#{Config::pathToNyxData()}/blades"
     end
 
+    # BladesConfig::cachePrefixDirectory()
+    def self.cachePrefixDirectory()
+        "#{Config::pathToNyxData()}/blades-prefix-directory"
+    end
+
     # BladesConfig::getCachePrefix()
     def self.getCachePrefix()
-        "d5b50dac-4562-4189-8022-b47d9c011c4f"
+        filepaths = LucilleCore::locationsAtFolder(BladesConfig::cachePrefixDirectory()).select{|filepath| filepath[-10, 10] == ".semaphore" }
+        if filepaths.size == 0 then
+            filepath = "#{BladesConfig::cachePrefixDirectory()}/#{Config::instanceId()}.semaphore"
+            key = SecureRandom.hex
+            File.open(filepath, "w"){|f| f.puts(key) }
+            puts "issue blade cache key: #{key}".yellow
+            return key
+        end
+        if filepaths.size == 1 then
+            filepath = filepaths.first
+            if File.basename(filepath).include?("#{Config::instanceId()}.semaphore") then
+                key = IO.read(filepath).strip
+                return key
+            end
+            FileUtils.rm(filepath)
+            return BladesConfig::getCachePrefix()
+        end
+        # Here we hve move than one filepath
+        filepaths.each{|filepath|
+            FileUtils.rm(filepath)
+        }
+        BladesConfig::getCachePrefix() # this time around we are going to trigger the case filepaths.size == 0
     end
 end
 
