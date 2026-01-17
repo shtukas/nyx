@@ -1,7 +1,4 @@
 
-# Nodes is a more abstract concept than ItemsDatabase, it is used to refer to both
-# Nx27s or Fx35s, regardless of how they are stored.
-
 class Nodes
 
     # ---------------------------------------
@@ -11,21 +8,6 @@ class Nodes
     def self.description(item)
         return item["description"] if item["description"]
         "(#{item["mikuType"]}: #{item["uuid"]})"
-    end
-
-    # Nodes::itemOrNull(uuid)
-    def self.itemOrNull(uuid)
-        item = Blades::itemOrNull(uuid)
-        return item if item
-        Fx35s::itemOrNull(uuid)
-    end
-
-    # Nodes::nodes()
-    def self.nodes()
-        [
-            Nx27::items(),
-            Fx35::items()
-        ].flatten
     end
 
     # Nodes::architectNodeOrNull()
@@ -55,7 +37,7 @@ class Nodes
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort and return null) : ")
             return nil if fragment == ""
             loop {
-                selected = Nodes::nodes()
+                selected = Nx27::items()
                             .select{|node| Search::match(node, fragment) }
 
                 if selected.empty? then
@@ -66,7 +48,7 @@ class Nodes
                         return nil
                     end
                 else
-                    selected = selected.select{|node| Nodes::itemOrNull(node["uuid"]) } # In case something has changed, we want the ones that have survived
+                    selected = selected.select{|node| Blades::itemOrNull(node["uuid"]) } # In case something has changed, we want the ones that have survived
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", selected, lambda{|i| i["description"] })
                     if node.nil? then
                         if LucilleCore::askQuestionAnswerAsBoolean("search more ? ", false) then
@@ -87,63 +69,15 @@ class Nodes
     # ---------------------------------------
     # Operations
 
-    # Nodes::program(item, isSeekingSelect)
-    def self.program(item, isSeekingSelect)
-        if item["mikuType"] == "Nx27" then
-            return Nx27::program(item, isSeekingSelect)
-        end
-        if item["mikuType"] == "Fx35" then
-            return Fx35::program(item, isSeekingSelect)
-        end
-        raise "(error: dcb2daa3-10f0)"
-    end
-
-    # Nodes::fsck(item)
-    def self.fsck(item)
-        if item["mikuType"] == "Nx27" then
-            return Nx27::fsckItem(item)
-        end
-        if item["mikuType"] == "Fx35" then
-            return Fx35::fsckItem(item)
-        end
-        raise "(error: 4475759b-7ff4)"
-    end
-
     # Nodes::commitItem(item)
     def self.commitItem(item)
 
     end
 
-    # Nodes::setAttribute(uuid, attrname, attrvalue)
-    def self.setAttribute(uuid, attrname, attrvalue)
-        item = Nodes::itemOrNull(uuid)
-        return if item.nil?
-        if item["mikuType"] == "Nx27" then
-            Blades::setAttribute(uuid, attrname, attrvalue)
-            return
-        end
-        if item["mikuType"] == "Fx35" then
-            puts "I do not know how to update an attribute of a Fx35"
-            exit
-        end
-    end
-
-    # Nodes::deleteItem(node)
-    def self.deleteItem(node)
-        if node["mikuType"] == "Nx27" then
-            Blades::deleteItem(node["uuid"])
-            return
-        end
-        if node["mikuType"] == "Fx35" then
-            raise "I haven't implemented the deletion of Fx53 nodes. Should be driven from the file system."
-        end
-        raise "(error: 46e233c1-e148)"
-    end
-
     # Nodes::connect1(node, uuid)
     def self.connect1(node, uuid)
         node["linkeduuids"] = (node["linkeduuids"] + [uuid]).uniq
-        Nodes::setAttribute(node["uuid"], "linkeduuids", node["linkeduuids"])
+        Blades::setAttribute(node["uuid"], "linkeduuids", node["linkeduuids"])
     end
 
     # Nodes::connect2(node, isSeekingSelect) # nil or node

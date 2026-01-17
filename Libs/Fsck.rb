@@ -43,7 +43,7 @@ class Fsck
                 puts "node (updated):"
                 puts JSON.pretty_generate(item)
                 LucilleCore::pressEnterToContinue()
-                Nodes::setAttribute(item["uuid"], "px44s", item["px44s"])
+                Blades::setAttribute(item["uuid"], "px44s", item["px44s"])
             end
         end
         item["px44s"].each{|px44|

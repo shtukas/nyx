@@ -17,4 +17,13 @@ class Config
     def self.pathToNyxData()
         "#{Config::pathToGalaxy()}/DataHub/Nyx/data"
     end
+
+    # Config::instanceId()
+    def self.instanceId()
+        filepath = "#{Config::pathToGalaxy()}/DataBank/Stargate-Config.json"
+        if !File.exist?(filepath) then
+            raise "I can't find the config file: #{filepath}"
+        end
+        JSON.parse(IO.read(filepath))["instanceId"]
+    end
 end

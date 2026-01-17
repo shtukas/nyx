@@ -13,13 +13,13 @@ class Nx27
         px44s = [px44].compact
 
         Blades::init(uuid)
-        Blades::setAttribute(uuid, "datetime"    => Time.new.utc.iso8601)
-        Blades::setAttribute(uuid, "description" => description)
-        Blades::setAttribute(uuid, "px44s"       => px44s)
-        Blades::setAttribute(uuid, "linkeduuids" => [])
-        Blades::setAttribute(uuid, "notes"       => [])
-        Blades::setAttribute(uuid, "tags"        => [])
-        Blades::setAttribute(uuid, "mikuType"    => "Nx27")
+        Blades::setAttribute(uuid, "datetime"   , Time.new.utc.iso8601)
+        Blades::setAttribute(uuid, "description", description)
+        Blades::setAttribute(uuid, "px44s"      , px44s)
+        Blades::setAttribute(uuid, "linkeduuids", [])
+        Blades::setAttribute(uuid, "notes"      , [])
+        Blades::setAttribute(uuid, "tags"       , [])
+        Blades::setAttribute(uuid, "mikuType"   , "Nx27")
 
         Blades::itemOrNull(uuid)
     end
@@ -65,13 +65,13 @@ class Nx27
                 px44 = Px44::interactivelyMakeNewOrNull(node["uuid"])
                 next if px44.nil?
                 px44s << px44
-                Nodes::setAttribute(node["uuid"], "px44s", px44s)
+                Blades::setAttribute(node["uuid"], "px44s", px44s)
             end
             if option == 'remove' then
                 px44 = LucilleCore::selectEntityFromListOfEntitiesOrNull("px44", px44s, lambda{|px44| Px44::toString(px44) })
                 next if px44.nil?
                 px44s = px44s.reject{|i| i["uuid"] == px44["uuid"] }
-                Nodes::setAttribute(node["uuid"], "px44s", px44s)
+                Blades::setAttribute(node["uuid"], "px44s", px44s)
             end
         }
     end
@@ -119,7 +119,7 @@ class Nx27
                 }
             end
 
-            linkednodes = node["linkeduuids"].map{|id| Nodes::itemOrNull(id) }.compact
+            linkednodes = node["linkeduuids"].map{|id| Blades::itemOrNull(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"
@@ -146,7 +146,7 @@ class Nx27
                 indx = command.to_i
                 item = store.get(indx)
                 next if item.nil?
-                nx = Nodes::program(item, isSeekingSelect)
+                nx = Nx27::program(item, isSeekingSelect)
                 if nx then
                     return nx # was `select`ed
                 end
@@ -160,7 +160,7 @@ class Nx27
             if command == "description" then
                 description = CommonUtils::editTextSynchronously(node["description"])
                 next if description == ""
-                Nodes::setAttribute(node["uuid"], "description",description)
+                Blades::setAttribute(node["uuid"], "description",description)
                 next
             end
 
@@ -200,7 +200,7 @@ class Nx27
                     note = NxNotes::interactivelyIssueNewOrNull()
                     next if note.nil?
                     node["notes"] << note
-                    Nodes::setAttribute(node["uuid"], "notes", node["notes"])
+                    Blades::setAttribute(node["uuid"], "notes", node["notes"])
                 end
                 if option == "remove note" then
                     puts "note remove is not implemented yet"
@@ -216,7 +216,7 @@ class Nx27
             end
 
             if command == "destroy" then
-                Nodes::deleteItem(node)
+                Blades::deleteItem(node["uuid"])
                 next
             end
         }
