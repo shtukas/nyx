@@ -4,7 +4,7 @@ class Search
 
     # Search::match(item, fragment)
     def self.match(item, fragment)
-        Nodes::description(item).downcase.include?(fragment.downcase)
+        item["description"].downcase.include?(fragment.downcase)
     end
 
     # Search::searchAndDive()

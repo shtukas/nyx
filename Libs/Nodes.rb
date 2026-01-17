@@ -4,12 +4,6 @@ class Nodes
     # ---------------------------------------
     # Data
 
-    # Nodes::description(item)
-    def self.description(item)
-        return item["description"] if item["description"]
-        "(#{item["mikuType"]}: #{item["uuid"]})"
-    end
-
     # Nodes::architectNodeOrNull()
     def self.architectNodeOrNull()
         loop {
@@ -68,11 +62,6 @@ class Nodes
 
     # ---------------------------------------
     # Operations
-
-    # Nodes::commitItem(item)
-    def self.commitItem(item)
-
-    end
 
     # Nodes::connect1(node, uuid)
     def self.connect1(node, uuid)
