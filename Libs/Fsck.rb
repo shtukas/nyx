@@ -43,12 +43,23 @@ class Fsck
                 puts "node (updated):"
                 puts JSON.pretty_generate(item)
                 LucilleCore::pressEnterToContinue()
-                Blades::setAttribute(item["uuid"], "px44s", item["px44s"])
+                Items::setAttribute(item["uuid"], "px44s", item["px44s"])
             end
         end
         item["px44s"].each{|px44|
             uuid = item["uuid"]
             Px44::fsck(uuid, px44)
         }
+    end
+
+    # Fsck::fsckAll()
+    def self.fsckAll()
+        Nx27::items().each{|item|
+            if item["mikuType"] == "Nx27" then
+                puts "fsck: item: #{item["uuid"]}"
+                Nx27::fsckItem(item)
+            end
+        }
+        puts "fsck completed"
     end
 end

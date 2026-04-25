@@ -12,16 +12,16 @@ class Nx27
         px44 = Px44::interactivelyMakeNewOrNull(uuid)
         px44s = [px44].compact
 
-        Blades::init(uuid)
-        Blades::setAttribute(uuid, "datetime"   , Time.new.utc.iso8601)
-        Blades::setAttribute(uuid, "description", description)
-        Blades::setAttribute(uuid, "px44s"      , px44s)
-        Blades::setAttribute(uuid, "linkeduuids", [])
-        Blades::setAttribute(uuid, "notes"      , [])
-        Blades::setAttribute(uuid, "tags"       , [])
-        Blades::setAttribute(uuid, "mikuType"   , "Nx27")
+        Items::init(uuid)
+        Items::setAttribute(uuid, "datetime"   , Time.new.utc.iso8601)
+        Items::setAttribute(uuid, "description", description)
+        Items::setAttribute(uuid, "px44s"      , px44s)
+        Items::setAttribute(uuid, "linkeduuids", [])
+        Items::setAttribute(uuid, "notes"      , [])
+        Items::setAttribute(uuid, "tags"       , [])
+        Items::setAttribute(uuid, "mikuType"   , "Nx27")
 
-        Blades::itemOrNull(uuid)
+        Items::itemOrNull(uuid)
     end
 
     # ------------------------------------------------------
@@ -29,7 +29,7 @@ class Nx27
 
     # Nx27::items()
     def self.items()
-        Blades::mikuType('Nx27')
+        Items::mikuType('Nx27')
     end
 
     # Nx27::toString(node)
@@ -39,7 +39,7 @@ class Nx27
 
     # Nx27::itemOrNull(uuid)
     def self.itemOrNull(uuid)
-        Blades::itemOrNull(uuid)
+        Items::itemOrNull(uuid)
     end
 
     # ------------------------------------------------------
@@ -48,7 +48,7 @@ class Nx27
     # Nx27::programPayload(node)
     def self.programPayload(node)
         loop {
-            node = Blades::mikuType(node["uuid"])
+            node = Items::itemOrNull(node["uuid"])
             px44s = node["px44s"]
             puts "px44s (#{px44s.count} items):"
             px44s.each{|px44|
@@ -65,13 +65,13 @@ class Nx27
                 px44 = Px44::interactivelyMakeNewOrNull(node["uuid"])
                 next if px44.nil?
                 px44s << px44
-                Blades::setAttribute(node["uuid"], "px44s", px44s)
+                Items::setAttribute(node["uuid"], "px44s", px44s)
             end
             if option == 'remove' then
                 px44 = LucilleCore::selectEntityFromListOfEntitiesOrNull("px44", px44s, lambda{|px44| Px44::toString(px44) })
                 next if px44.nil?
                 px44s = px44s.reject{|i| i["uuid"] == px44["uuid"] }
-                Blades::setAttribute(node["uuid"], "px44s", px44s)
+                Items::setAttribute(node["uuid"], "px44s", px44s)
             end
         }
     end
@@ -119,7 +119,7 @@ class Nx27
                 }
             end
 
-            linkednodes = node["linkeduuids"].map{|id| Blades::itemOrNull(id) }.compact
+            linkednodes = node["linkeduuids"].map{|id| Items::itemOrNull(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"
@@ -160,7 +160,7 @@ class Nx27
             if command == "description" then
                 description = CommonUtils::editTextSynchronously(node["description"])
                 next if description == ""
-                Blades::setAttribute(node["uuid"], "description",description)
+                Items::setAttribute(node["uuid"], "description",description)
                 next
             end
 
@@ -200,7 +200,7 @@ class Nx27
                     note = NxNotes::interactivelyIssueNewOrNull()
                     next if note.nil?
                     node["notes"] << note
-                    Blades::setAttribute(node["uuid"], "notes", node["notes"])
+                    Items::setAttribute(node["uuid"], "notes", node["notes"])
                 end
                 if option == "remove note" then
                     puts "note remove is not implemented yet"
@@ -216,7 +216,7 @@ class Nx27
             end
 
             if command == "destroy" then
-                Blades::deleteItem(node["uuid"])
+                Items::deleteItem(node["uuid"])
                 next
             end
         }

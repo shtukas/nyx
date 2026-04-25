@@ -120,15 +120,17 @@ AionFsck::structureCheckAionHashRaiseErrorIfAny(operator, nhash)
 
 require_relative "Atlas.rb"
 
-require_relative "Blades.rb"
+require_relative "Broadcasts.rb"
 
 require_relative "CommonUtils.rb"
 
-require_relative "Datablocks.rb"
+require_relative "Datablobs.rb"
 
 require_relative "Elizabeth.rb"
 
 require_relative "Fsck.rb"
+
+require_relative "Items.rb"
 
 require_relative "Galaxy.rb"
 
