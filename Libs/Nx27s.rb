@@ -216,7 +216,7 @@ class Nx27
             end
 
             if command == "destroy" then
-                Items::deleteItem(node["uuid"])
+                Index::deleteItem(node["uuid"])
                 next
             end
         }

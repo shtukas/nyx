@@ -47,8 +47,6 @@ checkLocation = lambda{|location|
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub/Lucille-Ruby-Libraries")
 checkLocation.call("#{ENV['HOME']}/x-space/xcache-v1-days")
 
-require "#{ENV['HOME']}/Galaxy/DataHub/Lucille-Ruby-Libraries/LucilleCore.rb"
-
 require "#{ENV['HOME']}/Galaxy/DataHub/Lucille-Ruby-Libraries/XCache.rb"
 =begin
     XCache::set(key, value)
@@ -120,8 +118,6 @@ AionFsck::structureCheckAionHashRaiseErrorIfAny(operator, nhash)
 
 require_relative "Atlas.rb"
 
-require_relative "Broadcasts.rb"
-
 require_relative "CommonUtils.rb"
 
 require_relative "Datablobs.rb"
@@ -136,6 +132,7 @@ require_relative "Index.rb"
 require_relative "Galaxy.rb"
 
 require_relative "ListingStore.rb"
+require_relative "LucilleCore.rb"
 
 require_relative "Nyx.rb"
 require_relative "NxNotes.rb"

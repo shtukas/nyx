@@ -77,4 +77,12 @@ class Index
         end
         items
     end
+
+    # Index::deleteItem(uuid)
+    def self.deleteItem(uuid)
+        uuidhash = Digest::SHA1.hexdigest(uuid)
+        directory = "#{Config::pathToNyxData()}/index/#{uuidhash[0, 2]}/#{uuidhash}"
+        return if if !File.exist?(directory)
+        LucilleCore::removeFileSystemLocation(directory)
+    end
 end

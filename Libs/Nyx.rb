@@ -6,7 +6,6 @@ class Nyx
     # Nyx::main()
     def self.main()
         loop {
-            Broadcasts::processIncoming()
             options = [
                 "search",
                 "new node",
