@@ -131,6 +131,7 @@ require_relative "Elizabeth.rb"
 require_relative "Fsck.rb"
 
 require_relative "Items.rb"
+require_relative "Index.rb"
 
 require_relative "Galaxy.rb"
 
