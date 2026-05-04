@@ -25,21 +25,12 @@ class Items
         db.close
     end
 
-    # Items::commitItem(item)
-    def self.commitItem(item)
-        Items::commitItemNoBroadcast(item)
-        Broadcasts::send({
-            "type"  => "item",
-            "item"  => item
-        })
-    end
-
     # Items::setAttribute(uuid, attribute_name, attribute_value) # -> updated Item
     def self.setAttribute(uuid, attribute_name, attribute_value)
         item = Index::getItemOrNull(uuid)
         return if item.nil?
         item[attribute_name] = attribute_value
-        Items::commitItem(item)
+        Index::commitItem(item)
         item
     end
 
