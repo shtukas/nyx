@@ -40,4 +40,17 @@ class Index
         items
     end
 
+    # Index::getItemOrNull(uuid)
+    def self.getItemOrNull(uuid)
+        uuidhash = Digest::SHA1.hexdigest(uuid)
+        directory = "#{Config::pathToNyxData()}/index/#{uuidhash[0, 2]}/#{uuidhash}"
+        return nil if !File.exist?(directory)
+        filepaths = LucilleCore::locationsAtFolder(directory)
+                        .select{|filepath| filepath[-19, 19] == ".nyx-node-Nx23.json" }
+        return nil if filepaths.empty?
+        return JSON.parse(IO.read(filepaths[0])) if filepaths.size == 1
+        # If we get to here, then we have two versions of the object
+        puts "We have two version of the object at directory: #{directory}, now might be the moment to write that reconciliation code"
+        raise "[error: 835e2057]"
+    end
 end
