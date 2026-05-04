@@ -54,6 +54,15 @@ class Index
         raise "[error: 835e2057]"
     end
 
+    # Index::init(uuid)
+    def self.init(uuid)
+        Index::commitItem({
+            "uuid" => uuid,
+            "mikuType" => "NxDeleted",
+            "unixtime" => Time.new.to_i
+        })
+    end
+
     # Index::getMikuType(mikuType)
     def self.getMikuType(mikuType)
         items = []

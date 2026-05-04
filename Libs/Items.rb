@@ -34,15 +34,6 @@ class Items
         })
     end
 
-    # Items::init(uuid)
-    def self.init(uuid)
-        Items::commitItem({
-            "uuid" => uuid,
-            "mikuType" => "NxDeleted",
-            "unixtime" => Time.new.to_i
-        })
-    end
-
     # Items::setAttribute(uuid, attribute_name, attribute_value) # -> updated Item
     def self.setAttribute(uuid, attribute_name, attribute_value)
         item = Index::getItemOrNull(uuid)

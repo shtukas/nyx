@@ -12,7 +12,7 @@ class Nx27
         px44 = Px44::interactivelyMakeNewOrNull(uuid)
         px44s = [px44].compact
 
-        Items::init(uuid)
+        Index::init(uuid)
         Items::setAttribute(uuid, "datetime"   , Time.new.utc.iso8601)
         Items::setAttribute(uuid, "description", description)
         Items::setAttribute(uuid, "px44s"      , px44s)
