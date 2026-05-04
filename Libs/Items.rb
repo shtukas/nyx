@@ -10,20 +10,6 @@ class Items
         "#{Config::userHomeDirectory()}/Galaxy/DataHub/Nyx/data/items/#{Config::instanceId()}/items.sqlite"
     end
 
-    # Items::itemOrNull(uuid)
-    def self.itemOrNull(uuid)
-        item = nil
-        db = SQLite3::Database.new(Items::database_filepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute("select * from items where uuid = ?", [uuid]) do |row|
-            item = JSON.parse(row["item"])
-        end
-        db.close
-        item
-    end
-
     # Items::commitItemNoBroadcast(item)
     def self.commitItemNoBroadcast(item)
         db = SQLite3::Database.new(Items::database_filepath())
@@ -59,7 +45,7 @@ class Items
 
     # Items::setAttribute(uuid, attribute_name, attribute_value) # -> updated Item
     def self.setAttribute(uuid, attribute_name, attribute_value)
-        item = Items::itemOrNull(uuid)
+        item = Index::getItemOrNull(uuid)
         return if item.nil?
         item[attribute_name] = attribute_value
         Items::commitItem(item)
