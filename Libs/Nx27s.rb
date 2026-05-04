@@ -29,7 +29,7 @@ class Nx27
 
     # Nx27::items()
     def self.items()
-        Items::mikuType('Nx27')
+        Index::getMikuType('Nx27')
     end
 
     # Nx27::toString(node)

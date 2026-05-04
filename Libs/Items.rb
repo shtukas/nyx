@@ -10,20 +10,6 @@ class Items
         "#{Config::userHomeDirectory()}/Galaxy/DataHub/Nyx/data/items/#{Config::instanceId()}/items.sqlite"
     end
 
-    # Items::mikuType(mikuType)
-    def self.mikuType(mikuType)
-        items = []
-        db = SQLite3::Database.new(Items::database_filepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute("select * from items where mikuType = ?", [mikuType]) do |row|
-            items << JSON.parse(row["item"])
-        end
-        db.close
-        items
-    end
-
     # Items::itemOrNull(uuid)
     def self.itemOrNull(uuid)
         item = nil

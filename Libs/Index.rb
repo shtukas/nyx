@@ -53,4 +53,19 @@ class Index
         puts "We have two version of the object at directory: #{directory}, now might be the moment to write that reconciliation code"
         raise "[error: 835e2057]"
     end
+
+    # Index::getMikuType(mikuType)
+    def self.getMikuType(mikuType)
+        items = []
+        root = "#{Config::pathToNyxData()}/index"
+        Find.find(root) do |path|
+            if path[-19, 19] == ".nyx-node-Nx23.json" then
+                item = JSON.parse(IO.read(path))
+                if item["mikuType"] == mikuType then
+                    items << item
+                end
+            end
+        end
+        items
+    end
 end
