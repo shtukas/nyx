@@ -12,7 +12,7 @@ class Nx27
         px44 = Px44::interactivelyMakeNewOrNull(uuid)
         px44s = [px44].compact
 
-        Index::init(uuid)
+        Items::init(uuid)
         Items::setAttribute(uuid, "datetime"   , Time.new.utc.iso8601)
         Items::setAttribute(uuid, "description", description)
         Items::setAttribute(uuid, "px44s"      , px44s)
@@ -21,7 +21,7 @@ class Nx27
         Items::setAttribute(uuid, "tags"       , [])
         Items::setAttribute(uuid, "mikuType"   , "Nx27")
 
-        Index::getItemOrNull(uuid)
+        Items::getItemOrNull(uuid)
     end
 
     # ------------------------------------------------------
@@ -29,7 +29,7 @@ class Nx27
 
     # Nx27::items()
     def self.items()
-        Index::getMikuType('Nx27')
+        Items::getMikuType('Nx27')
     end
 
     # Nx27::toString(node)
@@ -39,7 +39,7 @@ class Nx27
 
     # Nx27::itemOrNull(uuid)
     def self.itemOrNull(uuid)
-        Index::getItemOrNull(uuid)
+        Items::getItemOrNull(uuid)
     end
 
     # ------------------------------------------------------
@@ -48,7 +48,7 @@ class Nx27
     # Nx27::programPayload(node)
     def self.programPayload(node)
         loop {
-            node = Index::getItemOrNull(node["uuid"])
+            node = Items::getItemOrNull(node["uuid"])
             px44s = node["px44s"]
             puts "px44s (#{px44s.count} items):"
             px44s.each{|px44|
@@ -119,7 +119,7 @@ class Nx27
                 }
             end
 
-            linkednodes = node["linkeduuids"].map{|id| Index::getItemOrNull(id) }.compact
+            linkednodes = node["linkeduuids"].map{|id| Items::getItemOrNull(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"
