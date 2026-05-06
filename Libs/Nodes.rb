@@ -65,8 +65,10 @@ class Nodes
 
     # Nodes::connect1(node, uuid)
     def self.connect1(node, uuid)
-        node["linkeduuids"] = (node["linkeduuids"] + [uuid]).uniq
-        Items::setAttribute(node["uuid"], "linkeduuids", node["linkeduuids"])
+        linkeduuids = node["linkeduuids"] || []
+        linkeduuids << uuid
+        linkeduuids = linkeduuids.uniq
+        Items::setAttribute(node["uuid"], "linkeduuids", linkeduuids)
     end
 
     # Nodes::connect2(node, isSeekingSelect) # nil or node

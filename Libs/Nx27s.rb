@@ -110,7 +110,7 @@ class Nx27
 
             store = ListingStore.new()
 
-            if node["notes"].size > 0 then
+            if (node["notes"] || []).size > 0 then
                 puts ""
                 puts "notes:"
                 node["notes"].each{|note|
@@ -119,7 +119,7 @@ class Nx27
                 }
             end
 
-            linkednodes = node["linkeduuids"].map{|id| Items::getItemOrNull(id) }.compact
+            linkednodes = (node["linkeduuids"] || []).map{|id| Items::getItemOrNull(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
                 puts "related nodes:"
@@ -199,7 +199,7 @@ class Nx27
                 if option == "add new note" then
                     note = NxNotes::interactivelyIssueNewOrNull()
                     next if note.nil?
-                    node["notes"] << note
+                    (node["notes"] || []) << note
                     Items::setAttribute(node["uuid"], "notes", node["notes"])
                 end
                 if option == "remove note" then
@@ -242,12 +242,12 @@ class Nx27
             raise "item: #{JSON.pretty_generate(item)} does not have a datetime"
         end
 
-        if item["linkeduuids"].nil? then
-            raise "item: #{JSON.pretty_generate(item)} does not have a linkeduuids"
-        end
-        if item["linkeduuids"].class.to_s != "Array" then
-            raise "item: #{JSON.pretty_generate(item)}'s linkeduuids is not an array"
-        end
+        #if item["linkeduuids"].nil? then
+        #    raise "item: #{JSON.pretty_generate(item)} does not have a linkeduuids"
+        #end
+        #if item["linkeduuids"].class.to_s != "Array" then
+        #    raise "item: #{JSON.pretty_generate(item)}'s linkeduuids is not an array"
+        #end
 
         Fsck::fsckItemNotesAttribute(item)
         Fsck::fsckItemTagsAttribute(item)
