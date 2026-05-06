@@ -16,13 +16,21 @@ class Items
 
     # ---------------------------------------------
 
-    # Items::commitItem(item)
+    # Items::commitItem returns an item, because it may not be the item that 
+    # was submitted, in case we had to do a reconciliation
+    # Items::commitItem(item) -> Item
     def self.commitItem(item)
         # Here we need to send the item to disk and update the in memory dataset
-        Index::commitItem(item)
+
+        # Index::commitItem returns an item, because it may not be the item that 
+        # was submitted, in case we had to do a reconciliation
+        item = Index::commitItem(item)
+
         if $InMemoryItems9ECED108 then
             $InMemoryItems9ECED108 = $InMemoryItems9ECED108.reject{|i| i["uuid"] == item["uuid"] } + [item]
         end
+
+        item
     end
 
     # Items::getItems()
@@ -55,12 +63,18 @@ class Items
         $InMemoryItems9ECED108.select{|i| i["mikuType"] == mikuType }
     end
 
+    # Items::setAttribute returns an item, because it may not be the item that 
+    # was submitted, in case we had to do a reconciliation
     # Items::setAttribute(uuid, attribute_name, attribute_value) # -> updated Item
     def self.setAttribute(uuid, attribute_name, attribute_value)
         item = Items::getItemOrNull(uuid)
         return if item.nil?
+
         item[attribute_name] = attribute_value
-        Items::commitItem(item)
+        # Index::commitItem returns an item, because it may not be the item that 
+        # was submitted, in case we had to do a reconciliation
+        item = Items::commitItem(item)
+
         item
     end
 

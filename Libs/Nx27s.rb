@@ -136,6 +136,7 @@ class Nx27
             else
                 puts ""
                 puts "commands: description | access | payload | connect | disconnect | notes | expose | destroy"
+                puts "commands: access file in index"
             end
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -160,7 +161,11 @@ class Nx27
             if command == "description" then
                 description = CommonUtils::editTextSynchronously(node["description"])
                 next if description == ""
-                Items::setAttribute(node["uuid"], "description",description)
+
+                # Items::setAttribute returns an item, because it may not be the item that 
+                # was submitted, in case we had to do a reconciliation
+                node = Items::setAttribute(node["uuid"], "description",description)
+
                 next
             end
 
@@ -200,7 +205,10 @@ class Nx27
                     note = NxNotes::interactivelyIssueNewOrNull()
                     next if note.nil?
                     (node["notes"] || []) << note
-                    Items::setAttribute(node["uuid"], "notes", node["notes"])
+
+                    # Items::setAttribute returns an item, because it may not be the item that 
+                    # was submitted, in case we had to do a reconciliation
+                    node = Items::setAttribute(node["uuid"], "notes", node["notes"])
                 end
                 if option == "remove note" then
                     puts "note remove is not implemented yet"
@@ -212,6 +220,11 @@ class Nx27
             if command == "expose" then
                 puts JSON.pretty_generate(node)
                 LucilleCore::pressEnterToContinue()
+                next
+            end
+
+            if command == "access file in index" then
+                Index::accessDirectoryForUuid(node["uuid"])
                 next
             end
 
