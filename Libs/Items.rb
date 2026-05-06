@@ -21,7 +21,7 @@ class Items
         # Here we need to send the item to disk and update the in memory dataset
         Index::commitItem(item)
         if $InMemoryItems9ECED108 then
-            $InMemoryItems9ECED108 = $InMemoryItems9ECED108.reject{|i| i["uuid"] == item["uui"] } + [item]
+            $InMemoryItems9ECED108 = $InMemoryItems9ECED108.reject{|i| i["uuid"] == item["uuid"] } + [item]
         end
     end
 
