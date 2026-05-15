@@ -224,7 +224,7 @@ class Nx27
             end
 
             if command == "access file in index" then
-                Index::accessDirectoryForUuid(node["uuid"])
+                Index::accessIndexNodeDirectory(node["uuid"])
                 next
             end
 

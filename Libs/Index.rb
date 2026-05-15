@@ -156,8 +156,8 @@ class Index
     #    items
     #end
 
-    # Index::accessDirectoryForUuid(uuid)
-    def self.accessDirectoryForUuid(uuid)
+    # Index::accessIndexNodeDirectory(uuid)
+    def self.accessIndexNodeDirectory(uuid)
         uuidhash = Digest::SHA1.hexdigest(uuid)
         directory = "#{Config::pathToNyxData()}/index/#{uuidhash[0, 2]}/#{uuidhash}"
         if !File.exist?(directory) then
@@ -171,7 +171,7 @@ class Index
 
     # Index::deleteItem(uuid)
     def self.deleteItem(uuid)
-        directory = directory = Index::uuid_to_directory(item["uuid"], false)
+        directory = directory = Index::uuid_to_directory(uuid, false)
         return if !File.exist?(directory)
         LucilleCore::removeFileSystemLocation(directory)
     end
