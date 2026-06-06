@@ -184,19 +184,22 @@ class Nx27
     # Nx27::fsck(item)
     def self.fsck(item)
         if item["uuid"].nil? then
-            raise "item: #{JSON.pretty_generate(item)} is missing its uuid"
+            raise "item: #{JSON.pretty_generate(item)} does not have a uuid"
         end
         if item["mikuType"].nil? then
-            raise "item: #{JSON.pretty_generate(item)} is missing its mikuType"
+            raise "item: #{JSON.pretty_generate(item)} does not have a mikuType"
         end
         if item["mikuType"] != 'Nx27' then
             raise "item: #{JSON.pretty_generate(item)} does not have the correct mikuType"
         end
-        if item["description"].nil? then
-            raise "item: #{JSON.pretty_generate(item)} does not have a description"
+        if item["unixtime"].nil? then
+            raise "item: #{JSON.pretty_generate(item)} does not have a unixtime"
         end
         if item["datetime"].nil? then
             raise "item: #{JSON.pretty_generate(item)} does not have a datetime"
+        end
+        if item["description"].nil? then
+            raise "item: #{JSON.pretty_generate(item)} does not have a description"
         end
 
         (item["px44s"] || []).each{|px44|

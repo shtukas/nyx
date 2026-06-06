@@ -105,11 +105,20 @@ class Px44
 
     # Px44::fsck(px44)
     def self.fsck(px44)
+        if px44["uuid"].nil? then
+            raise "px44: #{JSON.pretty_generate(px44)} does not have a uuid"
+        end
         if px44["mikuType"].nil? then
             raise "px44: #{JSON.pretty_generate(px44)} does not have a mikuType"
         end
-        if px44["uuid"].nil? then
-            raise "px44: #{JSON.pretty_generate(px44)} does not have a uuid"
+        if item["mikuType"] != 'Px44' then
+            raise "item: #{JSON.pretty_generate(item)} does not have the correct mikuType"
+        end
+        if item["unixtime"].nil? then
+            raise "item: #{JSON.pretty_generate(item)} does not have a unixtime"
+        end
+        if item["datetime"].nil? then
+            raise "item: #{JSON.pretty_generate(item)} does not have a datetime"
         end
         if px44["type"].nil? then
             raise "px44: #{JSON.pretty_generate(px44)} does not have a type"
