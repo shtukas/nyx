@@ -78,7 +78,7 @@ class Px44
                 "uniquestring" => uniquestring
             }
         end
-        raise "(error: f75b2797-99e5-49d0-8d49-40b44beb538c) Px44 type: #{type}"
+        raise "(error: 25509314) Px44 type: #{type}"
     end
 
     # Px44::interactivelyIssueNewOrNull(owner)
@@ -215,14 +215,51 @@ class Px44
         raise "(error: ee2b7a4b-a34a-4ea6-9f3e-c41be1d1a69c) Px44: #{px44}"
     end
 
+    # Px44::edit(px44)
+    def self.edit(px44)
+        # The uuid is used to know where to find the datablobs in case of an aion-point
+
+        return if px44.nil?
+        if px44["type"] == "text" then
+            px44["text"] = CommonUtils::editTextSynchronously(px44["text"])
+            Items::commitItem(px44)
+            return
+        end
+        if px44["type"] == "url" then
+            px44["url"] = LucilleCore::askQuestionAnswerAsString("url: ")
+            Items::commitItem(px44)
+            return
+        end
+        if px44["type"] == "aion-point" then
+            location = CommonUtils::interactivelySelectDesktopLocationOrNull()
+            px44["nhash"] = AionCore::commitLocationReturnHash(Elizabeth.new(), location)
+            Items::commitItem(px44)
+            return
+        end
+        if px44["type"] == "beacon" then
+            puts "There is no current facilities to edit a beacon"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if px44["type"] == "unique-string" then
+            px44["uniquestring"] = LucilleCore::askQuestionAnswerAsString("unique string: ")
+            Items::commitItem(px44)
+            return
+        end
+        raise "(error: 29e9567f) Px44: #{px44}"
+    end
+
     # Px44::programPx44(px44)
     def self.programPx44(px44)
         loop {
-            options = ["access", "destroy"]
+            options = ["access", "edit", "destroy"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             return if option.nil?
             if option == "access" then
                 Px44::access(px44)
+            end
+            if option == "edit" then
+                Px44::edit(px44)
             end
             if option == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{Px44::toString(px44)}") then
