@@ -139,7 +139,6 @@ require_relative "NxNodes.rb"
 require_relative "PolyFunctions.rb"
 require_relative "PolyActions.rb"
 
-require_relative "ProgrammableBooleans.rb"
 require_relative "Px44s.rb"
 
 require_relative "Search.rb"
