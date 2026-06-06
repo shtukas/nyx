@@ -22,6 +22,8 @@ class Px44
             return {
                 "uuid"     => SecureRandom.uuid,
                 "mikuType" => "Px44",
+                "unixtime" => Time.new.to_i,
+                "datetime" => Time.new.utc.iso8601,
                 "owner"    => owner,
                 "type"     => "text",
                 "text"     => text
@@ -32,6 +34,8 @@ class Px44
             return {
                 "uuid"     => SecureRandom.uuid,
                 "mikuType" => "Px44",
+                "unixtime" => Time.new.to_i,
+                "datetime" => Time.new.utc.iso8601,
                 "owner"    => owner,
                 "type"     => "url",
                 "url"      => url
@@ -42,8 +46,10 @@ class Px44
             return nil if location.nil?
             return {
                 "uuid"      => SecureRandom.uuid,
-                "mikuType" => "Px44",
-                "owner"    => owner,
+                "mikuType"  => "Px44",
+                "unixtime"  => Time.new.to_i,
+                "datetime"  => Time.new.utc.iso8601,
+                "owner"     => owner,
                 "type"      => "aion-point",
                 "nhash"     => AionCore::commitLocationReturnHash(Elizabeth.new(), location)
             }
@@ -63,6 +69,8 @@ class Px44
             return {
                 "uuid"     => SecureRandom.uuid,
                 "mikuType" => "Px44",
+                "unixtime" => Time.new.to_i,
+                "datetime" => Time.new.utc.iso8601,
                 "owner"    => owner,
                 "type"     => "beacon",
                 "id"       => beaconId
@@ -72,8 +80,10 @@ class Px44
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (if needed use Nx01-#{SecureRandom.hex[0, 12]}): ")
             return {
                 "uuid"         => SecureRandom.uuid,
-                "mikuType" => "Px44",
-                "owner"    => owner,
+                "mikuType"     => "Px44",
+                "unixtime"     => Time.new.to_i,
+                "datetime"     => Time.new.utc.iso8601,
+                "owner"        => owner,
                 "type"         => "unique-string",
                 "uniquestring" => uniquestring
             }
