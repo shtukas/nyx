@@ -54,10 +54,10 @@ class Fsck
 
     # Fsck::fsckAll()
     def self.fsckAll()
-        Nx27::items().each{|item|
+        NxNode::items().each{|item|
             if item["mikuType"] == "Nx27" then
                 puts "fsck: item: #{item["uuid"]}"
-                Nx27::fsckItem(item)
+                NxNode::fsckItem(item)
             end
         }
         puts "fsck completed"

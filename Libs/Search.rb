@@ -16,7 +16,7 @@ class Search
 
             loop {
                 system('clear')
-                selected = Nx27::items()
+                selected = NxNode::items()
                             .select{|item| Search::match(item, fragment) }
 
                 if selected.empty? then
@@ -29,7 +29,7 @@ class Search
 
                 item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", selected, lambda{|i| i["description"] })
                 break if item.nil?
-                Nx27::program(item, false)
+                NxNode::program(item, false)
             }
         }
     end

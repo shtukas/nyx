@@ -135,7 +135,7 @@ require_relative "LucilleCore.rb"
 
 require_relative "Nyx.rb"
 require_relative "NxNotes.rb"
-require_relative "Nx27s.rb"
+require_relative "NxNodes.rb"
 require_relative "PolyFunctions.rb"
 require_relative "PolyActions.rb"
 

@@ -16,7 +16,7 @@ class PolyActions
         PolyActions::connect1(node2, node["uuid"])
         # We have connected node and node2
         # We are now going to land on it and get an opportunity to select it.
-        Nx27::program(node2, isSeekingSelect)
+        NxNode::program(node2, isSeekingSelect)
     end
 
 end

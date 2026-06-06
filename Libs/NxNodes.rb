@@ -1,10 +1,10 @@
 
-class Nx27
+class NxNode
 
     # ------------------------------------------------------
     # Interface
 
-    # Nx27::interactivelyIssueNewOrNull()
+    # NxNode::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
         uuid = SecureRandom.uuid
         description = LucilleCore::pressEnterToContinue("description (empty to abort): ")
@@ -27,17 +27,17 @@ class Nx27
     # ------------------------------------------------------
     # Data
 
-    # Nx27::items()
+    # NxNode::items()
     def self.items()
         Items::getMikuType('Nx27')
     end
 
-    # Nx27::toString(node)
+    # NxNode::toString(node)
     def self.toString(node)
         "#{node["description"]}#{node["px44s"].map{|payload| Px44::toString(payload) }}"
     end
 
-    # Nx27::itemOrNull(uuid)
+    # NxNode::itemOrNull(uuid)
     def self.itemOrNull(uuid)
         Items::getItemOrNull(uuid)
     end
@@ -45,7 +45,7 @@ class Nx27
     # ------------------------------------------------------
     # Operations
 
-    # Nx27::programPayload(node)
+    # NxNode::programPayload(node)
     def self.programPayload(node)
         loop {
             node = Items::getItemOrNull(node["uuid"])
@@ -76,7 +76,7 @@ class Nx27
         }
     end
 
-    # Nx27::program(node, isSeekingSelect) # nil or node
+    # NxNode::program(node, isSeekingSelect) # nil or node
     def self.program(node, isSeekingSelect)
 
         # isSeekingSelect: boolean
@@ -85,7 +85,7 @@ class Nx27
 
         loop {
 
-            node = Nx27::itemOrNull(node["uuid"])
+            node = NxNode::itemOrNull(node["uuid"])
             break if node.nil?
 
             system('clear')
@@ -146,7 +146,7 @@ class Nx27
                 indx = command.to_i
                 item = store.get(indx)
                 next if item.nil?
-                nx = Nx27::program(item, isSeekingSelect)
+                nx = NxNode::program(item, isSeekingSelect)
                 if nx then
                     return nx # was `select`ed
                 end
@@ -179,7 +179,7 @@ class Nx27
             end
 
             if command == "payload" then
-                Nx27::programPayload(node)
+                NxNode::programPayload(node)
                 next
             end
 
@@ -231,7 +231,7 @@ class Nx27
         nil
     end
 
-    # Nx27::fsckItem(item)
+    # NxNode::fsckItem(item)
     def self.fsckItem(item)
         if item["uuid"].nil? then
             raise "item: #{JSON.pretty_generate(item)} is missing its uuid"
