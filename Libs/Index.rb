@@ -106,18 +106,6 @@ class Index
         reconciled
     end
 
-    # Index::getItems()
-    def self.getItems()
-        items = []
-        root = "#{Config::pathToNyxData()}/index"
-        Find.find(root) do |path|
-            if Index::location_is_nyx_node(path) then
-                items << JSON.parse(IO.read(path))
-            end
-        end
-        items
-    end
-
     ## Index::getItemOrNull(uuid)
     #def self.getItemOrNull(uuid)
     #    uuidhash = Digest::SHA1.hexdigest(uuid)
