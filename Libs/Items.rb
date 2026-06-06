@@ -8,7 +8,7 @@ class Items
     # Items::getItemsFromDisk()
     def self.getItemsFromDisk()
         items = []
-        root = "#{Config::pathToNyxData()}/index"
+        root = "#{Config::pathToGalaxy()}/Galaxy/DataHub/First-Light-Weaves-Living-Song/nodes"
         Find.find(root) do |path|
             if path[-5, 5] == ".json" then
                 items << JSON.parse(IO.read(path))
@@ -30,7 +30,7 @@ class Items
 
     # Items::commitItem(item)
     def self.commitItem(item)
-        filepath = "/Users/pascal_honore/Galaxy/DataHub/NyxCore/nodes/#{item["uuid"]}.json"
+        filepath = "#{Config::pathToGalaxy()}/DataHub/First-Light-Weaves-Living-Song/nodes/#{item["uuid"]}.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
         if $InMemoryItems9ECED108 then
             $InMemoryItems9ECED108 = $InMemoryItems9ECED108.reject{|i| i["uuid"] == item["uuid"] } + [item]
@@ -78,7 +78,7 @@ class Items
 
     # Items::deleteItem(uuid)
     def self.deleteItem(uuid)
-        filepath = "/Users/pascal_honore/Galaxy/DataHub/NyxCore/nodes/#{item["uuid"]}.json"
+        filepath = "#{Config::pathToGalaxy()}/DataHub/First-Light-Weaves-Living-Song/nodes/#{item["uuid"]}.json"
         if File.exist?(filepath) then
             FileUtils.rm(filepath)
         end

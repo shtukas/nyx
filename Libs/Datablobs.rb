@@ -6,7 +6,7 @@ class Datablobs
 
     # Datablobs::path_to_datablobs()
     def self.path_to_datablobs()
-        "#{Config::pathToNyxData()}/datablobs"
+        "#{Config::pathToGalaxy()}/DataHub/First-Light-Weaves-Living-Song/datablobs"
     end
 
     # ------------------------------------------------------------------
