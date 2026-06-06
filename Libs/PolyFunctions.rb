@@ -1,16 +1,12 @@
 
-class Nodes
-
-    # ---------------------------------------
-    # Data
-
-    # Nodes::architectNodeOrNull()
+class PolyFunctions
+    # PolyFunctions::architectNodeOrNull()
     def self.architectNodeOrNull()
         loop {
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["search and maybe `select`", "interactively make new (automatically selected)"])
             return nil if option.nil?
             if option == "search and maybe `select`" then
-                node = Nodes::interactivelySelectNodeOrNull()
+                node = PolyFunctions::interactivelySelectNodeOrNull()
                 if node then
                     return node
                 end
@@ -24,7 +20,7 @@ class Nodes
         }
     end
 
-    # Nodes::interactivelySelectNodeOrNull() nil or node
+    # PolyFunctions::interactivelySelectNodeOrNull() nil or node
     def self.interactivelySelectNodeOrNull()
         puts "get node using selection and navigation".green
         loop {
@@ -59,27 +55,4 @@ class Nodes
             }
         }
     end
-
-    # ---------------------------------------
-    # Operations
-
-    # Nodes::connect1(node, uuid)
-    def self.connect1(node, uuid)
-        linkeduuids = node["linkeduuids"] || []
-        linkeduuids << uuid
-        linkeduuids = linkeduuids.uniq
-        Items::setAttribute(node["uuid"], "linkeduuids", linkeduuids)
-    end
-
-    # Nodes::connect2(node, isSeekingSelect) # nil or node
-    def self.connect2(node, isSeekingSelect)
-        node2 = Nodes::architectNodeOrNull()
-        return nil if node2.nil?
-        Nodes::connect1(node, node2["uuid"])
-        Nodes::connect1(node2, node["uuid"])
-        # We have connected node and node2
-        # We are now going to land on it and get an opportunity to select it.
-        Nx27::program(node2, isSeekingSelect)
-    end
-
 end

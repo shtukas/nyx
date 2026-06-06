@@ -99,11 +99,11 @@ class Nx27
             description  = node["description"]
             datetime     = node["datetime"]
 
-            puts "- description: #{node["description"].green}"
-            puts "- mikuType   : #{node["mikuType"].green}"
-            puts "- uuid       : #{node["uuid"]}"
-            puts "- datetime   : #{datetime}"
-            puts "- px44s      :"
+            puts "description: #{node["description"].green}"
+            puts "mikuType   : #{node["mikuType"].green}"
+            puts "uuid       : #{node["uuid"]}"
+            puts "datetime   : #{datetime}"
+            puts "px44s      :"
             node["px44s"].each{|payload|
                 puts "    - #{Px44::toString(payload).strip}"
             }
@@ -122,11 +122,11 @@ class Nx27
             linkednodes = (node["linkeduuids"] || []).map{|id| Items::getItemOrNull(id) }.compact
             if linkednodes.size > 0 then
                 puts ""
-                puts "related nodes:"
+                puts "linked nodes:"
                 linkednodes
                     .each{|linkednode|
                         store.register(linkednode, false)
-                        puts "(#{store.prefixString()}) (node) #{linkednode["description"]}"
+                        puts "    - [#{store.prefixString()}] (node) #{linkednode["description"]}"
                     }
             end
 
@@ -185,7 +185,7 @@ class Nx27
             end
 
             if command == "connect" then
-                returned_node = Nodes::connect2(node, isSeekingSelect)
+                returned_node = PolyActions::connect2(node, isSeekingSelect)
                 if returned_node then
                     return returned_node # was `select`ed
                 end
