@@ -1,32 +1,54 @@
 Px44 is a content type for a nyx node
 
-Px44 {
+The unixtime is to show the Px44s of a node in order of creation
+
+{
     "uuid"     : String
+    "mikuType" : "Px44"
+    "unixtime" : Integer
+    "datetime" : DateTime
+    "owner"    : String # uuid of the node this Px44 belongs to
     "type"     : "text"
     "text"     : string
 }
 
-Px44 {
+{
     "uuid"     : String
+    "mikuType" : "Px44"
+    "unixtime" : Integer
+    "datetime" : DateTime
+    "owner"    : String # uuid of the node this Px44 belongs to
     "type"     : "url"
     "url       : string
 }
 
-Px44 {
+{
     "uuid"      : String
+    "mikuType" : "Px44"
+    "unixtime" : Integer
+    "datetime" : DateTime
+    "owner"    : String # uuid of the node this Px44 belongs to
     "type"      : "aion-point"
     "bladename" : String
     "nhash"     : String
 }
 
-Px44 {
+{
     "uuid"         : String
+    "mikuType" : "Px44"
+    "unixtime" : Integer
+    "datetime" : DateTime
+    "owner"    : String # uuid of the node this Px44 belongs to
     "type"         : "unique-string"
     "uniquestring" : string
 }
 
-Px44 {
+{
     "uuid"     : String
+    "mikuType" : "Px44"
+    "unixtime" : Integer
+    "datetime" : DateTime
+    "owner"    : String # uuid of the node this Px44 belongs to
     "type"     : "beacon"
     "id"       : string
 }

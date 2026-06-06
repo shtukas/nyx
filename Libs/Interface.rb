@@ -18,23 +18,23 @@ class Interface
                 Search::searchAndDive()
             end
             if option == "new node" then
-                node = NxNode::interactivelyIssueNewOrNull()
+                node = Nx27::interactivelyIssueNewOrNull()
                 next if node.nil?
-                NxNode::program(node, false)
+                Nx27::program(node, false)
             end
             if option == "list nodes" then
                 loop {
-                    nodes = NxNode::items().sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
+                    nodes = Nx27::items().sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| node["description"] })
                     break if node.nil?
-                    NxNode::program(node, false)
+                    Nx27::program(node, false)
                 }
             end
             if option == "fsck" then
-                NxNode::items().each{|item|
+                Nx27::items().each{|item|
                     if item["mikuType"] == "Nx27" then
                         puts "fsck: item: #{item["uuid"]}"
-                        NxNode::fsckItem(item)
+                        Nx27::fsck(item)
                     end
                 }
                 puts "fsck completed"

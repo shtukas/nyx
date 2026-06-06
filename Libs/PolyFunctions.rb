@@ -12,7 +12,7 @@ class PolyFunctions
                 end
             end
             if option == "interactively make new (automatically selected)" then
-                node = NxNode::interactivelyIssueNewOrNull()
+                node = Nx27::interactivelyIssueNewOrNull()
                 if node then
                     return node
                 end
@@ -27,7 +27,7 @@ class PolyFunctions
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort and return null) : ")
             return nil if fragment == ""
             loop {
-                selected = NxNode::items()
+                selected = Nx27::items()
                             .select{|node| Search::match(node, fragment) }
 
                 if selected.empty? then
@@ -47,7 +47,7 @@ class PolyFunctions
                             return nil
                         end
                     end
-                    node = NxNode::program(node, true)
+                    node = Nx27::program(node, true)
                     if node then
                         return node # was `select`ed
                     end

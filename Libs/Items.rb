@@ -30,6 +30,7 @@ class Items
 
     # Items::commitItem(item)
     def self.commitItem(item)
+        Fsck::fsckItem(item)
         filepath = "#{Config::pathToGalaxy()}/DataHub/First-Light-Weaves-Living-Song/items/#{item["uuid"]}.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
         if $InMemoryItems9ECED108 then

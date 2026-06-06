@@ -2,6 +2,7 @@
 Nx27
     uuid        : String
     mikuType    : "Nx27"
+    unixtime    : Integer
     datetime    : DateTime Iso 8601 UTC Zulu
     description : String
     px44s       : null or Array[Px44]

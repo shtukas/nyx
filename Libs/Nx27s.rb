@@ -1,77 +1,43 @@
 
-class NxNode
+class Nx27
 
     # ------------------------------------------------------
     # Interface
 
-    # NxNode::interactivelyIssueNewOrNull()
+    # Nx27::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
         uuid = SecureRandom.uuid
         description = LucilleCore::pressEnterToContinue("description (empty to abort): ")
         return nil if description == ''
-        px44 = Px44::interactivelyMakeNewOrNull(uuid)
-        px44s = [px44].compact
-
+        Px44::interactivelyIssueNewOrNull(uuid)
         Items::init(uuid)
+        Items::setAttribute(uuid, "unixtime"   , Time.new.to_i)
         Items::setAttribute(uuid, "datetime"   , Time.new.utc.iso8601)
         Items::setAttribute(uuid, "description", description)
-        Items::setAttribute(uuid, "px44s"      , px44s)
         Items::setAttribute(uuid, "linkeduuids", [])
         Items::setAttribute(uuid, "notes"      , [])
         Items::setAttribute(uuid, "tags"       , [])
         Items::setAttribute(uuid, "mikuType"   , "Nx27")
-
         Items::getItemOrNull(uuid)
     end
 
     # ------------------------------------------------------
     # Data
 
-    # NxNode::items()
+    # Nx27::items()
     def self.items()
         Items::getMikuType('Nx27')
     end
 
-    # NxNode::toString(node)
+    # Nx27::toString(node)
     def self.toString(node)
-        "#{node["description"]}#{node["px44s"].map{|payload| Px44::toString(payload) }}"
+        "#{node["description"]}"
     end
 
     # ------------------------------------------------------
     # Operations
 
-    # NxNode::programPayload(node)
-    def self.programPayload(node)
-        loop {
-            node = Items::getItemOrNull(node["uuid"])
-            px44s = node["px44s"]
-            puts "px44s (#{px44s.count} items):"
-            px44s.each{|px44|
-                puts "  - #{Px44::toString(px44)}"
-            }
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull('option', ['access', 'add', 'remove'])
-            break if option.nil?
-            if option == 'access' then
-                px44 = LucilleCore::selectEntityFromListOfEntitiesOrNull("px44", px44s, lambda{|px44| Px44::toString(px44) })
-                next if px44.nil?
-                Px44::access(node["uuid"], px44)
-            end
-            if option == 'add' then
-                px44 = Px44::interactivelyMakeNewOrNull(node["uuid"])
-                next if px44.nil?
-                px44s << px44
-                Items::setAttribute(node["uuid"], "px44s", px44s)
-            end
-            if option == 'remove' then
-                px44 = LucilleCore::selectEntityFromListOfEntitiesOrNull("px44", px44s, lambda{|px44| Px44::toString(px44) })
-                next if px44.nil?
-                px44s = px44s.reject{|i| i["uuid"] == px44["uuid"] }
-                Items::setAttribute(node["uuid"], "px44s", px44s)
-            end
-        }
-    end
-
-    # NxNode::program(node, isSeekingSelect) # nil or node
+    # Nx27::program(node, isSeekingSelect) # nil or node
     def self.program(node, isSeekingSelect)
 
         # isSeekingSelect: boolean
@@ -91,6 +57,8 @@ class NxNode
                 puts " ---------------------------"
             end
 
+            store = ListingStore.new()
+
             description  = node["description"]
             datetime     = node["datetime"]
 
@@ -99,17 +67,16 @@ class NxNode
             puts "uuid       : #{node["uuid"]}"
             puts "datetime   : #{datetime}"
             puts "px44s      :"
-            node["px44s"].each{|payload|
-                puts "    - #{Px44::toString(payload).strip}"
+            Px44::px44sForNode(node["uuid"]).each{|px44|
+                store.register(px44)
+                puts "    - [#{store.prefixString()}] #{Px44::toString(px44).strip}"
             }
-
-            store = ListingStore.new()
 
             if (node["notes"] || []).size > 0 then
                 puts ""
                 puts "notes:"
                 node["notes"].each{|note|
-                    store.register(note, false)
+                    store.register(note)
                     puts "(#{store.prefixString()}) #{NxNotes::toString(note)}"
                 }
             end
@@ -120,7 +87,7 @@ class NxNode
                 puts "linked nodes:"
                 linkednodes
                     .each{|linkednode|
-                        store.register(linkednode, false)
+                        store.register(linkednode)
                         puts "    - [#{store.prefixString()}] (node) #{linkednode["description"]}"
                     }
             end
@@ -130,7 +97,7 @@ class NxNode
                 puts "commands: #{"select".green} | description | access | payload | connect | disconnect | notes | expose | destroy"
             else
                 puts ""
-                puts "commands: description | access | payload | connect | disconnect | notes | expose | destroy"
+                puts "commands: description | payload | connect | disconnect | notes | expose | destroy"
             end
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -141,7 +108,7 @@ class NxNode
                 indx = command.to_i
                 item = store.get(indx)
                 next if item.nil?
-                nx = NxNode::program(item, isSeekingSelect)
+                nx = PolyActions::programGeneralItem(item, isSeekingSelect)
                 if nx then
                     return nx # was `select`ed
                 end
@@ -155,21 +122,14 @@ class NxNode
             if command == "description" then
                 description = CommonUtils::editTextSynchronously(node["description"])
                 next if description == ""
-
                 # Items::setAttribute returns an item, because it may not be the item that 
                 # was submitted, in case we had to do a reconciliation
                 node = Items::setAttribute(node["uuid"], "description",description)
-
-                next
-            end
-
-            if command == "access" then
-                Px44::accessPx44s(node["px44s"])
                 next
             end
 
             if command == "payload" then
-                NxNode::programPayload(node)
+                Px44::programNodePx44s(node)
                 next
             end
 
@@ -221,8 +181,8 @@ class NxNode
         nil
     end
 
-    # NxNode::fsckItem(item)
-    def self.fsckItem(item)
+    # Nx27::fsck(item)
+    def self.fsck(item)
         if item["uuid"].nil? then
             raise "item: #{JSON.pretty_generate(item)} is missing its uuid"
         end
@@ -239,15 +199,12 @@ class NxNode
             raise "item: #{JSON.pretty_generate(item)} does not have a datetime"
         end
 
-        #if item["linkeduuids"].nil? then
-        #    raise "item: #{JSON.pretty_generate(item)} does not have a linkeduuids"
-        #end
-        #if item["linkeduuids"].class.to_s != "Array" then
-        #    raise "item: #{JSON.pretty_generate(item)}'s linkeduuids is not an array"
-        #end
+        (item["px44s"] || []).each{|px44|
+            Px44::fsck(px44)
+        }
 
-        Fsck::fsckItemNotesAttribute(item)
-        Fsck::fsckItemTagsAttribute(item)
-        Fsck::fsckItemPx44Attribute(item)
+        (item["notes"] || []).each{|note|
+            NxNotes::fsck(note)
+        }
     end
 end

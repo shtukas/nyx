@@ -17,6 +17,16 @@ class PolyActions
         PolyActions::connect1(node2, node["uuid"])
         # We have connected node and node2
         # We are now going to land on it and get an opportunity to select it.
-        NxNode::program(node2, isSeekingSelect)
+        Nx27::program(node2, isSeekingSelect)
+    end
+
+    # PolyActions::programGeneralItem(item, isSeekingSelect)
+    def self.programGeneralItem(item, isSeekingSelect)
+        if item["mikuType"] == "Nx27" then
+            return Nx27::program(item, isSeekingSelect)
+        end
+        if item["mikuType"] == "Px44" then
+            return Px44::programPx44(item)
+        end
     end
 end
