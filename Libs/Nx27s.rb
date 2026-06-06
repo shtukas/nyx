@@ -136,7 +136,6 @@ class Nx27
             else
                 puts ""
                 puts "commands: description | access | payload | connect | disconnect | notes | expose | destroy"
-                puts "commands: access file in index"
             end
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -223,13 +222,8 @@ class Nx27
                 next
             end
 
-            if command == "access file in index" then
-                Index::accessIndexNodeDirectory(node["uuid"])
-                next
-            end
-
             if command == "destroy" then
-                Index::deleteItem(node["uuid"])
+                Items::deleteItem(node["uuid"])
                 next
             end
         }
