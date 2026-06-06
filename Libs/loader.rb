@@ -127,13 +127,13 @@ require_relative "Elizabeth.rb"
 require_relative "Fsck.rb"
 
 require_relative "Items.rb"
+require_relative "Interface.rb"
 
 require_relative "Galaxy.rb"
 
 require_relative "ListingStore.rb"
 require_relative "LucilleCore.rb"
 
-require_relative "Nyx.rb"
 require_relative "NxNotes.rb"
 require_relative "NxNodes.rb"
 require_relative "PolyFunctions.rb"

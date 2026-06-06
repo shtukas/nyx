@@ -1,9 +1,9 @@
 
 # encoding: UTF-8
 
-class Nyx
+class Interface
 
-    # Nyx::main()
+    # Interface::main()
     def self.main()
         loop {
             options = [

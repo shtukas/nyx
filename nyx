@@ -6,4 +6,4 @@ require_relative "Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
-Nyx::main()
+Interface::main()
