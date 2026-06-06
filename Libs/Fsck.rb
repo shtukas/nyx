@@ -3,9 +3,7 @@ class Fsck
 
     # Fsck::fsckItemNotesAttribute(item)
     def self.fsckItemNotesAttribute(item)
-        if item["notes"].nil? then
-            raise "item: #{JSON.pretty_generate(item)} does not have a notes"
-        end
+        return if item["notes"].nil?
         if item["notes"].class.to_s != "Array" then
             raise "item: #{JSON.pretty_generate(item)}'s notes is not an array"
         end
@@ -16,10 +14,7 @@ class Fsck
 
     # Fsck::fsckItemTagsAttribute(item)
     def self.fsckItemTagsAttribute(item)
-        # TODO: fsck the tags
-        if item["tags"].nil? then
-            raise "item: #{JSON.pretty_generate(item)} does not have a tags"
-        end
+        return if item["tags"].nil?
         if item["tags"].class.to_s != "Array" then
             raise "item: #{JSON.pretty_generate(item)}'s tags is not an array"
         end
@@ -27,10 +22,7 @@ class Fsck
 
     # Fsck::fsckItemPx44Attribute(item)
     def self.fsckItemPx44Attribute(item)
-        # TODO: fsck the px44s
-        if item["px44s"].nil? then
-            raise "item: #{JSON.pretty_generate(item)} does not have a px44s"
-        end
+        return if item["px44s"].nil?
         if item["px44s"].class.to_s != "Array" then
             raise "item: #{JSON.pretty_generate(item)}'s px44s is not an array"
         end

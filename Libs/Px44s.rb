@@ -186,4 +186,15 @@ class Px44
             return
         end
     end
+
+    # Px44::accessPx44s(px44s)
+    def self.accessPx44s(px44s)
+        return if px44s.nil?
+        loop {
+            px44 = LucilleCore::selectEntityFromListOfEntitiesOrNull("px44", px44s, lambda{|px44| Px44::toString(px44) })
+            break if px44.nil?
+            puts "selected: #{Px44::toString(px44)}"
+            Px44::access(node["uuid"], px44)
+        }
+    end
 end

@@ -1,5 +1,6 @@
 
 class PolyActions
+
     # PolyActions::connect1(node, uuid)
     def self.connect1(node, uuid)
         linkeduuids = node["linkeduuids"] || []
@@ -18,5 +19,4 @@ class PolyActions
         # We are now going to land on it and get an opportunity to select it.
         NxNode::program(node2, isSeekingSelect)
     end
-
 end

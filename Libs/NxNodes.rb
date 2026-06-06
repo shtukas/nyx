@@ -37,11 +37,6 @@ class NxNode
         "#{node["description"]}#{node["px44s"].map{|payload| Px44::toString(payload) }}"
     end
 
-    # NxNode::itemOrNull(uuid)
-    def self.itemOrNull(uuid)
-        Items::getItemOrNull(uuid)
-    end
-
     # ------------------------------------------------------
     # Operations
 
@@ -85,7 +80,7 @@ class NxNode
 
         loop {
 
-            node = NxNode::itemOrNull(node["uuid"])
+            node = Items::getItemOrNull(node["uuid"])
             break if node.nil?
 
             system('clear')
@@ -169,12 +164,7 @@ class NxNode
             end
 
             if command == "access" then
-                px44s = node["px44s"]
-                loop {
-                    px44 = LucilleCore::selectEntityFromListOfEntitiesOrNull("px44", px44s, lambda{|px44| Px44::toString(px44) })
-                    break if px44.nil?
-                    Px44::access(node["uuid"], px44)
-                }
+                Px44::accessPx44s(node["px44s"])
                 next
             end
 

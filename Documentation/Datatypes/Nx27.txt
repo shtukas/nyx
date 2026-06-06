@@ -4,7 +4,12 @@ Nx27
     mikuType    : "Nx27"
     datetime    : DateTime Iso 8601 UTC Zulu
     description : String
-    px44s       : Array[Px44]
-    linkeduuids : Array[String]
-    notes       : Array[NxNote]
-    tags        : Array[String]
+    px44s       : null or Array[Px44]
+    linkeduuids : null or Array[String]
+    notes       : null or Array[NxNote]
+    tags        : null or Array[String]
+
+data that is part of the search are
+    - uuid
+    - description
+    - tags

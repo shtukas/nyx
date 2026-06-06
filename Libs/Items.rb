@@ -8,7 +8,7 @@ class Items
     # Items::getItemsFromDisk()
     def self.getItemsFromDisk()
         items = []
-        root = "#{Config::pathToGalaxy()}/Galaxy/DataHub/First-Light-Weaves-Living-Song/items"
+        root = "#{Config::pathToGalaxy()}/DataHub/First-Light-Weaves-Living-Song/items"
         Find.find(root) do |path|
             if path[-5, 5] == ".json" then
                 items << JSON.parse(IO.read(path))
