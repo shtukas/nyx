@@ -8,7 +8,7 @@ class Items
     # Items::getItemsFromDisk()
     def self.getItemsFromDisk()
         items = []
-        root = "#{Config::pathToGalaxy()}/DataHub/First-Light-Weaves-Living-Song/items"
+        root = "#{Config::pathToLibrary()}/items"
         Find.find(root) do |path|
             if path[-5, 5] == ".json" then
                 items << JSON.parse(IO.read(path))
@@ -31,7 +31,7 @@ class Items
     # Items::commitItem(item)
     def self.commitItem(item)
         Fsck::fsckItem(item)
-        filepath = "#{Config::pathToGalaxy()}/DataHub/First-Light-Weaves-Living-Song/items/#{item["uuid"]}.json"
+        filepath = "#{Config::pathToLibrary()}/items/#{item["uuid"]}.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
         if $InMemoryItems9ECED108 then
             $InMemoryItems9ECED108 = $InMemoryItems9ECED108.reject{|i| i["uuid"] == item["uuid"] } + [item]
@@ -79,7 +79,7 @@ class Items
 
     # Items::deleteItem(uuid)
     def self.deleteItem(uuid)
-        filepath = "#{Config::pathToGalaxy()}/DataHub/First-Light-Weaves-Living-Song/items/#{item["uuid"]}.json"
+        filepath = "#{Config::pathToLibrary()}/items/#{item["uuid"]}.json"
         if File.exist?(filepath) then
             FileUtils.rm(filepath)
         end

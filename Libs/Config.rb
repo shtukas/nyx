@@ -26,4 +26,9 @@ class Config
         end
         JSON.parse(IO.read(filepath))["instanceId"]
     end
+
+    # Config::pathToLibrary()
+    def self.pathToLibrary()
+        "#{Config::pathToGalaxy()}/DataHub/Nyx/First-Light-Weaves-Living-Song"
+    end
 end

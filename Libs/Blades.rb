@@ -3,7 +3,7 @@ class Blades
 
     # Blades::respository()
     def self.respository()
-        "#{Config::pathToGalaxy()}/DataHub/First-Light-Weaves-Living-Song/blades"
+        "#{Config::pathToLibrary()}/blades"
     end
 
     # Blades::ensureBlade(bladeuuid)
