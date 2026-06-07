@@ -118,6 +118,8 @@ AionFsck::structureCheckAionHashRaiseErrorIfAny(operator, nhash)
 
 require_relative "Atlas.rb"
 
+require_relative "Blades.rb"
+
 require_relative "CommonUtils.rb"
 
 require_relative "Datablobs.rb"
