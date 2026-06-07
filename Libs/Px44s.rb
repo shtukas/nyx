@@ -44,6 +44,7 @@ class Px44
         if type == "aion-point" then
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
+            bladeuuid = SecureRandom.hex
             return {
                 "uuid"      => SecureRandom.uuid,
                 "mikuType"  => "Px44",
@@ -51,11 +52,11 @@ class Px44
                 "datetime"  => Time.new.utc.iso8601,
                 "owner"     => owner,
                 "type"      => "aion-point",
-                "nhash"     => AionCore::commitLocationReturnHash(Elizabeth.new(), location)
+                "bladeuuid" => bladeuuid,
+                "nhash"     => AionCore::commitLocationReturnHash(Elizabeth.new(bladeuuid), location)
             }
         end
         if type == "beacon" then
-
             beaconId = SecureRandom.uuid
             beacon = {
                 "type" => "Bx47",
@@ -111,36 +112,39 @@ class Px44
         if px44["mikuType"].nil? then
             raise "px44: #{JSON.pretty_generate(px44)} does not have a mikuType"
         end
-        if item["mikuType"] != 'Px44' then
-            raise "item: #{JSON.pretty_generate(item)} does not have the correct mikuType"
+        if px44["mikuType"] != 'Px44' then
+            raise "px44: #{JSON.pretty_generate(px44)} does not have the correct mikuType"
         end
-        if item["unixtime"].nil? then
-            raise "item: #{JSON.pretty_generate(item)} does not have a unixtime"
+        if px44["unixtime"].nil? then
+            raise "px44: #{JSON.pretty_generate(px44)} does not have a unixtime"
         end
-        if item["datetime"].nil? then
-            raise "item: #{JSON.pretty_generate(item)} does not have a datetime"
+        if px44["datetime"].nil? then
+            raise "px44: #{JSON.pretty_generate(px44)} does not have a datetime"
         end
         if px44["type"].nil? then
             raise "px44: #{JSON.pretty_generate(px44)} does not have a type"
         end
         if px44["type"] == "text" then
             if px44["text"].nil? then
-                raise "uuid: #{uuid}, px44: #{JSON.pretty_generate(px44)} does not have a text"
+                raise "px44: #{JSON.pretty_generate(px44)} does not have a text"
             end
             return
         end
         if px44["type"] == "url" then
             if px44["url"].nil? then
-                raise "uuid: #{uuid}, px44: #{JSON.pretty_generate(px44)} does not have a url"
+                raise "px44: #{JSON.pretty_generate(px44)} does not have a url"
             end
             return
         end
         if px44["type"] == "aion-point" then
             if px44["nhash"].nil? then
-                raise "uuid: #{uuid}, px44: #{JSON.pretty_generate(px44)} does not have a nhash"
+                raise "px44: #{JSON.pretty_generate(px44)} does not have a nhash"
+            end
+            if px44["bladeuuid"].nil? then
+                raise "px44: #{JSON.pretty_generate(px44)} does not have a bladeuuid"
             end
             nhash = px44["nhash"]
-            AionFsck::structureCheckAionHashRaiseErrorIfAny(Elizabeth.new(), nhash)
+            AionFsck::structureCheckAionHashRaiseErrorIfAny(Elizabeth.new(px44["bladeuuid"]), nhash)
             return
         end
         if px44["type"] == "beacon" then
@@ -188,7 +192,7 @@ class Px44
             exportFoldername = "#{exportId}-aion-point"
             exportFolderpath = "#{ENV['HOME']}/x-space/xcache-v1-days/#{Time.new.to_s[0, 10]}/#{exportFoldername}"
             FileUtils.mkpath(exportFolderpath)
-            AionCore::exportHashAtFolder(Elizabeth.new(), nhash, exportFolderpath)
+            AionCore::exportHashAtFolder(Elizabeth.new(px44["bladeuuid"]), nhash, exportFolderpath)
             system("open '#{exportFolderpath}'")
             LucilleCore::pressEnterToContinue()
             return
@@ -251,7 +255,7 @@ class Px44
         end
         if px44["type"] == "aion-point" then
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
-            px44["nhash"] = AionCore::commitLocationReturnHash(Elizabeth.new(), location)
+            px44["nhash"] = AionCore::commitLocationReturnHash(Elizabeth.new(px44["bladeuuid"]), location)
             Items::commitItem(px44)
             return
         end

@@ -31,13 +31,7 @@ class Interface
                 }
             end
             if option == "fsck" then
-                Nx27::items().each{|item|
-                    if item["mikuType"] == "Nx27" then
-                        puts "fsck: item: #{item["uuid"]}"
-                        Nx27::fsck(item)
-                    end
-                }
-                puts "fsck completed"
+                Fsck::fsckAll()
                 LucilleCore::pressEnterToContinue()
             end
         }

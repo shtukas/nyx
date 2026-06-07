@@ -13,7 +13,8 @@ class Fsck
 
     # Fsck::fsckAll()
     def self.fsckAll()
-        Nx27::items().each{|item|
+        Items::getItems().each{|item|
+            puts "fsck: #{JSON.pretty_generate(item)}"
             Fsck::fsckItem(item)
         }
         puts "fsck completed"

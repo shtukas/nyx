@@ -39,7 +39,7 @@ class Blades
     # Blades::getBlobOrNull(bladeuuid, nhash)
     def self.getBlobOrNull(bladeuuid, nhash) # data | nil
         filepath = "#{Blades::respository()}/#{bladeuuid}.blade"
-        return nil if File.exist?(filepath)
+        return nil if !File.exist?(filepath)
         datablob = nil
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
