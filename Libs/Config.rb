@@ -31,4 +31,9 @@ class Config
     def self.pathToLibrary()
         "#{Config::pathToGalaxy()}/DataHub/Nyx/First-Light-Weaves-Living-Song"
     end
+
+    # Config::pathToTheLibrarianDatablobsPartial()
+    def self.pathToTheLibrarianDatablobsPartial()
+        "#{Config::pathToGalaxy()}/DataHub/Nyx/TheLibrarian/datablobs-partial"
+    end
 end

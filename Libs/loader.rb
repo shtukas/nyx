@@ -122,6 +122,8 @@ require_relative "Blades.rb"
 
 require_relative "CommonUtils.rb"
 
+require_relative "Datablobs.rb"
+
 require_relative "Elizabeth.rb"
 
 require_relative "Fsck.rb"
