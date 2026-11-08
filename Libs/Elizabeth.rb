@@ -1,12 +1,11 @@
 
 class Elizabeth
 
-    def initialize(bladeuuid)
-        @bladeuuid = bladeuuid
+    def initialize()
     end
 
     def putBlob(datablob) # nhash
-        Blades::putBlob(@bladeuuid, datablob)
+        Datablobs::putBlob(datablob)
     end
 
     def filepathToContentHash(filepath)
@@ -14,7 +13,7 @@ class Elizabeth
     end
 
     def getBlobOrNull(nhash)
-        Blades::getBlobOrNull(@bladeuuid, nhash)
+        Datablobs::getBlobOrNull(nhash)
     end
 
     def readBlobErrorIfNotFound(nhash)

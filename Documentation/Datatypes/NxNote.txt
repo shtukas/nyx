@@ -1,5 +1,10 @@
 NxNote
-    "uuid"     : String
-    "mikuType" : "NxNote"
-    "unixtime" : Float
-    "text"     : String
+    uuid       : String
+    mikuType   : "NxNote"
+    random     : String
+    datetime   : DateTime Iso 8601 UTC Zulu
+    targetuuid : String # uuid of the object we are providing a note to
+    text       : String
+
+The difference between a NxNote and a NxDataText, is that the NxNote doesn't 
+have a description and is shown in full when it's target is shown.

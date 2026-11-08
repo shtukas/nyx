@@ -1,0 +1,8 @@
+Permanode
+    uuid        : String
+    mikuType    : "Permanode"
+    random      : String
+    datetime    : DateTime Iso 8601 UTC Zulu
+    description : String
+
+They are mostly used when we want to attach more than one payload to a single node, which is not naturally a NavigationNode

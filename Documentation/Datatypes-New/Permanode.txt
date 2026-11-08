@@ -1,4 +1,0 @@
-Permanode
-    uuid        : String
-    mikuType    : "Permanode"
-    datetime    : DateTime Iso 8601 UTC Zulu

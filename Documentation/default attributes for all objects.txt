@@ -1,0 +1,8 @@
+default attributes for all objects:
+    uuid        : String
+    mikuType    : String
+    random      : String # [1]
+    datetime    : DateTime Iso 8601 UTC Zulu
+
+[1] Important. Ensures that we do not override objects, which helps with file system 
+synchronization. And ensure that the update of an object is a clean operation.

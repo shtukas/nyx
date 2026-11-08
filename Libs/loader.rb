@@ -118,8 +118,6 @@ AionFsck::structureCheckAionHashRaiseErrorIfAny(operator, nhash)
 
 require_relative "Atlas.rb"
 
-require_relative "Blades.rb"
-
 require_relative "CommonUtils.rb"
 
 require_relative "Datablobs.rb"
@@ -128,20 +126,19 @@ require_relative "Elizabeth.rb"
 
 require_relative "Fsck.rb"
 
-require_relative "Items.rb"
-require_relative "Interface.rb"
+require_relative "Frontpage.rb"
 
 require_relative "Galaxy.rb"
 
 require_relative "ListingStore.rb"
 require_relative "LucilleCore.rb"
 
-require_relative "NxNotes.rb"
-require_relative "Nx27s.rb"
+require_relative "Forges.rb"
+require_relative "NxObjectIO.rb"
+require_relative "Dives.rb"
+
 require_relative "PolyFunctions.rb"
 require_relative "PolyActions.rb"
-
-require_relative "Px44s.rb"
 
 require_relative "Search.rb"
 

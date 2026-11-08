@@ -1,0 +1,11 @@
+1. They can be linked with NxLink and
+2. We dive them with Dives::programNetworkNode
+
+network node types:
+- Permanode
+- NavigationNode
+- NxDataText
+- NxDataUrl
+- NxDataAionPoint
+- NxDataUniqueString
+- NxDataBeacon

@@ -13,11 +13,6 @@ class Config
         "#{Config::userHomeDirectory()}/Galaxy"
     end
 
-    # Config::pathToNyxData()
-    def self.pathToNyxData()
-        "#{Config::pathToGalaxy()}/DataHub/Nyx/data"
-    end
-
     # Config::instanceId()
     def self.instanceId()
         filepath = "#{Config::pathToGalaxy()}/DataBank/Stargate-Config.json"
@@ -27,13 +22,13 @@ class Config
         JSON.parse(IO.read(filepath))["instanceId"]
     end
 
-    # Config::pathToLibrary()
-    def self.pathToLibrary()
-        "#{Config::pathToGalaxy()}/DataHub/Nyx/First-Light-Weaves-Living-Song"
-    end
-
     # Config::pathToTheLibrarianDatablobsPartial()
     def self.pathToTheLibrarianDatablobsPartial()
-        "#{Config::pathToGalaxy()}/DataHub/Nyx/TheLibrarian/datablobs-partial"
+        "#{Config::pathToGalaxy()}/DataHub/Nyx/data/TheLibrarian/datablobs-partial-v001"
+    end
+
+    # Config::pathToTheLibrarianObjects()
+    def self.pathToTheLibrarianObjects()
+        "#{Config::pathToGalaxy()}/DataHub/Nyx/data/TheLibrarian/objects-v001"
     end
 end

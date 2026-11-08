@@ -1,15 +1,15 @@
 
 # encoding: UTF-8
 
-class Interface
+class Frontpage
 
-    # Interface::main()
+    # Frontpage::main()
     def self.main()
         loop {
             options = [
                 "search",
                 "new node",
-                "list nodes",
+                "list objects",
                 "fsck",
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
@@ -18,16 +18,18 @@ class Interface
                 Search::searchAndDive()
             end
             if option == "new node" then
-                node = Nx27::interactivelyIssueNewOrNull()
+                node = PolyActions::forgeNewNodeOrNull()
                 next if node.nil?
-                Nx27::program(node, false)
+                Dives::objectDive(node, false)
             end
-            if option == "list nodes" then
+            if option == "list objects" then
                 loop {
-                    nodes = Nx27::items().sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| node["description"] })
-                    break if node.nil?
-                    Nx27::program(node, false)
+                    objects = NxObjectIO::allObjects()
+                        .select{|object| PolyFunctions::networkNodeTypes().include?(object["mikuType"]) }
+                        .sort{|n1, n2| n1["datetime"] <=> n2["datetime"] }
+                    object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{|object| PolyFunctions::toString(object) })
+                    break if object.nil?
+                    Dives::objectDive(object, false)
                 }
             end
             if option == "fsck" then

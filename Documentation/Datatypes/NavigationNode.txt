@@ -1,0 +1,6 @@
+NavigationNode
+    uuid       : String
+    mikuType   : "NavigationNode"
+    random     : String
+    datetime   : DateTime Iso 8601 UTC Zulu
+    description: String

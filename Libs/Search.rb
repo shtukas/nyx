@@ -2,9 +2,18 @@
 # encoding: UTF-8
 class Search
 
-    # Search::match(item, fragment)
-    def self.match(item, fragment)
-        item["description"].downcase.include?(fragment.downcase)
+    # Search::isMatch(object, fragment)
+    def self.isMatch(object, fragment)
+        return true if object["uuid"].include?(fragment)
+        if object["mikuType"] == "NxDataText" then
+            return true if object["text"].downcase.include?(fragment.downcase)
+        end
+        if object["mikuType"] == "NxDataUrl" then
+            return true if object["url"].downcase.include?(fragment.downcase)
+        end
+        str = PolyFunctions::toString(object)
+        return false if str.nil?
+        str.downcase.include?(fragment.downcase)
     end
 
     # Search::searchAndDive()
@@ -16,20 +25,17 @@ class Search
 
             loop {
                 system('clear')
-                selected = Nx27::items()
-                            .select{|item| Search::match(item, fragment) }
+                objects = NxObjectIO::allObjects().select{|item| Search::isMatch(item, fragment) }
 
-                if selected.empty? then
+                if objects.empty? then
                     puts "Could not find a matching element for '#{fragment}'"
                     LucilleCore::pressEnterToContinue()
                     break
                 end
 
-                selected = selected.select{|item| Items::getItemOrNull(item["uuid"]) } # In case something has changed, we want the ones that have survived
-
-                item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", selected, lambda{|i| i["description"] })
-                break if item.nil?
-                Nx27::program(item, false)
+                object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{|object| PolyFunctions::toString(object) })
+                break if object.nil?
+                Dives::objectDive(object, false)
             }
         }
     end
