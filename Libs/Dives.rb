@@ -36,23 +36,28 @@ class Dives
 
             store = ListingStore.new()
             puts PolyFunctions::toString(object).green
-            PolyFunctions::objectToItsNotes(object).each{|note|
-                store.register(note)
-                puts "[#{store.prefixString()}] #{PolyFunctions::toString(note)}"
-                puts note["text"]
-            }
-            PolyFunctions::linkedObjects(object).each{|lo|
-                store.register(lo)
-                puts "[#{store.prefixString()}] linked: #{PolyFunctions::toString(lo)}"
-            }
+            puts ""
+            PolyFunctions::objectToItsNotes(object)
+                .each{|note|
+                    store.register(note)
+                    puts "[#{store.prefixString()}] #{PolyFunctions::toString(note)}"
+                    puts note["text"]
+                }
+            PolyFunctions::linkedObjects(object)
+                .sort_by{|o1, o2| o1["datetime"] <=> o2["datetime"] }
+                .each{|lo|
+                    store.register(lo)
+                    puts "[#{store.prefixString()}] linked: #{PolyFunctions::toString(lo)}"
+                }
             puts ""
 
             if isSeekingSelect then
                 puts ""
-                puts "commands: #{"select".green} | access | expose | update description | make note | connect | disconnect | destroy"
+                puts "commands: #{"select".green} | access | connect | expose | update description | make note | disconnect | destroy"
             else
                 puts ""
-                puts "commands: access | expose | update description | make note | connect | disconnect | destroy"
+                puts "commands: access | connect | expose | update description | make note | disconnect | destroy"
+                puts "commands: permanode -> navigation node"
             end
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -97,7 +102,8 @@ class Dives
             end
             if command == "connect" then
                 object2 = PolyFunctions::architectNodeOrNull()
-                next if object2
+                next if object2.nil?
+                NxObjectIO::commitObject(object2)
                 link = Forges::forgeNxLink(object["uuid"], object2["uuid"])
                 NxObjectIO::commitObject(link)
                 next
@@ -105,6 +111,15 @@ class Dives
             if command == "disconnect" then
                 puts "link remove is not implemented yet"
                 LucilleCore::pressEnterToContinue()
+                next
+            end
+            if command == "permanode -> navigation node" then
+                if object["mikuType"] == "Permanode" then
+                    if LucilleCore::askQuestionAnswerAsBoolean("Confirm recasting this permanode as NavigationNode ") then
+                        object["mikuType"] = "NavigationNode"
+                        NxObjectIO::commitObject(object)
+                    end
+                end
                 next
             end
             if command == "destroy" then

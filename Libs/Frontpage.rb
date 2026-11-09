@@ -18,7 +18,7 @@ class Frontpage
                 Search::searchAndDive()
             end
             if option == "new node" then
-                node = PolyActions::forgeNewNodeOrNull()
+                node = PolyFunctions::forgeNewNodeOrNull()
                 next if node.nil?
                 Dives::objectDive(node, false)
             end

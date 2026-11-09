@@ -25,7 +25,9 @@ class Search
 
             loop {
                 system('clear')
-                objects = NxObjectIO::allObjects().select{|item| Search::isMatch(item, fragment) }
+                objects = NxObjectIO::allObjects()
+                            .select{|item| Search::isMatch(item, fragment) }
+                            .sort_by{|o1, o2| o1["datetime"] <=> o2["datetime"] }
 
                 if objects.empty? then
                     puts "Could not find a matching element for '#{fragment}'"

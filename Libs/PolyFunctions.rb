@@ -13,7 +13,7 @@ class PolyFunctions
                 end
             end
             if option == "interactively make new (automatically selected)" then
-                node = PolyActions::forgeNewNodeOrNull()
+                node = PolyFunctions::forgeNewNodeOrNull()
                 if node then
                     return node
                 end
@@ -152,8 +152,9 @@ class PolyFunctions
         ]
     end
 
-    # PolyActions::forgeNewNodeOrNull()
+    # PolyFunctions::forgeNewNodeOrNull()
     def self.forgeNewNodeOrNull()
+        description = LucilleCore::askQuestionAnswerAsString("description: ")
         options = ["text", "url", "aion-point", "beacon", "unique string", "navigation node"]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
         return nil if option.nil?
