@@ -20,6 +20,7 @@ class Frontpage
             if option == "new node" then
                 node = PolyFunctions::forgeNewNodeOrNull()
                 next if node.nil?
+                NxObjectIO::commitObject(node)
                 Dives::objectDive(node, false)
             end
             if option == "list objects" then

@@ -15,6 +15,7 @@ class PolyFunctions
             if option == "interactively make new (automatically selected)" then
                 node = PolyFunctions::forgeNewNodeOrNull()
                 if node then
+                    NxObjectIO::commitObject(node)
                     return node
                 end
             end
